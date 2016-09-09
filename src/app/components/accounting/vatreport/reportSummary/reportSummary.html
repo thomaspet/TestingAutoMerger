@@ -18,17 +18,19 @@
             <tr *ngFor="let post of postGroup.Posts">
                 <td class="post"><span class="postNumber">Post {{post.VatPostNo}}</span>{{post.VatPostName}}</td>
                 <td class="currency" *ngIf="period">
-                    <a *ngIf="post.HasTaxBasis" href="#/accounting/transquery/details;vatCode={{vatReportSummaryPerPostToVatCode(post)}};vatFromDate={{period.FromDate}};vatToDate={{period.ToDate}}">
+                    <a *ngIf="post.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;vatCode={{vatReportSummaryPerPostToVatCode(post)}};vatFromDate={{period.FromDate}};vatToDate={{period.ToDate}}">
                         {{ (post.VatPostReportAsNegativeAmount ? post.SumTaxBasisAmount : post.SumTaxBasisAmount * -1) | unicurrency:2}}
                     </a>
+                    <span *ngIf="post.HasTaxBasis && isHistoricData">{{ (post.VatPostReportAsNegativeAmount ? post.SumTaxBasisAmount : post.SumTaxBasisAmount * -1) | unicurrency:2}}</span>
                 </td>
                 <td class="symbol" *ngIf="period">
                     <span *ngIf="post.HasTaxAmount">{{post.VatPostReportAsNegativeAmount ? '-' : '+'}}</span>
                 </td>
                 <td class="currency" *ngIf="period">
-                    <a *ngIf="post.HasTaxAmount" href="#/accounting/transquery/details;vatCode={{vatReportSummaryPerPostToVatCode(post)}};vatFromDate={{period.FromDate}};vatToDate={{period.ToDate}}">
+                    <a *ngIf="post.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;vatCode={{vatReportSummaryPerPostToVatCode(post)}};vatFromDate={{period.FromDate}};vatToDate={{period.ToDate}}">
                         {{ (post.VatPostReportAsNegativeAmount ? post.SumVatAmount : post.SumVatAmount  * -1) | unicurrency:2}}
                     </a>
+                    <span *ngIf="post.HasTaxAmount && isHistoricData">{{ (post.VatPostReportAsNegativeAmount ? post.SumVatAmount : post.SumVatAmount  * -1) | unicurrency:2}}</span>
                 </td>
             </tr>
         </tbody>

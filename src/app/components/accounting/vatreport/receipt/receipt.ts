@@ -16,7 +16,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 export class ReceiptVat {
     @Input() public vatReport: VatReport;
     @Input() public reportSummaryPerPost: VatReportSummaryPerPost[];
-    @Output() public vatreportDidChange: EventEmitter<VatReport> = new EventEmitter<VatReport>();
+    @Output() public vatReportDidChange: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthenticationDataModal: AltinnAuthenticationDataModal;
 
@@ -53,7 +53,7 @@ export class ReceiptVat {
                                 this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod'])
                                     .subscribe(updatedVatReport => {
                                             this.vatReport = updatedVatReport;
-                                            this.vatreportDidChange.emit(updatedVatReport);
+                                            this.vatReportDidChange.emit(updatedVatReport);
                                         },
                                         this.onError
                                     );

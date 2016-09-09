@@ -21,7 +21,7 @@
 
         <div class="poster_widgets">
             <dl class="poster_widget">
-                <dt>Org.nraaa</dt>
+                <dt>Org.nr</dt>
                 <dd>{{companySettings?.OrganizationNumber}}</dd>
 
                 <dt>Navn</dt>
@@ -34,6 +34,10 @@
             <article class="poster_widget tablewidget">
                 <table>
                     <tr>
+                        <!--<b *ngIf="vatReportSummary != null && vatReportSummary[0] != null && vatReportSummary[0].IsHistoricData == true">Historiske data (XML)</b>-->
+                        <b *ngIf="isHistoricData">Historiske data (XML)</b>
+                    </tr>
+                    <tr>
                         <th></th>
                         <th class="datacolumn">Grunnlag</th>
                         <th class="datacolumn">Avgift</th>
@@ -41,14 +45,16 @@
                     <tr *ngFor="let summaryItem of vatReportSummary">
                         <td>{{summaryItem.VatCodeGroupName}}</td>
                         <td class="currency">
-                            <a *ngIf="summaryItem.HasTaxBasis" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                                 {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
                             </a>
+                            <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
                         </td>
                         <td class="currency">
-                            <a *ngIf="summaryItem.HasTaxAmount" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                                 {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
                             </a>
+                            <span *ngIf="summaryItem.HasTaxAmount && isHistoricData">{{summaryItem.SumVatAmount * -1 | unicurrency:2}}</span>
                         </td>
                     </tr>
                 </table>
@@ -103,11 +109,13 @@
                           [attr.aria-busy]="!reportSummaryPerPost"
                           [reportSummaryPerPost]="reportSummaryPerPost"
                           [period]="currentVatReport?.TerminPeriod"
-                          [vatTypes]="vatTypes"></vat-summary-per-post>
+                          [vatTypes]="vatTypes"
+                          [isHistoricData]="isHistoricData">     
+    </vat-summary-per-post>
     <vatreport-receipt-view *ngIf="showView == 'receipt'"
                             [vatReport]="currentVatReport"
                             [reportSummaryPerPost]="reportSummaryPerPost"
-                            (vatreportDidChange)="currentVatReport = $event">
+                            (vatReportDidChange)="vatReportDidChange($event)">
     </vatreport-receipt-view>
     <vatreport-journal-entry *ngIf="showView == 'journal'"
                              [vatReport]="currentVatReport">

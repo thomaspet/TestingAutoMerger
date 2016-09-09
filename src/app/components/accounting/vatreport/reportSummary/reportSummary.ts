@@ -18,6 +18,7 @@ export class VatSummaryPerPost implements OnChanges {
     @Input() public period: Period;
     @Input() private vatTypes: VatType[] = [];
     @Input() private reportSummaryPerPost: VatReportSummaryPerPost[];
+    @Input() private isHistoricData: boolean = false;
 
     public ngOnChanges() {
         this.postGroups = this.groupVatReportsByVatCodeGroupID(this.reportSummaryPerPost || []);

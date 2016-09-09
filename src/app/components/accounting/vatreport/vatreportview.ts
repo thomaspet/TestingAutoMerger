@@ -49,6 +49,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public currentVatReport: VatReport = new VatReport();
     public vatTypes: VatType[] = [];
     public isBusy: boolean = true;
+    public isHistoricData: boolean = false;
     public showView: string = '';
     private actions: IUniSaveAction[];
     private statusText: string;
@@ -184,7 +185,12 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportSummary = null;
         this.vatReportService.getVatReportSummary(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
-            data => this.vatReportSummary = data,
+            data => {
+                this.vatReportSummary = data;
+                if (data != null && data.length > 0) {
+                    this.isHistoricData = data[0].IsHistoricData;
+                }
+            },
             err => this.onError(err)
             );
 
@@ -251,6 +257,10 @@ export class VatReportView implements OnInit, OnDestroy {
     }
     
     public historicVatReportSelected(vatReport: VatReport) {
+        this.setVatreport(vatReport);
+    }
+
+    public vatReportDidChange(vatReport: VatReport) {
         this.setVatreport(vatReport);
     }
 
