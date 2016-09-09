@@ -329,6 +329,7 @@
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Guid>d54bebc27ac144288036b1653467380f</Guid>
+              <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text17</Name>
               <Page isRef="6" />
@@ -344,6 +345,7 @@
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Guid>1e7b99117c7748a783e21430ab50fcb7</Guid>
+              <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text18</Name>
               <Page isRef="6" />
@@ -359,6 +361,7 @@
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Guid>6d2163548a4247e5ad824610a94e8825</Guid>
+              <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text19</Name>
               <Page isRef="6" />
@@ -525,7 +528,7 @@
             </Text22>
             <Text21 Ref="38" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>0.2,0.2,1.6,0.4</ClientRectangle>
+              <ClientRectangle>0.2,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>f.FooterBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
@@ -571,10 +574,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Saldobalanse hovedbok</ReportAlias>
-  <ReportChanged>9/9/2016 11:53:13 AM</ReportChanged>
+  <ReportChanged>9/9/2016 12:53:15 PM</ReportChanged>
   <ReportCreated>9/8/2016 11:24:39 PM</ReportCreated>
   <ReportFile>C:\projects\AppFrontend\src\assets\ReportTemplates\SupplierBalanceReport.mrt</ReportFile>
-  <ReportGuid>5f8bff6515394d7aa919cedc574b4c36</ReportGuid>
+  <ReportGuid>7a03d9be9191488fb1c54deddc88053e</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2016.1.0</ReportVersion>

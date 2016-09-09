@@ -510,7 +510,7 @@
             </Text22>
             <Text21 Ref="36" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>0.2,0.2,1.6,0.4</ClientRectangle>
+              <ClientRectangle>0.2,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>f.FooterBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
@@ -555,10 +555,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Saldobalanse hovedbok</ReportAlias>
-  <ReportChanged>9/9/2016 11:37:38 AM</ReportChanged>
+  <ReportChanged>9/9/2016 12:56:02 PM</ReportChanged>
   <ReportCreated>9/8/2016 11:24:39 PM</ReportCreated>
   <ReportFile>C:\projects\AppFrontend\src\assets\ReportTemplates\CustomerBalanceReport.mrt</ReportFile>
-  <ReportGuid>ddbc8c1c6a44474797f86c726bc9e402</ReportGuid>
+  <ReportGuid>2a513ed53f6744bd89e2f67a4c411eb6</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2016.1.0</ReportVersion>

@@ -37,7 +37,7 @@ export class BalanceReportFilterForm implements OnInit {
         this.fields = [
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
-                Label: 'Rengskapsår',
+                Label: 'Regnskapsår',
                 Property: 'journalYear'
             },
             <UniFieldLayout>{
