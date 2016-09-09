@@ -226,11 +226,25 @@ export class AgaAndSubEntitySettings implements OnInit {
         if (!this.companySalary.PaymentInterval) {
             this.companySalary.PaymentInterval = 1;
         }
-        let request = this.subEntityList ?
-            Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary), this.subEntityList.saveSubEntity()) :
-            Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary));
+        let saveObs: Observable<any>[] = [];
+
+        if (this.companySalary) {
+            saveObs.push(this.companySalaryService.Put(this.companySalary.ID, this.companySalary));
+        }
+
+        if (this.subEntityList) {
+            saveObs.push(this.subEntityList.saveSubEntity());
+        } 
+
+        if (this.mainOrganization) {
+            if (this.mainOrganization.ID) {
+                saveObs.push(this.subentityService.Put(this.mainOrganization.ID, this.mainOrganization));
+            } else {
+                saveObs.push(this.subentityService.Post(this.mainOrganization));
+            }
+        }
         done('Lagret innstillinger for aga og virksomheter');
-        request.subscribe((response: any) => {
+        Observable.forkJoin(saveObs).subscribe((response: any) => {
             this.companySalary = response[0];
             if (this.subEntityList) {
                 this.subEntityList.refreshList();
