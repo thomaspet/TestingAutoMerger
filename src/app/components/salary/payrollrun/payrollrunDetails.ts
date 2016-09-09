@@ -16,6 +16,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 
 declare var _;
 
+
 @Component({
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
@@ -118,7 +119,6 @@ export class PayrollrunDetails {
                     console.log(err);
                 });
         }
-
     }
 
     private refreshSaveActions() {

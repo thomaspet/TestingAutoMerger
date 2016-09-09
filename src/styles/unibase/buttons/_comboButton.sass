@@ -1,0 +1,45 @@
+.comboButton
+    position: relative
+    display: inline-block
+    margin: 1rem 0
+
+button[type=button]
+    &.comboButton_btn
+        border-top-right-radius: 0
+        border-bottom-right-radius: 0
+        margin: 0
+        float: left
+
+    &.comboButton_more
+        @extend %hideText
+        border-top-left-radius: 0
+        border-bottom-left-radius: 0
+        margin: 0
+        float: left
+        border-left: pxToRem(1) solid mix($uni-color-action, $uni-color-negative, 50%)
+        background-image: unicon-chevron-down($uni-color-negative)
+        background-position: center center
+        background-repeat: no-repeat
+        background-size: .6rem
+        padding: 0 1rem
+
+        &.good
+            border-left-color: mix($uni-color-Good, $uni-color-negative, 50%)
+
+        &.bad
+            border-left-color: mix($uni-color-Bad, $uni-color-negative, 50%)
+
+        &.warn
+            border-left-color: mix($uni-color-Warn, $uni-color-negative, 50%)
+
+        &.c2a
+            border-left-color: mix($uni-color-C2A, $uni-color-negative, 50%)
+
+.comboButton_moreList
+    @extend %contextMenu
+    top: .7rem
+    left: 0
+    width: 100%
+
+    &.comboButton_moreList li // Hacking specificity a little here.
+        width: 100%

@@ -1,8 +1,9 @@
 ﻿<h2>Arbeidsgiveravgift (aga) og virksomheter</h2>
-<uni-form [attr.aria-busy]="busy" class="companySettings" [config]="formConfig" [fields]="fields" [model]="companySalary"></uni-form>
+<uni-form [attr.aria-busy]="busy" class="companySettings" [config]="formConfig" [fields]="fields" [model]="mainOrganization"></uni-form>
 <section class="validation error" *ngIf="error"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</section>
 <section class="collapsable" [ngClass]="{'-is-open':showSubEntities}">
-    <h4 (click)="toggleShowSubEntities()">Virksomhet</h4>
+    <h4 (click)="toggleShowSubEntities()">Virksomheter</h4>
     <sub-entity-list class="collapsable-content"></sub-entity-list>
 </section>
+<uni-form [attr.aria-busy]="busy" class="companySettings" [config]="accountformConfig" [fields]="accountfields" [model]="companySalary"></uni-form>
 <uni-save [actions]="saveactions"></uni-save>

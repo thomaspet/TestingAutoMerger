@@ -4,18 +4,15 @@ import 'rxjs/add/observable/forkJoin';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {SubEntityList} from './subEntityList';
-import {FieldType, CompanySalary, Account} from '../../../unientities';
-import {CompanySalaryService, AccountService} from '../../../services/services';
+import {FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector} from '../../../unientities';
+import {CompanySalaryService, AccountService, SubEntityService, AgaZoneService} from '../../../services/services';
 
 declare var _; // lodash
 
 @Component({
     selector: 'aga-and-subentities-settings',
     templateUrl: 'app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings.html',
-    providers: [
-        CompanySalaryService,
-        AccountService
-    ],
+    providers: [CompanySalaryService, AccountService, SubEntityService, AgaZoneService],
     directives: [UniForm, UniSave, SubEntityList]
 })
 
@@ -26,10 +23,16 @@ export class AgaAndSubEntitySettings implements OnInit {
     public showSubEntities: boolean = true;
 
     private fields: UniFieldLayout[] = [];
+    private accountfields: UniFieldLayout[] = [];
     public formConfig: any = {};
+    public accountformConfig: any = {};
 
     private companySalary: CompanySalary;
     private accounts: Account[] = [];
+    private mainOrganization: SubEntity;
+    private agaZones: AGAZone[] = [];
+    private agaRules: AGASector[] = [];
+
     public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre aga og virksomheter',
@@ -41,10 +44,11 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public busy: boolean;
 
-    // TODO Use service instead of Http, Use interfaces!!
     constructor(
         private companySalaryService: CompanySalaryService,
-        private accountService: AccountService
+        private accountService: AccountService,
+        private subentityService: SubEntityService,
+        private agazoneService: AgaZoneService
     ) {
 
     }
@@ -57,13 +61,20 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.busy = true;
         Observable.forkJoin(
             this.companySalaryService.getCompanySalary(),
-            this.accountService.GetAll('')
+            this.accountService.GetAll(''),
+            this.subentityService.getMainOrganization(),
+            this.agazoneService.GetAll(''),
+            this.agazoneService.getAgaRules()
         ).subscribe(
             (dataset: any) => {
-                let [companysalaries, accounts] = dataset;
+                let [companysalaries, accounts, mainOrg, zones, rules] = dataset;
                 this.companySalary = companysalaries[0];
                 this.accounts = accounts;
-                this.buildForm();
+                this.mainOrganization = mainOrg[0];
+                this.agaZones = zones;
+                this.agaRules = rules;
+
+                this.buildForms();
                 this.busy = false;
             },
             error => {
@@ -73,13 +84,62 @@ export class AgaAndSubEntitySettings implements OnInit {
             );
     }
 
-    private buildForm() {
-        var mainAccountAlocatedAga = new UniFieldLayout();
+    private buildForms() {
+        var mainOrgName = new UniFieldLayout();
+        mainOrgName.Label = 'Firmanavn';
+        mainOrgName.EntityType = 'mainOrganization';
+        mainOrgName.Property = 'BusinessRelationInfo.Name';
+        mainOrgName.FieldType = FieldType.TEXT;
+        mainOrgName.Section = 1;
+        mainOrgName.Sectionheader = 'Juridisk enhet';
 
+        var mainOrgOrg = new UniFieldLayout();
+        mainOrgOrg.Label = 'Orgnr';
+        mainOrgOrg.EntityType = 'mainOrganization';
+        mainOrgOrg.Property = 'OrgNumber';
+        mainOrgOrg.FieldType = FieldType.TEXT;
+        mainOrgOrg.Section = 1;
+
+        var mainOrgZone = new UniFieldLayout();
+        mainOrgZone.Label = 'Sone';
+        mainOrgZone.EntityType = 'mainOrganization';
+        mainOrgZone.Property = 'AgaZone';
+        mainOrgZone.FieldType = FieldType.DROPDOWN;
+        mainOrgZone.Section = 1;
+        mainOrgZone.Options = {
+            source: this.agaZones,
+            valueProperty: 'ID',
+            displayProperty: 'ZoneName',
+            debounceTime: 500
+        };
+
+        var mainOrgRule = new UniFieldLayout();
+        mainOrgRule.Label = 'Beregningsregel aga';
+        mainOrgRule.EntityType = 'mainOrganization';
+        mainOrgRule.Property = 'AgaRule';
+        mainOrgRule.FieldType = FieldType.DROPDOWN;
+        mainOrgRule.Section = 1;
+        mainOrgRule.Options = {
+            source: this.agaRules,
+            valueProperty: 'SectorID',
+            displayProperty: 'Sector',
+            debounceTime: 500,
+        };
+        
+        var freeAmount = new UniFieldLayout();
+        freeAmount.EntityType = 'CompanySalary';
+        freeAmount.Label = 'Fribeløp';
+        freeAmount.Property = 'FreeAmount';
+        freeAmount.FieldType = FieldType.TEXT;
+        freeAmount.Section = 1;
+
+        var mainAccountAlocatedAga = new UniFieldLayout();
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
         mainAccountAlocatedAga.EntityType = 'CompanySalary';
         mainAccountAlocatedAga.Property = 'MainAccountAllocatedAGA';
         mainAccountAlocatedAga.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAlocatedAga.Section = 2;
+        mainAccountAlocatedAga.Sectionheader = 'Kontooppsett';
         mainAccountAlocatedAga.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
@@ -88,13 +148,12 @@ export class AgaAndSubEntitySettings implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
-
         var mainAccountCostAga = new UniFieldLayout();
-
         mainAccountCostAga.Label = 'Konto kostnad aga';
         mainAccountCostAga.EntityType = 'CompanySalary';
         mainAccountCostAga.Property = 'MainAccountCostAGA';
         mainAccountCostAga.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostAga.Section = 2;
         mainAccountCostAga.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
@@ -104,11 +163,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         };
 
         var mainAccountAllocatedAgaVacation = new UniFieldLayout();
-
         mainAccountAllocatedAgaVacation.EntityType = 'CompanySalary';
         mainAccountAllocatedAgaVacation.Label = 'Avsatt aga av feriepenger';
         mainAccountAllocatedAgaVacation.Property = 'MainAccountAllocatedAGAVacation';
         mainAccountAllocatedAgaVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAllocatedAgaVacation.Section = 2;
         mainAccountAllocatedAgaVacation.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
@@ -118,11 +177,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         };
 
         var mainAccountCostAgaVacation = new UniFieldLayout();
-
         mainAccountCostAgaVacation.EntityType = 'CompanySalary';
         mainAccountCostAgaVacation.Label = 'Kostnad aga feriepenger';
         mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
         mainAccountCostAgaVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostAgaVacation.Section = 2;
         mainAccountCostAgaVacation.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
@@ -131,19 +190,12 @@ export class AgaAndSubEntitySettings implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
-        var freeAmount = new UniFieldLayout();
-
-        freeAmount.EntityType = 'CompanySalary';
-        freeAmount.Label = 'Fribeløp';
-        freeAmount.Property = 'FreeAmount';
-        freeAmount.FieldType = FieldType.TEXT;
-
         var interrimRemit = new UniFieldLayout();
-
         interrimRemit.EntityType = 'CompanySalary';
         interrimRemit.Label = 'Mellomkonto remittering';
         interrimRemit.Property = 'InterrimRemitAccount';
         interrimRemit.FieldType = FieldType.AUTOCOMPLETE;
+        interrimRemit.Section = 2;
         interrimRemit.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
@@ -153,13 +205,20 @@ export class AgaAndSubEntitySettings implements OnInit {
         };
 
         this.fields = [
+            mainOrgName,
+            mainOrgOrg,
+            mainOrgZone,
+            mainOrgRule
+        ];
+
+        this.accountfields = [
             mainAccountAlocatedAga,
             mainAccountCostAga,
             mainAccountAllocatedAgaVacation,
             mainAccountCostAgaVacation,
+            interrimRemit,
             freeAmount,
-            interrimRemit];
-
+        ];
     }
 
     public saveAgaAndSubEntities(done) {
