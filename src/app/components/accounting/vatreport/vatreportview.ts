@@ -56,7 +56,7 @@ export class VatReportView implements OnInit, OnDestroy {
     private subs: Subscription[] = [];
     private vatReportsInPeriod: VatReport[];
     private contextMenuItems: IContextMenuItem[] = [];
-    
+
 
     constructor(
         private tabService: TabService,
@@ -66,19 +66,19 @@ export class VatReportView implements OnInit, OnDestroy {
         private toastService: ToastService
     ) {
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport' });
-        
+
         this.contextMenuItems = [
             {
-                label: 'Vis tidligere MVA meldinger', 
+                label: 'Vis tidligere MVA meldinger',
                 action: () => {
                     this.showList();
                 }
             }
-        ]; 
+        ];
     }
 
     public ngOnInit() {
-        this.companySettingsService.Get(1)
+        this.companySettingsService.Get(1, ['CompanyBankAccount'])
             .subscribe(settings => this.companySettings = settings, err => this.onError(err));
 
         this.spinner(this.vatReportService.getCurrentPeriod())
@@ -94,9 +94,9 @@ export class VatReportView implements OnInit, OnDestroy {
                 .debounceTime(400)
                 .distinctUntilChanged()
                 .switchMap(
-                    change => this
-                        .vatReportService
-                        .Put(this.currentVatReport.ID, this.currentVatReport)
+                change => this
+                    .vatReportService
+                    .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
                 .subscribe(null, err => this.onError(err))
         );
@@ -110,9 +110,9 @@ export class VatReportView implements OnInit, OnDestroy {
                 .debounceTime(400)
                 .distinctUntilChanged()
                 .switchMap(
-                    change => this
-                        .vatReportService
-                        .Put(this.currentVatReport.ID, this.currentVatReport)
+                change => this
+                    .vatReportService
+                    .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
                 .subscribe(null, err => this.onError(err))
         );
@@ -127,7 +127,7 @@ export class VatReportView implements OnInit, OnDestroy {
         this.actions.push({
             label: 'Kjør',
             action: (done) => this.runVatReport(done),
-            disabled: this.IsExecuteActionDisabled(), 
+            disabled: this.IsExecuteActionDisabled(),
             main: true
         });
 
@@ -253,9 +253,9 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private showList() {
-        this.historicVatReportModal.openModal(); 
+        this.historicVatReportModal.openModal();
     }
-    
+
     public historicVatReportSelected(vatReport: VatReport) {
         this.setVatreport(vatReport);
     }
@@ -275,40 +275,28 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public sendVatReport(done) {
-
-        if (!this.isAltinnCommentSet(this.currentVatReport) && this.isAltinnCommentRequired(this.reportSummaryPerPost)) {
-
-            this.toastService.addToast(
-                'Altinn kommentar påkrevd',
-                ToastType.bad,
-                0,
-                'Du må skrive en kommentar til altinn om hvorfor det er negative poster før de vil godta innsending av MVA-meldingen'
-            );
-            done('En forutsetning ble ikke møtt, se feilmelding oppe til høyre');
-        } else {
-            this.vatReportService.getNotReportedJournalEntryData(this.currentVatReport.TerminPeriodID)
-                .subscribe((data: VatReportNotReportedJournalEntryData) => {
-                    if ((data.SumVatAmount === 0 && data.SumTaxBasisAmount === 0)
-                        || ((data.SumVatAmount > 0 || data.SumTaxBasisAmount > 0)
-                        && confirm (`Det er ført bilag i perioden som ikke er med i noen MVA meldinger. Dette gjelder ${data.NumberOfJournalEntryLines} bilag (totalt kr. ${data.SumVatAmount} i MVA).` +
+        this.vatReportService.getNotReportedJournalEntryData(this.currentVatReport.TerminPeriodID)
+            .subscribe((data: VatReportNotReportedJournalEntryData) => {
+                if ((data.SumVatAmount === 0 && data.SumTaxBasisAmount === 0)
+                    || ((data.SumVatAmount > 0 || data.SumTaxBasisAmount > 0)
+                        && confirm(`Det er ført bilag i perioden som ikke er med i noen MVA meldinger. Dette gjelder ${data.NumberOfJournalEntryLines} bilag (totalt kr. ${data.SumVatAmount} i MVA).` +
                             '\n\nTrykk avbryt og kjør rapporten på ny hvis du vil ha med disse bilagene'))) {
-                        this.vatReportService.sendReport(this.currentVatReport.ID)
-                            .subscribe(() => {
-                                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
-                                        .subscribe(vatreport => {
-                                                this.setVatreport(vatreport);
-                                                done();
-                                            },
-                                            err => this.onError(err, done)
-                                        );
+                    this.vatReportService.sendReport(this.currentVatReport.ID)
+                        .subscribe(() => {
+                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
+                                .subscribe(vatreport => {
+                                    this.setVatreport(vatreport);
+                                    done();
                                 },
                                 err => this.onError(err, done)
-                            );
-                    } else {
-                        done();
-                    }
-                });
-        }
+                                );
+                        },
+                        err => this.onError(err, done)
+                        );
+                } else {
+                    done();
+                }
+            });
 
     }
 
@@ -374,8 +362,7 @@ export class VatReportView implements OnInit, OnDestroy {
             this.createCorrectedVatReportModal.changed.subscribe((modalData: any) => {
                 console.log('createCorrectiveVatReport tilbakemelding. Id=' + modalData.id);
                 // Load the newly created report
-                if (modalData.id > 0)
-                {
+                if (modalData.id > 0) {
                     this.vatReportService.Get(modalData.id, ['TerminPeriod'])
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
@@ -385,7 +372,7 @@ export class VatReportView implements OnInit, OnDestroy {
                         });
                 }
 
-                
+
                 done('mva endringsmelding registrert');
             });
         }
@@ -400,17 +387,6 @@ export class VatReportView implements OnInit, OnDestroy {
             this.reportMessages
                 .every(message => message.Level !== ValidationLevel.Info);
         }
-    }
-
-    private isAltinnCommentRequired(reportSummaryPerPost: VatReportSummaryPerPost[]): boolean {
-        return reportSummaryPerPost.some(summary =>
-            (summary.VatPostReportAsNegativeAmount && summary.SumVatAmount > 0)
-            || summary.SumVatAmount < 0
-        );
-    }
-
-    private isAltinnCommentSet(vatReport: VatReport) {
-        return vatReport && vatReport.Comment && vatReport.Comment.length > 0;
     }
 
     public vatReportSummaryToVatCodes(vatReportSummary: VatReportSummary): string[] {
@@ -428,17 +404,17 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private onError(error, optionalDoneHandler?: (error) => void) {
-        let errorMsg =  'Det skjedde en feil';
+        let errorMsg = 'Det skjedde en feil';
         let errorBody = error.json();
         if (errorBody && errorBody.Message) {
             errorMsg += ': ' + errorBody.Message;
         }
         this.toastService.addToast('Error', ToastType.bad, 0, errorMsg);
-        
+
         if (optionalDoneHandler) {
             optionalDoneHandler('Det skjedde en feil, forsøk igjen senere');
         }
-        
+
         console.log('Error in the vat report view:', error);
     }
 
