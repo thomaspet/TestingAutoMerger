@@ -1,9 +1,54 @@
 <section class="splitview" [attr.aria-busy]="busy">
+
     <nav class="splitview_list">
-        <uni-table [resource]="subEntities$ | async" [config]="subEntityListConfig" (rowSelected)="rowSelected($event)"></uni-table>
-        <button (click)="addNewSubEntity()">Ny virksomhet</button>
+
+        <uni-table
+            [resource]="subEntities$ | async"
+            [config]="subEntityListConfig"
+            (rowSelected)="rowSelected($event)">
+        </uni-table>
+
+        <div role="group" class="comboButton">
+
+            <button class="comboButton_btn good"
+                type="button"
+                (click)="addSubEntitiesFromExternal()">
+                Hent inn virksomheter fra enhetsregisteret
+            </button>
+
+            <button class="comboButton_more good"
+                type="button"
+                (click)="open = !open"
+                aria-owns="saveActionMenu"
+                [attr.aria-expanded]="open">
+                More options
+            </button>
+
+            <ul class="comboButton_moreList"
+                [attr.aria-expanded]="open"
+                role="menu">
+
+                <li (click)="addSubEntitiesFromExternal()"
+                    role="menuitem">
+                    Hent inn virksomheter fra enhetsregisteret
+                </li>
+
+                <li (click)="addNewSubEntity()"
+                    role="menuitem">
+                    Legg til virksomhet manuelt
+                </li>
+
+            </ul>
+        </div>
     </nav>
+
     <main class="splitview_detail">
-        <sub-entity-details [currentSubEntity]="currentSubEntity" [municipalities]="municipalities" (refreshList)="refreshList()"></sub-entity-details>
+
+        <sub-entity-details
+            [currentSubEntity]="currentSubEntity"
+            (refreshList)="refreshList()">
+        </sub-entity-details>
+
     </main>
+
 </section>

@@ -139,6 +139,11 @@ uni-salary .detail_tables
     border-top: pxToRem(3) double $uni-color-scale9
     border-bottom: pxToRem(1) solid $uni-color-scale9
     pointer-events: none
+    transition: color 1000ms ease-in
+
+    &.-is-dirty
+        @extend dl.summary.-is-dirty
+        margin-bottom: .7rem
 
     .k-grid,
     table
@@ -176,6 +181,7 @@ uni-salary .detail_tables
         th
             padding-top: 1rem
             padding-left: 2rem
+
 
 .detail_keyFigures
     dt,

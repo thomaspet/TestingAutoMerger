@@ -1,18 +1,23 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener, Renderer} from '@angular/core';
 import {FormControl, FormControlDirective} from '@angular/forms';
-import {GuidService} from '../../../app/services/services';
-import {ClickOutsideDirective} from '../../../framework/core/clickOutside';
+import {GuidService} from '../../../../app/services/common/guidService';
+import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 
 export interface ISelectConfig {
     displayField?: string;
+    valueField?: string;
     template?: (item) => string;
     placeholder?: string;
     searchable?: boolean;
+
+    // compatibility with uniform config names
+    valueProperty?: string;
+    displayProperty?: string;
 }
 
 @Component({
     selector: 'uni-select',
-    templateUrl: 'framework/controls/select/select.html',
+    templateUrl: 'framework/uniform/controls/select/select.html',
     directives: [ClickOutsideDirective, FormControlDirective]
 })
 export class UniSelect {

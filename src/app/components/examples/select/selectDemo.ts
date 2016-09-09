@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
-import {UniSelect, ISelectConfig} from '../../../../framework/controls/select/select';
+import {UniSelect, ISelectConfig} from '../../../../framework/uniform/controls/select/select';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 

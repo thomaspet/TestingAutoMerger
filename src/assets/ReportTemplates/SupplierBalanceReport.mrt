@@ -94,12 +94,12 @@
     <Page1 Ref="6" type="Page" isKey="true">
       <Border>None;Black;2;Solid;False;4;Black</Border>
       <Brush>Transparent</Brush>
-      <Components isList="true" count="4">
+      <Components isList="true" count="6">
         <PageHeaderBand1 Ref="7" type="PageHeaderBand" isKey="true">
           <Brush>Transparent</Brush>
           <ClientRectangle>0,0.4,19,4.4</ClientRectangle>
           <ComponentPlacement>ph.Page1</ComponentPlacement>
-          <Components isList="true" count="4">
+          <Components isList="true" count="3">
             <Text2 Ref="8" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>0.2,0.2,18.8,2</ClientRectangle>
@@ -116,7 +116,7 @@
             </Text2>
             <Text3 Ref="9" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>10.4,2.2,8.4,1.6</ClientRectangle>
+              <ClientRectangle>10.4,1.8,8.4,1.6</ClientRectangle>
               <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Segoe UI Light,24</Font>
@@ -147,37 +147,18 @@
               <Type>DataColumn</Type>
               <VertAlignment>Center</VertAlignment>
             </Text1>
-            <Text21 Ref="11" type="Text" isKey="true">
-              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.2,3.6,10.6,0.8</ClientRectangle>
-              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
-              <Conditions isList="true" count="0" />
-              <Font>Segoe UI,11</Font>
-              <Guid>9341d0cb-6ce1-f47e-94b2-0179c73f92a1</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text21</Name>
-              <Page isRef="6" />
-              <Parent isRef="7" />
-              <Text>Periode {frap} - {tilp}</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
-              <Type>Expression</Type>
-              <VertAlignment>Center</VertAlignment>
-            </Text21>
           </Components>
           <Conditions isList="true" count="0" />
           <Name>PageHeaderBand1</Name>
           <Page isRef="6" />
           <Parent isRef="6" />
         </PageHeaderBand1>
-        <PageFooterBand1 Ref="12" type="PageFooterBand" isKey="true">
+        <PageFooterBand1 Ref="11" type="PageFooterBand" isKey="true">
           <Brush>Transparent</Brush>
           <ClientRectangle>0,24.9,19,2.8</ClientRectangle>
           <ComponentPlacement>pf.Page1</ComponentPlacement>
           <Components isList="true" count="8">
-            <Image1 Ref="13" type="Image" isKey="true">
+            <Image1 Ref="12" type="Image" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>0,0.1,3.6,2.6</ClientRectangle>
@@ -186,9 +167,9 @@
               <Margins>0,0,0,0</Margins>
               <Name>Image1</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
             </Image1>
-            <Text5 Ref="14" type="Text" isKey="true">
+            <Text5 Ref="13" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>8,0.1,1.4,1</ClientRectangle>
@@ -198,13 +179,13 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text5</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
               <Text>Dato: </Text>
               <TextBrush>[0:0:0]</TextBrush>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text5>
-            <Text7 Ref="15" type="Text" isKey="true">
+            <Text7 Ref="14" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>11,0.1,3,1</ClientRectangle>
@@ -215,13 +196,13 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text7</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
               <Text>{Today.ToString("dd.MM.yy")}</Text>
               <TextBrush>[0:0:0]</TextBrush>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text7>
-            <Text4 Ref="16" type="Text" isKey="true">
+            <Text4 Ref="15" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>3.8,0.3,4.2,0.8</ClientRectangle>
@@ -231,12 +212,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text4</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
               <Text>&lt;-- image goes there</Text>
               <TextBrush>[0:0:0]</TextBrush>
               <Type>Expression</Type>
             </Text4>
-            <Shape1 Ref="17" type="Shape" isKey="true">
+            <Shape1 Ref="16" type="Shape" isKey="true">
               <BorderColor>Black</BorderColor>
               <Brush>[240:245:250]</Brush>
               <ClientRectangle>16,0.7,1.8,1.6</ClientRectangle>
@@ -244,12 +225,12 @@
               <Conditions isList="true" count="0" />
               <Name>Shape1</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
-              <ShapeType Ref="18" type="Stimulsoft.Report.Components.ShapeTypes.StiOvalShapeType" isKey="true" />
+              <Parent isRef="11" />
+              <ShapeType Ref="17" type="Stimulsoft.Report.Components.ShapeTypes.StiOvalShapeType" isKey="true" />
               <ShiftMode>DecreasingSize</ShiftMode>
               <Style>None</Style>
             </Shape1>
-            <Text9 Ref="19" type="Text" isKey="true">
+            <Text9 Ref="18" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>EmptyBrush</Brush>
               <ClientRectangle>16,0.7,1.8,1.6</ClientRectangle>
@@ -260,14 +241,14 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text9</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
               <ShiftMode>DecreasingSize</ShiftMode>
               <Text>{PageNumber} / {TotalPageCount}</Text>
               <TextBrush>[0:0:0]</TextBrush>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text9>
-            <Text6 Ref="20" type="Text" isKey="true">
+            <Text6 Ref="19" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>8,1.3,2,1</ClientRectangle>
@@ -278,13 +259,13 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text6</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
               <Text>Signatur: </Text>
               <TextBrush>[0:0:0]</TextBrush>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text6>
-            <Text8 Ref="21" type="Text" isKey="true">
+            <Text8 Ref="20" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>11,1.3,3,1</ClientRectangle>
@@ -295,7 +276,7 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text8</Name>
               <Page isRef="6" />
-              <Parent isRef="12" />
+              <Parent isRef="11" />
               <Text>Signatur: </Text>
               <TextBrush>[0:0:0]</TextBrush>
               <Type>Expression</Type>
@@ -307,28 +288,28 @@
           <Page isRef="6" />
           <Parent isRef="6" />
         </PageFooterBand1>
-        <HeaderBand1 Ref="22" type="HeaderBand" isKey="true">
-          <Brush>[183:221:232]</Brush>
+        <HeaderBand1 Ref="21" type="HeaderBand" isKey="true">
+          <Brush>[234:246:250]</Brush>
           <ClientRectangle>0,5.6,19,0.8</ClientRectangle>
           <ComponentPlacement>h.ap.Page1</ComponentPlacement>
           <Components isList="true" count="5">
-            <Text10 Ref="23" type="Text" isKey="true">
+            <Text10 Ref="22" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>0.2,0.2,1.6,0.6</ClientRectangle>
+              <ClientRectangle>0.2,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Margins>0,0,0,0</Margins>
               <Name>Text10</Name>
               <Page isRef="6" />
-              <Parent isRef="22" />
+              <Parent isRef="21" />
               <Text>Kontonr</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text10>
-            <Text16 Ref="24" type="Text" isKey="true">
+            <Text16 Ref="23" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>2.4,0.2,1.6,0.6</ClientRectangle>
+              <ClientRectangle>2.4,0.2,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
@@ -336,53 +317,56 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text16</Name>
               <Page isRef="6" />
-              <Parent isRef="22" />
+              <Parent isRef="21" />
               <Text>Leverandør</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text16>
-            <Text17 Ref="25" type="Text" isKey="true">
+            <Text17 Ref="24" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>9.6,0.2,1.6,0.6</ClientRectangle>
+              <ClientRectangle>9.6,0.2,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Guid>d54bebc27ac144288036b1653467380f</Guid>
+              <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text17</Name>
               <Page isRef="6" />
-              <Parent isRef="22" />
+              <Parent isRef="21" />
               <Text>Sum debit</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text17>
-            <Text18 Ref="26" type="Text" isKey="true">
+            <Text18 Ref="25" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>12.2,0.2,1.6,0.6</ClientRectangle>
+              <ClientRectangle>12.2,0.2,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Guid>1e7b99117c7748a783e21430ab50fcb7</Guid>
+              <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text18</Name>
               <Page isRef="6" />
-              <Parent isRef="22" />
+              <Parent isRef="21" />
               <Text>Sum kredit</Text>
               <TextBrush>Black</TextBrush>
               <Type>DataColumn</Type>
             </Text18>
-            <Text19 Ref="27" type="Text" isKey="true">
+            <Text19 Ref="26" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>15.2,0.2,1.6,0.6</ClientRectangle>
+              <ClientRectangle>15.2,0.2,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Arial,8</Font>
               <Guid>6d2163548a4247e5ad824610a94e8825</Guid>
+              <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text19</Name>
               <Page isRef="6" />
-              <Parent isRef="22" />
-              <Text>Sum totalt</Text>
+              <Parent isRef="21" />
+              <Text>Saldo</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text19>
@@ -392,13 +376,13 @@
           <Page isRef="6" />
           <Parent isRef="6" />
         </HeaderBand1>
-        <DataBand1 Ref="28" type="DataBand" isKey="true">
+        <DataBand1 Ref="27" type="DataBand" isKey="true">
           <Brush>Transparent</Brush>
           <BusinessObjectGuid isNull="true" />
           <ClientRectangle>0,7.2,19,0.6</ClientRectangle>
           <ComponentPlacement>d.Page1</ComponentPlacement>
           <Components isList="true" count="5">
-            <Text11 Ref="29" type="Text" isKey="true">
+            <Text11 Ref="28" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>0.2,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>d.DataBand1</ComponentPlacement>
@@ -407,11 +391,11 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text11</Name>
               <Page isRef="6" />
-              <Parent isRef="28" />
+              <Parent isRef="27" />
               <Text>{supplierbalancereportdata.AccountNumber}</Text>
               <TextBrush>[0:0:0]</TextBrush>
             </Text11>
-            <Text12 Ref="30" type="Text" isKey="true">
+            <Text12 Ref="29" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>2.4,0.2,7,0.5</ClientRectangle>
               <ComponentPlacement>d.DataBand1</ComponentPlacement>
@@ -420,11 +404,11 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text12</Name>
               <Page isRef="6" />
-              <Parent isRef="28" />
+              <Parent isRef="27" />
               <Text>{supplierbalancereportdata.Name}</Text>
               <TextBrush>[0:0:0]</TextBrush>
             </Text12>
-            <Text13 Ref="31" type="Text" isKey="true">
+            <Text13 Ref="30" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>12.2,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>d.DataBand1</ComponentPlacement>
@@ -434,11 +418,11 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text13</Name>
               <Page isRef="6" />
-              <Parent isRef="28" />
+              <Parent isRef="27" />
               <Text>{supplierbalancereportdata.SumCredit}</Text>
               <TextBrush>[0:0:0]</TextBrush>
             </Text13>
-            <Text14 Ref="32" type="Text" isKey="true">
+            <Text14 Ref="31" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>9.6,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>d.DataBand1</ComponentPlacement>
@@ -448,11 +432,11 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text14</Name>
               <Page isRef="6" />
-              <Parent isRef="28" />
+              <Parent isRef="27" />
               <Text>{supplierbalancereportdata.SumDebit}</Text>
               <TextBrush>[0:0:0]</TextBrush>
             </Text14>
-            <Text15 Ref="33" type="Text" isKey="true">
+            <Text15 Ref="32" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>15.2,0.2,1.6,0.5</ClientRectangle>
               <ComponentPlacement>d.DataBand1</ComponentPlacement>
@@ -462,7 +446,7 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text15</Name>
               <Page isRef="6" />
-              <Parent isRef="28" />
+              <Parent isRef="27" />
               <Text>{supplierbalancereportdata.SumTotal}</Text>
               <TextBrush>[0:0:0]</TextBrush>
             </Text15>
@@ -478,6 +462,92 @@
           <PrintIfDetailEmpty>True</PrintIfDetailEmpty>
           <Sort isList="true" count="0" />
         </DataBand1>
+        <FooterBand2 Ref="33" type="FooterBand" isKey="true">
+          <Brush>[0:255:255:255]</Brush>
+          <ClientRectangle>0,8.6,19,0.4</ClientRectangle>
+          <ComponentPlacement>f.Page1</ComponentPlacement>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <Guid>53706315bdd547d682e928a498b9f6ee</Guid>
+          <Name>FooterBand2</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+        </FooterBand2>
+        <FooterBand1 Ref="34" type="FooterBand" isKey="true">
+          <Brush>[237:245:232]</Brush>
+          <ClientRectangle>0,9.8,19,0.6</ClientRectangle>
+          <ComponentPlacement>f.Page1</ComponentPlacement>
+          <Components isList="true" count="4">
+            <Text23 Ref="35" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9.6,0.2,1.6,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>42a6241e0017435c9c5d98682b3c5466</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="6" />
+              <Parent isRef="34" />
+              <Text>{Totals.Sum(supplierbalancereportdata.SumDebit)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text23>
+            <Text20 Ref="36" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12.2,0.2,1.6,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>f757a1fe59094da9ac86c4c29a37cec9</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="6" />
+              <Parent isRef="34" />
+              <Text>{Totals.Sum(supplierbalancereportdata.SumCredit)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text20>
+            <Text22 Ref="37" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>15,0.2,1.8,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>2c960b6ab5184cedafe3d67d9fb50d8a</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="6" />
+              <Parent isRef="34" />
+              <Text>{Totals.Sum(supplierbalancereportdata.SumTotal)}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text22>
+            <Text21 Ref="38" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0.2,0.2,1.6,0.5</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,8</Font>
+              <Guid>bc0b6e7869c545488700df8e998a3b1f</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="6" />
+              <Parent isRef="34" />
+              <Text>Totalsum</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text21>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Guid>511298318751410ca0d823620a602a1a</Guid>
+          <Name>FooterBand1</Name>
+          <Page isRef="6" />
+          <Parent isRef="6" />
+        </FooterBand1>
       </Components>
       <Conditions isList="true" count="0" />
       <Guid>4251ecab-0bf8-630f-ae46-b66c7af2e6b0</Guid>
@@ -486,13 +556,13 @@
       <PageHeight>29.7</PageHeight>
       <PageWidth>21</PageWidth>
       <Report isRef="0" />
-      <Watermark Ref="34" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+      <Watermark Ref="39" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
         <Font>Arial,100</Font>
         <TextBrush>[50:0:0:0]</TextBrush>
       </Watermark>
     </Page1>
   </Pages>
-  <PrinterSettings Ref="35" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="40" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -504,10 +574,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Saldobalanse hovedbok</ReportAlias>
-  <ReportChanged>9/8/2016 2:06:58 PM</ReportChanged>
+  <ReportChanged>9/9/2016 12:53:15 PM</ReportChanged>
   <ReportCreated>9/8/2016 11:24:39 PM</ReportCreated>
   <ReportFile>C:\projects\AppFrontend\src\assets\ReportTemplates\SupplierBalanceReport.mrt</ReportFile>
-  <ReportGuid>fb353ca9d7a84e2a84146235bcbf75cc</ReportGuid>
+  <ReportGuid>7a03d9be9191488fb1c54deddc88053e</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2016.1.0</ReportVersion>
@@ -536,7 +606,7 @@ namespace Reports
 </Script>
   <ScriptLanguage>CSharp</ScriptLanguage>
   <Styles isList="true" count="4">
-    <Style1 Ref="36" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style1 Ref="41" type="Stimulsoft.Report.StiStyle" isKey="true">
       <AllowUseFont>False</AllowUseFont>
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>[245:245:245]</Brush>
@@ -545,7 +615,7 @@ namespace Reports
       <Name>Style1</Name>
       <TextBrush>[0:0:0]</TextBrush>
     </Style1>
-    <Style2 Ref="37" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style2 Ref="42" type="Stimulsoft.Report.StiStyle" isKey="true">
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>[240:245:250]</Brush>
       <Conditions isList="true" count="0" />
@@ -553,7 +623,7 @@ namespace Reports
       <Name>Style2</Name>
       <TextBrush>[0:0:0]</TextBrush>
     </Style2>
-    <Style3 Ref="38" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style3 Ref="43" type="Stimulsoft.Report.StiStyle" isKey="true">
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>[240:244:233]</Brush>
       <Conditions isList="true" count="0" />
@@ -561,7 +631,7 @@ namespace Reports
       <Name>Style3</Name>
       <TextBrush>[0:0:0]</TextBrush>
     </Style3>
-    <Style4 Ref="39" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style4 Ref="44" type="Stimulsoft.Report.StiStyle" isKey="true">
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>Transparent</Brush>
       <Conditions isList="true" count="0" />

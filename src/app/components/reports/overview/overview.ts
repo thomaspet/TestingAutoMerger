@@ -8,6 +8,8 @@ import {ReportDefinitionService} from '../../../services/services';
 import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
+import {BalanceReportFilterModal} from '../modals/balanceList/BalanceReportFilterModal';
+import {NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
 
 class ReportCategory {
     public name: string;
@@ -17,7 +19,7 @@ class ReportCategory {
 @Component({
     selector: 'uni-overview',
     templateUrl: 'app/components/reports/overview/overview.html',
-    directives: [UniTabs, PreviewModal, ParameterModal],
+    directives: [UniTabs, PreviewModal, ParameterModal, BalanceReportFilterModal, NgSwitch, NgSwitchCase, NgSwitchDefault],
     providers: [ReportDefinitionService]
 })
 export class Overview {
@@ -25,6 +27,8 @@ export class Overview {
     private parameterModal: ParameterModal;
     @ViewChild(PreviewModal)
     private previewModal: PreviewModal;
+    @ViewChild(BalanceReportFilterModal)
+    private balanceListModal: BalanceReportFilterModal;
 
     
     public reportCategories: Array<ReportCategory>;
@@ -33,9 +37,12 @@ export class Overview {
         this.tabService.addTab({ name: 'Rapportoversikt', url: '/reports/overview', moduleID: 19, active: true });
     }
     
-    
     public showModalReportParameters(report: ReportDefinition) {
         this.parameterModal.open(report, this.previewModal);
+    }
+
+    public showBalanceListModalReportParameters(report: ReportDefinition) {
+        this.balanceListModal.open(report, this.previewModal);
     }
     
     public ngOnInit() {

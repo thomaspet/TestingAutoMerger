@@ -1,4 +1,4 @@
-import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit} from '@angular/core';
+import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
@@ -22,7 +22,7 @@ declare var _;
     pipes: [AsyncPipe]
 })
 
-export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
+export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, OnInit {
     private salarytransEmployeeTableConfig: any;
     private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: any[] = [];
@@ -30,8 +30,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     public employee: Employee;
     private agaZone: AGAZone;
     public formModel: any = {};
+    private recalcTimeout: any;
     public errorMessage: string = '';
-
+    public dirty: boolean = false;
 
     private employeeExpands: string[] = [
         'BusinessRelationInfo',
@@ -70,6 +71,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         private salarytransService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
         private router: Router) {
+        
+    }
+
+    public ngOnInit() {
+        
         this.busy = true;
 
         this.createTotalTableConfig();
@@ -123,6 +129,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                     this.employee = response;
                     this.setUnitableSource();
                     this.getAgaAndShowView();
+                    this.salarytransChanged = [];
 
                 }, (error: any) => {
                     this.log(error);
@@ -193,7 +200,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         });
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
-            this.refreshSalaryTransTable();
+            this.dirty = false;
             this.setUnitableSource();
             this.refreshSaveActions();
             done('Lønnsposter lagret: ');
@@ -214,12 +221,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
     }
 
-    public isDirty(): boolean {
-        return (this.salarytransChanged.length > 0);
-    }
-    private refreshSalaryTransTable() {
-        this.salarytransItems$ = _.cloneDeep(this.salarytransItems$);
-    }
     private getAgaAndShowView() {
         if (this.employee.SubEntity) {
             this._agaZoneService
@@ -356,6 +357,10 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
                 return row;
             })
+            .setDefaultRowData({
+                EmployeeID: this.employeeID,
+                Employee: this.employee
+            })
             .setIsRowReadOnly((rowModel: SalaryTransaction) => {
                 return rowModel.IsRecurringPost;
             });
@@ -484,7 +489,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 this.salarytransChanged.push(row);
             }
         }
+
         this.saveactions[0].disabled = false;
+        this.dirty = (this.salarytransChanged.length > 0);
     }
 
     public showPayList(done) {

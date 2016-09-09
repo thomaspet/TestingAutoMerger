@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild, OnChanges, EventEmitter} from '@angular/core';
-import {SubEntityService, StaticRegisterService, AgaZoneService} from '../../../services/services';
+import {SubEntityService, StaticRegisterService, AgaZoneService, MunicipalService} from '../../../services/services';
 import {SubEntity, AGAZone, PostalCode, Municipal, AGASector} from '../../../unientities';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
@@ -12,7 +12,7 @@ declare var _; // lodash
 })
 export class SubEntityDetails implements OnChanges {
     @Input() private currentSubEntity: SubEntity;
-    @Input() private municipalities: Municipal[];
+    private municipalities: Municipal[];
     @ViewChild(UniForm) private form: UniForm;
     private model: SubEntity = null;
     private agaZones: AGAZone[] = [];
@@ -27,17 +27,24 @@ export class SubEntityDetails implements OnChanges {
     constructor(
         private _subEntityService: SubEntityService,
         private _statReg: StaticRegisterService,
-        private _agaZoneService: AgaZoneService
+        private _agaZoneService: AgaZoneService,
+        private _municipalityService: MunicipalService
     ) {
+        
+    }
+
+    public ngAfterViewInit() {
         this.busy = true;
         this.postalCodes = this._statReg.getStaticRegisterDataset('postalcodes');
         Observable.forkJoin(
             this._agaZoneService.GetAll(''),
-            this._agaZoneService.getAgaRules()
+            this._agaZoneService.getAgaRules(),
+            this._municipalityService.GetAll('')
         ).subscribe((response: any) => {
-            let [agaZoneList, agaRuleList] = response;
+            let [agaZoneList, agaRuleList, municipalities] = response;
             this.agaZones = agaZoneList;
             this.agaRules = agaRuleList;
+            this.municipalities = municipalities;
             this.createForm();
             this.busy = false;
         });

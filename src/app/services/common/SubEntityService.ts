@@ -17,6 +17,15 @@ export class SubEntityService extends BizHttp<SubEntity> {
         return this.GetAll('SuperiorOrganization eq 0 or SuperiorOrganization eq null', ['BusinessRelationInfo']);
     }
 
+    public getFromEnhetsRegister(orgno: string) {
+        return this.http
+                   .asGET()
+                   .usingBusinessDomain()
+                   .withEndPoint('subentities?action=sub-entities-from-brreg&orgno=' + orgno)
+                   .send()
+                   .map(response => response.json());
+    }
+
     public getLayout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,

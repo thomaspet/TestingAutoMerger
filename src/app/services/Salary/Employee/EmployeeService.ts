@@ -101,7 +101,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(response => response.json());
     }
     
-    public getTotals(payrunID: number, employeeID: number = 0) {        
+    public getTotals(payrunID: number, employeeID: number = 0, localTranses: SalaryTransaction[] = []) {      
         var params = '&payrun=' + payrunID;
         if (employeeID) {
             params += '&employee=' + employeeID;        
@@ -111,6 +111,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint('salarytrans?action=Sums' + params)
+            .withBody(localTranses)
             .send()
             .map(response => response.json()); //{action: 'Sums' + params});
     }

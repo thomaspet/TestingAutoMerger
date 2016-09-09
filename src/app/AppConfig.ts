@@ -5,25 +5,25 @@ export const AppConfig = ({
     // and stop switching between BASE_URL/BASE_URL_INIT in UniHttp usingFooDomain() functions
     // BASE_URL_INIT: 'http://localhost:82',
     BASE_URL_INIT: 'https://devapi-unieconomy.azurewebsites.net',
-    
+
     // Swap between these BASE_URL's depending on whether you want to use local og remote backend
     // BASE_URL: 'http://localhost:29077',
     BASE_URL: 'https://devapi-unieconomy.azurewebsites.net',
-    
-    
+
+
     // BASE_URL_INTEGRATION: 'http://localhost:17100/',
-    BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/', 
+    BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
 
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',
         METADATA: '/api/metadata/',
     },
-    
+
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
     },
-    
+
     DEFAULT_HEADERS: {
         'Content-Type': 'application/json',
         'Client': 'economytestas'
