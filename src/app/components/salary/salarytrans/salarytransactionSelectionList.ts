@@ -31,12 +31,13 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
     @Output() public salaryTransSelectionListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService, private _payrollRunService: PayrollrunService) {
-        this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
-            payrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
-        });
+        
     }
 
     public ngOnInit() {
+        this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
+            payrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
+        });
         this.tableConfig();
     }
 

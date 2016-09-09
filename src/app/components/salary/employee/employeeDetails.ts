@@ -50,7 +50,6 @@ export class EmployeeDetails {
         this.employee.BusinessRelationInfo = this.businessRelation;
         this.url = '/salary/employees/';
         this.route.params.subscribe(params => {
-            console.log('new emp id: ', params);
             this.employeeID = +params['id'];
             this._employeeService.get(this.employeeID).subscribe(emp => {
                 this._employeeService.refreshEmployee(emp);

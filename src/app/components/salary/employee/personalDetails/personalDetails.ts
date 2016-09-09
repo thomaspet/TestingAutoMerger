@@ -72,7 +72,6 @@ export class PersonalDetails implements OnDestroy, OnInit {
 
         this.subscription = this.employeeService.employee$.subscribe((emp) => {
             this.employee = emp;
-            console.log('new emp: ', this.employee);
         });
     }
 
@@ -247,7 +246,6 @@ export class PersonalDetails implements OnDestroy, OnInit {
     }
 
     private updateInfoFromSSN() {
-        console.log('update ssn');
         if (this.employee.SocialSecurityNumber.length === 11) {
 
             let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);

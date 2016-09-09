@@ -26,7 +26,7 @@
 
 <section [attr.aria-busy]="busy" class="detail_tables">
     <uni-table [resource]="salarytransItems$ | async" [config]="salarytransEmployeeTableConfig" (rowChanged)="rowChanged($event)" class="maintable"></uni-table>
-    <uni-table [resource]="employeeTotals" [config]="salarytransEmployeeTotalsTableConfig" class="summarytable"></uni-table>
+    <uni-table [resource]="employeeTotals" [config]="salarytransEmployeeTotalsTableConfig" class="summarytable" [ngClass]="{'-is-dirty':dirty}" ></uni-table>
 </section>
 <control-modal (updatePayrollRun)="refreshPayrollRun($value)"></control-modal>
 <postingsummary-modal (updatePayrollRun)="refreshPayrollRun($value)"></postingsummary-modal>
