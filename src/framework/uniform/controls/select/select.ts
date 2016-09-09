@@ -3,6 +3,8 @@ import {FormControl, FormControlDirective} from '@angular/forms';
 import {GuidService} from '../../../../app/services/common/guidService';
 import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 
+declare var _; // lodash
+
 export interface ISelectConfig {
     displayField?: string;
     valueField?: string;
@@ -61,6 +63,12 @@ export class UniSelect {
         }
 
         if (changes['config'] && this.config) {
+            if (this.config.valueProperty) {
+                this.config.valueField = this.config.valueProperty;
+            }
+            if (this.config.displayProperty) {
+                this.config.displayField = this.config.displayProperty;
+            }
             this.searchable = (this.config.searchable || this.config.searchable === undefined);
         }
 
@@ -115,7 +123,7 @@ export class UniSelect {
         if (typeof item === 'string') {
             return item;
         } else if (this.config.displayField) {
-            return item[this.config.displayField];
+            return _.get(item, this.config.displayField);
         } else if (this.config.template) {
             return this.config.template(item);
         } else {
