@@ -118,11 +118,11 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             let name = this.report.dataSources[i].Name;
             dataSources[name] = data[i];            
         }
-        
+
         if (this.format === 'html') {
-            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.target);
+            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
         } else if (this.format === 'pdf') {
-            this.reportGenerator.printReport(this.report.templateJson, dataSources, true);
+            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, true);
         }
     }
     

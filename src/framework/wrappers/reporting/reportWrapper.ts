@@ -25,11 +25,11 @@ export class StimulsoftReportWrapper {
         });
     }
 
-    public showReport(template: string, reportData: Object, caller : any)
+    public showReport(template: string, reportData: Object, parameters: Array<any>, caller : any)
     {
         if (template && reportData && caller)
         {
-            const report = this.generateReport(template, reportData);
+            const report = this.generateReport(template, reportData, parameters);
 
             if (report) {
                 // Create a text writer objects.
@@ -49,10 +49,10 @@ export class StimulsoftReportWrapper {
         }
     }
 
-    public printReport(template: string, reportData: Object, showPreview: boolean) {
+    public printReport(template: string, reportData: Object, parameters: Array<any>, showPreview: boolean) {
 
         if (template && reportData) {
-            const report = this.generateReport(template, reportData);
+            const report = this.generateReport(template, reportData, parameters);
 
             if (report) {
                 const settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
@@ -77,13 +77,23 @@ export class StimulsoftReportWrapper {
     }
 
     // these functions should be private in typescript
-    private generateReport(template: string, reportData: Object) : any {
+    private generateReport(template: string, reportData: Object, parameters: Array<any>): any {
         // load template
         const report = new Stimulsoft.Report.StiReport();
         report.load(template);
 
         // remove connections specified in the template file
         report.dictionary.databases.clear();
+
+        // add variables based on parameters
+        if (parameters) {
+            for (let i = 0; i < parameters.length; i++) {
+                let reportParam = report.dictionary.variables.getByName(parameters[i].Name);
+                if (reportParam) {
+                    reportParam.valueObject = parameters[i].value;
+                }
+            }
+        }        
 
         const dataSet = new Stimulsoft.System.Data.DataSet('Data');
         dataSet.readJson(reportData);

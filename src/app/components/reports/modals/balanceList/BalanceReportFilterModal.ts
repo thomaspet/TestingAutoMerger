@@ -100,6 +100,26 @@ export class BalanceReportFilterModal {
                                     parameter.value = component.model.orderBy;
                                 }
                             }
+                            
+                            // add custom parameters - these are used in ODATA in the data retrieval, but
+                            // are also sent to the report as individual parameters to make it easier to
+                            // use them in the report
+                            let accountYearParam = new AttilasCustomReportDefinitionParameter();
+                            accountYearParam.Name = 'PeriodAccountYear';
+                            accountYearParam.value = component.model.journalYear;
+                            
+                            let periodFromParam = new AttilasCustomReportDefinitionParameter();
+                            periodFromParam.Name = 'PeriodFrom';
+                            periodFromParam.value = component.model.fromPeriod;
+                            
+                            let periodToParam = new AttilasCustomReportDefinitionParameter();
+                            periodToParam.Name = 'PeriodTo';
+                            periodToParam.value = component.model.toPeriod;
+                            
+                            this.modalConfig.report.parameters.push(accountYearParam);
+                            this.modalConfig.report.parameters.push(periodFromParam);
+                            this.modalConfig.report.parameters.push(periodToParam);
+                            
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });
