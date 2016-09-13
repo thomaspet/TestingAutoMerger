@@ -1,83 +1,92 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PayrollrunService} from '../../../services/services';
-import {UniTableOld, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {SalaryTransactionPay, SalaryTransactionPayLine} from '../../../unientities';
 
 @Component({
     selector: 'payrollrun-paymentlist',
     templateUrl: 'app/components/salary/payrollrun/paymentList.html',
-    directives: [UniTableOld],
+    directives: [UniTable],
     providers: [PayrollrunService]
 })
 
 export class PaymentList implements OnInit {
-    
+
     private payrollRunID: number;
-    private paymentList: any[] = [];
+    private paymentList: SalaryTransactionPay[];
+    private payLines: SalaryTransactionPayLine[];
     private empSum: number = 0;
     private sum: number = 0;
     private payDate: Date = null;
     private account: string = '';
     private busy: boolean = false;
-    
-    private paymentListEmp: UniTableBuilder;
-    private withholding: UniTableBuilder;
-    
+
+    private paymentListConfig: UniTableConfig;
+    // private withholding: UniTableBuilder;
+    private withholdingConfig: UniTableConfig;
+
     constructor(private _route: ActivatedRoute, private _payrollrunService: PayrollrunService, private _tabService: TabService) {
-        this._route.params.subscribe(params => {
-            this.payrollRunID = +params['id'];
-        });
-        //Dummy moduleID, going to be removed!
-        this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: 997, active: true });
+
     }
-    
+
     public ngOnInit() {
         this.busy = true;
-        this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
-            this.paymentList.push(response);
-            this.paymentList[0].PayList.forEach((payLine) => {
-                this.empSum += payLine.NetPayment;
+        this._route.params.subscribe(params => {
+            
+
+            this.payrollRunID = +params['id'];
+
+            //Dummy moduleID, going to be removed!
+            this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: 997, active: true });
+            this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
+                this.paymentList = [response];
+                this.payLines = this.paymentList[0].PayList;
+                this.paymentList[0].PayList.forEach((payLine) => {
+                    this.empSum += payLine.NetPayment;
+                });
+                this.sum = this.empSum + this.paymentList[0].Withholding;
+                this.payDate = new Date(this.paymentList[0].PaymentDate.toString());
+                this.account = this.paymentList[0].CompanyAccount;
+                this.buildTableConfigs();
+                this.busy = false;
             });
-            this.sum = this.empSum + this.paymentList[0].Withholding;
-            this.payDate = new Date(this.paymentList[0].PaymentDate);
-            this.account = this.paymentList[0].CompanyAccount;
-            this.buildTableConfigs();
-            this.busy = false;
+
         });
 
     }
-    
+
     public buildTableConfigs() {
+
+        let accountCol = new UniTableColumn('Account', 'Til konto', UniTableColumnType.Text);
+        let nameCol = new UniTableColumn('EmployeeName', 'Navn', UniTableColumnType.Text);
+        let addressCol = new UniTableColumn('Address', 'Adresse', UniTableColumnType.Text);
+        let postalCodeCol = new UniTableColumn('PostalCode', 'Postnr', UniTableColumnType.Text).setWidth('10%');
+        let cityCol = new UniTableColumn('City', 'Poststed', UniTableColumnType.Text);
+        let paymentCol = new UniTableColumn('NetPayment', 'Beløp', UniTableColumnType.Number);
+
+        this.paymentListConfig = new UniTableConfig(false, false)
+            .setColumns([
+                accountCol, nameCol, addressCol, postalCodeCol, cityCol, paymentCol
+            ]);
+
+        let witholdingCol = new UniTableColumn('Withholding', 'Beløp', UniTableColumnType.Number);
+        let companyNameCol = new UniTableColumn('CompanyName', 'Navn', UniTableColumnType.Text);
+        let companyAddressCol = new UniTableColumn('CompanyAddress', 'Adresse', UniTableColumnType.Text);
+        let companyPostalCodeCol = new UniTableColumn('CompanyPostalCode', 'Postnr', UniTableColumnType.Text).setWidth('10%');
+        let companyCityCol = new UniTableColumn('CompanyCity', 'Poststed', UniTableColumnType.Text);
         
-        var accountCol = new UniTableColumn('Account', 'Til konto', 'string');
-        var nameCol = new UniTableColumn('EmployeeName', 'Navn', 'string');
-        var addressCol = new UniTableColumn('Address', 'Adresse', 'string');
-        var postalCodeCol = new UniTableColumn('PostalCode', 'Postnr', 'string').setWidth('10%');
-        var cityCol = new UniTableColumn('City', 'Poststed', 'string');
-        var paymentCol = new UniTableColumn('NetPayment', 'Beløp', 'number');
-        
-        this.paymentListEmp = new UniTableBuilder(this.paymentList[0].PayList, false)
-            .setFilterable(false)
-            .setPageable(false)
-            .setColumnMenuVisible(false)
-            .setSearchable(false)
-            .addColumns(accountCol, nameCol, addressCol, postalCodeCol, cityCol, paymentCol);
-        
-        var witholdingCol = new UniTableColumn('Withholding', 'Beløp', 'number');
-        var companyNameCol = new UniTableColumn('CompanyName', 'Navn', 'string');
-        var companyAddressCol = new UniTableColumn('CompanyAddress', 'Adresse', 'string');
-        var companyPostalCodeCol = new UniTableColumn('CompanyPostalCode', 'Postnr', 'string').setWidth('10%');
-        var companyCityCol = new UniTableColumn('CompanyCity', 'Poststed', 'string');
-        
-        this.withholding = new UniTableBuilder(this.paymentList, false)
+        this.withholdingConfig = new UniTableConfig(false, false)
+            .setColumns([companyNameCol, companyAddressCol, companyPostalCodeCol, companyCityCol, witholdingCol]);
+
+        /*this.withholding = new UniTableBuilder(this.paymentList, false)
             .setFilterable(false)
             .setPageable(false)
             .setColumnMenuVisible(false)
             .setSearchable(false)
             .addColumns(companyNameCol, companyAddressCol, companyPostalCodeCol, companyCityCol, witholdingCol);
-            
+            */
     }
-    
-    
+
 }
