@@ -53,11 +53,13 @@ export function autocompleteDate(inputValue: string): Date {
     if (month < 0 || month > 12) {
         return null;
     }
-    if (day > new Date(0, month, 0).getDate()) {
-        console.log('null');
-        console.log(day);
-        console.log(new Date(0, month, 0).getDate());
-        return null; // if (day > max day of month)
+
+    // Check if day > max day of month
+    // Need to +1 month here to get last day of current month
+    // (js dates ftw)
+    if (day > new Date(year, (month + 1), 0).getDate()) {
+        return null;
     }
+
     return new Date(year, month, day);
 }
