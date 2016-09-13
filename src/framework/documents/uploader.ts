@@ -6,17 +6,17 @@ declare var jQuery;
 @Component({
     selector: 'uni-document-uploader',
     template: `
-        <label class="upload" [ngClass]="{'-has-files': files}"> 
-        
+        <label class="upload" [ngClass]="{'-has-files': files}">
+
             <span *ngIf="!files || !files.length">
                 <strong>Choose file</strong> or drag to upload
             </span>
-            
+
             <span *ngIf="files && files.length">
                 <strong>{{files.length}}</strong> file<span *ngIf="files.length > 1">s</span> ready to upload
             </span>
-            
-            <input type="file" (change)="fileChangeEvent($event)" (mouseout)="checkEmptyFiles($event)"/>            
+
+            <input type="file" (change)="fileChangeEvent($event)" (mouseout)="checkEmptyFiles($event)"/>
         </label>
         <button (click)="uploadFile()" [disabled]="!canUpload()">Upload</button>
     `
@@ -78,12 +78,10 @@ export class UniDocumentUploader {
     }
 
     public fileChangeEvent(event: any) {
-        var files = event.srcElement.files;
-        if (!files || !files.length) {
-            this.files = undefined;
-            return;
+        const source = event.srcElement || event.target;
+        if (source.files && source.files.length) {
+            this.files = source.files;
         }
-        this.files = files;
     }
 
     public checkEmptyFiles(event: any) {

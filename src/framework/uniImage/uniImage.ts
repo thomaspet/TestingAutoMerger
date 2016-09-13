@@ -44,9 +44,9 @@ export class UniImage {
     @ViewChild('imageContainer')
     private imageContainer: ElementRef;
 
-    @Input() 
+    @Input()
     private imageId: number;
-    
+
     @Input()
     private size: UniImageSize;
 
@@ -106,7 +106,7 @@ export class UniImage {
             .subscribe((response) => {
                 this.pageCount = response['PageCount'] || 1;
             });
-        
+
         // Generate image urls
         this.imgUrl = this.buildImgUrl(token, companyKey, (this.size || undefined));
         this.imgUrl2x = this.buildImgUrl(token, companyKey, (this.size ? (this.size * 2) : undefined));
@@ -136,17 +136,17 @@ export class UniImage {
         this.updateImage();
     }
 
-    
+
     private uploadFileChange(event) {
-        const files = event.srcElement.files;
-        if (files && files.length) {
-            this.file = files[0];
+        const source = event.srcElement || event.target;
+        if (source.files && source.files.length) {
+            this.file = source.files[0];
         }
     }
 
     private uploadFile() {
         this.uploading = true;
-        
+
         this.imageUploader.uploadImage(this.uploadConfig.entityType, this.uploadConfig.entityId, this.file)
         .then(() => {
             const slot = this.imageUploader.Slot;
