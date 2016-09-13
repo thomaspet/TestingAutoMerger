@@ -7,10 +7,10 @@
         <p>Fra konto: {{account}}</p>
     </section>
 
-    <uni-table-old [config]="paymentListEmp"></uni-table-old>
+    <uni-table [resource]="payLines" [config]="paymentListConfig"></uni-table>
     <p>Sum lønn: {{empSum}}</p>
     <h3>Forskuddstrekk</h3>
-    <uni-table-old [config]="withholding"></uni-table-old>
+    <uni-table [resource]="paymentList" [config]="withholdingConfig"></uni-table>
     <hr>
     <p>Sum total: {{sum}}</p>
 </article>
