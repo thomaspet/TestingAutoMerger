@@ -150,6 +150,7 @@ export class UniSelect {
 
     public close() {
         this.expanded = false;
+        this.searchControl.updateValue('');
     }
 
     private toggle() {
@@ -158,6 +159,8 @@ export class UniSelect {
             setTimeout(() => {
                 this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
             });
+        } else {
+            this.searchControl.updateValue('');
         }
     }
 
@@ -165,6 +168,10 @@ export class UniSelect {
     @HostListener('keydown', ['$event'])
     private onKeyDown(event) {
         const key = event.which || event.keyCode || 0;
+
+        if (key === 38 || key === 40) {
+            event.preventDefault();
+        }
 
         // Tab or enter
         if (key === 9 || key === 13) {
@@ -183,12 +190,10 @@ export class UniSelect {
             }
         // Arrow up
         } else if (key === 38 && this.focusedIndex > 0) {
-            event.preventDefault();
             this.focusedIndex--;
             this.scrollToListItem();
         // Arrow down
         } else if (key === 40) {
-            event.preventDefault();
             if (!this.expanded) {
                 this.expanded = true;
             } else {
