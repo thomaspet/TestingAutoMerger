@@ -58,8 +58,12 @@ export class UniSelect {
     }
 
     public ngOnChanges(changes) {
-        if (changes['value'] && this.value) {
-            this.selectedItem = this.value;
+        if (this.value && this.items && (changes['items'] || changes['value'])) {
+            if (this.config.valueProperty) {
+                this.selectedItem = this.items.find(item => _.get(item, this.config.valueProperty) === this.value);
+            } else {
+                this.selectedItem = this.value;
+            }
         }
 
         if (changes['config'] && this.config) {

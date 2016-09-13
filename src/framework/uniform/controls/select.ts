@@ -34,6 +34,7 @@ export class UniSelectInput {
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
     private items: any[];
+    private selectedItem: any;
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
@@ -54,15 +55,19 @@ export class UniSelectInput {
     }
 
     public ngOnChanges(changes) {
+        if (this.model && this.field) {
+            this.selectedItem = _.get(this.model, this.field.Property);
+        }
+
         if (changes['field']) {
             if (this.field.Options) {
                 this.field.Options.valueField = this.field.Options.valueProperty;
                 this.field.Options.displayField = this.field.Options.displayProperty;
             }
             if (!this.field.Options) {
-                this.items = [];  
+                this.items = [];
             } else if (!this.field.Options.source) {
-                this.items = [];    
+                this.items = [];
             } else if (this.field.Options.source.constructor === Array) {
                 this.items = this.field.Options.source;
             } else if (this.field.Options.source.subscribe) {
