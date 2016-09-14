@@ -4,8 +4,8 @@ import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/merge';
-import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
-import {EmployeeService, PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService} from '../../../../services/services';
+import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal} from '../../../../unientities';
+import {EmployeeService, PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService, MunicipalService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -15,7 +15,7 @@ declare var _;
 @Component({
     selector: 'employee-personal-details',
     directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
-    providers: [PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService],
+    providers: [PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService, MunicipalService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails implements OnDestroy, OnInit {
@@ -31,6 +31,7 @@ export class PersonalDetails implements OnDestroy, OnInit {
     public config: any = {};
     public fields: any[] = [];
     private subscription: Subscription;
+    private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
 
     @ViewChild(ReadTaxCardModal) public taxCardModal: ReadTaxCardModal;
@@ -60,7 +61,8 @@ export class PersonalDetails implements OnDestroy, OnInit {
         public emailService: EmailService,
         public addressService: AddressService,
         public altinnService: AltinnIntegrationService,
-        public subEntityService: SubEntityService) {
+        public subEntityService: SubEntityService,
+        public municipalService: MunicipalService) {
             this.setupForm();
     }
 
@@ -109,12 +111,15 @@ export class PersonalDetails implements OnDestroy, OnInit {
                     'ID': 1,
                     'Deleted': false
                 }];
-                this.fields = layout.Fields;
                 this.config = {
                     submitText: ''
                 };
-
-                this.extendFormConfig();
+                this.municipalService.GetAll(null).subscribe( (municipalities: Municipal[]) => {
+                    this.fields = layout.Fields;
+                    this.municipalities = municipalities;
+                    this.extendFormConfig();
+                });
+                
             }
             , (error: any) => {
                 console.error(error);
@@ -220,6 +225,7 @@ export class PersonalDetails implements OnDestroy, OnInit {
                 let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '') + (address.PostalCode || '') + ' ' + (address.City || '') + (address.CountryCode ? ', ' + address.CountryCode : '');
                 return displayVal;
             }
+
         };
 
         let taxRequestBtn: UniFieldLayout = this.findByProperty(this.fields, 'TaxRequestBtn');
@@ -235,6 +241,16 @@ export class PersonalDetails implements OnDestroy, OnInit {
             click: (event) => {
                 this.openReadTaxCardModal();
             }
+        };
+
+        let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
+
+        municipality.Options = {
+            source: this.municipalities,
+            valueProperty: 'MunicipalityNo',
+            displayProperty: 'MunicipalityNo',
+            debounceTime: 200,
+            template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
         };
 
         this.fields = _.cloneDeep(this.fields);
