@@ -39,18 +39,18 @@ export class UniAutocompleteConfig {
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
-                
+
                 (blur)="confirmSelection()"
                 (keypress)="onKeyPress()"
                 (keydown)="onKeyDown($event)"
-                
+
                 class="autocomplete_input"
                 role="combobox"
                 aria-autocomplete="inline"
                 [attr.aria-owns]="'results-'+guid"
             />
 
-            <ul #list 
+            <ul #list
                 class="autocomplete_results"
                 [id]="'results-' + guid"
                 role="listbox"
@@ -73,16 +73,16 @@ export class UniAutocompleteConfig {
 export class UniAutocompleteInput {
     @ViewChild('list')  private list: ElementRef;
     @ViewChild('query') private inputElement: ElementRef;
-    
+
     @Input()
-    private field: UniFieldLayout;    
-    
+    private field: UniFieldLayout;
+
     @Input()
     private model: any;
 
     @Input()
     private control: FormControl;
-    
+
     @Output()
     public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
 
@@ -97,7 +97,7 @@ export class UniAutocompleteInput {
     private query: string;
     private value: string;
 
-    
+
     private busy: boolean = false;
     private selectedIndex: any;
     private lookupResults: any[] = [];
@@ -114,11 +114,11 @@ export class UniAutocompleteInput {
             this.options = this.field.Options || {};
             this.source = this.options.source;
         }
-        
+
         // Perform initial lookup to get display value
         this.getInitialDisplayValue(this.control.value)
             .subscribe(result => {
-                this.control.updateValue(this.template(result[0]) || '', {emitEvent: false});
+                this.control.updateValueAndValidity(this.template(result[0]) || '');
             });
 
         this.control.valueChanges
@@ -176,7 +176,7 @@ export class UniAutocompleteInput {
     }
 
     private getInitialDisplayValue(value): Observable<any> {
-        
+
         if (!this.source) {
             return Observable.of([]);
         }
@@ -217,31 +217,33 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
         this.cd.markForCheck();
         this.focusPositionTop = 0;
-        
-        if (!this.control.dirty) {
+
+        // If user just tabbed through the field without editing
+        if (!this.control.dirty || this.control.value === this.query) {
             return;
         }
-                
-        // Wait for response 
+
+        // Wait for response
         // (allows us to still select result[0] when user tabs out before lookup is finished)
         if (this.busy) {
             setTimeout(() => {
                 this.confirmSelection();
             }, 200);
-            
+
             return;
         }
 
-        if (this.selectedIndex === -1 && this.control.value === '') {
-            this.query = '';
-            this.value = null;
-        } else {
-            if (this.control.value !== '' && this.selectedIndex === -1) {
+
+        if (this.control.value.length) {
+            if (this.selectedIndex === -1) {
                 this.selectedIndex = 0;
             }
             let selectedItem = this.lookupResults[this.selectedIndex];
             this.query = this.template(selectedItem);
             this.value = _.get(selectedItem, this.field.Options.valueProperty);
+        } else {
+            this.query = '';
+            this.value = null;
         }
 
         this.control.setValue(this.query);
@@ -252,17 +254,15 @@ export class UniAutocompleteInput {
             if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
                 this.field.Options.events.select(this.model);
             }
-            
+
             this.onChange.emit(this.model);
         }
-        
-        
     }
-    
+
     private onMouseover(index) {
         if (index < this.selectedIndex) {
             for (let i = index; i < this.selectedIndex; i++) {
-                this.focusPositionTop -= this.list.nativeElement.children[i].clientHeight; 
+                this.focusPositionTop -= this.list.nativeElement.children[i].clientHeight;
             }
         } else if (index > this.selectedIndex) {
             if (this.selectedIndex === -1) {
@@ -272,19 +272,19 @@ export class UniAutocompleteInput {
                 this.focusPositionTop += this.list.nativeElement.children[i].clientHeight;
             }
         }
-        
+
         this.selectedIndex = index;
     }
-    
+
     private onKeyPress() {
         this.busy = true;
     }
 
-    private onKeyDown(event) {        
+    private onKeyDown(event) {
         var prevItem = undefined;
         var currItem = undefined;
         var overflow = 0;
-        
+
         switch (event.keyCode) {
             case 13:
                 this.confirmSelection();
@@ -304,35 +304,35 @@ export class UniAutocompleteInput {
                     currItem = this.list.nativeElement.children[this.selectedIndex];
                     if (currItem) {
                         this.focusPositionTop -= currItem.clientHeight;
-                        
+
                         overflow = this.focusPositionTop - this.list.nativeElement.scrollTop;
-                                                
+
                         if (overflow < 0) {
                             this.list.nativeElement.scrollTop += overflow;
                         }
                     }
-                }            
-                
+                }
+
             break;
             case 40:
                 if (this.selectedIndex !== (this.lookupResults.length - 1)) {
                     this.selectedIndex++;
-                    
+
                     prevItem = this.list.nativeElement.children[this.selectedIndex - 1];
                     currItem = this.list.nativeElement.children[this.selectedIndex];
-                    
+
                     if (prevItem && currItem) {
                         this.focusPositionTop += prevItem.clientHeight;
-                        
-                        overflow = (this.focusPositionTop + currItem.clientHeight) - 
+
+                        overflow = (this.focusPositionTop + currItem.clientHeight) -
                                 (this.list.nativeElement.clientHeight + this.list.nativeElement.scrollTop);
-                        
+
                         if (overflow > 0) {
                             this.list.nativeElement.scrollTop += overflow;
                         }
-                    }   
+                    }
                 }
             break;
         }
-    }    
+    }
 }
