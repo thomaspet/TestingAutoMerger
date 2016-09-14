@@ -1,9 +1,15 @@
-<section class="application">
-    <article class="supplier-invoice-detail-booking">
+﻿<section class="application">
+    <!--<article class="supplier-invoice-detail-booking">
         <journal-entry-manual [journalEntryID]="vatReport.JournalEntryID"
                               [runAsSubComponent]="true"
                               [disabled]="disabled"
                               *ngIf="vatReport && vatReport.JournalEntryID">
         </journal-entry-manual>
+    </article>-->
+    <article class="currency" *ngIf="vatReport?.JournalEntry">
+            <a href="#/accounting/transquery/details;journalEntryNumber={{vatReport.JournalEntry.JournalEntryNumber}}">
+                Vis 'Forespørsel Bilag' for bilagsnummer: {{vatReport.JournalEntry.JournalEntryNumber}}
+            </a>
     </article>
+    <span *ngIf="!vatReport.JournalEntry">Mva oppgjør bokføres når mva-melding godkjennes. Foreløpig er det ikke mva-oppgjørsposter for denne mva-meldingen</span>
 </section>

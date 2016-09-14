@@ -7,7 +7,11 @@
             </p>
             <span *ngFor="let c of vatReportsInPeriod; let i=index">
                 <span *ngIf="i > 0">,   </span>
-                <a (click)="ShowVatReport(c.ID)" href="javascript:void(0);"> {{c.Title}}</a>
+
+                <a (click)="ShowVatReport(c.ID)" href="javascript:void(0);">
+                    <span *ngIf="c.ID == currentVatReport.ID"> <b>{{c.Title}}</b> </span> 
+                    <span *ngIf="c.ID != currentVatReport.ID"> {{c.Title}} </span> 
+                </a>
             </span>
         </section>
         <nav class="poster_toolbar_tools">
@@ -129,14 +133,14 @@
         </section>
     </footer>
 
-    <div class="comment commentToSend">
+    <div *ngIf="showView == ''" class="comment commentToSend">
         <label>Kommenter til Altinn</label>
         <textarea [formControl]="externalComment"
                   [ngModel]="currentVatReport.Comment"
                   [disabled]="currentVatReport?.ID == 0 || isSent()"></textarea>
     </div>
 
-    <div class="comment internalComment">
+    <div *ngIf="showView == ''" class="comment internalComment">
         <label>Intern kommentar</label>
         <textarea [formControl]="internalComment"
                   [ngModel]="currentVatReport.InternalComment"
