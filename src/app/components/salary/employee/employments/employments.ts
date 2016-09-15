@@ -21,7 +21,7 @@ export class EmployeeEmployment {
     
     public config: any = {};
     public fields: UniFieldLayout[] = [];
-    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(UniForm, {read: UniForm}) public uniform: UniForm;
 
     @Input() private currentEmployment: Employment;
     @Input() private currentEmployee: Employee;
@@ -113,6 +113,11 @@ export class EmployeeEmployment {
     }
     
     public ready(value) {
+        setTimeout(() => {
+            if (!this.uniform.section(1).isOpen) {
+                this.uniform.section(1).toggle();
+            }
+        }, 100);
     }
     
     public change(value) {
