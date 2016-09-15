@@ -12,37 +12,37 @@ import {UniHttp} from '../../../../framework/core/http/http';
 export class ResetPassword {
     private code: string;
     private userid: string;
-        
+
     private busy: boolean = false;
     private emailSent: boolean = false;
     private passwordChanged: boolean = false;
     private passwordsMatch: boolean = false;
-    
+
     private successMessage: string = '';
     private errorMessage: string = '';
     private emailForm: FormGroup;
     private passwordForm: FormGroup;
-    
+
     constructor(private route: ActivatedRoute, private uniHttp: UniHttp) {
-        this.route.params.subscribe(params => {
+        this.route.queryParams.subscribe(params => {
             this.code = params['code'];
-            this.userid = params['userid'];       
+            this.userid = params['userid'];
         });
-        
+
         var validator = Validators.compose([
             passwordValidator,
             Validators.required,
-            Validators.minLength(8), 
+            Validators.minLength(8),
             Validators.maxLength(16)
         ]);
-                
+
         this.emailForm = new FormGroup({
             email: new FormControl('', Validators.required)
         });
-    
+
         let passwordCtrl = new FormControl('', validator);
         let confirmPasswordCtrl = new FormControl('', validator);
-        
+
         // TODO: This should be handled through a validator!
         passwordCtrl.valueChanges.subscribe((value) => {
             this.passwordsMatch = (value === confirmPasswordCtrl.value);
@@ -52,19 +52,19 @@ export class ResetPassword {
             this.passwordsMatch = (value === passwordCtrl.value);
             console.log(this.passwordsMatch);
         });
-        
+
         this.passwordForm = new FormGroup({
             password: passwordCtrl,
             confirmPassword: confirmPasswordCtrl
-        });        
-        
+        });
+
     }
-        
+
     private sendResetEmail() {
         this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';
-        
+
         this.uniHttp.asPOST()
             .usingInitDomain()
             .withEndPoint('forgot-password')
@@ -86,12 +86,12 @@ export class ResetPassword {
                 }
             );
     }
-    
+
     private resetPassword() {
         this.busy = true;
         this.errorMessage = '';
-        this.successMessage = '';   
-        
+        this.successMessage = '';
+
         this.uniHttp.asPOST()
             .usingInitDomain()
             .withEndPoint('reset-password')
@@ -113,6 +113,6 @@ export class ResetPassword {
                     this.errorMessage = 'Noe gikk galt. Vennligst prøv igjen';
                 }
             );
-                        
+
     }
 }
