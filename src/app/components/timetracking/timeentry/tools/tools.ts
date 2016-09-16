@@ -108,7 +108,7 @@ export class RegtimeTools {
     }
 
     private createMergeSumsOnItem(item: any, target: any) {
-        var sysType = safeInt( item.WorkItemSystemType );
+        var sysType = safeInt( item.WorkTypeSystemType );
         var minutes = safeInt( item.summinutes );        
         this.sumColumns.forEach((sum) => {
             if (sum.types.indexOf(sysType) >= 0) {
