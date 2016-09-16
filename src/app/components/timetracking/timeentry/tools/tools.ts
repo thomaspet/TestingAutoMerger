@@ -77,11 +77,11 @@ export class RegtimeTools {
 
     private filterItem(items: Array<any>, index: number) {
         var item = items[index];
-        var systemType = safeInt(item.SystemType);
+        var systemType = safeInt(item.WorkTypeSystemType);
         var isHours = (systemType < 10 || systemType === 12);
         item.OffTime = item.OffTime || 0;
         if (!isHours) {
-            let canMerge = index > 0 && item.Date === items[index - 1].Date;        
+            let canMerge = index > 0 && item.WorkItemDate === items[index - 1].WorkItemDate;        
             if (canMerge) {
                 this.mergeItem(item, items[index - 1]);      
                 items.splice(index, 1);
@@ -108,7 +108,7 @@ export class RegtimeTools {
     }
 
     private createMergeSumsOnItem(item: any, target: any) {
-        var sysType = safeInt( item.SystemType );
+        var sysType = safeInt( item.WorkItemSystemType );
         var minutes = safeInt( item.summinutes );        
         this.sumColumns.forEach((sum) => {
             if (sum.types.indexOf(sysType) >= 0) {
@@ -127,7 +127,7 @@ export class RegtimeTools {
         for (var i = 0; i < items.length; i++) {            
             let element = items[i];
             let itemSum = safeInt(element.summinutes || 0);
-            let weekNumber = moment(element.Date).isoWeek();
+            let weekNumber = moment(element.WorkItemDate).isoWeek();
             if ( (i === 0) || weekNumber !== prevWeek) {
                 if (week) {
                     totals.report.push(week);
@@ -159,7 +159,7 @@ export class RegtimeTools {
         this.busy = true;
         var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
-        query += this.createArg('select', 'workerid,businessrelation.name,workrelation.description,date,systemtype,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
+        query += this.createArg('select', 'WorkRelation.WorkerId,BusinessRelation.Name,WorkRelation.Description,Date,WorkType.SystemType,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
         query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID + ' and ( not setornull(deleted) )' + (filter ? ' and ( ' +  filter + ' )' : ''));
         query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', 'date');

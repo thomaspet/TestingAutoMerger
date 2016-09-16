@@ -141,13 +141,13 @@ export class Dashboard {
             }
             this.journalEntryList = data;
         } else {
-            for (var i = 0; i < data.length; i++) {
-                var mydate = moment.utc(data[i].CreatedAt).toDate();
+            for (var i = 0; i < data.length; i++) {                
+                var mydate = moment.utc(data[i].AuditLogCreatedAt).toDate();
                 data[i].time = moment(mydate).fromNow();
-                data[i].DisplayName = this.CapitalizeDisplayName(this.removeLastNameIfAny(data[i].DisplayName));
+                data[i].UserDisplayName = this.CapitalizeDisplayName(this.removeLastNameIfAny(data[i].UserDisplayName));
                 this.findModuleDisplayNameAndURL(data[i]);
 
-                if (i !== 0 && new Date(data[i].CreatedAt).getSeconds() - new Date(data[i - 1].CreatedAt).getSeconds() < 3 && data[i].EntityType === data[i - 1].EntityType) {
+                if (i !== 0 && new Date(data[i].AuditLogCreatedAt).getSeconds() - new Date(data[i - 1].AuditLogCreatedAt).getSeconds() < 3 && data[i].AuditLogEntityType === data[i - 1].AuditLogEntityType) {
                     data.splice(i, 1);
                     i--;
                 }
@@ -170,11 +170,12 @@ export class Dashboard {
         var myLabels = [];
         var myData = [];
         var myColors = [];
+        
         for (var i = 0; i < data.length; i++) {
-            myLabels.push(data[i].Name);
+            myLabels.push(data[i].accountgroupName);
             if (data[i].sumamount < 0) {
                 data[i].sumamount *= -1;
-                myLabels[i] = data[i].Name + ' (Negativt)';
+                myLabels[i] = data[i].accountgroupName + ' (Negativt)';
             }
             myData.push(data[i].sumamount);
             myColors.push(this.colors[i]);
@@ -214,19 +215,22 @@ export class Dashboard {
     ************************/
 
     //Dummy temp switch that adds better name and url to list items
-    private findModuleDisplayNameAndURL(data: any) {
-        switch (data.EntityType) {
+    private findModuleDisplayNameAndURL(data: any) {        
+        
+        let entityID = data.AuditLogEntityID;
+        
+        switch (data.AuditLogEntityType) {
             case 'CustomerQuote':
                 data.module = 'Tilbud';
-                data.url = '/sales/quotes/' + data.EntityID;
+                data.url = '/sales/quotes/' + entityID; 
                 break;
             case 'CustomerOrder':
                 data.module = 'Ordre';
-                data.url = '/sales/orders/' + data.EntityID;
+                data.url = '/sales/orders/' + entityID;
                 break;
             case 'CustomerInvoice':
                 data.module = 'Faktura';
-                data.url = '/sales/invoices/' + data.EntityID;
+                data.url = '/sales/invoices/' + entityID;
                 break;
             case 'JournalEntryLine':
                 data.module = 'Jour. line';
@@ -235,7 +239,7 @@ export class Dashboard {
                 break;
             case 'SupplierInvoice':
                 data.module = 'Lev. faktura';
-                data.url = '/accounting/journalentry/supplierinvoices/' + data.EntityID;
+                data.url = '/accounting/journalentry/supplierinvoices/' + entityID;
                 break;
             case 'NumberSeries':
                 data.module = 'Nummerserie';
@@ -248,15 +252,15 @@ export class Dashboard {
                 break;
             case 'Employee':
                 data.module = 'Ansatt';
-                data.url = '/salary/employees/' + data.EntityID;
+                data.url = '/salary/employees/' + entityID;
                 break;
             case 'Customer':
                 data.module = 'Kunde';
-                data.url = '/sales/customer/details/' + data.EntityID;
+                data.url = '/sales/customer/details/' + entityID;
                 break;
             case 'Product':
                 data.module = 'Produkt';
-                data.url = '/products/' + data.EntityID;
+                data.url = '/products/' + entityID;
                 break;
             case 'SalaryTransaction':
                 data.module = 'SalaryTransaction';
@@ -265,7 +269,7 @@ export class Dashboard {
                 break;
             case 'PayrollRun':
                 data.module = 'Lønnsavregning';
-                data.url = '/salary/payrollrun/' + data.EntityID;
+                data.url = '/salary/payrollrun/' + entityID;
                 break;
             case 'Account':
                 data.module = 'Konto';
@@ -328,7 +332,7 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-            "statistics?model=AuditLog&select=entitytype,entityid,field,displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
+            "statistics?model=AuditLog&select=entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
             )
             .send()
             .map(response => response.json());
@@ -340,7 +344,7 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-            "statistics?model=AuditLog&select=entitytype,field,entityid,displayname,createdat,updatedat&filter=createdby eq '"
+            "statistics?model=AuditLog&select=entitytype,field,entityid,User.displayname,createdat,updatedat&filter=createdby eq '"
             + this.user.GlobalIdentity
             + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
             )
@@ -413,7 +417,7 @@ export class Dashboard {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('statistics?model=journalentryline&select=sum(amount),name&filter=maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
+            .withEndPoint('statistics?model=journalentryline&select=sum(amount),accountgroup.name&filter=accountgroup.maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
             .send()
             .map(response => response.json());
     }

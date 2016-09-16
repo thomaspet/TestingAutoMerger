@@ -47,9 +47,9 @@
         <h2>Siste transaksjoner</h2>
         <ol class="dashboard_list recent" *ngIf="transactionList">
             <li *ngFor="let trans of transactionList; let i = index;" class="dashboard_lists">
-                <strong>{{trans.DisplayName}}</strong>
+                <strong>{{trans.UserDisplayName}}</strong>
                 endret <!--Should be dynamic-->
-                <strong><a (click)="widgetListItemClicked(trans.url)">{{trans.module}} {{trans.EntityID}}</a></strong>
+                <strong><a (click)="widgetListItemClicked(trans.url)">{{trans.module}} {{trans.AuditLogEntityID}}</a></strong>
                 <time class="time_float">{{trans.time}}</time>
             </li> 
         </ol>
@@ -62,7 +62,7 @@
             <li *ngFor="let myTrans of myTransactionList; let i = index;" class="dashboard_lists">
                 <strong>Du</strong>
                 endret <!--Should be dynamic-->
-                <strong><a (click)="widgetListItemClicked(myTrans.url)">{{myTrans.module}} {{myTrans.EntityID}}</a></strong>
+                <strong><a (click)="widgetListItemClicked(myTrans.url)">{{myTrans.module}} {{myTrans.AuditLogEntityID}}</a></strong>
                 <time class="time_float">{{myTrans.time}}</time>
             </li>
         </ol>

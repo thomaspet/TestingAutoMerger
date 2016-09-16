@@ -45,28 +45,28 @@ export class RegtimeTotals {
 
     private initSources(ts: TimeSheet) {
         this.sources = [
-            { name: 'workers', label: 'Personer', pivotColName: 'businessrelation.name', isSelected: false,
+            { name: 'workers', label: 'Personer', pivotColName: 'BusinessRelation.Name', isSelected: false, pivotResultColName: 'BusinessRelationName',
                 join: 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id',            
             },
-            { name: 'orders', label: 'Ordre (dine)', pivotColName: 'customerorder.customername', pivotResultColName: 'CustomerName', 
+            { name: 'orders', label: 'Ordre (dine)', pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName', 
                 isSelected: true,
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0 and workrelationid eq ' + ts.currentRelation.ID  
             },
-            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'customerorder.customername', pivotResultColName: 'CustomerName', 
+            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName', 
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0'  
             },
-            { name: 'projects', label: 'Prosjekter (dine)', pivotColName: 'project.name', 
+            { name: 'projects', label: 'Prosjekter (dine)', pivotColName: 'Project.Name', pivotResultColName: 'ProjectName', 
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
-                filter: 'projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID  
+                filter: 'dimensions.projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID  
             },
-            { name: 'projectsAll', label: 'Prosjekter (alle)', pivotColName: 'project.name', 
+            { name: 'projectsAll', label: 'Prosjekter (alle)', pivotColName: 'Project.Name', pivotResultColName: 'ProjectName',
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
-                filter: 'projectid gt 0'  
+                filter: 'dimensions.projectid gt 0'  
             }        
             
         ];    
@@ -151,7 +151,7 @@ export class RegtimeTotals {
         this.busy = true;
         var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
-        query += this.createArg('select', 'sum(minutes),name,' + src.pivotColName);
+        query += this.createArg('select', 'sum(minutes),WorkType.Name,' + src.pivotColName);
         query += this.createArg('filter', 'deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
         if (src.filter) { query += ' and ( ' + src.filter + ' )'; }
         query += this.createArg('pivot', 'true');
