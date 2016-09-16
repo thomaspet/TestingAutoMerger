@@ -9,7 +9,7 @@ import moment from 'moment';
     directives: [UniTable]
 })
 export class PostingsummaryModalContent {
-    private busy: boolean;
+    public busy: boolean;
     private showReceipt: boolean = false;    
     private accountTableConfig: UniTableConfig;    
     @Input() private config: any;    
@@ -31,6 +31,9 @@ export class PostingsummaryModalContent {
             this.summary = response;         
             this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
             this.busy = false;
+        }, error => {
+            this.busy = false;
+            this.log(error);
         });
     }
     
@@ -64,6 +67,14 @@ export class PostingsummaryModalContent {
             .setColumns( [accountCol, nameCol, sumCol])
             .setColumnMenuVisible(false)            
             .setSearchable(false);
+    }
+
+    public log(err) {
+        if (err._body) {
+            alert(err._body);
+        } else {
+            alert(JSON.stringify(err));
+        }
     }
     
 }

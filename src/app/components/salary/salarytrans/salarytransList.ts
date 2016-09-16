@@ -513,6 +513,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                             this.busy = false;
                         });
                 }
+            }, error => {
+                this.log(error);
+                this.busy = false;
             });
 
     }

@@ -115,6 +115,7 @@ export class PayrollrunDetails {
                 this.busy = false;
             },
                 (err) => {
+                    this.busy = false;
                     this.log(err);
                     console.log(err);
                 });
@@ -215,15 +216,16 @@ export class PayrollrunDetails {
                             this.payrollrunService.refreshPayrun(response);
                             this.setEditMode();
                             this.showPaymentList();
-                            this.busy = false;
                         },
                         (err) => {
                             this.log(err);
+                            this.busy = false;
                         });
                 }
             },
             (err) => {
                 this.log(err);
+                this.busy = false;
             });
     }
 
@@ -301,6 +303,7 @@ export class PayrollrunDetails {
     }
 
     public savePayrollrun(done) {
+        this.busy = true;
         this.saveactions[0].disabled = true;
         done('Lagrer lønnsavregning');
 
@@ -310,11 +313,13 @@ export class PayrollrunDetails {
                 .subscribe((response: PayrollRun) => {
                     this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
+                    this.busy = false;
                 },
                 (err) => {
                     this.log(err);
                     console.log('Feil ved oppdatering av lønnsavregning', err);
                     this.refreshSaveActions();
+                    this.busy = false;
                 });
         } else {
             this.payrollrunService.Post(this.payrollrun)
@@ -322,11 +327,13 @@ export class PayrollrunDetails {
                     this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrun.ID);
+                    this.busy = false;
                 },
                 (err) => {
                     this.log(err);
                     console.log('Feil ved lagring', err);
                     this.refreshSaveActions();
+                    this.busy = false;
                 });
         }
     }

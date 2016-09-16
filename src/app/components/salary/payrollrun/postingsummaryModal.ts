@@ -29,11 +29,16 @@ export class PostingsummaryModal implements AfterViewInit {
                     text: 'Bokfør',
                     method: () => {
                         this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
+                            content.busy = true;
                             content.postTransactions().subscribe((success) => {
                                 if (success) {
                                     this.updatePayrollRun.emit(true);
                                     content.showResponseReceipt(success);
                                 }
+                                content.busy = false;
+                            }, error => {
+                                content.busy = false;
+                                content.log(error);
                             });
                         });
                     }
