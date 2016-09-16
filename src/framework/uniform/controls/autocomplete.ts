@@ -233,7 +233,6 @@ export class UniAutocompleteInput {
             return;
         }
 
-
         if (this.control.value.length) {
             if (this.selectedIndex === -1) {
                 this.selectedIndex = 0;
@@ -247,16 +246,12 @@ export class UniAutocompleteInput {
         }
 
         this.control.setValue(this.query);
-
-        if (this.lastValue !== this.value) {
-            this.lastValue = this.value;
-            _.set(this.model, this.field.Property, this.value);
-            if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
-                this.field.Options.events.select(this.model);
-            }
-
-            this.onChange.emit(this.model);
+        _.set(this.model, this.field.Property, this.value);
+        if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
+            this.field.Options.events.select(this.model);
         }
+
+        this.onChange.emit(this.model);
     }
 
     private onMouseover(index) {
