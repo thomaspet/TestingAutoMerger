@@ -12,7 +12,7 @@ declare var _;
     directives: [UniForm, NgIf],
     providers: [AltinnIntegrationService, EmployeeService],
     templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html',
-    host: {'(document:keydown)': 'checkForEnterSubmit($event)'}
+    host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
 })
 export class TaxCardRequestModalContent {
     public title: string = '';
@@ -20,6 +20,7 @@ export class TaxCardRequestModalContent {
     public busy: boolean;
     public sendAltinnVisible: boolean;
     public error: string = '';
+    public isActive: boolean = false;
 
     @Input('config')
     private config: any;
@@ -40,9 +41,12 @@ export class TaxCardRequestModalContent {
     }
 
     public checkForEnterSubmit(event) {
-        if (event.keyCode === 13) {
-            this.submit();
+        if (this.isActive) {
+            if (event.keyCode === 13) {
+                this.submit();
+            }
         }
+
     }
 
     private initialize() {
@@ -171,6 +175,7 @@ export class TaxCardRequestModal {
                 this.modal.getContent().then((component: TaxCardRequestModalContent) => {
                     this.modal.close();
                     component.close();
+                    component.isActive = false;
                 });
 
             },
@@ -179,9 +184,10 @@ export class TaxCardRequestModal {
     }
 
     public openModal() {
-    this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
-        this.modal.open();
-    });
+        this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
+            this.modal.open();
+            modalContent.isActive = true;
+        });
     }
 
 

@@ -125,7 +125,6 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
@@ -136,10 +135,12 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null,
-                    kendoOptions: {
-                        dataSource: this.languages,
-                        dataTextField: 'text',
-                        dataValueField: 'ID'
+                    IsLookUp: true,
+                    Options: {
+                        source: this.languages,
+                        template: (obj) => `${obj.id} - ${obj.name}`, 
+                        valueProperty: 'ID',
+                        displayProperty: 'text'
                     },
                     hasLineBreak: true
                 }
