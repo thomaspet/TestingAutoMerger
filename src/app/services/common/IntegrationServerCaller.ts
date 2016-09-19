@@ -27,7 +27,7 @@ export class IntegrationServerCaller {
     }
     
     public getAltinnCorrespondence(altinn: Altinn, orgno: string, receiptID: number): Observable<any> {
-        var altinnLogin: {username: string, password: string, pin: string, preferredLogin: string, timeStamp: string} = JSON.parse(localStorage.getItem('AltinnUserData'));
+        var altinnLogin: {userID: string, password: string, pin: string, preferredLogin: string, timeStamp: string} = JSON.parse(localStorage.getItem('AltinnUserData'));
         return this.http
                    .withNewHeaders()
                    .withHeaders({
@@ -35,7 +35,7 @@ export class IntegrationServerCaller {
                        'syspassword': altinn.SystemPw,
                        'lang': altinn.Language,
                        'orgno': orgno,
-                       'userID': altinnLogin.username,
+                       'userID': altinnLogin.userID,
                        'userPass': altinnLogin.password,
                        'authmethod': altinnLogin.preferredLogin,
                        'pin': altinnLogin.pin
