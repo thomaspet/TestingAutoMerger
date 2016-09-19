@@ -55,7 +55,7 @@ export class ReadTaxCardModalContent {
             .setEditable(false)
             .setContextMenu([contextMenuItem], false)
             .setPageSize(10)
-            .setFilters([{field: 'Form', operator: 'eq', value: 'RF-1211'}]);
+            .setFilters([{field: 'Form', operator: 'eq', value: 'RF-1211', group: 0}]);
 
 
     }

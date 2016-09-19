@@ -301,13 +301,15 @@ export class UniTableDemoNew {
         let hoursFilter = {
             field: 'HoursPerWeek',
             operator: 'eq',
-            value: 37.5
+            value: 37.5,
+            group: 0
         };
 
         let jobCodeFilter = {
             field: 'JobCode',
             operator: 'startswith',
-            value: '213'
+            value: '213',
+            group: 0
         };
 
         this.employmentLookup = (urlParams: URLSearchParams) => {
@@ -347,7 +349,8 @@ export class UniTableDemoNew {
             this.tables.last.setFilters([{
                 field: 'HoursPerWeek',
                 operator: 'eq',
-                value: 40
+                value: 40,
+                group: 0
             }]);
 
             // Delete filters for a given column. Will delete any filters matching the field value given.
