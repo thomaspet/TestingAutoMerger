@@ -197,6 +197,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this.payrollRun.transactions = this.salarytransChanged;
         this.payrollRun.transactions.forEach((trans: SalaryTransaction) => {
             trans.Wagetype = null;
+            trans.Employee = null;
         });
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
