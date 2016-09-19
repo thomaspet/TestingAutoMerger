@@ -48,14 +48,16 @@ export class VatSummaryPerPost implements OnChanges {
     }
 
     public vatReportSummaryPerPostToVatCode(vatReportSummaryPerPost: VatReportSummaryPerPost): string {
-        const vatType = this.vatTypes.find(vt =>
+        const vatTypes = this.vatTypes.filter(vt =>
             vt.VatReportReferences.some(vatReport =>
                 vatReport.VatPostID === vatReportSummaryPerPost.VatPostID
             )
         );
-        if (vatType) {
-            return vatType.VatCode;
+        let vatCodes: Array<string> = [];
+        if (vatTypes) {
+            vatTypes.forEach(x => vatCodes.push(x.VatCode));
         }
+        return vatCodes.join(',');
     }
 }
 

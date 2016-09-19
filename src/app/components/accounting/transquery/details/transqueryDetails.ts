@@ -57,44 +57,50 @@ export class TransqueryDetails implements OnInit {
         ) {
             const accountYear = `01.01.${routeParams['year']}`;
             const nextAccountYear = `01.01.${routeParams['year'] + 1}`;
-            filter.push({field: 'Account.AccountNumber', operator: 'eq', value: routeParams['Account_AccountNumber']});
+            filter.push({field: 'Account.AccountNumber', operator: 'eq', value: routeParams['Account_AccountNumber'], group: 0});
             if (+routeParams['period'] === 0) {
-                filter.push({field: 'FinancialDate', operator: 'lt', value: accountYear});
+                filter.push({field: 'FinancialDate', operator: 'lt', value: accountYear, group: 0});
             } else if (+routeParams['period'] === 13) {
                 if (routeParams['isIncomingBalance'] === 'true') {
-                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear});
+                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear, group: 0});
                 } else {
-                    filter.push({field: 'FinancialDate', operator: 'ge', value: accountYear});
-                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear});
+                    filter.push({field: 'FinancialDate', operator: 'ge', value: accountYear, group: 0});
+                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear, group: 0});
                 }
             } else {
                 const periodDates = this.journalEntryLineService
                     .periodNumberToPeriodDates(routeParams['period'], routeParams['year']);
-                filter.push({field: 'FinancialDate', operator: 'ge', value: periodDates.firstDayOfPeriod});
-                filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod});
+                filter.push({field: 'FinancialDate', operator: 'ge', value: periodDates.firstDayOfPeriod, group: 0});
+                filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod, group: 0});
             }
         } else if (
             routeParams['vatCode']
             && routeParams['vatFromDate']
             && routeParams['vatToDate']
         ) {
-            filter.push({field: 'VatType.VatCode', operator: 'eq', value: routeParams['vatCode']});
-            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate']});
-            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate']});
+            filter.push({field: 'VatType.VatCode', operator: 'eq', value: routeParams['vatCode'], group: 0});                
+            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate'], group: 0});
+            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate'], group: 0});
         } else if (
             routeParams['vatCodes']
             && routeParams['vatFromDate']
             && routeParams['vatToDate']
         ) {
-            filter.push({field: 'VatType.VatCode', operator: 'eq', value: routeParams['vatCodes']});
-            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate']});
-            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate']});
+            let vatCodes: Array<string> = routeParams['vatCodes'].split(',');             
+            
+            vatCodes.forEach(vatCode => {
+                filter.push({field: 'VatType.VatCode', operator: 'eq', value: vatCode, group: 1});    
+            });            
+            
+            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate'], group: 0});
+            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate'], group: 0});
         } else {
             for (const field of Object.keys(routeParams)) {
                 filter.push({
                     field: field.replace('_', '.'),
                     operator: 'eq',
-                    value: routeParams[field]
+                    value: routeParams[field],
+                    group: 0
                 });
             }
         }
@@ -108,6 +114,7 @@ export class TransqueryDetails implements OnInit {
             .setColumnMenuVisible(false)
             .setSearchable(true)
             .setFilters(unitableFilter)
+            .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
