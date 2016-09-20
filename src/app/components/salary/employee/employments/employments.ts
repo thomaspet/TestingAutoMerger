@@ -1,187 +1,200 @@
-import {Component, Injector, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {EmployeeDS} from '../../../../data/employee';
-import {EmploymentService, StaticRegisterService} from '../../../../services/services';
-import {STYRKCode, Employment, Employee} from '../../../../unientities';
+import {Component, ViewChild, OnInit} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {UniChildView} from '../../../../../framework/core/uniView';
+import {EmploymentService, EmployeeService} from '../../../../services/services';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm} from '../../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import {EmploymentDetails} from './employmentDetails';
+import {Employee, Employment} from '../../../../unientities';
 
-declare var jQuery;
-declare var _; // lodash
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {UniCacheService} from '../../../../services/services';
 
 @Component({
-    selector: 'employment-details',
-    directives: [UniForm, UniSave],
-    providers: [EmploymentService],
-    templateUrl: 'app/components/salary/employee/employments/employments.html'
+    selector: 'employments',
+    templateUrl: 'app/components/salary/employee/employments/employments.html',
+    directives: [UniTable, EmploymentDetails, UniSave],
+    providers: [EmploymentService]
 })
+export class Employments extends UniChildView implements OnInit {
+    @ViewChild(UniTable)
+    private table: UniTable;
 
-export class EmployeeEmployment {
-    private styrks: STYRKCode[];
-    
-    public config: any = {};
-    public fields: UniFieldLayout[] = [];
-    @ViewChild(UniForm, {read: UniForm}) public uniform: UniForm;
-
-    @Input() private currentEmployment: Employment;
-    @Input() private currentEmployee: Employee;
-    @Output() private refreshList: EventEmitter<any> = new EventEmitter<any>(true);
+    private employee: Employee;
+    private employments: Employment[] = [];
+    private selectedIndex: number = 0;
 
     private busy: boolean;
-    
-    private saveactions: IUniSaveAction[] = [
+    private tableConfig: UniTableConfig;
+    private saveActions: IUniSaveAction[] = [
         {
             label: 'Lagre arbeidsforhold',
-            action: this.setStandardAndSaveEmployment.bind(this),
+            action: this.saveEmployments.bind(this),
             main: true,
-            disabled: false
+            disabled: true
         }
     ];
 
-    constructor(private injector: Injector, 
-                public employeeDS: EmployeeDS,
-                public statReg: StaticRegisterService,
-                private _employmentService: EmploymentService) {
-        
-        this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-        
-        this.config = {
-            submitText: ''
-        };
-        
-        if (this._employmentService.subEntities) {
-            this.refreshDatafromModel();
-        } else {
-            this.cacheSubentitiesAndRefreshData();
-        }
-    }
-    
-    private cacheSubentitiesAndRefreshData() {
-        this.employeeDS.getSubEntities().subscribe((response: any) => {
-            this._employmentService.subEntities = response;
-            this._employmentService.subEntities.unshift([{ID: 0}]);
-            this.refreshDatafromModel();
-        },
-        (err: any) => {
-            console.log('error getting subentities: ', err);
-            this.log(err);
-        });
+    constructor(private employmentService: EmploymentService,
+                private employeeService: EmployeeService,
+                private route: ActivatedRoute,
+                private toastService: ToastService,
+                cacheService: UniCacheService,
+                router: Router) {
+
+        super(router.url, cacheService);
     }
 
-    private updateTitle(styrk) {
-        if (styrk) {
-            let styrkObj = this.styrks.find(x => x.styrk === styrk);
-            this.currentEmployment.JobName = styrkObj.tittel;
-            this.currentEmployment = _.cloneDeep(this.currentEmployment);
-            this.uniform.field('WorkPercent').focus();
-        }
-    }
-    
-    private refreshDatafromModel() {
-        this._employmentService.layout('EmploymentDetails')
-        .subscribe((layout: any) => {
-            this.fields = layout.Fields;
+    public ngOnInit() {
+        this.employee = super.getStateVar('employee');
+        this.employments = super.getStateVar('employments') || [];
 
-            let autocompleteJobcode = this.findByProperty(this.fields, 'JobCode');
-            autocompleteJobcode.Options = {
-                source: this.styrks,
-                template: (obj) => obj ? `${obj.styrk} - ${obj.tittel}` : '', 
-                displayProperty: 'styrk',
-                valueProperty: 'styrk',
-                debounceTime: 500,
-                events: {
-                    select: (model: Employment) => {
-                        this.updateTitle(model.JobCode);
-                    },
-                    enter: (model: Employment) => {
-                        this.updateTitle(model.JobCode);
+        this.route.parent.params.subscribe((params) => {
+            const employeeID = +params['id'];
+
+            // Get employee if not cached
+            if (!this.employee) {
+                this.employeeService.get(employeeID).subscribe((employee: Employee) => {
+                    this.employee = employee;
+                    super.setStateVar('employee', employee, false);
+                });
+            }
+
+            // Focus standard employment, get employments and focus if they werent cached
+            if (this.employments.length) {
+                const focusIndex = this.employments.findIndex(employment => employment.Standard) || 0;
+                this.table.focusRow(focusIndex);
+            } else {
+                this.employmentService.GetAll('filter=EmployeeID eq ' + employeeID).subscribe((employments) => {
+                    super.setStateVar('employments', employments, false);
+                    this.employments = employments;
+
+                    const focusIndex = this.employments.findIndex(employment => employment.Standard) || 0;
+                    this.table.focusRow(focusIndex);
+
+                    if (!this.employments.length) {
+                        this.newEmployment();
                     }
-                }
-            };
+                });
+            }
+        });
 
-            this.fields = _.cloneDeep(this.fields);
-            this.busy = false;
+        this.tableConfig = new UniTableConfig(false).setColumns([
+            new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
+            new UniTableColumn('JobName', 'Stillingsnavn'),
+            new UniTableColumn('JobCode', 'Stillingskode')
+        ]);
+    }
+
+    private newEmployment() {
+        this.employmentService.GetNewEntity().subscribe((response: Employment) => {
+            let newEmployment = response;
+            newEmployment.EmployeeNumber = this.employee.EmployeeNumber;
+            newEmployment.EmployeeID = this.employee.ID;
+            newEmployment.JobCode = '';
+            newEmployment.JobName = '';
+            newEmployment.StartDate = new Date();
+            newEmployment.LastSalaryChangeDate = new Date();
+            newEmployment.LastWorkPercentChangeDate = new Date();
+            newEmployment.SeniorityDate = new Date();
+
+            this.employments.push(newEmployment);
+            this.table.addRow(newEmployment);
+            this.table.focusRow(this.employments.length - 1);
         });
     }
-    
-    public ngOnChanges(valueChanges) {
-        if (valueChanges.currentEmployment.previousValue.ID !== undefined) {
-            if (this.currentEmployment) {
-                this.refreshDatafromModel();
-            }
+
+    private onEmploymentChange(employment) {
+        employment['_isDirty'] = true;
+        this.saveActions[0].disabled = false;
+
+        // Store state in case the user leaves the view without saving
+        super.setStateVar('employments', this.employments, true);
+    }
+
+    private onRowSelected(event) {
+        // Update table when switching rows
+        const currentEmployment = this.employments[this.selectedIndex];
+        if (currentEmployment['_isDirty']) {
+            this.table.updateRow(this.selectedIndex, currentEmployment);
         }
+
+        this.selectedIndex = event.rowModel['_originalIndex'];
     }
-    
-    public ready(value) {
-        setTimeout(() => {
-            if (!this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
+
+    // REVISIT: This should be moved to parent component
+    // when cache is implemented for all employee components
+    private saveEmployments(done) {
+        this.busy = true;
+
+        // Remove untouched new rows
+        this.employments = this.employments.filter((employment, index) => {
+            if (employment.ID === 0 && !employment['_isDirty']) {
+                this.table.removeRow(index);
+                return false;
             }
-        }, 100);
-    }
-    
-    public change(value) {
-        this.saveactions[0].disabled = false;
-    }
 
-    private findByProperty(fields, name) {
-        var field = fields.find((fld) => fld.Property === name);
-        return field; 
-    }
+            return true;
+        });
 
-    private setStandardAndSaveEmployment(done) {
-        let stdPresent: boolean = false;
-        if (this.currentEmployee.Employments.length > 0) {
-            this.currentEmployee.Employments.forEach(employment => {
-                if (employment.Standard === true) {
-                    stdPresent = true;
+        // Find changed rows and check if we have a standard employment
+        const changes = [];
+        let hasStandardEmployment = false;
+        this.employments.forEach((employment) => {
+            if (employment['_isDirty']) {
+                changes.push(employment);
+            }
+
+            if (employment['Standard']) {
+                hasStandardEmployment = true;
+            }
+        });
+
+        // Make current employment standard if not already set
+        if (!hasStandardEmployment) {
+            this.employments[this.selectedIndex].Standard = true;
+        }
+
+        // Save changes
+        let finishedCount = 0;
+        changes.forEach((employment: Employment) => {
+            let source = (employment.ID > 0) ? this.employmentService.Put(employment.ID, employment)
+                                             : this.employmentService.Post(employment);
+
+            // Use Observable.finally() to track save progress
+            source = source.finally(() => {
+                finishedCount++;
+
+                if (finishedCount === changes.length) {
+                    // If no employments _isDirty it means every save request was successful
+                    if (this.employments.filter(emp => emp['_isDirty']).length === 0) {
+                        this.saveActions[0].disabled = true;
+                        done('Lagring fullført');
+                    } else {
+                        done('Feil under lagring');
+                    }
+
+                    this.busy = false;
                 }
             });
-        }
-        if (!stdPresent) {
-            this.currentEmployment.Standard = true;
-        }
-        this.saveEmployment(done);
+
+            // Perform request
+            source.subscribe(
+                response => this.handleSaveSuccess(employment, response),
+                error => this.handleSaveError(employment)
+            );
+        });
+
     }
-    
-    public saveEmployment(done) {
-        this.busy = true;
-        this.saveactions[0].disabled = true;
-        done('Lagrer arbeidsforhold');
-        if (this.currentEmployment.ID > 0) {
-            this._employmentService.Put(this.currentEmployment.ID, this.currentEmployment)
-            .subscribe((response: Employment) => {
-                this.refreshList.emit(true);
-                this.currentEmployment = response;
-                done('Sist lagret: ');
-                this.saveactions[0].disabled = false;
-                this.busy = false;
-            },
-            (err) => {
-                console.log('Feil ved oppdatering av arbeidsforhold', err);
-                this.log(err);
-                this.saveactions[0].disabled = false;
-                this.busy = false;
-            });
-        } else {
-            this._employmentService.Post(this.currentEmployment)
-            .subscribe((response: Employment) => {
-                this.currentEmployment = response;
-                this.refreshList.emit(true);
-                done('Sist lagret: ');
-                this.saveactions[0].disabled = false;
-                this.busy = false;
-            },
-            (err) => {
-                console.log('Feil oppsto ved lagring', err);
-                this.log(err);
-                this.saveactions[0].disabled = false;
-                this.busy = false;
-            });
-        }
+
+    private handleSaveSuccess(employment, response) {
+        this.table.updateRow(employment['_originalIndex'], response);
+        this.employments[employment['_originalIndex']] = response;
     }
-    
-    public log(err) {
-        alert(err._body);
+
+    private handleSaveError(employment) {
+        // TODO: Set validation feedback in table when this is supported
+        this.toastService.addToast('Lagring av arbeidsforhold ' + employment.JobName + ' feilet', ToastType.bad, 0);
     }
+
 }

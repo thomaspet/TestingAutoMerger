@@ -60,3 +60,5 @@ export * from './salary/wagetype/InntektService';
 export * from './accounting/periodservice';
 
 export * from './common/AltinnAuthenticationService';
+
+export * from './cacheService';

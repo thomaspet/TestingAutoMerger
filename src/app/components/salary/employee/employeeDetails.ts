@@ -12,6 +12,8 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 
+import {UniParentView} from '../../../../framework/core/uniView';
+import {UniCacheService} from '../../../services/services';
 
 @Component({
     selector: 'uni-employee-details',
@@ -24,7 +26,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
     ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons, ContextMenu]
 })
-export class EmployeeDetails {
+export class EmployeeDetails extends UniParentView {
     public busy: boolean;
     private employee: Employee;
     private url: string;
@@ -33,12 +35,16 @@ export class EmployeeDetails {
     private childRoutes: any[];
     private contextMenuItems: IContextMenuItem[];
 
+
     constructor(
         private route: ActivatedRoute,
         private rootRouteParams: RootRouteParamsService,
         private _employeeService: EmployeeService,
         private _router: Router,
-        private tabService: TabService) {
+        private tabService: TabService,
+        cacheService: UniCacheService) {
+
+        super(_router.url, cacheService);
 
         this._employeeService.employee$.subscribe((emp: Employee) => {
             this.employee = emp;
@@ -65,7 +71,7 @@ export class EmployeeDetails {
 
         this.childRoutes = [
             { name: 'Detaljer', path: 'personal-details' },
-            { name: 'Arbeidsforhold', path: 'employment-list' },
+            { name: 'Arbeidsforhold', path: 'employments' },
             { name: 'Faste poster', path: 'recurring-post' },
             { name: 'Permisjon', path: 'employee-leave' }
         ];
@@ -90,44 +96,45 @@ export class EmployeeDetails {
                 }
             }
         ];
-
     }
 
     public nextEmployee() {
-        this.busy = true;
+        // this.busy = true;
         this._employeeService.getNext(this.employeeID).subscribe((response: Employee) => {
-            if (response) {
-                if (!response.BusinessRelationInfo) {
-                    this._employeeService.get(response.ID).subscribe((emp) => {
-                        this._employeeService.refreshEmployee(emp);
-                        this._router.navigateByUrl(this.url + emp.ID);
-                    });
-                } else {
-                    this._employeeService.refreshEmployee(response);
-                    this._router.navigateByUrl(this.url + response.ID);
-                }
+            // if (response) {
+            //     if (!response.BusinessRelationInfo) {
+            //         this._employeeService.get(response.ID).subscribe((emp) => {
+            //             // this._employeeService.refreshEmployee(emp);
+            //             // this._router.navigateByUrl(this.url + emp.ID);
+            //         });
+            //     } else {
+            //         // this._employeeService.refreshEmployee(response);
+            //         this._router.navigateByUrl(this.url + response.ID);
+            //     }
 
-            }
-            this.busy = false;
+            // }
+            this._router.navigateByUrl(this.url + response.ID);
+            // this.busy = false;
         });
     }
 
     public previousEmployee() {
-        this.busy = true;
+        // this.busy = true;
         this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
-            if (response) {
-                if (!response.BusinessRelationInfo) {
-                    this._employeeService.get(response.ID).subscribe((emp) => {
-                        this._employeeService.refreshEmployee(emp);
-                        this._router.navigateByUrl(this.url + emp.ID);
-                    });
-                } else {
-                    this._employeeService.refreshEmployee(response);
-                    this._router.navigateByUrl(this.url + response.ID);
-                }
+            // if (response) {
+            //     if (!response.BusinessRelationInfo) {
+            //         this._employeeService.get(response.ID).subscribe((emp) => {
+            //             this._employeeService.refreshEmployee(emp);
+            //             this._router.navigateByUrl(this.url + emp.ID);
+            //         });
+            //     } else {
+            //         this._employeeService.refreshEmployee(response);
+            //         this._router.navigateByUrl(this.url + response.ID);
+            //     }
 
-            }
-            this.busy = false;
+            // }
+            this._router.navigateByUrl(this.url + response.ID);
+            // this.busy = false;
         });
     }
 

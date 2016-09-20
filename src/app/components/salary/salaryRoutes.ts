@@ -8,6 +8,8 @@ import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PaymentList} from './payrollrun/paymentList';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
 
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
+
 export const routes = [
     {
         path: '',
@@ -29,7 +31,8 @@ export const routes = [
     {
         path: 'employees/:id',
         component: EmployeeDetails,
-        children: EmployeeRoutes
+        children: EmployeeRoutes,
+        canDeactivate: [CanDeactivateGuard]
     },
 
     {

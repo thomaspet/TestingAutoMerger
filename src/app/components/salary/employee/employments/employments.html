@@ -1,5 +1,12 @@
-<section *ngIf="currentEmployment" [attr.aria-busy]="busy">
-    <uni-form *ngIf="currentEmployment" [config]="config" [fields]="fields" [model]="currentEmployment" (onSubmit)="setStandardAndSaveEmployment($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+<section class="splitview">
+    <nav class="splitview_list">
+        <uni-table [config]="tableConfig" [resource]="employments" (rowSelected)="onRowSelected($event)"></uni-table>
+        <button (click)="newEmployment()">Nytt Arbeidsforhold</button>
+    </nav>
+    <main class="splitview_detail">
+        <employment-details [employment]="employments[selectedIndex]"
+                            (employmentChange)="onEmploymentChange($event)">
+        </employment-details>
+    </main>
 </section>
-
-<uni-save [actions]="saveactions"></uni-save>
+<uni-save [actions]="saveActions"></uni-save>

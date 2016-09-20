@@ -4,15 +4,17 @@ import {ToastService} from '../framework/uniToast/toastService';
 import {GuidService} from './services/services';
 import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
 import {UniHttp} from '../framework/core/http/http';
-import {UniState} from '../framework/core/UniState';
+import {UniCacheService} from './services/cacheService';
 import {AuthService} from './../framework/core/authService';
 import {AuthGuard} from './AuthGuard';
+import {CanDeactivateGuard} from './canDeactivateGuard';
 import {REPORT_PROVIDERS} from './services/reports/index';
 export const APP_SERVICES = [
     // Services
     AuthGuard,
+    CanDeactivateGuard,
     AuthService,
-    UniState,
+    UniCacheService,
     UniHttp,
     GuidService,
     ToastService,
