@@ -16,6 +16,9 @@
         <dt>Sum reskontro</dt>
         <dd>{{summaryData.SumLedger}}</dd>
 
+        <dt *ngIf="showTaxBasisAmount">Grunnlag MVA</dt>
+        <dd *ngIf="showTaxBasisAmount">{{summaryData.SumTaxBasisAmount}}</dd>
+
         <dt>Saldo</dt>
         <dd>{{summaryData.SumBalance}}</dd>
     </dl>

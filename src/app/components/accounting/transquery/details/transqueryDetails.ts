@@ -18,6 +18,8 @@ export class TransqueryDetails implements OnInit {
     private summaryData: TransqueryDetailsCalculationsSummary;
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+    private configuredFilter: string;
+    private allowManualSearch: boolean = true;
 
     constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService) {
         this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: 9, active: true });
@@ -26,19 +28,36 @@ export class TransqueryDetails implements OnInit {
     public ngOnInit() {
         this.route.params.subscribe(params => {
             const unitableFilter = this.generateUnitableFilters(params);
-            this.uniTableConfig = this.generateUniTableConfig(unitableFilter);
+            this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
             this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
         });
     }
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
+        console.log('urlParams:', urlParams);
+
+        // Some really complex filters cannot be defined through the unitable search module.
+        // The configuredFilter is set to an odatafilter in these cases, so that this can be
+        // used instead
+        if (this.configuredFilter) {
+            urlParams.set('filter', this.configuredFilter);
+        }
+
         urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod');
         return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
     }
 
     public onFiltersChange(filter: string) {
-        if (filter) {
+
+        // Some really complex filters cannot be defined through the unitable search module.
+        // The configuredFilter is set to an odatafilter in these cases, so that this can be
+        // used instead
+        if (this.configuredFilter) {
+            this.journalEntryLineService
+                .getJournalEntryLineRequestSummary(this.configuredFilter)
+                .subscribe(summary => this.summaryData = summary);
+        } else if (filter) {
             this.journalEntryLineService
                 .getJournalEntryLineRequestSummary(filter)
                 .subscribe(summary => this.summaryData = summary);
@@ -48,6 +67,8 @@ export class TransqueryDetails implements OnInit {
     }
 
     private generateUnitableFilters(routeParams: any): ITableFilter[] {
+        this.allowManualSearch = true;
+        this.configuredFilter = '';
         const filter: ITableFilter[] = [];
         if (
             routeParams['Account_AccountNumber']
@@ -74,26 +95,35 @@ export class TransqueryDetails implements OnInit {
                 filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod, group: 0});
             }
         } else if (
-            routeParams['vatCode']
+            routeParams['vatCodesAndAccountNumbers']
             && routeParams['vatFromDate']
             && routeParams['vatToDate']
+            && routeParams['showTaxBasisAmount']
         ) {
-            filter.push({field: 'VatType.VatCode', operator: 'eq', value: routeParams['vatCode'], group: 0});                
-            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate'], group: 0});
-            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate'], group: 0});
-        } else if (
-            routeParams['vatCodes']
-            && routeParams['vatFromDate']
-            && routeParams['vatToDate']
-        ) {
-            let vatCodes: Array<string> = routeParams['vatCodes'].split(',');             
-            
-            vatCodes.forEach(vatCode => {
-                filter.push({field: 'VatType.VatCode', operator: 'eq', value: vatCode, group: 1});    
-            });            
-            
-            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate'], group: 0});
-            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate'], group: 0});
+            // this is a two-dimensional array, "vatcode1|accountno1,vatcode2|accountno2,etc"
+            let vatCodesAndAccountNumbers: Array<string> = routeParams['vatCodesAndAccountNumbers'].split(',');
+
+            this.configuredFilter = '';
+            this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' and VatDate le '${routeParams['vatToDate']}' and TaxBasisAmount ne 0 ` ;
+
+            if (vatCodesAndAccountNumbers && vatCodesAndAccountNumbers.length > 0) {
+                this.configuredFilter += ' and (';
+                for (let index = 0; index < vatCodesAndAccountNumbers.length; index++) {
+                    let vatCodeAndAccountNumber = vatCodesAndAccountNumbers[index].split('|');
+
+                    let vatCode = vatCodeAndAccountNumber[0];
+                    let accountNo = vatCodeAndAccountNumber[1];
+                    if (index > 0) {
+                        this.configuredFilter += ' or ';
+                    }
+                    this.configuredFilter += `(VatType.VatCode eq '${vatCode}' and Account.AccountNumber eq ${accountNo} )`;
+                }
+
+                this.configuredFilter += ') ';
+
+                this.allowManualSearch = false;
+            }
+
         } else {
             for (const field of Object.keys(routeParams)) {
                 filter.push({
@@ -107,12 +137,15 @@ export class TransqueryDetails implements OnInit {
         return filter;
     }
 
-    private generateUniTableConfig(unitableFilter: ITableFilter[]): UniTableConfig {
+    private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
+
+        let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
+
         return new UniTableConfig(false, false)
             .setPageable(true)
             .setPageSize(20)
             .setColumnMenuVisible(false)
-            .setSearchable(true)
+            .setSearchable(this.allowManualSearch)
             .setFilters(unitableFilter)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
@@ -149,7 +182,7 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Number)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
-                    .setVisible(false),
+                    .setVisible(showTaxBasisAmount),
                 new UniTableColumn('VatReportID', 'MVA rapportert', UniTableColumnType.Text)
                     .setTemplate((line: JournalEntryLine) => line.VatReport && line.VatReport.TerminPeriod ? line.VatReport.TerminPeriod.No + '-' + line.VatReport.TerminPeriod.AccountYear : '')
                     .setFilterable(false)

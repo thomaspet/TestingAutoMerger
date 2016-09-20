@@ -18,7 +18,9 @@ export class VatTypeService extends BizHttp<VatType> {
     public GetVatTypesWithVatReportReferencesAndVatCodeGroup(): Observable<VatType[]> {
         return this.GetAll(null, [
             'VatCodeGroup',
-            'VatReportReferences'
+            'VatReportReferences',
+            'VatReportReferences.Account',
+            'VatReportReferences.VatPost'
         ]);
     }
 }

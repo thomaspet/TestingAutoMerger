@@ -49,13 +49,13 @@
                     <tr *ngFor="let summaryItem of vatReportSummary">
                         <td>{{summaryItem.VatCodeGroupName}}</td>
                         <td class="currency">
-                            <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                                 {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
                             </a>
                             <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
                         </td>
                         <td class="currency">
-                            <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                                 {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
                             </a>
                             <span *ngIf="summaryItem.HasTaxAmount && isHistoricData">{{summaryItem.SumVatAmount * -1 | unicurrency:2}}</span>

@@ -47,17 +47,25 @@ export class VatSummaryPerPost implements OnChanges {
         return Object.keys(obj).map(key => obj[key]);
     }
 
-    public vatReportSummaryPerPostToVatCode(vatReportSummaryPerPost: VatReportSummaryPerPost): string {
+    public vatReportSummaryPerPostToVatCodeAndAccountNo(vatReportSummaryPerPost: VatReportSummaryPerPost): string {
         const vatTypes = this.vatTypes.filter(vt =>
             vt.VatReportReferences.some(vatReport =>
                 vatReport.VatPostID === vatReportSummaryPerPost.VatPostID
             )
         );
-        let vatCodes: Array<string> = [];
+        
+        // build string containing combination of vatcode and accountnumber for this vatpost, the result
+        // will e.g. be "1|2711,3|2710,5|2702,..."
+        
+        let vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
-            vatTypes.forEach(x => vatCodes.push(x.VatCode));
+            vatTypes.forEach(vt => {              
+                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPostID === vatReportSummaryPerPost.VatPostID)                
+                vatReportReferences.forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
+            }); 
         }
-        return vatCodes.join(',');
+        
+        return vatCodesAndAccountNos.join(',');
     }
 }
 
