@@ -262,6 +262,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public vatReportDidChange(vatReport: VatReport) {
         this.setVatreport(vatReport);
+        this.showView = 'receipt';
     }
 
     public runVatReport(done) {
@@ -283,7 +284,7 @@ export class VatReportView implements OnInit, OnDestroy {
                             '\n\nTrykk avbryt og kjør rapporten på ny hvis du vil ha med disse bilagene'))) {
                     this.vatReportService.sendReport(this.currentVatReport.ID)
                         .subscribe(() => {
-                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry'])
+                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                                 .subscribe(vatreport => {
                                     this.setVatreport(vatreport);
                                     done();
@@ -303,7 +304,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public approveManually(done) {
         this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approve')
             .subscribe(() => {
-                this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry'])
+                this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                     .subscribe(vatreport => {
                         this.setVatreport(vatreport);
                         done('Godkjent');
@@ -363,7 +364,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 console.log('createCorrectiveVatReport tilbakemelding. Id=' + modalData.id);
                 // Load the newly created report
                 if (modalData.id > 0) {
-                    this.vatReportService.Get(modalData.id, ['TerminPeriod','JournalEntry'])
+                    this.vatReportService.Get(modalData.id, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
                         },
@@ -432,7 +433,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public ShowVatReport(id: number) {
         console.log('ShowVatReport id:', id);
-        this.vatReportService.Get(id, ['TerminPeriod', 'JournalEntry'])
+        this.vatReportService.Get(id, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
             .subscribe(vatreport => {
                 this.setVatreport(vatreport);
             },

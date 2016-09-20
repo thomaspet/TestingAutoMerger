@@ -50,7 +50,7 @@ export class ReceiptVat {
                                     'MVA meldingen ble avvist av Altinn'
                                 );
                             } else {
-                                this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod'])
+                                this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod', 'VatReportType','VatReportArchivedSummary'])
                                     .subscribe(updatedVatReport => {
                                             this.vatReport = updatedVatReport;
                                             this.vatReportDidChange.emit(updatedVatReport);

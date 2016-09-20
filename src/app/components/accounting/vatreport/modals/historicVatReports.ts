@@ -46,7 +46,7 @@ export class HistoricVatReportTable implements OnInit {
 
     private getTableData(urlParams: URLSearchParams): Observable<VatReport[]> {
         urlParams = urlParams || new URLSearchParams();
-        urlParams.set('expand', 'TerminPeriod,VatReportType,JournalEntry');
+        urlParams.set('expand', 'TerminPeriod,VatReportType,JournalEntry,VatReportArchivedSummary');
         
         if (!urlParams.get('orderby')) {
             urlParams.set('orderby', 'TerminPeriod.AccountYear DESC, TerminPeriod.No DESC, ID DESC');

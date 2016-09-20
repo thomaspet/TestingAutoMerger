@@ -1,26 +1,61 @@
-<section class="application">
-    <button
-        *ngIf="!vatReport?.PaymentID"
-        type="button"
-        (click)="checkForReceipt()">
+﻿<section class="application">
+    <button *ngIf="!vatReport?.VatReportArchivedSummary?.PaymentID"
+            type="button"
+            (click)="checkForReceipt()">
         Hent kvittering fra Altinn
     </button>
     <altinn-authentication-data-modal></altinn-authentication-data-modal>
-    <table *ngIf="vatReport?.PaymentID">
-        <tr>
-            <th>Betalingsfrist</th><td>{{vatReport?.PaymentDueDate | unidateformat}}</td>
-        </tr>
-        <tr>
-            <th>Betale til</th><td>{{vatReport?.PaymentToDescription}}</td>
-        </tr>
-        <tr>
-            <th>KID</th><td>{{vatReport?.PaymentID}}</td>
-        </tr>
-        <tr>
-            <th>Sum</th><td>{{vatReport?.TotalAmount | unicurrency}}</td>
-        </tr>
-        <tr>
-            <th>Til konto</th><td>{{vatReport?.BankAccountNumberTarget | uniaccountnumber}}</td>
-        </tr>
-    </table>
+
+    <article *ngIf="vatReport?.VatReportArchivedSummary?.PaymentID">
+        <table class="vatReportReceiptTable">
+            <caption>{{vatReport?.VatReportArchivedSummary?.ReportName}}</caption>
+        </table>
+
+        <br>
+        <br>
+        <table *ngIf="vatReport?.VatReportArchivedSummary?.PaymentID" class="vatReportReceiptTable">
+            <caption>{{vatReport?.VatReportArchivedSummary?.SummaryHeader}}:</caption>
+            <tr *ngIf="vatReport?.VatReportArchivedSummary?.AmountToBePayed > 0">
+                <th>Post 19 Avgift å betale</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.AmountToBePayed}}</td>
+            </tr>
+            <tr *ngIf="vatReport?.VatReportArchivedSummary?.AmountToBeReceived > 0">
+                <th>Post 19 Avgift til gode</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.AmountToBeReceived}}</td>
+            </tr>
+        </table>
+
+        <br>
+        <table *ngIf="vatReport?.VatReportArchivedSummary?.PaymentID" class="vatReportReceiptTable">
+            <caption>Informasjon for å betale:</caption>
+            <tr>
+                <th>År</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentYear}}</td>
+            </tr>
+            <tr>
+                <th>Termin</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentPeriod}}</td>
+            </tr>
+            <tr>
+                <th>Betalingsfrist</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentDueDate | unidateformat}}</td>
+            </tr>
+            <tr>
+                <th>Betale til</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentToDescription}}</td>
+            </tr>
+            <tr>
+                <th>KID</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentID}}</td>
+            </tr>
+            <tr>
+                <th>Beløp</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.AmountToBePayed | unicurrency}}</td>
+            </tr>
+            <tr>
+                <th>Til konto</th>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentBankAccountNumber | uniaccountnumber}}</td>
+            </tr>
+        </table>
+    </article>
 </section>
