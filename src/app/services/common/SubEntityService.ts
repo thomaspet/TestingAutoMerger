@@ -17,6 +17,14 @@ export class SubEntityService extends BizHttp<SubEntity> {
         return this.GetAll('SuperiorOrganization eq 0 or SuperiorOrganization eq null', ['BusinessRelationInfo']);
     }
 
+    public delete(ID: number) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('subentities/' + ID)
+            .send();
+    }
+
     public getFromEnhetsRegister(orgno: string) {
         return this.http
                    .asGET()

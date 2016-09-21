@@ -116,7 +116,7 @@ export class SubEntityDetails implements OnChanges {
         if (this.model) {
             if (this.postalCodes && this.model.BusinessRelationInfo && this.model.BusinessRelationInfo.InvoiceAddress) {
                 let postalCode = this.postalCodes.find(x => x.Code === this.model.BusinessRelationInfo.InvoiceAddress.PostalCode);
-                this.model.BusinessRelationInfo.InvoiceAddress.City = postalCode.City;
+                this.model.BusinessRelationInfo.InvoiceAddress.City = postalCode ? postalCode.City : '';
                 this.model = _.cloneDeep(this.model);
             }
         }
@@ -139,6 +139,9 @@ export class SubEntityDetails implements OnChanges {
     }
 
     public saveSubentities() {
+        if (!this.model.BusinessRelationID && this.model.BusinessRelationInfo) {
+            this.model.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
+        }
         return this.currentSubEntity.ID ?
             this._subEntityService.Put(this.model.ID, this.model) :
             this._subEntityService.Post(this.model);

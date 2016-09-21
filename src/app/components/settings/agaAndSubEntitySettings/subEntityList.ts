@@ -1,5 +1,6 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService, AgaZoneService, MunicipalService, BusinessRelationService} from '../../../services/services';
 import {SubEntity, Municipal, AGAZone} from '../../../unientities';
@@ -34,8 +35,7 @@ export class SubEntityList implements OnInit {
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalService: MunicipalService,
-        private _businessRelationService: BusinessRelationService) {
-
+        private _toastService: ToastService) {
     }
 
     public ngOnInit() {
@@ -74,8 +74,27 @@ export class SubEntityList implements OnInit {
 
         this.subEntityListConfig = new UniTableConfig(false)
             .setColumns([name, orgnr, municipal, agaZone])
+            .setDeleteButton({
+                deleteHandler: (rowModel) => {
+                    if (isNaN(rowModel.ID)) { return true; }
+                    if (confirm(`Vil du slette ${rowModel.BusinessRelationInfo ? rowModel.BusinessRelationInfo.Name : 'denne virksomheten'}?`)) {
+                        this._subEntityService.delete(rowModel.ID).subscribe(response => {
+                            this.table.removeRow(rowModel['_originalIndex']);
+                        }, error => {
+                            let body = error['_body'] ? JSON.parse(error['_body']) : null;
+                            if (body && body.Messages) {
+                                body.Messages.forEach((message) => {
+                                    this._toastService.addToast('Valideringsfeil' , ToastType.bad, 0, message.Message);
+                                });
+                            } else {
+                                this._toastService.addToast('Valideringsfeil', ToastType.bad, 0, error['_body'] ? error['_body'] : error);
+                            }
+                            
+                        });
+                    }
+                }
+            })
             .setPageable(false);
-
     }
 
     public refreshList() {
