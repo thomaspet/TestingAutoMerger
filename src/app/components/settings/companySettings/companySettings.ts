@@ -958,7 +958,7 @@ export class CompanySettings implements OnInit {
             .PutAction(null, 'synchronize-ns4102-as')
             .subscribe(
             (response: any) => {
-                alert('Kontoplan synkronisert for AS');
+                console.log('Kontoplan synkronisert for AS');
             },
             (error: any) => console.log(error)
             );
@@ -970,7 +970,7 @@ export class CompanySettings implements OnInit {
             .PutAction(null, 'synchronize')
             .subscribe(
             (response: any) => {
-                alert('VatTypes synkronisert');
+                console.log('VatTypes synkronisert');
             },
             (error: any) => console.log(error)
             );

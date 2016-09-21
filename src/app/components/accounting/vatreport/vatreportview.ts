@@ -357,7 +357,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private createCorrectiveVatReport(done) {
 
-        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.        
+        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.createCorrectedVatReportModal.changed.observers.length === 0) {
             this.createCorrectedVatReportModal.changed.subscribe((modalData: any) => {
@@ -390,20 +390,20 @@ export class VatReportView implements OnInit, OnDestroy {
         }
     }
 
-    public vatReportSummaryToVatCodeAndAccountNumbers(vatReportSummary: VatReportSummary): string {     
+    public vatReportSummaryToVatCodeAndAccountNumbers(vatReportSummary: VatReportSummary): string {
         const vatTypes = this.vatTypes;
-                
+
         // build string containing combination of vatcode and accountnumber for this vatpost, the result
         // will e.g. be "1|2711,3|2710,5|2702,..."
-        
+
         let vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
-            vatTypes.forEach(vt => {              
-                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID);                
+            vatTypes.forEach(vt => {
+                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID);
                 vatReportReferences.forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
-            }); 
+            });
         }
-        
+
         return vatCodesAndAccountNos.join(',');
     }
 

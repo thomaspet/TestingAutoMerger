@@ -14,7 +14,7 @@ export class ReportParameter extends ReportDefinitionParameter {
 }
 
 class ReportDataSource extends ReportDefinitionDataSource {
-    
+
 }
 
 export class Report extends ReportDefinition {
@@ -29,7 +29,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private target: any;
     private baseHttp: Http;
     private format: string;
-    
+
     constructor(
         private uniHttp: UniHttp,
         @Inject(ReportDefinitionDataSourceService)
@@ -41,10 +41,10 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.relativeURL = ReportDefinition.RelativeUrl;
         this.DefaultOrderBy = 'Category';
     }
-    
+
     public getReportByName(name: string) : Observable<any> {
         return this.GetAll(`filter=Name eq '${name}'`).map((reports) => {
-           return reports[0]; 
+           return reports[0];
         });
     }
 
@@ -52,17 +52,17 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.format = 'html';
         this.report = <Report>report;
         this.target = target;
-       
+
         this.generateReport();
     }
 
     public generateReportPdf(report: ReportDefinition) {
         this.format = 'pdf';
         this.report = <Report>report;
-       
+
         this.generateReport();
     }
-           
+
 
     private generateReport() {
         // get template
@@ -74,16 +74,16 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             },
             err => this.onError('Cannot load report template.\n\n' + err)
             );
-    }  
-    
+    }
+
     private onTemplateLoaded() {
-        // get data source URLs 
+        // get data source URLs
         this.reportDefinitionDataSourceService.GetAll<ReportDataSource>(`filter=ReportDefinitionId eq ${this.report.ID}`)
               .subscribe(dataSources => {
                   this.report.dataSources = dataSources;
-                  this.onDataSourcesLoaded(); 
+                  this.onDataSourcesLoaded();
               },
-              err => this.onError('Cannot get data sources.\n\m' + err) 
+              err => this.onError('Cannot get data sources.\n\m' + err)
               );
     }
 
@@ -93,10 +93,10 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
         // create http requests
         let observableBatch = [];
-        
+
         for (const ds of this.report.dataSources) {
-            let url: string = ds.DataSourceUrl;   
-            url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');      
+            let url: string = ds.DataSourceUrl;
+            url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');
             observableBatch.push(
                 this.http
                 .asGET()
@@ -105,19 +105,22 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                 .map(response => response.json())
             );
         }
-        
+
         Observable.forkJoin(observableBatch)
             .subscribe(data => this.onDataFetched(data),
             err => this.onError('Cannot load report data.\n\n' + err));
     }
-    
+
     private onDataFetched(data: any) {
         let dataSources = {};
 
         for (let i = 0; i < data.length; i++) {
             let name = this.report.dataSources[i].Name;
-            dataSources[name] = data[i];            
+            dataSources[name] = data[i];
         }
+
+        // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
+        // console.log('DATA: ', JSON.stringify(dataSources));
 
         if (this.format === 'html') {
             this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
@@ -125,7 +128,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, true);
         }
     }
-    
+
     private resolvePlaceholders() {
         // resolve placeholders in data source source URLs
         for (const parameter of this.report.parameters) {
@@ -135,7 +138,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             }
         }
     }
-    
+
     private onError(message: string) {
         alert(message);
     }
