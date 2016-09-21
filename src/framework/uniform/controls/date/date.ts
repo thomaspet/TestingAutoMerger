@@ -51,7 +51,7 @@ export class UniDateInput {
     public onReady: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>();
+    public onChange: EventEmitter<Date> = new EventEmitter<Date>();
 
     private calendarOpen: boolean;
     private selectedDate: Date;
@@ -99,13 +99,7 @@ export class UniDateInput {
     private dateSelected(date) {
         this.selectedDate = date;
 
-        if (date) {
-            this.control.updateValue(moment(date).format('L'));
-            // REVISIT: toDateString is a temporary fix for backend timezone issues and should be changed!
-            date = date.toDateString();
-        } else {
-            this.control.updateValue('');
-        }
+        this.control.updateValue(date ? moment(date).format('L') : '');
 
         _.set(this.model, this.field.Property, date);
         this.onChange.emit(this.model);
