@@ -73,6 +73,8 @@ export class OrderDetails {
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
 
+    private formIsInitialized: boolean = false;
+
     constructor(private customerService: CustomerService,
         private customerOrderService: CustomerOrderService,
         private customerOrderItemService: CustomerOrderItemService,
@@ -153,16 +155,20 @@ export class OrderDetails {
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
-                        let previousAddresses = this.order.Customer ? this.order.Customer.Info.Addresses : null;
+
+                        let keepEntityAddresses: boolean = true;
+                        if (this.order.Customer && this.order.CustomerID !== this.order.Customer.ID) {
+                            keepEntityAddresses = false;
+                        }
+
                         this.order.Customer = customer;
-                        this.addressService.setAddresses(this.order, previousAddresses);
-                  
+                        this.addressService.setAddresses(this.order, null, keepEntityAddresses);
+
                         this.order.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
                             this.order.CreditDays = customer.CreditDays;
-                        }
-                        else {
+                        } else {
                             this.order.CreditDays = this.companySettings.CustomerCreditDays;
                         }
 
@@ -179,39 +185,54 @@ export class OrderDetails {
                 console.log('Error retrieving company settings data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
-        this.fields = this.getComponentLayout().Fields;
 
-        Observable.forkJoin(
-            this.departementService.GetAll(null),
-            this.projectService.GetAll(null),
-            this.customerOrderService.Get(this.orderID, this.expandOptions),
-            this.customerService.GetAll(null, ['Info']),
-            this.addressService.GetNewEntity(null, 'address')
-        ).subscribe(response => {
-            this.dropdownData = [response[0], response[1]];
-            this.order = response[2];
-            this.customers = response[3];
-            this.emptyAddress = response[4];
+        if (!this.formIsInitialized) {
+            this.fields = this.getComponentLayout().Fields;
 
-            // Add a blank item in the dropdown controls
-            this.dropdownData[0].unshift(null);
-            this.dropdownData[1].unshift(null);
-            this.customers.unshift(null);
+            Observable.forkJoin(
+                this.departementService.GetAll(null),
+                this.projectService.GetAll(null),
+                this.customerOrderService.Get(this.orderID, this.expandOptions),
+                this.customerService.GetAll(null, ['Info']),
+                this.addressService.GetNewEntity(null, 'address')
+            ).subscribe(response => {
+                this.dropdownData = [response[0], response[1]];
+                this.order = response[2];
+                this.customers = response[3];
+                this.emptyAddress = response[4];
 
-            this.updateStatusText();
-            this.addressService.setAddresses(this.order);
-            this.setTabTitle();
-            this.updateSaveActions();
-            this.extendFormConfig();
+                // Add a blank item in the dropdown controls
+                this.dropdownData[0].unshift(null);
+                this.dropdownData[1].unshift(null);
+                this.customers.unshift(null);
 
-        }, (err) => {
-            console.log('Error retrieving data: ', err);
-            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-        });
+                this.updateStatusText();
+                this.addressService.setAddresses(this.order);
+                this.setTabTitle();
+                this.updateSaveActions();
+                this.extendFormConfig();
+
+                this.formIsInitialized = true;
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+            });
+        } else {
+            this.customerOrderService.Get(this.orderID, this.expandOptions)
+                .subscribe((order) => {
+                    this.order = order;
+                    this.updateStatusText();
+                    this.addressService.setAddresses(this.order);
+                    this.setTabTitle();
+                } , (err) => {
+                    console.log('Error retrieving data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                });
+        }
     }
 
     private setTabTitle() {
-        let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)'; 
+        let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)';
         this.tabService.addTab({ url: '/sales/orders/' + this.order.ID, name: tabTitle, active: true, moduleID: 4 });
     }
 
@@ -305,7 +326,7 @@ export class OrderDetails {
             idx = this.order.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
             this.order.Customer.Info.Addresses[idx] = address;
         }
-        
+
         // remove entries with equal _createguid
         this.order.Customer.Info.Addresses = _.uniq(this.order.Customer.Info.Addresses, '_createguid');
 
@@ -427,12 +448,12 @@ export class OrderDetails {
     }
 
     private saveAndTransferToInvoice(done: any) {
-                
-        // Set up subscription to listen to when items has been selected and button clicked in modal window.        
+
+        // Set up subscription to listen to when items has been selected and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.oti.changed.observers.length === 0) {
             this.oti.changed.subscribe(items => {
-                // Do not transfer to invoice if no items 
+                // Do not transfer to invoice if no items
                 if (items.length === 0) {
                     this.toastService.addToast('Kan ikke overføre en ordre uten linjer', ToastType.warn, 5);
                     return;
@@ -451,7 +472,7 @@ export class OrderDetails {
                 });
             });
         }
-        
+
         // save order and open modal to select what to transfer to invoice
         this.saveOrder(done, order => {
             this.oti.openModal(this.order);
@@ -481,7 +502,7 @@ export class OrderDetails {
         });
     }
 
-    private saveOrder(done: any, next: any = null) {    
+    private saveOrder(done: any, next: any = null) {
         // Transform addresses to flat
         this.addressService.addressToInvoice(this.order, this.order._InvoiceAddress);
         this.addressService.addressToShipping(this.order, this.order._ShippingAddress);
@@ -495,7 +516,7 @@ export class OrderDetails {
 
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');            
+            console.log('Linjer uten produkt. Lagring avbrutt.');
             if (done) {
                 done('Lagring feilet')
             }
@@ -516,7 +537,7 @@ export class OrderDetails {
                         next(this.order);
                     } else {
                         done('Ordre lagret');
-                    }                    
+                    }
                 });
             },
             (err) => {

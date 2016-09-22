@@ -8,7 +8,7 @@ declare var _; // lodash
     selector: 'uni-multivalue-input',
     template: `
         <section (clickOutside)="close()" class="uni-multivalue-ng" (keyup.esc)="close()"
-                [class.-has-values]="rows.length">
+                [class.-has-values]="rows?.length">
 
             <input type="text"
                     [(ngModel)]="currentValue"

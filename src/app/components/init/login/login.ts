@@ -23,7 +23,7 @@ export class Login {
 
     constructor(private _authService: AuthService, private _router: Router, private http: UniHttp) {
         this.selectConfig = {
-            displayField: 'Name',
+            displayProperty: 'Name',
             placeholder: 'Velg selskap'
         };
     }

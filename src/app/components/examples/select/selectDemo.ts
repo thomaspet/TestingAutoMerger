@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Observable';
     template: `
         <label>
             Changes triggering a class function which logs result<br>
-            <uni-select [config]="selectConfig1" 
+            <uni-select [config]="selectConfig1"
                         [items]="products$ | async"
                         [value]="initProduct"
                         (valueChange)="onSelect($event)">
@@ -59,7 +59,7 @@ export class UniSelectDemo {
 
 
         this.selectConfig1 = {
-            displayField: 'PartName',
+            displayProperty: 'PartName',
             // searchable: false,
             // template: (item) => {
             //     return (item.ID + ' - ' + item.PartName);
@@ -67,7 +67,7 @@ export class UniSelectDemo {
         };
 
         this.selectConfig2 = {
-            // displayField: 'VatCode'
+            // displayProperty: 'VatCode'
             template: (item) => {
                 return (item.VatCode + ' - ' + item.Name);
             }

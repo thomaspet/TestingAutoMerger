@@ -30,7 +30,7 @@ import {Observable} from 'rxjs/Observable';
                 <hr>
 
                 <label class="company_select"> Velg firma
-                    <uni-select [config]="selectConfig" 
+                    <uni-select [config]="selectConfig"
                                 [items]="availableCompanies"
                                 [value]="activeCompany"
                                 (valueChange)="companySelected($event)">
@@ -61,9 +61,9 @@ export class UniCompanyDropdown {
             .send()
             .map(response => response.json())
             .subscribe(response => this.availableCompanies = response);
-        
+
         this.selectConfig = {
-            displayField: 'Name'  
+            displayProperty: 'Name'
         };
 
         this.companyDropdownActive = false;

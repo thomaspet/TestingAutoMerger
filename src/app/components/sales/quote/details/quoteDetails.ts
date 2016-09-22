@@ -35,14 +35,14 @@ class CustomerQuoteExt extends CustomerQuote {
     public _ShippingAddress: Address;
     public _ShippingAddresses: Array<Address>;
     public _InvoiceAddressID: number;
-    public _ShippingAddressID: number;    
+    public _ShippingAddressID: number;
 }
 
 @Component({
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
     directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, CompanySettingsService, 
+    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, CompanySettingsService,
         ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class QuoteDetails {
@@ -69,6 +69,8 @@ export class QuoteDetails {
     private companySettings: CompanySettings;
 
     private actions: IUniSaveAction[];
+
+    private formIsInitialized: boolean = false;
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
@@ -143,7 +145,7 @@ export class QuoteDetails {
 
     public change(value: CustomerQuote) { }
 
-    public ready(event) {        
+    public ready(event) {
         this.setupSubscriptions(null);
     }
 
@@ -153,10 +155,14 @@ export class QuoteDetails {
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
-                        let previousAddresses = this.quote.Customer ? this.quote.Customer.Info.Addresses : null;
+                        let keepEntityAddresses: boolean = true;
+                        if (this.quote.Customer && this.quote.CustomerID !== this.quote.Customer.ID) {
+                            keepEntityAddresses = false;
+                        }
+
                         this.quote.Customer = customer;
-                        this.addressService.setAddresses(this.quote, previousAddresses);
-            
+                        this.addressService.setAddresses(this.quote, null, keepEntityAddresses);
+
                         this.quote.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
@@ -174,7 +180,6 @@ export class QuoteDetails {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    console.log('== CHANGED DATE ==');
                     this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();
 
                     this.quote = _.cloneDeep(this.quote);
@@ -190,39 +195,54 @@ export class QuoteDetails {
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
 
-        this.fields = this.getComponentLayout().Fields;
+        if (!this.formIsInitialized) {
+            this.fields = this.getComponentLayout().Fields;
 
-        Observable.forkJoin(
-            this.departementService.GetAll(null),
-            this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.quoteID, this.expandOptions),
-            this.customerService.GetAll(null, ['Info']),
-            this.addressService.GetNewEntity(null, 'address')
-        ).subscribe(response => {
-            this.dropdownData = [response[0], response[1]];
-            this.quote = response[2];
-            this.customers = response[3];
-            this.emptyAddress = response[4];
+            Observable.forkJoin(
+                this.departementService.GetAll(null),
+                this.projectService.GetAll(null),
+                this.customerQuoteService.Get(this.quoteID, this.expandOptions),
+                this.customerService.GetAll(null, ['Info']),
+                this.addressService.GetNewEntity(null, 'address')
+            ).subscribe(response => {
+                this.dropdownData = [response[0], response[1]];
+                this.quote = response[2];
+                this.customers = response[3];
+                this.emptyAddress = response[4];
 
-            // Add a blank item in the dropdown controls
-            this.dropdownData[0].unshift(null);
-            this.dropdownData[1].unshift(null);
-            this.customers.unshift(null);
+                // Add a blank item in the dropdown controls
+                this.dropdownData[0].unshift(null);
+                this.dropdownData[1].unshift(null);
+                this.customers.unshift(null);
 
-            this.updateStatusText();
-            this.addressService.setAddresses(this.quote);
-            this.setTabTitle();
-            
-            this.updateSaveActions();
-            this.extendFormConfig();
-        }, (err) => {
-            console.log('Error retrieving data: ', err);
-            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-        });
+                this.updateStatusText();
+                this.addressService.setAddresses(this.quote);
+                this.setTabTitle();
+
+                this.updateSaveActions();
+                this.extendFormConfig();
+
+                this.formIsInitialized = true;
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+            });
+        } else {
+            this.customerQuoteService.Get(this.quoteID, this.expandOptions)
+                .subscribe((quote) => {
+                    this.quote = quote;
+                    this.updateStatusText();
+                    this.addressService.setAddresses(this.quote);
+                    this.setTabTitle();
+                } , (err) => {
+                    console.log('Error retrieving data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                });
+        }
     }
 
     private setTabTitle() {
-        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud (kladd)'; 
+        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud (kladd)';
         this.tabService.addTab({ url: '/sales/quotes/' + this.quote.ID, name: tabTitle, active: true, moduleID: 3 });
     }
 
@@ -284,7 +304,7 @@ export class QuoteDetails {
                 }
 
                 this.addressModal.openModal(value);
-                
+
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
                     else { this.addressChanged.unsubscribe(); resolve(address); }
@@ -315,7 +335,7 @@ export class QuoteDetails {
             idx = this.quote.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
             this.quote.Customer.Info.Addresses[idx] = address;
         }
-        
+
         // remove entries with equal _createguid
         this.quote.Customer.Info.Addresses = _.uniq(this.quote.Customer.Info.Addresses, '_createguid');
 
@@ -508,7 +528,7 @@ export class QuoteDetails {
                         next(this.quote);
                     } else {
                         done('Tilbud lagret');
-                    }                    
+                    }
                 });
             },
             (err) => {

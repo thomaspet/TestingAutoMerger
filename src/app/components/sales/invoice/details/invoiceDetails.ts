@@ -82,6 +82,8 @@ export class InvoiceDetails {
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
 
+    private formIsInitialized: boolean = false;
+
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerInvoiceItemService: CustomerInvoiceItemService,
@@ -149,7 +151,7 @@ export class InvoiceDetails {
                 );
         });
     }
-    
+
     public change(value: CustomerInvoice) { }
 
     public ready(event) {
@@ -172,16 +174,20 @@ export class InvoiceDetails {
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
-                        let previousAddresses = this.invoice.Customer ? this.invoice.Customer.Info.Addresses : null;
+
+                        let keepEntityAddresses: boolean = true;
+                        if (this.invoice.Customer && this.invoice.CustomerID !== this.invoice.Customer.ID) {
+                            keepEntityAddresses = false;
+                        }
+
                         this.invoice.Customer = customer;
-                        this.addressService.setAddresses(this.invoice, previousAddresses);
+                        this.addressService.setAddresses(this.invoice, null, keepEntityAddresses);
 
                         this.invoice.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
                             this.invoice.CreditDays = customer.CreditDays;
-                        }
-                        else {
+                        } else {
                             this.invoice.CreditDays = this.companySettings.CustomerCreditDays;
                         }
                         this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
@@ -221,41 +227,55 @@ export class InvoiceDetails {
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
 
-        this.fields = this.getComponentLayout().Fields;
+        if (!this.formIsInitialized) {
+            this.fields = this.getComponentLayout().Fields;
 
-        Observable.forkJoin(
-            this.departementService.GetAll(null),
-            this.projectService.GetAll(null),
-            this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
-            this.customerService.GetAll(null, ['Info']),
-            this.addressService.GetNewEntity(null, 'address')
-        ).subscribe(response => {
-            this.dropdownData = [response[0], response[1]];
-            this.invoice = response[2];
-            this.customers = response[3];
-            this.emptyAddress = response[4];
-            this.invoiceReference = response[5];
+            Observable.forkJoin(
+                this.departementService.GetAll(null),
+                this.projectService.GetAll(null),
+                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
+                this.customerService.GetAll(null, ['Info']),
+                this.addressService.GetNewEntity(null, 'address')
+            ).subscribe(response => {
+                this.dropdownData = [response[0], response[1]];
+                this.invoice = response[2];
+                this.customers = response[3];
+                this.emptyAddress = response[4];
+                this.invoiceReference = response[5];
 
-            // Add a blank item in the dropdown controls
-            this.dropdownData[0].unshift(null);
-            this.dropdownData[1].unshift(null);
-            this.customers.unshift(null);
+                // Add a blank item in the dropdown controls
+                this.dropdownData[0].unshift(null);
+                this.dropdownData[1].unshift(null);
+                this.customers.unshift(null);
 
-            if (this.invoice.InvoiceType === 1) {
-                this.invoiceButtonText = 'Krediter';
-                this.creditButtonText = 'Fakturer kreditnota';
-            }
-            this.updateStatusText();
-            this.addressService.setAddresses(this.invoice);
-            this.setTabTitle();
-            this.updateSaveActions();
-            this.getCreditInvoices();
-            this.extendFormConfig();
+                if (this.invoice.InvoiceType === 1) {
+                    this.invoiceButtonText = 'Krediter';
+                    this.creditButtonText = 'Fakturer kreditnota';
+                }
+                this.updateStatusText();
+                this.addressService.setAddresses(this.invoice);
+                this.setTabTitle();
+                this.updateSaveActions();
+                this.getCreditInvoices();
+                this.extendFormConfig();
 
-        }, (err) => {
-            console.log('Error retrieving data: ', err);
-            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-        });
+                this.formIsInitialized = true;
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+            });
+        } else {
+            this.customerInvoiceService.Get(this.invoiceID, this.expandOptions)
+                .subscribe((invoice) => {
+                    this.invoice = invoice;
+                    this.updateStatusText();
+                    this.addressService.setAddresses(this.invoice);
+                    this.setTabTitle();
+                } , (err) => {
+                    console.log('Error retrieving data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                });
+        }
     }
 
     private getCreditInvoices() {
@@ -553,7 +573,7 @@ export class InvoiceDetails {
 
         // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');            
+            console.log('Linjer uten produkt. Lagring avbrutt.');
             if (done) {
                 done('Lagring feilet')
             }
@@ -619,7 +639,7 @@ export class InvoiceDetails {
     private payInvoice(done) {
         const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
-        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.        
+        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
@@ -633,18 +653,18 @@ export class InvoiceDetails {
                         this.updateStatusText();
                         this.updateSaveActions();
                         this.ready(null);
-                        
+
                         done('Betaling registrert');
                     },
                     (err) => {
-                        done('Feilet ved registrering av betaling');                            
+                        done('Feilet ved registrering av betaling');
                     });
                 }, (err) => {
                     console.log('Error registering payment: ', err);
                     done('Feilet ved registrering av betaling');
                     this.log(err);
                 });
-            }); 
+            });
         }
 
         const invoiceData: InvoicePaymentData = {
@@ -652,7 +672,7 @@ export class InvoiceDetails {
             PaymentDate: new Date()
         };
 
-        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);        
+        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
     }
 
     // private saveInvoiceTransition(done: any, transition: string) {

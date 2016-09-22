@@ -168,7 +168,7 @@ export class UniAutocompleteInput {
     }
 
     private template(obj: any) {
-        if (!this.field.Options.template) {
+        if (!this.options.template) {
             return _.get(obj, this.options.displayProperty);
         } else {
             return this.options.template(obj);

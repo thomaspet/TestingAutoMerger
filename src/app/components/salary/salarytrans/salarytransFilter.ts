@@ -33,7 +33,7 @@ export class SalarytransFilterContent {
 
     constructor() {
         this.selectFilterConfig = {
-            displayField: 'name',
+            displayProperty: 'name',
             placeholder: 'Velg filter'
         };
         this.items = [
@@ -92,7 +92,7 @@ export class SalarytransFilter {
     public type: Type = SalarytransFilterContent;
     private filterResultString: string;
     @Output() private filtStringChange: EventEmitter<string> = new EventEmitter<string>();
-    
+
     constructor() {
         var self = this;
         this.modalConfig = {
@@ -116,7 +116,7 @@ export class SalarytransFilter {
             ]
         };
     }
-    
+
     public removeFilter(filter) {
         for (var i = 0; i < this.filters.length; i++) {
             if (filter.name === this.filters[i].name) {
@@ -125,15 +125,15 @@ export class SalarytransFilter {
         }
         this.updateFilterString();
     }
-    
+
     public ngAfterViewInit() {
         this.modals = this.modalElements.toArray();
     }
-    
+
     public openModalFilter() {
         this.modals[0].open();
     }
-    
+
     // called when arriving from modal-component
     private createResultFilterString() {
         this.filterResultString = '';
@@ -144,7 +144,7 @@ export class SalarytransFilter {
         });
         this.sliceAndEmit();
     }
-    
+
     // called when part of filter is removed
     private updateFilterString() {
         this.filterResultString = '';
@@ -154,7 +154,7 @@ export class SalarytransFilter {
         }
         this.sliceAndEmit();
     }
-    
+
     // Remove last 'and' from filter and fires event
     private sliceAndEmit() {
         if (this.filterResultString !== '') {

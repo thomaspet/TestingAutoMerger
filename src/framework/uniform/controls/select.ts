@@ -60,10 +60,6 @@ export class UniSelectInput {
         }
 
         if (changes['field']) {
-            if (this.field.Options) {
-                this.field.Options.valueField = this.field.Options.valueProperty;
-                this.field.Options.displayField = this.field.Options.displayProperty;
-            }
             if (!this.field.Options) {
                 this.items = [];
             } else if (!this.field.Options.source) {

@@ -6,55 +6,55 @@ import {SearchResultItem} from '../../../app/components/common/externalSearch/ex
 declare var _;
 
 export class AddressService extends BizHttp<Address> {
-    
-    constructor(http: UniHttp) {        
+
+    constructor(http: UniHttp) {
         super(http);
-        
+
         this.relativeURL = 'addresses'; // TODO: missing Address.RelativeUrl;
-                
+
         this.DefaultOrderBy = null;
-    }           
-    
-    public businessAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {     
-        
-        if ( selectedSearchInfo.forretningsadr === '' 
-            && selectedSearchInfo.forradrpostnr  === '' 
-            && selectedSearchInfo.forradrpoststed  === '' 
+    }
+
+    public businessAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+
+        if ( selectedSearchInfo.forretningsadr === ''
+            && selectedSearchInfo.forradrpostnr  === ''
+            && selectedSearchInfo.forradrpoststed  === ''
             && selectedSearchInfo.forradrland  === '') {
             return null;
         };
-               
+
         return new Promise(resolve => {
             this.GetNewEntity([], 'address').subscribe(address => {
                 address.AddressLine1 = selectedSearchInfo.forretningsadr;
                 address.PostalCode = selectedSearchInfo.forradrpostnr;
                 address.City = selectedSearchInfo.forradrpoststed;
-                address.Country = selectedSearchInfo.forradrland;           
-                
-                resolve(address); 
+                address.Country = selectedSearchInfo.forradrland;
+
+                resolve(address);
             });
-        });        
+        });
     }
-    
+
     public postalAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
-        if ( selectedSearchInfo.postadresse === '' 
-            && selectedSearchInfo.ppostnr  === '' 
-            && selectedSearchInfo.ppoststed  ==='' 
+        if ( selectedSearchInfo.postadresse === ''
+            && selectedSearchInfo.ppostnr  === ''
+            && selectedSearchInfo.ppoststed  ===''
             && selectedSearchInfo.ppostland  ===''
         ) {
             return null;
         }
- 
+
         return new Promise(resolve => {
             this.GetNewEntity([], 'address').subscribe(address => {
                 address.AddressLine1 = selectedSearchInfo.postadresse;
                 address.PostalCode = selectedSearchInfo.ppostnr;
                 address.City = selectedSearchInfo.ppoststed;
                 address.Country = selectedSearchInfo.ppostland;
-                
-                resolve(address); 
-            }); 
-        }); 
+
+                resolve(address);
+            });
+        });
     }
 
     // Special address handling for CustomerInvoice, CustomerOrder and CustomerQuote which save addresses flat in entity
@@ -103,7 +103,7 @@ export class AddressService extends BizHttp<Address> {
         a.City = entity.InvoiceCity;
         a.Country = entity.InvoiceCountry;
         a.CountryCode = entity.InvoiceCountryCode;
-  
+
         return a;
     }
 
@@ -116,15 +116,21 @@ export class AddressService extends BizHttp<Address> {
         a.City = entity.ShippingCity;
         a.Country = entity.ShippingCountry;
         a.CountryCode = entity.ShippingCountryCode;
- 
+
         return a;
     }
 
-    public setAddresses(entity: any, previousAddresses: Array<Address> = null) {
+    public setAddresses(entity: any, previousAddresses: Array<Address> = null, includeEntityAddresses: boolean = true) {
         var invoiceaddresses = [];
         var shippingaddresses = [];
-        let invoiceAddress = this.invoiceToAddress(entity);
-        let shippingAddress = this.shippingToAddress(entity);
+
+        let invoiceAddress: Address = new Address();
+        let shippingAddress: Address = new Address();
+
+        if (includeEntityAddresses) {
+            invoiceAddress = this.invoiceToAddress(entity);
+            shippingAddress = this.shippingToAddress(entity);
+        }
 
         // invoice addresses
         if (!entity._InvoiceAddresses) {
@@ -135,7 +141,7 @@ export class AddressService extends BizHttp<Address> {
                     invoiceaddresses.forEach((b, i) => {
                         if (a.ID == b.ID) {
                             invoiceaddresses.splice(i, 1);
-                        } 
+                        }
                     });
                 });
             }
@@ -154,7 +160,7 @@ export class AddressService extends BizHttp<Address> {
         }
 
         // shipping addresses
-        if (!entity._ShippingAddresses) {            
+        if (!entity._ShippingAddresses) {
             shippingaddresses.push(shippingAddress);
         } else { // have addresses
             if (previousAddresses) {
@@ -162,7 +168,7 @@ export class AddressService extends BizHttp<Address> {
                     invoiceaddresses.forEach((b, i) => {
                         if (a.ID == b.ID) {
                             invoiceaddresses.splice(i, 1);
-                        } 
+                        }
                     });
                 });
             }
@@ -189,11 +195,11 @@ export class AddressService extends BizHttp<Address> {
         let displayVal = '';
         if (address.AddressLine1 && address.AddressLine1 !== '') {
             displayVal += address.AddressLine1;
-            if ((address.PostalCode && address.PostalCode !== '') || 
+            if ((address.PostalCode && address.PostalCode !== '') ||
                (address.City && address.City !== '')) {
                 displayVal += ', ';
-            } 
-        }                
+            }
+        }
         if (address.PostalCode && address.PostalCode !== '') {
             displayVal += address.PostalCode  + ' ';
         }

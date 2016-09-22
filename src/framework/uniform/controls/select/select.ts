@@ -1,4 +1,7 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener, Renderer} from '@angular/core';
+import {
+    Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener,
+    Renderer, ChangeDetectionStrategy, ChangeDetectorRef
+} from '@angular/core';
 import {FormControl, FormControlDirective} from '@angular/forms';
 import {GuidService} from '../../../../app/services/common/guidService';
 import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
@@ -6,21 +9,18 @@ import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 declare var _; // lodash
 
 export interface ISelectConfig {
-    displayField?: string;
-    valueField?: string;
+    valueProperty?: string;
+    displayProperty?: string;
     template?: (item) => string;
     placeholder?: string;
     searchable?: boolean;
-
-    // compatibility with uniform config names
-    valueProperty?: string;
-    displayProperty?: string;
 }
 
 @Component({
     selector: 'uni-select',
     templateUrl: 'framework/uniform/controls/select/select.html',
-    directives: [ClickOutsideDirective, FormControlDirective]
+    directives: [ClickOutsideDirective, FormControlDirective],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSelect {
     @ViewChild('searchInput')
@@ -52,33 +52,25 @@ export class UniSelect {
     private focusedIndex: any = 0;
     private activeDecentantId: string;
 
-    constructor(gs: GuidService, private renderer: Renderer) {
+    constructor(gs: GuidService, private renderer: Renderer, private cd: ChangeDetectorRef) {
         // Set a guid for DOM elements, etc.
         this.guid = gs.guid();
     }
 
     public ngOnChanges(changes) {
-        if (this.value && this.items && (changes['items'] || changes['value'])) {
-            if (this.config.valueProperty) {
+        if (this.config && this.items) {
+            // Init selected item
+            if (this.config.valueProperty && this.value) {
                 this.selectedItem = this.items.find(item => _.get(item, this.config.valueProperty) === this.value);
             } else {
                 this.selectedItem = this.value;
             }
-        }
 
-        if (changes['config'] && this.config) {
-            if (this.config.valueProperty) {
-                this.config.valueField = this.config.valueProperty;
-            }
-            if (this.config.displayProperty) {
-                this.config.displayField = this.config.displayProperty;
-            }
             this.searchable = (this.config.searchable || this.config.searchable === undefined);
-        }
-
-        if (changes['items'] && this.items) {
             this.searchControl.updateValueAndValidity('');
             this.filteredItems = this.items;
+
+            this.cd.markForCheck();
         }
     }
 
@@ -86,8 +78,6 @@ export class UniSelect {
         this.focusedIndex = this.focusedIndex || 0;
 
         this.searchControl.valueChanges
-        .debounceTime(250)
-        .distinctUntilChanged()
         .subscribe((value) => {
             this.filterItems(value);
         });
@@ -101,7 +91,7 @@ export class UniSelect {
             const character = String.fromCharCode(event.which);
             const focusIndex = this.items.findIndex((item) => {
                 try {
-                    return item[this.config.displayField][0].toLowerCase() === character;
+                    return item[this.config.displayProperty][0].toLowerCase() === character;
                 } catch (e) {}
 
                 return false;
@@ -117,6 +107,8 @@ export class UniSelect {
         this.filteredItems = this.items.filter((item) => {
             return this.getDisplayValue(item).toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
         });
+        this.focusedIndex = 0;
+        this.cd.markForCheck();
     }
 
     private getDisplayValue(item): string {
@@ -126,8 +118,8 @@ export class UniSelect {
 
         if (typeof item === 'string') {
             return item;
-        } else if (this.config.displayField) {
-            return _.get(item, this.config.displayField);
+        } else if (this.config.displayProperty) {
+            return _.get(item, this.config.displayProperty);
         } else if (this.config.template) {
             return this.config.template(item);
         } else {
@@ -136,9 +128,11 @@ export class UniSelect {
     }
 
     private confirmSelection() {
-        this.selectedItem = this.items[this.focusedIndex];
-        this.valueChange.emit(this.selectedItem);
-        this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+        setTimeout(() => {
+            this.selectedItem = this.filteredItems[this.focusedIndex];
+            this.valueChange.emit(this.selectedItem);
+            this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+        });
     }
 
     public open() {
@@ -175,18 +169,21 @@ export class UniSelect {
 
         // Tab or enter
         if (key === 9 || key === 13) {
-            this.confirmSelection();
-            this.expanded = false;
+            if (this.expanded) {
+                this.confirmSelection();
+                this.expanded = false;
+            }
         // Escape
         } else if (key === 27) {
             this.expanded = false;
         // Space
         } else if (key === 32) {
+            event.preventDefault();
             if (this.expanded) {
                 this.confirmSelection();
                 this.expanded = false;
             } else {
-                this.expanded = true;
+                this.open();
             }
         // Arrow up
         } else if (key === 38 && this.focusedIndex > 0) {
