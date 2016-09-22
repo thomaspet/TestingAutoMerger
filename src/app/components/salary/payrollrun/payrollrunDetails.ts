@@ -304,9 +304,6 @@ export class PayrollrunDetails {
 
     public savePayrollrun(done) {
         this.busy = true;
-        this.saveactions[0].disabled = true;
-        done('Lagrer lønnsavregning');
-
 
         if (this.payrollrun.ID > 0) {
             this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun)

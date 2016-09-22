@@ -309,7 +309,6 @@ export class PersonalDetails implements OnDestroy, OnInit {
     }
 
     private saveEmployee(done) {
-        this.saveactions[0].disabled = true;
         if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
             let bankAccount = this.employee.BankAccounts[0];
             bankAccount.Active = true;
@@ -358,7 +357,6 @@ export class PersonalDetails implements OnDestroy, OnInit {
             this.employee.BusinessRelationInfo.InvoiceAddressID = null;
         }
 
-        done('Lagrer persondetaljer');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
                 .subscribe((response: Employee) => {

@@ -442,8 +442,6 @@ export class WagetypeDetail {
     }
 
     public saveWagetype(done) {
-        this.saveactions[0].disabled = true;
-        done('Lagrer lønnsart');
         if (this.wageType.ID > 0) {
             this.wageService.Put(this.wageType.ID, this.wageType)
                 .subscribe((wagetype) => {

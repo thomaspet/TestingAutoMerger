@@ -152,7 +152,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this.saveactions = [
             {
                 label: 'Lagre lønnsposter',
-                action: this.saveSalarytrans.bind(this),
+                action: (done) => this.saveSalarytrans(done),
                 main: true,
                 disabled: this.payrollRun.StatusCode > 0
             },
@@ -192,8 +192,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     }
 
     public saveSalarytrans(done) {
-        this.saveactions[0].disabled = true;
-        done('Lagrer lønnsposter');
         this.payrollRun.transactions = this.salarytransChanged;
         this.payrollRun.transactions.forEach((trans: SalaryTransaction) => {
             trans.Wagetype = null;

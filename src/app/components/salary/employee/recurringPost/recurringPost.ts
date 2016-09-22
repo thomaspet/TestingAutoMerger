@@ -76,12 +76,9 @@ export class RecurringPost implements OnInit {
     }
     
     public saveRecurringpost(done) {
-        this.saveactions[0].disabled = true;
         this.recurringPosts = this.table.getTableData();
-        done('Lagrer faste poster');
         let saving: Observable<any>[] = [];
         this.recurringPosts.forEach(recurringpost => {
-            this.saveactions[0].disabled = true;
             recurringpost.IsRecurringPost = true;
             recurringpost.EmployeeID = this.employeeID;
             recurringpost.EmployeeNumber = this.employeeID;
@@ -93,13 +90,11 @@ export class RecurringPost implements OnInit {
         });
         Observable.forkJoin(saving).subscribe((response: SalaryTransaction[]) => {
             done('Sist lagret: ');
-            this.saveactions[0].disabled = false;
             this.refreshData();
         },
             (err) => {
                 done('Feil ved oppdatering av fast post', err);
                 this.log(err);
-                this.saveactions[0].disabled = false;
             });
     }
 

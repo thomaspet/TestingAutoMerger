@@ -222,7 +222,6 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public saveAgaAndSubEntities(done) {
-        this.saveactions[0].disabled = true;
         if (!this.companySalary.PaymentInterval) {
             this.companySalary.PaymentInterval = 1;
         }
@@ -243,7 +242,6 @@ export class AgaAndSubEntitySettings implements OnInit {
                 saveObs.push(this.subentityService.Post(this.mainOrganization));
             }
         }
-        done('Lagret innstillinger for aga og virksomheter');
         Observable.forkJoin(saveObs).subscribe((response: any) => {
             this.companySalary = response[0];
             if (this.subEntityList) {
