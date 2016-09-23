@@ -21,7 +21,7 @@ export class StimulsoftReportWrapper {
             Promise = backup;
 
             // add font
-            Stimulsoft.Base.StiFontCollection.addOpentypeFontFile("assets/SourceSansPro-Regular.otf", "Source Sans Pro");
+            Stimulsoft.Base.StiFontCollection.addOpentypeFontFile('assets/SourceSansPro-Regular.otf', 'Source Sans Pro');
         });
     }
 

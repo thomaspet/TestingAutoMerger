@@ -9,6 +9,7 @@ import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
 import {BalanceReportFilterModal} from '../modals/balanceList/BalanceReportFilterModal';
+import {ResultAndBalanceReportFilterModal} from '../modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
 import {NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
 
@@ -20,7 +21,7 @@ class ReportCategory {
 @Component({
     selector: 'uni-overview',
     templateUrl: 'app/components/reports/overview/overview.html',
-    directives: [UniTabs, PreviewModal, ParameterModal, BalanceReportFilterModal, BalanceGeneralLedgerFilterModal, NgSwitch, NgSwitchCase, NgSwitchDefault],
+    directives: [UniTabs, PreviewModal, ParameterModal, BalanceReportFilterModal, ResultAndBalanceReportFilterModal, BalanceGeneralLedgerFilterModal, NgSwitch, NgSwitchCase, NgSwitchDefault],
     providers: [ReportDefinitionService]
 })
 export class Overview {
@@ -30,10 +31,10 @@ export class Overview {
     private previewModal: PreviewModal;
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
+    @ViewChild(ResultAndBalanceReportFilterModal)
+    private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
     @ViewChild(BalanceGeneralLedgerFilterModal)
     private balanceGeneralLedgerFilterModal: BalanceGeneralLedgerFilterModal;
-
-
 
     public reportCategories: Array<ReportCategory>;
 
@@ -49,6 +50,10 @@ export class Overview {
         this.balanceListModal.open(report, this.previewModal);
     }
 
+    public showResultAndBalanceModalReportParameters(report: ReportDefinition) {
+        this.resultAndBalanceModal.open(report, this.previewModal);
+    }
+    
     public showBalanceGeneralLedgerFilterModal(report: ReportDefinition) {
         this.balanceGeneralLedgerFilterModal.open(report, this.previewModal);
     }
