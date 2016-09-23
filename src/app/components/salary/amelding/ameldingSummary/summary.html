@@ -1,0 +1,43 @@
+<section *ngIf="currentAMelding">
+    <table>
+        <tr>
+            <td>A-melding id</td>
+            <td>{{currentAMelding.ID}}<span *ngIf="currentAMelding.replacesID > 0">, erstatter id {{currentAMelding.replacesID}}</span></td>
+        </tr>
+        <tr>
+            <td>Dato klargjort</td>
+            <td>{{createdDate}}</td>
+        </tr>
+        <tr>
+            <td>Dato innsendt</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>{{statusText}}</td>
+        </tr>
+    </table>
+</section>
+
+<section>
+    <ul *ngIf="currentSumUp">
+        <li *ngFor="let virksomhet of currentSumUp.entities; let index = index" class="amelding_summaryview" [ngClass]="{'-is-expanded':!virksomhet.collapsed}">
+            <h4 (click)="toggleCollapsed(index)">{{virksomhet.name}} - {{virksomhet.orgNumber}}</h4>
+
+            <table *ngIf="!virksomhet.collapsed">
+                <tr>
+                    <td>Grunnlag arbeidsgiveravgift</td>
+                    <td>{{virksomhet.sums.agaBase}}</td>
+                </tr>
+                <tr>
+                    <td>Beregnet arbeidsgiveravgift</td>
+                    <td>{{virksomhet.sums.aga}}</td>
+                </tr>
+            </table>
+            <br><span *ngIf="!virksomhet.collapsed">Ansatte og arbeidsforhold</span>
+            <uni-table [config]="employeeTableConfig" [resource]="virksomhet.employees" *ngIf="!virksomhet.collapsed"></uni-table>
+            <br><span *ngIf="virksomhet.transactionTypes && !virksomhet.collapsed">Sum per beskrivelse</span>
+            <uni-table *ngIf="virksomhet.transactionTypes && !virksomhet.collapsed" [config]="transactionTableConfig" [resource]="virksomhet.transactionTypes"></uni-table>
+        </li>
+    </ul>
+</section>

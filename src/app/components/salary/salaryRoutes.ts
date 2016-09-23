@@ -1,4 +1,3 @@
-import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {WagetypeDetail} from './wagetype/wagetypeDetails';
 import {WagetypeList} from './wagetype/wagetypeList';
 import {EmployeeList} from './employee/employeeList';
@@ -7,6 +6,7 @@ import {PayrollrunList} from './payrollrun/payrollrunList';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PaymentList} from './payrollrun/paymentList';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
+import {AMeldingView} from './amelding/ameldingview';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
@@ -46,5 +46,9 @@ export const routes = [
     {
         path: 'paymentlist/:id',
         component: PaymentList
+    },
+    {
+        path: 'amelding',
+        component: AMeldingView
     }
 ];

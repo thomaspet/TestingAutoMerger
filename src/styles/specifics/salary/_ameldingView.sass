@@ -1,0 +1,65 @@
+amelding-view
+    .poster_widgets
+
+        dl
+            padding: 1rem 0
+        dt
+            @extend strong
+        dd
+            margin: 0 0 .5rem 0
+
+        .tablewidget
+            @include unigrid(8)
+
+    table
+        margin-top: 1rem
+
+        .datacolumn
+            padding-left: 1.5rem
+            text-align: left
+
+        .currency
+            text-align: right
+
+
+    .statuslist
+        list-style: none
+        padding: 2rem
+
+        li
+            padding: 0 0 0 2rem
+            //line-height: 1rem
+            position: relative
+
+            &:before,
+            &:after
+                box-sizing: border-box
+                display: block
+                content: ''
+                position: absolute
+                top: .4rem
+                left: 0
+                height: 1rem
+                width: 1rem
+
+            &:before
+                border: pxToRem(1) solid #acacac
+                border-radius: pxToRem(3)
+                background: linear-gradient(to bottom, #d7d7d7 0, lighten(#d7d7d7, 50%) 100%)
+
+            &.warn:before
+                background: unicon-warning($uni-color-Warn) center center no-repeat
+                background-size: contain
+                border: none
+
+            &.success:before
+                background: linear-gradient(to top, #0aa801 0, lighten(#0aa801, 10%) 100%)
+
+            &.success:after
+                transform: rotate(45deg)
+                border-bottom: pxToRem(2) solid white
+                border-right: pxToRem(2) solid white
+                height: .7rem
+                width: .3rem
+                left: .4rem
+                top: .5rem

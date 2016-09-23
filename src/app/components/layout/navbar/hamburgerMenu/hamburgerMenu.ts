@@ -86,7 +86,8 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Ansatte', componentUrl: '/salary/employees'},
                     {componentName: 'Lønnsarter', componentUrl: '/salary/wagetypes'},
-                    {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun'}
+                    {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun'},
+                    {componentName: 'A-Meldinger', componentUrl: '/salary/amelding'}
                 ]
             },
             {

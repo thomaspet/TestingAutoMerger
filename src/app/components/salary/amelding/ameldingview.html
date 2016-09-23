@@ -1,0 +1,102 @@
+<header class="poster">
+    <article class="poster_toolbar">
+        <section>
+            <h1><b>Periode {{currentPeriod}} - {{currentMonth}}</b></h1>
+            <span *ngFor="let melding of aMeldingerInPeriod; let i = index">
+                <span *ngIf="i > 0">,  </span>
+            <a *ngIf="currentAMelding" (click)="setAMelding(melding)" href="javascript:void(0);">
+                <span *ngIf="melding.ID == currentAMelding.ID"> <b>A-melding {{melding.ID}}</b></span>
+                <span *ngIf="melding.ID != currentAMelding.ID">A-melding {{melding.ID}}</span>
+            </a>
+            </span>
+        </section>
+        <nav class="poster_toolbar_tools">
+            <a (click)="prevPeriod()" class="previous">Forrige</a>
+            <a (click)="nextPeriod()" class="next">Neste</a>
+            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
+        </nav>
+    </article>
+
+    <section class="poster_overview">
+        <div class="poster_widgets">
+            <dl class="poster_widget">
+                <dt>Juridisk enhet</dt>
+                <dd>{{legalEntityNo}}</dd>
+
+                <dt>Måned</dt>
+                <dd>{{currentMonth}}</dd>
+
+                <dt>Status periode</dt>
+                <dd></dd>
+            </dl>
+
+            <article class="poster_widget tablewidget">
+                <table>
+                    <tr>
+                        <th class="datacolumn">Sum forskuddstrekk</th>
+                        <td>{{totalForskuddstrekk}}</td>
+                    </tr>
+                    <tr>
+                        <th class="datacolumn">Sum aga</th>
+                        <td>{{totalAga}}</td>
+                    </tr>
+                </table>
+            </article>
+
+            <article class="poster_widget">
+                <ul class="statuslist">
+                    <li [className]="clarifiedDate ? 'success' : 'warn'">
+                        {{clarifiedDate ? 'Klargjort - ' + clarifiedDate : 'Ikke klargjort'}}
+                    </li>
+                    <li [className]="submittedDate ? 'success' : 'warn'">
+                        {{submittedDate ? 'Innsendt - ' + submittedDate : 'Ikke innsendt'}}
+                    </li>
+                    <li [className]="feedbackObtained ? 'success' : 'warn'">
+                        {{feedbackObtained ? 'Tilbakemelding hentet - ' + feedbackObtained : 'Tilbakemelding ikke hentet'}}
+                    </li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <div class="horizontal_nav">
+        <ul>
+            <li>
+                <a (click)="showView = 'control'" [class.router-link-active]="showView == 'control'">Kontroll</a>
+            </li>
+            <li>
+                <a (click)="showView = ''" [class.router-link-active]="showView == ''">Oppsummering</a>
+            </li>
+            <li>
+                <a (click)="showView = 'aga'" [class.router-link-active]="showView == 'aga'">Arbeidsgiveravgift</a>
+            </li>
+            <li>
+                <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Kvittering og tilbakemelding</a>
+            </li>
+            <li>
+                <a (click)="showView = 'periodsummary'" [class.router-link-active]="showView == 'periodsummary'">Periodeoppsummering</a>
+            </li>
+            <li>
+                <a (click)="showView = 'avstem'" [class.router-link-active]="showView == 'avstem'">Avstemming</a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<select-amelding-type-modal (ameldTypeChange)="aMeldingTypeChange($event)"></select-amelding-type-modal>
+
+<section class="application" [attr.aria-busy]="busy">
+
+    <amelding-control-view *ngIf="showView == 'control'"></amelding-control-view>
+    <amelding-summary-view *ngIf="showView == ''" [currentAMelding]="currentAMelding" (updateTotals)="updateTotals($event)"></amelding-summary-view>
+    <amelding-aga-view *ngIf="showView == 'aga'"></amelding-aga-view>
+    <amelding-receipt-view *ngIf="showView == 'receipt'"></amelding-receipt-view>
+    <amelding-periodsummary-view *ngIf="showView == 'periodsummary'"></amelding-periodsummary-view>
+    <amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>
+
+    <footer class="full-footer">
+        <section class="application" *ngIf="actions">
+            <uni-save [actions]="actions"></uni-save>
+        </section>
+    </footer>
+</section>
