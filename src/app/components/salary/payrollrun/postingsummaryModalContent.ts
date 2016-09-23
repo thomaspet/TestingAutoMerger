@@ -1,4 +1,5 @@
 import {Component, Input} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {PayrollrunService} from '../../../../app/services/services';
 import moment from 'moment';
@@ -12,21 +13,24 @@ export class PostingsummaryModalContent {
     public busy: boolean;
     private showReceipt: boolean = false;    
     private accountTableConfig: UniTableConfig;    
-    @Input() private config: any;    
+    @Input() private config: any;
+    private payrollrunID: number;    
     private summary: any;    
     private journalNumber: string;
     private journalDate: Date;
     private headerString: string = 'Konteringssammendrag';
     
-    constructor(private payrollService: PayrollrunService) {
-        
+    constructor(private payrollService: PayrollrunService, private route: ActivatedRoute) {
+        this.route.params.subscribe(params => {
+            this.payrollrunID = +params['id'];
+        });
     }
     
     public openModal() {
         this.busy = true;        
         this.createTableConfig();
 
-        this.payrollService.getPostingsummary(this.config.payrollrunID)
+        this.payrollService.getPostingsummary(this.payrollrunID)
         .subscribe((response: any) => {
             this.summary = response;         
             this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
@@ -39,7 +43,7 @@ export class PostingsummaryModalContent {
     
     
     public postTransactions() {
-        return this.payrollService.postTransactions(this.config.payrollrunID);
+        return this.payrollService.postTransactions(this.payrollrunID);
     }
     
     public showResponseReceipt(successResponse: any) {

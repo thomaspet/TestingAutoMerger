@@ -18,34 +18,31 @@ export class PostingsummaryModal implements AfterViewInit {
 
     constructor(private route: ActivatedRoute) {
 
-        this.route.params.subscribe(params => {
-            this.modalConfig = {
-                title: 'Konteringssammendrag',
-                hasCancelButton: true,
-                cancel: () => {
-                    this.modals[0].close();
-                },
-                actions: [{
-                    text: 'Bokfør',
-                    method: () => {
-                        this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
-                            content.busy = true;
-                            content.postTransactions().subscribe((success) => {
-                                if (success) {
-                                    this.updatePayrollRun.emit(true);
-                                    content.showResponseReceipt(success);
-                                }
-                                content.busy = false;
-                            }, error => {
-                                content.busy = false;
-                                content.log(error);
-                            });
+        this.modalConfig = {
+            title: 'Konteringssammendrag',
+            hasCancelButton: true,
+            cancel: () => {
+                this.modals[0].close();
+            },
+            actions: [{
+                text: 'Bokfør',
+                method: () => {
+                    this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
+                        content.busy = true;
+                        content.postTransactions().subscribe((success) => {
+                            if (success) {
+                                this.updatePayrollRun.emit(true);
+                                content.showResponseReceipt(success);
+                            }
+                            content.busy = false;
+                        }, error => {
+                            content.busy = false;
+                            content.log(error);
                         });
-                    }
-                }],
-                payrollrunID: +params['id']
-            };
-        });
+                    });
+                }
+            }]
+        };
 
     }
 

@@ -1,10 +1,10 @@
 import {Component, Type, ViewChild, Input} from '@angular/core';
 import {NgIf} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniform';
 import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnIntegrationService, EmployeeService} from '../../../../../app/services/services';
-import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 declare var _;
 @Component({
@@ -25,6 +25,7 @@ export class TaxCardRequestModalContent {
     @Input('config')
     private config: any;
 
+    private employeeID: number;
     public model: { singleEmpChoice: number, multiEmpChoice: number } = { singleEmpChoice: 1, multiEmpChoice: 1 };
     public fields: FieldLayout[] = [];
     public formConfig: any = {};
@@ -34,9 +35,13 @@ export class TaxCardRequestModalContent {
 
     constructor(
         private _altinnService: AltinnIntegrationService,
-        private _employeeService: EmployeeService
+        private _employeeService: EmployeeService,
+        private _router: ActivatedRoute
     ) {
         this.initialize();
+        this._router.parent.params.subscribe(params => {
+            this.employeeID = +params['id'];
+        });
 
     }
 
@@ -111,7 +116,7 @@ export class TaxCardRequestModalContent {
                     break;
             }
         } else {
-            this.taxRequest('SINGLE_EMP', this.config.employeeID);
+            this.taxRequest('SINGLE_EMP', this.employeeID);
         }
     }
 
@@ -146,6 +151,10 @@ export class TaxCardRequestModalContent {
         this.fields = _.cloneDeep(this.fields);
     }
 
+    public updateConfig(newConfig: any) {
+        this.config = newConfig;
+    }
+
     public close() {
         this.initialize();
         this.uniform.Hidden = false;
@@ -165,10 +174,7 @@ export class TaxCardRequestModal {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    private employeeID: number;
-
-    constructor(private rootRouteParams: RootRouteParamsService) {
-        this.employeeID = +rootRouteParams.params['id'];
+    constructor() {
         this.config = {
             hasCancelButton: true,
             cancel: () => {
@@ -177,9 +183,7 @@ export class TaxCardRequestModal {
                     component.close();
                     component.isActive = false;
                 });
-
-            },
-            employeeID: this.employeeID
+            }
         };
     }
 

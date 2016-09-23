@@ -1,4 +1,4 @@
-import {Component, Type, ViewChildren, QueryList, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
+import {Component, Type, ViewChild, QueryList, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
@@ -21,6 +21,7 @@ export class ControlModalContent {
     public formConfig: any = {};
     public payList: { employeeInfo: { name: string, payment: number, hasTaxInfo: boolean }, paymentLines: SalaryTransaction[], collapsed: boolean }[] = null;
     private payrollRun: PayrollRun;
+    private payrollRunID: number;
     @Input('config')
     private config: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[], payrollRunID: number };
     private transes: SalaryTransaction[];
@@ -32,17 +33,21 @@ export class ControlModalContent {
         private _salaryTransactionService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
         private _employeeService: EmployeeService,
-        private _router: Router) {
+        private _router: Router,
+        private route: ActivatedRoute) {
+        this.route.params.subscribe(params => {
+            this.payrollRunID = +params['id'];
+        });
         this.generateHeadingsForm();
     }
 
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
-            this._salaryTransactionService.GetAll('filter: PayrollRunID eq ' + this.config.payrollRunID),
-            this._employeeService.getTotals(this.config.payrollRunID),
-            this._payrollRunService.getPaymentList(this.config.payrollRunID),
-            this._payrollRunService.Get(this.config.payrollRunID)
+            this._salaryTransactionService.GetAll('filter: PayrollRunID eq ' + this.payrollRunID),
+            this._employeeService.getTotals(this.payrollRunID),
+            this._payrollRunService.getPaymentList(this.payrollRunID),
+            this._payrollRunService.Get(this.payrollRunID)
         );
     }
 
@@ -124,7 +129,7 @@ export class ControlModalContent {
         if (this.model.salaryTransactionPay.PayList) {
             this.model.salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
 
-                let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.config.payrollRunID);
+                let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.payrollRunID);
                 let section: { employeeInfo: { name: string, payment: number, hasTaxInfo: boolean }, paymentLines: SalaryTransaction[], collapsed: boolean } = {
                     employeeInfo: {
                         name: payline.EmployeeName,
@@ -142,12 +147,12 @@ export class ControlModalContent {
 
     public runSettling() {
         this.busy = true;
-        return this._payrollRunService.runSettling(this.config.payrollRunID);
+        return this._payrollRunService.runSettling(this.payrollRunID);
     }
 
     public refresh() {
         this.busy = true;
-        this._payrollRunService.controlPayroll(this.config.payrollRunID).subscribe((response) => {
+        this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
             this.getData().subscribe((data) => {
                 this.setData(data);
             }, error => console.log(error));
@@ -155,7 +160,7 @@ export class ControlModalContent {
     }
 
     public showPaymentList() {
-        this._router.navigateByUrl('/salary/paymentlist/' + this.config.payrollRunID);
+        this._router.navigateByUrl('/salary/paymentlist/' + this.payrollRunID);
     }
 
     public toggleCollapsed(index: number) {
@@ -175,52 +180,43 @@ export class ControlModalContent {
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
-export class ControlModal implements AfterViewInit {
-    @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
+export class ControlModal {
+    @ViewChild(UniModal) private modal: UniModal;
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
-    private modals: UniModal[];
-    private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[], payrollRunID: number };
+    private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[] };
     public type: Type = ControlModalContent;
 
     constructor(private route: ActivatedRoute) {
-
-
-        this.route.params.subscribe(params => {
-            this.modalConfig = {
-                hasCancelButton: true,
-                cancel: () => {
-                    this.modals[0].getContent().then((component: ControlModalContent) => {
-                        component.closeAll();
-                    });
-                    this.modals[0].close();
-                },
-                actions: [{
-                    text: 'Avregn',
-                    method: () => {
-                        this.modals[0].getContent().then((content: ControlModalContent) => {
-                            content.runSettling().subscribe((success) => {
-                                if (success) {
-                                    this.updatePayrollRun.emit(true);
-                                    content.showPaymentList();
-                                }
-                            });
+        
+        this.modalConfig = {
+            hasCancelButton: true,
+            cancel: () => {
+                this.modal.getContent().then((component: ControlModalContent) => {
+                    component.closeAll();
+                });
+                this.modal.close();
+            },
+            actions: [{
+                text: 'Avregn',
+                method: () => {
+                    this.modal.getContent().then((content: ControlModalContent) => {
+                        content.runSettling().subscribe((success) => {
+                            if (success) {
+                                this.updatePayrollRun.emit(true);
+                                content.showPaymentList();
+                            }
                         });
-                    }
-                }],
-                payrollRunID: +params['id']
-            };
-        });
+                    });
+                }
+            }]
+        };
 
-    }
-
-    public ngAfterViewInit() {
-        this.modals = this.modalElements.toArray();
     }
 
     public openModal() {
-        this.modals[0].getContent().then((modalContent: ControlModalContent) => {
+        this.modal.getContent().then((modalContent: ControlModalContent) => {
             modalContent.refresh();
-            this.modals[0].open();
+            this.modal.open();
         });
     }
 }
