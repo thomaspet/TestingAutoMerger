@@ -154,10 +154,8 @@ export class AltinnAuthenticationDataModalContent {
             this.userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
 
         if (this.userSubmittedUsernameAndPasswordAndPinType.observers.length === 0) {
-            console.log('subscribe på userSubmittedUsernameAndPasswordAndPinType');
             this.userSubmittedUsernameAndPasswordAndPinType
                 .subscribe(() => {
-                    console.log('userSubmittedUsernameAndPasswordAndPinType');
                     const authData: AltinnAuthRequest = new AltinnAuthRequest();
                     authData.UserID = this.userLoginData.userID;
                     authData.UserPassword = this.userLoginData.password;
@@ -186,9 +184,13 @@ export class AltinnAuthenticationDataModalContent {
         }
 
         return new Promise((resolve, reject) => {
-                return this.userSubmittedPin
+            // remove previous subscriptions, if not previous promises might also be resolved
+            if (this.userSubmittedPin.observers.length > 0) {
+                this.userSubmittedPin.observers.pop();
+            }
+
+            return this.userSubmittedPin
                     .subscribe(() => {
-                        console.log('userSubmittedPin')
                         resolve(this.userLoginData);
                     }, this.onError);
             });
