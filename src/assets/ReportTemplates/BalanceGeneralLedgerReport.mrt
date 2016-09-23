@@ -134,10 +134,10 @@
     <Page1 Ref="8" type="Page" isKey="true">
       <Border>None;Black;2;Solid;False;4;Black</Border>
       <Brush>Transparent</Brush>
-      <Components isList="true" count="7">
+      <Components isList="true" count="9">
         <PageHeaderBand1 Ref="9" type="PageHeaderBand" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>0,0.4,19,3.4</ClientRectangle>
+          <ClientRectangle>0,0.4,19,3.6</ClientRectangle>
           <ComponentPlacement>ph.Page1</ComponentPlacement>
           <Components isList="true" count="4">
             <Text2 Ref="10" type="Text" isKey="true">
@@ -230,38 +230,7 @@
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text7>
-            <Shape1 Ref="16" type="Shape" isKey="true">
-              <BorderColor>Black</BorderColor>
-              <Brush>[240:245:250]</Brush>
-              <ClientRectangle>16,0.7,1.8,1.6</ClientRectangle>
-              <ComponentPlacement>pf.PageFooterBand1</ComponentPlacement>
-              <Conditions isList="true" count="0" />
-              <Name>Shape1</Name>
-              <Page isRef="8" />
-              <Parent isRef="14" />
-              <ShapeType Ref="17" type="Stimulsoft.Report.Components.ShapeTypes.StiOvalShapeType" isKey="true" />
-              <ShiftMode>DecreasingSize</ShiftMode>
-              <Style>None</Style>
-            </Shape1>
-            <Text9 Ref="18" type="Text" isKey="true">
-              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
-              <Brush>EmptyBrush</Brush>
-              <ClientRectangle>16,0.7,1.8,1.6</ClientRectangle>
-              <ComponentPlacement>pf.PageFooterBand1</ComponentPlacement>
-              <Conditions isList="true" count="0" />
-              <Font>Segoe UI Semibold,12</Font>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text9</Name>
-              <Page isRef="8" />
-              <Parent isRef="14" />
-              <ShiftMode>DecreasingSize</ShiftMode>
-              <Text>{PageNumber} / {TotalPageCount}</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <Type>Expression</Type>
-              <VertAlignment>Center</VertAlignment>
-            </Text9>
-            <Text6 Ref="19" type="Text" isKey="true">
+            <Text6 Ref="16" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>4.4,1.5,2,0.6</ClientRectangle>
@@ -277,7 +246,7 @@
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text6>
-            <Text8 Ref="20" type="Text" isKey="true">
+            <Text8 Ref="17" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>7,1.5,4.8,0.6</ClientRectangle>
               <ComponentPlacement>pf.PageFooterBand1</ComponentPlacement>
@@ -291,7 +260,7 @@
               <TextBrush>[63:63:63]</TextBrush>
               <VertAlignment>Center</VertAlignment>
             </Text8>
-            <Text5 Ref="21" type="Text" isKey="true">
+            <Text5 Ref="18" type="Text" isKey="true">
               <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
               <Brush>Transparent</Brush>
               <ClientRectangle>4.4,0.9,1.4,0.6</ClientRectangle>
@@ -307,6 +276,39 @@
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
             </Text5>
+            <Shape1 Ref="19" type="Shape" isKey="true">
+              <BorderColor>Transparent</BorderColor>
+              <Brush>[236:245:249]</Brush>
+              <ClientRectangle>17.4,0.6,1.6,1.6</ClientRectangle>
+              <ComponentPlacement>pf.PageFooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Guid>74ab14255fbc489e9eb09147065fb3da</Guid>
+              <Name>Shape1</Name>
+              <Page isRef="8" />
+              <Parent isRef="14" />
+              <ShapeType Ref="20" type="Stimulsoft.Report.Components.ShapeTypes.StiOvalShapeType" isKey="true" />
+              <ShiftMode>DecreasingSize</ShiftMode>
+              <Style>None</Style>
+            </Shape1>
+            <Text9 Ref="21" type="Text" isKey="true">
+              <Border>None;[0:0:0];1;Solid;False;4;[0:0:0]</Border>
+              <Brush>EmptyBrush</Brush>
+              <ClientRectangle>17.4,0.6,1.6,1.6</ClientRectangle>
+              <ComponentPlacement>pf.PageFooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Microsoft Sans Serif,12</Font>
+              <Guid>7cfbd89aa1564383b94f9a44b78b1433</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="8" />
+              <Parent isRef="14" />
+              <ShiftMode>DecreasingSize</ShiftMode>
+              <Text>{PageNumber} / {TotalPageCount}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
           </Components>
           <Conditions isList="true" count="0" />
           <Name>PageFooterBand1</Name>
@@ -328,6 +330,7 @@
               <Name>HorizontalLinePrimitive1</Name>
               <Page isRef="8" />
               <Parent isRef="22" />
+              <Size>0.2</Size>
               <StartCap Ref="25" type="Cap" isKey="true">
                 <Color>Black</Color>
               </StartCap>
@@ -343,130 +346,277 @@
           <CanShrink>True</CanShrink>
           <ClientRectangle>0,20.7,19,1.8</ClientRectangle>
           <ComponentPlacement>pf.Page1</ComponentPlacement>
-          <Components isList="true" count="6">
-            <Text26 Ref="27" type="Text" isKey="true">
-              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+          <Components isList="true" count="3">
+            <Panel3 Ref="27" type="Panel" isKey="true">
+              <Border>None;[0:0:0];1;Solid;False;4;[0:0:0]</Border>
               <Brush>[240:244:233]</Brush>
-              <ClientRectangle>0,0,6.4,1</ClientRectangle>
+              <ClientRectangle>12.6,0,6.4,2.4</ClientRectangle>
               <ComponentPlacement>pf.PageFooterBand2</ComponentPlacement>
+              <Components isList="true" count="4">
+                <Text27 Ref="28" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0,0,0.6,0</ClientRectangle>
+                  <ComponentPlacement>pf.Panel3</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Microsoft Sans Serif,12</Font>
+                  <Guid>b1ef2ab7e3c44a5a82d74caf8089910e</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text27</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="27" />
+                  <Text>Utbetalingsdato</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text27>
+                <Text31 Ref="29" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0,0.2,0.6,0</ClientRectangle>
+                  <ComponentPlacement>pf.Panel3</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Microsoft Sans Serif,12</Font>
+                  <Guid>48290b60661242bc9319d7d8fd785cfa</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text31</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="27" />
+                  <Text>{paymentlist.PaymentDate}</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <TextFormat Ref="30" type="DateFormat" isKey="true">
+                    <StringFormat>dd.MM.yyyy</StringFormat>
+                  </TextFormat>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text31>
+                <Text37 Ref="31" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0.4,0.4,5.4,0.6</ClientRectangle>
+                  <ComponentPlacement>pf.Panel3</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Source Sans Pro,12,Bold</Font>
+                  <Guid>950985577d2c46899c11d3d53ac06cbf</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text37</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="27" />
+                  <Text>Sum periodeslutt</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text37>
+                <Text39 Ref="32" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0.4,1.2,5.4,0.6</ClientRectangle>
+                  <ComponentPlacement>pf.Panel3</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Source Sans Pro,12</Font>
+                  <Guid>ffc0ac66d3d44926adc9222da574cd0b</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text39</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="27" />
+                  <Text>{Sum(journalentrydata_Data.SumIB) + Sum(journalentrydata_Data.SumThisPeriod)}</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <TextFormat Ref="33" type="NumberFormat" isKey="true">
+                    <DecimalSeparator>,</DecimalSeparator>
+                    <GroupSeparator> </GroupSeparator>
+                    <NegativePattern>1</NegativePattern>
+                  </TextFormat>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text39>
+              </Components>
+              <ComponentStyle>Style3</ComponentStyle>
               <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,12,Bold</Font>
-              <Guid>5a9b112353e547078afff8af667c5f2e</Guid>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>15,0,0,5</Margins>
-              <Name>Text26</Name>
+              <Guid>b6fec1fafab643d7a7e69beec02c2a85</Guid>
+              <Name>Panel3</Name>
               <Page isRef="8" />
               <Parent isRef="26" />
-              <Text>Sum debet</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <Type>Expression</Type>
-              <VertAlignment>Center</VertAlignment>
-            </Text26>
-            <Text27 Ref="28" type="Text" isKey="true">
-              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+            </Panel3>
+            <Panel2 Ref="34" type="Panel" isKey="true">
+              <Border>Right;[255:255:255];1;Solid;False;4;[0:0:0]</Border>
               <Brush>[240:244:233]</Brush>
-              <ClientRectangle>6.4,0,6.2,1</ClientRectangle>
+              <ClientRectangle>6.4,0,6.2,2.4</ClientRectangle>
               <ComponentPlacement>pf.PageFooterBand2</ComponentPlacement>
+              <Components isList="true" count="4">
+                <Text26 Ref="35" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0,0,0.6,0</ClientRectangle>
+                  <ComponentPlacement>pf.Panel2</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Microsoft Sans Serif,12</Font>
+                  <Guid>434731d0dba041fdb4ad0fec98320fda</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text26</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="34" />
+                  <Text>Utbetalingsdato</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text26>
+                <Text30 Ref="36" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0,0.2,0.6,0</ClientRectangle>
+                  <ComponentPlacement>pf.Panel2</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Microsoft Sans Serif,12</Font>
+                  <Guid>fc47326525344f09b7e4ba521e4af63e</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text30</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="34" />
+                  <Text>{paymentlist.PaymentDate}</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <TextFormat Ref="37" type="DateFormat" isKey="true">
+                    <StringFormat>dd.MM.yyyy</StringFormat>
+                  </TextFormat>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text30>
+                <Text35 Ref="38" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0.4,0.4,5.4,0.6</ClientRectangle>
+                  <ComponentPlacement>pf.Panel2</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Source Sans Pro,12,Bold</Font>
+                  <Guid>dd64ff26bb814a6ea409e07406b1e989</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text35</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="34" />
+                  <Text>Sum kredit</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text35>
+                <Text36 Ref="39" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0.4,1.2,5.4,0.6</ClientRectangle>
+                  <ComponentPlacement>pf.Panel2</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Source Sans Pro,12</Font>
+                  <Guid>8c63abfc2965485c8e7e2852b911d87c</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text36</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="34" />
+                  <Text>{Sum(journalentrydata_Data.SumCreditThisPeriod)}</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <TextFormat Ref="40" type="NumberFormat" isKey="true">
+                    <DecimalSeparator>,</DecimalSeparator>
+                    <GroupSeparator> </GroupSeparator>
+                    <NegativePattern>1</NegativePattern>
+                  </TextFormat>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text36>
+              </Components>
+              <ComponentStyle>Style3</ComponentStyle>
               <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,12,Bold</Font>
-              <Guid>b5ccd935e7f24c4fa1e5e7fc3d170c49</Guid>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>15,0,0,5</Margins>
-              <Name>Text27</Name>
+              <Guid>f32799c0514740b29dc04a01689381cd</Guid>
+              <Name>Panel2</Name>
               <Page isRef="8" />
               <Parent isRef="26" />
-              <Text>Sum kredit</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <Type>Expression</Type>
-              <VertAlignment>Center</VertAlignment>
-            </Text27>
-            <Text28 Ref="29" type="Text" isKey="true">
-              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+            </Panel2>
+            <Panel1 Ref="41" type="Panel" isKey="true">
+              <Border>Right;[255:255:255];1;Solid;False;4;[0:0:0]</Border>
               <Brush>[240:244:233]</Brush>
-              <ClientRectangle>12.6,0,6.4,1</ClientRectangle>
+              <ClientRectangle>0,0,6.4,2.4</ClientRectangle>
               <ComponentPlacement>pf.PageFooterBand2</ComponentPlacement>
+              <Components isList="true" count="4">
+                <Text29 Ref="42" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0,0,0.6,0</ClientRectangle>
+                  <ComponentPlacement>pf.Panel1</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Microsoft Sans Serif,12</Font>
+                  <Guid>37083cbbfdc14e72a334e0e56ff886e3</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text29</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="41" />
+                  <Text>Utbetalingsdato</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text29>
+                <Text38 Ref="43" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0,0.2,0.6,0</ClientRectangle>
+                  <ComponentPlacement>pf.Panel1</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Microsoft Sans Serif,12</Font>
+                  <Guid>f1cc6069352143b8bd30d4e8874395be</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text38</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="41" />
+                  <Text>{paymentlist.PaymentDate}</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <TextFormat Ref="44" type="DateFormat" isKey="true">
+                    <StringFormat>dd.MM.yyyy</StringFormat>
+                  </TextFormat>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text38>
+                <Text33 Ref="45" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0.4,0.4,5.4,0.6</ClientRectangle>
+                  <ComponentPlacement>pf.Panel1</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Source Sans Pro,12,Bold</Font>
+                  <Guid>7c929baf411549de83680d3257cabd27</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text33</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="41" />
+                  <Text>Sum debet</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text33>
+                <Text34 Ref="46" type="Text" isKey="true">
+                  <Border>None;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                  <Brush>EmptyBrush</Brush>
+                  <ClientRectangle>0.4,1.2,5.4,0.6</ClientRectangle>
+                  <ComponentPlacement>pf.Panel1</ComponentPlacement>
+                  <Conditions isList="true" count="0" />
+                  <Font>Source Sans Pro,12</Font>
+                  <Guid>f0d30f5124b6479c8079f951b3dde65d</Guid>
+                  <Margins>0,0,0,0</Margins>
+                  <Name>Text34</Name>
+                  <Page isRef="8" />
+                  <Parent isRef="41" />
+                  <Text>{Sum(journalentrydata_Data.SumDebitThisPeriod)}</Text>
+                  <TextBrush>[0:0:0]</TextBrush>
+                  <TextFormat Ref="47" type="NumberFormat" isKey="true">
+                    <DecimalSeparator>,</DecimalSeparator>
+                    <GroupSeparator> </GroupSeparator>
+                    <NegativePattern>1</NegativePattern>
+                  </TextFormat>
+                  <Type>Expression</Type>
+                  <VertAlignment>Center</VertAlignment>
+                </Text34>
+              </Components>
+              <ComponentStyle>Style3</ComponentStyle>
               <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,12,Bold</Font>
-              <Guid>17aef886497a4ef8a7c3004ce2f69575</Guid>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>15,0,0,5</Margins>
-              <Name>Text28</Name>
+              <Guid>f97665543cac4533addac6844e23307e</Guid>
+              <Name>Panel1</Name>
               <Page isRef="8" />
               <Parent isRef="26" />
-              <Text>Saldo periodeslutt</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <Type>Expression</Type>
-              <VertAlignment>Center</VertAlignment>
-            </Text28>
-            <Text30 Ref="30" type="Text" isKey="true">
-              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
-              <Brush>[240:244:233]</Brush>
-              <ClientRectangle>0,1,6.4,1</ClientRectangle>
-              <ComponentPlacement>pf.PageFooterBand2</ComponentPlacement>
-              <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,12</Font>
-              <Guid>cceccf7cbb0845f691ec866ff34f76c9</Guid>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>15,0,0,5</Margins>
-              <Name>Text30</Name>
-              <Page isRef="8" />
-              <Parent isRef="26" />
-              <Text>{Sum(journalentrydata_Data.SumDebitThisPeriod)}</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <TextFormat Ref="31" type="NumberFormat" isKey="true">
-                <DecimalSeparator>,</DecimalSeparator>
-                <GroupSeparator> </GroupSeparator>
-                <NegativePattern>1</NegativePattern>
-                <UseLocalSetting>False</UseLocalSetting>
-              </TextFormat>
-              <Type>Totals</Type>
-            </Text30>
-            <Text31 Ref="32" type="Text" isKey="true">
-              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
-              <Brush>[240:244:233]</Brush>
-              <ClientRectangle>6.4,1,6.2,1</ClientRectangle>
-              <ComponentPlacement>pf.PageFooterBand2</ComponentPlacement>
-              <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,12</Font>
-              <Guid>92358c29710c4ef99013d9fd519c5076</Guid>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>15,0,0,5</Margins>
-              <Name>Text31</Name>
-              <Page isRef="8" />
-              <Parent isRef="26" />
-              <Text>{Sum(journalentrydata_Data.SumCreditThisPeriod)}</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <TextFormat Ref="33" type="NumberFormat" isKey="true">
-                <DecimalSeparator>,</DecimalSeparator>
-                <GroupSeparator> </GroupSeparator>
-                <NegativePattern>1</NegativePattern>
-                <UseLocalSetting>False</UseLocalSetting>
-              </TextFormat>
-              <Type>Totals</Type>
-            </Text31>
-            <Text32 Ref="34" type="Text" isKey="true">
-              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
-              <Brush>[240:244:233]</Brush>
-              <ClientRectangle>12.6,1,6.4,1</ClientRectangle>
-              <ComponentPlacement>pf.PageFooterBand2</ComponentPlacement>
-              <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,12</Font>
-              <Guid>b962edfef5f84fa783941883dbbfde43</Guid>
-              <HorAlignment>Center</HorAlignment>
-              <Margins>15,0,0,5</Margins>
-              <Name>Text32</Name>
-              <Page isRef="8" />
-              <Parent isRef="26" />
-              <Text>{Sum(journalentrydata_Data.SumIB) + Sum(journalentrydata_Data.SumThisPeriod)}</Text>
-              <TextBrush>[0:0:0]</TextBrush>
-              <TextFormat Ref="35" type="NumberFormat" isKey="true">
-                <DecimalSeparator>,</DecimalSeparator>
-                <GroupSeparator> </GroupSeparator>
-                <NegativePattern>1</NegativePattern>
-                <UseLocalSetting>False</UseLocalSetting>
-              </TextFormat>
-              <Type>Totals</Type>
-            </Text32>
+            </Panel1>
           </Components>
           <Conditions isList="true" count="0" />
           <Name>PageFooterBand2</Name>
@@ -474,12 +624,23 @@
           <Parent isRef="8" />
           <PrintOn>OnlyFirstAndLastPage</PrintOn>
         </PageFooterBand2>
-        <HeaderBand1 Ref="36" type="HeaderBand" isKey="true">
+        <PageFooterBand4 Ref="48" type="PageFooterBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,19.5,19,0.4</ClientRectangle>
+          <ComponentPlacement>pf.Page1</ComponentPlacement>
+          <Components isList="true" count="0" />
+          <Conditions isList="true" count="0" />
+          <Name>PageFooterBand4</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <PrintOn>OnlyFirstAndLastPage</PrintOn>
+        </PageFooterBand4>
+        <HeaderBand1 Ref="49" type="HeaderBand" isKey="true">
           <Brush>[234:246:250]</Brush>
-          <ClientRectangle>0,4.6,19,1</ClientRectangle>
+          <ClientRectangle>0,4.8,19,1</ClientRectangle>
           <ComponentPlacement>h.ap.Page1</ComponentPlacement>
           <Components isList="true" count="11">
-            <Text20 Ref="37" type="Text" isKey="true">
+            <Text20 Ref="50" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>0.2,0.5,1.4,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -488,12 +649,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text20</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Kontonr</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text20>
-            <Text22 Ref="38" type="Text" isKey="true">
+            <Text22 Ref="51" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>1.6,0.5,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -502,12 +663,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text22</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Kontonavn</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text22>
-            <Text18 Ref="39" type="Text" isKey="true">
+            <Text18 Ref="52" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>11.4,0.5,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -517,12 +678,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text18</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Sum kredit</Text>
               <TextBrush>Black</TextBrush>
               <Type>DataColumn</Type>
             </Text18>
-            <Text17 Ref="40" type="Text" isKey="true">
+            <Text17 Ref="53" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>9.2,0.5,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -532,27 +693,27 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text17</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Sum debet</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text17>
-            <Text25 Ref="41" type="Text" isKey="true">
+            <Text25 Ref="54" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>9.7,0.1,2.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
-              <Font>Source Sans Pro,8</Font>
+              <Font>Source Sans Pro,8,Bold</Font>
               <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text25</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Bevegelse i perioden</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text25>
-            <Text4 Ref="42" type="Text" isKey="true">
+            <Text4 Ref="55" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>7.2,0.5,1.6,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -563,12 +724,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text4</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Inngående</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text4>
-            <Text10 Ref="43" type="Text" isKey="true">
+            <Text10 Ref="56" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>13.6,0.5,2.2,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -579,12 +740,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text10</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Ved periodeslutt</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text10>
-            <Text11 Ref="44" type="Text" isKey="true">
+            <Text11 Ref="57" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>15.8,0.5,3,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -595,12 +756,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text11</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Samme periode i fjor</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text11>
-            <Text12 Ref="45" type="Text" isKey="true">
+            <Text12 Ref="58" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>7.7,0.1,0.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -611,12 +772,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text12</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Saldo</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text12>
-            <Text13 Ref="46" type="Text" isKey="true">
+            <Text13 Ref="59" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>14.4,0.1,0.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -627,12 +788,12 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text13</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Saldo</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text13>
-            <Text14 Ref="47" type="Text" isKey="true">
+            <Text14 Ref="60" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <ClientRectangle>17,0.1,0.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
@@ -643,7 +804,7 @@
               <Margins>0,0,0,0</Margins>
               <Name>Text14</Name>
               <Page isRef="8" />
-              <Parent isRef="36" />
+              <Parent isRef="49" />
               <Text>Saldo</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
@@ -655,13 +816,13 @@
           <Parent isRef="8" />
           <PrintIfEmpty>True</PrintIfEmpty>
         </HeaderBand1>
-        <Datajournalentrydata_Data Ref="48" type="DataBand" isKey="true">
+        <Datajournalentrydata_Data Ref="61" type="DataBand" isKey="true">
           <Brush>Transparent</Brush>
           <BusinessObjectGuid isNull="true" />
-          <ClientRectangle>0,6.4,19,0.8</ClientRectangle>
+          <ClientRectangle>0,6.6,19,0.8</ClientRectangle>
           <ComponentPlacement>d.Page1</ComponentPlacement>
           <Components isList="true" count="7">
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_0 Ref="49" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_0 Ref="62" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>1.6,0,4.6,0.8</ClientRectangle>
@@ -669,15 +830,17 @@
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
               <Margins>0,0,0,0</Margins>
+              <MaxNumberOfLines>2</MaxNumberOfLines>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_0</Name>
+              <OnlyText>True</OnlyText>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.AccountAccountName}</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <VertAlignment>Center</VertAlignment>
             </DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_0>
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_02 Ref="50" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_02 Ref="63" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.2,0,1.4,0.8</ClientRectangle>
@@ -687,13 +850,13 @@
               <Margins>0,0,0,0</Margins>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_02</Name>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.AccountAccountNumber}</Text>
               <TextBrush>Black</TextBrush>
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <VertAlignment>Center</VertAlignment>
             </DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_02>
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_03 Ref="51" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_03 Ref="64" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>11,0,2.2,0.8</ClientRectangle>
@@ -705,10 +868,10 @@
               <Margins>0,0,0,0</Margins>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_03</Name>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.SumCreditThisPeriod}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="52" type="NumberFormat" isKey="true">
+              <TextFormat Ref="65" type="NumberFormat" isKey="true">
                 <DecimalSeparator>,</DecimalSeparator>
                 <GroupSeparator> </GroupSeparator>
                 <NegativePattern>1</NegativePattern>
@@ -716,7 +879,7 @@
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <VertAlignment>Center</VertAlignment>
             </DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_03>
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_04 Ref="53" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_04 Ref="66" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>8.8,0,2.2,0.8</ClientRectangle>
@@ -728,10 +891,10 @@
               <Margins>0,0,0,0</Margins>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_04</Name>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.SumDebitThisPeriod}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="54" type="NumberFormat" isKey="true">
+              <TextFormat Ref="67" type="NumberFormat" isKey="true">
                 <DecimalSeparator>,</DecimalSeparator>
                 <GroupSeparator> </GroupSeparator>
                 <NegativePattern>1</NegativePattern>
@@ -739,7 +902,7 @@
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <VertAlignment>Center</VertAlignment>
             </DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_04>
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_05 Ref="55" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_05 Ref="68" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>6.2,0,2.6,0.8</ClientRectangle>
@@ -751,10 +914,10 @@
               <Margins>0,0,0,0</Margins>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_05</Name>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.SumIB}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="56" type="NumberFormat" isKey="true">
+              <TextFormat Ref="69" type="NumberFormat" isKey="true">
                 <DecimalSeparator>,</DecimalSeparator>
                 <GroupSeparator> </GroupSeparator>
                 <NegativePattern>1</NegativePattern>
@@ -762,7 +925,7 @@
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <VertAlignment>Center</VertAlignment>
             </DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_05>
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_06 Ref="57" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_06 Ref="70" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>13.2,0,2.6,0.8</ClientRectangle>
@@ -774,10 +937,10 @@
               <Margins>0,0,0,0</Margins>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_06</Name>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.SumThisPeriod + journalentrydata_Data.SumIB}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="58" type="NumberFormat" isKey="true">
+              <TextFormat Ref="71" type="NumberFormat" isKey="true">
                 <DecimalSeparator>,</DecimalSeparator>
                 <GroupSeparator> </GroupSeparator>
                 <NegativePattern>1</NegativePattern>
@@ -785,7 +948,7 @@
               <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
               <VertAlignment>Center</VertAlignment>
             </DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_06>
-            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_07 Ref="59" type="Text" isKey="true">
+            <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_07 Ref="72" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>16,0,2.8,0.8</ClientRectangle>
@@ -797,10 +960,10 @@
               <Margins>0,0,0,0</Margins>
               <Name>DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_07</Name>
               <Page isRef="8" />
-              <Parent isRef="48" />
+              <Parent isRef="61" />
               <Text>{journalentrydata_Data.SumThisPeriodLastYear}</Text>
               <TextBrush>Black</TextBrush>
-              <TextFormat Ref="60" type="NumberFormat" isKey="true">
+              <TextFormat Ref="73" type="NumberFormat" isKey="true">
                 <DecimalSeparator>,</DecimalSeparator>
                 <GroupSeparator> </GroupSeparator>
                 <NegativePattern>1</NegativePattern>
@@ -821,17 +984,137 @@
           <SkipFirst>False</SkipFirst>
           <Sort isList="true" count="0" />
         </Datajournalentrydata_Data>
-        <FooterBand2 Ref="61" type="FooterBand" isKey="true">
+        <FooterBand2 Ref="74" type="FooterBand" isKey="true">
           <Brush>Transparent</Brush>
-          <ClientRectangle>0,8,19,0.8</ClientRectangle>
+          <ClientRectangle>0,8.2,19,0.4</ClientRectangle>
           <ComponentPlacement>f.Page1</ComponentPlacement>
           <Components isList="true" count="0" />
           <Conditions isList="true" count="0" />
           <Name>FooterBand2</Name>
           <Page isRef="8" />
           <Parent isRef="8" />
-          <PrintOn>OnlyFirstAndLastPage</PrintOn>
         </FooterBand2>
+        <FooterBand1 Ref="75" type="FooterBand" isKey="true">
+          <Brush>[240:244:233]</Brush>
+          <ClientRectangle>0,9.4,19,0.7</ClientRectangle>
+          <ComponentPlacement>f.Page1</ComponentPlacement>
+          <Components isList="true" count="5">
+            <Text15 Ref="76" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>11.2,0.2,2,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,8</Font>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="8" />
+              <Parent isRef="75" />
+              <Text>{Sum(journalentrydata_Data.SumCreditThisPeriod)}</Text>
+              <TextBrush>[63:63:63]</TextBrush>
+              <TextFormat Ref="77" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <Type>Expression</Type>
+            </Text15>
+            <Text16 Ref="78" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>9,0.2,2,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,8</Font>
+              <Guid>90ef51aa541844fe95d0d870eca5d3d4</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="8" />
+              <Parent isRef="75" />
+              <Text>{Sum(journalentrydata_Data.SumDebitThisPeriod)}</Text>
+              <TextBrush>[63:63:63]</TextBrush>
+              <TextFormat Ref="79" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <Type>Expression</Type>
+            </Text16>
+            <Text23 Ref="80" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>13.8,0.2,2,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,8</Font>
+              <Guid>a61648b5660545bb880be6ddcb953cc0</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="8" />
+              <Parent isRef="75" />
+              <Text>{Sum(journalentrydata_Data.SumIB) + Sum(journalentrydata_Data.SumThisPeriod)}</Text>
+              <TextBrush>[63:63:63]</TextBrush>
+              <TextFormat Ref="81" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <Type>Expression</Type>
+            </Text23>
+            <Text24 Ref="82" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>16.8,0.2,2,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,8</Font>
+              <Guid>7778a53d08ed4950b7a1668f7a96bff6</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="8" />
+              <Parent isRef="75" />
+              <Text>{Sum(journalentrydata_Data.SumThisPeriodLastYear)}</Text>
+              <TextBrush>[63:63:63]</TextBrush>
+              <TextFormat Ref="83" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <Type>Expression</Type>
+            </Text24>
+            <Text19 Ref="84" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>6.8,0.2,2,0.4</ClientRectangle>
+              <ComponentPlacement>f.FooterBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,8</Font>
+              <Guid>bd2d1fcf410e412f8138cfe89db92c9a</Guid>
+              <HideZeros>True</HideZeros>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="8" />
+              <Parent isRef="75" />
+              <Text>{Sum(journalentrydata_Data.SumIB)}</Text>
+              <TextBrush>[63:63:63]</TextBrush>
+              <TextFormat Ref="85" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <Type>Expression</Type>
+            </Text19>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>FooterBand1</Name>
+          <Page isRef="8" />
+          <Parent isRef="8" />
+          <PrintIfEmpty>True</PrintIfEmpty>
+          <PrintOn>OnlyLastPage</PrintOn>
+        </FooterBand1>
       </Components>
       <Conditions isList="true" count="0" />
       <Guid>d6b3472d-1e67-4dd7-44bf-d97c6e31fae3</Guid>
@@ -840,13 +1123,13 @@
       <PageHeight>29.7</PageHeight>
       <PageWidth>21</PageWidth>
       <Report isRef="0" />
-      <Watermark Ref="62" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+      <Watermark Ref="86" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
         <Font>Arial,100</Font>
         <TextBrush>[50:0:0:0]</TextBrush>
       </Watermark>
     </Page1>
   </Pages>
-  <PrinterSettings Ref="63" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="87" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -858,10 +1141,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Saldobalanse hovedbok</ReportAlias>
-  <ReportChanged>9/23/2016 10:44:41 AM</ReportChanged>
+  <ReportChanged>9/23/2016 1:01:27 PM</ReportChanged>
   <ReportCreated>12/31/1969 11:00:00 PM</ReportCreated>
   <ReportFile>C:\projects\AppFrontend\src\assets\ReportTemplates\BalanceGeneralLedgerReport.mrt</ReportFile>
-  <ReportGuid>88251c1daba145d9bc4d5058d78274f7</ReportGuid>
+  <ReportGuid>5f299129a18c4097ba4fd4cedd43422b</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2016.1.0</ReportVersion>
@@ -890,7 +1173,7 @@ namespace Reports
 </Script>
   <ScriptLanguage>CSharp</ScriptLanguage>
   <Styles isList="true" count="4">
-    <Style1 Ref="64" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style1 Ref="88" type="Stimulsoft.Report.StiStyle" isKey="true">
       <AllowUseFont>False</AllowUseFont>
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>[245:245:245]</Brush>
@@ -899,7 +1182,7 @@ namespace Reports
       <Name>Style1</Name>
       <TextBrush>[0:0:0]</TextBrush>
     </Style1>
-    <Style2 Ref="65" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style2 Ref="89" type="Stimulsoft.Report.StiStyle" isKey="true">
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>[240:245:250]</Brush>
       <Conditions isList="true" count="0" />
@@ -907,7 +1190,7 @@ namespace Reports
       <Name>Style2</Name>
       <TextBrush>[0:0:0]</TextBrush>
     </Style2>
-    <Style3 Ref="66" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style3 Ref="90" type="Stimulsoft.Report.StiStyle" isKey="true">
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>[240:244:233]</Brush>
       <Conditions isList="true" count="0" />
@@ -915,7 +1198,7 @@ namespace Reports
       <Name>Style3</Name>
       <TextBrush>[0:0:0]</TextBrush>
     </Style3>
-    <Style4 Ref="67" type="Stimulsoft.Report.StiStyle" isKey="true">
+    <Style4 Ref="91" type="Stimulsoft.Report.StiStyle" isKey="true">
       <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
       <Brush>Transparent</Brush>
       <Conditions isList="true" count="0" />

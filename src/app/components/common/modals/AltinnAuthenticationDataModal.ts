@@ -152,39 +152,46 @@ export class AltinnAuthenticationDataModalContent {
         this.formState = LoginState.UsernameAndPasswordAndPinType;
         this.userLoginData.preferredLogin =
             this.userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
-        this.userSubmittedUsernameAndPasswordAndPinType
-            .subscribe(() => {
-                const authData: AltinnAuthRequest = new AltinnAuthRequest();
-                authData.UserID = this.userLoginData.userID;
-                authData.UserPassword = this.userLoginData.password;
-                authData.PreferredLogin = this.userLoginData.preferredLogin;
-                this.busy = true;
-                this.altinnAuthService
-                    .getPinMessage(authData)
-                    .subscribe(messageobj => {
-                        this.busy = false;
-                        this.userMessage = messageobj.Message;
-                        this.userLoginData.pin = '';
-                        this.userLoginData.validTo = messageobj.ValidTo;
-                        this.userLoginData.validFrom = messageobj.ValidFrom;
-                        this.formState = LoginState.Pin;
-                    }, error => {
-                        // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
-                        this.toastService.addToast(
-                            'ERROR',
-                            ToastType.bad,
-                            null,
-                            'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows'
-                        );
-                        this.onError(error);
-                    });
-            }, this.onError);
-        return new Promise((resolve, reject) => {
-            return this.userSubmittedPin
+
+        if (this.userSubmittedUsernameAndPasswordAndPinType.observers.length === 0) {
+            console.log('subscribe på userSubmittedUsernameAndPasswordAndPinType');
+            this.userSubmittedUsernameAndPasswordAndPinType
                 .subscribe(() => {
-                    resolve(this.userLoginData);
+                    console.log('userSubmittedUsernameAndPasswordAndPinType');
+                    const authData: AltinnAuthRequest = new AltinnAuthRequest();
+                    authData.UserID = this.userLoginData.userID;
+                    authData.UserPassword = this.userLoginData.password;
+                    authData.PreferredLogin = this.userLoginData.preferredLogin;
+                    this.busy = true;
+                    this.altinnAuthService
+                        .getPinMessage(authData)
+                        .subscribe(messageobj => {
+                            this.busy = false;
+                            this.userMessage = messageobj.Message;
+                            this.userLoginData.pin = '';
+                            this.userLoginData.validTo = messageobj.ValidTo;
+                            this.userLoginData.validFrom = messageobj.ValidFrom;
+                            this.formState = LoginState.Pin;
+                        }, error => {
+                            // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
+                            this.toastService.addToast(
+                                'ERROR',
+                                ToastType.bad,
+                                null,
+                                'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows'
+                            );
+                            this.onError(error);
+                        });
                 }, this.onError);
-        });
+        }
+
+        return new Promise((resolve, reject) => {
+                return this.userSubmittedPin
+                    .subscribe(() => {
+                        console.log('userSubmittedPin')
+                        resolve(this.userLoginData);
+                    }, this.onError);
+            });
     }
 
     public submitUsernameAndPasswordAndPinType() {
