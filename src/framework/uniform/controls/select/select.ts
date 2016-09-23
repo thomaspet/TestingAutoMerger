@@ -78,6 +78,7 @@ export class UniSelect {
         this.focusedIndex = this.focusedIndex || 0;
 
         this.searchControl.valueChanges
+        .distinctUntilChanged()
         .subscribe((value) => {
             this.filterItems(value);
         });
