@@ -221,6 +221,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         ];
     }
 
+    public saveButtonIsDisabled(isDisabled: boolean) {
+        this.saveactions[0].disabled = isDisabled;
+        this.saveactions = _.cloneDeep(this.saveactions);
+    }
+
     public saveAgaAndSubEntities(done) {
         if (!this.companySalary.PaymentInterval) {
             this.companySalary.PaymentInterval = 1;

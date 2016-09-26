@@ -71,11 +71,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         private salarytransService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
         private router: Router) {
-        
+
     }
 
     public ngOnInit() {
-        
+
         this.busy = true;
 
         this.createTotalTableConfig();
@@ -270,7 +270,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                     return '';
                 }
 
-                let employment = dataItem['_Employment'] || this.getEmploymentFromEmployee(dataItem.EmploymentID); 
+                let employment = dataItem['_Employment'] || this.getEmploymentFromEmployee(dataItem.EmploymentID);
 
                 dataItem['_Employment'] = employment;
 
@@ -311,7 +311,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         var wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
 
-                let wagetype: WageType = dataItem['Wagetype']; 
+                let wagetype: WageType = dataItem['Wagetype'];
 
                 return wagetype ? wagetype.WageTypeNumber.toString() : '';
             })
@@ -321,7 +321,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                     return item ? item.WageTypeNumber + ' - ' + item.WageTypeName : '';
                 }
             });
-            
+
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
@@ -500,6 +500,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     public runSettle(done) {
         done('kjører lønnsavregning: ');
         this.busy = true;
+        this.saveactions[0].disabled = true;
+        this.saveactions = _.cloneDeep(this.saveactions);
         this._payrollRunService.runSettling(this.payrollRun.ID)
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
@@ -510,11 +512,20 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                             this.refreshSaveActions();
                             done('Lønnsavregning avregnet: ');
                             this.busy = false;
+                            this.saveactions[0].disabled = false;
+                            this.saveactions = _.cloneDeep(this.saveactions);
+                        }, error => {
+                            this.log(error);
+                            this.busy = false;
+                            this.saveactions[0].disabled = false;
+                            this.saveactions = _.cloneDeep(this.saveactions);
                         });
                 }
             }, error => {
                 this.log(error);
                 this.busy = false;
+                this.saveactions[0].disabled = false;
+                this.saveactions = _.cloneDeep(this.saveactions);
             });
 
     }

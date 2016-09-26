@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
@@ -27,6 +27,7 @@ export class SubEntityList implements OnInit {
 
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(SubEntityDetails) private subEntityDetails: SubEntityDetails;
+    @Output() public saveIsDisabled: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
     private actions: any[] = [];
     private open: boolean = false;
@@ -84,10 +85,10 @@ export class SubEntityList implements OnInit {
                             let body = error['_body'] ? JSON.parse(error['_body']) : null;
                             if (body && body.Messages) {
                                 body.Messages.forEach((message) => {
-                                    this._toastService.addToast('Valideringsfeil' , ToastType.bad, 0, message.Message);
+                                    this._toastService.addToast('Valideringsfeil' , ToastType.bad, 10, message.Message);
                                 });
                             } else {
-                                this._toastService.addToast('Valideringsfeil', ToastType.bad, 0, error['_body'] ? error['_body'] : error);
+                                this._toastService.addToast('Valideringsfeil', ToastType.bad, 10, error['_body'] ? error['_body'] : error);
                             }
                             
                         });
@@ -125,9 +126,10 @@ export class SubEntityList implements OnInit {
         this._subEntityService.getFromEnhetsRegister(this.mainOrg.OrgNumber).subscribe((response: SubEntity[]) => {
             this.busy = true;
             subEntities = response;
-            if (subEntities || subEntities.length > 0) {
+            if (subEntities && subEntities.length > 0) {
 
                 if (confirm(`Enhetsregisteret har ${subEntities.length} virksomheter knyttet til din juridiske enhet. Ønsker du å importere disse?`)) {
+                    this.saveIsDisabled.emit(true);
                     let saveObservable: Observable<any>[] = [];
                     subEntities.forEach(subEntity => {
                         let entity = this.allSubEntities.find(x => x.OrgNumber === subEntity.OrgNumber);
@@ -154,12 +156,17 @@ export class SubEntityList implements OnInit {
 
                     Observable.forkJoin(saveObservable).subscribe(saveResponse => {
                         this.busy = false;
+                        this.saveIsDisabled.emit(false);
                         this.refreshList();
+                    }, error => {
+                        this.saveIsDisabled.emit(false);
+                        this._toastService.addToast('Fikk feil ved innlesing av virksomheter', ToastType.bad, 10, error);
                     });
                 } else {
                     this.busy = false;
                 }
             } else {
+                this._toastService.addToast('Ingen virksomheter', ToastType.warn, 10, 'Fant ingen virksomheter på juridisk enhet');
                 this.busy = false;
             }
 

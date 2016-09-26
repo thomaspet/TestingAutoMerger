@@ -208,6 +208,8 @@ export class PayrollrunDetails {
 
     public runSettling() {
         this.busy = true;
+        this.saveactions[0].disabled = true;
+        this.saveactions = _.cloneDeep(this.saveactions);
         this.payrollrunService.runSettling(this.payrollrunID)
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
@@ -220,12 +222,16 @@ export class PayrollrunDetails {
                         (err) => {
                             this.log(err);
                             this.busy = false;
+                            this.saveactions[0].disabled = false;
+                            this.saveactions = _.cloneDeep(this.saveactions);
                         });
                 }
             },
             (err) => {
                 this.log(err);
                 this.busy = false;
+                this.saveactions[0].disabled = false;
+                this.saveactions = _.cloneDeep(this.saveactions);
             });
     }
 
