@@ -87,7 +87,21 @@ export class AmeldingSummaryView {
         let benefitCol = new UniTableColumn('benefit', 'Fordel', UniTableColumnType.Text);
         let descrCol = new UniTableColumn('description', 'Beskrivelse', UniTableColumnType.Text);
         let taxCol = new UniTableColumn('Base_EmploymentTax', 'Trekk', UniTableColumnType.Text);
+        taxCol.setTemplate((rowModel) => {
+            if (rowModel.Base_EmploymentTax) {
+                return 'Ja';
+            } else {
+                return 'Nei';
+            }
+        });
         let agaCol = new UniTableColumn('tax', 'Aga', UniTableColumnType.Text);
+        agaCol.setTemplate((rowModel) => {
+            if (rowModel.tax) {
+                return 'Ja';
+            } else {
+                return 'Nei';
+            }
+        });
         let amountCol = new UniTableColumn('amount', 'Beløp', UniTableColumnType.Number);
 
         this.transactionTableConfig = new UniTableConfig(false)

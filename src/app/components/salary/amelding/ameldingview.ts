@@ -34,7 +34,7 @@ export class AMeldingView implements OnInit {
     private actions: IUniSaveAction[];
     private clarifiedDate: string;
     private submittedDate: string;
-    private feedbackObtained: Date;
+    private feedbackObtained: string;
     private totalAga: number;
     private totalForskuddstrekk: number;
     private legalEntityNo: string;
@@ -72,7 +72,7 @@ export class AMeldingView implements OnInit {
                 this.currentPeriod -= 1;
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
-            this.currentAMelding = undefined;
+            this.clearAMelding();
             this.getAMeldingForPeriod();
         }
     }
@@ -83,7 +83,7 @@ export class AMeldingView implements OnInit {
                 this.currentPeriod += 1;
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
-            this.currentAMelding = undefined;
+            this.clearAMelding();
             this.getAMeldingForPeriod();
         }
     }
@@ -143,22 +143,40 @@ export class AMeldingView implements OnInit {
         this.actions = [];
         this.actions.push({
             label: 'Send inn',
-            action: (done) => this.openAmeldingTypeModal(done),
+            action: (done) => this.sendAmelding(done),
             disabled: false,
             main: this.currentAMelding !== undefined
         });
 
         this.actions.push({
             label: 'Generer A-melding',
-            action: (done) => this.createAMelding(done),
+            action: (done) => {
+                if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 0) {
+                    this.createAMelding(done);
+                } else {
+                    this.openAmeldingTypeModal(done);
+                }
+            },
             disabled: false,
             main: this.currentAMelding === undefined
         });
     }
 
+    private sendAmelding(done) {
+        console.log('send a-melding');
+        done('A-melding sendt inn');
+    }
+
     private openAmeldingTypeModal(done) {
         this.aMeldingTypeModal.openModal();
         done('ferdig');
+    }
+
+    private clearAMelding() {
+        this.currentAMelding = undefined;
+        this.clarifiedDate = '';
+        this.submittedDate = '';
+        this.feedbackObtained = '';
     }
 
     private spinner<T>(source: Observable<T>): Observable<T> {
