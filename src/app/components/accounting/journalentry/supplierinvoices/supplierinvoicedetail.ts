@@ -85,7 +85,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 this.fields = this.fields.map(field => {
                     if (field.Property === 'SupplierID') {
                         field.Options.source = this.suppliers.concat([newSupplier]);
-                        field.Options.selectedSourceItem = newSupplier;
+                        this.supplierInvoice.SupplierID = newSupplier.ID;
                         return _.cloneDeep(field);
                     }
                     return field;
@@ -376,7 +376,8 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         supplierName.Options = {
             source: this.suppliers,
             template: (data) => data ? `${data.SupplierNumber} - ${data.Info.Name}` : '',
-            newButtonAction: () => this.supplierDetailsModal.open()
+            newButtonAction: () => this.supplierDetailsModal.open(),
+            valueProperty: 'ID'
         };
 
         var invoiceDate = new UniFieldLayout();

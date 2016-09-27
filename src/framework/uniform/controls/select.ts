@@ -56,9 +56,7 @@ export class UniSelectInput {
     }
 
     public ngOnChanges(changes) {
-        if (this.field && this.field.Options && this.field.Options.selectedSourceItem) {
-            this.selectedItem = this.field.Options.selectedSourceItem;
-        } else if (this.model && this.field) {
+        if (this.model && this.field) {
             this.selectedItem = _.get(this.model, this.field.Property);
         }
 
