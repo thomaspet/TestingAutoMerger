@@ -15,6 +15,8 @@ import {TimeEntry} from './timeentry/timeentry';
 import {ProjectListview} from './project/projects';
 import {ProjectDetailview} from './project/project';
 
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
+
 export const routes: Route[] = [
     {
         path: '',
@@ -55,10 +57,12 @@ export const routes: Route[] = [
     },
     {
         path: 'timeentry',
-        component: TimeEntry
+        component: TimeEntry,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'regtime',
-        component: RegisterTime
+        component: RegisterTime,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];

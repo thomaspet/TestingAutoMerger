@@ -7,7 +7,6 @@ import {Observable} from 'rxjs/Rx';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
-import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {setDeepValue} from '../utils/utils';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime', false, '', RegisterTime);
@@ -27,25 +26,25 @@ interface IFilter {
     directives: [UniTable, UniSave],
     providers: [WorkerService, TimesheetService]
 })
-export class RegisterTime implements CanDeactivate {    
+export class RegisterTime {
     public view: View = view;
-    @ViewChild(UniTable) private dataTable: UniTable; 
-    
+    @ViewChild(UniTable) private dataTable: UniTable;
+
     private busy: boolean = true;
     private userName: string = '';
     private tableConfig: UniTableConfig;
-    private worktypes: Array<WorkType> = [];  
+    private worktypes: Array<WorkType> = [];
     private workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: { name: string, interval: ItemInterval };
-    
+
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
             { name: 'flex', label: 'Fleksitid', counter: 12 },
             { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             { name: 'vacation', label: 'Ferie', counter: 22 },
             { name: 'offtime', label: 'Fravær', counter: 4 },
-            ];    
+            ];
 
     public filters: Array<IFilter> = [
         { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
@@ -55,20 +54,20 @@ export class RegisterTime implements CanDeactivate {
         { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
         { name: 'all', label: 'Alt', interval: ItemInterval.all}
     ];
-            
-    private actions: IUniSaveAction[] = [ 
+
+    private actions: IUniSaveAction[] = [
             { label: 'Lagre', action: (done) => this.save(done), main: true, disabled: true }
-        ];            
+        ];
 
     constructor(private tabService: TabService, private workerService: WorkerService, private timesheetService: TimesheetService) {
         this.tabService.addTab({ name: view.label, url: view.url, active: true });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
         this.currentFilter = this.filters[0];
-        this.initServiceValues();        
+        this.initServiceValues();
     }
 
-    public routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction): any {
+    public canDeactivate(): any {
         return this.checkSave();
     }
 
@@ -76,13 +75,13 @@ export class RegisterTime implements CanDeactivate {
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
-            this.timeSheet.saveItems().subscribe((item: WorkItem) => {            
-                counter++;                
+            this.timeSheet.saveItems().subscribe((item: WorkItem) => {
+                counter++;
             }, (err) => {
                 var msg = this.showErrMsg(err._body || err.statusText, true);
                 if (done) { done('Feil ved lagring: ' + msg); }
                 this.busy = false;
-                resolve(false);                   
+                resolve(false);
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
@@ -105,54 +104,54 @@ export class RegisterTime implements CanDeactivate {
                     });
                     return;
                 }
-            } 
+            }
             resolve(true);
         });
     }
-    
+
     public loadItems() {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
                 this.busy = false;
                 this.tableConfig = this.createTableConfig();
                 this.actions[0].disabled = true;
-            });    
+            });
         } else {
             this.showErrMsg('Current worker/user has no workrelations!');
         }
     }
 
-    
+
     public initServiceValues() {
-        
+
         this.timesheetService.initUser().subscribe((ts: TimeSheet) => {
             this.timeSheet = ts;
             this.loadItems();
             this.workRelations = this.timesheetService.workRelations;
         });
-        
+
         this.workerService.queryWithUrlParams().subscribe((result: Array<WorkType>) => {
             this.worktypes = result;
         }, (err) => {
             this.showErrMsg('errors in getworktypes!');
-        });   
-        
+        });
+
     }
 
     public onFilterClick(filter: IFilter) {
         this.checkSave().then(() => {
-            this.filters.forEach((value: any) => value.isSelected = false);        
+            this.filters.forEach((value: any) => value.isSelected = false);
             filter.isSelected = true;
             this.currentFilter = filter;
             this.busy = true;
             this.loadItems();
         });
     }
-    
+
     public filterWorkTypes(txt: string): Observable<any> {
-        var list = this.worktypes;  
+        var list = this.worktypes;
         var lcaseText = txt.toLowerCase();
-        var sublist = list.filter((item: WorkType) => { 
+        var sublist = list.filter((item: WorkType) => {
             return (item.ID.toString() === txt || item.Name.toLowerCase().indexOf(lcaseText) >= 0); } );
         return Observable.from([sublist]);
     }
@@ -161,14 +160,14 @@ export class RegisterTime implements CanDeactivate {
         var list = [{ID: 1, Name: 'Testproject'}, {ID: 2, Name: 'Economy project'}];
         return Observable.from([list]);
     }
-    
-    public createTableConfig(): UniTableConfig {        
-        
+
+    public createTableConfig(): UniTableConfig {
+
         var cols = [
-            new UniTableColumn('Date', 'Dato', UniTableColumnType.Date, true),            
+            new UniTableColumn('Date', 'Dato', UniTableColumnType.Date, true),
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
-            this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt)),                      
+            this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt)),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw'),
             this.createDimLookup('Dimensions.ProjectID', 'Prosjekt', (txt) => this.filterDimensions('projects', txt)),
         ];
@@ -193,19 +192,19 @@ export class RegisterTime implements CanDeactivate {
 
         return new UniTableConfig(true, true, 25).setColumns(cols).setChangeCallback((event) => this.onEditChange(event)).setContextMenu(ctx).setFilters([]);
     }
-    
+
     public onEditChange(event) {
-        
+
         var newRow = event.rowModel;
         var change = new ValueItem(event.field, newRow[event.field], event.originalIndex);
-        if (this.timeSheet.setItemValue(change)) {             
+        if (this.timeSheet.setItemValue(change)) {
             this.flagUnsavedChanged();
             setDeepValue(newRow, event.field, change.value);
-            return newRow; 
+            return newRow;
         }
- 
+
     }
-    
+
     public flagUnsavedChanged(reset = false) {
         this.actions[0].disabled = reset;
     }
@@ -223,10 +222,10 @@ export class RegisterTime implements CanDeactivate {
         }
         alert(txt);
         return txt;
-    } 
-    
+    }
+
     // UniTable helperes:
-    
+
     private createTimeColumn(name: string, label: string): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Text)
             .setTemplate((item: any) => {
@@ -234,10 +233,10 @@ export class RegisterTime implements CanDeactivate {
                 if (value) {
                     return moment(value).format('HH:mm');
                 }
-                return '';                    
-            });        
+                return '';
+            });
     }
-    
+
     private createLookupColumn(name: string, label: string, expandCol: string, lookupFn?: any, expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
         var col = new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)

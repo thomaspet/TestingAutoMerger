@@ -8,7 +8,6 @@ import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
-import {ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
@@ -86,8 +85,8 @@ export class TimeEntry {
             }
     };
 
-    constructor(private tabService: TabService, private service: WorkerService, 
-                private timesheetService: TimesheetService, private lookup: Lookupservice, 
+    constructor(private tabService: TabService, private service: WorkerService,
+                private timesheetService: TimesheetService, private lookup: Lookupservice,
                 private toast: ToastService, private router: Router) {
 
         this.filters = service.getIntervalItems();
@@ -111,7 +110,7 @@ export class TimeEntry {
                 this.userName = worker.Info.Name;
             });
         } else {
-            this.userName = this.service.user.name;            
+            this.userName = this.service.user.name;
         }
         this.currentFilter = this.filters[0];
         this.initWorker(workerId);
@@ -120,7 +119,7 @@ export class TimeEntry {
     public onWorkrelationChange(event: any) {
         var id = (event && event.target ? safeInt(event.target.value) : 0);
         this.checkSave().then( (value) => {
-            if (value && id) { 
+            if (value && id) {
                 this.timeSheet.currentRelationId = id;
                 this.loadItems();
             }
@@ -157,7 +156,7 @@ export class TimeEntry {
 
     }
 
-    public routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction): any {
+    public canDeactivate() {
         return this.checkSave();
     }
 
