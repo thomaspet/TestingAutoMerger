@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -11,6 +11,7 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 declare var _; // lodash
 
@@ -20,13 +21,15 @@ declare var _; // lodash
     directives: [ExternalSearch, AddressModal, EmailModal, PhoneModal, UniSave, UniForm],
     providers: [DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService]
 })
-export class SupplierDetails {            
-    @Input() public supplierID: any;                      
-    @ViewChild(UniForm) public form: UniForm; 
+export class SupplierDetails implements OnInit {
+    @Input() public modalMode: boolean = false;
+    @Output() public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
+    @ViewChild(UniForm) public form: UniForm;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
-    
+
+    private supplierID: number;
     private config: any = {};
     private fields: any[] = [];
     private addressChanged: any;
@@ -62,13 +65,22 @@ export class SupplierDetails {
                 private emailService: EmailService,
                 private addressService: AddressService,
                 private bankaccountService: BankAccountService,
-                private tabService: TabService
-                ) {
-                
-        this.route.params.subscribe(params => {
-            this.supplierID = +params['id'];
-            this.setup();
-        });
+                private tabService: TabService,
+                private toastService: ToastService
+                ) {}
+
+    public ngOnInit() {
+        if (!this.modalMode) {
+            this.route.params.subscribe(params => {
+                this.supplierID = +params['id'];
+                this.setup();
+            });
+        }
+    }
+
+    public resetViewToNewSupplierState() {
+        this.supplierID = null;
+        this.setup();
     }
     
     public nextSupplier() {
@@ -78,7 +90,7 @@ export class SupplierDetails {
             },
             (err) => {
                 console.log('Error getting next supplier: ', err);
-                alert('Ikke flere leverandører etter denne');
+                this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
             });
     }
     
@@ -89,8 +101,8 @@ export class SupplierDetails {
             },
             (err) => {
                 console.log('Error getting previous supplier: ', err);
-                alert('Ikke flere leverandører før denne');
-            });        
+                this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+            });
     }
     
     public addSupplier() {   
@@ -126,7 +138,7 @@ export class SupplierDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             (
-                this.supplierID > 0 ? 
+                this.supplierID > 0 ?
                     this.supplierService.Get(this.supplierID, this.expandOptions) 
                     : this.supplierService.GetNewEntity(this.expandOptions)
             ),
@@ -150,8 +162,8 @@ export class SupplierDetails {
             });          
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
-        });       
+            this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
+        });
     }
     
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {        
@@ -393,7 +405,7 @@ export class SupplierDetails {
             this.supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
         
-        if (this.supplierID > 0) { 
+        if (this.supplierID > 0) {
             this.supplierService.Put(this.supplier.ID, this.supplier)
                 .subscribe(
                     (updatedValue) => {  
@@ -412,11 +424,14 @@ export class SupplierDetails {
         } else {
             this.supplierService.Post(this.supplier)
                 .subscribe(
-                    (newSupplier) => {                        
-                        this.router.navigateByUrl('/sales/suppliers/' + newSupplier.ID);
-                        this.supplier = newSupplier;
-                        this.setTabTitle();
+                    (newSupplier) => {
+                        if (!this.modalMode) {
+                            this.router.navigateByUrl('/sales/suppliers/' + newSupplier.ID);
+                            this.setTabTitle();
+                            this.supplier = newSupplier;
+                        }
                         completeEvent('Ny leverandør lagret');
+                        this.createdNewSupplier.emit(newSupplier);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');

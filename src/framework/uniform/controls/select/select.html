@@ -40,6 +40,14 @@
                 (click)="confirmSelection()">
                 {{getDisplayValue(item)}}
             </li>
+            <li *ngIf="newButtonAction"
+                class="uniSelect_dropdown_new_button_item">
+                <button
+                    type="button"
+                    (click)="onNewItemClick()">
+                    Ny
+                </button>
+            </li>
         </ul>
     </article>
 </article>

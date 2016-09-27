@@ -5,6 +5,7 @@ import {
 import {FormControl, FormControlDirective} from '@angular/forms';
 import {GuidService} from '../../../../app/services/common/guidService';
 import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
+import {UniModal} from '../../../modals/modal';
 
 declare var _; // lodash
 
@@ -31,6 +32,9 @@ export class UniSelect {
 
     @Input()
     private items: any[];
+
+    @Input()
+    private newButtonAction: Function;
 
     @Input()
     private config: ISelectConfig;
@@ -152,6 +156,11 @@ export class UniSelect {
         this.searchControl.updateValue('');
         this.filterString = '';
         this.filteredItems = this.items;
+    }
+
+    public onNewItemClick() {
+        this.newButtonAction();
+        this.close();
     }
 
     private toggle() {

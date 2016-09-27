@@ -1,11 +1,11 @@
-import {Component, Input, OnInit, ViewChild, ComponentRef} from '@angular/core';
+import {Component, Input, OnInit, ViewChild, ComponentRef, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService} from '../../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {JournalEntryData} from '../../../..//models/models';
-import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice} from '../../../../unientities';
+import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {UniDocumentUploader} from '../../../../../framework/documents/index';
 import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
@@ -14,22 +14,26 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {SupplierDetailsModal} from '../../../common/modals/supplierDetailModal';
+import {Subscription} from 'rxjs';
 
 declare var moment;
+declare const _;
 
 @Component({
     selector: 'supplier-invoice-detail',
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html',
-    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave, RegisterPaymentModal],
+    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave, RegisterPaymentModal, SupplierDetailsModal],
     providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, SupplierInvoiceFileUploader]
 })
-export class SupplierInvoiceDetail implements OnInit {
+export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     @Input() private invoiceId: any;
     private supplierInvoice: SupplierInvoice;
     private suppliers: Supplier[];
     private bankAccounts: BankAccount[];
     private errors;
     private disabled: boolean = false;
+    private subscriptions: Subscription[] = [];
 
     private previewId: number;
     private previewSize: UniImageSize;
@@ -38,6 +42,7 @@ export class SupplierInvoiceDetail implements OnInit {
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
     @ViewChild(UniForm) private form: UniForm;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
+    @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
 
     public config: any = {};
     public fields: any[] = [];
@@ -74,6 +79,20 @@ export class SupplierInvoiceDetail implements OnInit {
 
     public ngOnInit() {
         this.loadFormAndData();
+
+        this.subscriptions.push(
+            this.supplierDetailsModal.change.subscribe(newSupplier => {
+                this.fields = this.fields.map(field => {
+                    if (field.Property === 'SupplierID') {
+                        field.Options.source = this.suppliers.concat([newSupplier]);
+                        field.Options.selectedSourceItem = newSupplier;
+                        return _.cloneDeep(field);
+                    }
+                    return field;
+                });
+                this.form.field('InvoiceDate').focus();
+            })
+        );
     }
 
     private refreshFormData(supplierInvoice: SupplierInvoice) {
@@ -350,16 +369,14 @@ export class SupplierInvoiceDetail implements OnInit {
         supplierName.FieldSet = 0;
         supplierName.Section = 0;
         supplierName.Combo = 0;
-        supplierName.FieldType = 3;
+        supplierName.FieldType = FieldType.DROPDOWN;
         supplierName.Label = 'Leverandørnavn';
         supplierName.Property = 'SupplierID';
         supplierName.ReadOnly = false;
         supplierName.Options = {
             source: this.suppliers,
             template: (data) => data ? `${data.SupplierNumber} - ${data.Info.Name}` : '',
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 500
+            newButtonAction: () => this.supplierDetailsModal.open()
         };
 
         var invoiceDate = new UniFieldLayout();
@@ -479,5 +496,9 @@ export class SupplierInvoiceDetail implements OnInit {
         };
 
         this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);        
+    }
+
+    public ngOnDestroy() {
+        this.subscriptions.forEach(subscriptions => subscriptions.unsubscribe());
     }
 }

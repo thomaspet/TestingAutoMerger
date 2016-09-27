@@ -8,7 +8,7 @@
             <p *ngIf="supplierID == 0">&nbsp;</p>
         </section>
             
-        <nav class="poster_toolbar_tools">
+        <nav class="poster_toolbar_tools" *ngIf="!modalMode">
             <a (click)="previousSupplier()" class="previous">Forrige</a>
             <a (click)="nextSupplier()" class="next">Neste</a>
             <a (click)="addSupplier()" class="new">Ny leverandør</a>
@@ -38,8 +38,4 @@
     <address-modal></address-modal>
 </section>
 
-<footer class="full-footer">
-    <section class="application">
-        <uni-save [actions]="saveactions"></uni-save> 
-    </section>
-</footer>
+<uni-save [actions]="saveactions" [class.uni_save_modal_mode]="modalMode"></uni-save>
