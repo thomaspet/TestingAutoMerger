@@ -47,6 +47,7 @@ export class UniSelect {
     private searchable: boolean = true;
     private searchControl: FormControl = new FormControl('');
     private filteredItems: any[];
+    private filterString: string = '';
 
     private selectedItem: any;
     private focusedIndex: any = 0;
@@ -80,7 +81,9 @@ export class UniSelect {
         this.searchControl.valueChanges
         .distinctUntilChanged()
         .subscribe((value) => {
-            this.filterItems(value);
+            if (value !== this.filterString) {
+                this.filterItems(value);
+            }
         });
     }
 
@@ -133,6 +136,7 @@ export class UniSelect {
             this.selectedItem = this.filteredItems[this.focusedIndex];
             this.valueChange.emit(this.selectedItem);
             this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+            this.cd.markForCheck();
         });
     }
 
@@ -146,16 +150,15 @@ export class UniSelect {
     public close() {
         this.expanded = false;
         this.searchControl.updateValue('');
+        this.filterString = '';
+        this.filteredItems = this.items;
     }
 
     private toggle() {
-        this.expanded = !this.expanded;
         if (this.expanded) {
-            setTimeout(() => {
-                this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
-            });
+            this.close();
         } else {
-            this.searchControl.updateValue('');
+            this.open();
         }
     }
 
