@@ -34,6 +34,13 @@
                     <h4 class="report_name">{{report.Name }}</h4>
                     <p>{{report.Description}}</p>
                 </a>
+
+                <a *ngSwitchCase="17"
+                   (click)="showModalAccountReportFilterModal(report)">
+                    <h4 class="report_name">{{report.Name }}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+
                 <a
                         *ngSwitchDefault
                         (click)="showModalReportParameters(report)">
@@ -47,6 +54,7 @@
 <report-parameter-modal></report-parameter-modal>
 <report-preview-modal></report-preview-modal>
 <balance-report-filter-modal></balance-report-filter-modal>
+<account-report-filter-modal></account-report-filter-modal>
 <postingjournal-report-filter-modal></postingjournal-report-filter-modal>
 <result-and-balance-report-filter-modal></result-and-balance-report-filter-modal>
 <balance-general-ledger-filter-modal></balance-general-ledger-filter-modal>

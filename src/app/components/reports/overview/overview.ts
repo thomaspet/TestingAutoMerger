@@ -9,6 +9,7 @@ import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
 import {BalanceReportFilterModal} from '../modals/balanceList/BalanceReportFilterModal';
+import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {PostingJournalReportFilterModal} from '../modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from '../modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
@@ -22,7 +23,10 @@ class ReportCategory {
 @Component({
     selector: 'uni-overview',
     templateUrl: 'app/components/reports/overview/overview.html',
-    directives: [UniTabs, PreviewModal, ParameterModal, BalanceReportFilterModal, ResultAndBalanceReportFilterModal, BalanceGeneralLedgerFilterModal, PostingJournalReportFilterModal, NgSwitch, NgSwitchCase, NgSwitchDefault],
+    directives: [UniTabs, PreviewModal, ParameterModal,
+        BalanceReportFilterModal, BalanceGeneralLedgerFilterModal,
+        BalanceGeneralLedgerFilterModal, PostingJournalReportFilterModal, AccountReportFilterModal,
+        NgSwitch, NgSwitchCase, NgSwitchDefault],
     providers: [ReportDefinitionService]
 })
 export class Overview {
@@ -32,6 +36,8 @@ export class Overview {
     private previewModal: PreviewModal;
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
+    @ViewChild(AccountReportFilterModal)
+    private accountReportFilterModal: AccountReportFilterModal;
     @ViewChild(PostingJournalReportFilterModal)
     private postingJournalModal: PostingJournalReportFilterModal;    
     @ViewChild(ResultAndBalanceReportFilterModal)
@@ -53,6 +59,9 @@ export class Overview {
         this.balanceListModal.open(report, this.previewModal);
     }
 
+    public showModalAccountReportFilterModal(report: ReportDefinition) {
+        this.accountReportFilterModal.open(report, this.previewModal);
+    }
     public showPostingJournalModalReportParameters(report: ReportDefinition) {
         this.postingJournalModal.open(report, this.previewModal);
     }
