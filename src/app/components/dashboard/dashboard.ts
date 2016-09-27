@@ -133,6 +133,10 @@ export class Dashboard {
 
     //Data for dashboards lists
     private generateLastTenList(data: any, isJournalEntry: boolean, myTransactions?: boolean) {
+        if (!data || !data.length) {
+            return;
+        }
+
         if (isJournalEntry) {
             for (var i = 0; i < data.length; i++) {
                 var mydate = moment.utc(data[i].RegisteredDate).toDate();
@@ -141,7 +145,7 @@ export class Dashboard {
             }
             this.journalEntryList = data;
         } else {
-            for (var i = 0; i < data.length; i++) {                
+            for (var i = 0; i < data.length; i++) {
                 var mydate = moment.utc(data[i].AuditLogCreatedAt).toDate();
                 data[i].time = moment(mydate).fromNow();
                 data[i].UserDisplayName = this.CapitalizeDisplayName(this.removeLastNameIfAny(data[i].UserDisplayName));
@@ -170,7 +174,7 @@ export class Dashboard {
         var myLabels = [];
         var myData = [];
         var myColors = [];
-        
+
         for (var i = 0; i < data.length; i++) {
             myLabels.push(data[i].accountgroupName);
             if (data[i].sumamount < 0) {
@@ -211,18 +215,18 @@ export class Dashboard {
     }
 
     /***********************
-        HELP METHODS    
+        HELP METHODS
     ************************/
 
     //Dummy temp switch that adds better name and url to list items
-    private findModuleDisplayNameAndURL(data: any) {        
-        
+    private findModuleDisplayNameAndURL(data: any) {
+
         let entityID = data.AuditLogEntityID;
-        
+
         switch (data.AuditLogEntityType) {
             case 'CustomerQuote':
                 data.module = 'Tilbud';
-                data.url = '/sales/quotes/' + entityID; 
+                data.url = '/sales/quotes/' + entityID;
                 break;
             case 'CustomerOrder':
                 data.module = 'Ordre';
@@ -295,8 +299,8 @@ export class Dashboard {
                 data.url = '/settings/company';
                 break;
             default:
-                
-                
+
+
         }
     }
 
@@ -323,9 +327,9 @@ export class Dashboard {
 }
 
     /********************************************************************
-        SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES 
+        SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES
     *********************************************************************/
-    
+
     //Gets 10 last transactions
     public getTransactions() {
         return this.http
