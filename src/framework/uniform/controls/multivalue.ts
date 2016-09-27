@@ -163,6 +163,7 @@ export class UniMultivalueInput {
 
     public selectRow(row) {
         this.setAsDefault(row);
+        this.onChange.emit(this.model);
         this.close();
     }
 
@@ -185,7 +186,6 @@ export class UniMultivalueInput {
         }
 
         _.set(this.model, storeResultInProperty, lp);
-        this.onChange.emit(this.model);
         this.cd.markForCheck();
     }
 

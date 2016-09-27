@@ -1,5 +1,5 @@
-<article class="application">
-    <uni-table [resource]="permisions$ | async" [config]="permisionTableConfig"></uni-table>
+<article class="application" *ngIf="employeeleaveItems.length">
+    <uni-table [resource]="employeeleaveItems" [config]="permisionTableConfig"></uni-table>
 </article>
 
 <uni-save [actions]="saveactions"></uni-save>

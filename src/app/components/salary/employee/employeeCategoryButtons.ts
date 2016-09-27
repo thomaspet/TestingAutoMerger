@@ -33,7 +33,7 @@ declare var jQuery;
     `
 })
 
-export class EmployeeCategoryButtons implements OnInit, OnChanges{
+export class EmployeeCategoryButtons implements OnChanges {
     public busy: boolean;
     private categories: Array<EmployeeCategory>;
     private results: Array<EmployeeCategory> = [];
@@ -42,7 +42,6 @@ export class EmployeeCategoryButtons implements OnInit, OnChanges{
 
     constructor(private employeeService: EmployeeService,
                 private employeeCategoryService: EmployeeCategoryService) {
-
     }
 
     private filterTags(tag: string) {
@@ -57,12 +56,10 @@ export class EmployeeCategoryButtons implements OnInit, OnChanges{
         this.results = this.filterTags(tag).splice(0, 5);
     };
 
-    public ngOnInit() {
-        this.refreshCategories();
-    }
-
     public ngOnChanges() {
-        this.refreshCategories();
+        if  (this.selectedEmployee) {
+            this.refreshCategories();
+        }
     }
 
     private refreshCategories() {
@@ -92,10 +89,10 @@ export class EmployeeCategoryButtons implements OnInit, OnChanges{
             this.busy = false;
         });
     }
-    
+
 
     public saveAndAddNewCategory(categoryName) {
-        
+
         let cat = new EmployeeCategory();
         cat.Name = categoryName;
         this.saveCategory(cat);

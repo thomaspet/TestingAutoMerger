@@ -9,17 +9,16 @@ export class EmployeeService extends BizHttp<Employee> {
     private employee: Subject<Employee> = new Subject<Employee>();
 
     public employee$: Observable<Employee> = this.employee.asObservable();
-    
+
     private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        'Employments',
         'BankAccounts'
     ];
     public debounceTime: number = 500;
     public subEntities: any[];
-    
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
@@ -41,7 +40,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-                this.relativeURL 
+                this.relativeURL
                 + '/'
                 + employeeID
                 + '/category')
@@ -56,7 +55,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .usingBusinessDomain()
             .withBody(category)
             .withEndPoint(
-                this.relativeURL 
+                this.relativeURL
                 + '/'
                 + employeeID
                 + '/category')
@@ -78,35 +77,42 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(response => response.json());
     }
 
-    public get(id: number| string, expand: string[] = null) {    
+    public get(id: number| string, expand: string[] = null) {
         if (id === 0) {
             if (expand) {
-                return this.GetNewEntity(expand);
+                return super.GetNewEntity(expand);
             }
-            return this.GetNewEntity(this.defaultExpands);
+            return super.GetNewEntity(this.defaultExpands);
         }else {
             if (expand) {
-                return this.Get(id, expand);
+                return super.Get(id, expand);
             }
-            return this.Get(id, this.defaultExpands);
+            return super.Get(id, this.defaultExpands);
         }
     }
 
     public getSubEntities() {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('subentities')
-            .send({expand: 'BusinessRelationInfo'})
-            .map(response => response.json());
+        if (this.subEntities) {
+            return Observable.of(this.subEntities);
+        } else {
+            return this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint('subentities')
+                .send({expand: 'BusinessRelationInfo'})
+                .switchMap((response) => {
+                    let subentities = response.json() || [];
+                    this.subEntities = subentities;
+                    return Observable.of(subentities);
+                });
+        }
     }
-    
-    public getTotals(payrunID: number, employeeID: number = 0, localTranses: SalaryTransaction[] = []) {      
+
+    public getTotals(payrunID: number, employeeID: number = 0, localTranses: SalaryTransaction[] = []) {
         var params = '&payrun=' + payrunID;
         if (employeeID) {
-            params += '&employee=' + employeeID;        
+            params += '&employee=' + employeeID;
         }
-        
+
         return this.http
             .asPUT()
             .usingBusinessDomain()
@@ -124,25 +130,19 @@ export class EmployeeService extends BizHttp<Employee> {
             .send()
             .map(response => response.json());
     }
-    
+
     public getNext(id: number, expand: string[] = null) {
-        if (expand) {
-            return super.GetAction(id, 'next', 'expand:' + expand.join(','));
-        } else {
-            return super.GetAction(id, 'next', 'expand:' + this.defaultExpands.join(','));
-        }
-        
+        let expands = expand || this.defaultExpands;
+        return super.GetAll(`filter=ID gt ${id}&top=1&orderBy=ID`, expands)
+            .map(resultSet => resultSet[0]);
     }
-    
+
     public getPrevious(id: number, expand: string[] = null) {
-        if (expand) {
-            return super.GetAction(id, 'previous', 'expand:' + expand.join(','));
-        } else {
-            return super.GetAction(id, 'previous', 'expand:' + this.defaultExpands.join(','));
-        }
-        
+        let expands = expand || this.defaultExpands;
+        return super.GetAll(`filter=ID lt ${id}&top=1&orderBy=ID`, expands)
+            .map(resultSet => resultSet[0]);
     }
-    
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -167,7 +167,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                     
+
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -178,7 +178,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'SocialSecurityNumber',
                     Placement: 2,
@@ -208,7 +208,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'BirthDate',
                     Placement: 3,
@@ -236,7 +236,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'Sex',
                     Placement: 4,
@@ -259,7 +259,7 @@ export class EmployeeService extends BizHttp<Employee> {
                             { id: 1, name: 'Kvinne' },
                             { id: 2, name: 'Mann' }
                         ],
-                        template: (obj) => `${obj.id} - ${obj.name}`, 
+                        template: (obj) => `${obj.id} - ${obj.name}`,
                         valueProperty: 'id',
                         displayProperty: 'name'
                     },
@@ -273,7 +273,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'BankAccounts[0].AccountNumber',
                     Placement: 5,
@@ -310,7 +310,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'SubEntityID',
                     Placement: 6,
@@ -329,7 +329,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     Sectionheader: '',
                     IsLookUp: false,
                     Options: {
-                        source: this.subEntities, 
                         valueProperty: 'ID',
                         displayProperty: 'BusinessRelationInfo.Name',
                         debounceTime: 200
@@ -344,7 +343,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: '',
                     Placement: 7,
@@ -373,7 +372,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'BusinessRelation',
                     Property: 'BusinessRelationInfo.InvoiceAddress',
                     Placement: 2,
@@ -396,7 +395,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'BusinessRelation',
                     Property: 'BusinessRelationInfo.DefaultEmail',
                     Placement: 6,
@@ -418,7 +417,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'BusinessRelation',
                     Property: 'BusinessRelationInfo.DefaultPhone',
                     Placement: 8,
@@ -440,7 +439,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'TaxTable',
                     Placement: 1,
@@ -470,7 +469,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'TaxPercentage',
                     Placement: 2,
@@ -499,7 +498,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'TaxRequestBtn',
                     Placement: 3,
@@ -521,7 +520,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'GetTaxCardBtn',
                     Placement: 4,
@@ -543,7 +542,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'NonTaxableAmount',
                     Placement: 5,
@@ -572,7 +571,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'NotMainEmployer',
                     Placement: 6,
@@ -595,7 +594,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
                     Placement: 7,
@@ -624,7 +623,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 }
                 // ,{
                 //     ComponentLayoutID: 1,
-                     
+
                 //     EntityType: 'Employee',
                 //     Property: 'InternationalID',
                 //     Placement: 1,
@@ -672,7 +671,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 //     Sectionheader: null,
                 //     Legend: null,
                 //     IsLookUp: false,
-                     
+
                 //     Validations: [
                 //         {
                 //             ErrorMessage: 'Required field',
@@ -701,7 +700,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 //     Sectionheader: null,
                 //     Legend: null,
                 //     IsLookUp: false,
-                     
+
                 //     Validations: [
                 //         {
                 //             ErrorMessage: 'Required field',
@@ -732,7 +731,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 //     Legend: 'Internasjonal bankkonto',
                 //     IsLookUp: false,
                 //     openByDefault: true,
-                     
+
                 //     Validations: [
                 //         {
                 //             ErrorMessage: 'Required field',
@@ -742,7 +741,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 //     ]
                 // }
 
-                /* 
+                /*
                  Add fields for
                  --------SPESIALINNSTILLINGER FOR DEN ANSATTE----
                  */

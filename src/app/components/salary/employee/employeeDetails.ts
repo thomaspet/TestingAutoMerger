@@ -3,17 +3,15 @@ import {ROUTER_DIRECTIVES, Router, ActivatedRoute} from '@angular/router';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 import {EmployeeCategoryButtons} from './employeeCategoryButtons';
-import {EmployeeService} from '../../../services/services';
-import {Employee, BusinessRelation} from '../../../unientities';
+import {EmployeeService, EmploymentService, UniCacheService} from '../../../services/services';
+import {Employee} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
-import {IContextMenuItem} from 'unitable-ng2/main';
 
-import {UniParentView} from '../../../../framework/core/uniView';
-import {UniCacheService} from '../../../services/services';
+import {UniView} from '../../../../framework/core/uniView';
 
 @Component({
     selector: 'uni-employee-details',
@@ -22,52 +20,32 @@ import {UniCacheService} from '../../../services/services';
         EmployeeDS,
         STYRKCodesDS,
         EmployeeService,
-        RootRouteParamsService
+        RootRouteParamsService,
+        EmploymentService
     ],
-    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons, ContextMenu]
+    directives: [
+        ROUTER_DIRECTIVES,
+        WidgetPoster,
+        UniTabs,
+        EmployeeCategoryButtons,
+        ContextMenu
+    ]
 })
-export class EmployeeDetails extends UniParentView {
+export class EmployeeDetails extends UniView {
     public busy: boolean;
     private employee: Employee;
-    private url: string;
-    private employeeID: number;
-    private businessRelation: BusinessRelation;
+    private url: string = '/salary/employees/';
     private childRoutes: any[];
-    private contextMenuItems: IContextMenuItem[];
-
 
     constructor(
         private route: ActivatedRoute,
         private rootRouteParams: RootRouteParamsService,
-        private _employeeService: EmployeeService,
-        private _router: Router,
+        private employeeService: EmployeeService,
+        private router: Router,
         private tabService: TabService,
         cacheService: UniCacheService) {
 
-        super(_router.url, cacheService);
-
-        this._employeeService.employee$.subscribe((emp: Employee) => {
-            this.employee = emp;
-        });
-
-        this.childRoutes = []; // TODO: ROUTES
-        this.employee = new Employee();
-        this.businessRelation = new BusinessRelation();
-        this.employee.BusinessRelationInfo = this.businessRelation;
-        this.url = '/salary/employees/';
-        this.route.params.subscribe(params => {
-            this.employeeID = +params['id'];
-            this._employeeService.get(this.employeeID).subscribe(emp => {
-                this._employeeService.refreshEmployee(emp);
-            });
-            this.rootRouteParams.params = params;
-            if (this.employeeID) {
-                this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: this.url + this.employeeID, moduleID: 12, active: true });
-            } else {
-                this.tabService.addTab({ name: 'Ny ansatt', url: this.url + this.employeeID, moduleID: 12, active: true });
-            }
-
-        });
+        super(router.url, cacheService);
 
         this.childRoutes = [
             { name: 'Detaljer', path: 'personal-details' },
@@ -76,65 +54,76 @@ export class EmployeeDetails extends UniParentView {
             { name: 'Permisjon', path: 'employee-leave' }
         ];
 
-        this.contextMenuItems = [
-            {
-                label: 'Kittens',
-                action: () => {
-                    window.alert('Kattunger er søte!');
-                }
-            },
-            {
-                label: 'Sloths',
-                action: () => {
-                    window.alert('Dovendyr burde hete sløveløver');
-                }
-            },
-            {
-                label: 'Baby elephants',
-                action: () => {
-                    window.alert('Babyelefanter er tøffe!');
-                }
+
+        // this.employee = super.getStateVar('employee');
+
+        this.route.params.subscribe((params) => {
+            const employeeID = +params['id'];
+
+            // Check cache for employee
+            let employeeSubject = super.getStateSubject('employee');
+
+            // If we're the first one to subscribe to the subject
+            // we will have to GET data from backend and update the subject ourselves
+            if (!employeeSubject.observers.length) {
+                this.employeeService.get(employeeID).subscribe((employee: Employee) => {
+                    this.employee = employee;
+                    super.updateState('employee', employee, false);
+                });
             }
-        ];
+
+            employeeSubject.subscribe(employee => this.employee = employee);
+
+            // Add module to navbar tabs
+            if (employeeID) {
+                this.tabService.addTab({
+                    name: 'Ansattnr. ' + employeeID,
+                    url: this.url + employeeID,
+                    moduleID: 12,
+                    active: true
+                });
+            } else {
+                this.tabService.addTab({
+                    name: 'Ny ansatt',
+                    url: this.url + employeeID,
+                    moduleID: 12,
+                    active: true
+                });
+            }
+
+            // REVISIT: Do we need rootRouteParams?
+            // Can't we just get the params with angular's route api?
+            this.rootRouteParams.params = params;
+        });
+
     }
 
     public nextEmployee() {
-        // this.busy = true;
-        this._employeeService.getNext(this.employeeID).subscribe((response: Employee) => {
-            // if (response) {
-            //     if (!response.BusinessRelationInfo) {
-            //         this._employeeService.get(response.ID).subscribe((emp) => {
-            //             // this._employeeService.refreshEmployee(emp);
-            //             // this._router.navigateByUrl(this.url + emp.ID);
-            //         });
-            //     } else {
-            //         // this._employeeService.refreshEmployee(response);
-            //         this._router.navigateByUrl(this.url + response.ID);
-            //     }
+        if (!super.canDeactivate()) {
+            return;
+        }
 
-            // }
-            this._router.navigateByUrl(this.url + response.ID);
-            // this.busy = false;
+        this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
+            if (next) {
+                // super.setStateVar('employee', next, false);
+                super.updateState('employee', next, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+            }
         });
     }
 
     public previousEmployee() {
-        // this.busy = true;
-        this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
-            // if (response) {
-            //     if (!response.BusinessRelationInfo) {
-            //         this._employeeService.get(response.ID).subscribe((emp) => {
-            //             this._employeeService.refreshEmployee(emp);
-            //             this._router.navigateByUrl(this.url + emp.ID);
-            //         });
-            //     } else {
-            //         this._employeeService.refreshEmployee(response);
-            //         this._router.navigateByUrl(this.url + response.ID);
-            //     }
+        if (!super.canDeactivate()) {
+            return;
+        }
 
-            // }
-            this._router.navigateByUrl(this.url + response.ID);
-            // this.busy = false;
+        this.employeeService.getPrevious(this.employee.ID).subscribe((prev: Employee) => {
+            if (prev) {
+                super.updateState('employee', prev, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+            }
         });
     }
 

@@ -1,39 +1,54 @@
-import {UniCacheService, IUniCacheEntry} from '../../app/services/cacheService';
+import {UniCacheService} from '../../app/services/cacheService';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
-// Base class for UniParentView and UniChildView
-class UniView {
+export class UniView {
     protected cacheService: UniCacheService;
     protected cacheKey: string;
-    protected cacheEntry: IUniCacheEntry;
+    private dirtyState: {[key: string]: boolean} = {};
 
     constructor(routerUrl: string, cacheService: UniCacheService) {
         this.cacheService = cacheService;
 
         let rootRoute = this.findRootRoute(routerUrl.split('/'));
         this.cacheKey = rootRoute || routerUrl;
-
-        this.cacheEntry = this.cacheService.getCacheEntry(this.cacheKey)
-                          || this.cacheService.initCacheEntry(this.cacheKey);
     }
 
-    protected getStateVar(key: string) {
-        if (this.cacheEntry.state[key]) {
-            return this.cacheEntry.state[key].data;
+    protected getStateSubject(key: string): ReplaySubject<any> {
+        let cacheEntry = this.cacheService.getCacheEntry(this.cacheKey)
+                         || this.cacheService.initCacheEntry(this.cacheKey);
+
+
+        if (!cacheEntry.state[key]) {
+            cacheEntry.state[key] = {
+                isDirty: false,
+                subject: new ReplaySubject(1)
+            };
         }
+
+        this.dirtyState[key] = cacheEntry.state[key].isDirty;
+        return cacheEntry.state[key].subject;
     }
 
-    protected setStateVar(key: string, data: any, isDirty: boolean = true) {
-        this.cacheEntry.state[key] = {
-            isDirty: isDirty,
-            updatedAt: new Date(),
-            data: data
-        };
+    protected updateState(key: string, data: any, isDirty: boolean = true): void {
+        let cacheEntry = this.cacheService.getCacheEntry(this.cacheKey);
+        let stateVariable = cacheEntry.state[key];
 
-        if (isDirty) {
-            this.cacheEntry.isDirty = true;
+        stateVariable.isDirty = isDirty;
+        stateVariable.updatedAt = new Date();
+        stateVariable.subject.next(data);
+
+        this.dirtyState[key] = isDirty;
+        this.cacheService.updateCacheEntry(this.cacheKey, cacheEntry);
+    }
+
+    protected isDirty(): boolean {
+        for (let key in this.dirtyState) {
+            if (this.dirtyState[key]) {
+                return true;
+            }
         }
 
-        this.cacheService.updateCacheEntry(this.cacheKey, this.cacheEntry);
+        return false;
     }
 
     // Pop url segments until we reach :id
@@ -50,17 +65,10 @@ class UniView {
             return urlSegments.join('/');
         }
     }
-}
 
-export class UniParentView extends UniView {
-
-    constructor(routerUrl: string, cacheService: UniCacheService) {
-        super(routerUrl, cacheService);
-    }
 
     public canDeactivate() {
         // Update from cache
-        // TODO: replaySubject(1) ?
         let cache = this.cacheService.getCacheEntry(this.cacheKey);
 
         if (cache.isDirty) {
@@ -80,11 +88,3 @@ export class UniParentView extends UniView {
         }
     }
 }
-
-export class UniChildView extends UniView {
-
-    constructor(routerUrl: string, cacheService: UniCacheService) {
-        super(routerUrl, cacheService);
-    }
-}
-

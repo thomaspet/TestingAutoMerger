@@ -1,24 +1,25 @@
-import {Component, ViewChild, OnDestroy, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniForm} from '../../../../../framework/uniform';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal} from '../../../../unientities';
-import {EmployeeService, PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService, MunicipalService} from '../../../../services/services';
+import {EmployeeService, MunicipalService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
+
+import {UniView} from '../../../../../framework/core/uniView';
+import {UniCacheService} from '../../../../services/services';
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
     directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
-    providers: [PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService, MunicipalService],
+    providers: [MunicipalService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
-export class PersonalDetails implements OnDestroy, OnInit {
+export class PersonalDetails extends UniView implements OnInit {
 
     public busy: boolean;
     public expands: any = [
@@ -30,7 +31,7 @@ export class PersonalDetails implements OnDestroy, OnInit {
 
     public config: any = {};
     public fields: any[] = [];
-    private subscription: Subscription;
+    private subEntities: any[];
     private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
 
@@ -54,45 +55,38 @@ export class PersonalDetails implements OnDestroy, OnInit {
     ];
 
     constructor(
-        public employeeService: EmployeeService,
-        public route: ActivatedRoute,
-        public router: Router,
-        public phoneService: PhoneService,
-        public emailService: EmailService,
-        public addressService: AddressService,
-        public altinnService: AltinnIntegrationService,
-        public subEntityService: SubEntityService,
-        public municipalService: MunicipalService) {
+        private employeeService: EmployeeService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private municipalService: MunicipalService,
+        cacheService: UniCacheService) {
+
+            super(router.url, cacheService);
             this.setupForm();
     }
 
     public ngOnInit() {
         this.route.parent.params.subscribe(params => {
             this.employeeID = +params['id'];
-            this.getData();
-        });
 
-        this.subscription = this.employeeService.employee$.subscribe((emp) => {
-            this.employee = emp;
-        });
-    }
+            let employeeSubject = super.getStateSubject('employee');
 
-    public ngOnDestroy() {
-        this.subscription.unsubscribe();
+            // If we're the first one to subscribe to the subject
+            // we will have to GET data from backend and update the subjects ourselves
+            if (!employeeSubject.observers.length) {
+                this.employeeService.get(this.employeeID).subscribe((employee: Employee) => {
+                    this.employee = employee;
+                    super.updateState('employee', employee, false);
+                });
+            }
+
+            employeeSubject.subscribe(employee => this.employee = employee);
+        });
     }
 
     private setupForm() {
-        if (this.employeeService.subEntities) {
-            this.getLayout();
-        } else {
-            this.cacheLocAndGetLayout();
-        }
-    }
-
-    private cacheLocAndGetLayout() {
-        this.employeeService.getSubEntities().subscribe((response) => {
-            this.employeeService.subEntities = response;
-            this.employeeService.subEntities.unshift([{ ID: 0 }]);
+        this.employeeService.getSubEntities().subscribe((subEntities) => {
+            this.subEntities = subEntities;
             this.getLayout();
         });
     }
@@ -112,14 +106,18 @@ export class PersonalDetails implements OnDestroy, OnInit {
                     'Deleted': false
                 }];
                 this.config = {
-                    submitText: ''
+                    submitText: '',
+                    sections: {
+                        1: {isOpen: true},
+                        2: {isOpen: true}
+                    }
                 };
                 this.municipalService.GetAll(null).subscribe( (municipalities: Municipal[]) => {
                     this.fields = layout.Fields;
                     this.municipalities = municipalities;
                     this.extendFormConfig();
                 });
-                
+
             }
             , (error: any) => {
                 console.error(error);
@@ -128,25 +126,21 @@ export class PersonalDetails implements OnDestroy, OnInit {
         );
     }
 
-
-
-    private getData() {
-        this.busy = true;
-
-        this.employeeService.get(this.employeeID, this.expands).subscribe(
-            (employee: any) => {
-                this.employeeService.refreshEmployee(employee);
-                this.busy = false;
-            }
-            , (error: any) => {
-                console.error(error);
-                this.log(error);
-            }
-        );
+    public onFormReady(value) {
+        // TODO: Cache focused field and reset to this?
+        this.uniform.field('BusinessRelationInfo.Name').focus();
+        this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
+            this.updateInfoFromSSN();
+        });
     }
 
+    public onFormChange(employee) {
+        super.updateState('employee', employee, true);
+    }
 
     private extendFormConfig() {
+        const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
+        subEntityField.Options.source = this.subEntities;
 
         let multiValuePhone: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultPhone');
 
@@ -288,26 +282,6 @@ export class PersonalDetails implements OnDestroy, OnInit {
 
     }
 
-    public ready(value) {
-        setTimeout(() => {
-            if (!this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
-            }
-            if (!this.uniform.section(2).isOpen) {
-                this.uniform.section(2).toggle();
-            }
-
-            this.uniform.field('BusinessRelationInfo.Name').focus();
-            this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
-                this.updateInfoFromSSN();
-            });
-        }, 100);
-    }
-
-    public change(value) {
-        this.employee = _.cloneDeep(this.employee);
-    }
-
     private saveEmployee(done) {
         if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
             let bankAccount = this.employee.BankAccounts[0];
@@ -361,26 +335,24 @@ export class PersonalDetails implements OnDestroy, OnInit {
             this.employeeService.Put(this.employee.ID, this.employee)
                 .subscribe((response: Employee) => {
                     done('Sist lagret: ');
-                    this.employeeService.refreshEmployee(response);
+                    super.updateState('employee', this.employee, false);
                     this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     done('Feil ved lagring', err);
-                    console.log('Feil ved oppdatering av ansatt', err);
                     this.log(err);
                     this.saveactions[0].disabled = false;
                 });
         } else {
             this.employeeService.Post(this.employee)
                 .subscribe((response: Employee) => {
-                    console.log('post response: ', response);
                     done('Sist lagret: ');
                     this.saveactions[0].disabled = false;
+                    super.updateState('employee', this.employee, false);
                     this.router.navigateByUrl('/salary/employees/' + response.ID);
                 },
                 (err) => {
                     done('Feil ved lagring', err);
-                    console.log('Feil ved lagring av ansatt', err);
                     this.log(err);
                     this.saveactions[0].disabled = false;
                 });

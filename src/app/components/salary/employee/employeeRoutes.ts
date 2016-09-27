@@ -3,8 +3,6 @@ import {RecurringPost} from './recurringPost/recurringPost';
 import {EmployeeLeave} from './employeeLeave/employeeLeave';
 import {Employments} from './employments/employments';
 
-import {CanDeactivateGuard} from '../../../CanDeactivateGuard';
-
 export const routes = [
     {
         path: '',
@@ -18,7 +16,6 @@ export const routes = [
     {
         path: 'employments',
         component: Employments,
-        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'recurring-post',

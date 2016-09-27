@@ -4,7 +4,7 @@ import {Employment, FieldType, TypeOfEmployment, RenumerationType, WorkingHoursS
 import { Observable } from 'rxjs/Observable';
 
 export class EmploymentService extends BizHttp<Employment> {
-    
+
     public subEntities: any[];
 
     private typeOfEmployment: {ID: number, Name: string}[] = [
@@ -32,7 +32,7 @@ export class EmploymentService extends BizHttp<Employment> {
         {ID: WorkingHoursScheme.ContinuousShiftAndOtherSchemes, Name: '4 - Døgnkontinuerlig skiftarbeid'},
         {ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid'}
     ];
-    
+
     // private shipType: {ID: number, Name: string}[] = [
     //     {ID: 0, Name: 'Udefinert'},
     //     {ID: 1, Name: '1 - Annet'},
@@ -52,12 +52,12 @@ export class EmploymentService extends BizHttp<Employment> {
     //     {ID: 1, Name: '1 - Innenriks'},
     //     {ID: 2, Name: '2 - Utenriks'}
     // ];
-    
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
     }
-    
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -210,7 +210,6 @@ export class EmploymentService extends BizHttp<Employment> {
                     Sectionheader: '',
                     IsLookUp: false,
                     Options: {
-                        source: this.subEntities, 
                         valueProperty: 'ID',
                         displayProperty: 'BusinessRelationInfo.Name'
                     },
@@ -314,7 +313,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 1,
                     Placeholder: null,
                     Options: {
-                        source: this.typeOfEmployment, 
+                        source: this.typeOfEmployment,
                         valueProperty: 'ID',
                         displayProperty: 'Name'
                     },
@@ -347,7 +346,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 1,
                     Placeholder: null,
                     Options: {
-                        source: this.renumerationType, 
+                        source: this.renumerationType,
                         valueProperty: 'ID',
                         displayProperty: 'Name'
                     },
@@ -379,7 +378,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 1,
                     Placeholder: null,
                     Options: {
-                        source: this.workingHoursScheme, 
+                        source: this.workingHoursScheme,
                         valueProperty: 'ID',
                         displayProperty: 'Name'
                     },
@@ -428,7 +427,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 },
                 {
                     ComponentLayoutID: 1,
-                     
+
                     EntityType: 'Employment',
                     Property: 'SeniorityDate',
                     Placement: 7,

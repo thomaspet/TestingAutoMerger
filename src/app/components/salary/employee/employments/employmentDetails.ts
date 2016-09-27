@@ -1,6 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {EmployeeDS} from '../../../../data/employee';
-import {EmploymentService, StaticRegisterService} from '../../../../services/services';
+import {EmploymentService, StaticRegisterService, EmployeeService} from '../../../../services/services';
 import {STYRKCode, Employment} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
@@ -32,24 +31,22 @@ export class EmploymentDetails {
     private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
     private styrks: STYRKCode[];
-    private config: any;
+    private config: any = {};
     private fields: UniFieldLayout[] = [];
+    private subEntities: any[] = [];
 
-    constructor(private employeeDS: EmployeeDS,
+    constructor(private employeeService: EmployeeService,
                 private statReg: StaticRegisterService,
                 private employmentService: EmploymentService) {
     }
 
     public ngOnInit() {
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-        this.buildForm();
 
-        if (!this.employmentService.subEntities) {
-            this.employeeDS.getSubEntities().subscribe((response) => {
-                this.employmentService.subEntities = response;
-                this.employmentService.subEntities.unshift([{ID: 0}]);
-            });
-        }
+        this.employeeService.getSubEntities().subscribe((subEntities) => {
+            this.subEntities = subEntities;
+            this.buildForm();
+        });
     }
 
     private buildForm() {
@@ -78,6 +75,9 @@ export class EmploymentDetails {
                     }
                 }
             };
+
+            const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
+            subEntityField.Options.source = this.subEntities;
         });
     }
 

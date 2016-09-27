@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniChildView} from '../../../../../framework/core/uniView';
+import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService, EmployeeService} from '../../../../services/services';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -14,9 +14,8 @@ import {UniCacheService} from '../../../../services/services';
     selector: 'employments',
     templateUrl: 'app/components/salary/employee/employments/employments.html',
     directives: [UniTable, EmploymentDetails, UniSave],
-    providers: [EmploymentService]
 })
-export class Employments extends UniChildView implements OnInit {
+export class Employments extends UniView implements OnInit {
     @ViewChild(UniTable)
     private table: UniTable;
 
@@ -46,36 +45,37 @@ export class Employments extends UniChildView implements OnInit {
     }
 
     public ngOnInit() {
-        this.employee = super.getStateVar('employee');
-        this.employments = super.getStateVar('employments') || [];
-
         this.route.parent.params.subscribe((params) => {
             const employeeID = +params['id'];
 
-            // Get employee if not cached
-            if (!this.employee) {
+            let employeeSubject = super.getStateSubject('employee');
+            let employmentsSubject = super.getStateSubject('employments');
+
+            // If we're the first one to subscribe to the employee/employments subject
+            // we will have to GET data from backend and update the subjects ourselves
+            if (!employeeSubject.observers.length) {
                 this.employeeService.get(employeeID).subscribe((employee: Employee) => {
                     this.employee = employee;
-                    super.setStateVar('employee', employee, false);
+                    super.updateState('employee', employee, false);
                 });
             }
 
-            // Focus standard employment, get employments and focus if they werent cached
-            if (this.employments.length) {
-                const focusIndex = this.employments.findIndex(employment => employment.Standard) || 0;
-                this.table.focusRow(focusIndex);
-            } else {
+            if (!employmentsSubject.observers.length) {
                 this.employmentService.GetAll('filter=EmployeeID eq ' + employeeID).subscribe((employments) => {
-                    super.setStateVar('employments', employments, false);
                     this.employments = employments;
-
-                    const focusIndex = this.employments.findIndex(employment => employment.Standard) || 0;
-                    this.table.focusRow(focusIndex);
-
-                    if (!this.employments.length) {
-                        this.newEmployment();
+                    if (employments.length) {
+                        const focusIndex = this.employments.findIndex(employment => employment.Standard);
+                        this.table.focusRow(focusIndex || 0);
                     }
+                    super.updateState('employments', employments, false);
                 });
+            }
+
+            employeeSubject.subscribe(employee => this.employee = employee);
+            employmentsSubject.subscribe(employments => this.employments = employments);
+
+            if (super.isDirty()) {
+                this.saveActions[0].disabled = false;
             }
         });
 
@@ -107,9 +107,7 @@ export class Employments extends UniChildView implements OnInit {
     private onEmploymentChange(employment) {
         employment['_isDirty'] = true;
         this.saveActions[0].disabled = false;
-
-        // Store state in case the user leaves the view without saving
-        super.setStateVar('employments', this.employments, true);
+        super.updateState('employments', this.employments, true);
     }
 
     private onRowSelected(event) {
@@ -170,6 +168,7 @@ export class Employments extends UniChildView implements OnInit {
                     if (this.employments.filter(emp => emp['_isDirty']).length === 0) {
                         this.saveActions[0].disabled = true;
                         done('Lagring fullført');
+                        super.updateState('employments', this.employments, false);
                     } else {
                         done('Feil under lagring');
                     }

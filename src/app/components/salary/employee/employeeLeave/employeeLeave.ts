@@ -1,12 +1,13 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Employment, Employee} from '../../../../unientities';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {EmployeeLeaveService, EmployeeService} from '../../../../services/services';
+import {EmployeeLeaveService, EmployeeService, EmploymentService, UniCacheService} from '../../../../services/services';
+import {UniView} from '../../../../../framework/core/uniView';
 
 @Component({
     selector: 'employee-permision',
@@ -15,15 +16,12 @@ import {EmployeeLeaveService, EmployeeService} from '../../../../services/servic
     providers: [EmployeeLeaveService],
     pipes: [AsyncPipe]
 })
-export class EmployeeLeave implements OnInit {
-
-    private currentEmployee: Employee;
-    private employments: Employment[];
-    private employeeID: number;
+export class EmployeeLeave extends UniView implements OnInit {
+    private employee: Employee;
+    private employments: Employment[] = [];
+    private employeeleaveItems: any[] = [];
     private permisionTableConfig: UniTableConfig;
-    private permisions$: Observable<any>;
-    private permisionsChanged: any[];
-    @ViewChild(UniTable) private table: UniTable;
+
 
     private leaveTypes: any[] = [
         { typeID: '0', text: 'Ikke satt' },
@@ -40,104 +38,121 @@ export class EmployeeLeave implements OnInit {
         }
     ];
 
-    constructor(
-        public employeeService: EmployeeService,
-        private route: ActivatedRoute,
-        private uniHttp: UniHttp,
-        private employeeleaveService: EmployeeLeaveService
-    ) {
+    constructor(private employeeService: EmployeeService,
+                private employmentService: EmploymentService,
+                private employeeleaveService: EmployeeLeaveService,
+                private route: ActivatedRoute,
+                private uniHttp: UniHttp,
+                router: Router,
+                cacheService: UniCacheService) {
+
+        super(router.url, cacheService);
     }
 
     public ngOnInit() {
         this.route.parent.params.subscribe(params => {
-            this.employeeID = +params['id'];
+            let employeeID = +params['id'];
             this.buildTableConfig();
 
-            this.employeeService
-                .get(this.employeeID)
-                .subscribe((response: any) => {
-                    this.currentEmployee = response;
-                    this.employeeService.refreshEmployee(response);
-                    this.employments = this.currentEmployee.Employments;
+            let employeeSubject = super.getStateSubject('employee');
+            let employmentSubject = super.getStateSubject('employments');
+            let employeeLeaveSubject = super.getStateSubject('employeeleave');
 
-                    let filter = this.buildFilter();
-                    this.permisions$ = this.uniHttp.asGET()
-                        .usingBusinessDomain()
-                        .withEndPoint('employeeleave')
-                        .send({
-                            filter: filter
-                        })
-                        .map(res => res.json());
+            // If we're the first one to subscribe to any of the subjects
+            // we need to get data from backend and update the subjects ourselves
+            if (!employeeSubject.observers.length) {
+                this.employeeService.get(employeeID).subscribe((employee: Employee) => {
+                    this.employee = employee;
+                    super.updateState('employee', employee, false);
+                });
+            }
 
-                }, (error) => this.log(error));
+            if (!employmentSubject.observers.length) {
+                this.employmentService.GetAll(`filter=EmployeeID eq ${employeeID}`)
+                    .subscribe((employments: Employment[]) => {
+                        super.updateState('employments', employments, false);
+                    });
+            }
+
+            employeeSubject.subscribe(employee => this.employee = employee);
+            employeeLeaveSubject.subscribe(employeeleave => this.employeeleaveItems = employeeleave);
+
+            employmentSubject.subscribe((employments: Employment[]) => {
+                this.employments = employments;
+
+                // Get employeeleave if we didnt already get it from cache
+                if (!this.employeeleaveItems.length) {
+                    this.uniHttp.asGET()
+                    .usingBusinessDomain()
+                    .withEndPoint('employeeleave')
+                    .send({
+                        filter: this.buildFilter()
+                    })
+                    .subscribe((response) => {
+                        this.employeeleaveItems = response.json();
+                        super.updateState('employeeleave', this.employeeleaveItems, false);
+                    });
+                }
+            });
         });
 
     }
 
     public buildFilter() {
-        // gives empty list if employee has no employments
-        var filter = 'EmploymentID eq 0 or';
+        let filterParts = ['EmploymentID eq 0'];
         this.employments.forEach((employment: Employment) => {
-            filter += ' EmploymentID eq ' + employment.ID + ' or';
+            filterParts.push(`EmploymentID eq ${employment.ID}`);
         });
-        filter = filter.slice(0, filter.length - 2);
 
-        return filter;
+        return filterParts.join(' or ');
     }
 
     public buildTableConfig() {
-        // var idCol = new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false);
-        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
-        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);
-        var leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Number)
-            .setFormat(`{0: #\\'%'}`);
-        var commentCol = new UniTableColumn('Description', 'Kommentar', UniTableColumnType.Text);
-        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
+        const fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
+        const toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);
+        const leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Number)
+            .setTemplate((rowModel) => {
+                const leavePercent = rowModel['LeavePercent'];
+                return (leavePercent) ? leavePercent + '%' : '';
+            });
+
+        const commentCol = new UniTableColumn('Description', 'Kommentar');
+        const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
-                return this.getLeaveTypeText(dataItem.LeaveType);
+                const leaveType = this.leaveTypes.find(lt => lt.ID === dataItem.LeaveType);
+                return (leaveType) ? leaveType.text : '';
             })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.typeID + ' - ' + selectedItem.text);
                 },
                 lookupFunction: (searchValue) => {
-                    let matching: any[] = [];
-                    this.leaveTypes.forEach(leavetype => {
-                        if (leavetype.text.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(leavetype);
-                        }
-                    });
-                    return matching;
+                    return this.leaveTypes.filter(lt => lt.text.toLowerCase().indexOf(searchValue) > -1);
                 }
             });
 
-        var employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+        const employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
-                return this.getEmploymentJobName(dataItem.EmploymentID);
+                let employment = this.employments.find(e => e.ID === dataItem.EmploymentID);
+                return (employment) ? employment.JobName : '';
             })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.ID + ' - ' + selectedItem.JobName);
                 },
                 lookupFunction: (searchValue) => {
-                    let matching: Employment[] = [];
-                    this.employments.forEach(employment => {
-                        if (employment.JobName.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(employment);
-                        }
-                    });
-                    return matching;
+                    return this.employments.filter(employment => employment.JobName.toLowerCase().indexOf(searchValue) > -1);
                 }
             });
 
         this.permisionTableConfig = new UniTableConfig()
             .setColumns([
-                // idCol, 
                 fromDateCol, toDateCol, leavePercentCol,
                 leaveTypeCol, employmentIDCol, commentCol
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
+                row['_isDirty'] = true;
 
                 if (event.field === 'Employment') {
                     this.mapEmploymentToPermision(row);
@@ -147,36 +162,36 @@ export class EmployeeLeave implements OnInit {
                     this.mapLeavetypeToPermision(row);
                 }
 
+                // Update local array and cache
+                this.employeeleaveItems[row['_originalIndex']] = row;
+                super.updateState('employeeleave', this.employeeleaveItems, true);
+
                 return row;
             });
     }
 
     public saveLeave(done) {
-        this.permisionsChanged = this.table.getTableData();
-        this.permisionsChanged.forEach((permisionItem) => {
+        let saveSources = [];
+        this.employeeleaveItems.forEach((employeeleave) => {
+            if (employeeleave['_isDirty']) {
+                let source = (employeeleave.ID > 0)
+                    ? this.employeeleaveService.Put(employeeleave.ID, employeeleave)
+                    : this.employeeleaveService.Post(employeeleave);
 
-            if (permisionItem.ID > 0) {
-                this.employeeleaveService.Put(permisionItem.ID, permisionItem)
-                    .subscribe((response: EmployeeLeave) => {
-                        done('Sist lagret: ');
-                    },
-                    (err) => {
-                        done('Feil ved oppdatering av permisjon', err);
-                        this.log(err);
-                    });
-            } else {
-                permisionItem.FromDate.setHours(12);
-                permisionItem.ToDate.setHours(12);
-                this.employeeleaveService.Post(permisionItem)
-                    .subscribe((response: EmployeeLeave) => {
-                        done('Sist lagret: ');
-                    },
-                    (err) => {
-                        done('Feil ved lagring av permisjon', err);
-                        this.log(err);
-                    });
+                saveSources.push(source);
             }
         });
+
+        Observable.forkJoin(saveSources).subscribe(
+            res => {
+                done('Lagring fullført');
+                super.updateState('employeeleave', this.employeeleaveItems, false);
+            },
+            err => {
+                done('Feil ved lagring av permisjoner');
+                this.log(err);
+            }
+        );
     }
 
     private mapEmploymentToPermision(rowModel) {
@@ -193,30 +208,6 @@ export class EmployeeLeave implements OnInit {
             return;
         }
         rowModel['LeaveType'] = leavetype.typeID;
-    }
-
-    private getLeaveTypeText(typeID: string) {
-        var text = '';
-
-        this.leaveTypes.forEach((leaveType) => {
-            if (leaveType.typeID === typeID) {
-                text = leaveType.text;
-            }
-        });
-
-        return text;
-    }
-
-    private getEmploymentJobName(employmentID: number) {
-        var jobName = '';
-
-        this.employments.forEach((employment: Employment) => {
-            if (employment.ID === employmentID) {
-                jobName = employment.JobName;
-            }
-        });
-
-        return jobName;
     }
 
     public log(err) {
