@@ -54,6 +54,13 @@ export class AMeldingView implements OnInit {
                 label: 'Hent a-meldingsfil',
                 action: () => {
                     this.getAMeldingFile();
+                },
+                disabled: () => {
+                    if (!this.currentAMelding) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
         ];
@@ -89,11 +96,24 @@ export class AMeldingView implements OnInit {
     }
 
     public getAMeldingFile() {
-        this._ameldingService.getAMeldingFile(this.currentAMelding.ID)
-            .subscribe(amldfile => {
-            }, err => {
-                this.onError(err);
-            });
+        if (this.currentAMelding) {
+            this._ameldingService.getAMeldingFile(this.currentAMelding.ID)
+                .subscribe(amldfile => {
+                    var a = document.createElement('a');
+                    var dataURI = 'data:text/xml;base64,' + btoa(amldfile);
+                    a.href = dataURI;
+                    a['download'] = 'amelding.xml';
+
+                    var e = document.createEvent('MouseEvents');
+                    e.initMouseEvent('click', true, false, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0 , null);
+
+                    a.dispatchEvent(e);
+                    a.remove();
+
+                }, err => {
+                    this.onError(err);
+                });
+        }
     }
 
     public createAMelding(done, ameldType: number = 0) {
