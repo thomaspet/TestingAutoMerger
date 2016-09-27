@@ -95,7 +95,18 @@ export class EmployeeLeave extends UniView implements OnInit {
                 }
             });
         });
+    }
 
+    // REVISIT (remove)!
+    // This (and the canDeactivate in employeeRoutes.ts) is a dummy-fix
+    // until we are able to locate a problem with detecting changes of
+    // destroyet view in unitable.
+    public canDeactivate() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(true);
+            });
+        });
     }
 
     public buildFilter() {

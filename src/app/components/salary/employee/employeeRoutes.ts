@@ -2,7 +2,7 @@ import {PersonalDetails} from './personalDetails/personalDetails';
 import {RecurringPost} from './recurringPost/recurringPost';
 import {EmployeeLeave} from './employeeLeave/employeeLeave';
 import {Employments} from './employments/employments';
-
+import {CanDeactivateGuard} from '../../../canDeactivateGuard';
 export const routes = [
     {
         path: '',
@@ -19,10 +19,12 @@ export const routes = [
     },
     {
         path: 'recurring-post',
-        component: RecurringPost
+        component: RecurringPost,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'employee-leave',
-        component: EmployeeLeave
+        component: EmployeeLeave,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];

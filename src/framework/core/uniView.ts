@@ -1,5 +1,6 @@
 import {UniCacheService} from '../../app/services/cacheService';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
 
 export class UniView {
     protected cacheService: UniCacheService;
@@ -67,7 +68,7 @@ export class UniView {
     }
 
 
-    public canDeactivate() {
+    public canDeactivate(): Observable<boolean>|Promise<boolean>|boolean {
         // Update from cache
         let cache = this.cacheService.getCacheEntry(this.cacheKey);
 
