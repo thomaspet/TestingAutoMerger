@@ -3,8 +3,8 @@ import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
-import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
+import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -45,7 +45,7 @@ class CustomerInvoiceExt extends CustomerInvoice {
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
     providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
-        ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
+        ProjectService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class InvoiceDetails {
 
@@ -79,7 +79,7 @@ export class InvoiceDetails {
     private companySettings: CompanySettings;
     private creditInvoiceArr: CustomerInvoice[];
 
-    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
 
     private formIsInitialized: boolean = false;
@@ -87,7 +87,7 @@ export class InvoiceDetails {
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerInvoiceItemService: CustomerInvoiceItemService,
-        private departementService: DepartementService,
+        private departmentService: DepartmentService,
         private projectService: ProjectService,
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
@@ -231,7 +231,7 @@ export class InvoiceDetails {
             this.fields = this.getComponentLayout().Fields;
 
             Observable.forkJoin(
-                this.departementService.GetAll(null),
+                this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
                 this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
                 this.customerService.GetAll(null, ['Info']),
@@ -305,24 +305,6 @@ export class InvoiceDetails {
         let self = this;
 
         // TODO Insert line breaks were needed
-
-
-        var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
-        departement.Options = {
-            source: this.dropdownData[0],
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
-        };
-
-
-        var project: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.ProjectID');
-        project.Options = {
-            source: this.dropdownData[1],
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
-        };
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
         invoiceaddress.Options = {
@@ -564,11 +546,6 @@ export class InvoiceDetails {
 
         if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
             this.invoice.DeliveryDate = moment();
-        }
-
-        if (this.invoice.DimensionsID === 0) {
-            this.invoice.Dimensions = new Dimensions();
-            this.invoice.Dimensions['_createguid'] = this.customerInvoiceService.getNewGuid();
         }
 
         // Save only lines with products from product list
@@ -992,62 +969,6 @@ export class InvoiceDetails {
                     Legend: '',
                     StatusCode: 0,
                     ID: 12,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Project',
-                    Property: 'Dimensions.ProjectID',
-                    Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Std. prosjekt på linje',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 20,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Departement',
-                    Property: 'Dimensions.DepartementID',
-                    Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Std. avdeling på linje',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 21,
                     Deleted: false,
                     CreatedAt: null,
                     UpdatedAt: null,

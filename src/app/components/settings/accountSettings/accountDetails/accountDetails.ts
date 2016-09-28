@@ -84,7 +84,7 @@ export class AccountDetails implements OnInit {
     public getData() {
         if (this.accountID) {
             this.accountService
-                .Get(this.accountID, ['Alias', 'Currency', 'AccountGroup', 'Dimensions', 'Dimensions.Project', 'Dimensions.Region', 'Dimensions.Responsible', 'Dimensions.Departement'])
+                .Get(this.accountID, ['Alias', 'Currency', 'AccountGroup', 'Dimensions', 'Dimensions.Project', 'Dimensions.Region', 'Dimensions.Responsible', 'Dimensions.Department'])
                 .subscribe(
                     (dataset) => {
                         this.account = dataset;

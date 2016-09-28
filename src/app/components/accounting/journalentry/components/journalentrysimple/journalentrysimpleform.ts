@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges, Renderer} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {Departement, Project, VatType, Account} from '../../../../../unientities';
+import {Department, Project, VatType, Account} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 
 import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
@@ -38,7 +38,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     private config: any = {};
     private fields: any[] = [];
 
-    private departements: Departement[];
+    private departments: Department[];
     private projects: Project[];
     private vattypes: VatType[];
     private accounts: Account[];
@@ -60,7 +60,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 private renderer: Renderer) {
         this.isLoaded = false;
         this.isEditMode = false;
-        this.departements = [];
+        this.departments = [];
         this.projects = [];
         this.vattypes = [];
         this.accounts = [];
@@ -109,13 +109,13 @@ export class JournalEntrySimpleForm implements OnChanges {
 
         setTimeout(() => {
             if (changes['dropdownData'] !== null && this.dropdownData) {
-                this.departements = this.dropdownData[0];
+                this.departments = this.dropdownData[0];
                 this.projects = this.dropdownData[1]
                 this.vattypes = this.dropdownData[2];
                 this.accounts = this.dropdownData[3];
 
                 // Add empty element to top of dropdown
-                this.departements.unshift(null);
+                this.departments.unshift(null);
                 this.projects.unshift(null);
 
                 // Refresh sources
@@ -123,7 +123,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.fields[4].Options.source = this.vattypes;
                 this.fields[5].Options.source = this.accounts;
                 this.fields[6].Options.source = this.vattypes;
-                //this.fields[8].Options.source = this.departements;
+                //this.fields[8].Options.source = this.departments;
                 //this.fields[9].Options.source = this.projects;
                 this.fields = _.cloneDeep(this.fields);
 
@@ -534,18 +534,18 @@ export class JournalEntrySimpleForm implements OnChanges {
         /*
         KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
 
-        var departement = new UniFieldLayout();
-        departement.FieldSet = 0;
-        departement.Section = 0;
-        departement.Combo = 0;
-        departement.FieldType = 3;
-        departement.Label = 'Avdeling';
-        departement.Property = 'Dimensions.DepartementID';
-        departement.ReadOnly = false;
-        departement.Hidden = self.mode == JournalEntryMode.Payment;
-        departement.Options = {
-            source: self.departements,
-            template: (departement) => `${departement ? departement.Name : ''}`,
+        var department = new UniFieldLayout();
+        department.FieldSet = 0;
+        department.Section = 0;
+        department.Combo = 0;
+        department.FieldType = 3;
+        department.Label = 'Avdeling';
+        department.Property = 'Dimensions.DepartmentID';
+        department.ReadOnly = false;
+        department.Hidden = self.mode == JournalEntryMode.Payment;
+        department.Options = {
+            source: self.departments,
+            template: (department) => `${department ? department.Name : ''}`,
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 500
@@ -670,7 +670,7 @@ export class JournalEntrySimpleForm implements OnChanges {
 
         this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                         debitAccount, debitVat, creditAccount, creditVat,
-                        amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
+                        amount, /*department, project,*/ description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
 
         this.config = {};
     }

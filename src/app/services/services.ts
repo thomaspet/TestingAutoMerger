@@ -18,7 +18,7 @@ export * from './salary/employee/employeecategoryservice';
 export * from './salary/employee/employeeleaveservice';
 export * from './staticregisterservice';
 export * from './salary/wagetype/wagetypeservice'
-export * from './common/departementservice';
+export * from './common/departmentservice';
 export * from './common/projectservice';
 export * from './common/currencyservice';
 export * from './sales/phoneservice';

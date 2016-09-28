@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from '../../../../services/services';
+import {DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from '../../../../services/services';
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
 import {Supplier, Email, Phone, Address} from '../../../../unientities';
@@ -19,7 +19,7 @@ declare var _; // lodash
     selector: 'supplier-details',
     templateUrl: 'app/components/sales/supplier/details/supplierDetails.html',
     directives: [ExternalSearch, AddressModal, EmailModal, PhoneModal, UniSave, UniForm],
-    providers: [DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService]
+    providers: [DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService]
 })
 export class SupplierDetails implements OnInit {
     @Input() public modalMode: boolean = false;
@@ -35,18 +35,18 @@ export class SupplierDetails implements OnInit {
     private addressChanged: any;
     private phoneChanged: any;
     private emailChanged: any;
-        
+
     private dropdownData: any;
-    private supplier: Supplier;    
+    private supplier: Supplier;
     private searchText: string;
-    
+
     private emptyPhone: Phone;
     private emptyEmail: Email;
     private emptyAddress: Address;
     private bankAccounts: any;
-    
+
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
-        
+
     private saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
@@ -55,8 +55,8 @@ export class SupplierDetails implements OnInit {
              disabled: false
          }
     ];
-    
-    constructor(private departementService: DepartementService,
+
+    constructor(private departmentService: DepartmentService,
                 private projectService: ProjectService,
                 private supplierService: SupplierService,
                 private router: Router,
@@ -82,7 +82,7 @@ export class SupplierDetails implements OnInit {
         this.supplierID = null;
         this.setup();
     }
-    
+
     public nextSupplier() {
         this.supplierService.NextSupplier(this.supplier.ID)
             .subscribe((data) => {
@@ -93,7 +93,7 @@ export class SupplierDetails implements OnInit {
                 this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
             });
     }
-    
+
     public previousSupplier() {
         this.supplierService.PreviousSupplier(this.supplier.ID)
             .subscribe((data) => {
@@ -104,42 +104,42 @@ export class SupplierDetails implements OnInit {
                 this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
             });
     }
-    
-    public addSupplier() {   
+
+    public addSupplier() {
         this.router.navigateByUrl('/sales/suppliers/0');
     }
-    
+
     private change(model) {
-        
+
     }
-    
+
     public ready() {
-        if (this.supplier.ID === 0) {                    
-            this.form.field('Info.Name') 
+        if (this.supplier.ID === 0) {
+            this.form.field('Info.Name')
                         .control
                         .valueChanges
                         .debounceTime(300)
                         .distinctUntilChanged()
-                        .subscribe((data) => {                        
+                        .subscribe((data) => {
                             this.searchText = data;
-                        });     
+                        });
         }
     }
 
     private setTabTitle() {
-        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)'; 
+        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)';
         this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
     }
 
     private setup() {
-        this.fields = this.getComponentLayout().Fields;            
-        
+        this.fields = this.getComponentLayout().Fields;
+
         Observable.forkJoin(
-            this.departementService.GetAll(null),
+            this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             (
                 this.supplierID > 0 ?
-                    this.supplierService.Get(this.supplierID, this.expandOptions) 
+                    this.supplierService.Get(this.supplierID, this.expandOptions)
                     : this.supplierService.GetNewEntity(this.expandOptions)
             ),
             this.phoneService.GetNewEntity(),
@@ -153,59 +153,59 @@ export class SupplierDetails implements OnInit {
             this.emptyEmail = response[4];
             this.bankAccounts = response[5];
             this.emptyAddress = response[5];
-         
+
             this.setTabTitle();
             this.extendFormConfig();
-                
+
             setTimeout(() => {
-                this.ready();                
-            });          
+                this.ready();
+            });
         }, (err) => {
             console.log('Error retrieving data: ', err);
             this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
         });
     }
-    
-    public addSearchInfo(selectedSearchInfo: SearchResultItem) {        
+
+    public addSearchInfo(selectedSearchInfo: SearchResultItem) {
         if (this.supplier !== null) {
-            
+
             this.supplier.Info.Name = selectedSearchInfo.navn;
             this.supplier.OrgNumber = selectedSearchInfo.orgnr;
-   
+
             this.supplier.Info.Addresses = [];
             this.supplier.Info.Phones = [];
             this.supplier.Info.Emails = [];
             this.supplier.Info.InvoiceAddress = null;
             this.supplier.Info.ShippingAddress = null;
             this.supplier.Info.DefaultPhone = null;
-   
+
             var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
             var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
             var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
             var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
-            
+
             Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
                 var businessaddress: any = results[0];
                 var postaladdress: any = results[1];
                 var phone: any = results[2];
                 var mobile: any = results[3];
-                            
+
                 if (postaladdress) {
                     if (!this.supplier.Info.Addresses.find(x => x === postaladdress)) {
                         this.supplier.Info.Addresses.push(postaladdress);
                     }
-                    this.supplier.Info.InvoiceAddress = postaladdress;                    
-                } 
+                    this.supplier.Info.InvoiceAddress = postaladdress;
+                }
 
                 if (businessaddress) {
                     if (!this.supplier.Info.Addresses.find(x => x === businessaddress)) {
                         this.supplier.Info.Addresses.push(businessaddress);
-                    }                    
+                    }
                     this.supplier.Info.ShippingAddress = businessaddress;
                 } else if (postaladdress) {
                     this.supplier.Info.ShippingAddress = postaladdress;
                 }
-                
+
                 if (mobile) {
                     this.supplier.Info.Phones.unshift(mobile);
                 }
@@ -216,44 +216,44 @@ export class SupplierDetails implements OnInit {
                 } else if (mobile) {
                     this.supplier.Info.DefaultPhone = mobile;
                 }
-                
-                // set ID to make multivalue editors work with the new values...                
+
+                // set ID to make multivalue editors work with the new values...
                 this.supplier.Info.DefaultPhoneID = 0;
                 this.supplier.Info.InvoiceAddressID = 0;
                 this.supplier.Info.ShippingAddressID = 0;
-                
+
                 this.supplier = _.cloneDeep(this.supplier);
 
                 setTimeout(() => {
-                   this.ready();                
+                   this.ready();
                 });
             });
-            
-        } 
+
+        }
     }
-    
+
     public extendFormConfig() {
-        
-        var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
-        departement.Options = {
+
+        var department: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartmentID');
+        department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
-            displayProperty: 'Name',                        
+            displayProperty: 'Name',
             debounceTime: 200
         };
-        
+
         var project: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
-            displayProperty: 'Name',                        
+            displayProperty: 'Name',
             debounceTime: 200
         };
 
         // MultiValue
         var phones: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultPhone');
-        
-        phones.Options = {            
+
+        phones.Options = {
             entity: Phone,
             listProperty: 'Info.Phones',
             displayValue: 'Number',
@@ -264,19 +264,19 @@ export class SupplierDetails implements OnInit {
                     value = new Phone();
                     value.ID = 0;
                 }
-                                
+
                 this.phoneModal.openModal(value);
-                
-                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => { 
-                    this.phoneChanged.unsubscribe();                                      
-                    resolve(modalval);    
-                });               
+
+                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => {
+                    this.phoneChanged.unsubscribe();
+                    resolve(modalval);
+                });
             })
         };
-                
+
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'Info.InvoiceAddress');
-        
-        invoiceaddress.Options = {            
+
+        invoiceaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
@@ -287,22 +287,22 @@ export class SupplierDetails implements OnInit {
                     value = new Address();
                     value.ID = 0;
                 }
-                                
+
                 this.addressModal.openModal(value);
-                
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {   
-                    this.addressChanged.unsubscribe();                                    
-                    resolve(modalval);    
-                });               
+
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                    this.addressChanged.unsubscribe();
+                    resolve(modalval);
+                });
             }),
             display: (address: Address) => {
-                return this.addressService.displayAddress(address);                              
-            }         
+                return this.addressService.displayAddress(address);
+            }
         };
-        
+
         var emails: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultEmail');
-        
-        emails.Options = {            
+
+        emails.Options = {
             entity: Email,
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
@@ -313,42 +313,42 @@ export class SupplierDetails implements OnInit {
                     value = new Email();
                     value.ID = 0;
                 }
-                                
+
                 this.emailModal.openModal(value);
-                
-                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {  
-                    this.emailChanged.unsubscribe();                                     
-                    resolve(modalval);    
-                });               
+
+                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
+                    this.emailChanged.unsubscribe();
+                    resolve(modalval);
+                });
             })
         };
-        
+
         var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'Info.ShippingAddress');
-        shippingaddress.Options = {      
-            entity: Address,      
+        shippingaddress.Options = {
+            entity: Address,
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
-            linkProperty: 'ID',            
+            linkProperty: 'ID',
             storeResultInProperty: 'Info.ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
                     value.ID = 0;
                 }
-                                
+
                 this.addressModal.openModal(value);
-                
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {       
-                    this.addressChanged.unsubscribe();                                
-                    resolve(modalval);    
-                });               
+
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                    this.addressChanged.unsubscribe();
+                    resolve(modalval);
+                });
             }),
             display: (address: Address) => {
-                return this.addressService.displayAddress(address);                               
-            }          
+                return this.addressService.displayAddress(address);
+            }
         };
-    }   
-    
+    }
+
     private saveSupplier(completeEvent: any) {
         //add createGuid for new entities and remove duplicate entities
         this.supplier.Info.Emails.forEach(email => {
@@ -356,67 +356,67 @@ export class SupplierDetails implements OnInit {
                 email['_createguid'] = this.supplierService.getNewGuid();
             }
         });
-        
+
         if (this.supplier.Info.DefaultEmail) {
             this.supplier.Info.Emails = this.supplier.Info.Emails.filter(x => x !== this.supplier.Info.DefaultEmail);
         }
-        
+
         this.supplier.Info.Phones.forEach(phone => {
             if (phone.ID === 0) {
                 phone['_createguid'] = this.supplierService.getNewGuid();
             }
         });
-        
+
         if (this.supplier.Info.DefaultPhone) {
             this.supplier.Info.Phones = this.supplier.Info.Phones.filter(x => x !== this.supplier.Info.DefaultPhone);
         }
-        
+
         this.supplier.Info.Addresses.forEach(address => {
             if (address.ID === 0) {
                 address['_createguid'] = this.supplierService.getNewGuid();
             }
         });
-        
+
         if (this.supplier.Info.ShippingAddress) {
             this.supplier.Info.Addresses = this.supplier.Info.Addresses.filter(x => x !== this.supplier.Info.ShippingAddress);
         }
-        
+
         if (this.supplier.Info.InvoiceAddress) {
             this.supplier.Info.Addresses = this.supplier.Info.Addresses.filter(x => x !== this.supplier.Info.InvoiceAddress);
         }
-        
+
         if (this.supplier.Info.DefaultPhone === null && this.supplier.Info.DefaultPhoneID === 0) {
             this.supplier.Info.DefaultPhoneID = null;
         }
-        
+
         if (this.supplier.Info.DefaultEmail === null && this.supplier.Info.DefaultEmailID === 0) {
             this.supplier.Info.DefaultEmailID = null;
         }
-        
+
         if (this.supplier.Info.ShippingAddress === null && this.supplier.Info.ShippingAddressID === 0) {
             this.supplier.Info.ShippingAddressID = null;
         }
-        
+
         if (this.supplier.Info.InvoiceAddress === null && this.supplier.Info.InvoiceAddressID === 0) {
             this.supplier.Info.InvoiceAddressID = null;
         }
-        
+
         if (this.supplier.Dimensions !== null && (!this.supplier.Dimensions.ID || this.supplier.Dimensions.ID === 0)) {
             this.supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
-        
+
         if (this.supplierID > 0) {
             this.supplierService.Put(this.supplier.ID, this.supplier)
                 .subscribe(
-                    (updatedValue) => {  
-                        completeEvent('Leverandør lagret'); 
-                        
-                        this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(supplier => {                          
+                    (updatedValue) => {
+                        completeEvent('Leverandør lagret');
+
+                        this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(supplier => {
                             this.supplier = supplier;
                             this.setTabTitle();
-                        });                        
+                        });
                     },
-                    (err) => { 
+                    (err) => {
                         completeEvent('Feil ved lagring');
                         console.log('Feil oppsto ved lagring', err);
                     }
@@ -440,7 +440,7 @@ export class SupplierDetails implements OnInit {
                 );
         }
     }
-    
+
     // TODO: change to 'ComponentLayout' when object respects the interface
     private getComponentLayout(): any {
         return {
@@ -481,7 +481,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -509,7 +509,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -537,7 +537,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -565,7 +565,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -593,7 +593,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -621,7 +621,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -649,7 +649,7 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -678,12 +678,12 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Departement',
-                    Property: 'Dimensions.DepartementID',
+                    EntityType: 'Department',
+                    Property: 'Dimensions.DepartmentID',
                     Placement: 4,
                     Hidden: true, // false, // TODO: > 30.6
                     FieldType: 3,
@@ -735,9 +735,9 @@ export class SupplierDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null  
+                    CustomFields: null
                 }
-            ]               
-        };   
+            ]
+        };
     }
 }

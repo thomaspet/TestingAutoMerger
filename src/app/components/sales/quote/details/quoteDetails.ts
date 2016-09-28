@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
-import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -43,7 +43,7 @@ class CustomerQuoteExt extends CustomerQuote {
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
     directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
     providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, CompanySettingsService,
-        ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
+        ProjectService, DepartmentService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class QuoteDetails {
     @Input() public quoteID: any;
@@ -72,13 +72,13 @@ export class QuoteDetails {
 
     private formIsInitialized: boolean = false;
 
-    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
 
     constructor(private customerService: CustomerService,
         private customerQuoteService: CustomerQuoteService,
         private customerQuoteItemService: CustomerQuoteItemService,
-        private departementService: DepartementService,
+        private departmentService: DepartmentService,
         private projectService: ProjectService,
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
@@ -199,7 +199,7 @@ export class QuoteDetails {
             this.fields = this.getComponentLayout().Fields;
 
             Observable.forkJoin(
-                this.departementService.GetAll(null),
+                this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
                 this.customerQuoteService.Get(this.quoteID, this.expandOptions),
                 this.customerService.GetAll(null, ['Info']),
@@ -248,22 +248,6 @@ export class QuoteDetails {
 
     private extendFormConfig() {
         let self = this;
-
-        var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
-        departement.Options = {
-            source: this.dropdownData[0],
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
-        };
-
-        var project: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.ProjectID');
-        project.Options = {
-            source: this.dropdownData[1],
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
-        };
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
         invoiceaddress.Options = {
@@ -498,11 +482,6 @@ export class QuoteDetails {
         this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
 
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-
-        if (this.quote.DimensionsID === 0) {
-            this.quote.Dimensions = new Dimensions();
-            this.quote.Dimensions['_createguid'] = this.customerQuoteService.getNewGuid();
-        }
 
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
@@ -817,62 +796,6 @@ export class QuoteDetails {
                     Legend: '',
                     StatusCode: 0,
                     ID: 12,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Project',
-                    Property: 'Dimensions.ProjectID',
-                    Placement: 4,
-                    Hidden: true, //false, // TODO: > 30.6
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Std. prosjekt på linje',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 20,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Departement',
-                    Property: 'Dimensions.DepartementID',
-                    Placement: 4,
-                    Hidden: true, //false, // TODO: > 30.6
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Std. avdeling på linje',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 21,
                     Deleted: false,
                     CreatedAt: null,
                     UpdatedAt: null,

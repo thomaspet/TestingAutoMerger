@@ -260,8 +260,8 @@ export interface IRegion {
 }
 
 
-export interface IDepartement {
-	DepartementManagerName: string;
+export interface IDepartment {
+	DepartmentManagerName: string;
 	Name: string;
 	Description: string;
 	StatusID: number;
@@ -273,14 +273,14 @@ export interface IDepartement {
 
 export interface IDimensions {
 	ProjectID: number;
-	DepartementID: number;
+	DepartmentID: number;
 	ResponsibleID: number;
 	RegionID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
 	Project: IProject;
-	Departement: IDepartement;
+	Department: IDepartment;
 	Responsible: IResponsible;
 	Region: IRegion;
 	CustomFields: any;

@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {VatType, Account, SupplierInvoice, JournalEntry} from '../../../../../unientities';
-import {VatTypeService, AccountService, JournalEntryService, DepartementService, ProjectService} from '../../../../../services/services';
+import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService} from '../../../../../services/services';
 
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntrySimpleForm, JournalEntryMode} from './journalentrysimpleform';
@@ -17,7 +17,7 @@ declare var moment;
     selector: 'journal-entry-simple',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html',
     directives: [JournalEntrySimpleForm],
-    providers: [DepartementService, ProjectService, VatTypeService, AccountService]
+    providers: [DepartmentService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
@@ -33,7 +33,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     public dropdownData: any;
 
     constructor(private journalEntryService: JournalEntryService,
-        private departementService: DepartementService,
+        private departmentService: DepartmentService,
         private projectService: ProjectService,
         private vattypeService: VatTypeService,
         private accountService: AccountService,
@@ -68,7 +68,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         }
 
         Observable.forkJoin(
-            this.departementService.GetAll(null),
+            this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
             this.accountService.GetAll(null, ['VatType'])
@@ -102,16 +102,16 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
     /*
         private getDepartmentName(line: JournalEntryData): string {
-            if (line && line.Dimensions && !line.Dimensions.DepartementID) { return ''; }
+            if (line && line.Dimensions && !line.Dimensions.DepartmentID) { return ''; }
             if (this.dropdownData && line && line.Dimensions) {
-    
-                var dep = this.dropdownData[0].find((d) => d.ID == line.Dimensions.DepartementID);
+
+                var dep = this.dropdownData[0].find((d) => d.ID == line.Dimensions.DepartmentID);
                 if (dep != null) {
-                    return line.Dimensions.DepartementID + ' - ' + dep.Name;
+                    return line.Dimensions.DepartmentID + ' - ' + dep.Name;
                 }
             }
-    
-            return (line && line.Dimensions && line.Dimensions.DepartementID) ? line.Dimensions.DepartementID.toString() : '';
+
+            return (line && line.Dimensions && line.Dimensions.DepartmentID) ? line.Dimensions.DepartmentID.toString() : '';
         }
     */
     private getAccount(id: number): Account {
@@ -154,7 +154,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                     return line.Dimensions.ProjectID + ' - ' + project.Name;
                 }
             }
-    
+
             return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
         }
     */
@@ -250,7 +250,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private parseJournalEntryData(updatedLine: JournalEntryData): JournalEntryData {
         /*var dimensions = new Dimensions();
-        dimensions.DepartementID = updatedLine['Dimensions.DepartementID'];
+        dimensions.DepartmentID = updatedLine['Dimensions.DepartmentID'];
         dimensions.ProjectID = updatedLine['Dimensions.ProjectID'];
         updatedLine.Dimensions = dimensions;
         */

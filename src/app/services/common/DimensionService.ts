@@ -1,9 +1,9 @@
-import {Project, Departement, Responsible, Region, Dimensions} from '../../unientities';
+import {Project, Department, Responsible, Region, Dimensions} from '../../unientities';
 
- 
+
 export function createGuid():string {
     function S4() {
-        return (((1+Math.random())*0x10000)|0).toString(16).substring(1); 
+        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
     }
     return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 }
@@ -21,7 +21,7 @@ export class Dimension extends Dimensions {
     }
 
     public static setDepartment(dim:any, value:any) {
-        Dimension.setValue(dim, value, 'Departement');
+        Dimension.setValue(dim, value, 'Department');
     }
 
     private static setValue(dim:any, value:any, pfx = "Project") {

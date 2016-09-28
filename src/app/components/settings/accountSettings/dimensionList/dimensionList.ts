@@ -34,11 +34,11 @@ export class DimensionList {
                 this.data.push({ID: this.dimensions.ProjectID, Type: 'Prosjekt', Name: this.dimensions.Project.Name});
             }
 
-            if (this.dimensions.Departement) {
+            if (this.dimensions.Department) {
                 this.data.push({
-                    ID: this.dimensions.DepartementID,
+                    ID: this.dimensions.DepartmentID,
                     Type: 'Avdeling',
-                    Name: this.dimensions.Departement.Name
+                    Name: this.dimensions.Department.Name
                 });
             }
 
