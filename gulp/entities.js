@@ -27,3 +27,5 @@ module.export = gulp.task('entities', function(done) {
 
     request(options, callback);
 });
+
+gulp.task('unientities', ['entities']); // alias

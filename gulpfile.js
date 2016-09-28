@@ -86,7 +86,6 @@ require('./gulp/zip');
 
 var tasks = {
     prod: [
-        'entities',
         'index.html',
         'apidoc.html',
         'angular2',
