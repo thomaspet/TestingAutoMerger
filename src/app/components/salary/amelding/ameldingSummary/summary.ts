@@ -1,74 +1,36 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {AmeldingSumUp, AmeldingData} from '../../../../unientities';
-import {AMeldingService} from '../../../../services/Salary/AMelding/AmeldingService';
+import {Component, Input} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {AsyncPipe} from '@angular/common';
 
 declare var moment;
 
 @Component({
     selector: 'amelding-summary-view',
     templateUrl: 'app/components/salary/amelding/ameldingSummary/summary.html',
-    directives: [UniTable],
-    providers: [AMeldingService],
-    pipes: [AsyncPipe]
+    directives: [UniTable]
 })
 
 export class AmeldingSummaryView {
-    private currentSumUp: any; // AmeldingSumUp;
-    @Input() public currentAMelding: AmeldingData;
+    @Input() public currentSumUp: any;
+    @Input() public currentAMelding: any;
     private employeeTableConfig: UniTableConfig;
     private transactionTableConfig: UniTableConfig;
     private createdDate: string;
-    private totalAga: number;
-    private totalForskuddstrekk: number;
     private statusText: string;
-    private outputObj: any = {};
-    @Output() private updateTotals: EventEmitter<any> = new EventEmitter<any>(true);
-
     private statuses: any[] = ['Kladd', 'Opprettet', 'Sendt', 'Status fra altinn mottatt'];
 
-    constructor(private _ameldService: AMeldingService) {
-        
+    constructor() {        
+        this.setupEmployees();
+        this.setupTransactions();
     }
     
     public ngOnChanges() {
-        if (this.currentAMelding !== undefined) {
-            this.createdDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
-            this._ameldService.getAmeldingSumUp(this.currentAMelding.ID)
-            .subscribe(sumup => {
-                this.setSumUp(sumup);
-                this.setupEmployees();
-                this.setupTransactions();
-            });
-        } else {
-            this.currentSumUp = {};
+        if (this.currentSumUp) {
+            this.statusText = this.statuses[this.currentSumUp.status];
         }
     }
 
     public toggleCollapsed(index: number) {
         this.currentSumUp.entities[index].collapsed = !this.currentSumUp.entities[index].collapsed;
-    }
-
-    private setSumUp(sumup: AmeldingSumUp) {
-        this.currentSumUp = sumup;
-        this.totalAga = 0;
-        this.totalForskuddstrekk = 0;
-
-        this.statusText = this.statuses[this.currentSumUp.status];
-        
-        if (this.currentSumUp.entities) {
-            this.currentSumUp.entities.forEach(virksomhet => {
-                virksomhet.collapsed = true;
-                this.totalAga += virksomhet.sums.aga;
-            });
-        }
-        
-        this.outputObj.legalEntityNo = this.currentSumUp.LegalEntityNo;
-        this.outputObj.totalAga = this.totalAga;
-        this.outputObj.totalForskuddstrekk = this.totalForskuddstrekk;
-        
-        this.updateTotals.emit(this.outputObj);
     }
 
     private setupEmployees() {

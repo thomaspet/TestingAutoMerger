@@ -1,1 +1,3 @@
-<p>aga content goes here</p>
+<section *ngIf="currentSumUp">
+    <uni-table [config]="agaTableConfig" [resource]="currentSumUp.agadetails"></uni-table>
+</section>

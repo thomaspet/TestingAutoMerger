@@ -29,14 +29,14 @@ export class AMeldingView implements OnInit {
     private currentPeriod: number;
     private currentMonth: string;
     private currentAMelding: AmeldingData;
+    private currentSumUp: any;
     private aMeldingerInPeriod: AmeldingData[];
     private contextMenuItems: IContextMenuItem[] = [];
     private actions: IUniSaveAction[];
     private clarifiedDate: string;
     private submittedDate: string;
     private feedbackObtained: string;
-    private totalAga: number;
-    private totalForskuddstrekk: number;
+    private totalAga: number = 0;
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
     public showView: string = '';
@@ -116,31 +116,55 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    public createAMelding(done, ameldType: number = 0) {
+    public createAMelding(ameldType: number = 0) {
         this._ameldingService.postAMeldingforDebug(this.currentPeriod, ameldType)
         .subscribe(response => {
-            this.aMeldingerInPeriod.push(response);
+            this.updateAMeldingerInPeriod(response);
             this.setAMelding(response);
-            done('A-melding generert');
+            // done('A-melding generert');
         });
     }
 
     public aMeldingTypeChange(newType: number) {
-        this.submittedDate = moment(new Date(Date.now())).format('DD.MM.YYYY HH:mm');
-        // this.createAMelding(, newType);
-    }
-
-    public updateTotals(valueObj) {
-        this.totalAga = valueObj.totalAga;
-        this.totalForskuddstrekk = valueObj.totalForskuddstrekk;
-        this.legalEntityNo = valueObj.legalEntityNo;
+        this.createAMelding(newType);
     }
 
     public setAMelding(amelding: AmeldingData) {
         this.showView = '';
         this.currentAMelding =  amelding;
+        this.getSumUpForAmelding();
         this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
         this.updateSaveActions();
+    }
+
+    private updateAMeldingerInPeriod(newAMelding) {
+        let regenerated: boolean;
+
+        this.aMeldingerInPeriod.forEach(amelding => {
+            if (amelding.ID === newAMelding.ID) {
+                amelding = newAMelding;
+                regenerated = true;
+            }
+        });
+
+        if (!regenerated) {
+            this.aMeldingerInPeriod.push(newAMelding);
+        }
+    }
+
+    private getSumUpForAmelding() {
+        this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
+            .subscribe((response) => {
+                this.currentSumUp = response;
+                this.legalEntityNo = response.LegalEntityNo;
+
+                if (this.currentSumUp.entities) {
+                    this.currentSumUp.entities.forEach(virksomhet => {
+                        virksomhet.collapsed = true;
+                        this.totalAga += virksomhet.sums.aga;
+                    });
+                }
+            });
     }
 
     private getAMeldingForPeriod() {
@@ -172,7 +196,7 @@ export class AMeldingView implements OnInit {
             label: 'Generer A-melding',
             action: (done) => {
                 if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 0) {
-                    this.createAMelding(done);
+                    this.createAMelding();
                 } else {
                     this.openAmeldingTypeModal(done);
                 }
@@ -183,7 +207,7 @@ export class AMeldingView implements OnInit {
     }
 
     private sendAmelding(done) {
-        console.log('send a-melding');
+        this.submittedDate = moment(new Date(Date.now())).format('DD.MM.YYYY HH:mm');
         done('A-melding sendt inn');
     }
 
@@ -194,6 +218,7 @@ export class AMeldingView implements OnInit {
 
     private clearAMelding() {
         this.currentAMelding = undefined;
+        this.currentSumUp = {};
         this.clarifiedDate = '';
         this.submittedDate = '';
         this.feedbackObtained = '';

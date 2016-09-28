@@ -88,8 +88,8 @@
 <section class="application" [attr.aria-busy]="busy">
 
     <amelding-control-view *ngIf="showView == 'control'"></amelding-control-view>
-    <amelding-summary-view *ngIf="showView == ''" [currentAMelding]="currentAMelding" (updateTotals)="updateTotals($event)"></amelding-summary-view>
-    <amelding-aga-view *ngIf="showView == 'aga'"></amelding-aga-view>
+    <amelding-summary-view *ngIf="showView == ''" [currentSumUp]="currentSumUp" [currentAMelding]="currentAMelding"></amelding-summary-view>
+    <amelding-aga-view *ngIf="showView == 'aga'" [currentSumUp]="currentSumUp"></amelding-aga-view>
     <amelding-receipt-view *ngIf="showView == 'receipt'"></amelding-receipt-view>
     <amelding-periodsummary-view *ngIf="showView == 'periodsummary'"></amelding-periodsummary-view>
     <amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>
