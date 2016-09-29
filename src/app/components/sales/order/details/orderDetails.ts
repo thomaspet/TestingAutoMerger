@@ -71,7 +71,8 @@ export class OrderDetails {
     private actions: IUniSaveAction[];
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     private formIsInitialized: boolean = false;
 
@@ -154,7 +155,7 @@ export class OrderDetails {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
 
                         let keepEntityAddresses: boolean = true;
                         if (this.order.Customer && this.order.CustomerID !== this.order.Customer.ID) {
@@ -492,6 +493,12 @@ export class OrderDetails {
         this.addressService.addressToShipping(this.order, this.order._ShippingAddress);
 
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+
+        this.order.Items.forEach(item => {
+            if (item.Dimensions && item.Dimensions.ID === 0) {
+                item.Dimensions['_createguid'] = this.customerOrderItemService.getNewGuid();
+            }
+        });
 
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.order.Items)) {

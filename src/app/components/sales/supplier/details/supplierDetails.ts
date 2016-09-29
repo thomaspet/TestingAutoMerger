@@ -47,6 +47,8 @@ export class SupplierDetails implements OnInit {
 
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
 
+    private formIsInitialized: boolean = false;
+
     private saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
@@ -132,38 +134,62 @@ export class SupplierDetails implements OnInit {
     }
 
     private setup() {
-        this.fields = this.getComponentLayout().Fields;
 
-        Observable.forkJoin(
-            this.departmentService.GetAll(null),
-            this.projectService.GetAll(null),
-            (
-                this.supplierID > 0 ?
-                    this.supplierService.Get(this.supplierID, this.expandOptions)
-                    : this.supplierService.GetNewEntity(this.expandOptions)
-            ),
-            this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity(),
-            this.bankaccountService.GetAll(''),
-            this.addressService.GetNewEntity(null, 'Address')
-        ).subscribe(response => {
-            this.dropdownData = [response[0], response[1]];
-            this.supplier = response[2];
-            this.emptyPhone = response[3];
-            this.emptyEmail = response[4];
-            this.bankAccounts = response[5];
-            this.emptyAddress = response[5];
+        if (!this.formIsInitialized) {
+            this.fields = this.getComponentLayout().Fields;
 
-            this.setTabTitle();
-            this.extendFormConfig();
+            Observable.forkJoin(
+                this.departmentService.GetAll(null),
+                this.projectService.GetAll(null),
+                (
+                    this.supplierID > 0 ?
+                        this.supplierService.Get(this.supplierID, this.expandOptions)
+                        : this.supplierService.GetNewEntity(this.expandOptions)
+                ),
+                this.phoneService.GetNewEntity(),
+                this.emailService.GetNewEntity(),
+                this.bankaccountService.GetAll(''),
+                this.addressService.GetNewEntity(null, 'Address')
+            ).subscribe(response => {
+                this.dropdownData = [response[0], response[1]];
+                this.supplier = response[2];
+                this.emptyPhone = response[3];
+                this.emptyEmail = response[4];
+                this.bankAccounts = response[5];
+                this.emptyAddress = response[5];
 
-            setTimeout(() => {
-                this.ready();
+                this.setTabTitle();
+                this.extendFormConfig();
+
+                this.formIsInitialized = true;
+
+                setTimeout(() => {
+                    this.ready();
+                });
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
             });
-        }, (err) => {
-            console.log('Error retrieving data: ', err);
-            this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
-        });
+
+        } else {
+            Observable.forkJoin(
+                (
+                    this.supplierID > 0 ?
+                        this.supplierService.Get(this.supplierID, this.expandOptions)
+                        : this.supplierService.GetNewEntity(this.expandOptions)
+                )
+            ).subscribe(response => {
+                this.supplier = response[0];
+                this.setTabTitle();
+
+                setTimeout(() => {
+                    this.ready();
+                });
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
+            });
+        }
     }
 
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
@@ -238,7 +264,9 @@ export class SupplierDetails implements OnInit {
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
-            displayProperty: 'Name',
+            template: (item) => {
+                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+            },
             debounceTime: 200
         };
 
@@ -246,7 +274,9 @@ export class SupplierDetails implements OnInit {
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
-            displayProperty: 'Name',
+            template: (item) => {
+                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+            },
             debounceTime: 200
         };
 
@@ -656,7 +686,7 @@ export class SupplierDetails implements OnInit {
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
+                    Hidden: false,
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -664,7 +694,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 0, //1, // TODO: > 30.6
+                    Section: 1,
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -685,7 +715,7 @@ export class SupplierDetails implements OnInit {
                     EntityType: 'Department',
                     Property: 'Dimensions.DepartmentID',
                     Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
+                    Hidden: false,
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -693,7 +723,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 0, //1, // TODO: > 30.6
+                    Section: 1,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,

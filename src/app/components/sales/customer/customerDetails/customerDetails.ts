@@ -44,6 +44,8 @@ export class CustomerDetails {
 
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
 
+    private formIsInitialized: boolean = false;
+
     private saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
@@ -126,7 +128,7 @@ export class CustomerDetails {
 
     public setup() {
 
-        //this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
+        if (!this.formIsInitialized) {
             var layout: ComponentLayout = this.getComponentLayout(); // results
             this.fields = layout.Fields;
 
@@ -151,6 +153,8 @@ export class CustomerDetails {
                 this.setTabTitle();
                 this.extendFormConfig();
 
+                this.formIsInitialized = true;
+
                 setTimeout(() => {
                    this.ready();
                 });
@@ -159,7 +163,24 @@ export class CustomerDetails {
                 console.log('Error retrieving data: ', err);
                 alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
             });
-        //});
+        } else {
+
+            Observable.forkJoin(
+            this.customerID > 0 ?
+                        this.customerService.Get(this.customerID, this.expandOptions)
+                        : this.customerService.GetNewEntity(this.expandOptions)
+            ).subscribe(response => {
+                this.customer = response[0];
+                this.setTabTitle();
+
+                setTimeout(() => {
+                    this.ready();
+                });
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
+            });
+        }
     }
 
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
@@ -233,7 +254,9 @@ export class CustomerDetails {
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
-            displayProperty: 'Name',
+            template: (item) => {
+                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+            },
             debounceTime: 200
         };
 
@@ -241,15 +264,11 @@ export class CustomerDetails {
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
-            displayProperty: 'Name',
+            template: (item) => {
+                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+            },
             debounceTime: 200
         };
-
-        // TODO: > 30.6
-        department.Hidden = true;
-        project.Hidden = true;
-        department.Section = 0;
-        project.Section = 0;
 
         // MultiValue
         var phones: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultPhone');
@@ -694,7 +713,7 @@ export class CustomerDetails {
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
+                    Hidden: false,
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -702,7 +721,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 0, //1, // TODO: > 30.6
+                    Section: 2,
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -723,7 +742,7 @@ export class CustomerDetails {
                     EntityType: 'Department',
                     Property: 'Dimensions.DepartmentID',
                     Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
+                    Hidden: false,
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -731,7 +750,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 0, //1, // TODO: > 30.6
+                    Section: 2,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,

@@ -1,6 +1,6 @@
 <order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
 
-<header class="order_poster" *ngIf="order">    
+<header class="order_poster" *ngIf="order">
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="order">{{order.Customer ? (order.Customer.CustomerNumber + ' - ' + order.Customer.Info.Name) : order.CustomerName}}</h1>
@@ -11,16 +11,16 @@
             <a (click)="previousOrder()"  class="previous">Forrige</a>
             <a (click)="nextOrder()"  class="next">Neste</a>
             <a (click)="addOrder()"  class="new">Ny ordre</a>
-        </nav>         
-    </article>       
-    
+        </nav>
+    </article>
+
      <!-- Widget poster -->
-    <section class="poster_overview">        
+    <section class="poster_overview">
         <uni-widget-poster [model]="order">
             <section class="application">
             </section>
-        </uni-widget-poster>        
-    </section> 
+        </uni-widget-poster>
+    </section>
 </header>
 
 <section class="order-details application">
@@ -33,25 +33,25 @@
     </uni-form>
     <address-modal question="Lagre på kundekort?"></address-modal>
 
-    <order-item-list [order]="order" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>    
+    <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
     <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
 
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
         <dt>Avgiftsfritt</dt>
-        <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>        
+        <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>
         <dt>Avgiftsgrunnlag</dt>
-        <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>        
+        <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>
         <dt>Sum rabatt</dt>
-        <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>        
+        <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>
         <dt>Nettosum</dt>
-        <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>        
+        <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>
         <dt>Mva</dt>
-        <dd>Kr. {{itemsSummaryData.SumVat}}</dd>        
+        <dd>Kr. {{itemsSummaryData.SumVat}}</dd>
         <dt>Øreavrunding</dt>
-        <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>        
+        <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>
         <dt>Totalsum</dt>
-        <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>            
-    </dl>     
+        <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
+    </dl>
 </section>
 
 <report-preview-modal></report-preview-modal>

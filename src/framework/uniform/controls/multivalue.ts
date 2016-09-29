@@ -114,6 +114,7 @@ export class UniMultivalueInput {
 
     public ngOnChanges() {
         this.field.Options = this.field.Options || {};
+        this.currentValue = '';
 
         // update default option
         if (this.field.Options.storeResultInProperty) {

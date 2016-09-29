@@ -73,7 +73,8 @@ export class QuoteDetails {
     private formIsInitialized: boolean = false;
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     constructor(private customerService: CustomerService,
         private customerQuoteService: CustomerQuoteService,
@@ -154,7 +155,7 @@ export class QuoteDetails {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
                         let keepEntityAddresses: boolean = true;
                         if (this.quote.Customer && this.quote.CustomerID !== this.quote.Customer.ID) {
                             keepEntityAddresses = false;
@@ -483,7 +484,13 @@ export class QuoteDetails {
 
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
-        //Save only lines with products from product list
+        this.quote.Items.forEach(item => {
+            if (item.Dimensions && item.Dimensions.ID === 0) {
+                item.Dimensions['_createguid'] = this.customerQuoteItemService.getNewGuid();
+            }
+        });
+
+        // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
             console.log('Linjer uten produkt. Lagring avbrutt.');
             if (done) {

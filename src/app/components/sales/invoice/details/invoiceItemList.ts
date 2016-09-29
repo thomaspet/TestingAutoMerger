@@ -6,6 +6,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
 import {CustomerInvoice, CustomerInvoiceItem, Product, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 declare var jQuery;
 
@@ -13,13 +14,15 @@ declare var jQuery;
     selector: 'invoice-item-list',
     templateUrl: 'app/components/sales/invoice/details/invoiceItemList.html',
     directives: [UniTable],
-    providers: [ProductService, VatTypeService]
+    providers: [ProductService, VatTypeService, TradeItemHelper]
 })
 export class InvoiceItemList implements OnInit {
     @Input() public invoice: CustomerInvoice;
     @ViewChild(UniTable) public table: UniTable;
     @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
     @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
+    @Input() public departments: Array<any> = [];
+    @Input() public projects: Array<any> = [];
 
     public invoiceItemTable: UniTableConfig;
 
@@ -31,7 +34,8 @@ export class InvoiceItemList implements OnInit {
         private router: Router,
         private customerInvoiceItemService: CustomerInvoiceItemService,
         private productService: ProductService,
-        private vatTypeService: VatTypeService) {
+        private vatTypeService: VatTypeService,
+        private tradeItemHelper: TradeItemHelper) {
     }
 
     public ngOnInit() {
@@ -47,7 +51,7 @@ export class InvoiceItemList implements OnInit {
             this.items = this.invoice.Items;
 
             Observable.forkJoin(
-                this.productService.GetAll(null, ['VatType']),
+                this.productService.GetAll(null, ['VatType', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']),
                 this.vatTypeService.GetAll(null)
             ).subscribe(
                 (data) => {
@@ -64,48 +68,6 @@ export class InvoiceItemList implements OnInit {
         }
     }
 
-    private mapVatTypeToQuoteItem(rowModel) {
-        let vatType = rowModel['VatType'];
-        
-        if (vatType === null) {
-            rowModel.VatTypeID = null;
-        } else {
-            rowModel.VatTypeID = vatType.ID;    
-        }
-    }
-    
-    private mapProductToInvoiceItem(rowModel) {
-        let product = rowModel['Product'];
-        if (product === null) {
-            return;
-        }
-
-        rowModel.ProductID = product.ID;
-        rowModel.ItemText = product.Name;
-        rowModel.Unit = product.Unit;
-        rowModel.VatTypeID = product.VatTypeID;
-        rowModel.VatType = product.VatType;
-        rowModel.PriceExVat = product.PriceExVat;
-        rowModel.PriceIncVat = product.PriceIncVat;
-    }
-
-    private calculatePriceIncVat(rowModel) {
-        let vatType = rowModel['VatType'] || { VatPercent: 0 };
-        let priceExVat = rowModel['PriceExVat'] || 0;
-        rowModel['PriceIncVat'] = (priceExVat * (100 + vatType.VatPercent)) / 100;
-    }
-
-    private calculateDiscount(rowModel) {
-        const discountExVat = (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100;
-        const discountIncVat = (rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100;
-
-        rowModel.Discount = discountExVat || 0;
-        rowModel.SumTotalExVat = (rowModel.NumberOfItems * rowModel.PriceExVat) - discountExVat;
-        rowModel.SumTotalIncVat = (rowModel.NumberOfItems * rowModel.PriceIncVat) - discountIncVat;
-        rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
-    }
-
-
     private setupUniTable() {
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
@@ -113,8 +75,8 @@ export class InvoiceItemList implements OnInit {
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.PartName + ' - ' + selectedItem.Name);
                 },
-                lookupFunction: (searchValue) => {
-                    return this.productService.GetAll(`filter=contains(PartName,'${searchValue}') or contains(Name,'${searchValue}')`, ['VatType']);
+                lookupFunction: (searchValue: string) => {
+                    return Observable.from([this.products.filter((product: Product) => product.PartName.toLowerCase().indexOf(searchValue.toLowerCase()) > -1 || product.Name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)]);
                 }
             });
 
@@ -140,8 +102,44 @@ export class InvoiceItemList implements OnInit {
                     return (item.VatCode + ': ' + item.Name + ' - ' + item.VatPercent + '%');
                 },
                 lookupFunction: (searchValue) => {
-                    return this.vatTypeService.GetAll(`filter=contains(VatCode,'${searchValue}') or contains(VatPercent,'${searchValue}')`);
+                    return Observable.from([this.vatTypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent === searchValue)]);
                 }
+            });
+
+        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Select)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
+                    let project = rowModel.Dimensions.Project;
+                    return project.ProjectNumber + ': ' + project.Name;
+                }
+
+                return '';
+            })
+            .setDisplayField('Dimensions.Project.Name')
+            .setEditorOptions({
+                itemTemplate: (item) => {
+                    return (item.ProjectNumber + ': ' + item.Name);
+                },
+                resource: this.projects.filter(x => x !== null),
+                searchPlaceholder: 'Velg prosjekt'
+            });
+
+        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Select)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
+                    let dep = rowModel.Dimensions.Department;
+                    return dep.DepartmentNumber + ': ' + dep.Name;
+                }
+
+                return '';
+            })
+            .setDisplayField('Dimensions.Department.Name')
+            .setEditorOptions({
+                itemTemplate: (item) => {
+                    return (item.DepartmentNumber + ': ' + item.Name);
+                },
+                resource: this.departments.filter(x => x !== null),
+                searchPlaceholder: 'Velg avdeling'
             });
 
         let sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Number, false);
@@ -156,50 +154,11 @@ export class InvoiceItemList implements OnInit {
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
-                sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
+                projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
             ])
-            .setMultiRowSelect(false)
-            .setDefaultRowData({
-                ID: 0,
-                Product: null,
-                ProductID: null,
-                ItemText: '',
-                Unit: '',
-                Dimensions: { ID: 0 },
-                NumberOfItems: null,
-                PriceExVat: null,
-                Discount: null,
-                DiscountPercent: null,
-                Project: {ID: 0}
-            })
+            .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.invoice))
             .setChangeCallback((event) => {
-                var newRow = event.rowModel;
-
-                // Set GUID if item is new
-                // See: https://unimicro.atlassian.net/wiki/display/AD/Complex+PUT
-                if (newRow.ID === 0) {
-                    newRow._createguid = this.customerInvoiceItemService.getNewGuid();
-                    newRow.Dimensions._createguid = this.customerInvoiceItemService.getNewGuid();
-
-                    // Default antall for ny rad
-                    if (newRow.NumberOfItems === null) {
-                        newRow.NumberOfItems = 1;
-                    }
-                }
-                
-                if (event.field === 'Product') {
-                    this.mapProductToInvoiceItem(newRow) 
-                }
-                
-                if (event.field === 'VatType') {
-                    this.mapVatTypeToQuoteItem(newRow);
-                }
-
-                this.calculatePriceIncVat(newRow);
-                this.calculateDiscount(newRow);
-
-                // Return the updated row to the table
-                return newRow;
+                return this.tradeItemHelper.tradeItemChangeCallback(event);
             });
     }
 

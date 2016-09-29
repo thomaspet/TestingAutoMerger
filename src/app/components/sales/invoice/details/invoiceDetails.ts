@@ -45,7 +45,7 @@ class CustomerInvoiceExt extends CustomerInvoice {
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
     providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
-        ProjectService, AddressService, ReportDefinitionService, BusinessRelationService]
+        ProjectService, AddressService, ReportDefinitionService, BusinessRelationService, DepartmentService, ProjectService]
 })
 export class InvoiceDetails {
 
@@ -80,7 +80,8 @@ export class InvoiceDetails {
     private creditInvoiceArr: CustomerInvoice[];
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department', 'InvoiceReference'];
 
     private formIsInitialized: boolean = false;
 
@@ -173,7 +174,7 @@ export class InvoiceDetails {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
 
                         let keepEntityAddresses: boolean = true;
                         if (this.invoice.Customer && this.invoice.CustomerID !== this.invoice.Customer.ID) {
@@ -543,6 +544,12 @@ export class InvoiceDetails {
         this.addressService.addressToShipping(this.invoice, this.invoice._ShippingAddress);
 
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+
+        this.invoice.Items.forEach(item => {
+            if (item.Dimensions && item.Dimensions.ID === 0) {
+                item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
+            }
+        });
 
         if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
             this.invoice.DeliveryDate = moment();

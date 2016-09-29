@@ -7,6 +7,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 
 import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
 import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 declare var jQuery;
 
@@ -14,95 +15,59 @@ declare var jQuery;
     selector: 'order-item-list',
     templateUrl: 'app/components/sales/order/details/orderItemList.html',
     directives: [UniTable],
-    providers: [ProductService, VatTypeService, CustomerOrderItemService]
+    providers: [ProductService, VatTypeService, CustomerOrderItemService, TradeItemHelper]
 })
 export class OrderItemList {
-    @Input() public order: CustomerOrder; 
+    @Input() public order: CustomerOrder;
     @ViewChild(UniTable) public table: UniTable;
     @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
     @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
-    
+    @Input() public departments: Array<any> = [];
+    @Input() public projects: Array<any> = [];
+
     public orderItemTable: UniTableConfig;
-    
+
     public products: Product[];
     public vatTypes: VatType[];
     public items: CustomerOrderItem[];
-    
+
     constructor(
-        private router: Router, 
-        private productService: ProductService, 
-        private vatTypeService: VatTypeService, 
-        private customerOrderItemService: CustomerOrderItemService) {                 
+        private router: Router,
+        private productService: ProductService,
+        private vatTypeService: VatTypeService,
+        private customerOrderItemService: CustomerOrderItemService,
+        private tradeItemHelper: TradeItemHelper) {
     }
-    
+
     public ngOnInit() {
         this.setupOrderItemTable();
     }
-    
+
     public ngOnChanges() {
-        this.setupOrderItemTable();        
+        this.setupOrderItemTable();
     }
-    
+
     private setupOrderItemTable() {
         if (this.order) {
             this.items = this.order.Items;
-                        
+
             Observable.forkJoin(
-                this.productService.GetAll(null, ['VatType']),
+                this.productService.GetAll(null, ['VatType', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']),
                 this.vatTypeService.GetAll(null)
             ).subscribe(
-                (data) => {                    
+                (data) => {
                     this.products = data[0];
                     this.vatTypes = data[1];
-                    
+
                     this.setupUniTable();
-                    
+
                     this.itemsLoaded.emit(this.items);
                 },
                 (err) => console.log('Error retrieving data: ', err)
-            );            
-         }   
-    }
-    
-    private mapVatTypeToQuoteItem(rowModel) {
-        let vatType = rowModel['VatType'];
-        
-        if (vatType === null) {
-            rowModel.VatTypeID = null;
-        } else {
-            rowModel.VatTypeID = vatType.ID;    
-        }
-    }
-    
-    private mapProductToInvoiceItem(rowModel) {
-        let product = rowModel['Product'];
-        if (product === null) {
-            return;
-        }
-        rowModel.ProductID = product.ID;
-        rowModel.ItemText = product.Name;
-        rowModel.Unit = product.Unit;
-        rowModel.VatTypeID = product.VatTypeID;
-        rowModel.VatType = product.VatType;
-        rowModel.PriceExVat = product.PriceExVat;
-        rowModel.PriceIncVat = product.PriceIncVat;
-    }
-    private calculatePriceIncVat(rowModel) {
-        let vatType = rowModel['VatType'] || { VatPercent: 0 };
-        let priceExVat = rowModel['PriceExVat'] || 0;
-        rowModel['PriceIncVat'] = (priceExVat * (100 + vatType.VatPercent)) / 100;
+            );
+         }
     }
 
-    private calculateDiscount(rowModel) {
-        const discountExVat = (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100;
-        const discountIncVat = (rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100;
-
-        rowModel.Discount = discountExVat || 0;
-        rowModel.SumTotalExVat = (rowModel.NumberOfItems * rowModel.PriceExVat) - discountExVat;
-        rowModel.SumTotalIncVat = (rowModel.NumberOfItems * rowModel.PriceIncVat) - discountIncVat;
-        rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
-    }
-       
     private setupUniTable() {
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
@@ -110,8 +75,8 @@ export class OrderItemList {
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.PartName + ' - ' + selectedItem.Name);
                 },
-                lookupFunction: (searchValue) => {
-                    return this.productService.GetAll(`filter=contains(PartName,'${searchValue}') or contains(Name,'${searchValue}')`, ['VatType']);
+                lookupFunction: (searchValue: string) => {
+                    return Observable.from([this.products.filter((product: Product) => product.PartName.toLowerCase().indexOf(searchValue.toLowerCase()) > -1 || product.Name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)]);
                 }
             });
 
@@ -137,8 +102,44 @@ export class OrderItemList {
                     return (item.VatCode + ': ' + item.Name + ' - ' + item.VatPercent + '%');
                 },
                 lookupFunction: (searchValue) => {
-                    return this.vatTypeService.GetAll(`filter=contains(VatCode,'${searchValue}') or contains(VatPercent,'${searchValue}')`);
+                    return Observable.from([this.vatTypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent === searchValue)]);
                 }
+            });
+
+        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Select)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
+                    let project = rowModel.Dimensions.Project;
+                    return project.ProjectNumber + ': ' + project.Name;
+                }
+
+                return '';
+            })
+            .setDisplayField('Dimensions.Project.Name')
+            .setEditorOptions({
+                itemTemplate: (item) => {
+                    return (item.ProjectNumber + ': ' + item.Name);
+                },
+                resource: this.projects.filter(x => x !== null),
+                searchPlaceholder: 'Velg prosjekt'
+            });
+
+        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Select)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
+                    let dep = rowModel.Dimensions.Department;
+                    return dep.DepartmentNumber + ': ' + dep.Name;
+                }
+
+                return '';
+            })
+            .setDisplayField('Dimensions.Department.Name')
+            .setEditorOptions({
+                itemTemplate: (item) => {
+                    return (item.DepartmentNumber + ': ' + item.Name);
+                },
+                resource: this.departments.filter(x => x !== null),
+                searchPlaceholder: 'Velg avdeling'
             });
 
         let sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Number, false);
@@ -146,67 +147,27 @@ export class OrderItemList {
         let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Number, false);
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number, false)
-            .setWidth('10%');
-        statusCol.setTemplate((dataItem) => {
-            return this.customerOrderItemService.getStatusText(dataItem.StatusCode); 
-        });
-            
-        // Setup table        
-        this.orderItemTable = new UniTableConfig()   
+            .setWidth('10%')
+            .setTemplate((dataItem) => {
+                return this.customerOrderItemService.getStatusText(dataItem.StatusCode);
+            });
+
+        // Setup table
+        this.orderItemTable = new UniTableConfig()
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
-                sumTotalExVatCol, sumVatCol, sumTotalIncVatCol,
+                projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol,
                 statusCol
-            ])     
-            .setMultiRowSelect(false)    
-            .setDefaultRowData({
-                ID: 0,
-                Product: null,
-                ProductID: null,
-                ItemText: '',
-                Unit: '',
-                Dimensions: { ID: 0 },
-                NumberOfItems: null,
-                PriceExVat: null,
-                Discount: null,
-                DiscountPercent: null
-            })
+            ])
+            .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.order))
             .setChangeCallback((event) => {
-                var newRow = event.rowModel;
-
-                // Set GUID if item is new
-                // See: https://unimicro.atlassian.net/wiki/display/AD/Complex+PUT
-                if (newRow.ID === 0) {
-                    newRow._createguid = this.customerOrderItemService.getNewGuid();
-                    newRow.Dimensions._createguid = this.customerOrderItemService.getNewGuid();
-
-
-                    // Default antall for ny rad
-                    if (newRow.NumberOfItems === null) {
-                        newRow.NumberOfItems = 1;
-                    }
-                }
-
-                if (event.field === 'Product') {
-                    this.mapProductToInvoiceItem(newRow);
-                }
-                
-                if (event.field === 'VatType') {
-                    this.mapVatTypeToQuoteItem(newRow);
-                }
-
-                this.calculatePriceIncVat(newRow);
-                this.calculateDiscount(newRow);
-                
-                // Return the updated row to the table
-                return newRow;
+                return this.tradeItemHelper.tradeItemChangeCallback(event);
             });
-            
-    }    
-    
+
+    }
+
     public rowChanged(event) {
-        console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);
     }
