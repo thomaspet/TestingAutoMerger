@@ -5,7 +5,6 @@ import {Observable} from 'rxjs/Observable';
 export class UniView {
     protected cacheService: UniCacheService;
     protected cacheKey: string;
-    private dirtyState: {[key: string]: boolean} = {};
 
     constructor(routerUrl: string, cacheService: UniCacheService) {
         this.cacheService = cacheService;
@@ -15,41 +14,32 @@ export class UniView {
     }
 
     protected getStateSubject(key: string): ReplaySubject<any> {
-        let cacheEntry = this.cacheService.getCacheEntry(this.cacheKey)
-                         || this.cacheService.initCacheEntry(this.cacheKey);
+        let pageCache = this.cacheService.getPageCache(this.cacheKey);
 
-
-        if (!cacheEntry.state[key]) {
-            cacheEntry.state[key] = {
+        if (!pageCache.state[key]) {
+            pageCache.state[key] = {
                 isDirty: false,
                 subject: new ReplaySubject(1)
             };
         }
 
-        this.dirtyState[key] = cacheEntry.state[key].isDirty;
-        return cacheEntry.state[key].subject;
+        return pageCache.state[key].subject;
     }
 
     protected updateState(key: string, data: any, isDirty: boolean = true): void {
-        let cacheEntry = this.cacheService.getCacheEntry(this.cacheKey);
-        let stateVariable = cacheEntry.state[key];
+        let pageCache = this.cacheService.getPageCache(this.cacheKey);
+        let stateVariable = pageCache.state[key];
 
         stateVariable.isDirty = isDirty;
         stateVariable.updatedAt = new Date();
         stateVariable.subject.next(data);
 
-        this.dirtyState[key] = isDirty;
-        this.cacheService.updateCacheEntry(this.cacheKey, cacheEntry);
+        this.cacheService.updatePageCache(this.cacheKey, pageCache);
     }
 
-    protected isDirty(): boolean {
-        for (let key in this.dirtyState) {
-            if (this.dirtyState[key]) {
-                return true;
-            }
-        }
-
-        return false;
+    protected isDirty(key: string): boolean {
+        let pageCache = this.cacheService.getPageCache(this.cacheKey);
+        return pageCache.state[key] && pageCache.state[key].isDirty;
     }
 
     // Pop url segments until we reach :id
@@ -70,7 +60,7 @@ export class UniView {
 
     public canDeactivate(): Observable<boolean>|Promise<boolean>|boolean {
         // Update from cache
-        let cache = this.cacheService.getCacheEntry(this.cacheKey);
+        let cache = this.cacheService.getPageCache(this.cacheKey);
 
         if (cache.isDirty) {
             return this.getUserPermission();
@@ -82,7 +72,7 @@ export class UniView {
     private getUserPermission(): boolean {
         // TODO: add possibility to save directly from dialog
         if (window.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?')) {
-            this.cacheService.clearCacheEntry(this.cacheKey);
+            this.cacheService.clearPageCache(this.cacheKey);
             return true;
         } else {
             return false;

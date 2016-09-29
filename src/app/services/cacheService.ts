@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 
-export interface IUniCacheEntry {
+export interface IUniPageCache {
     isDirty?: boolean;
     updatedAt?: Date;
     state: {
@@ -14,27 +14,27 @@ export interface IUniCacheEntry {
 }
 
 interface ICacheStore {
-    [key: string]: IUniCacheEntry;
+    [key: string]: IUniPageCache;
 }
 
 @Injectable()
 export class UniCacheService {
     private store: ICacheStore = {};
 
-    public initCacheEntry(path): IUniCacheEntry {
-        this.store[path] = {
+    private initPageCache(url): IUniPageCache {
+        this.store[url] = {
             isDirty: false,
             state: {}
         };
 
-        return this.store[path];
+        return this.store[url];
     }
 
-    public getCacheEntry(path): IUniCacheEntry{
-        return this.store[path];
+    public getPageCache(url): IUniPageCache {
+        return this.store[url] || this.initPageCache(url);
     }
 
-    public updateCacheEntry(path: string, entry: IUniCacheEntry): void {
+    public updatePageCache(url: string, entry: IUniPageCache): void {
 
         if (!entry.updatedAt) {
             entry.updatedAt = new Date();
@@ -48,11 +48,11 @@ export class UniCacheService {
             }
         });
 
-        this.store[path] = entry;
+        this.store[url] = entry;
     }
 
-    public clearCacheEntry(path): void {
-        delete this.store[path];
+    public clearPageCache(url): void {
+        delete this.store[url];
     }
 
 }

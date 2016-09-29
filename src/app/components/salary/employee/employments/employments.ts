@@ -74,7 +74,7 @@ export class Employments extends UniView implements OnInit {
             employeeSubject.subscribe(employee => this.employee = employee);
             employmentsSubject.subscribe(employments => this.employments = employments);
 
-            if (super.isDirty()) {
+            if (super.isDirty('employments')) {
                 this.saveActions[0].disabled = false;
             }
         });
