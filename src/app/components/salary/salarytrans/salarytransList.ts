@@ -420,7 +420,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     }
 
     private calcItem(rowModel) {
-        let sum = rowModel['Amount'] * rowModel['Rate'];
+        let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
+        let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
+        decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
+        let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round(( ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
     }
 

@@ -183,8 +183,12 @@ export class RecurringPost extends UniView implements OnInit {
     }
 
     private calcItem(rowModel) {
-        let sum = rowModel['Amount'] * rowModel['Rate'];
-        rowModel['Sum'] = sum; // .toFixed(2);
+        let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
+        let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
+        decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
+        let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round(( ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
+        rowModel['Sum'] = sum;
     }
 
     public saveRecurringpost(done) {
