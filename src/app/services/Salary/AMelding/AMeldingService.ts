@@ -29,6 +29,15 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.json());
     }
 
+    public sendAMelding(id: number) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${id}?action=send`)
+            .send()
+            .map(response => response.json());
+    }
+
     public postAMeldingforDebug(period: number, amldType: number) {
         return this.http
             .asPOST()

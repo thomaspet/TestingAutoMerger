@@ -207,7 +207,15 @@ export class AMeldingView implements OnInit {
     }
 
     private sendAmelding(done) {
-        this.submittedDate = moment(new Date(Date.now())).format('DD.MM.YYYY HH:mm');
+        this._ameldingService.sendAMelding(this.currentAMelding.ID)
+        .subscribe((response: AmeldingData) => {
+            if (response) {
+                this.setAMelding(response);
+                if (this.currentAMelding.sent) {
+                    this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+                }
+            }
+        });
         done('A-melding sendt inn');
     }
 

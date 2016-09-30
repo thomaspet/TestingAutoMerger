@@ -25,6 +25,9 @@ export class AmeldingSummaryView {
     
     public ngOnChanges() {
         if (this.currentSumUp) {
+            if (this.currentSumUp.status === null) {
+                this.currentSumUp.status = 0;
+            }
             this.statusText = this.statuses[this.currentSumUp.status];
         }
     }
