@@ -73,7 +73,7 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
                     if (rowModel.BankAccounts) {
                         let error = '';
                         let taxError = !rowModel.TaxTable && !rowModel.TaxPercentage;
-                        let accountError = !rowModel.BankAccounts || !rowModel.BankAccounts.some(x => x.Active === true);
+                        let accountError = (!rowModel.BankAccounts) || !rowModel.BankAccounts.some(x => x.Active === true);
                         if (rowModel.TaxTable === null || rowModel.TaxTable === '' || !rowModel.BankAccounts.some(x => x.Active === true)) {
                             if (accountError && taxError) {
                                 error = 'Skatteinfo og kontonummer mangler.';

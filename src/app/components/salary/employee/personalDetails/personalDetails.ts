@@ -132,6 +132,13 @@ export class PersonalDetails extends UniView implements OnInit {
         this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
             this.updateInfoFromSSN();
         });
+        this.uniform.field('BankAccounts[0].AccountNumber').onChange.subscribe(() => {
+            if (!this.employee.BankAccounts[0].AccountNumber) {
+                this.employee.BankAccounts[0].Active = false;
+            } else {
+                this.employee.BankAccounts[0].Active = true;
+            }
+        })
     }
 
     public onFormChange(employee) {
