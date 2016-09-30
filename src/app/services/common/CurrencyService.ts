@@ -8,6 +8,7 @@ export class CurrencyService extends BizHttp<Currency> {
         super(http);
         
         this.relativeURL = Currency.RelativeUrl;
+        this.entityType = Currency.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

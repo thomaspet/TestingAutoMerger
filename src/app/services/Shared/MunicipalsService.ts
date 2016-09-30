@@ -8,6 +8,7 @@ export class MunicipalService extends BizHttp<Municipal> {
         super(http);
         
         this.relativeURL = Municipal.RelativeUrl;
+        this.entityType = Municipal.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

@@ -15,14 +15,7 @@ export class BizHttp<T> {
     protected debounceTime: number = 500;
     // should be found based on type of T. Set in childclass constructor now
     protected relativeURL: string;
-
-    public GetRelativeUrl(): string {
-        return this.relativeURL;
-    }
-
-    public setRelativeUrl(relativeurl: string) {
-        this.relativeURL = relativeurl;
-    }
+    protected entityType: string;
 
     constructor(protected http: UniHttp) {
         this.BaseURL = http.getBaseUrl();

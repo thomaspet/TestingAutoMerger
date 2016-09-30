@@ -7,6 +7,7 @@ export class EmployeeLeaveService extends BizHttp<EmployeeLeave> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = EmployeeLeave.RelativeUrl;
+        this.entityType = EmployeeLeave.EntityType;
     }
     
 }

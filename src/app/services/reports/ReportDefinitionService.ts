@@ -39,6 +39,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         super(uniHttp);
         this.baseHttp = this.uniHttp.http;
         this.relativeURL = ReportDefinition.RelativeUrl;
+        this.entityType = ReportDefinition.EntityType;
         this.DefaultOrderBy = 'Category';
     }
 

@@ -7,6 +7,7 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = EmployeeCategory.RelativeUrl;
+        this.entityType = EmployeeCategory.EntityType;
     }
     
     public saveCategory(category: EmployeeCategory) {

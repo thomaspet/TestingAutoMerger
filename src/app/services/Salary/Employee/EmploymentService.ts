@@ -56,6 +56,7 @@ export class EmploymentService extends BizHttp<Employment> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
+        this.entityType = Employment.EntityType;
     }
 
     public layout(layoutID: string) {

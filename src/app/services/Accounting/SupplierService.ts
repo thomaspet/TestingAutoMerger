@@ -11,6 +11,8 @@ export class SupplierService extends BizHttp<Supplier> {
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
         this.relativeURL = Supplier.RelativeUrl;
         
+        this.entityType = Supplier.EntityType;
+
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }       

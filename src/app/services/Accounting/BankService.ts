@@ -11,6 +11,8 @@ export class BankService extends BizHttp<Bank> {
         
         this.relativeURL = Bank.RelativeUrl;
         
+        this.entityType = Bank.EntityType;
+
         this.DefaultOrderBy = null;
     }
 

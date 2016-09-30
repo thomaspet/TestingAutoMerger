@@ -7,6 +7,7 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = SalaryTransaction.RelativeUrl;
+        this.entityType = SalaryTransaction.EntityType;
     }
 
     public createVacationPayments(ID: number) {

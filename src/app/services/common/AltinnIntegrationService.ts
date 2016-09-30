@@ -26,6 +26,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
+        this.entityType = Altinn.EntityType;
         this.inServer = integrate;
     }
 

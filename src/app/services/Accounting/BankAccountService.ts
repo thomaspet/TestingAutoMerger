@@ -11,6 +11,8 @@ export class BankAccountService extends BizHttp<BankAccount> {
         //TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
         this.relativeURL = BankAccount.RelativeUrl;
         
+        this.entityType = BankAccount.EntityType;
+
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }

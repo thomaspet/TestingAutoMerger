@@ -8,6 +8,7 @@ export class PeriodSeriesService extends BizHttp<PeriodSeries> {
         super(http);
         
         this.relativeURL = PeriodSeries.RelativeUrl;
+        this.entityType = PeriodSeries.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

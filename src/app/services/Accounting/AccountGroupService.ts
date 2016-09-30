@@ -10,6 +10,8 @@ export class AccountGroupService extends BizHttp<AccountGroup> {
         //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..               
         this.relativeURL = AccountGroup.RelativeUrl;
 
+        this.entityType = AccountGroup.EntityType;
+
         //set this property if you want a default sort order from the API, e.g. AccountNumber
         this.DefaultOrderBy = 'Name';
     }

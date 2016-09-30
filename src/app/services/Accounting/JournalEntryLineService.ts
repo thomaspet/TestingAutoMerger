@@ -14,6 +14,8 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
 
         this.relativeURL = JournalEntryLine.RelativeUrl;
 
+        this.entityType = JournalEntryLine.EntityType;
+
         // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }

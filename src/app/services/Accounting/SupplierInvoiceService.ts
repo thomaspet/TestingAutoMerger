@@ -13,6 +13,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         
         this.relativeURL = SupplierInvoice.RelativeUrl;
         
+        this.entityType = SupplierInvoice.EntityType;
+
         // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }

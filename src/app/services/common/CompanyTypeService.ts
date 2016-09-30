@@ -8,6 +8,7 @@ export class CompanyTypeService extends BizHttp<CompanyType> {
         super(http);
         
         this.relativeURL = CompanyType.RelativeUrl;
+        this.entityType = CompanyType.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

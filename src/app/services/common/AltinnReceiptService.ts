@@ -6,5 +6,6 @@ export class AltinnReceiptService extends BizHttp<AltinnReceipt> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AltinnReceipt.RelativeUrl;
+        this.entityType = AltinnReceipt.EntityType;
     }
 }

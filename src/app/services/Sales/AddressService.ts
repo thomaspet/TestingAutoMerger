@@ -12,6 +12,8 @@ export class AddressService extends BizHttp<Address> {
 
         this.relativeURL = 'addresses'; // TODO: missing Address.RelativeUrl;
 
+        this.entityType = Address.EntityType;
+
         this.DefaultOrderBy = null;
     }
 

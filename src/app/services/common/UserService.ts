@@ -8,6 +8,7 @@ export class UserService extends BizHttp<User> {
         super(http);
         
         this.relativeURL = User.RelativeUrl;       
+        this.entityType = User.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

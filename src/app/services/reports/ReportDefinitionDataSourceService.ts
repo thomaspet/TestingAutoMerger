@@ -10,6 +10,7 @@ export class ReportDefinitionDataSourceService extends BizHttp<ReportDefinitionD
         super(http);
         
         this.relativeURL = ReportDefinitionDataSource.RelativeUrl;
+        this.entityType = ReportDefinitionDataSource.EntityType;
         this.DefaultOrderBy = 'ID';
     }
    

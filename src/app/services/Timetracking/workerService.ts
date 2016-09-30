@@ -40,7 +40,8 @@ export class WorkerService extends BizHttp<Worker> {
     
     constructor(http: UniHttp, authService: AuthService ) {
         super(http);
-        this.relativeURL = 'workers';
+        this.relativeURL = Worker.RelativeUrl;
+        this.entityType = Worker.EntityType;
         this.DefaultOrderBy = null;
         
         this.user.name = authService.jwtDecoded.unique_name;

@@ -10,6 +10,8 @@ export class CustomerService extends BizHttp<Customer> {
         
         this.relativeURL = Customer.RelativeUrl;
                 
+        this.entityType = Customer.EntityType;
+
         this.DefaultOrderBy = "Info.Name";
         
         this.defaultExpand = ["Info"];

@@ -8,6 +8,7 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
     constructor(http: UniHttp) {        
         super(http);       
         this.relativeURL = CompanySettings.RelativeUrl;
+        this.entityType = CompanySettings.EntityType;
         this.DefaultOrderBy = null;
     }
 }

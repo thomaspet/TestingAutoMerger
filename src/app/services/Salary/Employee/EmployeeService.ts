@@ -22,6 +22,7 @@ export class EmployeeService extends BizHttp<Employee> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
+        this.entityType = Employee.EntityType;
         this.defaultExpand = ['BusinessRelationInfo'];
     }
 

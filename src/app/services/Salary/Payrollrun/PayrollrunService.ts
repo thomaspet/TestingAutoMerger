@@ -24,6 +24,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
+        this.entityType = PayrollRun.EntityType;
     }
 
     public refreshPayrun(payRun: PayrollRun) {

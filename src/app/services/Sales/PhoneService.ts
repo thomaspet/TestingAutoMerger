@@ -9,6 +9,8 @@ export class PhoneService extends BizHttp<Phone> {
         super(http);
         
         this.relativeURL = "phones"; //TODO: missing Phone.RelativeUrl;
+
+        this.entityType = Phone.EntityType;
                 
         this.DefaultOrderBy = null;
     }

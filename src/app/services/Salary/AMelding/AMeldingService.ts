@@ -8,6 +8,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AmeldingData.RelativeUrl;
+        this.entityType = AmeldingData.EntityType;
     }
 
     public getAMeldingForPeriod(periode: number): Observable<AmeldingData[]> {

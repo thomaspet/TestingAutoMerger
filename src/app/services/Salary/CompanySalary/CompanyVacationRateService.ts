@@ -6,5 +6,6 @@ export class CompanyVacationRateService extends BizHttp<CompanyVacationRate> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = CompanyVacationRate.RelativeUrl;
+        this.entityType = CompanyVacationRate.EntityType;
     }
 }

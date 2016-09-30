@@ -8,6 +8,7 @@ export class VatReportFormService extends BizHttp<VatReportForm> {
         super(http);
         
         this.relativeURL = VatReportForm.RelativeUrl;
+        this.entityType = VatReportForm.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

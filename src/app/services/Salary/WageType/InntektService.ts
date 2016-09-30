@@ -7,6 +7,7 @@ export class InntektService extends BizHttp<Inntekt> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Inntekt.RelativeUrl;
+        this.entityType = Inntekt.EntityType;
     }
 
     public getSalaryValidValue(type: string = '') {

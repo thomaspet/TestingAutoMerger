@@ -8,6 +8,7 @@ export class EmailService extends BizHttp<Email> {
         super(http);
         
         this.relativeURL = "emails"; // TODO: missing Email.RelativeUrl;
+        this.entityType = Email.EntityType;
                 
         this.DefaultOrderBy = null;
     }           

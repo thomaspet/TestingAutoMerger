@@ -8,6 +8,7 @@ export class AccountGroupSetService extends BizHttp<AccountGroupSet> {
         super(http);
         
         this.relativeURL = AccountGroupSet.RelativeUrl;
+        this.entityType = AccountGroupSet.EntityType;
         this.DefaultOrderBy = null;
     }       
 }

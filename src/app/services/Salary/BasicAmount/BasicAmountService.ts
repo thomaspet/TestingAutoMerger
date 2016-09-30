@@ -6,6 +6,7 @@ export class BasicAmountService extends BizHttp<BasicAmount> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = BasicAmount.RelativeUrl;
+        this.entityType = BasicAmount.EntityType;
     }
 
     public getBasicAmounts() {

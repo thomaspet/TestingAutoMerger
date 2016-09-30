@@ -16,8 +16,8 @@ export class VatReportService extends BizHttp<VatReport> {
 
     constructor(http: UniHttp) {
         super(http);
-        // TODO: should resolve this from configuration
-        this.relativeURL = 'vatreports';
+        this.relativeURL = VatReport.RelativeUrl;
+        this.entityType = VatReport.EntityType;
     }
 
     public getCurrentPeriod(): Observable<VatReport> {

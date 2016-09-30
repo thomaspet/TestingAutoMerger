@@ -10,6 +10,8 @@ export class ProductService extends BizHttp<Product> {
 
         this.relativeURL = Product.RelativeUrl;
 
+        this.entityType = Product.EntityType;
+
         this.DefaultOrderBy = 'PartName';
     }   
         

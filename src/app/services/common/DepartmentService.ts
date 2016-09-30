@@ -8,6 +8,7 @@ export class DepartmentService extends BizHttp<Department> {
         super(http);
 
         this.relativeURL = Department.RelativeUrl;
+        this.entityType = Department.EntityType;
         this.DefaultOrderBy = null;
     }
 }

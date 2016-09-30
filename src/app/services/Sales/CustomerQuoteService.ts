@@ -12,6 +12,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     constructor(http: UniHttp) {        
         super(http);       
         this.relativeURL = CustomerQuote.RelativeUrl;
+        this.entityType = CustomerQuote.EntityType;
         this.DefaultOrderBy = null;
         this.defaultExpand = ['Customer'];
     }
