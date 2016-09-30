@@ -107,6 +107,14 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Rapportoversikt', componentUrl: '/reports'}
                 ]
+            },
+            {
+                componentListName: 'Dimensioner',
+                componentListHeader: 'Dimensioner',
+                componentList: [
+                    {componentName: 'Prosjekt dimensioner', componentUrl: '/dimensions/projectDimensions'},
+
+                ]
             }
         ];
     }

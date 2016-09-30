@@ -211,4 +211,33 @@ export class BizHttp<T> {
     public getNewGuid(): string {
         return(""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,function(){return(0|Math.random()*16).toString(16)});
     }
+
+    public getNextID(currentID: number): Observable<number> {
+        type statisticsResponse = {Data: {ID: number}[]};
+        return this.http
+            .usingBusinessDomain()
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(`?model=${this.entityType}&select=ID as ID&filter=ID gt ${currentID}&orderby=ID&top=1`)
+            .send()
+            .map(response => response.json())
+            .map((response: statisticsResponse) => {
+                return response.Data.length > 0 ? response.Data[0].ID : null;
+            });
+    }
+
+
+    public getPreviousID(currentID: number): Observable<number> {
+        type statisticsResponse = {Data: {ID: number}[]};
+        return this.http
+            .usingBusinessDomain()
+            .usingStatisticsDomain()
+            .asGET()
+            .withEndPoint(`?model=${this.entityType}&select=ID as ID&filter=ID lt ${currentID}&orderby=ID DESC&top=1`)
+            .send()
+            .map(response => response.json())
+            .map((response: statisticsResponse) => {
+                return response.Data.length > 0 ? response.Data[0].ID : null;
+            });
+    }
 }

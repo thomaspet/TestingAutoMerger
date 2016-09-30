@@ -17,6 +17,7 @@ export const AppConfig = ({
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',
         METADATA: '/api/metadata/',
+        STATISTICS: '/api/statistics/'
     },
 
     INTEGRATION_DOMAINS: {

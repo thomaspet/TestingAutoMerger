@@ -10,5 +10,5 @@ export class ProjectService extends BizHttp<Project> {
         this.relativeURL = Project.RelativeUrl;
         this.entityType = Project.EntityType;
         this.DefaultOrderBy = null;
-    }       
+    }
 }

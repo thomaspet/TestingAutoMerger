@@ -94,6 +94,13 @@ export class UniHttp {
         return this;
     }
 
+    public usingStatisticsDomain() {
+        this.baseUrl = AppConfig.BASE_URL_INIT;
+        this.apiDomain = AppConfig.API_DOMAINS.STATISTICS;
+        this.baseUrl = AppConfig.BASE_URL_INIT;
+        return this;
+    }
+
     public usingEmptyDomain() {
         this.apiDomain = "";
         return this;

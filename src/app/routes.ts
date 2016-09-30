@@ -10,6 +10,7 @@ import {ProductList} from './components/common/product/list/productList';
 import {ProductDetails} from './components/common/product/details/productDetails';
 import {UniTimetracking} from './components/timetracking/timetracking';
 import {UniReports} from './components/reports/reports';
+import {UniDimensions} from './components/common/dimensions/UniDimensions';
 import {Examples} from './components/examples/examples';
 
 import {routes as InitRoutes} from './components/init/initRoutes';
@@ -20,6 +21,7 @@ import {routes as AccountingRoutes} from './components/accounting/accountingRout
 import {routes as ReportRoutes} from './components/reports/reportsRoutes';
 import {routes as ExampleRoutes} from './components/examples/examplesRoutes';
 import {routes as TimetrackingRoutes} from './components/timetracking/timetrackingRoutes';
+import {routes as DimensionRoutes} from './components/common/dimensions/dimensionsRoutes';
 
 import {AuthGuard} from './AuthGuard';
 
@@ -87,6 +89,13 @@ export const routes = ([
         path: 'reports',
         component: UniReports,
         children: ReportRoutes,
+        canActivate: [AuthGuard]
+    },
+
+    {
+        path: 'dimensions',
+        component: UniDimensions,
+        children: DimensionRoutes,
         canActivate: [AuthGuard]
     },
 

@@ -1,0 +1,25 @@
+<header class="supplier_poster" *ngIf="project">
+
+    <article class="poster_toolbar">
+        <section>
+            <h1>{{project?.ID ? project.Name : 'Nytt prosjekt'}}</h1>
+            <p>{{project?.ID ? 'Prosjektnr. ' + project.ProjectNumber : '&nbsp;'}}</p>
+        </section>
+
+        <nav class="poster_toolbar_tools">
+            <a (click)="previous()" class="previous">Forrige</a>
+            <a (click)="next()" class="next">Neste</a>
+            <a (click)="add()" class="new">Ny leverandør</a>
+        </nav>
+    </article>
+</header>
+
+<section class="supplier-details application">
+    <uni-form *ngIf='project'
+              [config]="config"
+              [fields]="fields"
+              [model]="project">
+    </uni-form>
+</section>
+
+<uni-save [actions]="saveActions" [class.uni_save_modal_mode]="modalMode"></uni-save>
