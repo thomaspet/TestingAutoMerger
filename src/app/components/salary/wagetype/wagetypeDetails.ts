@@ -190,13 +190,13 @@ export class WagetypeDetail {
         };
         description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
 
-        let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_OldLTCode');
+        let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_uninavn');
         tilleggsinfo.Options = {
             source: this.packages,
-            valueProperty: 'gmlcode',
-            displayProperty: 'gmlcode',
+            valueProperty: 'uninavn',
+            displayProperty: 'uninavn',
             debounceTime: 200,
-            template: (obj) => obj ? `${obj.gmlcode}` : '',
+            template: (obj) => obj ? `${obj.uninavn}` : '',
             events: {
                 select: (model) => {
                     this.showTilleggsPakker(model);
@@ -316,7 +316,7 @@ export class WagetypeDetail {
             if (incometypeChild) {
                 let additions: WageTypeSupplement[] = this.addTilleggsInformasjon(incometypeChild);
                 if (additions.length > 0) {
-                    this.packages.push({gmlcode: tp.gmlcode, additions: additions});
+                    this.packages.push({uninavn: tp.uninavn, additions: additions});
                 }
             }
         });
@@ -410,7 +410,7 @@ export class WagetypeDetail {
     }
 
     private showTilleggsPakker(model: any) {
-        let selectedPackage: any = this.packages.find(x => x.gmlcode === model._OldLTCode);
+        let selectedPackage: any = this.packages.find(x => x.uninavn === model._uninavn);
         this.wageType.SupplementaryInformations = [];
         this.showSupplementaryInformations = false;
 
