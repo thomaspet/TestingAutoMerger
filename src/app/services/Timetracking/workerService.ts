@@ -221,12 +221,14 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     public getStatistics(query: string): Observable<any> {
-        return this.GET('statistics?' + query);
+        return this.http.asGET().usingStatisticsDomain()
+        .withEndPoint('?' + query).send()
+        .map(response => response.json());
 
     }
    
     // http helpers (less verbose?)
-    
+ 
     private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)

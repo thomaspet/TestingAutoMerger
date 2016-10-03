@@ -163,13 +163,13 @@ export class RegtimeTools {
         query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID + ' and ( not setornull(deleted) )' + (filter ? ' and ( ' +  filter + ' )' : ''));
         query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', 'date');
-        this.workerService.getStatistics(query).subscribe((items: Array<any>) => {
+        this.workerService.getStatistics(query).subscribe((result) => {
             this.busy = false;
-            if (items && items.length > 0) {
-                if (items[0].Success) {
-                    this.showData(items[0].Data);
+            if (result) {
+                if (result.Success) {
+                    this.showData(result.Data);
                 } else {
-                    this.showData([{'label': items[0].Message}]);
+                    this.showData([{'label': result.Message}]);
                 }
             } 
         });

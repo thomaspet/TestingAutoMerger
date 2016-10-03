@@ -156,13 +156,13 @@ export class RegtimeTotals {
         if (src.filter) { query += ' and ( ' + src.filter + ' )'; }
         query += this.createArg('pivot', 'true');
         query += this.createArg('join', src.join);
-        this.workerService.getStatistics(query).subscribe((items: Array<any>) => {
+        this.workerService.getStatistics(query).subscribe((result) => {
             this.busy = false;
-            if (items && items.length > 0) {
-                if (items[0].Success) {
-                    this.showData(items[0].Data);
+            if (result) {
+                if (result.Success) {
+                    this.showData(result.Data);
                 } else {
-                    this.showData([{'label': items[0].Message}]);
+                    this.showData([{'label': result.Message}]);
                 }
             } 
         });
