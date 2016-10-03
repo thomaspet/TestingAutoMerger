@@ -1,1 +1,12 @@
-<p>periodsummary content goes here</p>
+<h1>FRA SYSTEM</h1>
+<uni-table [config]="systemTableConfig" [resource]="systemData"></uni-table>
+<section>
+    <dl class="summary">
+        <dt>Grunnlag aga</dt>
+        <dd>{{sumGrunnlagAga}}</dd>
+        <dt>Sum aga</dt>
+        <dd>{{sumCalculatedAga}}</dd>
+        <dt>Sum forskuddstrekk</dt>
+        <dd>{{sumForskuddstrekk}}</dd>
+    </dl>
+</section>
