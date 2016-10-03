@@ -1,0 +1,25 @@
+<header *ngIf="department">
+
+    <article class="poster_toolbar">
+        <section>
+            <h1>{{department?.ID ? department.Name : 'Ny avdeling'}}</h1>
+            <p>{{department?.ID ? 'Avdelingsnr. ' + department.DepartmentNumber : '&nbsp;'}}</p>
+        </section>
+
+        <nav class="poster_toolbar_tools">
+            <a (click)="previous()" class="previous">Forrige</a>
+            <a (click)="next()" class="next">Neste</a>
+            <a (click)="add()" class="new">Ny leverandør</a>
+        </nav>
+    </article>
+</header>
+
+<section class="supplier-details application">
+    <uni-form *ngIf='department'
+              [config]="config"
+              [fields]="fields"
+              [model]="department">
+    </uni-form>
+</section>
+
+<uni-save [actions]="saveActions" [class.uni_save_modal_mode]="modalMode"></uni-save>
