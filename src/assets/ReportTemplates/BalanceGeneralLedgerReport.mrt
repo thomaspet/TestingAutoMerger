@@ -670,7 +670,7 @@
             </Text22>
             <Text18 Ref="52" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>11.4,0.5,1.6,0.4</ClientRectangle>
+              <ClientRectangle>11.4,0.5,1.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
@@ -685,7 +685,7 @@
             </Text18>
             <Text17 Ref="53" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>9.2,0.5,1.6,0.4</ClientRectangle>
+              <ClientRectangle>9.2,0.5,1.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
@@ -700,7 +700,7 @@
             </Text17>
             <Text25 Ref="54" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>9.7,0.1,2.8,0.4</ClientRectangle>
+              <ClientRectangle>9.9,0.1,2.8,0.4</ClientRectangle>
               <ComponentPlacement>h.ap.HeaderBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8,Bold</Font>
@@ -951,7 +951,7 @@
             <DataStimulsoft_Report_Wpf_NodeTreeViewItem_Header__Items_Count_07 Ref="72" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
-              <ClientRectangle>16,0,2.8,0.8</ClientRectangle>
+              <ClientRectangle>15.8,0,3,0.8</ClientRectangle>
               <ComponentPlacement>d.Datajournalentrydata_Data</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
@@ -1005,7 +1005,6 @@
               <ComponentPlacement>f.FooterBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
-              <HideZeros>True</HideZeros>
               <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text15</Name>
@@ -1027,7 +1026,6 @@
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
               <Guid>90ef51aa541844fe95d0d870eca5d3d4</Guid>
-              <HideZeros>True</HideZeros>
               <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text16</Name>
@@ -1044,7 +1042,7 @@
             </Text16>
             <Text23 Ref="80" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>13.8,0.2,2,0.4</ClientRectangle>
+              <ClientRectangle>13.4,0.2,2.4,0.4</ClientRectangle>
               <ComponentPlacement>f.FooterBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
@@ -1065,12 +1063,11 @@
             </Text23>
             <Text24 Ref="82" type="Text" isKey="true">
               <Brush>Transparent</Brush>
-              <ClientRectangle>16.8,0.2,2,0.4</ClientRectangle>
+              <ClientRectangle>16,0.2,2.8,0.4</ClientRectangle>
               <ComponentPlacement>f.FooterBand1</ComponentPlacement>
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
               <Guid>7778a53d08ed4950b7a1668f7a96bff6</Guid>
-              <HideZeros>True</HideZeros>
               <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text24</Name>
@@ -1092,7 +1089,6 @@
               <Conditions isList="true" count="0" />
               <Font>Source Sans Pro,8</Font>
               <Guid>bd2d1fcf410e412f8138cfe89db92c9a</Guid>
-              <HideZeros>True</HideZeros>
               <HorAlignment>Right</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text19</Name>
@@ -1141,10 +1137,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Saldobalanse hovedbok</ReportAlias>
-  <ReportChanged>9/23/2016 1:01:27 PM</ReportChanged>
+  <ReportChanged>9/23/2016 2:36:39 PM</ReportChanged>
   <ReportCreated>12/31/1969 11:00:00 PM</ReportCreated>
   <ReportFile>C:\projects\AppFrontend\src\assets\ReportTemplates\BalanceGeneralLedgerReport.mrt</ReportFile>
-  <ReportGuid>5f299129a18c4097ba4fd4cedd43422b</ReportGuid>
+  <ReportGuid>d503a75929c6410ba47b81e31b603931</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2016.1.0</ReportVersion>

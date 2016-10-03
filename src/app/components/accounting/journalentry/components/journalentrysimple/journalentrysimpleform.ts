@@ -54,6 +54,8 @@ export class JournalEntrySimpleForm implements OnChanges {
     private sameAlternative: any = {ID: this.SAME_OR_NEW_SAME, Name: 'Samme'};
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Ny'}
 
+    public isDirty: boolean;
+
     constructor(private accountService: AccountService,
                 private journalEntryService: JournalEntryService,
                 private customerInvoiceService: CustomerInvoiceService,
@@ -74,6 +76,8 @@ export class JournalEntrySimpleForm implements OnChanges {
 
         this.setupFields();
         this.setupSameNewAlternatives();
+
+        this.isDirty = false;
     }
 
     private setupSameNewAlternatives() {
@@ -143,6 +147,8 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
 
     public change(line) {
+        console.log('change in journalentrysimpleform: ', line);
+        this.isDirty = true;
     }
 
     public ready(event) {
@@ -223,6 +229,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             });
         }
 
+        this.isDirty = false;
     }
 
     private editJournalEntry(event: any) {
@@ -242,6 +249,8 @@ export class JournalEntrySimpleForm implements OnChanges {
             }
 
             this.updated.emit(this.journalEntryLine);
+
+            this.isDirty = false;
         });
     }
 
@@ -259,6 +268,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
+
+        this.isDirty = false;
 
         setTimeout(() => {
             this.setFocusOnDebit();

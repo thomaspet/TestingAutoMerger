@@ -125,7 +125,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private postJournalEntryData(completeCallback) {
         if (this.journalEntrySimple) {
-            this.journalEntrySimple.postJournalEntryData(completeCallback);
+            if (this.journalEntrySimple.journalEntryLines.length === 0) {
+                alert('Du har ikke lagt til noen bilag enda, trykk Legg til når du har registrert opplysningene dine, og trykk Lagre og bokfør igjen');
+                completeCallback('Lagring avbrutt');
+            } else if (this.journalEntrySimple.checkIfFormsHaveChanges()) {
+                alert('Du har gjort endringer uten å trykke Legg til / Oppdater - vennligst fullfør endringene før du trykker Lagre og bokfør igjen');
+                completeCallback('Lagring avbrutt');
+            } else {
+                this.journalEntrySimple.postJournalEntryData(completeCallback);
+            }
         } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.postJournalEntryData(completeCallback);
         }

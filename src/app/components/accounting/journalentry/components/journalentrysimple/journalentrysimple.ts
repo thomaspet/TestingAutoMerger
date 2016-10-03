@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChange, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
+import {Component, Input, SimpleChange, ViewChildren, QueryList, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -27,6 +27,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public disabled: boolean = false;
     @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+
+    @ViewChildren(JournalEntrySimpleForm) journalEntryForms: QueryList<JournalEntrySimpleForm>;
 
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
@@ -100,6 +102,23 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
     }
+
+    public checkIfFormsHaveChanges() {
+        let haveDirtyData: boolean = false;
+        console.log('number of forms:' + this.journalEntryForms.length + '. Dirty? ' + this.journalEntryForms);
+        if (this.journalEntryForms) {
+            this.journalEntryForms.forEach((form) => {
+                console.log('form:', form);
+                if (form && form.isDirty){
+                    console.log('form is dirty!');
+                    haveDirtyData = true;
+                }
+            });
+        }
+
+        return haveDirtyData;
+    }
+
     /*
         private getDepartmentName(line: JournalEntryData): string {
             if (line && line.Dimensions && !line.Dimensions.DepartmentID) { return ''; }
