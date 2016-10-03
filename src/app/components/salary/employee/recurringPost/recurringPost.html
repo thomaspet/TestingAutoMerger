@@ -1,4 +1,4 @@
-<article class="application">
+<article class="application" *ngIf="recurringPosts">
     <uni-table [resource]="recurringPosts"
                [config]="tableConfig">
     </uni-table>

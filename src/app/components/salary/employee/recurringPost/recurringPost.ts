@@ -1,88 +1,61 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {WageTypeService, EmploymentService, SalaryTransactionService, UniCacheService} from '../../../../services/services';
-import {Observable} from 'rxjs/Observable';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {WageTypeService, SalaryTransactionService, UniCacheService} from '../../../../services/services';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
 import {AsyncPipe} from '@angular/common';
-import {UniHttp} from '../../../../../framework/core/http/http';
 import {UniView} from '../../../../../framework/core/uniView';
 declare var _;
 
 @Component({
     selector: 'reccuringpost-list',
     templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html',
-    directives: [UniTable, UniSave],
+    directives: [UniTable],
     providers: [WageTypeService, SalaryTransactionService],
     pipes: [AsyncPipe]
 })
 
-export class RecurringPost extends UniView implements OnInit {
+export class RecurringPost extends UniView {
     private tableConfig: UniTableConfig;
     private recurringPosts: SalaryTransaction[] = [];
-    private employeeID: number;
     private employments: Employment[] = [];
     private wagetypes: WageType[];
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre faste poster',
-            action: this.saveRecurringpost.bind(this),
-            main: true,
-            disabled: false
-        }
-    ];
 
-    constructor(public route: ActivatedRoute,
-                public router: Router,
+    constructor(public router: Router,
                 private wagetypeService: WageTypeService,
-                private employmentService: EmploymentService,
-                private uniHttp: UniHttp,
                 private salarytransService: SalaryTransactionService,
-                cacheService: UniCacheService) {
+                cacheService: UniCacheService,
+                route: ActivatedRoute) {
 
         super(router.url, cacheService);
-    }
+        this.buildTableConfig();
 
-    public ngOnInit() {
-        this.route.parent.params.subscribe( params => {
-            this.employeeID = +params['id'];
-            this.buildTableConfig();
+        // Update cache key and (re)subscribe when param changes (different employee selected)
+        route.parent.params.subscribe((paramsChange) => {
+            super.updateCacheKey(router.url);
 
-            let employmentSubject = super.getStateSubject('employments');
-            let recurringPostSubject = super.getStateSubject('recurringPosts');
+            // TODO: cache this?
+            this.wagetypeService.GetAll('').subscribe((wagetypes: WageType[]) => {
+                this.wagetypes = wagetypes;
+            });
 
-            // If we're the first one to subscribe to any of the subjects
-            // we need to get data from backend and update the subjects ourselves
-            if (!employmentSubject.observers.length) {
-                this.employmentService.GetAll(`filter=EmployeeID eq ${this.employeeID}`)
-                    .subscribe((employments: Employment[]) => {
-                        this.employments = employments;
-                        super.updateState('employments', employments, false);
-                    });
-            }
+            super.getStateSubject('recurringPosts').subscribe(recurringPosts => this.recurringPosts = recurringPosts);
+            super.getStateSubject('employments').subscribe((employments: Employment[]) => {
+                this.employments = employments || [];
 
-            if (!recurringPostSubject.observers.length) {
-                this.uniHttp.asGET()
-                    .usingBusinessDomain()
-                    .withEndPoint('salarytrans')
-                    .send({filter: `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`})
-                    .subscribe(response => super.updateState('recurringPosts', response.json(), false));
-            }
-
-            employmentSubject.subscribe(employments => this.employments = employments);
-            recurringPostSubject.subscribe(recurringPosts => this.recurringPosts = recurringPosts);
-        });
-
-        this.wagetypeService.GetAll('').subscribe((wagetypes: WageType[]) => {
-            this.wagetypes = wagetypes;
+                if (this.employments && this.employments.find(employment => !employment.ID)) {
+                    this.tableConfig.setEditable(false);
+                } else {
+                    this.tableConfig.setEditable(true);
+                }
+            });
         });
     }
 
     // REVISIT (remove)!
     // This (and the canDeactivate in employeeRoutes.ts) is a dummy-fix
     // until we are able to locate a problem with detecting changes of
-    // destroyet view in unitable.
+    // destroyed view in unitable.
     public canDeactivate() {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -191,35 +164,4 @@ export class RecurringPost extends UniView implements OnInit {
         rowModel['Sum'] = sum;
     }
 
-    public saveRecurringpost(done) {
-        let saving: Observable<any>[] = [];
-
-        this.recurringPosts.forEach(recurringpost => {
-            if (recurringpost['_isDirty']) {
-                recurringpost.IsRecurringPost = true;
-                recurringpost.EmployeeID = this.employeeID;
-                recurringpost.EmployeeNumber = this.employeeID;
-                if (recurringpost.ID > 0) {
-                    saving.push(this.salarytransService.Put(recurringpost.ID, recurringpost));
-                } else {
-                    saving.push(this.salarytransService.Post(recurringpost));
-                }
-            }
-        });
-
-        Observable.forkJoin(saving).subscribe(
-            res => {
-                done('Lagring fullført');
-                super.updateState('recurringPosts', this.recurringPosts, false);
-            },
-            err => {
-                done('Feil ved lagring av faste poster');
-                this.log(err);
-            }
-        );
-    }
-
-    private log(err) {
-        alert(err._body);
-    }
 }

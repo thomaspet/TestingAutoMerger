@@ -8,9 +8,7 @@ export class UniView {
 
     constructor(routerUrl: string, cacheService: UniCacheService) {
         this.cacheService = cacheService;
-
-        let rootRoute = this.findRootRoute(routerUrl.split('/'));
-        this.cacheKey = rootRoute || routerUrl;
+        this.updateCacheKey(routerUrl);
     }
 
     protected getStateSubject(key: string): ReplaySubject<any> {
@@ -24,6 +22,11 @@ export class UniView {
         }
 
         return pageCache.state[key].subject;
+    }
+
+    protected updateCacheKey(routerUrl: string) {
+        let rootRoute = this.findRootRoute(routerUrl.split('/'));
+        this.cacheKey = rootRoute || routerUrl;
     }
 
     protected updateState(key: string, data: any, isDirty: boolean = true): void {
@@ -61,21 +64,17 @@ export class UniView {
     public canDeactivate(): Observable<boolean>|Promise<boolean>|boolean {
         // Update from cache
         let cache = this.cacheService.getPageCache(this.cacheKey);
+        let canDeactivate = !cache.isDirty || this.getUserPermission();
 
-        if (cache.isDirty) {
-            return this.getUserPermission();
-        } else {
-            return true;
+        if (canDeactivate) {
+            this.cacheService.clearPageCache(this.cacheKey);
         }
+
+        return canDeactivate;
     }
 
     private getUserPermission(): boolean {
         // TODO: add possibility to save directly from dialog
-        if (window.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?')) {
-            this.cacheService.clearPageCache(this.cacheKey);
-            return true;
-        } else {
-            return false;
-        }
+        return window.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?');
     }
 }

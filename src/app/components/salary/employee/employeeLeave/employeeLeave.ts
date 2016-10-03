@@ -1,27 +1,23 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Component} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Employment, Employee} from '../../../../unientities';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
-import {UniHttp} from '../../../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
-import {EmployeeLeaveService, EmployeeService, EmploymentService, UniCacheService} from '../../../../services/services';
+import {UniCacheService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 
 @Component({
     selector: 'employee-permision',
     templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html',
-    directives: [UniTable, UniSave],
-    providers: [EmployeeLeaveService],
+    directives: [UniTable],
     pipes: [AsyncPipe]
 })
-export class EmployeeLeave extends UniView implements OnInit {
+export class EmployeeLeave extends UniView {
     private employee: Employee;
     private employments: Employment[] = [];
     private employeeleaveItems: any[] = [];
-    private permisionTableConfig: UniTableConfig;
-
+    private tableConfig: UniTableConfig;
 
     private leaveTypes: any[] = [
         { typeID: '0', text: 'Ikke satt' },
@@ -29,69 +25,24 @@ export class EmployeeLeave extends UniView implements OnInit {
         { typeID: '2', text: 'Permittering' }
     ];
 
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre permisjoner',
-            action: this.saveLeave.bind(this),
-            main: true,
-            disabled: false
-        }
-    ];
-
-    constructor(private employeeService: EmployeeService,
-                private employmentService: EmploymentService,
-                private employeeleaveService: EmployeeLeaveService,
-                private route: ActivatedRoute,
-                private uniHttp: UniHttp,
-                router: Router,
-                cacheService: UniCacheService) {
-
+    constructor(router: Router, route: ActivatedRoute, cacheService: UniCacheService) {
         super(router.url, cacheService);
-    }
+        this.buildTableConfig();
 
-    public ngOnInit() {
-        this.route.parent.params.subscribe(params => {
-            let employeeID = +params['id'];
-            this.buildTableConfig();
+        // Update cache key and (re)subscribe when param changes (different employee selected)
+        route.parent.params.subscribe((paramsChange) => {
+            super.updateCacheKey(router.url);
 
-            let employeeSubject = super.getStateSubject('employee');
-            let employmentSubject = super.getStateSubject('employments');
-            let employeeLeaveSubject = super.getStateSubject('employeeleave');
+            super.getStateSubject('employee').subscribe(employee => this.employee = employee);
+            super.getStateSubject('employeeLeave').subscribe(employeeleave => this.employeeleaveItems = employeeleave);
 
-            // If we're the first one to subscribe to any of the subjects
-            // we need to get data from backend and update the subjects ourselves
-            if (!employeeSubject.observers.length) {
-                this.employeeService.get(employeeID).subscribe((employee: Employee) => {
-                    this.employee = employee;
-                    super.updateState('employee', employee, false);
-                });
-            }
+            super.getStateSubject('employments').subscribe((employments: Employment[]) => {
+                this.employments = employments || [];
 
-            if (!employmentSubject.observers.length) {
-                this.employmentService.GetAll(`filter=EmployeeID eq ${employeeID}`)
-                    .subscribe((employments: Employment[]) => {
-                        super.updateState('employments', employments, false);
-                    });
-            }
-
-            employeeSubject.subscribe(employee => this.employee = employee);
-            employeeLeaveSubject.subscribe(employeeleave => this.employeeleaveItems = employeeleave);
-
-            employmentSubject.subscribe((employments: Employment[]) => {
-                this.employments = employments;
-
-                // Get employeeleave if we didnt already get it from cache
-                if (!this.employeeleaveItems.length) {
-                    this.uniHttp.asGET()
-                    .usingBusinessDomain()
-                    .withEndPoint('employeeleave')
-                    .send({
-                        filter: this.buildFilter()
-                    })
-                    .subscribe((response) => {
-                        this.employeeleaveItems = response.json();
-                        super.updateState('employeeleave', this.employeeleaveItems, false);
-                    });
+                if (this.employments && this.employments.find(employment => !employment.ID)) {
+                    this.tableConfig.setEditable(false);
+                } else {
+                    this.tableConfig.setEditable(true);
                 }
             });
         });
@@ -100,13 +51,22 @@ export class EmployeeLeave extends UniView implements OnInit {
     // REVISIT (remove)!
     // This (and the canDeactivate in employeeRoutes.ts) is a dummy-fix
     // until we are able to locate a problem with detecting changes of
-    // destroyet view in unitable.
+    // destroyed view in unitable.
     public canDeactivate() {
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve(true);
             });
         });
+    }
+
+    private hasUnsavedEmployments(): boolean {
+        let unsavedEmployment = this.employments.find(employment => employment.ID === 0);
+        if (unsavedEmployment) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public buildFilter() {
@@ -156,7 +116,7 @@ export class EmployeeLeave extends UniView implements OnInit {
                 }
             });
 
-        this.permisionTableConfig = new UniTableConfig()
+        this.tableConfig = new UniTableConfig()
             .setColumns([
                 fromDateCol, toDateCol, leavePercentCol,
                 leaveTypeCol, employmentIDCol, commentCol
@@ -175,34 +135,10 @@ export class EmployeeLeave extends UniView implements OnInit {
 
                 // Update local array and cache
                 this.employeeleaveItems[row['_originalIndex']] = row;
-                super.updateState('employeeleave', this.employeeleaveItems, true);
+                super.updateState('employeeLeave', this.employeeleaveItems, true);
 
                 return row;
             });
-    }
-
-    public saveLeave(done) {
-        let saveSources = [];
-        this.employeeleaveItems.forEach((employeeleave) => {
-            if (employeeleave['_isDirty']) {
-                let source = (employeeleave.ID > 0)
-                    ? this.employeeleaveService.Put(employeeleave.ID, employeeleave)
-                    : this.employeeleaveService.Post(employeeleave);
-
-                saveSources.push(source);
-            }
-        });
-
-        Observable.forkJoin(saveSources).subscribe(
-            res => {
-                done('Lagring fullført');
-                super.updateState('employeeleave', this.employeeleaveItems, false);
-            },
-            err => {
-                done('Feil ved lagring av permisjoner');
-                this.log(err);
-            }
-        );
     }
 
     private mapEmploymentToPermision(rowModel) {
@@ -219,9 +155,5 @@ export class EmployeeLeave extends UniView implements OnInit {
             return;
         }
         rowModel['LeaveType'] = leavetype.typeID;
-    }
-
-    public log(err) {
-        alert(err._body);
     }
 }

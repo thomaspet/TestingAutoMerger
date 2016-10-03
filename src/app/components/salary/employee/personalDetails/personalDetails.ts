@@ -1,12 +1,10 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniForm} from '../../../../../framework/uniform';
-import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal} from '../../../../unientities';
 import {EmployeeService, MunicipalService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
@@ -15,11 +13,11 @@ declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
+    directives: [UniForm, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
     providers: [MunicipalService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
-export class PersonalDetails extends UniView implements OnInit {
+export class PersonalDetails extends UniView  {
 
     public busy: boolean;
     public expands: any = [
@@ -43,44 +41,22 @@ export class PersonalDetails extends UniView implements OnInit {
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     private employee: Employee;
-    private employeeID: number;
 
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: this.saveEmployee.bind(this),
-            main: true,
-            disabled: false
-        }
-    ];
+    constructor(private employeeService: EmployeeService,
+                private router: Router,
+                private municipalService: MunicipalService,
+                route: ActivatedRoute,
+                cacheService: UniCacheService) {
 
-    constructor(
-        private employeeService: EmployeeService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private municipalService: MunicipalService,
-        cacheService: UniCacheService) {
+        super(router.url, cacheService);
+        this.setupForm();
 
-            super(router.url, cacheService);
-            this.setupForm();
-    }
-
-    public ngOnInit() {
-        this.route.parent.params.subscribe(params => {
-            this.employeeID = +params['id'];
-
-            let employeeSubject = super.getStateSubject('employee');
-
-            // If we're the first one to subscribe to the subject
-            // we will have to GET data from backend and update the subjects ourselves
-            if (!employeeSubject.observers.length) {
-                this.employeeService.get(this.employeeID).subscribe((employee: Employee) => {
-                    this.employee = employee;
-                    super.updateState('employee', employee, false);
-                });
-            }
-
-            employeeSubject.subscribe(employee => this.employee = employee);
+        // Update cache key and (re)subscribe when param changes (different employee)
+        route.parent.params.subscribe((paramsChange) => {
+            super.updateCacheKey(router.url);
+            super.getStateSubject('employee').subscribe((employee) => {
+                this.employee = employee;
+            });
         });
     }
 
@@ -112,7 +88,7 @@ export class PersonalDetails extends UniView implements OnInit {
                         2: {isOpen: true}
                     }
                 };
-                this.municipalService.GetAll(null).subscribe( (municipalities: Municipal[]) => {
+                this.municipalService.GetAll(null).subscribe((municipalities: Municipal[]) => {
                     this.fields = layout.Fields;
                     this.municipalities = municipalities;
                     this.extendFormConfig();
@@ -287,83 +263,6 @@ export class PersonalDetails extends UniView implements OnInit {
             this.employee.Sex = (controlNumbers % 2) + 1;
         }
 
-    }
-
-    private saveEmployee(done) {
-        if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
-            let bankAccount = this.employee.BankAccounts[0];
-            bankAccount.Active = true;
-            bankAccount['_createguid'] = this.employeeService.getNewGuid();
-        }
-
-        this.employee.BusinessRelationInfo.Emails.forEach(email => {
-            if (email.ID === 0) {
-                email['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
-
-        if (this.employee.BusinessRelationInfo.DefaultEmail) {
-            this.employee.BusinessRelationInfo.Emails = this.employee.BusinessRelationInfo.Emails.filter(x => x !== this.employee.BusinessRelationInfo.DefaultEmail);
-        }
-
-        this.employee.BusinessRelationInfo.Phones.forEach(phone => {
-            if (phone.ID === 0) {
-                phone['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
-
-        if (this.employee.BusinessRelationInfo.DefaultPhone) {
-            this.employee.BusinessRelationInfo.Phones = this.employee.BusinessRelationInfo.Phones.filter(x => x !== this.employee.BusinessRelationInfo.DefaultPhone);
-        }
-
-        this.employee.BusinessRelationInfo.Addresses.forEach(address => {
-            if (address.ID === 0) {
-                address['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
-
-        if (this.employee.BusinessRelationInfo.InvoiceAddress) {
-            this.employee.BusinessRelationInfo.Addresses = this.employee.BusinessRelationInfo.Addresses.filter(x => x !== this.employee.BusinessRelationInfo.InvoiceAddress);
-        }
-
-        if (this.employee.BusinessRelationInfo.DefaultPhone === null && this.employee.BusinessRelationInfo.DefaultPhoneID === 0) {
-            this.employee.BusinessRelationInfo.DefaultPhoneID = null;
-        }
-
-        if (this.employee.BusinessRelationInfo.DefaultEmail === null && this.employee.BusinessRelationInfo.DefaultEmailID === 0) {
-            this.employee.BusinessRelationInfo.DefaultEmailID = null;
-        }
-
-        if (this.employee.BusinessRelationInfo.InvoiceAddress === null && this.employee.BusinessRelationInfo.InvoiceAddressID === 0) {
-            this.employee.BusinessRelationInfo.InvoiceAddressID = null;
-        }
-
-        if (this.employee.ID > 0) {
-            this.employeeService.Put(this.employee.ID, this.employee)
-                .subscribe((response: Employee) => {
-                    done('Sist lagret: ');
-                    super.updateState('employee', this.employee, false);
-                    this.saveactions[0].disabled = false;
-                },
-                (err) => {
-                    done('Feil ved lagring', err);
-                    this.log(err);
-                    this.saveactions[0].disabled = false;
-                });
-        } else {
-            this.employeeService.Post(this.employee)
-                .subscribe((response: Employee) => {
-                    done('Sist lagret: ');
-                    this.saveactions[0].disabled = false;
-                    super.updateState('employee', this.employee, false);
-                    this.router.navigateByUrl('/salary/employees/' + response.ID);
-                },
-                (err) => {
-                    done('Feil ved lagring', err);
-                    this.log(err);
-                    this.saveactions[0].disabled = false;
-                });
-        }
     }
 
     public openReadTaxCardModal() {

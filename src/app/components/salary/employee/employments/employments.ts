@@ -1,89 +1,63 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
-import {EmploymentService, EmployeeService} from '../../../../services/services';
+import {EmploymentService} from '../../../../services/services';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {EmploymentDetails} from './employmentDetails';
 import {Employee, Employment} from '../../../../unientities';
 
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniCacheService} from '../../../../services/services';
 
 @Component({
     selector: 'employments',
     templateUrl: 'app/components/salary/employee/employments/employments.html',
-    directives: [UniTable, EmploymentDetails, UniSave],
+    directives: [UniTable, EmploymentDetails],
 })
-export class Employments extends UniView implements OnInit {
+export class Employments extends UniView {
     @ViewChild(UniTable)
     private table: UniTable;
 
     private employee: Employee;
     private employments: Employment[] = [];
-    private selectedIndex: number = 0;
-
-    private busy: boolean;
+    private selectedIndex: number;
     private tableConfig: UniTableConfig;
-    private saveActions: IUniSaveAction[] = [
-        {
-            label: 'Lagre arbeidsforhold',
-            action: this.saveEmployments.bind(this),
-            main: true,
-            disabled: true
-        }
-    ];
 
     constructor(private employmentService: EmploymentService,
-                private employeeService: EmployeeService,
-                private route: ActivatedRoute,
-                private toastService: ToastService,
                 cacheService: UniCacheService,
-                router: Router) {
+                router: Router,
+                route: ActivatedRoute) {
 
         super(router.url, cacheService);
-    }
-
-    public ngOnInit() {
-        this.route.parent.params.subscribe((params) => {
-            const employeeID = +params['id'];
-
-            let employeeSubject = super.getStateSubject('employee');
-            let employmentsSubject = super.getStateSubject('employments');
-
-            // If we're the first one to subscribe to the employee/employments subject
-            // we will have to GET data from backend and update the subjects ourselves
-            if (!employeeSubject.observers.length) {
-                this.employeeService.get(employeeID).subscribe((employee: Employee) => {
-                    this.employee = employee;
-                    super.updateState('employee', employee, false);
-                });
-            }
-
-            if (!employmentsSubject.observers.length) {
-                this.employmentService.GetAll('filter=EmployeeID eq ' + employeeID).subscribe((employments) => {
-                    this.employments = employments;
-                    if (employments.length) {
-                        const focusIndex = this.employments.findIndex(employment => employment.Standard);
-                        this.table.focusRow(focusIndex || 0);
-                    }
-                    super.updateState('employments', employments, false);
-                });
-            }
-
-            employeeSubject.subscribe(employee => this.employee = employee);
-            employmentsSubject.subscribe(employments => this.employments = employments);
-
-            if (super.isDirty('employments')) {
-                this.saveActions[0].disabled = false;
-            }
-        });
 
         this.tableConfig = new UniTableConfig(false).setColumns([
             new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
             new UniTableColumn('JobName', 'Stillingsnavn'),
             new UniTableColumn('JobCode', 'Stillingskode')
         ]);
+
+        // Update cache key and (re)subscribe when param changes (different employee selected)
+        route.parent.params.subscribe((paramsChange) => {
+            super.updateCacheKey(router.url);
+
+            super.getStateSubject('employee').subscribe(employee => this.employee = employee);
+            super.getStateSubject('employments').subscribe((employments) => {
+                this.employments = employments || [];
+
+                // init selected to standard employment or first row in table
+                // checking for undefined here, as we dont want id === 0 to trigger the init
+                if (this.selectedIndex === undefined) {
+                    let focusIndex = this.employments.findIndex(employment => employment.Standard);
+                    if (focusIndex === -1) {
+                        focusIndex = 0;
+                    }
+
+                    if (this.table) {
+                        this.table.focusRow(focusIndex);
+                    }
+                    this.selectedIndex = focusIndex;
+                }
+            });
+        });
     }
 
     private newEmployment() {
@@ -106,7 +80,6 @@ export class Employments extends UniView implements OnInit {
 
     private onEmploymentChange(employment) {
         employment['_isDirty'] = true;
-        this.saveActions[0].disabled = false;
         super.updateState('employments', this.employments, true);
     }
 
@@ -119,81 +92,4 @@ export class Employments extends UniView implements OnInit {
 
         this.selectedIndex = event.rowModel['_originalIndex'];
     }
-
-    // REVISIT: This should be moved to parent component
-    // when cache is implemented for all employee components
-    private saveEmployments(done) {
-        this.busy = true;
-
-        // Remove untouched new rows
-        this.employments = this.employments.filter((employment, index) => {
-            if (employment.ID === 0 && !employment['_isDirty']) {
-                this.table.removeRow(index);
-                return false;
-            }
-
-            return true;
-        });
-
-        // Find changed rows and check if we have a standard employment
-        const changes = [];
-        let hasStandardEmployment = false;
-        this.employments.forEach((employment) => {
-            if (employment['_isDirty']) {
-                changes.push(employment);
-            }
-
-            if (employment['Standard']) {
-                hasStandardEmployment = true;
-            }
-        });
-
-        // Make current employment standard if not already set
-        if (!hasStandardEmployment) {
-            this.employments[this.selectedIndex].Standard = true;
-        }
-
-        // Save changes
-        let finishedCount = 0;
-        changes.forEach((employment: Employment) => {
-            let source = (employment.ID > 0) ? this.employmentService.Put(employment.ID, employment)
-                                             : this.employmentService.Post(employment);
-
-            // Use Observable.finally() to track save progress
-            source = source.finally(() => {
-                finishedCount++;
-
-                if (finishedCount === changes.length) {
-                    // If no employments _isDirty it means every save request was successful
-                    if (this.employments.filter(emp => emp['_isDirty']).length === 0) {
-                        this.saveActions[0].disabled = true;
-                        done('Lagring fullført');
-                        super.updateState('employments', this.employments, false);
-                    } else {
-                        done('Feil under lagring');
-                    }
-
-                    this.busy = false;
-                }
-            });
-
-            // Perform request
-            source.subscribe(
-                response => this.handleSaveSuccess(employment, response),
-                error => this.handleSaveError(employment)
-            );
-        });
-
-    }
-
-    private handleSaveSuccess(employment, response) {
-        this.table.updateRow(employment['_originalIndex'], response);
-        this.employments[employment['_originalIndex']] = response;
-    }
-
-    private handleSaveError(employment) {
-        // TODO: Set validation feedback in table when this is supported
-        this.toastService.addToast('Lagring av arbeidsforhold ' + employment.JobName + ' feilet', ToastType.bad, 0);
-    }
-
 }
