@@ -20,19 +20,21 @@ export class PostingJournalReportFilterForm implements OnInit {
     public config: any;
     public fields: UniFieldLayout[];
     public model: {
-        fromJournalEntryNumber: string,
-        toJournalEntryNumber: string,
-        fromPeriod: number,
-        toPeriod: number,
-        orderBy: string,
-        showFilter: string
+        FromJournalEntryNumber: number,
+        ToJournalEntryNumber: number,
+        PeriodAccountYear: number,
+        FromPeriod: number,
+        ToPeriod: number,
+        OrderBy: string,
+        ShowFilter: string
     } = {
-        fromJournalEntryNumber: '1-2016',
-        toJournalEntryNumber: '',
-        fromPeriod: 0,
-        toPeriod: 12,
-        orderBy: 'date',
-        showFilter: 'without'
+        FromJournalEntryNumber: 1,
+        ToJournalEntryNumber: 1,
+        PeriodAccountYear: new Date().getFullYear(),
+        FromPeriod: 0,
+        ToPeriod: 12,
+        OrderBy: 'date',
+        ShowFilter: 'without'
     };
 
     private typeOfOrderBy: {ID: string, Label: string}[] = [
@@ -52,7 +54,7 @@ export class PostingJournalReportFilterForm implements OnInit {
     public ngOnInit() {
         this.createFields();
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
-            this.model.toJournalEntryNumber = data[0].Data[0].JournalEntryLineJournalEntryNumber;
+            this.model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
             this.model = _.cloneDeep(this.model);
         });
     }
@@ -62,27 +64,32 @@ export class PostingJournalReportFilterForm implements OnInit {
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra bilagsnr',
-                Property: 'fromJournalEntryNumber'
+                Property: 'FromJournalEntryNumber'
             },
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til bilagsnr',
-                Property: 'toJournalEntryNumber'
+                Property: 'ToJournalEntryNumber'
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'Regnskapsår',
+                Property: 'PeriodAccountYear'
             },    
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
-                Property: 'fromPeriod'
+                Property: 'FromPeriod'
             },
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
-                Property: 'toPeriod'
+                Property: 'ToPeriod'
             },           
             <UniFieldLayout>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sortering',
-                Property: 'orderBy',
+                Property: 'OrderBy',
                 Options: {
                     source: this.typeOfOrderBy,
                     valueProperty: 'ID',
@@ -92,7 +99,7 @@ export class PostingJournalReportFilterForm implements OnInit {
             <UniFieldLayout>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis bilag',
-                Property: 'reportFor',
+                Property: 'ShowFilter',
                 Options: {
                     source: this.typeOfShowFilter,
                     valueProperty: 'ID',
@@ -132,20 +139,17 @@ export class PostingJournalReportFilterModal {
                     method: () => {
                         this.modal.getContent().then((component: PostingJournalReportFilterForm) => {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                switch(parameter.Name) {
-                                    case 'odatafilter':
-                                        parameter.value = `Period.No ge ${component.model.fromPeriod}`
-                                        + ` and Period.No le ${component.model.toPeriod}`;
-                                        break;
-                                    case 'fromJournalEntryNumber':
-                                    case 'toJournalEntryNumber':
-                                    case 'fromPeriod':
-                                    case 'toPeriod':
-                                    case 'showFilter':
+                                switch (parameter.Name) {
+                                    case 'PeriodAccountYear':
+                                    case 'FromJournalEntryNumber':
+                                    case 'ToJournalEntryNumber':
+                                    case 'FromPeriod':
+                                    case 'ToPeriod':
+                                    case 'ShowFilter':
                                         parameter.value = component.model[parameter.Name];
                                         break;
-                                    case 'orderBy':
-                                        switch(component.model.orderBy) {
+                                    case 'OrderBy':
+                                        switch (component.model.OrderBy) {
                                             case 'date':
                                                 parameter.value = 'Financialdate';
                                                 break;

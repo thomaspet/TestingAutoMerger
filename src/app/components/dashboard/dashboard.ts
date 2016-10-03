@@ -1,7 +1,7 @@
-import {Component, Input, ElementRef} from '@angular/core';
+import {Component} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
-import {ROUTER_DIRECTIVES, Router} from "@angular/router";
+import {ROUTER_DIRECTIVES, Router} from '@angular/router';
 import {UniImage} from '../../../framework/uniImage/uniImage';
 
 declare var Chart;
@@ -38,29 +38,29 @@ export class Dashboard {
         Chart.defaults.global.maintainAspectRatio = false;
 
         this.getCompany().subscribe(
-            (data) => { this.current = data[0] },
+            (data) => { this.current = data[0]; },
             (error) => { console.log(error); }
-        )
+        );
     }
 
     public ngAfterViewInit() {
 
         this.getInvoicedData().subscribe(
-            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
+            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
             error => console.log(error)
         );
         this.getOrdreData().subscribe(
-            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data[0].Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
+            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
             (error) => { console.log(error); }
         );
 
         this.getQuoteData().subscribe(
-            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data[0].Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) },
+            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) },
             (error) => { console.log(error); }
         );
 
         this.getOperatingData().subscribe(
-            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data[0].Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) },
+            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) },
             (error) => { console.log(error); }
         );
 
@@ -74,7 +74,7 @@ export class Dashboard {
                 this.user = data;
                 this.getMyTransactions()
                     .subscribe(
-                    (data) => { this.generateLastTenList(data[0].Data, false, true) },
+                    (data) => { this.generateLastTenList(data.Data, false, true) },
                     (error) => { console.log(error) }
                     )
             },
@@ -82,12 +82,12 @@ export class Dashboard {
         );
 
         this.getTransactions().subscribe(
-            (data) => { this.generateLastTenList(data[0].Data, false) },
+            (data) => { this.generateLastTenList(data.Data, false) },
             (error) => { console.log(error) }
         );
 
         this.getAssets().subscribe(
-            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data[0].Data)) },
+            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data.Data)) },
             (error) => { console.log(error); }
         )
     }
@@ -334,9 +334,9 @@ export class Dashboard {
     public getTransactions() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
+            .usingEmptyDomain()
             .withEndPoint(
-            "statistics?model=AuditLog&select=entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
+            "/api/statistics?model=AuditLog&select=id,entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
             )
             .send()
             .map(response => response.json());
@@ -346,9 +346,9 @@ export class Dashboard {
     public getMyTransactions() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
+            .usingEmptyDomain()
             .withEndPoint(
-            "statistics?model=AuditLog&select=entitytype,field,entityid,User.displayname,createdat,updatedat&filter=createdby eq '"
+            "/api/statistics?model=AuditLog&select=id,entitytype,field,entityid,User.displayname,createdat,updatedat&filter=createdby eq '"
             + this.user.GlobalIdentity
             + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
             )
@@ -370,8 +370,8 @@ export class Dashboard {
     public getInvoicedData() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate')
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate')
             .send()
             .map(response => response.json());
     }
@@ -380,8 +380,8 @@ export class Dashboard {
     public getOrdreData() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate ')
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate')
             .send()
             .map(response => response.json());
     }
@@ -390,8 +390,8 @@ export class Dashboard {
     public getQuoteData() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate ')
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate')
             .send()
             .map(response => response.json());
     }
@@ -410,8 +410,8 @@ export class Dashboard {
     public getOperatingData() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint("statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate")
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate')
             .send()
             .map(response => response.json());
     }
@@ -420,8 +420,8 @@ export class Dashboard {
     public getAssets() {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('statistics?model=journalentryline&select=sum(amount),accountgroup.name&filter=accountgroup.maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=journalentryline&select=sum(amount),accountgroup.name&filter=accountgroup.maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
             .send()
             .map(response => response.json());
     }

@@ -25,8 +25,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     getLastJournalEntryNumber(): Observable<any> {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('statistics?model=journalentryline&select=journalentrynumber&orderby=journalentrynumber%20desc&top=1')
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=journalentryline&select=journalentrynumber,journalentrynumbernumeric&orderby=journalentrynumbernumeric%20desc&top=1')
             .send()
             .map(response => response.json());
     }

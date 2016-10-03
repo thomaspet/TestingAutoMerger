@@ -102,7 +102,7 @@ export class UniHttp {
     }
 
     public usingEmptyDomain() {
-        this.apiDomain = "";
+        this.apiDomain = '';
         return this;
     }
 
