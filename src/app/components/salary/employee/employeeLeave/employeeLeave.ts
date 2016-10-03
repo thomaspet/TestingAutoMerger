@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Employment, Employee} from '../../../../unientities';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {UniCacheService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
@@ -58,24 +57,6 @@ export class EmployeeLeave extends UniView {
                 resolve(true);
             });
         });
-    }
-
-    private hasUnsavedEmployments(): boolean {
-        let unsavedEmployment = this.employments.find(employment => employment.ID === 0);
-        if (unsavedEmployment) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public buildFilter() {
-        let filterParts = ['EmploymentID eq 0'];
-        this.employments.forEach((employment: Employment) => {
-            filterParts.push(`EmploymentID eq ${employment.ID}`);
-        });
-
-        return filterParts.join(' or ');
     }
 
     public buildTableConfig() {

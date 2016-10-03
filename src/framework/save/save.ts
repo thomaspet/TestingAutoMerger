@@ -94,7 +94,21 @@ export class UniSave {
         }
     }
 
-    public onSave(action) {
+    public manualSaveStart() {
+        this.open = false;
+        this.busy = true;
+        this.status = undefined;
+    }
+
+    public manualSaveComplete(message: string) {
+        this.status = {
+            message: message,
+            when: new Date()
+        };
+        this.busy = false;
+    }
+
+    private onSave(action) {
         // don't call save again if its still working on saving or is disabled
         if (this.busy || action.disabled) { return; }
 

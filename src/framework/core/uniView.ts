@@ -40,9 +40,15 @@ export class UniView {
         this.cacheService.updatePageCache(this.cacheKey, pageCache);
     }
 
-    protected isDirty(key: string): boolean {
+    protected isDirty(key?: string): boolean {
         let pageCache = this.cacheService.getPageCache(this.cacheKey);
-        return pageCache.state[key] && pageCache.state[key].isDirty;
+
+        if (key && key.length) {
+            return pageCache.state[key] && pageCache.state[key].isDirty;
+        } else {
+            let dirty = Object.keys(pageCache.state).find(stateKey => pageCache.state[stateKey].isDirty);
+            return (dirty && dirty.length > 0);
+        }
     }
 
     // Pop url segments until we reach :id

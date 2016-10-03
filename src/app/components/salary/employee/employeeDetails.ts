@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {ROUTER_DIRECTIVES, Router, ActivatedRoute} from '@angular/router';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
@@ -38,6 +38,9 @@ declare var _; // lodash
     ]
 })
 export class EmployeeDetails extends UniView {
+    @ViewChild(UniSave)
+    private saveComponent: UniSave;
+
     public busy: boolean;
     private url: string = '/salary/employees/';
     private childRoutes: any[];
@@ -48,6 +51,7 @@ export class EmployeeDetails extends UniView {
     private employments: Employment[];
     private recurringPosts: SalaryTransaction[];
     private employeeLeave: EmployeeLeave[];
+    private saveActions: IUniSaveAction[];
 
     constructor(private route: ActivatedRoute,
                 private employeeService: EmployeeService,
@@ -164,9 +168,16 @@ export class EmployeeDetails extends UniView {
         });
     }
 
+    private checkDirty() {
+        if (super.isDirty()) {
+            this.saveActions[0].disabled = false;
+        }
+    }
+
     private beforeChildEdit(childName: string) {
         let newAndUnsaved = (this.employments) ? this.employments.find(employment => !employment.ID) : undefined;
         if (newAndUnsaved && window.confirm(`Arbeidsforhold må lagres før ${childName} kan redigeres. Ønsker du å lagre nå?`)) {
+            this.saveComponent.manualSaveStart();
             this.saveAll();
         }
     }
@@ -231,4 +242,228 @@ export class EmployeeDetails extends UniView {
             super.updateState('employeeLeave', response, false);
         });
     }
+
+
+    private checkForSaveDone() {
+        if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
+            if (this.saveStatus.hasErrors) {
+                this.saveComponent.manualSaveComplete('Lagring feilet');
+            } else {
+                this.saveComponent.manualSaveComplete('Lagring fullført');
+            }
+        }
+    }
+
+    private saveAll() {
+        this.saveEmployee().subscribe(
+            (employee) => {
+                super.updateState('employee', employee, false);
+                this.saveStatus = {
+                    numberOfRequests: 0,
+                    completeCount: 0,
+                    hasErrors: false,
+                };
+
+                if (super.isDirty('employments')) {
+                    this.saveEmployments();
+                    this.saveStatus.numberOfRequests++;
+                }
+
+                if (super.isDirty('recurringPosts')) {
+                    this.saveRecurringPosts();
+                    this.saveStatus.numberOfRequests++;
+                }
+
+                if (super.isDirty('employeeLeave')) {
+                    this.saveEmployeeLeave();
+                    this.saveStatus.numberOfRequests++;
+                }
+
+            },
+            (error) => {
+                let toastHeader = 'Noe gikk galt ved lagring av persondetaljer';
+                let toastBody = (error.json().Messages) ? error.json().Messages[0].Message : '';
+                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+            }
+        );
+    }
+
+    private saveEmployee(): Observable<Employee> {
+        let brInfo = this.employee.BusinessRelationInfo;
+
+        // If employee is untouched and exists in backend we dont have to save it again
+        if (!super.isDirty('employee') && this.employee.ID > 0) {
+            return Observable.of(this.employee);
+        }
+
+        brInfo.Emails.forEach((email) => {
+            if (email.ID === 0) {
+                email['_createguid'] = this.employeeService.getNewGuid();
+            }
+        });
+
+        brInfo.Phones.forEach((phone) => {
+            if (phone.ID === 0) {
+                phone['_createguid'] = this.employeeService.getNewGuid();
+            }
+        });
+
+        brInfo.Addresses.forEach((address) => {
+            if (address.ID === 0) {
+                address['_createguid'] = this.employeeService.getNewGuid();
+            }
+        });
+
+        return (this.employee.ID > 0)
+            ? this.employeeService.Put(this.employee.ID, this.employee)
+            : this.employeeService.Post(this.employee);
+    }
+
+    private saveEmployments() {
+        super.getStateSubject('employments').take(1).subscribe((employments: Employment[]) => {
+            let changes = [];
+            let hasStandard = false;
+
+            // Build changes array consisting of only changed employments
+            // Append _createguid to new employments
+            // Check for standard employment
+            employments.forEach((employment) => {
+                if (employment.Standard) {
+                    hasStandard = true;
+                }
+
+                if (employment['_isDirty']) {
+                    employment.EmployeeID = this.employee.ID;
+                    employment.EmployeeNumber = this.employee.EmployeeNumber;
+
+                    if (employment.ID === 0) {
+                        employment['_createguid'] = this.employeeService.getNewGuid();
+                    }
+
+                    changes.push(employment);
+                }
+            });
+
+            if (!hasStandard) {
+                changes[0].Standard = true;
+            }
+
+            // Save employments by using complex put on employee
+            let employee = _.cloneDeep(this.employee);
+            employee.Employments = changes;
+
+            this.employeeService.Put(employee.ID, employee)
+                .finally(() => this.checkForSaveDone())
+                .subscribe(
+                    (res) => {
+                        this.saveStatus.completeCount++;
+                        this.getEmployments();
+                    },
+                    (err) => {
+                        this.saveStatus.completeCount++;
+                        this.saveStatus.hasErrors = true;
+
+                        let toastHeader = 'Something went wrong when saving employments';
+                        let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                        this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                    }
+                );
+        });
+    }
+
+
+    private saveRecurringPosts() {
+        super.getStateSubject('recurringPosts').take(1).subscribe((recurringPosts: SalaryTransaction[]) => {
+            let changeCount = 0;
+            let saveCount = 0;
+            let hasErrors = false;
+
+            recurringPosts.forEach((post) => {
+                if (post['_isDirty']) {
+                    changeCount++;
+
+                    post.IsRecurringPost = true;
+                    post.EmployeeID = this.employee.ID;
+                    post.EmployeeNumber = this.employee.EmployeeNumber;
+
+                    let source = (post.ID > 0)
+                        ? this.salaryTransService.Put(post.ID, post)
+                        : this.salaryTransService.Post(post);
+
+                    source.finally(() => {
+                        if (saveCount === changeCount) {
+                            this.saveStatus.completeCount++;
+                            if (hasErrors) {
+                                this.saveStatus.hasErrors = true;
+                            } else {
+                                super.updateState('recurringPosts', recurringPosts, false);
+                            }
+                            this.checkForSaveDone();
+                        }
+                    })
+                    .subscribe(
+                        (res: SalaryTransaction) => {
+                            saveCount++;
+                            post = res;
+                        },
+                        (err) => {
+                            hasErrors = true;
+                            saveCount++;
+                            console.log(err);
+                            let toastHeader = `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                            let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                            this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                        }
+                    );
+                }
+            });
+        });
+    }
+
+    private saveEmployeeLeave() {
+        super.getStateSubject('employeeLeave').take(1).subscribe((employeeLeave: EmployeeLeave[]) => {
+            let changeCount = 0;
+            let saveCount = 0;
+            let hasErrors = false;
+
+            employeeLeave.forEach((leave) => {
+                if (leave['_isDirty']) {
+                    changeCount++;
+
+                    let source = (leave.ID > 0)
+                        ? this.employeeLeaveService.Put(leave.ID, leave)
+                        : this.employeeLeaveService.Post(leave);
+
+                    // Check if we are done saving all employeeLeave items
+                    source.finally(() => {
+                        if (saveCount === changeCount) {
+                            this.saveStatus.completeCount++;
+                            // If we have errors, indicate this in the main save status
+                            // if not, update employeeLeave cache and set dirty to false
+                            if (hasErrors) {
+                                this.saveStatus.hasErrors = true;
+                            } else {
+                                super.updateState('employeeLeave', employeeLeave, false);
+                            }
+                            this.checkForSaveDone(); // check if all save functions are finished
+                        }
+                    })
+                    .subscribe(
+                        (res: EmployeeLeave) => {
+                            leave = res;
+                            saveCount++;
+                        },
+                        (err) => {
+                            hasErrors = true;
+                            saveCount++;
+                            let toastHeader = `Feil ved lagring av permisjoner linje ${leave['_originalIndex'] - 1}`;
+                            let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                            this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                        }
+                    );
+                }
+            });
+        });
+    }
+
 }
