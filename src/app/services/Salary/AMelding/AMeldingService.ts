@@ -2,6 +2,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AmeldingData} from '../../../unientities';
 import {Observable} from 'rxjs/Rx';
+import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 
 export class AMeldingService extends BizHttp<AmeldingData> {
 
@@ -49,6 +50,22 @@ export class AMeldingService extends BizHttp<AmeldingData> {
                 'replacesID': 0
             })
             .withEndPoint(this.relativeURL)
+            .send()
+            .map(response => response.json());
+    }
+
+    public getAmeldingFeedback(id: number, authData: AltinnAuthenticationData): Observable<AmeldingData> {
+        const headers = {
+            'x-altinn-userid': authData.userID,
+            'x-altinn-password': authData.password,
+            'x-altinn-pinmethod': authData.preferredLogin,
+            'x-altinn-pin': authData.pin
+        };
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withHeaders(headers)
+            .withEndPoint(this.relativeURL + `/${id}?action=altinn-feedback`)
             .send()
             .map(response => response.json());
     }

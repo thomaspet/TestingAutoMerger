@@ -20,11 +20,13 @@ export class AmeldingAgaView {
         let zoneCol = new UniTableColumn('zoneName', 'Sone', UniTableColumnType.Text);
         let sectorCol = new UniTableColumn('sectorName', 'Beregningskode', UniTableColumnType.Text);
         let amountCol = new UniTableColumn('baseAmount', 'Grunnlag', UniTableColumnType.Number)
+            .setWidth('6rem')
             .setCls('column-align-right');
         let rateCol = new UniTableColumn('rate', 'Sats', UniTableColumnType.Number)
+            .setWidth('4rem')
             .setCls('column-align-right');
 
-        this.agaTableConfig = new UniTableConfig(false)
+        this.agaTableConfig = new UniTableConfig(false, true, 30)
         .setColumns([typeCol, zoneCol, sectorCol, amountCol, rateCol]);
     }
 }

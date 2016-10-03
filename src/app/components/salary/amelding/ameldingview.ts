@@ -13,6 +13,7 @@ import {AmeldingReceiptView} from './ameldingReceipt/receipt';
 import {AmeldingPeriodSummaryView} from './ameldingPeriod/period';
 import {AmeldingAvstemView} from './ameldingAvstem/avstem';
 import {SelectAmeldingTypeModal} from './modals/selectAmeldingTypeModal';
+import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 
 declare var moment;
 
@@ -21,7 +22,8 @@ declare var moment;
     templateUrl: 'app/components/salary/amelding/ameldingview.html',
     providers: [AMeldingService],
     directives: [UniSave, AmeldingControlView, AmeldingSummaryView, AmeldingAgaView,
-        AmeldingReceiptView, AmeldingPeriodSummaryView, AmeldingAvstemView, SelectAmeldingTypeModal]
+        AmeldingReceiptView, AmeldingPeriodSummaryView, AmeldingAvstemView, SelectAmeldingTypeModal,
+        AltinnAuthenticationDataModal]
 })
 
 export class AMeldingView implements OnInit {
@@ -39,6 +41,7 @@ export class AMeldingView implements OnInit {
     private totalAga: number = 0;
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
+    @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
     public showView: string = '';
     
 
@@ -102,7 +105,8 @@ export class AMeldingView implements OnInit {
                     var a = document.createElement('a');
                     var dataURI = 'data:text/xml;base64,' + btoa(amldfile);
                     a.href = dataURI;
-                    a['download'] = 'amelding.xml';
+                    let prd: string = this.currentPeriod < 10 ? '0' + this.currentPeriod.toString() : this.currentPeriod.toString();
+                    a['download'] = `amelding_${prd}_${this.currentAMelding.ID}.xml`;
 
                     var e = document.createEvent('MouseEvents');
                     e.initMouseEvent('click', true, false, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0 , null);
@@ -116,17 +120,19 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    public createAMelding(ameldType: number = 0) {
+    public createAMelding(ameldType: number = 0, done) {
         this._ameldingService.postAMeldingforDebug(this.currentPeriod, ameldType)
         .subscribe(response => {
             this.updateAMeldingerInPeriod(response);
             this.setAMelding(response);
-            // done('A-melding generert');
+            if (done) {
+                done('A-melding generert');
+            }
         });
     }
 
     public aMeldingTypeChange(newType: number) {
-        this.createAMelding(newType);
+        this.createAMelding(newType, undefined);
     }
 
     public setAMelding(amelding: AmeldingData) {
@@ -196,7 +202,7 @@ export class AMeldingView implements OnInit {
             label: 'Generer A-melding',
             action: (done) => {
                 if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 0) {
-                    this.createAMelding();
+                    this.createAMelding(0, done);
                 } else {
                     this.openAmeldingTypeModal(done);
                 }
@@ -204,6 +210,29 @@ export class AMeldingView implements OnInit {
             disabled: false,
             main: this.currentAMelding === undefined
         });
+
+        this.actions.push({
+            label: 'Hent tilbakemelding',
+            action: (done) => {
+                if (this.currentAMelding) {
+                    this.getFeedback(done);
+                }
+            },
+            disabled: false,
+            main: false
+        });
+    }
+
+    private getFeedback(done) {
+        console.log('la oss hente den tilbakemeldingen');
+        this.altinnAuthModal.getUserAltinnAuthorizationData()
+            .then(authData => {
+                this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData)
+                    .subscribe(response => {
+                        
+                    });
+            });
+        done('tilbakemelding hentet');
     }
 
     private sendAmelding(done) {
