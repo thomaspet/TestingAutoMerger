@@ -20,7 +20,7 @@ export class ProjectDimensionsList {
         private router: Router,
         private projectService: ProjectService,
         private tabService: TabService) {
-        this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/projectDimensions', active: true, moduleID: 2 });
+        this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/projectDimensions', active: true, moduleID: 22 });
         this.setupTable();
     }
 

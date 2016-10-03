@@ -61,7 +61,7 @@ export class ProjectDimensionsDetails implements OnInit {
         this.project = project;
         const tabTitle = this.project.ID ? 'Prosjekt ' + this.project.Name : 'Prosjekt (nytt)';
         const ID = this.project.ID ? this.project.ID : 'new';
-        this.tabService.addTab({ url: '/dimensions/projectDimensions/' + ID, name: tabTitle, active: true, moduleID: 2 });
+        this.tabService.addTab({ url: '/dimensions/projectDimensions/' + ID, name: tabTitle, active: true, moduleID: 22 });
     }
 
     public next() {
