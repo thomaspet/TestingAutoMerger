@@ -121,7 +121,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         }
 
         // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
-        // console.log('DATA: ', JSON.stringify(dataSources));
+        //console.log('DATA: ', JSON.stringify(dataSources));
 
         if (this.format === 'html') {
             this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);

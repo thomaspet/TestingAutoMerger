@@ -45,7 +45,7 @@ class CustomerInvoiceExt extends CustomerInvoice {
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
     providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
-        ProjectService, AddressService, ReportDefinitionService, BusinessRelationService, DepartmentService, ProjectService]
+                AddressService, ReportDefinitionService, BusinessRelationService, DepartmentService, ProjectService]
 })
 export class InvoiceDetails {
 

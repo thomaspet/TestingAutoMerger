@@ -2215,13 +2215,13 @@ export class CompanySettings {
     public VatLockedDate: Date;
     public VatReportFormID: number;
     public WebAddress: string;
+    public CompanyBankAccount: BankAccount;
     public Address: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
@@ -2393,12 +2393,15 @@ export class Department {
     public CreatedBy: string;
     public Deleted: boolean;
     public DepartmentManagerName: string;
+    public DepartmentNumber: number;
+    public DepartmentNumberSeriesID: number;
     public Description: string;
     public ID: number;
     public Name: string;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DepartmentNumberSeries: NumberSeries;
     public CustomFields: any;
 }
 
@@ -2437,9 +2440,12 @@ export class Project {
     public ID: number;
     public Name: string;
     public ProjectLeadName: string;
+    public ProjectNumber: number;
+    public ProjectNumberSeriesID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public ProjectNumberSeries: NumberSeries;
     public CustomFields: any;
 }
 
@@ -4000,6 +4006,7 @@ export class JournalEntryPeriodData {
 
 export class AmeldingSumUp {
     public entities: Array<AmeldingEntity>;
+    public agadetails: Array<AGADetails>;
     public totals: Totals;
 }
 
@@ -4020,6 +4027,15 @@ export class Employees {
 
 
 export class TransactionTypes {
+}
+
+
+export class AGADetails {
+    public baseAmount: number;
+    public rate: number;
+    public sectorName: string;
+    public type: string;
+    public zoneName: string;
 }
 
 

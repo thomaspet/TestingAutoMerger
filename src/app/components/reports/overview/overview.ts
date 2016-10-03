@@ -13,6 +13,8 @@ import {AccountReportFilterModal} from '../modals/account/AccountReportFilterMod
 import {PostingJournalReportFilterModal} from '../modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from '../modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
+import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
+import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
 
 class ReportCategory {
@@ -26,6 +28,7 @@ class ReportCategory {
     directives: [UniTabs, PreviewModal, ParameterModal,
         BalanceReportFilterModal, BalanceGeneralLedgerFilterModal,
         BalanceGeneralLedgerFilterModal, PostingJournalReportFilterModal, AccountReportFilterModal,
+        CustomerAccountReportFilterModal, SupplierAccountReportFilterModal,
         NgSwitch, NgSwitchCase, NgSwitchDefault],
     providers: [ReportDefinitionService]
 })
@@ -44,6 +47,10 @@ export class Overview {
     private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
     @ViewChild(BalanceGeneralLedgerFilterModal)
     private balanceGeneralLedgerFilterModal: BalanceGeneralLedgerFilterModal;
+    @ViewChild(CustomerAccountReportFilterModal)
+    private customerAccountModal: CustomerAccountReportFilterModal;
+    @ViewChild(SupplierAccountReportFilterModal)
+    private supplierAccountModal: SupplierAccountReportFilterModal;
 
     public reportCategories: Array<ReportCategory>;
 
@@ -72,6 +79,14 @@ export class Overview {
     
     public showBalanceGeneralLedgerFilterModal(report: ReportDefinition) {
         this.balanceGeneralLedgerFilterModal.open(report, this.previewModal);
+    }
+
+    public showCustomerAccountModalReportParameters(report: ReportDefinition) {
+        this.customerAccountModal.open(report, this.previewModal);
+    }
+
+    public showSupplierAccountModalReportParameters(report: ReportDefinition) {
+        this.supplierAccountModal.open(report, this.previewModal);
     }
 
     public ngOnInit() {

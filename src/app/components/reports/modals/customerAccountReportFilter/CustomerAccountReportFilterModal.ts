@@ -3,41 +3,45 @@ import {NgIf, NgFor, NgClass} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
-import {ReportDefinitionParameterService,JournalEntryService} from '../../../../services/services';
+import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
 import {UniForm} from '../../../../../framework/uniform/uniform';
 
-declare var _; // lodash
 @Component({
-    selector: 'balance-report-filter-form',
+    selector: 'customer-account-report-filter-form',
     directives: [NgIf, NgFor, NgClass, UniComponentLoader, UniForm],
-    templateUrl: 'app/components/reports/modals/postingJournal/PostingJournalReportFilterModal.html',
-    providers: [JournalEntryService]
+    templateUrl: 'app/components/reports/modals/customerAccountReportFilter/CustomerAccountReportFilterModal.html'
 })
-export class PostingJournalReportFilterForm implements OnInit {
+export class CustomerAccountReportFilterForm implements OnInit {
     @Input('config')
     public config: any;
     public fields: UniFieldLayout[];
     public model: {
-        fromJournalEntryNumber: string,
-        toJournalEntryNumber: string,
-        fromPeriod: number,
-        toPeriod: number,
-        orderBy: string,
-        showFilter: string
+        FromAccountNumber: number,
+        ToAccountNumber: number,
+        PeriodAccountYear: number,
+        PeriodAccountLastYear: number,
+        FromPeriodNo: number,
+        ToPeriodNo: number,
+        OrderBy: string,        
+        ShowFilter: string
     } = {
-        fromJournalEntryNumber: '1-2016',
-        toJournalEntryNumber: '',
-        fromPeriod: 0,
-        toPeriod: 12,
-        orderBy: 'date',
-        showFilter: 'without'
+        FromAccountNumber: 100000,
+        ToAccountNumber: 100000,
+        PeriodAccountYear: new Date().getFullYear(),
+        PeriodAccountLastYear: (new Date().getFullYear()) - 1,
+        FromPeriodNo: 0,
+        ToPeriodNo: 12,
+        OrderBy: 'customerjournal',        
+        ShowFilter: 'without'
     };
 
     private typeOfOrderBy: {ID: string, Label: string}[] = [
-        {ID: 'date', Label: 'Bilagsnr og dato'},
-        {ID: 'accountnumber', Label: 'Bilagsnr og kontonr'}
+        {ID: 'customerjournal', Label: 'Kundenr og bilagsnr'},
+        {ID: 'customerdate', Label: 'Kundenr og dato'},
+        {ID: 'namejournal', Label: 'Kundenavn og bilagsnr'},
+        {ID: 'namedate', Label: 'Kundenavn og dato'}
     ];
 
     private typeOfShowFilter: {ID: string, Label: string}[] = [
@@ -46,43 +50,39 @@ export class PostingJournalReportFilterForm implements OnInit {
         {ID: 'only', Label: 'med KUN korrigeringer'}
     ];
 
-    constructor(private journalEntryService: JournalEntryService) {
-    }
+    constructor() {}
 
     public ngOnInit() {
-        this.createFields();
-        this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
-            this.model.toJournalEntryNumber = data[0].Data[0].JournalEntryLineJournalEntryNumber;
-            this.model = _.cloneDeep(this.model);
-        });
-    }
-
-    private createFields() {
         this.fields = [
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
-                Label: 'Fra bilagsnr',
-                Property: 'fromJournalEntryNumber'
+                Label: 'Fra kundenr',
+                Property: 'FromAccountNumber'
             },
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
-                Label: 'Til bilagsnr',
-                Property: 'toJournalEntryNumber'
-            },    
+                Label: 'Til kundenr',
+                Property: 'ToAccountNumber'
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.TEXT,
+                Label: 'Regnskapsår',
+                Property: 'PeriodAccountYear'
+            },
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
-                Property: 'fromPeriod'
+                Property: 'FromPeriodNo'
             },
             <UniFieldLayout>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
-                Property: 'toPeriod'
-            },           
+                Property: 'ToPeriodNo'
+            },
             <UniFieldLayout>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sortering',
-                Property: 'orderBy',
+                Property: 'OrderBy',
                 Options: {
                     source: this.typeOfOrderBy,
                     valueProperty: 'ID',
@@ -92,7 +92,7 @@ export class PostingJournalReportFilterForm implements OnInit {
             <UniFieldLayout>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis bilag',
-                Property: 'reportFor',
+                Property: 'ShowFilter',
                 Options: {
                     source: this.typeOfShowFilter,
                     valueProperty: 'ID',
@@ -104,19 +104,19 @@ export class PostingJournalReportFilterForm implements OnInit {
 }
 
 @Component({
-    selector: 'postingjournal-report-filter-modal',
+    selector: 'customer-account-report-filter-modal',
     directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
     providers: [ReportDefinitionParameterService]
 })
-export class PostingJournalReportFilterModal {
+export class CustomerAccountReportFilterModal {
     @ViewChild(UniModal)
     private modal: UniModal;
     
     public modalConfig: any = {};
-    public type: Type = PostingJournalReportFilterForm;
+    public type: Type = CustomerAccountReportFilterForm;
     
     private previewModal: PreviewModal;
     
@@ -130,33 +130,48 @@ export class PostingJournalReportFilterModal {
                 {
                     text: 'Ok',
                     method: () => {
-                        this.modal.getContent().then((component: PostingJournalReportFilterForm) => {
+                        this.modal.getContent().then((component: CustomerAccountReportFilterForm) => {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                switch(parameter.Name) {
-                                    case 'odatafilter':
-                                        parameter.value = `Period.No ge ${component.model.fromPeriod}`
-                                        + ` and Period.No le ${component.model.toPeriod}`;
-                                        break;
-                                    case 'fromJournalEntryNumber':
-                                    case 'toJournalEntryNumber':
-                                    case 'fromPeriod':
-                                    case 'toPeriod':
-                                    case 'showFilter':
+                                switch (parameter.Name) {
+                                    case 'ShowLastYear':
+                                    case 'ShowFilter':
+                                    case 'ShowFrontPage':
+                                    case 'FromAccountNumber':
+                                    case 'ToAccountNumber':
+                                    case 'FromPeriodNo':
+                                    case 'ToPeriodNo':
+                                    case 'PeriodAccountYear':
                                         parameter.value = component.model[parameter.Name];
                                         break;
-                                    case 'orderBy':
-                                        switch(component.model.orderBy) {
-                                            case 'date':
-                                                parameter.value = 'Financialdate';
+                                    case 'PeriodAccountLastYear':
+                                        parameter.value = component.model['PeriodAccountYear'] - 1;
+                                        break;
+                                    case 'OrderBy':
+                                        switch (component.model['OrderBy']) {
+                                            case 'customerjournal':
+                                            case 'namejournal':
+                                                parameter.value = 'JournalEntryNumber';
                                                 break;
-                                            case 'accountnumber':
-                                                parameter.value = 'Account.AccountNumber';
+                                            case 'customerdate':
+                                            case 'namedate':
+                                                parameter.value = 'FinancialDate';
+                                                break;
+                                        }
+                                        break;
+                                    case 'OrderByGroup':
+                                        switch (component.model['OrderBy']) {
+                                            case 'namejournal':
+                                            case 'namedate':
+                                                parameter.value = 'name';
+                                                break;
+                                            default:
+                                                parameter.value = 'journalentrynumber';
                                                 break;
                                         }
                                         break;
                                 }
                             }
-                                                        
+                                                                                     
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });
