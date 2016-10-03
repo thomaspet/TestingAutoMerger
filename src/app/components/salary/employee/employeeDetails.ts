@@ -145,17 +145,30 @@ export class EmployeeDetails extends UniView {
                     this.getEmployments();
                 }
 
-                if (childRoute === 'recurring-post' && !this.recurringPosts) {
-                    this.getRecurringPosts();
+                if (childRoute === 'recurring-post') {
+                    this.beforeChildEdit('faste poster');
+                    if (!this.recurringPosts) {
+                        this.getRecurringPosts();
+                    }
                 }
 
-                if (childRoute === 'employee-leave' && !this.employeeLeave) {
-                    super.getStateSubject('employments').subscribe(() => {
-                        this.getEmployeeLeave();
-                    });
+                if (childRoute === 'employee-leave') {
+                    this.beforeChildEdit('permisjoner');
+                    if (!this.employeeLeave) {
+                        super.getStateSubject('employments').subscribe(() => {
+                            this.getEmployeeLeave();
+                        });
+                    }
                 }
             }
         });
+    }
+
+    private beforeChildEdit(childName: string) {
+        let newAndUnsaved = (this.employments) ? this.employments.find(employment => !employment.ID) : undefined;
+        if (newAndUnsaved && window.confirm(`Arbeidsforhold må lagres før ${childName} kan redigeres. Ønsker du å lagre nå?`)) {
+            this.saveAll();
+        }
     }
 
     public nextEmployee() {
