@@ -18,7 +18,7 @@ declare var _;
                 (change)="inputChange()"
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
-                [placeholder]="field?.Options?.placeholder || ''"
+                [placeholder]="field?.Placeholder || ''"
             />
             <button type="button"
                     class="uni-datepicker-calendarBtn"

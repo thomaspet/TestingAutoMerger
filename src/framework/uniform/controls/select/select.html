@@ -11,7 +11,7 @@
         tabindex="0"
         (click)="toggle()"
         [value]="getDisplayValue(selectedItem)"
-        [placeholder]="config.placeholder || ''"
+        [placeholder]="config?.Placeholder || ''"
         readonly />
 
     <article class="uniSelect_dropdown" bind-hidden="!expanded">

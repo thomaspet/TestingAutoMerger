@@ -24,7 +24,7 @@ var parseFormats = [
             type="text"
             [formControl]="control"
             [readonly]="field?.ReadOnly"
-            [placeholder]="field?.Options?.placeholder || ''"
+            [placeholder]="field?.Placeholder || ''"
         />
     `
 })
@@ -140,7 +140,7 @@ export class UniDateInput {
                 type="text"
                 [ngFormControl]="control"
                 [readonly]="field?.ReadOnly"
-                [placeholder]="field?.Options?.placeholder || ''"
+                [placeholder]="field?.Placeholder || ''"
             />
         `;
         jQuery(this.elementRef.nativeElement).empty();

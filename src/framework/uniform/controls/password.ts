@@ -14,7 +14,7 @@ declare var _; // lodash
             type="password"
             [formControl]="control"
             [readonly]="field?.ReadOnly"
-            [placeholder]="field?.Options?.placeholder ||''"
+            [placeholder]="field?.Placeholder ||''"
             (blur)="blurHandler()"
         />
     `

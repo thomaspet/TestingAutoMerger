@@ -13,7 +13,7 @@ declare var _, jQuery; // jquery and lodash
             type="text"
             [formControl]="control"
             [readonly]="field?.ReadOnly"
-            [placeholder]="field?.Options?.placeholder || ''"
+            [placeholder]="field?.Placeholder || ''"
         />
     `
 })
@@ -99,7 +99,7 @@ export class UniMaskedInput {
                 type="text"
                 [ngFormControl]="control"
                 [readonly]="field?.ReadOnly"
-                [placeholder]="field?.Options?.placeholder || ''"
+                [placeholder]="field?.Placeholder || ''"
             />
         `;
         jQuery(this.elementRef.nativeElement).empty();

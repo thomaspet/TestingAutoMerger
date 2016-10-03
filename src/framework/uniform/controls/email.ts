@@ -13,7 +13,7 @@ declare var _; // lodash
             type="email"
             [formControl]="control"
             [readonly]="field?.ReadOnly"
-            [placeholder]="field?.Options?.placeholder ||''"
+            [placeholder]="field?.Placeholder ||''"
             (blur)="blurHandler()"
         />
     `
