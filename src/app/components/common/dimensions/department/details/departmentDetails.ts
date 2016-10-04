@@ -9,11 +9,11 @@ import {DepartmentService} from '../../../../../services/common/DepartmentServic
 
 @Component({
     selector: 'department-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/departmentDimensions/details/departmentDimensionsDetails.html',
+    templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html',
     directives: [UniSave, UniForm],
     providers: [DepartmentService]
 })
-export class DepartmentDimensionsDetails implements OnInit {
+export class DepartmentDetails implements OnInit {
     public config: any = {};
     public fields: UniFieldLayout[] = [];
     private department: Department;
@@ -28,7 +28,7 @@ export class DepartmentDimensionsDetails implements OnInit {
     ];
 
     private errorHandler(err: Error) {
-        console.log('Error in DepartmentDimensionsDetails:', err);
+        console.log('Error in DepartmentDetails:', err);
         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ett problem oppstod, forsøk igjen senere');
     }
 
@@ -61,7 +61,7 @@ export class DepartmentDimensionsDetails implements OnInit {
         this.department = department;
         const tabTitle = this.department.ID ? 'Avdeling ' + this.department.Name : 'Avdeling (ny)';
         const ID = this.department.ID ? this.department.ID : 'new';
-        this.tabService.addTab({ url: '/dimensions/departmentDimensions/' + ID, name: tabTitle, active: true, moduleID: 23 });
+        this.tabService.addTab({ url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: 23 });
     }
 
     public next() {
@@ -69,7 +69,7 @@ export class DepartmentDimensionsDetails implements OnInit {
             .subscribe(
                 departmentID => {
                     if (departmentID) {
-                        this.router.navigateByUrl('/dimensions/departmentDimensions/' + departmentID);
+                        this.router.navigateByUrl('/dimensions/department/' + departmentID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger etter denne');
                     }
@@ -83,7 +83,7 @@ export class DepartmentDimensionsDetails implements OnInit {
             .subscribe(
                 departmentID => {
                     if (departmentID) {
-                        this.router.navigateByUrl('/dimensions/departmentDimensions/' + departmentID);
+                        this.router.navigateByUrl('/dimensions/department/' + departmentID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger før denne');
                     }
@@ -93,7 +93,7 @@ export class DepartmentDimensionsDetails implements OnInit {
     }
 
     public add() {
-        this.router.navigateByUrl('/dimensions/departmentDimensions/new');
+        this.router.navigateByUrl('/dimensions/department/new');
     }
 
     private save(done: Function) {
@@ -101,7 +101,7 @@ export class DepartmentDimensionsDetails implements OnInit {
             this.departmentService.Put(this.department.ID, this.department)
                 .subscribe(
                     updatedDepartment => {
-                        this.router.navigateByUrl('/dimensions/departmentDimensions/' + updatedDepartment.ID);
+                        this.router.navigateByUrl('/dimensions/department/' + updatedDepartment.ID);
                         done('Avdeling lagret');
                     },
                     err => {
@@ -115,7 +115,7 @@ export class DepartmentDimensionsDetails implements OnInit {
             this.departmentService.Post(this.department)
                 .subscribe(
                     newDepartment => {
-                        this.router.navigateByUrl('/dimensions/departmentDimensions/' + newDepartment.ID);
+                        this.router.navigateByUrl('/dimensions/department/' + newDepartment.ID);
                         done('Avdeling lagret');
                     },
                     err => this.errorHandler(err));

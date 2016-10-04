@@ -9,11 +9,11 @@ import {ToastService, ToastType} from '../../../../../../framework/uniToast/toas
 
 @Component({
     selector: 'Project-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/projectDimensions/details/projectDimensionsDetails.html',
+    templateUrl: 'app/components/common/dimensions/project/details/projectDetails.html',
     directives: [UniSave, UniForm],
     providers: [ProjectService]
 })
-export class ProjectDimensionsDetails implements OnInit {
+export class ProjectDetails implements OnInit {
     public config: any = {};
     public fields: UniFieldLayout[] = [];
     private project: Project;
@@ -28,7 +28,7 @@ export class ProjectDimensionsDetails implements OnInit {
     ];
 
     private errorHandler(err: Error) {
-        console.log('Error in ProjectDimensionsDetails:', err);
+        console.log('Error in ProjectDetails:', err);
         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ett problem oppstod, forsøk igjen senere');
     }
 
@@ -61,7 +61,7 @@ export class ProjectDimensionsDetails implements OnInit {
         this.project = project;
         const tabTitle = this.project.ID ? 'Prosjekt ' + this.project.Name : 'Prosjekt (nytt)';
         const ID = this.project.ID ? this.project.ID : 'new';
-        this.tabService.addTab({ url: '/dimensions/projectDimensions/' + ID, name: tabTitle, active: true, moduleID: 22 });
+        this.tabService.addTab({ url: '/dimensions/project/' + ID, name: tabTitle, active: true, moduleID: 22 });
     }
 
     public next() {
@@ -69,7 +69,7 @@ export class ProjectDimensionsDetails implements OnInit {
             .subscribe(
                 projectID => {
                     if (projectID) {
-                        this.router.navigateByUrl('/dimensions/projectDimensions/' + projectID);
+                        this.router.navigateByUrl('/dimensions/project/' + projectID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere prosjekt etter denne');
                     }
@@ -83,7 +83,7 @@ export class ProjectDimensionsDetails implements OnInit {
             .subscribe(
                 projectID => {
                     if (projectID) {
-                        this.router.navigateByUrl('/dimensions/projectDimensions/' + projectID);
+                        this.router.navigateByUrl('/dimensions/project/' + projectID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere prosjekt før denne');
                     }
@@ -93,7 +93,7 @@ export class ProjectDimensionsDetails implements OnInit {
     }
 
     public add() {
-        this.router.navigateByUrl('/dimensions/projectDimensions/new');
+        this.router.navigateByUrl('/dimensions/project/new');
     }
 
     private save(done: Function) {
@@ -101,7 +101,7 @@ export class ProjectDimensionsDetails implements OnInit {
             this.projectService.Put(this.project.ID, this.project)
                 .subscribe(
                     updatedProject => {
-                        this.router.navigateByUrl('/dimensions/projectDimensions/' + updatedProject.ID);
+                        this.router.navigateByUrl('/dimensions/project/' + updatedProject.ID);
                         done('Prosjekt lagret');
                     },
                     err => {
@@ -115,7 +115,7 @@ export class ProjectDimensionsDetails implements OnInit {
             this.projectService.Post(this.project)
                 .subscribe(
                     newProject => {
-                        this.router.navigateByUrl('/dimensions/projectDimensions/' + newProject.ID);
+                        this.router.navigateByUrl('/dimensions/project/' + newProject.ID);
                         done('Prosjekt lagret');
                     },
                     err => this.errorHandler(err));

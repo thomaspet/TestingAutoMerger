@@ -1,28 +1,28 @@
-import {ProjectDimensionsDetails} from '../../common/dimensions/projectDimensions/details/projectDimensionsDetails';
-import {ProjectDimensionsList} from '../../common/dimensions/projectDimensions/list/projectDimensionsList';
-import {DepartmentDimensionsDetails} from './departmentDimensions/details/departmentDimensionsDetails';
-import {DepartmentDimensionsList} from './departmentDimensions/list/departmentDimensionsList';
+import {ProjectDetails} from './project/details/projectDetails';
+import {ProjectList} from './project/list/projectList';
+import {DepartmentDetails} from './department/details/departmentDetails';
+import {DepartmentList} from './department/list/departmentList';
 
 export const routes = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'projectDimensions'
+        redirectTo: 'project'
     },
     {
-        path: 'projectDimensions',
-        component: ProjectDimensionsList
+        path: 'project',
+        component: ProjectList
     },
     {
-        path: 'projectDimensions/:id',
-        component: ProjectDimensionsDetails
+        path: 'project/:id',
+        component: ProjectDetails
     },
     {
-        path: 'departmentDimensions',
-        component: DepartmentDimensionsList
+        path: 'department',
+        component: DepartmentList
     },
     {
-        path: 'departmentDimensions/:id',
-        component: DepartmentDimensionsDetails
+        path: 'department/:id',
+        component: DepartmentDetails
     }
 ];

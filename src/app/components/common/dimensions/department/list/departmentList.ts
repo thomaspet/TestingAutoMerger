@@ -7,11 +7,11 @@ import {DepartmentService} from '../../../../../services/common/DepartmentServic
 
 @Component({
     selector: 'department-dimensions-list',
-    templateUrl: 'app/components/common/dimensions/departmentDimensions/list/departmentDimensionsList.html',
+    templateUrl: 'app/components/common/dimensions/department/list/departmentList.html',
     directives: [UniTable],
     providers: [DepartmentService]
 })
-export class DepartmentDimensionsList {
+export class DepartmentList {
 
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -20,16 +20,16 @@ export class DepartmentDimensionsList {
         private router: Router,
         private departmentService: DepartmentService,
         private tabService: TabService) {
-        this.tabService.addTab({ name: 'Avdelinger', url: '/dimensions/departmentDimensions', active: true, moduleID: 23 });
+        this.tabService.addTab({ name: 'Avdelinger', url: '/dimensions/department', active: true, moduleID: 23 });
         this.setupTable();
     }
 
     public createNew() {
-        this.router.navigateByUrl('/dimensions/departmentDimensions/new');
+        this.router.navigateByUrl('/dimensions/department/new');
     }
 
     public onRowSelected (event) {
-        this.router.navigateByUrl('/dimensions/departmentDimensions/' + event.rowModel.ID);
+        this.router.navigateByUrl('/dimensions/department/' + event.rowModel.ID);
     };
 
     private setupTable() {

@@ -112,8 +112,8 @@ export class HamburgerMenu {
                 componentListName: 'Dimensioner',
                 componentListHeader: 'Dimensioner',
                 componentList: [
-                    {componentName: 'Prosjekt', componentUrl: '/dimensions/projectDimensions'},
-                    {componentName: 'Avdeling', componentUrl: '/dimensions/departmentDimensions'}
+                    {componentName: 'Prosjekt', componentUrl: '/dimensions/project'},
+                    {componentName: 'Avdeling', componentUrl: '/dimensions/department'}
 
                 ]
             }

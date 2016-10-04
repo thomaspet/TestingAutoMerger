@@ -7,11 +7,11 @@ import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'project-dimensions-list',
-    templateUrl: 'app/components/common/dimensions/projectDimensions/list/projectDimensionsList.html',
+    templateUrl: 'app/components/common/dimensions/project/list/projectList.html',
     directives: [UniTable],
     providers: [ProjectService]
 })
-export class ProjectDimensionsList {
+export class ProjectList {
 
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -20,16 +20,16 @@ export class ProjectDimensionsList {
         private router: Router,
         private projectService: ProjectService,
         private tabService: TabService) {
-        this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/projectDimensions', active: true, moduleID: 22 });
+        this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/project', active: true, moduleID: 22 });
         this.setupTable();
     }
 
     public createNew() {
-        this.router.navigateByUrl('/dimensions/projectDimensions/new');
+        this.router.navigateByUrl('/dimensions/project/new');
     }
 
     public onRowSelected (event) {
-        this.router.navigateByUrl('/dimensions/projectDimensions/' + event.rowModel.ID);
+        this.router.navigateByUrl('/dimensions/project/' + event.rowModel.ID);
     };
 
     private setupTable() {
