@@ -53,7 +53,7 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
     }
 
     private tableConfig(update: boolean = false, filter = '') {
-        this.employees$ = this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo, BankAccounts']);
+        this.employees$ = this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']);
         this.employees$.subscribe((employees) => {
             this.employeeList = employees;
             if (!update && this.employeeList) {
@@ -74,7 +74,7 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
                         let error = '';
                         let taxError = !rowModel.TaxTable && !rowModel.TaxPercentage;
                         let accountError = (!rowModel.BankAccounts) || !rowModel.BankAccounts.some(x => x.Active === true);
-                        if (rowModel.TaxTable === null || rowModel.TaxTable === '' || !rowModel.BankAccounts.some(x => x.Active === true)) {
+                        if (taxError || accountError) {
                             if (accountError && taxError) {
                                 error = 'Skatteinfo og kontonummer mangler.';
                             } else if (accountError) {

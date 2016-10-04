@@ -97,7 +97,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 this.employeeService.get(this.employeeID, this.employeeExpands)
                     .subscribe((response: any) => {
                         this.employee = response;
-                        console.log('Employee: ', this.employee);
                         this.setUnitableSource();
                         this.refreshSaveActions();
                         this.setUnitableSource();
@@ -552,7 +551,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     public generateErrorMessage(): string {
         let error = `Gå til <a href="/#/salary/employees/${this.employee.ID}"> ansattkortet for ${this.employee.BusinessRelationInfo.Name}</a> for å legge inn `;
         let noBankAccounts = (!this.employee.BankAccounts) || this.noActiveBankAccounts();
-        console.log('No bank accounts: ', noBankAccounts);
         let noTax = !this.employee.TaxTable && !this.employee.TaxPercentage;
 
         if (noBankAccounts && noTax) {
