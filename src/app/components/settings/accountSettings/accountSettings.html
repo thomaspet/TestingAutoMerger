@@ -1,12 +1,13 @@
 ﻿<section class=" application">    
     <h1>Kontoinnstillinger</h1>
-    
+
     <section class="splitview">
+        <button class="new-button" (click)="createNew()">Ny konto</button>
         <nav class="splitview_list">
             <account-list (uniAccountChange)="changeAccount($event)"></account-list>
         </nav>
         <main class="splitview_detail">
-            <account-details (accountSaved)="accountSaved($event)" [accountID]="accountID" (onChange)="change($event)"></account-details>
+            <account-details (accountSaved)="accountSaved($event)" [inputAccount]="account" (onChange)="change($event)"></account-details>
         </main>
     </section>
 </section>

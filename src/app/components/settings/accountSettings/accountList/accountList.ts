@@ -13,7 +13,7 @@ declare var _;
     providers: [AccountService]
 })
 export class AccountList {
-    @Output() public uniAccountChange: EventEmitter<number> = new EventEmitter<number>();
+    @Output() public uniAccountChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniTable) private table: UniTable;
     private accountTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -27,7 +27,7 @@ export class AccountList {
     }
 
     private onRowSelected (event) {
-        this.uniAccountChange.emit(event.rowModel.ID);
+        this.uniAccountChange.emit(event.rowModel);
     };
 
     public refresh() {

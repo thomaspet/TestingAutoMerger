@@ -16,11 +16,11 @@ export class AccountSettings {
     @ViewChild(AccountList) private accountlist: AccountList;
     @ViewChild(AccountDetails) private accountDetails: AccountDetails;
 
-    private accountID: number = 0;
+    public account: Account;
 
     private hasChanges: boolean = false;
     
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
             action: (completeEvent) => this.saveSettings(completeEvent),
@@ -33,7 +33,7 @@ export class AccountSettings {
         this.tabService.addTab({ name: 'Kontoinnstillinger', url: '/accounting/accountsettings', moduleID: 10, active: true });
     }
 
-    private changeAccount(accountID: number) {
+    public changeAccount(account: Account) {
         
         setTimeout(() => {
             let doChange: boolean = true;
@@ -45,22 +45,26 @@ export class AccountSettings {
             }
             
             if (doChange) {
-                this.accountID = accountID;
+                this.account = account;
                 this.hasChanges = false;
             }
         }, 100);
     }
     
-    private change(account: Account) {
+    public change(account: Account) {
         this.hasChanges = true;
     }
 
-    private accountSaved(account: Account) {
+    public accountSaved(account: Account) {
         this.accountlist.refresh();
         this.hasChanges = false;        
     }
     
     private saveSettings(completeEvent) {        
         this.accountDetails.saveAccount(completeEvent);        
+    }
+
+    public createNew() {
+        this.account = new Account();
     }
 }

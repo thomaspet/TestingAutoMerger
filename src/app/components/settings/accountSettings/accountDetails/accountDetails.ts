@@ -3,45 +3,51 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {DimensionList} from '../dimensionList/dimensionList';
-import {Account, VatType} from '../../../../unientities';
+import {Account, VatType, FieldType, AccountGroup} from '../../../../unientities';
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
+import {AccountGroupService} from '../../../../services/Accounting/AccountGroupService';
 
 @Component({
     selector: 'account-details',
     templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html',
     directives: [DimensionList, UniForm],
-    providers: [AccountService, CurrencyService, VatTypeService]
+    providers: [AccountService, CurrencyService, VatTypeService, AccountGroupService]
 })
 export class AccountDetails implements OnInit {
-    @Input() public accountID: number;
+    @Input() public inputAccount: Account;
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
     @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
-    @ViewChild(UniForm) private form: UniForm;
+    @ViewChild(UniForm) public form: UniForm;
 
     private account: Account = null;
     private currencies: Array<any> = [];
     private vattypes: Array<any> = [];
-    private config: any = {};
-    private fields: any[] = [];
+    private accountGroups: AccountGroup[];
+    public config: any = {};
+    public fields: any[] = this.getComponentLayout().Fields;
 
-    constructor(private accountService: AccountService, private currencyService: CurrencyService, private vatTypeService: VatTypeService) {
-    }
+    constructor(
+        private accountService: AccountService,
+        private currencyService: CurrencyService,
+        private vatTypeService: VatTypeService,
+        private accountGroupService: AccountGroupService
+    ) {}
 
     public ngOnInit() {
         this.setup();
     }
 
     private setup() {
-        this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(
             this.currencyService.GetAll(null),
-            this.vatTypeService.GetAll(null)
+            this.vatTypeService.GetAll(null),
+            this.accountGroupService.GetAll(null)
          ).subscribe(
                 (dataset) => {
                     this.currencies = dataset[0];
                     this.vattypes = dataset[1];
-
+                    this.accountGroups = dataset[2];
                     this.extendFormConfig();
                 },
                 (error) => console.log(error)
@@ -49,11 +55,22 @@ export class AccountDetails implements OnInit {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['accountID'].currentValue === '0') {
+        const incomingAccount = <Account>changes['inputAccount'].currentValue;
+        if (!incomingAccount) {
             return;
+        } else if (!incomingAccount.ID) {
+            this.account = incomingAccount;
+        } else {
+            this.getAccount(this.inputAccount.ID)
+                .subscribe(
+                    dataset => {
+                        this.account = dataset;
+                    },
+                    error => {
+                        console.log(error);
+                    }
+                );
         }
-
-        this.getData();
     }
 
     private change(event) {
@@ -79,21 +96,27 @@ export class AccountDetails implements OnInit {
             search: (searchValue: string) => Observable.from([this.vattypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
         };
+
+        let accountGroup: UniFieldLayout = this.fields.find(x => x.Property === 'AccountGroupID');
+        accountGroup.Options = {
+            source: this.accountGroups,
+            template: (data: AccountGroup) => data.Name,
+            valueProperty: 'ID'
+        };
     }
 
-    public getData() {
-        if (this.accountID) {
-            this.accountService
-                .Get(this.accountID, ['Alias', 'Currency', 'AccountGroup', 'Dimensions', 'Dimensions.Project', 'Dimensions.Region', 'Dimensions.Responsible', 'Dimensions.Department'])
-                .subscribe(
-                    (dataset) => {
-                        this.account = dataset;
-                    },
-                    (error) => {
-                        console.log(error);
-                    }
-                );
-        }
+    public getAccount(ID: number) {
+        return this.accountService
+            .Get(ID, [
+                'Alias',
+                'Currency',
+                'AccountGroup',
+                'Dimensions',
+                'Dimensions.Project',
+                'Dimensions.Region',
+                'Dimensions.Responsible',
+                'Dimensions.Department'
+            ]);
     }
 
 
@@ -143,7 +166,7 @@ export class AccountDetails implements OnInit {
             ID: 1,
             CustomFields: null,
             Fields: [
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'AccountNumber',
@@ -171,7 +194,34 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'AccountGroupID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kontogruppe',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null
+                },
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'AccountName',
@@ -199,7 +249,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'Alias',
@@ -227,7 +277,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'CurrencyID',
@@ -255,7 +305,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'VatTypeID',
@@ -283,7 +333,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'SystemAccount',
@@ -311,7 +361,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'UsePostPost',
@@ -339,7 +389,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'UseDeductionPercent',
@@ -367,7 +417,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'LockManualPosts',
@@ -395,7 +445,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'Locked',
@@ -423,7 +473,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                {
+                <UniFieldLayout>{
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'Visible',
