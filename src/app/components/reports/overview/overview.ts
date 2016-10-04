@@ -28,7 +28,7 @@ class ReportCategory {
     directives: [UniTabs, PreviewModal, ParameterModal,
         BalanceReportFilterModal, BalanceGeneralLedgerFilterModal,
         BalanceGeneralLedgerFilterModal, PostingJournalReportFilterModal, AccountReportFilterModal,
-        CustomerAccountReportFilterModal, SupplierAccountReportFilterModal,
+        CustomerAccountReportFilterModal, SupplierAccountReportFilterModal, ResultAndBalanceReportFilterModal,
         NgSwitch, NgSwitchCase, NgSwitchDefault],
     providers: [ReportDefinitionService]
 })
