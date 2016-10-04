@@ -11,7 +11,7 @@ import {UniForm} from '../../../../../framework/uniform/uniform';
 @Component({
     selector: 'supplier-account-report-filter-form',
     directives: [NgIf, NgFor, NgClass, UniComponentLoader, UniForm],
-    templateUrl: 'app/components/reports/modals/SupplierAccountReportFilter/SupplierAccountReportFilterModal.html'
+    templateUrl: 'app/components/reports/modals/supplierAccountReportFilter/SupplierAccountReportFilterModal.html'
 })
 export class SupplierAccountReportFilterForm implements OnInit {
     @Input('config')
@@ -25,7 +25,7 @@ export class SupplierAccountReportFilterForm implements OnInit {
         FromPeriodNo: number,
         ToPeriodNo: number,
         HideAccounts: boolean,
-        OrderBy: string,        
+        OrderBy: string,
         ShowFilter: string
     } = {
         FromAccountNumber: 200000,
@@ -35,7 +35,7 @@ export class SupplierAccountReportFilterForm implements OnInit {
         FromPeriodNo: 0,
         ToPeriodNo: 12,
         HideAccounts: false,
-        OrderBy: 'supplierjournal',        
+        OrderBy: 'supplierjournal',
         ShowFilter: 'without'
     };
 
@@ -121,12 +121,12 @@ export class SupplierAccountReportFilterForm implements OnInit {
 export class SupplierAccountReportFilterModal {
     @ViewChild(UniModal)
     private modal: UniModal;
-    
+
     public modalConfig: any = {};
     public type: Type = SupplierAccountReportFilterForm;
-    
+
     private previewModal: PreviewModal;
-    
+
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService) {
         this.modalConfig = {
             title: 'Parametre',
@@ -148,7 +148,7 @@ export class SupplierAccountReportFilterModal {
                                     case 'FromPeriodNo':
                                     case 'ToPeriodNo':
                                     case 'PeriodAccountYear':
-                                    case 'PeriodAccountLastYear':                                    
+                                    case 'PeriodAccountLastYear':
                                         parameter.value = component.model[parameter.Name];
                                         break;
                                     case 'PeriodAccountLastYear':
@@ -178,7 +178,7 @@ export class SupplierAccountReportFilterModal {
                                         }
                                 }
                             }
-                                                                                     
+
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });
