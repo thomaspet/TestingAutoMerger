@@ -363,7 +363,7 @@ export class EmployeeDetails extends UniView {
                         this.saveStatus.completeCount++;
                         this.saveStatus.hasErrors = true;
 
-                        let toastHeader = 'Something went wrong when saving employments';
+                        let toastHeader = 'Noe gikk galt ved lagring av arbeidsforhold';
                         let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
                         this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                     }
