@@ -42,6 +42,8 @@ export class AMeldingView implements OnInit {
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
+    @ViewChild(UniSave) private saveComponent: UniSave;
+    private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
 
 
@@ -120,19 +122,24 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    public createAMelding(ameldType: number = 0, done) {
+    public createAMelding(ameldType: number = 0) {
+        this.saveComponent.manualSaveStart();
         this._ameldingService.postAMeldingforDebug(this.currentPeriod, ameldType)
         .subscribe(response => {
+            this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
             this.setAMelding(response);
-            if (done) {
-                done('A-melding generert');
-            }
+            this.checkForSaveDone();
+        },
+        (err) => {
+            this.saveStatus.completeCount++;
+            this.saveStatus.hasErrors = true;
         });
     }
 
     public aMeldingTypeChange(newType: number) {
-        this.createAMelding(newType, undefined);
+        this.saveStatus.numberOfRequests++;
+        this.createAMelding(newType);
     }
 
     public setAMelding(amelding: AmeldingData) {
@@ -188,7 +195,16 @@ export class AMeldingView implements OnInit {
                 this.onError(error);
             });
     }
-
+    private checkForSaveDone() {
+        if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
+            if (this.saveStatus.hasErrors) {
+                this.saveComponent.manualSaveComplete('Kunne ikke generere A-melding');
+            } else {
+                this.saveComponent.manualSaveComplete('A-melding generert');
+            }
+        }
+    }
+    
     private updateSaveActions() {
         this.actions = [];
         this.actions.push({
@@ -202,7 +218,8 @@ export class AMeldingView implements OnInit {
             label: 'Generer A-melding',
             action: (done) => {
                 if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 0) {
-                    this.createAMelding(0, done);
+                    this.saveStatus.numberOfRequests++;
+                    this.createAMelding(0);
                 } else {
                     this.openAmeldingTypeModal(done);
                 }

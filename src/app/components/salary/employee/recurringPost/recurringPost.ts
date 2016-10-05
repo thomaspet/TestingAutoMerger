@@ -28,7 +28,7 @@ export class RecurringPost extends UniView {
                 route: ActivatedRoute) {
 
         super(router.url, cacheService);
-        this.buildTableConfig();
+        // this.buildTableConfig();
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
@@ -42,6 +42,7 @@ export class RecurringPost extends UniView {
             super.getStateSubject('recurringPosts').subscribe(recurringPosts => this.recurringPosts = recurringPosts);
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
                 this.employments = employments || [];
+                this.buildTableConfig();
 
                 if (this.employments && this.employments.find(employment => !employment.ID)) {
                     this.tableConfig.setEditable(false);
@@ -83,23 +84,26 @@ export class RecurringPost extends UniView {
             });
 
         const descriptionCol = new UniTableColumn('Text', 'Beskrivelse');
-
-        const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+        
+        const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((rowModel) => {
+
+                if (!rowModel['_Employment'] && !rowModel['EmploymentID']) {
+                    return '';
+                }
+
                 let employment = rowModel['_Employment'];
 
                 if (!employment) {
                     employment = this.employments.find(emp => emp.ID === rowModel.EmploymentID);
                 }
 
-                return (employment) ? employment.JobName : '';
+                return (employment) ? employment.ID + ' - ' + employment.JobName : '';
             })
             .setEditorOptions({
+                resource: this.employments,
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.ID + ' - ' + selectedItem.JobName);
-                },
-                lookupFunction: (searchValue) => {
-                    return this.employments.filter(employment => employment.JobName.toLowerCase().indexOf(searchValue) > -1);
+                    return selectedItem ? selectedItem.ID + ' - ' + selectedItem.JobName : '';
                 }
             });
 
@@ -152,6 +156,12 @@ export class RecurringPost extends UniView {
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['Amount'] = 1;
         rowModel['Rate'] = wagetype.Rate;
+
+        let employment = this.employments.find(emp => emp.Standard === true);
+        if (employment) {
+            rowModel['EmploymentID'] = employment.ID;
+        }
+        
         this.calcItem(rowModel);
     }
 

@@ -199,21 +199,69 @@ export class ComponentLayout {
 }
 
 
-export class UserAuthorization {
-    public static RelativeUrl = 'UserAuthorization';
-    public static EntityType = 'UserAuthorization';
+export class UserRole {
+    public static RelativeUrl = '';
+    public static EntityType = 'UserRole';
 
-    public Allow: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
-    public fields: string;
     public ID: number;
-    public Model: string;
-    public StatusCode: number;
+    public SharedRoleId: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public userID: number;
+    public UserID: number;
+    public User: User;
+    public CustomFields: any;
+}
+
+
+export class Role {
+    public static RelativeUrl = '';
+    public static EntityType = 'Role';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public RolePermissions: Array<RolePermission>;
+    public CustomFields: any;
+}
+
+
+export class RolePermission {
+    public static RelativeUrl = '';
+    public static EntityType = 'RolePermission';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public PermissionID: number;
+    public RoleID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Role: Role;
+    public Permission: Permission;
+    public CustomFields: any;
+}
+
+
+export class Permission {
+    public static RelativeUrl = '';
+    public static EntityType = 'Permission';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public RolePermissions: Array<RolePermission>;
     public CustomFields: any;
 }
 
@@ -2215,13 +2263,13 @@ export class CompanySettings {
     public VatLockedDate: Date;
     public VatReportFormID: number;
     public WebAddress: string;
-    public CompanyBankAccount: BankAccount;
     public Address: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
@@ -2782,6 +2830,7 @@ export class JournalEntry {
     public FinancialYearID: number;
     public ID: number;
     public JournalEntryNumber: string;
+    public JournalEntryNumberNumeric: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -2811,6 +2860,7 @@ export class JournalEntryLine {
     public ID: number;
     public JournalEntryID: number;
     public JournalEntryNumber: string;
+    public JournalEntryNumberNumeric: number;
     public OriginalJournalEntryPost: number;
     public OriginalReferencePostID: number;
     public PeriodID: number;
@@ -2870,6 +2920,7 @@ export class JournalEntryLineDraft {
     public ID: number;
     public JournalEntryID: number;
     public JournalEntryNumber: string;
+    public JournalEntryNumberNumeric: number;
     public OriginalJournalEntryPost: number;
     public OriginalReferencePostID: number;
     public PeriodID: number;
@@ -3799,6 +3850,7 @@ export class code {
     public kunfranav: string;
     public postnr: string;
     public skatteOgAvgiftregel: string;
+    public uninavn: string;
     public utloeserArbeidsgiveravgift: string;
     public loennsinntekt: Loennsinntekt;
     public ytelseFraOffentlige: YtelseFraOffentlige;
@@ -4040,12 +4092,6 @@ export class AGADetails {
 
 
 export class Totals {
-}
-
-
-export class StatisticsData {
-    public Message: string;
-    public Success: boolean;
 }
 
 

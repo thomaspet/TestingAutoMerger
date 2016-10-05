@@ -71,6 +71,7 @@ export class Employments extends UniView {
             newEmployment.LastSalaryChangeDate = new Date();
             newEmployment.LastWorkPercentChangeDate = new Date();
             newEmployment.SeniorityDate = new Date();
+            newEmployment.SubEntityID = this.employee.SubEntityID;
 
             this.employments.push(newEmployment);
             this.table.addRow(newEmployment);

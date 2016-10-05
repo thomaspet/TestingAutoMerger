@@ -403,9 +403,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             rowModel['Rate'] = wagetype.Rate;
         }
 
-        if (this.employee.Employments && this.employee.Employments.length === 1) {
-            rowModel['_Employment'] = this.employee.Employments[0];
-            rowModel['EmploymentID'] = this.employee.Employments[0].ID;
+        let employment = this.employee.Employments.find(emp => emp.Standard === true);
+        if (employment) {
+            rowModel['EmploymentID'] = employment.ID;
         }
         this.calcItem(rowModel);
     }
