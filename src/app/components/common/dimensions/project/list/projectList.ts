@@ -7,9 +7,7 @@ import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'project-dimensions-list',
-    templateUrl: 'app/components/common/dimensions/project/list/projectList.html',
-    directives: [UniTable],
-    providers: [ProjectService]
+    templateUrl: 'app/components/common/dimensions/project/list/projectList.html'
 })
 export class ProjectList {
 

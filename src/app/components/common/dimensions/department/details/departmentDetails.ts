@@ -9,9 +9,7 @@ import {DepartmentService} from '../../../../../services/common/DepartmentServic
 
 @Component({
     selector: 'department-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html',
-    directives: [UniSave, UniForm],
-    providers: [DepartmentService]
+    templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html'
 })
 export class DepartmentDetails implements OnInit {
     public config: any = {};

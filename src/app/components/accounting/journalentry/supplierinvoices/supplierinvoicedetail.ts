@@ -21,8 +21,6 @@ declare const _;
 
 @Component({
     selector: 'supplier-invoice-detail',
-    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave, RegisterPaymentModal, SupplierDetailsModal],
-    providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, SupplierInvoiceFileUploader, ProjectService, DepartmentService],
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html'
 })
 export class SupplierInvoiceDetail implements OnInit, OnDestroy {

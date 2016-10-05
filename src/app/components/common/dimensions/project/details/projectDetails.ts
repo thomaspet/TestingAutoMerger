@@ -9,9 +9,7 @@ import {ToastService, ToastType} from '../../../../../../framework/uniToast/toas
 
 @Component({
     selector: 'Project-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/project/details/projectDetails.html',
-    directives: [UniSave, UniForm],
-    providers: [ProjectService]
+    templateUrl: 'app/components/common/dimensions/project/details/projectDetails.html'
 })
 export class ProjectDetails implements OnInit {
     public config: any = {};

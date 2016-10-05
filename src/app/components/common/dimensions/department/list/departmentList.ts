@@ -7,9 +7,7 @@ import {DepartmentService} from '../../../../../services/common/DepartmentServic
 
 @Component({
     selector: 'department-dimensions-list',
-    templateUrl: 'app/components/common/dimensions/department/list/departmentList.html',
-    directives: [UniTable],
-    providers: [DepartmentService]
+    templateUrl: 'app/components/common/dimensions/department/list/departmentList.html'
 })
 export class DepartmentList {
 
