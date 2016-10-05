@@ -58,7 +58,7 @@ export class SupplierInvoiceList implements OnInit {
         this.supplierInvoiceTableCfg = this.setupTableCfg();
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'JournalEntry,Supplier.Info');
+            urlParams.set('expand', 'JournalEntry,Supplier.Info,Dimensions.Department,Dimensions.Project');
             return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams);
         };
 
@@ -150,6 +150,12 @@ export class SupplierInvoiceList implements OnInit {
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
+        let departmentCol = new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+            .setTemplate((data: SupplierInvoice) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
+        let projectCol = new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+            .setTemplate((data: SupplierInvoice) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
+    
+
         //TODO: Skal denne vises?
         //const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
         //    .setFilterOperator('eq')
@@ -168,7 +174,9 @@ export class SupplierInvoiceList implements OnInit {
                 bankAccount,
                 paymentIdOrName,
                 taxInclusiveAmountCol,
-                restAmountCol
+                restAmountCol,
+                departmentCol,
+                projectCol
             ])
             .setPageSize(15)
             .setSearchable(true)
