@@ -76,8 +76,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 + employeeID
                 + '/category/'
                 + categoryID)
-            .send()
-            .map(response => response.json());
+            .send();
     }
 
     public get(id: number| string, expand: string[] = null) {
