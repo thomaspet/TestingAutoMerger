@@ -1,9 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
-
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ReportDefinition} from '../../../unientities';
 import {ReportDefinitionService} from '../../../services/services';
-
 import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
@@ -13,6 +11,7 @@ import {ResultAndBalanceReportFilterModal} from '../modals/resultAndBalance/Resu
 import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
 import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 
 class ReportCategory {
     public name: string;
@@ -30,6 +29,8 @@ export class Overview {
     private previewModal: PreviewModal;
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
+    @ViewChild(AccountReportFilterModal)
+    private accountReportFilterModal: AccountReportFilterModal;
     @ViewChild(PostingJournalReportFilterModal)
     private postingJournalModal: PostingJournalReportFilterModal;
     @ViewChild(ResultAndBalanceReportFilterModal)
@@ -55,6 +56,9 @@ export class Overview {
         this.balanceListModal.open(report, this.previewModal);
     }
 
+    public showModalAccountReportFilterModal(report: ReportDefinition) {
+        this.accountReportFilterModal.open(report, this.previewModal);
+    }
     public showPostingJournalModalReportParameters(report: ReportDefinition) {
         this.postingJournalModal.open(report, this.previewModal);
     }
