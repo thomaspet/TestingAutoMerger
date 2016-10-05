@@ -4,6 +4,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService} from '../../../../services/services';
+import {Product} from '../../../../unientities';
 import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var jQuery;
@@ -40,24 +41,31 @@ export class ProductList {
                 params = new URLSearchParams();
             }
 
+            params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
+                        
             return this.productService.GetAllByUrlSearchParams(params);
         };
 
         // Define columns to use in the table
-        var partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
-        var nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text).setFilterOperator('contains');
-        var priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Number).setFilterOperator('eq')
+        let partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        let nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text).setFilterOperator('contains');
+        let priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Number).setFilterOperator('eq')
                             .setWidth('15%')
                             .setFormat('{0:n}')
                             .setCls('column-align-right');
-        var priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Number).setFilterOperator('eq')
+        let priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Number).setFilterOperator('eq')
                             .setWidth('15%')
                             .setFormat('{0:n}')
                             .setCls('column-align-right');
 
+        let departmentCol = new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+            .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
+        let projectCol = new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+            .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
+                                                    
         // Setup table
-        this.productTable = new UniTableConfig(false, true, 25)
-            .setSearchable(true)
-            .setColumns([partNameCol, nameCol, priceExVatCol, priceIncVatCol]);
+        this.productTable = new UniTableConfig(false, true, 25)            
+            .setSearchable(true)            
+            .setColumns([partNameCol, nameCol, priceExVatCol, priceIncVatCol, departmentCol, projectCol]);
     }
 }

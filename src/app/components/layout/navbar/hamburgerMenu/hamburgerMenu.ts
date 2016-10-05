@@ -124,21 +124,11 @@ export class HamburgerMenu {
                 ]
             },
             {
-                componentListName: 'Dimensioner',
-                componentListHeader: 'Dimensioner',
+                componentListName: 'Dimensjoner',
+                componentListHeader: 'Dimensjoner',
                 componentList: [
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/project'},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/department'}
-
-                ]
-            },
-            {
-                componentListName: 'Dimensioner',
-                componentListHeader: 'Dimensioner',
-                componentList: [
-                    {componentName: 'Prosjekt', componentUrl: '/dimensions/project'},
-                    {componentName: 'Avdeling', componentUrl: '/dimensions/department'}
-
                 ]
             }
         ];
