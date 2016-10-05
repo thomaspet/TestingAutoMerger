@@ -285,15 +285,6 @@ export class JournalEntryProfessional {
         }
     }
 
-    public addDummyJournalEntry() {
-        var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
-        this.journalEntryLines.unshift(newline);
-        this.journalEntryLines = this.journalEntryLines.slice(0);
-        this.dataChanged.emit(this.journalEntryLines);
-    }
-
-
     private rowChanged(event) {
         var tableData = this.table.getTableData();
 

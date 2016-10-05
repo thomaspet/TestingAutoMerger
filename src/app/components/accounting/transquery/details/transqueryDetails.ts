@@ -44,6 +44,8 @@ export class TransqueryDetails implements OnInit {
             urlParams.set('filter', this.configuredFilter);
         }
 
+        urlParams.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
+
         urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod');
         return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
     }
@@ -194,7 +196,11 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                     .setTemplate((line: JournalEntryLine) => this.journalEntryLineService.getStatusText(line.StatusCode))
                     .setFilterable(false)
-                    .setVisible(false)
+                    .setVisible(false),
+                new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+                    .setTemplate((data: JournalEntryLine) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; }),
+                new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+                    .setTemplate((data: JournalEntryLine) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; })
             ]);
     }
 }

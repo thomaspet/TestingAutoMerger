@@ -127,8 +127,8 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.fields[4].Options.source = this.vattypes;
                 this.fields[5].Options.source = this.accounts;
                 this.fields[6].Options.source = this.vattypes;
-                //this.fields[8].Options.source = this.departments;
-                //this.fields[9].Options.source = this.projects;
+                this.fields[8].Options.source = this.departments;
+                this.fields[9].Options.source = this.projects;
                 this.fields = _.cloneDeep(this.fields);
 
                 setTimeout(() => {
@@ -147,7 +147,6 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
 
     public change(line) {
-        console.log('change in journalentrysimpleform: ', line);
         this.isDirty = true;
     }
 
@@ -179,7 +178,6 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
 
     private addJournalEntry(event: any, journalEntryNumber: string = null) {
-
         // simple validations before adding
         let validationResult = this.validateJournalEntryData();
         if (validationResult !== '') {
@@ -187,7 +185,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             return;
         }
 
-        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
+        if (this.journalEntryLines.length === 0 && journalEntryNumber === null && this.mode !== JournalEntryMode.Supplier) {
             // New line fetch next journal entry number from server first
             var journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = moment().toDate();
@@ -195,13 +193,13 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.addJournalEntry(event, next);
             });
         } else {
-            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
-
-            if (this.mode != JournalEntryMode.Supplier) {
+            let oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
+ 
+            if (this.mode !== JournalEntryMode.Supplier) {
                 var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
                 if (numbers) {
                     // next or same journal number?
-                    if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
+                    if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode !== JournalEntryMode.Supplier) {
                         oldData.JournalEntryNo = numbers.nextNumber;
                     } else {
                         oldData.JournalEntryNo = numbers.lastNumber;
@@ -211,15 +209,16 @@ export class JournalEntrySimpleForm implements OnChanges {
 
             var oldsameornew = oldData.SameOrNew;
             oldData.SameOrNew = oldData.JournalEntryNo;
+
             this.created.emit(oldData);
 
             this.journalEntryLine = new JournalEntryData();
             this.journalEntryLine.FinancialDate = oldData.FinancialDate;
 
-            if (this.mode == JournalEntryMode.Supplier) {
+            if (this.mode === JournalEntryMode.Supplier) {
                 this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
             } else {
-                this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+                this.journalEntryLine.SameOrNew = oldsameornew === this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
             }
 
             this.setupSameNewAlternatives();
@@ -339,6 +338,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
 
     private setupFields() {
+        var self = this;
 
         let sameOrNewAlternative = new UniFieldLayout();
         sameOrNewAlternative.FieldSet = 0;
@@ -348,7 +348,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         sameOrNewAlternative.Label = 'Bilagsnr';
         sameOrNewAlternative.Property = 'SameOrNew';
         sameOrNewAlternative.ReadOnly = false;
-        sameOrNewAlternative.Hidden = this.mode == JournalEntryMode.Supplier;
+        sameOrNewAlternative.Hidden = this.mode === JournalEntryMode.Supplier;
         sameOrNewAlternative.Options = {
             source: this.journalalternatives,
             template: (alternative) => `${alternative.Name}`,
@@ -542,9 +542,6 @@ export class JournalEntrySimpleForm implements OnChanges {
             }
         };
 
-        /*
-        KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
-
         var department = new UniFieldLayout();
         department.FieldSet = 0;
         department.Section = 0;
@@ -553,13 +550,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         department.Label = 'Avdeling';
         department.Property = 'Dimensions.DepartmentID';
         department.ReadOnly = false;
-        department.Hidden = self.mode == JournalEntryMode.Payment;
+        department.Hidden = self.mode === JournalEntryMode.Payment;
         department.Options = {
-            source: self.departments,
-            template: (department) => `${department ? department.Name : ''}`,
+            source: this.departments,
             valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 500
+            template: (item) => {
+                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+            },
+            debounceTime: 200
         };
 
         var project = new UniFieldLayout();
@@ -570,15 +568,16 @@ export class JournalEntrySimpleForm implements OnChanges {
         project.Label = 'Prosjekt';
         project.Property = 'Dimensions.ProjectID';
         project.ReadOnly = false;
-        project.Hidden = self.mode == JournalEntryMode.Payment;
+        project.Hidden = self.mode === JournalEntryMode.Payment;
         project.Options = {
-            source: self.projects,
-            template: (project) => `${project ? project.Name : ''}`,
+            source: this.projects,
             valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 500
+            template: (item) => {
+                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+            },
+            debounceTime: 200
         };
-        */
+
         let description = new UniFieldLayout();
         description.FieldSet = 0;
         description.Section = 0;
@@ -681,7 +680,7 @@ export class JournalEntrySimpleForm implements OnChanges {
 
         this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                         debitAccount, debitVat, creditAccount, creditVat,
-                        amount, /*department, project,*/ description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
+                        amount, department, project, description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
 
         this.config = {};
     }

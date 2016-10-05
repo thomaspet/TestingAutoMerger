@@ -139,14 +139,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    private addDummyJournalEntry(event) {
-        if (this.journalEntrySimple) {
-            this.journalEntrySimple.addDummyJournalEntry();
-        } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.addDummyJournalEntry();
-        }
-    }
-
     private removeJournalEntryData(event) {
         if (this.journalEntrySimple) {
             this.journalEntrySimple.removeJournalEntryData();

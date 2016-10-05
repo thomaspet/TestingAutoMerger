@@ -23,7 +23,7 @@
                 <th class="medium_col">Dato</th>
                 <th>Kontoer</th>
                 <th class="medium_col">Beløp</th>
-                <!--<th>Fordeling</th>-->
+                <th>Fordeling</th>
                 <th>Beskrivelse</th>
                 <th class="small_col"></th>
             </tr>
@@ -57,12 +57,20 @@
                     <td class="-isImportant">
                         {{line.Amount | number:'1.2-2'}}
                     </td>
-                   
+                    <td class="simpleTable_multiline">
+                        <dl>
+                            <dt>Avdeling</dt>
+                            <dd [title]="getDepartmentName(line)">{{ getDepartmentName(line) }}</dd>
+
+                            <dt>Prosjekt</dt>
+                            <dd [title]="getProjectName(line)">{{ getProjectName(line) }}</dd>
+                        </dl>
+                    </td>
                     <td>{{line.Description}}</td>
                     <td class="simpleTable_actionMenu"></td>
                 </tr>
                 <tr *ngIf="selectedJournalEntryLine == line">
-                    <td colspan="7">
+                    <td colspan="8">
                         <journal-entry-simple-form
                             [dropdownData]="dropdownData"
                             [journalEntryLine]="selectedJournalEntryLine"

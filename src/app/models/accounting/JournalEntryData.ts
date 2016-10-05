@@ -33,7 +33,8 @@ export class JournalEntryData {
     CurrencyID: number;
     CurrencyCode: string;
 
-    Dimensions: any;
+    DimensionsID: number;
+    Dimensions: Dimensions;
 
     JournalEntryDraftIDs: number[];
 

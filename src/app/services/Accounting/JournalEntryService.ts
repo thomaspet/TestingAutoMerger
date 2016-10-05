@@ -108,38 +108,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    getAggregatedData() : Observable<any> {
-        return Observable.from([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
-    }
-
-    public static getSomeNewDataForMe() : JournalEntryData {
-
-        var descriptions = ['Betaling','Avskrivning','Faktura','Lønnsutbetaling']
-        var projects = [1, 2, 3, 4];
-        var departments = [1, 2, 3, 4];
-
-        var data = new JournalEntryData();
-
-        data.JournalEntryNo = "1-2016";
-        data.Amount = Math.round(Math.random() * 10000);
-        data.DebitAccountNumber = 4000;
-        data.DebitAccount = {ID: 297, AccountNumber:4000, AccountName: "Varekjøp, høy sats"};
-	    data.CreditAccountNumber = 1920 ;
-        data.CreditAccount = {ID: 169, AccountNumber:1920 , AccountName: "Bankinnskudd"};
-        data.DebitAccountID = 297;
-        data.CreditAccountID = 169;
-
-        data.FinancialDate = new Date(2016, Math.floor(Math.random() * 12), Math.floor(Math.random() * 29));
-        data.Description = descriptions[Math.floor(Math.random() * 4)];
-
-        data.Dimensions = {ProjectID: projects[Math.floor(Math.random() * 4)], DepartmentID: departments[Math.floor(Math.random() * 4)]};
-        data.SupplierInvoiceNo = ((Math.floor(Math.random() * 10) * 10000) + Math.floor(Math.random() * 10000)).toString();
-
-        data.JournalEntryDraftIDs = [];
-
-        return data;
-    }
-
     public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = "") {
         var first, last, year;
 

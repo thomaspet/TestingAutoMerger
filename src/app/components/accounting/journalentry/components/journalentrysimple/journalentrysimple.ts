@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {VatType, Account, SupplierInvoice, JournalEntry} from '../../../../../unientities';
+import {VatType, Account, SupplierInvoice, Dimensions, Department, Project} from '../../../../../unientities';
 import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService} from '../../../../../services/services';
 
 import {JournalEntryData} from '../../../../../models/models';
@@ -105,12 +105,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     public checkIfFormsHaveChanges() {
         let haveDirtyData: boolean = false;
-        console.log('number of forms:' + this.journalEntryForms.length + '. Dirty? ' + this.journalEntryForms);
+
         if (this.journalEntryForms) {
             this.journalEntryForms.forEach((form) => {
-                console.log('form:', form);
                 if (form && form.isDirty){
-                    console.log('form is dirty!');
                     haveDirtyData = true;
                 }
             });
@@ -119,24 +117,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         return haveDirtyData;
     }
 
-    /*
-        private getDepartmentName(line: JournalEntryData): string {
-            if (line && line.Dimensions && !line.Dimensions.DepartmentID) { return ''; }
-            if (this.dropdownData && line && line.Dimensions) {
-
-                var dep = this.dropdownData[0].find((d) => d.ID == line.Dimensions.DepartmentID);
-                if (dep != null) {
-                    return line.Dimensions.DepartmentID + ' - ' + dep.Name;
-                }
-            }
-
-            return (line && line.Dimensions && line.Dimensions.DepartmentID) ? line.Dimensions.DepartmentID.toString() : '';
-        }
-    */
     private getAccount(id: number): Account {
         if (this.dropdownData) {
-            var dep = this.dropdownData[3].find((d) => d.ID == id);
-            if (dep != null) {
+            var dep = this.dropdownData[3].find((d) => d.ID === id);
+            if (dep !== null) {
                 return dep;
             }
         }
@@ -164,19 +148,29 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         return (line.CreditAccount ? line.CreditAccount.AccountNumber + ' - ' + line.CreditAccount.AccountName : '')
             + (line.CreditVatType ? ' - mva: ' + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : '');
     }
-    /*
-        private getProjectName(line: JournalEntryData): string {
-            if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
-            if (this.dropdownData && line && line.Dimensions) {
-                var project = this.dropdownData[1].find((d) => d.ID == line.Dimensions.ProjectID);
-                if (project != null) {
-                    return line.Dimensions.ProjectID + ' - ' + project.Name;
-                }
-            }
 
-            return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
-        }
-    */
+    private getDepartment(id: number): Department {
+        if (!id || !this.dropdownData) { return null; }
+
+        var dep = this.dropdownData[0].find((d) => d ? d.ID === id : false);
+        return dep;
+    }
+
+    private getProject(id: number): Project {
+        if (!id || !this.dropdownData) { return null; }
+        
+        var project = this.dropdownData[1].find((d) => d ? d.ID === id : false);
+        return project;
+    }
+
+    private getDepartmentName(line: JournalEntryData): string {
+        return line.Dimensions && line.Dimensions.Department ? line.Dimensions.Department.DepartmentNumber + ': ' + line.Dimensions.Department.Name : '';
+    }
+
+    private getProjectName(line: JournalEntryData): string {
+        return line.Dimensions && line.Dimensions.Project ? line.Dimensions.Project.ProjectNumber + ': ' + line.Dimensions.Project.Name : '';
+    }
+
     public postJournalEntryData(completeCallback) {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
@@ -187,8 +181,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 // Validate if journalEntry number has changed
                 // TODO: Should maybe test all numbers?
                 var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
-                if (firstJournalEntry.JournalEntryNo != numbers.firstNumber ||
-                    lastJournalEntry.JournalEntryNo != numbers.lastNumber) {
+                if (firstJournalEntry.JournalEntryNo !== numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNo !== numbers.lastNumber) {
                     this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
 
                 } else {
@@ -242,14 +236,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         }
     }
 
-    public addDummyJournalEntry() {
-        var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
-        this.journalEntryLines.unshift(newline);
-
-        this.dataChanged.emit(this.journalEntryLines);
-    }
-
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
         if (!this.disabled) {
             this.selectedJournalEntryLine = selectedLine;
@@ -268,11 +254,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private parseJournalEntryData(updatedLine: JournalEntryData): JournalEntryData {
-        /*var dimensions = new Dimensions();
-        dimensions.DepartmentID = updatedLine['Dimensions.DepartmentID'];
-        dimensions.ProjectID = updatedLine['Dimensions.ProjectID'];
-        updatedLine.Dimensions = dimensions;
-        */
         updatedLine.DebitAccount = this.getAccount(updatedLine['DebitAccountID']);
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['DebitVatTypeID']);
@@ -281,6 +262,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.CreditAccountNumber = null;
 
         updatedLine.Amount = Number(updatedLine.Amount.toString().replace(',', '.'));
+
+        if (updatedLine.Dimensions) {
+            updatedLine.Dimensions.Project = this.getProject(updatedLine.Dimensions.ProjectID);
+            updatedLine.Dimensions.Department = this.getDepartment(updatedLine.Dimensions.DepartmentID);        
+        }
 
         if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {
             updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());
@@ -305,7 +291,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private editViewUpdated(journalEntryLine: JournalEntryData) {
-        console.log('editViewUpdated');
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
 
         var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
