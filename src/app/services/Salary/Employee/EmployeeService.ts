@@ -141,7 +141,7 @@ export class EmployeeService extends BizHttp<Employee> {
 
     public getPrevious(id: number, expand: string[] = null) {
         let expands = expand || this.defaultExpands;
-        return super.GetAll(`filter=ID lt ${id}&top=1&orderBy=ID`, expands)
+        return super.GetAll(`filter=ID lt ${id}&top=1&orderBy=ID desc`, expands)
             .map(resultSet => resultSet[0]);
     }
 
