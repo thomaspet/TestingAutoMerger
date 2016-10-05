@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, ComponentRef} from '@angular/core';
+import {Component, Type, ViewChild, Input} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniform';
@@ -174,10 +174,10 @@ export class TaxCardRequestModal {
         this.config = {
             hasCancelButton: true,
             cancel: () => {
-                this.modal.getContent().then((component: ComponentRef<TaxCardRequestModalContent>) => {
+                this.modal.getContent().then((component: TaxCardRequestModalContent) => {
                     this.modal.close();
-                    component.instance.close();
-                    component.instance.isActive = false;
+                    component.close();
+                    component.isActive = false;
                 });
             }
         };
@@ -185,8 +185,8 @@ export class TaxCardRequestModal {
 
     public openModal() {
         this.modal.open();
-        this.modal.getContent().then((modalContent: ComponentRef<TaxCardRequestModalContent>) => {
-            modalContent.instance.isActive = true;
+        this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
+            modalContent.isActive = true;
         });
     }
 

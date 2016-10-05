@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, ComponentRef} from '@angular/core';
+import {Component, Type, ViewChild, Input} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
@@ -98,7 +98,7 @@ export class ReadTaxCardModal {
         let self = this;
         self.config = {
             cancel: () => {
-                self.modal.getContent().then((component: ComponentRef<ReadTaxCardModalContent>) => {
+                self.modal.getContent().then((component: ReadTaxCardModalContent) => {
                     self.modal.close();
                 });
             }
@@ -107,8 +107,8 @@ export class ReadTaxCardModal {
 
     public openModal() {
         this.modal.open();
-        this.modal.getContent().then((component: ComponentRef<ReadTaxCardModalContent>) => {
-            component.instance.openModal();
+        this.modal.getContent().then((component: ReadTaxCardModalContent) => {
+            component.openModal();
         });
     }
 }

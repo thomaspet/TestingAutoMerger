@@ -75,7 +75,7 @@ export class UniModalTest {
     ngAfterViewInit() {
         var self = this;
         this.ucl.load(ReusableComponent).then((cmp: ComponentRef<any>)=> {
-            self.instance = new Promise((resolve)=> {
+            self.instance = new Promise((resolve) => {
                 resolve(cmp.instance);
             });
         });

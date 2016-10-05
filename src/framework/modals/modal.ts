@@ -54,7 +54,7 @@ export class UniModal implements AfterViewInit {
                 isOpen: config.isOpen || false
             }
         });
-        this.component = new Promise(resolve => resolve(modal));
+        this.component = new Promise(resolve => resolve(modal.instance));
     }
 
     open() {
