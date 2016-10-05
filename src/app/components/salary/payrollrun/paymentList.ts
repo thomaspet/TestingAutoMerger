@@ -7,9 +7,7 @@ import {SalaryTransactionPay, SalaryTransactionPayLine} from '../../../unientiti
 
 @Component({
     selector: 'payrollrun-paymentlist',
-    templateUrl: 'app/components/salary/payrollrun/paymentList.html',
-    directives: [UniTable],
-    providers: [PayrollrunService]
+    templateUrl: 'app/components/salary/payrollrun/paymentList.html'
 })
 
 export class PaymentList implements OnInit {

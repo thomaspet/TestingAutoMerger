@@ -1,17 +1,14 @@
-import { Component, Input, ViewChild } from '@angular/core';
-import { FieldType, BasicAmount, VacationPayInfo, VacationPayLine } from '../../../../unientities';
-import { UniForm } from '../../../../../framework/uniform';
-import { UniFieldLayout } from '../../../../../framework/uniform/index';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import { SalaryTransactionService, BasicAmountService, PayrollrunService } from '../../../../../app/services/services';
-import { VacationpaySettingModal} from './vacationPaySettingModal';
+import {Component, Input, ViewChild} from '@angular/core';
+import {FieldType, BasicAmount, VacationPayInfo, VacationPayLine} from '../../../../unientities';
+import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {SalaryTransactionService, BasicAmountService, PayrollrunService} from '../../../../../app/services/services';
+import {VacationpaySettingModal} from './vacationPaySettingModal';
 
 declare var _;
 
 @Component({
     selector: 'vacationpay-modal-content',
-    directives: [UniForm, UniTable, VacationpaySettingModal],
-    providers: [SalaryTransactionService, BasicAmountService],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
 })
 export class VacationpayModalContent {

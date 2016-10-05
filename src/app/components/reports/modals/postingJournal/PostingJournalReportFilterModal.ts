@@ -1,19 +1,15 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
-import {NgIf, NgFor, NgClass} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
-import {ReportDefinitionParameterService,JournalEntryService} from '../../../../services/services';
+import {ReportDefinitionParameterService} from '../../../../services/services';
+import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
-import {UniForm} from '../../../../../framework/uniform/uniform';
 
 declare var _; // lodash
 @Component({
     selector: 'balance-report-filter-form',
-    directives: [NgIf, NgFor, NgClass, UniComponentLoader, UniForm],
-    templateUrl: 'app/components/reports/modals/postingJournal/PostingJournalReportFilterModal.html',
-    providers: [JournalEntryService]
+    templateUrl: 'app/components/reports/modals/postingJournal/PostingJournalReportFilterModal.html'
 })
 export class PostingJournalReportFilterForm implements OnInit {
     @Input('config')
@@ -112,11 +108,7 @@ export class PostingJournalReportFilterForm implements OnInit {
 
 @Component({
     selector: 'postingjournal-report-filter-modal',
-    directives: [UniModal],
-    template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    providers: [ReportDefinitionParameterService]
+    template: `<uni-modal [type]="type" [config]="modalConfig"></uni-modal>`
 })
 export class PostingJournalReportFilterModal {
     @ViewChild(UniModal)

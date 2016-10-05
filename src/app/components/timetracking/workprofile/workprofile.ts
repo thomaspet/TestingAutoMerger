@@ -10,8 +10,7 @@ export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailvie
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
-    directives: [GenericDetailview]
+    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
 })
 export class WorkprofileDetailview {
     private viewconfig: IViewConfig;

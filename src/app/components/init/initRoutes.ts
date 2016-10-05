@@ -1,11 +1,13 @@
-import {Route} from '@angular/router';
-
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {UniInit} from './init';
 import {Login} from './login/login';
 import {Signup} from './signup/signup';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 
-export const routes: Route[] = [
+
+export const childRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -28,3 +30,17 @@ export const routes: Route[] = [
         component: ConfirmInvite
     },
 ];
+
+const initRoutes: Routes = [
+    {
+        path: 'init',
+        component: UniInit,
+        children: [{
+            path: '',
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(initRoutes);

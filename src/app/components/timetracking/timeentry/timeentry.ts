@@ -6,8 +6,8 @@ import {WorkerService, IFilter} from '../../../services/timetracking/workerservi
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
 import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
-import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IsoTimePipe} from '../utils/pipes';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
@@ -27,10 +27,7 @@ interface ITab {
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/timeentry/timeentry.html',
-    directives: [Editable, UniSave, RegtimeTotals, RegtimeTools],
-    providers: [WorkerService, TimesheetService, Lookupservice],
-    pipes: [IsoTimePipe, MinutesToHoursPipe]
+    templateUrl: 'app/components/timetracking/timeentry/timeentry.html'
 })
 export class TimeEntry {
     public busy: boolean = true;

@@ -1,9 +1,11 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, FieldType, VacationPayInfo} from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 
+@Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
 
     private payrollRun: Subject<PayrollRun> = new Subject<PayrollRun>();

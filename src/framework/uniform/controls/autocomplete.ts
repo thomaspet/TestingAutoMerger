@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, Renderer} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 
 import {BizHttp} from '../../core/http/BizHttp';
@@ -31,7 +31,6 @@ export class UniAutocompleteConfig {
 
 @Component({
     selector: 'uni-autocomplete-input',
-    directives: [REACTIVE_FORM_DIRECTIVES],
     template: `
         <div class="autocomplete">
             <input #query

@@ -4,10 +4,10 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from '../../../../services/services';
-import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
+import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
 import {Supplier, Email, Phone, Address} from '../../../../unientities';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
@@ -17,9 +17,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'supplier-details',
-    templateUrl: 'app/components/sales/supplier/details/supplierDetails.html',
-    directives: [ExternalSearch, AddressModal, EmailModal, PhoneModal, UniSave, UniForm],
-    providers: [DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService]
+    templateUrl: 'app/components/sales/supplier/details/supplierDetails.html'
 })
 export class SupplierDetails implements OnInit {
     @Input() public modalMode: boolean = false;
@@ -50,12 +48,12 @@ export class SupplierDetails implements OnInit {
     private formIsInitialized: boolean = false;
 
     private saveactions: IUniSaveAction[] = [
-         {
-             label: 'Lagre',
-             action: (completeEvent) => this.saveSupplier(completeEvent),
-             main: true,
-             disabled: false
-         }
+        {
+            label: 'Lagre',
+            action: (completeEvent) => this.saveSupplier(completeEvent),
+            main: true,
+            disabled: false
+        }
     ];
 
     constructor(private departmentService: DepartmentService,
@@ -69,7 +67,7 @@ export class SupplierDetails implements OnInit {
                 private bankaccountService: BankAccountService,
                 private tabService: TabService,
                 private toastService: ToastService
-                ) {}
+    ) {}
 
     public ngOnInit() {
         if (!this.modalMode) {
@@ -88,23 +86,23 @@ export class SupplierDetails implements OnInit {
     public nextSupplier() {
         this.supplierService.NextSupplier(this.supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/suppliers/' + data.ID);
-            },
-            (err) => {
-                console.log('Error getting next supplier: ', err);
-                this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
-            });
+                    this.router.navigateByUrl('/sales/suppliers/' + data.ID);
+                },
+                (err) => {
+                    console.log('Error getting next supplier: ', err);
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
+                });
     }
 
     public previousSupplier() {
         this.supplierService.PreviousSupplier(this.supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/suppliers/' + data.ID);
-            },
-            (err) => {
-                console.log('Error getting previous supplier: ', err);
-                this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
-            });
+                    this.router.navigateByUrl('/sales/suppliers/' + data.ID);
+                },
+                (err) => {
+                    console.log('Error getting previous supplier: ', err);
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+                });
     }
 
     public addSupplier() {
@@ -118,13 +116,13 @@ export class SupplierDetails implements OnInit {
     public ready() {
         if (this.supplier.ID === 0) {
             this.form.field('Info.Name')
-                        .control
-                        .valueChanges
-                        .debounceTime(300)
-                        .distinctUntilChanged()
-                        .subscribe((data) => {
-                            this.searchText = data;
-                        });
+                .control
+                .valueChanges
+                .debounceTime(300)
+                .distinctUntilChanged()
+                .subscribe((data) => {
+                    this.searchText = data;
+                });
         }
     }
 
@@ -251,7 +249,7 @@ export class SupplierDetails implements OnInit {
                 this.supplier = _.cloneDeep(this.supplier);
 
                 setTimeout(() => {
-                   this.ready();
+                    this.ready();
                 });
             });
 

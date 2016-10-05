@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Address} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -5,6 +6,7 @@ import {SearchResultItem} from '../../../app/components/common/externalSearch/ex
 
 declare var _;
 
+@Injectable()
 export class AddressService extends BizHttp<Address> {
 
     constructor(http: UniHttp) {
@@ -27,7 +29,7 @@ export class AddressService extends BizHttp<Address> {
         };
 
         return new Promise(resolve => {
-            this.GetNewEntity([], 'address').subscribe(address => {
+            this.GetNewEntity([], 'address').subscribe((address: Address) => {
                 address.AddressLine1 = selectedSearchInfo.forretningsadr;
                 address.PostalCode = selectedSearchInfo.forradrpostnr;
                 address.City = selectedSearchInfo.forradrpoststed;
@@ -41,14 +43,14 @@ export class AddressService extends BizHttp<Address> {
     public postalAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
         if ( selectedSearchInfo.postadresse === ''
             && selectedSearchInfo.ppostnr  === ''
-            && selectedSearchInfo.ppoststed  ===''
-            && selectedSearchInfo.ppostland  ===''
+            && selectedSearchInfo.ppoststed  === ''
+            && selectedSearchInfo.ppostland  === ''
         ) {
             return null;
         }
 
         return new Promise(resolve => {
-            this.GetNewEntity([], 'address').subscribe(address => {
+            this.GetNewEntity([], 'address').subscribe((address: Address) => {
                 address.AddressLine1 = selectedSearchInfo.postadresse;
                 address.PostalCode = selectedSearchInfo.ppostnr;
                 address.City = selectedSearchInfo.ppoststed;
@@ -62,7 +64,7 @@ export class AddressService extends BizHttp<Address> {
     // Special address handling for CustomerInvoice, CustomerOrder and CustomerQuote which save addresses flat in entity
 
     private isEmptyAddress(address: Address): boolean {
-        if (address == null) {
+        if (!address) {
             return true;
         }
         return (address.AddressLine1 == null &&

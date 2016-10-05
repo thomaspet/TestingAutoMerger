@@ -1,3 +1,6 @@
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+
 import {JournalEntry} from './journalentry/journalentry';
 import {Transquery} from './transquery/transquery';
 import {AccountSettings} from '../settings/accountSettings/accountSettings';
@@ -6,8 +9,11 @@ import {VatReportView} from './vatreport/vatreportview';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
+import {UniAccounting} from './accounting';
+import {AuthGuard} from '../../authGuard';
 
-export const routes = [
+
+export const childRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -36,3 +42,21 @@ export const routes = [
         component: VatReportView
     }
 ];
+
+
+const accountingRoutes: Routes = [
+    {
+        path: 'accounting',
+        component: UniAccounting,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(accountingRoutes);
+

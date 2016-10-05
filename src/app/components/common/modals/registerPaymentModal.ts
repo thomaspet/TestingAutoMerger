@@ -1,12 +1,10 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {NgIf} from '@angular/common';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, } from '../../../../framework/uniForm';
+import {UniForm} from '../../../../framework/uniForm';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
 
 @Component({
     selector: 'register-payment-form',
-    directives: [UniForm, NgIf],
     template: `
         <article class='modal-content email-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
@@ -105,7 +103,6 @@ export class RegisterPaymentForm {
     template: `
         <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
     `,
-    directives: [UniModal]
 })
 export class RegisterPaymentModal {
     @ViewChild(UniModal)

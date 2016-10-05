@@ -3,9 +3,9 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {AMeldingService} from '../../../services/Salary/AMelding/AMeldingService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, AmeldingSumUp} from '../../../unientities';
+import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {AmeldingControlView} from './ameldingControl/control';
 import {AmeldingSummaryView} from './ameldingSummary/summary';
 import {AmeldingAgaView} from './ameldingAga/aga';
@@ -14,16 +14,13 @@ import {AmeldingPeriodSummaryView} from './ameldingPeriod/period';
 import {AmeldingAvstemView} from './ameldingAvstem/avstem';
 import {SelectAmeldingTypeModal} from './modals/selectAmeldingTypeModal';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
+import {UniSave} from '../../../../framework/save/save';
 
 declare var moment;
 
 @Component({
     selector: 'amelding-view',
-    templateUrl: 'app/components/salary/amelding/ameldingview.html',
-    providers: [AMeldingService],
-    directives: [UniSave, AmeldingControlView, AmeldingSummaryView, AmeldingAgaView,
-        AmeldingReceiptView, AmeldingPeriodSummaryView, AmeldingAvstemView, SelectAmeldingTypeModal,
-        AltinnAuthenticationDataModal]
+    templateUrl: 'app/components/salary/amelding/ameldingview.html'
 })
 
 export class AMeldingView implements OnInit {

@@ -1,16 +1,12 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
-import {NgIf, NgFor, NgClass} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
-import {UniForm} from '../../../../../framework/uniform/uniform';
 
 @Component({
     selector: 'balance-general-ledger-filter-form',
-    directives: [NgIf, NgFor, NgClass, UniComponentLoader, UniForm],
     templateUrl: 'app/components/reports/modals/balanceList/BalanceReportFilterModal.html'
 })
 export class BalanceGeneralLedgerFilterForm implements OnInit {
@@ -99,11 +95,9 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
 
 @Component({
     selector: 'balance-general-ledger-filter-modal',
-    directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    providers: [ReportDefinitionParameterService]
+    `
 })
 export class BalanceGeneralLedgerFilterModal {
     @ViewChild(UniModal)

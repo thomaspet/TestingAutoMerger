@@ -7,14 +7,14 @@ import {CustomerOrderService, CustomerOrderItemService, CustomerService, Busines
 import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {OrderItemList} from './orderItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {FieldType, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
-import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {FieldType, CustomerOrder, Customer} from '../../../../unientities';
+import {Address} from '../../../../unientities';
 import {StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
@@ -38,10 +38,7 @@ class CustomerOrderExt extends CustomerOrder {
 
 @Component({
     selector: 'order-details',
-    templateUrl: 'app/components/sales/order/details/orderDetails.html',
-    directives: [RouterLink, OrderItemList, AddressModal, UniForm, OrderToInvoiceModal, UniSave, PreviewModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService, CompanySettingsService,
-        ProjectService, DepartmentService, AddressService, ReportDefinitionService]
+    templateUrl: 'app/components/sales/order/details/orderDetails.html'
 })
 export class OrderDetails {
 
@@ -77,19 +74,19 @@ export class OrderDetails {
     private formIsInitialized: boolean = false;
 
     constructor(private customerService: CustomerService,
-        private customerOrderService: CustomerOrderService,
-        private customerOrderItemService: CustomerOrderItemService,
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private addressService: AddressService,
-        private reportDefinitionService: ReportDefinitionService,
-        private businessRelationService: BusinessRelationService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
+                private customerOrderService: CustomerOrderService,
+                private customerOrderItemService: CustomerOrderItemService,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService,
+                private addressService: AddressService,
+                private reportDefinitionService: ReportDefinitionService,
+                private businessRelationService: BusinessRelationService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
 
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService) {
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService) {
 
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
@@ -104,28 +101,28 @@ export class OrderDetails {
     public nextOrder() {
         this.customerOrderService.next(this.order.ID)
             .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/orders/' + data.ID);
+                    if (data) {
+                        this.router.navigateByUrl('/sales/orders/' + data.ID);
+                    }
+                },
+                (err) => {
+                    console.log('Error getting next order: ', err);
+                    this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
                 }
-            },
-            (err) => {
-                console.log('Error getting next order: ', err);
-                this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
-            }
             );
     }
 
     public previousOrder() {
         this.customerOrderService.previous(this.order.ID)
             .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/orders/' + data.ID);
+                    if (data) {
+                        this.router.navigateByUrl('/sales/orders/' + data.ID);
+                    }
+                },
+                (err) => {
+                    console.log('Error getting previous order: ', err);
+                    this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
                 }
-            },
-            (err) => {
-                console.log('Error getting previous order: ', err);
-                this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
-            }
             );
     }
 
@@ -133,13 +130,13 @@ export class OrderDetails {
         this.customerOrderService.newCustomerOrder().then(order => {
             this.customerOrderService.Post(order)
                 .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/orders/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating order: ', err);
-                    this.log(err);
-                }
+                    (data) => {
+                        this.router.navigateByUrl('/sales/orders/' + data.ID);
+                    },
+                    (err) => {
+                        console.log('Error creating order: ', err);
+                        this.log(err);
+                    }
                 );
         });
     }
@@ -182,10 +179,10 @@ export class OrderDetails {
     private setup() {
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
-            err => {
-                console.log('Error retrieving company settings data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-            });
+                err => {
+                    console.log('Error retrieving company settings data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -317,13 +314,13 @@ export class OrderDetails {
 
         // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
-            this.order.Customer.Info = info;
-            this.addressChanged.unsubscribe();
-            resolve(info.Addresses[idx]);
-        },
-        (error) => {
-            this.addressChanged.unsubscribe();
-        });
+                this.order.Customer.Info = info;
+                this.addressChanged.unsubscribe();
+                resolve(info.Addresses[idx]);
+            },
+            (error) => {
+                this.addressChanged.unsubscribe();
+            });
     }
 
 
@@ -418,13 +415,13 @@ export class OrderDetails {
 
             this.customerOrderService.calculateOrderSummary(orderItems)
                 .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.updateSaveActions();
-                },
-                (err) => {
-                    console.log('Error when recalculating items:', err);
-                    this.log(err);
-                });
+                        this.itemsSummaryData = data;
+                        this.updateSaveActions();
+                    },
+                    (err) => {
+                        console.log('Error when recalculating items:', err);
+                        this.log(err);
+                    });
         }, 2000);
     }
 
@@ -511,27 +508,27 @@ export class OrderDetails {
 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
-            (orderSaved) => {
-                this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
-                    this.order = orderGet;
-                    this.addressService.setAddresses(this.order);
-                    this.updateStatusText();
-                    this.updateSaveActions();
-                    this.setTabTitle();
+                (orderSaved) => {
+                    this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
+                        this.order = orderGet;
+                        this.addressService.setAddresses(this.order);
+                        this.updateStatusText();
+                        this.updateSaveActions();
+                        this.setTabTitle();
 
-                    if (next) {
-                        next(this.order);
-                    } else {
-                        done('Ordre lagret');
-                    }
-                });
-            },
-            (err) => {
-                console.log('Feil oppsto ved lagring', err);
-                done('Feil oppsto ved lagring');
-                this.log(err);
-            }
-        );
+                        if (next) {
+                            next(this.order);
+                        } else {
+                            done('Ordre lagret');
+                        }
+                    });
+                },
+                (err) => {
+                    console.log('Feil oppsto ved lagring', err);
+                    done('Feil oppsto ved lagring');
+                    this.log(err);
+                }
+            );
     }
 
     private updateStatusText() {

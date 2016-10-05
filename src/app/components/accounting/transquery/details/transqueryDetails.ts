@@ -11,8 +11,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 @Component({
     selector: 'transquery-details',
     templateUrl: 'app/components/accounting/transquery/details/transqueryDetails.html',
-    directives: [UniTable],
-    providers: [JournalEntryLineService]
 })
 export class TransqueryDetails implements OnInit {
     private summaryData: TransqueryDetailsCalculationsSummary;

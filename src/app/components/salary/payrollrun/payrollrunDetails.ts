@@ -1,19 +1,16 @@
-import {Component, OnInit, ViewChild, provide} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './controlModal';
 import {PostingsummaryModal} from './postingsummaryModal';
 import {VacationpayModal} from './vacationpay/VacationpayModal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
-import {UniBreadcrumbs} from '../../common/toolbar/breadcrumbs';
 
 declare var _;
 
@@ -21,8 +18,6 @@ declare var _;
 @Component({
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
-    providers: [PayrollrunService, provide(RootRouteParamsService, { useClass: RootRouteParamsService })],
-    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm, VacationpayModal, ContextMenu, UniBreadcrumbs]
 })
 
 export class PayrollrunDetails {

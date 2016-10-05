@@ -7,7 +7,6 @@ declare var jQuery;
 
 @Component({
     selector: 'employeecategory-buttons',
-    providers: [EmployeeService, EmployeeCategoryService],
     template: `
         <section class="poster_tags" [attr.aria-busy]="busy">
 

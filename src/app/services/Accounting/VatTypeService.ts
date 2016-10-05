@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {VatType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 
+@Injectable()
 export class VatTypeService extends BizHttp<VatType> {
     
     constructor(http: UniHttp) {        

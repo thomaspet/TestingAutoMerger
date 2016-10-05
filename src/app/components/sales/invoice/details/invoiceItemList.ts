@@ -12,9 +12,7 @@ declare var jQuery;
 
 @Component({
     selector: 'invoice-item-list',
-    templateUrl: 'app/components/sales/invoice/details/invoiceItemList.html',
-    directives: [UniTable],
-    providers: [ProductService, VatTypeService, TradeItemHelper]
+    templateUrl: 'app/components/sales/invoice/details/invoiceItemList.html'
 })
 export class InvoiceItemList implements OnInit {
     @Input() public invoice: CustomerInvoice;

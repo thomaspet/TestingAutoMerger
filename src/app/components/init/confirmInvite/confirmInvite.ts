@@ -1,13 +1,12 @@
 ﻿import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {FormControl, Validators, FormGroup, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {passwordValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-confirm-invite',
-    templateUrl: 'app/components/init/confirmInvite/confirmInvite.html',
-    directives: [REACTIVE_FORM_DIRECTIVES]
+    templateUrl: 'app/components/init/confirmInvite/confirmInvite.html'
 })
 
 export class ConfirmInvite {

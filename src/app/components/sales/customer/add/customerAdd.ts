@@ -1,14 +1,12 @@
-import {Component, ComponentRef, ViewChild, ViewChildren, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ComponentRef, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
 import {Router} from '@angular/router';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 
 @Component({
     selector: 'customer-add',
-    templateUrl: 'app/components/sales/customer/add/customerAdd.html',
-    directives: [ExternalSearch, UniComponentLoader]    
+    templateUrl: 'app/components/sales/customer/add/customerAdd.html'
 })
 export class CustomerAdd {
     @Input() searchText;

@@ -1,5 +1,4 @@
-import {Component, ViewChild, OnInit, Input, Output, EventEmitter, AfterViewInit} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
+import {Component, ViewChild, OnInit, Output, EventEmitter, AfterViewInit} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
@@ -11,10 +10,7 @@ declare var _;
 
 @Component({
     selector: 'salarytrans',
-    templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
-    directives: [SalaryTransactionEmployeeList, SalarytransFilter],
-    providers: [EmployeeService],
-    pipes: [AsyncPipe]
+    templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
 })
 
 export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {

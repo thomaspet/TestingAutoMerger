@@ -1,12 +1,10 @@
 import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, AGAZone, WageType, PayrollRun, Employment, SalaryTransaction} from '../../../unientities';
+import {Employee, AGAZone, WageType, PayrollRun, SalaryTransaction} from '../../../unientities';
 import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService} from '../../../services/services';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
-import {AsyncPipe} from '@angular/common';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {ControlModal} from '../payrollrun/controlModal';
 import {PostingsummaryModal} from '../payrollrun/postingsummaryModal';
 import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
@@ -16,10 +14,7 @@ declare var _;
 
 @Component({
     selector: 'salary-transactions-employee',
-    templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
-    directives: [UniTable, UniComponentLoader, UniSave, UniForm, ControlModal, PostingsummaryModal],
-    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService],
-    pipes: [AsyncPipe]
+    templateUrl: 'app/components/salary/salarytrans/salarytransList.html'
 })
 
 export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, OnInit {

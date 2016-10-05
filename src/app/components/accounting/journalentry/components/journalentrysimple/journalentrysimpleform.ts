@@ -18,9 +18,7 @@ export enum JournalEntryMode {
 
 @Component({
     selector: 'journal-entry-simple-form',
-    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
-    directives: [UniForm],
-    providers: [AccountService, JournalEntryService, CustomerInvoiceService]
+    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html'
 })
 export class JournalEntrySimpleForm implements OnChanges {
     @Input() public dropdownData: any;

@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -7,14 +7,14 @@ import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, C
 import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 
 import {InvoiceItemList} from './invoiceItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {CustomerInvoice, Customer, Dimensions, Address} from '../../../../unientities';
+import {CustomerInvoice, Customer, Address} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
@@ -42,10 +42,7 @@ class CustomerInvoiceExt extends CustomerInvoice {
 
 @Component({
     selector: 'invoice-details',
-    templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
-    directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
-    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
-                AddressService, ReportDefinitionService, BusinessRelationService, DepartmentService, ProjectService]
+    templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html'
 })
 export class InvoiceDetails {
 
@@ -86,19 +83,19 @@ export class InvoiceDetails {
     private formIsInitialized: boolean = false;
 
     constructor(private customerService: CustomerService,
-        private customerInvoiceService: CustomerInvoiceService,
-        private customerInvoiceItemService: CustomerInvoiceItemService,
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private addressService: AddressService,
-        private reportDefinitionService: ReportDefinitionService,
-        private businessRelationService: BusinessRelationService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
+                private customerInvoiceService: CustomerInvoiceService,
+                private customerInvoiceItemService: CustomerInvoiceItemService,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService,
+                private addressService: AddressService,
+                private reportDefinitionService: ReportDefinitionService,
+                private businessRelationService: BusinessRelationService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
 
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService) {
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService) {
 
         this.route.params.subscribe(params => {
             this.invoiceID = +params['id'];
@@ -113,28 +110,28 @@ export class InvoiceDetails {
     public nextInvoice() {
         this.customerInvoiceService.next(this.invoice.ID)
             .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    if (data) {
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    }
+                },
+                (err) => {
+                    console.log('Error getting next invoice: ', err);
+                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
                 }
-            },
-            (err) => {
-                console.log('Error getting next invoice: ', err);
-                this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
-            }
             );
     }
 
     public previousInvoice() {
         this.customerInvoiceService.previous(this.invoice.ID)
             .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    if (data) {
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    }
+                },
+                (err) => {
+                    console.log('Error getting previous invoice: ', err);
+                    this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
                 }
-            },
-            (err) => {
-                console.log('Error getting previous invoice: ', err);
-                this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
-            }
             );
     }
 
@@ -142,13 +139,13 @@ export class InvoiceDetails {
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating invoice: ', err);
-                    this.log(err);
-                }
+                    (data) => {
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    },
+                    (err) => {
+                        console.log('Error creating invoice: ', err);
+                        this.log(err);
+                    }
                 );
         });
     }
@@ -223,10 +220,10 @@ export class InvoiceDetails {
     private setup() {
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
-            err => {
-                console.log('Error retrieving company settings data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-            });
+                err => {
+                    console.log('Error retrieving company settings data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -499,13 +496,13 @@ export class InvoiceDetails {
 
             this.customerInvoiceService.calculateInvoiceSummary(invoiceItems)
                 .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.updateSaveActions();
-                },
-                (err) => {
-                    console.log('Error when recalculating items:', err);
-                    this.log(err);
-                }
+                        this.itemsSummaryData = data;
+                        this.updateSaveActions();
+                    },
+                    (err) => {
+                        console.log('Error when recalculating items:', err);
+                        this.log(err);
+                    }
                 );
         }, 2000);
     }
@@ -566,29 +563,29 @@ export class InvoiceDetails {
 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-            (invoiceSaved) => {
-                this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
-                    this.invoice = invoiceGet;
-                    this.addressService.setAddresses(this.invoice);
-                    this.updateStatusText();
-                    this.setTabTitle();
-                    this.updateSaveActions();
-                    this.ready(null);
-                    this.setTabTitle();
+                (invoiceSaved) => {
+                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
+                        this.invoice = invoiceGet;
+                        this.addressService.setAddresses(this.invoice);
+                        this.updateStatusText();
+                        this.setTabTitle();
+                        this.updateSaveActions();
+                        this.ready(null);
+                        this.setTabTitle();
 
-                    if (next) {
-                        next(this.invoice);
-                    } else {
-                        done('Faktura lagret');
-                    }
-                });
-            },
-            (err) => {
-                console.log('Feil oppsto ved lagring', err);
-                done('Feil oppsto ved lagring');
-                this.log(err);
-            }
-        );
+                        if (next) {
+                            next(this.invoice);
+                        } else {
+                            done('Faktura lagret');
+                        }
+                    });
+                },
+                (err) => {
+                    console.log('Feil oppsto ved lagring', err);
+                    done('Feil oppsto ved lagring');
+                    this.log(err);
+                }
+            );
     }
 
     private updateStatusText() {
@@ -611,13 +608,13 @@ export class InvoiceDetails {
     private CreditInvoice(done) {
         this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/invoices/' + data.ID);
-            },
-            (err) => {
-                console.log('Error creating credit note: ', err);
-                done('Feil ved kreditering');
-                this.log(err);
-            });
+                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                },
+                (err) => {
+                    console.log('Error creating credit note: ', err);
+                    done('Feil ved kreditering');
+                    this.log(err);
+                });
     }
 
     private payInvoice(done) {
@@ -632,17 +629,17 @@ export class InvoiceDetails {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
 
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
-                        this.invoice = data;
-                        this.addressService.setAddresses(this.invoice);
-                        this.updateStatusText();
-                        this.updateSaveActions();
-                        this.ready(null);
+                            this.invoice = data;
+                            this.addressService.setAddresses(this.invoice);
+                            this.updateStatusText();
+                            this.updateSaveActions();
+                            this.ready(null);
 
-                        done('Betaling registrert');
-                    },
-                    (err) => {
-                        done('Feilet ved registrering av betaling');
-                    });
+                            done('Betaling registrert');
+                        },
+                        (err) => {
+                            done('Feilet ved registrering av betaling');
+                        });
                 }, (err) => {
                     console.log('Error registering payment: ', err);
                     done('Feilet ved registrering av betaling');

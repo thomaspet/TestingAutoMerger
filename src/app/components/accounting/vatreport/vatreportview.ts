@@ -1,9 +1,7 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
-import {ROUTER_DIRECTIVES} from '@angular/router';
+import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTabs} from '../../layout/uniTabs/uniTabs';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {
     CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
@@ -11,17 +9,10 @@ import {
 } from '../../../unientities';
 import {VatReportService} from '../../../services/Accounting/VatReportService';
 import {Observable, Subscription} from 'rxjs/Rx';
-import {PeriodDateFormatPipe} from '../../../pipes/PeriodDateFormatPipe';
-import {UniCurrencyPipe} from '../../../pipes/UniCurrencyPipe';
 import {VatTypeService} from '../../../services/Accounting/VatTypeService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {VatSummaryPerPost} from './reportSummary/reportSummary';
-import {CheckListVat} from './checkList/checkList';
-import {ReceiptVat} from './receipt/receipt';
-import {VatReportJournalEntry} from './journalEntry/vatReportJournalEntry';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
-import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 
 
@@ -29,11 +20,7 @@ declare const moment;
 
 @Component({
     selector: 'vat-report-view',
-    templateUrl: 'app/components/accounting/vatreport/vatreportview.html',
-    providers: [CompanySettingsService, VatReportService],
-    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave,
-        VatSummaryPerPost, CheckListVat, ReceiptVat, VatReportJournalEntry, CreateCorrectedVatReportModal, HistoricVatReportModal, ContextMenu],
-    pipes: [PeriodDateFormatPipe, UniCurrencyPipe]
+    templateUrl: 'app/components/accounting/vatreport/vatreportview.html'
 })
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;

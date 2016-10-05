@@ -6,8 +6,7 @@ import moment from 'moment';
 
 @Component({
     selector: 'postingsummary-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html',
-    directives: [UniTable]
+    templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html'
 })
 export class PostingsummaryModalContent {
     public busy: boolean;

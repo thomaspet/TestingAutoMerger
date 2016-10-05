@@ -1,9 +1,8 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {WageType} from '../../../unientities';
 import {TaxType} from '../../../unientities';
-// import {RateTypeColumn} from '../../../unientities';
-// import {LimitType} from '../../../unientities';
 import {StdWageType} from '../../../unientities';
 import {FieldType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
@@ -16,19 +15,6 @@ let taxType: Array<any> = [
     {ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk'}
 ];
 
-// let rateType: Array<any> = [
-//     {ID: RateTypeColumn.none, Name: 'Ingen'},
-//     {ID: RateTypeColumn.Employment, Name: 'Arbeidsforhold'},
-//     {ID: RateTypeColumn.Employee, Name: 'Ansatt'},
-//     {ID: RateTypeColumn.Salary_scale, Name: 'Regulativ'}
-// ];
-
-// let limitType: Array<any> = [
-//     {ID: LimitType.None, Name: 'Ingen'},
-//     {ID: LimitType.Amount, Name: 'Antall'},
-//     {ID: LimitType.Sum, Name: 'Sum'}
-// ];
-
 let stdWageType: Array<any> = [
     {ID: StdWageType.None, Name: 'Ingen'},
     {ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk'},
@@ -38,6 +24,7 @@ let stdWageType: Array<any> = [
     {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
 ];
 
+@Injectable()
 export class WageTypeService extends BizHttp<WageType> {
 
     private defaultExpands: any = [

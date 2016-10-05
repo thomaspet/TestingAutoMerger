@@ -1,12 +1,10 @@
 import {Component} from '@angular/core';
-import {UniDocumentUploader, UniDocumentList} from '../../../../framework/documents/index';
 import {Employee} from '../../../unientities';
 import {EmployeeFileUploader} from './employeeUploader';
 import {UniHttp} from '../../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-document-demo',
-    directives: [UniDocumentUploader, UniDocumentList],
     providers: [EmployeeFileUploader],
     template: `
         <h1>Example with employee 1</h1>
@@ -27,7 +25,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 })
 export class UniDocumentDemo {
     private employee: Employee;
-    constructor(private $http: UniHttp, private service: EmployeeFileUploader) {
+    constructor(private service: EmployeeFileUploader) {
         this.employee = new Employee();
         this.employee.ID = 1;
     }

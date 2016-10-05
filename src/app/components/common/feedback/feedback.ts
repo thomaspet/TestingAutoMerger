@@ -1,16 +1,13 @@
 import {Component} from '@angular/core';
 import {Http, Headers} from '@angular/http';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
-import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
-
 import moment from 'moment';
 declare var APP_VERSION;
 
 @Component({
     selector: 'uni-feedback',
-    templateUrl: 'app/components/common/feedback/feedback.html',
-    directives: [REACTIVE_FORM_DIRECTIVES, ClickOutsideDirective]
+    templateUrl: 'app/components/common/feedback/feedback.html'
 })
 export class UniFeedback {
     private expanded: boolean = false;

@@ -9,9 +9,7 @@ import {AccountGroupService} from '../../../../services/Accounting/AccountGroupS
 
 @Component({
     selector: 'account-details',
-    templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html',
-    directives: [DimensionList, UniForm],
-    providers: [AccountService, CurrencyService, VatTypeService, AccountGroupService]
+    templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html'
 })
 export class AccountDetails implements OnInit {
     @Input() public inputAccount: Account;

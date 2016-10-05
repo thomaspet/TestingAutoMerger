@@ -7,8 +7,7 @@ import {Http, URLSearchParams} from '@angular/http';
     selector: 'uni-image-demo',
     template: `    
         <uni-image [imageId]="imageId" [size]="imageSize"></uni-image>
-    `,
-    directives: [UniImage],
+    `
 })
 export class ImageDemo {
     

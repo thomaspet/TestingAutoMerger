@@ -1,9 +1,11 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, FieldType, Operator, SalaryTransaction, EmployeeCategory} from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 
+@Injectable()
 export class EmployeeService extends BizHttp<Employee> {
 
     private employee: Subject<Employee> = new Subject<Employee>();
@@ -600,7 +602,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Property: 'MunicipalityNo',
                     Placement: 7,
                     Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Kommune',

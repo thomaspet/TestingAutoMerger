@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {GenericListView, IViewConfig} from '../genericview/list';
+import {IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
@@ -8,8 +8,7 @@ export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListvie
 
 @Component({
     selector: view.name,
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView]
+    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class WorkprofileListview {
 

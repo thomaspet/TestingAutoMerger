@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {REACTIVE_FORM_DIRECTIVES, FormGroup} from '@angular/forms';
+import {FormGroup} from '@angular/forms';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 declare var _; // lodash
@@ -8,7 +8,6 @@ declare var _; // lodash
 @Component({
     selector: 'uni-combo-field',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [REACTIVE_FORM_DIRECTIVES, UniField],
     template: `<legend *ngIf="config?.legend">{{config?.legend}}</legend>
         <template ngFor let-field [ngForOf]="fields" let i="index">
             <uni-field

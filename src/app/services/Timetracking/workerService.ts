@@ -6,7 +6,7 @@ import {Observable} from 'rxjs/Rx';
 import {AuthService} from '../../../framework/core/authService';
 import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/timetracking/utils/utils';
-import {AppConfig} from '../../../app/AppConfig';
+import {AppConfig} from '../../appConfig';
 
 declare var moment;
 

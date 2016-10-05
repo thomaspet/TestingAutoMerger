@@ -14,8 +14,8 @@ import {QuoteItemList} from './quoteItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 
-import {FieldType, CustomerQuote, CustomerQuoteItem, Customer} from '../../../../unientities';
-import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
+import {Address} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
@@ -41,9 +41,6 @@ class CustomerQuoteExt extends CustomerQuote {
 @Component({
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
-    directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, CompanySettingsService,
-        ProjectService, DepartmentService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class QuoteDetails {
     @Input() public quoteID: any;
@@ -77,19 +74,19 @@ export class QuoteDetails {
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     constructor(private customerService: CustomerService,
-        private customerQuoteService: CustomerQuoteService,
-        private customerQuoteItemService: CustomerQuoteItemService,
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private addressService: AddressService,
-        private businessRelationService: BusinessRelationService,
-        private reportDefinitionService: ReportDefinitionService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
+                private customerQuoteService: CustomerQuoteService,
+                private customerQuoteItemService: CustomerQuoteItemService,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService,
+                private addressService: AddressService,
+                private businessRelationService: BusinessRelationService,
+                private reportDefinitionService: ReportDefinitionService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
 
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService) {
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService) {
 
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
@@ -104,28 +101,28 @@ export class QuoteDetails {
     public nextQuote() {
         this.customerQuoteService.next(this.quote.ID)
             .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
+                    if (data) {
+                        this.router.navigateByUrl('/sales/quotes/' + data.ID);
+                    }
+                },
+                (err) => {
+                    console.log('Error getting next quote: ', err);
+                    this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
                 }
-            },
-            (err) => {
-                console.log('Error getting next quote: ', err);
-                this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
-            }
             );
     }
 
     public previousQuote() {
         this.customerQuoteService.previous(this.quote.ID)
             .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
+                    if (data) {
+                        this.router.navigateByUrl('/sales/quotes/' + data.ID);
+                    }
+                },
+                (err) => {
+                    console.log('Error getting previous quote: ', err);
+                    this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
                 }
-            },
-            (err) => {
-                console.log('Error getting previous quote: ', err);
-                this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
-            }
             );
     }
 
@@ -133,13 +130,13 @@ export class QuoteDetails {
         this.customerQuoteService.newCustomerQuote().then(quote => {
             this.customerQuoteService.Post(quote)
                 .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating quote: ', err);
-                    this.log(err);
-                }
+                    (data) => {
+                        this.router.navigateByUrl('/sales/quotes/' + data.ID);
+                    },
+                    (err) => {
+                        console.log('Error creating quote: ', err);
+                        this.log(err);
+                    }
                 );
         });
     }
@@ -191,10 +188,10 @@ export class QuoteDetails {
     private setup() {
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
-            err => {
-                console.log('Error retrieving company settings data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-            });
+                err => {
+                    console.log('Error retrieving company settings data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -441,13 +438,13 @@ export class QuoteDetails {
 
             this.customerQuoteService.calculateQuoteSummary(quoteItems)
                 .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.updateSaveActions();
-                },
-                (err) => {
-                    console.log('Error when recalculating items:', err);
-                    this.log(err);
-                });
+                        this.itemsSummaryData = data;
+                        this.updateSaveActions();
+                    },
+                    (err) => {
+                        console.log('Error when recalculating items:', err);
+                        this.log(err);
+                    });
         }, 2000);
     }
 
@@ -462,13 +459,13 @@ export class QuoteDetails {
                 done(doneText);
 
                 this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
-                        this.quote = data;
-                        this.addressService.setAddresses(this.quote);
-                        this.updateStatusText();
-                        this.updateSaveActions();
-                        this.setTabTitle();
-                        this.ready(null);
-                    });
+                    this.quote = data;
+                    this.addressService.setAddresses(this.quote);
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.setTabTitle();
+                    this.ready(null);
+                });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -501,28 +498,28 @@ export class QuoteDetails {
 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
-            (quoteSaved) => {
-                this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quoteGet => {
-                    this.quote = quoteGet;
-                    this.addressService.setAddresses(this.quote);
-                    this.updateStatusText();
-                    this.updateSaveActions();
-                    this.setTabTitle();
-                    this.ready(null);
+                (quoteSaved) => {
+                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quoteGet => {
+                        this.quote = quoteGet;
+                        this.addressService.setAddresses(this.quote);
+                        this.updateStatusText();
+                        this.updateSaveActions();
+                        this.setTabTitle();
+                        this.ready(null);
 
-                    if (next) {
-                        next(this.quote);
-                    } else {
-                        done('Tilbud lagret');
-                    }
-                });
-            },
-            (err) => {
-                console.log('Feil oppsto ved lagring', err);
-                this.log(err);
-                done('Lagring feilet');
-            }
-        );
+                        if (next) {
+                            next(this.quote);
+                        } else {
+                            done('Tilbud lagret');
+                        }
+                    });
+                },
+                (err) => {
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                    done('Lagring feilet');
+                }
+            );
     }
 
     private updateStatusText() {

@@ -2,7 +2,6 @@ import {
     Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, SimpleChange
 } from '@angular/core';
 import {FormGroup, FormBuilder} from '@angular/forms';
-import {REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {FieldLayout} from '../../app/unientities';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
@@ -16,8 +15,6 @@ declare var _; // lodash
  */
 @Component({
     selector: 'uni-form',
-    directives: [REACTIVE_FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet, UniSection],
-    providers: [FormBuilder],
     template: `
         <form (submit)="submit($event)" [formGroup]="controls">
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">

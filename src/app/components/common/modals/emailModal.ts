@@ -7,7 +7,6 @@ import {EmailService} from '../../../services/services';
 // Reusable email form
 @Component({
     selector: 'email-form',
-    directives: [UniForm],
     template: `
         <article class="modal-content email-modal">
            <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -101,9 +100,7 @@ export class EmailForm {
     selector: 'email-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    directives: [UniModal],
-    providers: [EmailService]
+    `
 })
 export class EmailModal {
     @Input() public email: Email;    

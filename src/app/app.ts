@@ -1,25 +1,15 @@
 /// <reference path="../../kendo/typescript/kendo.all.d.ts" />
 /// <reference path="../../typings/main.d.ts" />
 import {Component, ViewChild} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
 import {AuthService} from '../framework/core/authService';
-import {TabService, UniModules} from './components/layout/navbar/tabstrip/tabService';
-import {UniNavbar} from './components/layout/navbar/navbar';
 import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
-import {UniToastList} from '../framework/uniToast/toastList';
-import {UniFeedback} from './components/common/feedback/feedback';
 
 @Component({
     selector: 'uni-app',
-    templateUrl: 'app/app.html',
-    directives: [
-        ROUTER_DIRECTIVES, UniNavbar, LoginModal,
-        CompanySyncModal, UniToastList, UniFeedback
-    ],
-    providers: [TabService, UniHttp, StaticRegisterService]
+    templateUrl: 'app/app.html'
 })
 export class App {
     private isAuthenticated: boolean = false;

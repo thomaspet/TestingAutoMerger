@@ -1,7 +1,7 @@
-import { Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactory } from '@angular/core';
-import { ComponentCreator } from '../../../../framework/core/dynamic/index';
-import { AppModule } from '../../../bootstrap';
-import { UniTestComponent } from './testComponent';
+import {Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactory} from '@angular/core';
+import {ComponentCreator} from '../../../../framework/core/dynamic/index';
+import {AppModule} from '../../../appModule';
+import {UniTestComponent} from './testComponent';
 
 @Component({
     selector: 'uni-dynamic-demo',
@@ -11,8 +11,7 @@ import { UniTestComponent } from './testComponent';
         <button type="button" (click)="destroy()" [disabled]="!component">Destroy!</button>
         <div #dynamicContentPlaceHolder></div>
         <p>Status: {{status}}</p>
-    `,
-    providers: [ComponentCreator]
+    `
 })
 export class UniDynamicDemo {
 

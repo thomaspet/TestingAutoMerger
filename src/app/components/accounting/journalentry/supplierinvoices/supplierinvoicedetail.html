@@ -64,7 +64,7 @@
         <span>{{fileuploader.statusText}}</span>
     </p>           
     <uni-document-uploader *ngIf="previewId == -1"
-    [service]="fileuploader" 
+    [service]="fileuploader"
     [entity]="supplierInvoice"
     (onFileUploaded)="onFileUploaded($event)"></uni-document-uploader>
 </article>

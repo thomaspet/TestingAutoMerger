@@ -1,11 +1,9 @@
 import {Component} from '@angular/core';
-import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'payments',
-    templateUrl: 'app/components/accounting/journalentry/payments/payments.html',
-    directives: [JournalEntryManual],
+    templateUrl: 'app/components/accounting/journalentry/payments/payments.html'
 })
 export class Payments {
     constructor(private tabService: TabService) {

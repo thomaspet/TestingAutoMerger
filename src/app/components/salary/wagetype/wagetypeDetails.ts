@@ -4,7 +4,7 @@ import {WageTypeService, AccountService, InntektService} from '../../../services
 import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 import {WageType, Account, WageTypeSupplement} from '../../../unientities';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
@@ -13,9 +13,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'wagetype-details',
-    templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html',
-    providers: [WageTypeService, AccountService, InntektService],
-    directives: [UniForm, UniSave, WidgetPoster, UniTable]
+    templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html'
 })
 export class WagetypeDetail {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';

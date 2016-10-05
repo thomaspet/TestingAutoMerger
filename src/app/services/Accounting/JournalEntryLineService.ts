@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -7,6 +8,7 @@ import {PeriodDates} from '../../models/accounting/PeriodDates';
 
 declare const moment: any;
 
+@Injectable()
 export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
 
     constructor(http: UniHttp) {

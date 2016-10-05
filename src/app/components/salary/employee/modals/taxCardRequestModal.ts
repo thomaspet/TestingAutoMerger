@@ -1,5 +1,4 @@
-import {Component, Type, ViewChild, Input} from '@angular/core';
-import {NgIf} from '@angular/common';
+import {Component, Type, ViewChild, Input, ComponentRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniform';
@@ -9,8 +8,6 @@ import {AltinnIntegrationService, EmployeeService} from '../../../../../app/serv
 declare var _;
 @Component({
     selector: 'tax-card-request-modal-content',
-    directives: [UniForm, NgIf],
-    providers: [AltinnIntegrationService, EmployeeService],
     templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html',
     host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
 })
@@ -163,7 +160,6 @@ export class TaxCardRequestModalContent {
 
 @Component({
     selector: 'tax-card-request-modal',
-    directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
@@ -178,19 +174,19 @@ export class TaxCardRequestModal {
         this.config = {
             hasCancelButton: true,
             cancel: () => {
-                this.modal.getContent().then((component: TaxCardRequestModalContent) => {
+                this.modal.getContent().then((component: ComponentRef<TaxCardRequestModalContent>) => {
                     this.modal.close();
-                    component.close();
-                    component.isActive = false;
+                    component.instance.close();
+                    component.instance.isActive = false;
                 });
             }
         };
     }
 
     public openModal() {
-        this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
-            this.modal.open();
-            modalContent.isActive = true;
+        this.modal.open();
+        this.modal.getContent().then((modalContent: ComponentRef<TaxCardRequestModalContent>) => {
+            modalContent.instance.isActive = true;
         });
     }
 

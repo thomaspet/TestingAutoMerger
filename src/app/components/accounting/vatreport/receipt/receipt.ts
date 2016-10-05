@@ -1,17 +1,12 @@
 import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {VatReport, AltinnGetVatReportDataFromAltinnStatus, VatReportSummaryPerPost} from '../../../../unientities';
-import {UniCurrencyPipe} from '../../../../pipes/UniCurrencyPipe';
-import {UniAccountNumberPipe} from '../../../../pipes/UniAccountNumberPipe';
-import {UniDateFormatPipe} from '../../../../pipes/UniDateFormatPipe';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {VatReportService} from '../../../../services/Accounting/VatReportService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'vatreport-receipt-view',
-    templateUrl: 'app/components/accounting/vatreport/receipt/receipt.html',
-    pipes: [UniCurrencyPipe, UniAccountNumberPipe, UniDateFormatPipe],
-    directives: [AltinnAuthenticationDataModal]
+    templateUrl: 'app/components/accounting/vatreport/receipt/receipt.html'
 })
 export class ReceiptVat {
     @Input() public vatReport: VatReport;

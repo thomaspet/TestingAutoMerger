@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { HamburgerMenu } from '../../layout/navbar/hamburgerMenu/hamburgerMenu';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import {Component} from '@angular/core';
+import {HamburgerMenu} from '../../layout/navbar/hamburgerMenu/hamburgerMenu';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-breadcrumbs',

@@ -1,5 +1,4 @@
 import {Component, ViewChild} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
 import {UniSelect, ISelectConfig} from '../../../../framework/uniform/controls/select/select';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
@@ -24,9 +23,7 @@ import {Observable} from 'rxjs/Observable';
             </uni-select>
         </label>
         Selected vattype: {{currentVatType?.Name}}
-    `,
-    directives: [UniSelect],
-    pipes: [AsyncPipe],
+    `
 })
 export class UniSelectDemo {
     @ViewChild(UniSelect)

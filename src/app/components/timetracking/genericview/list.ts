@@ -33,9 +33,7 @@ export interface IViewConfig {
 
 @Component({
     selector: 'genericlist',
-    templateUrl: 'app/components/timetracking/genericview/list.html',
-    directives: [UniTable],
-    providers: [WorkerService]
+    templateUrl: 'app/components/timetracking/genericview/list.html'
 })
 export class GenericListView {
     @Input() public viewconfig: IViewConfig;

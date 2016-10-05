@@ -11,9 +11,7 @@ declare var jQuery;
 
 @Component({
     selector: 'supplier-list',
-    templateUrl: 'app/components/sales/supplier/list/supplierList.html',
-    directives: [UniTable],
-    providers: [SupplierService]
+    templateUrl: 'app/components/sales/supplier/list/supplierList.html'
 })
 export class SupplierList {
 

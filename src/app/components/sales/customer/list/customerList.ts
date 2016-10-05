@@ -3,17 +3,15 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {URLSearchParams} from '@angular/http';
-import {CustomerService} from "../../../../services/services";
-import {Customer, BusinessRelation} from "../../../../unientities";
-import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
+import {CustomerService} from '../../../../services/services';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {Customer} from '../../../../unientities';
 
 declare var jQuery;
 
 @Component({
     selector: 'customer-list',
-    templateUrl: 'app/components/sales/customer/list/customerList.html',
-    directives: [UniTable],
-    providers: [CustomerService]
+    templateUrl: 'app/components/sales/customer/list/customerList.html'
 })
 export class CustomerList {
     @ViewChild(UniTable) table: any;
@@ -22,7 +20,7 @@ export class CustomerList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService, private tabService: TabService) {
-        this.tabService.addTab({ name: "Kunder", url: "/sales/customer", moduleID: UniModules.Customers, active: true });
+        this.tabService.addTab({ name: 'Kunder', url: '/sales/customer', moduleID: UniModules.Customers, active: true });
         this.setupCustomerTable();
     }
 

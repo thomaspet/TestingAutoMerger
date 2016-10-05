@@ -2,7 +2,6 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
-import {UniForm} from '../../../../framework/uniform';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {ChangeMap} from '../utils/changeMap';
 import {Observable} from 'rxjs/Rx';
@@ -11,8 +10,6 @@ import {IResult} from '../genericview/detail';
 @Component({
     selector: 'workrelations',
     templateUrl: 'app/components/timetracking/worker/relations.html',
-    directives: [UniForm],
-    providers: [WorkerService]        
 })
 export class View {
     @Input() public set workerid(id: number) {

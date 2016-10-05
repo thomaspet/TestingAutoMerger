@@ -5,7 +5,6 @@ import {
 import {FormControl, FormControlDirective} from '@angular/forms';
 import {GuidService} from '../../../../app/services/common/guidService';
 import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
-import {UniModal} from '../../../modals/modal';
 
 declare var _; // lodash
 
@@ -20,7 +19,6 @@ export interface ISelectConfig {
 @Component({
     selector: 'uni-select',
     templateUrl: 'framework/uniform/controls/select/select.html',
-    directives: [ClickOutsideDirective, FormControlDirective],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSelect {
@@ -83,12 +81,12 @@ export class UniSelect {
         this.focusedIndex = this.focusedIndex || 0;
 
         this.searchControl.valueChanges
-        .distinctUntilChanged()
-        .subscribe((value) => {
-            if (value !== this.filterString) {
-                this.filterItems(value);
-            }
-        });
+            .distinctUntilChanged()
+            .subscribe((value) => {
+                if (value !== this.filterString) {
+                    this.filterItems(value);
+                }
+            });
     }
 
     // Focus first item matching character pressed
@@ -186,10 +184,10 @@ export class UniSelect {
                 this.confirmSelection();
                 this.expanded = false;
             }
-        // Escape
+            // Escape
         } else if (key === 27) {
             this.expanded = false;
-        // Space
+            // Space
         } else if (key === 32) {
             event.preventDefault();
             if (this.expanded) {
@@ -198,11 +196,11 @@ export class UniSelect {
             } else {
                 this.open();
             }
-        // Arrow up
+            // Arrow up
         } else if (key === 38 && this.focusedIndex > 0) {
             this.focusedIndex--;
             this.scrollToListItem();
-        // Arrow down
+            // Arrow down
         } else if (key === 40) {
             if (!this.expanded) {
                 this.expanded = true;

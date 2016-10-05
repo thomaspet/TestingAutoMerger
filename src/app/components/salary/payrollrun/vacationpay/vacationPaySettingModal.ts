@@ -4,7 +4,6 @@ import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
 
 @Component({
     selector: 'vacationpay-setting-modal',
-    directives: [UniModal],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModal.html'
 })
 export class VacationpaySettingModal {

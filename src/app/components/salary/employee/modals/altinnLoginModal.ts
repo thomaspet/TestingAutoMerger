@@ -1,16 +1,13 @@
 import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {Altinn, FieldType, CompanySettings, TypeOfLogin, AltinnCorrespondanceReader} from '../../../../../app/unientities';
-import {AltinnIntegrationService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../../../app/services/services';
-import {TaxCardReading} from '../../../../models/models';
+import {UniFieldLayout} from '../../../../../framework/uniform';
+import {Altinn, FieldType, CompanySettings, AltinnCorrespondanceReader} from '../../../../../app/unientities';
+import {AltinnIntegrationService, IntegrationServerCaller} from '../../../../../app/services/services';
 
-declare var _; // lodash
+declare const _; // lodash
 
 @Component({
     selector: 'altinn-login-modal-content',
-    directives: [UniForm],
-    providers: [AltinnIntegrationService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService],
     templateUrl: 'app/components/salary/employee/modals/altinnLoginModalContent.html'
 })
 export class AltinnLoginModalContent {
@@ -32,15 +29,19 @@ export class AltinnLoginModalContent {
     public fields: any[] = [];
     public formConfig: any = {};
 
-    constructor(private _altinnService: AltinnIntegrationService, private _companySettingsService: CompanySettingsService, private _inserver: IntegrationServerCaller, private _altinnReceiptService: AltinnReceiptService) {
+    constructor(private _altinnService: AltinnIntegrationService, private _inserver: IntegrationServerCaller) {
+    }
 
-        this.companySettings = JSON.parse(localStorage.getItem('companySettings'));
+    public ngOnChanges() {
+        setTimeout(() => {
+            this.companySettings = JSON.parse(localStorage.getItem('companySettings'));
 
-        this._altinnService.GetAll('top:1').subscribe((altinnResponse: Altinn[]) => {
-            this.altinn = altinnResponse[0];
-            this.resetData();
-        });
-        this.createForm();
+            this._altinnService.GetAll('top:1').subscribe((altinnResponse: Altinn[]) => {
+                this.altinn = altinnResponse[0];
+                this.resetData();
+            });
+            this.createForm();
+        }, 100);
     }
 
     private createForm() {
@@ -202,32 +203,34 @@ export class AltinnLoginModalContent {
 }
 @Component({
     selector: 'altinn-login-modal',
-    directives: [UniModal],
-    providers: [AltinnIntegrationService, CompanySettingsService],
     template: `
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
 })
 export class AltinnLoginModal {
+
     public config: { cancel: () => void };
     public type: Type = AltinnLoginModalContent;
 
-    @Output() public updatedReceipt: EventEmitter<any> = new EventEmitter<any>();
-
+    @Output()
+    public updatedReceipt: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    constructor(private _altinnService: AltinnIntegrationService, private _companySettingsService: CompanySettingsService) {
-        this.config = {
-            cancel: () => {
-                this.modal.getContent().then((component: AltinnLoginModalContent) => {
-                    this.updatedReceipt.emit(true);
-                    component.resetData();
-                    this.modal.close();
-                });
-            },
-        };
+    constructor() {
+        let self = this;
+        setTimeout(() => {
+            self.config = {
+                cancel: () => {
+                    self.modal.getContent().then((component: AltinnLoginModalContent) => {
+                        self.updatedReceipt.emit(true);
+                        component.resetData();
+                        self.modal.close();
+                    });
+                },
+            };
+        }, 100);
     }
 
     public openLogin(receiptID: number) {

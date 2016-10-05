@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
-import {Router } from '@angular/router';
+import {Router} from '@angular/router';
 
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {WageTypeService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 
@@ -12,9 +11,6 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 @Component({
     selector: 'wagetypes',
     templateUrl: 'app/components/salary/wagetype/wagetypeList.html',
-    directives: [UniTable],
-    providers: [WageTypeService],
-    pipes: [AsyncPipe]
 })
 export class WagetypeList implements OnInit {
 

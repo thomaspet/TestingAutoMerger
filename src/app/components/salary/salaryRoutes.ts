@@ -1,3 +1,10 @@
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+
+import {UniSalary} from './salary';
+import {AuthGuard} from '../../authGuard';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
+
 import {WagetypeDetail} from './wagetype/wagetypeDetails';
 import {WagetypeList} from './wagetype/wagetypeList';
 import {EmployeeList} from './employee/employeeList';
@@ -8,9 +15,10 @@ import {PaymentList} from './payrollrun/paymentList';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
 import {AMeldingView} from './amelding/ameldingview';
 
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
-export const routes = [
+
+
+export const childRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -52,3 +60,20 @@ export const routes = [
         component: AMeldingView
     }
 ];
+
+
+const salaryRoutes: Routes = [
+    {
+        path: 'salary',
+        component: UniSalary,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(salaryRoutes);

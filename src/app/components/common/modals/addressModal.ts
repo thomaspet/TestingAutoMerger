@@ -7,7 +7,7 @@ import {AddressService} from '../../../services/services';
 // Reusable address form
 @Component({
     selector: 'address-form',
-    directives: [UniForm],
+
     template: `
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -236,9 +236,7 @@ export class AddressForm implements OnChanges {
     selector: 'address-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    directives: [UniModal],
-    providers: [AddressService]
+    `
 })
 export class AddressModal {
     @Input() public address: Address;

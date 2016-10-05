@@ -1,3 +1,6 @@
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+
 import {XFormDemo} from './form/xFormDemo';
 import {UniTableDemoNew} from './table/tableDemoNew';
 import {ImageDemo} from './image/imageDemo';
@@ -8,7 +11,10 @@ import {UniSaveDemo} from './save/saveDemo';
 import {UniToastDemo} from './toast/toastDemo';
 import {UniSelectDemo} from './select/selectDemo';
 import {UniDynamicDemo} from './dynamic/index';
-export const routes = [
+import {Examples} from './examples';
+import {AuthGuard} from '../../authGuard';
+
+export const childRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
@@ -55,3 +61,19 @@ export const routes = [
         component: UniDynamicDemo
     }
 ];
+
+const exampleRoutes: Routes = [
+    {
+        path: 'examples',
+        component: Examples,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(exampleRoutes);

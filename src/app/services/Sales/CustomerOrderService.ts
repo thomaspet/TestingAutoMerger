@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrder, CustomerOrderItem} from '../../unientities';
 import {StatusCodeCustomerOrder} from '../../unientities';
@@ -7,6 +8,7 @@ import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalcu
 
 declare var moment;
 
+@Injectable()
 export class CustomerOrderService extends BizHttp<CustomerOrder> {
     
     constructor(http: UniHttp) {        
@@ -29,7 +31,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     newCustomerOrder(): Promise<CustomerOrder>
     {       
         return new Promise(resolve => {
-            this.GetNewEntity([], CustomerOrder.EntityType).subscribe(order => {
+            this.GetNewEntity([], CustomerOrder.EntityType).subscribe((order: CustomerOrder) => {
                 order.OrderDate = moment().toDate();
                    
                 resolve(order);                

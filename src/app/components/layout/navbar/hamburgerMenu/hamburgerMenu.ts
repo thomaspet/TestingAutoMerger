@@ -1,9 +1,8 @@
 ﻿import {Component, ElementRef, Pipe} from '@angular/core';
-import {ROUTER_DIRECTIVES, Router, Route} from '@angular/router';
-import {NgFor, NgClass} from '@angular/common';
-import {ClickOutsideDirective} from '../../../../../framework/core/clickOutside';
+import {Router} from '@angular/router';
 import {routes} from '../../../../routes';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
+
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
     private transform(componentList) {
@@ -29,9 +28,7 @@ export class RemoveHidden {
                 </li>
             </ul>
         </nav>
-    `,
-    directives: [ClickOutsideDirective, ROUTER_DIRECTIVES, NgFor, NgClass],
-    pipes: [RemoveHidden]
+    `
 })
 export class HamburgerMenu {
     private open: boolean = false;

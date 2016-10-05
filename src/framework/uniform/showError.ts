@@ -9,8 +9,7 @@ import {NgIf} from '@angular/common';
     selector: 'show-error',
     template: `
         <small *ngIf="errorMessage !== null">{{errorMessage}}</small>
-    `,
-    directives: [NgIf]
+    `
 })
 export class ShowError {
 

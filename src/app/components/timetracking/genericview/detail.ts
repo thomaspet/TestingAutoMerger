@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from '../../../../framework/uniform';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
@@ -38,9 +38,8 @@ export interface IAfterSaveInfo {
 
 @Component({
     selector: 'genericdetail',
-    templateUrl: 'app/components/timetracking/genericview/detail.html',
-    providers: [WorkerService],
-    directives: [UniForm, UniSave]
+    templateUrl: 'app/components/timetracking/genericview/detail.html'
+
 })
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;

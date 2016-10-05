@@ -1,4 +1,5 @@
-import {Route} from '@angular/router';
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 
 import {WorkerListview} from './worker/workers';
 import {WorkerDetailview} from './worker/worker';
@@ -16,8 +17,10 @@ import {ProjectListview} from './project/projects';
 import {ProjectDetailview} from './project/project';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {UniTimetracking} from './timetracking';
+import {AuthGuard} from '../../authGuard';
 
-export const routes: Route[] = [
+export const childRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
@@ -66,3 +69,19 @@ export const routes: Route[] = [
         canDeactivate: [CanDeactivateGuard]
     }
 ];
+
+const timetrackingRoutes: Routes = [
+    {
+        path: 'timetracking',
+        component: UniTimetracking,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(timetrackingRoutes);

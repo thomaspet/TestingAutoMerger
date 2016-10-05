@@ -1,5 +1,4 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {ClickOutsideDirective} from '../core/clickOutside';
 import moment from 'moment';
 
 export interface IUniSaveAction {
@@ -51,7 +50,6 @@ export interface IUniSaveAction {
             </div>
         </footer>
     `,
-    directives: [ClickOutsideDirective],
     host: {
         '(keydown.esc)': 'close()',
         '(document:keydown)': 'checkForSaveKey($event)'

@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Product} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
+@Injectable()
 export class ProductService extends BizHttp<Product> {
 
     constructor(http: UniHttp) {

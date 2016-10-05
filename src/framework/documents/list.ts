@@ -1,12 +1,10 @@
-import {CORE_DIRECTIVES} from '@angular/common';
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {FileUploadService} from './FileUploadService';
 
 @Component({
     selector: 'uni-document-list',
-    directives: [CORE_DIRECTIVES],
     template: `
-        <ul *ngIf="service.Slots">
+        <ul>
             <li *ngFor="let slot of service.Slots">
                 <a (click)="open(slot)">{{slot?.Name}}</a>
                 <button (click)="delete(slot)">Delete</button>

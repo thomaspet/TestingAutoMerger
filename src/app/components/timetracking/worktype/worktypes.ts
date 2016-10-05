@@ -3,15 +3,13 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {WorkTypeSystemTypePipe} from '../utils/pipes';
-import {GenericListView, IViewConfig} from '../genericview/list';
+import {IViewConfig} from '../genericview/list';
 
 export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype', WorktypeListview);
 
 @Component({
     selector: view.name,
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView],
-    pipes: [WorkTypeSystemTypePipe]
+    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class WorktypeListview {
     public viewconfig: IViewConfig;

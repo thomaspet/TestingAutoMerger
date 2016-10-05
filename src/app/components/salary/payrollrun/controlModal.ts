@@ -12,8 +12,6 @@ declare var _; // lodash
 
 @Component({
     selector: 'control-modal-content',
-    directives: [UniForm, UniTable],
-    providers: [SalaryTransactionService, PayrollrunService, EmployeeService],
     templateUrl: 'app/components/salary/payrollrun/controlModalContent.html'
 })
 export class ControlModalContent {
@@ -175,7 +173,6 @@ export class ControlModalContent {
 
 @Component({
     selector: 'control-modal',
-    directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `

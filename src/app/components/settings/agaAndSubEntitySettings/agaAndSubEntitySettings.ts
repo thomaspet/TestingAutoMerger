@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {SubEntityList} from './subEntityList';
 import {FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector} from '../../../unientities';
@@ -11,9 +11,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'aga-and-subentities-settings',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings.html',
-    providers: [CompanySalaryService, AccountService, SubEntityService, AgaZoneService],
-    directives: [UniForm, UniSave, SubEntityList]
+    templateUrl: 'app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings.html'
 })
 
 export class AgaAndSubEntitySettings implements OnInit {

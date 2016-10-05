@@ -1,13 +1,12 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute, ROUTER_DIRECTIVES} from '@angular/router';
-import {FormControl, REACTIVE_FORM_DIRECTIVES, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {passwordValidator} from '../authValidators';
 import {UniHttp} from '../../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-reset-password',
     templateUrl: 'app/components/init/resetPassword/resetPassword.html',
-    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES],
 })
 export class ResetPassword {
     private code: string;

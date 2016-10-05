@@ -14,40 +14,38 @@ enum LoginState {
 
 @Component({
     selector: 'altinn-authentication-data-modal-content',
-    directives: [UniForm],
-    providers: [CompanySettingsService, IntegrationServerCaller, AltinnReceiptService, AltinnAuthenticationService],
     template: `
-<article class="modal-content" [attr.aria-busy]="busy">
-    <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
-    <p [innerHTML]="userMessage"></p>
-    <div *ngIf="formState == LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
-        <uni-form
-            [config]="{}"
-            [fields]="usernameAndPasswordFormFields"
-            [model]="userLoginData"
-        ></uni-form>
-        <footer>
-            <button (click)="submitUsernameAndPasswordAndPinType()">OK</button>
-            <button *ngIf="config" (click)="config.close()">Avbryt</button>
-        </footer>
-    </div>
-    <div *ngIf="formState == LOGIN_STATE_ENUM.Pin">
-        <uni-form
-            [config]="{}"
-            [fields]="pinFormFields"
-            [model]="userLoginData"
-        ></uni-form>
-        <footer>
-            <button (click)="submitPin()">OK</button>
-            <button *ngIf="config" (click)="config.close()">Avbryt</button>
-        </footer>
-    </div>
-    <div *ngIf="formState == LOGIN_STATE_ENUM.LoggedIn">
-        <footer>
-            <button *ngIf="config" (click)="config.close()">OK</button>
-        </footer>
-    </div>
-</article>`
+        <article class="modal-content" [attr.aria-busy]="busy">
+            <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
+            <p [innerHTML]="userMessage"></p>
+            <div *ngIf="formState == LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
+                <uni-form
+                    [config]="{}"
+                    [fields]="usernameAndPasswordFormFields"
+                    [model]="userLoginData"
+                ></uni-form>
+                <footer>
+                    <button (click)="submitUsernameAndPasswordAndPinType()">OK</button>
+                    <button *ngIf="config" (click)="config.close()">Avbryt</button>
+                </footer>
+            </div>
+            <div *ngIf="formState == LOGIN_STATE_ENUM.Pin">
+                <uni-form
+                    [config]="{}"
+                    [fields]="pinFormFields"
+                    [model]="userLoginData"
+                ></uni-form>
+                <footer>
+                    <button (click)="submitPin()">OK</button>
+                    <button *ngIf="config" (click)="config.close()">Avbryt</button>
+                </footer>
+            </div>
+            <div *ngIf="formState == LOGIN_STATE_ENUM.LoggedIn">
+                <footer>
+                    <button *ngIf="config" (click)="config.close()">OK</button>
+                </footer>
+            </div>
+        </article>`
 })
 export class AltinnAuthenticationDataModalContent {
     @Input()
@@ -209,8 +207,6 @@ export class AltinnAuthenticationDataModalContent {
 
 @Component({
     selector: 'altinn-authentication-data-modal',
-    directives: [UniModal],
-    providers: [AltinnAuthenticationService],
     template: '<uni-modal [type]="type" [config]="config"></uni-modal>'
 })
 export class AltinnAuthenticationDataModal {

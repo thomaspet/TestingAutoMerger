@@ -13,9 +13,7 @@ declare var jQuery;
 
 @Component({
     selector: 'order-item-list',
-    templateUrl: 'app/components/sales/order/details/orderItemList.html',
-    directives: [UniTable],
-    providers: [ProductService, VatTypeService, CustomerOrderItemService, TradeItemHelper]
+    templateUrl: 'app/components/sales/order/details/orderItemList.html'
 })
 export class OrderItemList {
     @Input() public order: CustomerOrder;

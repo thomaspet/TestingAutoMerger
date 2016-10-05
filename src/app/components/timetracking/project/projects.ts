@@ -8,8 +8,7 @@ export var view = new View('projects', 'Prosjekter', 'ProjectListview', false, '
 
 @Component({
     selector: view.name,
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView]
+    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class ProjectListview {
     public viewconfig: IViewConfig;

@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -9,10 +8,7 @@ import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'payrollrun-list',
-    templateUrl: 'app/components/salary/payrollrun/payrollrunList.html',
-    directives: [UniTable],
-    providers: [PayrollrunService],
-    pipes: [AsyncPipe]
+    templateUrl: 'app/components/salary/payrollrun/payrollrunList.html'
 })
 
 export class PayrollrunList implements OnInit {

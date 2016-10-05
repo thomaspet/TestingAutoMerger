@@ -6,15 +6,11 @@ import {VatReport} from '../../../../unientities';
 
 @Component({
     selector: 'vatreport-journal-entry',
-    templateUrl: 'app/components/accounting/vatreport/JournalEntry/vatReportJournalEntry.html',
-    directives: [JournalEntryManual],
-    providers: [JournalEntryService]
+    templateUrl: 'app/components/accounting/vatreport/JournalEntry/vatReportJournalEntry.html'
 })
 export class VatReportJournalEntry {
     @Input() public vatReport: VatReport;
-//    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
-    //private disabled: boolean = true;
-    private journalEntryNumber: string = "";
+    private journalEntryNumber: string = '';
 
     constructor(
         private _journalEntryService: JournalEntryService) {

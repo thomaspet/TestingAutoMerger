@@ -1,5 +1,5 @@
 import {Component, Input, Output, HostBinding, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {REACTIVE_FORM_DIRECTIVES, FormGroup} from '@angular/forms';
+import {FormGroup} from '@angular/forms';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
@@ -32,8 +32,7 @@ declare var _; // lodash
             </template>
         </fieldset>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [REACTIVE_FORM_DIRECTIVES, UniField, UniCombo]
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniFieldSet {
 

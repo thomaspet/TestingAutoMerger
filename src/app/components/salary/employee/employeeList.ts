@@ -11,10 +11,8 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {EmployeeService} from '../../../services/services';
 
 @Component({
-    templateUrl: 'app/components/salary/employee/employeeList.html',
-    pipes: [AsyncPipe],
-    directives: [UniTable],
-    providers: [EmployeeService]
+    selector: 'employee-list',
+    templateUrl: 'app/components/salary/employee/employeeList.html'
 })
 
 export class EmployeeList {

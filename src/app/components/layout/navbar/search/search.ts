@@ -1,5 +1,5 @@
 ﻿import {Component, AfterViewInit, ElementRef, ViewChild, Renderer} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
@@ -10,7 +10,6 @@ import 'rxjs/add/operator/debounceTime';
 
 @Component({
     selector: 'uni-navbar-search',
-    directives: [REACTIVE_FORM_DIRECTIVES],
     template: `
         <nav class="navbar_search">
             <div >

@@ -3,9 +3,7 @@ import {VatReportMessage, ValidationLevel} from '../../../../unientities';
 
 @Component({
     selector: 'vatreport-checklist-view',
-    templateUrl: 'app/components/accounting/vatreport/checkList/checkList.html',
-    directives: [],
-    providers: []
+    templateUrl: 'app/components/accounting/vatreport/checkList/checkList.html'
 })
 export class CheckListVat {
     @Input() public vatReportMessages: VatReportMessage[];

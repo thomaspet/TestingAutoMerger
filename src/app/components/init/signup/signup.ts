@@ -1,13 +1,11 @@
 import {Component} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
-import {FormControl, Validators, FormGroup, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {passwordValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-signup',
-    templateUrl: 'app/components/init/signup/signup.html',
-    directives: [ROUTER_DIRECTIVES, REACTIVE_FORM_DIRECTIVES]
+    templateUrl: 'app/components/init/signup/signup.html'
 })
 export class Signup {
     private emailForm: FormGroup = undefined;

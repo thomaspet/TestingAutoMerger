@@ -1,17 +1,15 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService} from '../../../../services/services';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {EmploymentDetails} from './employmentDetails';
 import {Employee, Employment} from '../../../../unientities';
 
 import {UniCacheService} from '../../../../services/services';
 
 @Component({
     selector: 'employments',
-    templateUrl: 'app/components/salary/employee/employments/employments.html',
-    directives: [UniTable, EmploymentDetails],
+    templateUrl: 'app/components/salary/employee/employments/employments.html'
 })
 export class Employments extends UniView {
     @ViewChild(UniTable)

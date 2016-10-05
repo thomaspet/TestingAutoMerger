@@ -11,9 +11,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 @Component({
     selector: 'quote-list',
-    templateUrl: 'app/components/sales/quote/list/quoteList.html',
-    directives: [UniTable, PreviewModal],
-    providers: [CustomerQuoteService, ReportDefinitionService]
+    templateUrl: 'app/components/sales/quote/list/quoteList.html'
 })
 export class QuoteList {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;

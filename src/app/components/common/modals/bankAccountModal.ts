@@ -12,7 +12,7 @@ declare var _;
 // Reusable bankaccount form
 @Component({
     selector: 'bankaccount-form',
-    directives: [UniForm],
+
     template: `
         <article class="modal-content bankaccount-modal" *ngIf="config.model">
            <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -23,8 +23,7 @@ declare var _;
                 </button>                
             </footer>
         </article>
-    `,
-    providers: [BankService, AccountService, AddressService]
+    `
 })
 export class BankAccountForm {    
     @ViewChild(UniForm) public form: UniForm;
@@ -45,7 +44,7 @@ export class BankAccountForm {
   
         this.accountService.GetAll('filter=AccountNumber lt 3000').subscribe((accounts) => {
             this.accounts = accounts;
-            this.extendForm();
+            this.fields = this.extendFields();
        }); 
     }
 
@@ -79,7 +78,7 @@ export class BankAccountForm {
         }
     }
 
-    private extendForm() {
+    private extendFields() {
         var accountNumber = this.fields.find(x => x.Property === 'AccountNumber');
         accountNumber.Options = {
             mask: '0000 00 00000',
@@ -102,7 +101,8 @@ export class BankAccountForm {
             minLength: 1,
             debounceTime: 200,
             search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
-        };  
+        };
+        return _.cloneDeep(this.fields);
     }
  
     private setupForm() {   
@@ -207,8 +207,7 @@ export class BankAccountForm {
     selector: 'bankaccount-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    directives: [UniModal]
+    `
 })
 export class BankAccountModal {
     @Input() public bankaccount: BankAccount;    

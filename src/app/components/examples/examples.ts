@@ -1,6 +1,4 @@
 import {Component} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
-import {UniTabs} from '../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-examples',
@@ -8,8 +6,7 @@ import {UniTabs} from '../layout/uniTabs/uniTabs';
         <h3>Demo of front-end components</h3>
         <uni-tabs [routes]='childRoutes' class='horizontal_nav'></uni-tabs>
         <router-outlet></router-outlet>
-    `,
-    directives: [ROUTER_DIRECTIVES, UniTabs]
+    `
 })
 export class Examples {
     private childRoutes: any[];

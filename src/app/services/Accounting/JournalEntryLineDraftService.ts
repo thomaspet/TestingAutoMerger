@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntryLineDraft} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 
+@Injectable()
 export class JournalEntryLineDraftService extends BizHttp<JournalEntryLineDraft> {
     
     constructor(http: UniHttp) {        

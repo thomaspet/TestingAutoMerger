@@ -1,16 +1,13 @@
 import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
-import {MinutesToHoursPipe} from '../../utils/pipes';
-import {IsoTimePipe} from '../../utils/pipes';
 import {safeInt} from '../../utils/utils';
 
 declare var moment;
 
 @Component({
     selector: 'regtimetools',
-    templateUrl: 'app/components/timetracking/timeentry/tools/tools.html',
-    pipes: [MinutesToHoursPipe, IsoTimePipe]
+    templateUrl: 'app/components/timetracking/timeentry/tools/tools.html'
 })
 export class RegtimeTools {
     private timesheet: TimeSheet;

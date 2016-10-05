@@ -9,8 +9,6 @@ import {JournalEntryData} from '../../../../../models/models';
 @Component({
     selector: "journal-entry-professional",
     templateUrl: "app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html",
-    providers: [VatTypeService, AccountService, DepartmentService, ProjectService],
-    directives: [UniTable]
 })
 export class JournalEntryProfessional {
     @Input() public supplierInvoice: SupplierInvoice;

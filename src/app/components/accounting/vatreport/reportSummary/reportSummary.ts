@@ -1,15 +1,10 @@
 import {Component, Input, OnChanges} from '@angular/core';
 import {VatCodeGroup, VatReportSummaryPerPost, VatType, Period} from '../../../../unientities';
-import {UniCurrencyPipe} from '../../../../pipes/UniCurrencyPipe';
-import {ROUTER_DIRECTIVES} from '@angular/router';
 
 
 @Component({
     selector: 'vat-summary-per-post',
-    templateUrl: 'app/components/accounting/vatreport/reportSummary/reportSummary.html',
-    directives: [ROUTER_DIRECTIVES],
-    providers: [],
-    pipes: [UniCurrencyPipe]
+    templateUrl: 'app/components/accounting/vatreport/reportSummary/reportSummary.html'
 })
 export class VatSummaryPerPost implements OnChanges {
     public postGroups: VatCodeGroupWithPosts[];

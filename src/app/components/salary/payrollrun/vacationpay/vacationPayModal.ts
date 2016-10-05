@@ -1,13 +1,12 @@
-import { Component, ViewChild, Output, EventEmitter, Type } from '@angular/core';
-import { UniModal } from '../../../../../framework/modals/modal';
-import { VacationpayModalContent } from './vacationPayModalContent';
+import {Component, ViewChild, Output, EventEmitter, Type} from '@angular/core';
+import {UniModal} from '../../../../../framework/modals/modal';
+import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
 declare var _;
 
 @Component({
     selector: 'vacationpay-modal',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html',
-    directives: [UniModal]
+    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html'
 })
 export class VacationpayModal {
     @ViewChild(UniModal) private modal: UniModal;

@@ -5,7 +5,6 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
 import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
-import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -14,12 +13,8 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 @Component({
     selector: 'invoice-list',
-    templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
-    directives: [UniTable, RegisterPaymentModal, PreviewModal],
-    providers: [CustomerInvoiceService, ReportDefinitionService],
-    pipes: [AsyncPipe]
+    templateUrl: 'app/components/sales/invoice/list/invoiceList.html'
 })
-
 export class InvoiceList implements OnInit {
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;

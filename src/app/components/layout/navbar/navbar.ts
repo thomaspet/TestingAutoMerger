@@ -1,12 +1,5 @@
 import {Component} from '@angular/core';
-import {Route, ROUTER_DIRECTIVES} from '@angular/router';
 import {routes} from '../../../routes';
-
-import {HamburgerMenu} from './hamburgerMenu/hamburgerMenu';
-import {UniTabStrip} from './tabstrip/tabstrip';
-import {NavbarSearch} from './search/search';
-import {UniUserDropdown} from './userInfo/userDropdown/userDropdown';
-import {UniCompanyDropdown} from './userInfo/companyDropdown/companyDropdown';
 
 
 @Component({
@@ -23,15 +16,7 @@ import {UniCompanyDropdown} from './userInfo/companyDropdown/companyDropdown';
                 </div>
             </div>
         </section>
-    `,
-    directives: [
-        ROUTER_DIRECTIVES,
-        HamburgerMenu,
-        UniTabStrip,
-        NavbarSearch,
-        UniUserDropdown,
-        UniCompanyDropdown
-    ]
+    `
 })
 export class UniNavbar {
     public routes: any[] = routes;

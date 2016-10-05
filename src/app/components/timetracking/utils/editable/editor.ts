@@ -1,4 +1,4 @@
-import {IJQItem, IPos, IRect, IEditEvents, IEditor } from './interfaces';
+import {IJQItem, IPos, IRect, IEditEvents, IEditor} from './interfaces';
 import {DomEvents} from './domevents';
 import {debounce} from '../utils';
 declare var jQuery;

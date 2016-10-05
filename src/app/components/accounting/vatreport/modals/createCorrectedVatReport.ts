@@ -13,8 +13,6 @@ declare const moment;
 
 @Component({
     selector: 'create-corrected-vatreport-form',
-    directives: [UniForm, NgIf],
-    providers: [VatReportService],
     template: `
         <article class='modal-content' *ngIf="config">
             <h1>{{title}}</h1>
@@ -159,9 +157,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
     template: `
         <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
     `,
-    directives: [UniModal],
-    providers: [PeriodService],
-    pipes: [PeriodDateFormatPipe]
+    providers: [PeriodService]
 })
 export class CreateCorrectedVatReportModal {
     @ViewChild(UniModal)

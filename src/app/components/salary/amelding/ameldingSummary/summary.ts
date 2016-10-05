@@ -1,12 +1,11 @@
 import {Component, Input} from '@angular/core';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 
 declare var moment;
 
 @Component({
     selector: 'amelding-summary-view',
-    templateUrl: 'app/components/salary/amelding/ameldingSummary/summary.html',
-    directives: [UniTable]
+    templateUrl: 'app/components/salary/amelding/ameldingSummary/summary.html'
 })
 
 export class AmeldingSummaryView {

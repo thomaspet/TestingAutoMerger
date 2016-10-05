@@ -1,7 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {ReportDefinition} from '../../../unientities';
 import {ReportDefinitionService} from '../../../services/services';
 
@@ -9,13 +8,11 @@ import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
 import {BalanceReportFilterModal} from '../modals/balanceList/BalanceReportFilterModal';
-import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {PostingJournalReportFilterModal} from '../modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from '../modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
 import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
-import {NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
 
 class ReportCategory {
     public name: string;
@@ -24,13 +21,7 @@ class ReportCategory {
 
 @Component({
     selector: 'uni-overview',
-    templateUrl: 'app/components/reports/overview/overview.html',
-    directives: [UniTabs, PreviewModal, ParameterModal,
-        BalanceReportFilterModal, BalanceGeneralLedgerFilterModal,
-        BalanceGeneralLedgerFilterModal, PostingJournalReportFilterModal, AccountReportFilterModal,
-        CustomerAccountReportFilterModal, SupplierAccountReportFilterModal, ResultAndBalanceReportFilterModal,
-        NgSwitch, NgSwitchCase, NgSwitchDefault],
-    providers: [ReportDefinitionService]
+    templateUrl: 'app/components/reports/overview/overview.html'
 })
 export class Overview {
     @ViewChild(ParameterModal)
@@ -39,8 +30,6 @@ export class Overview {
     private previewModal: PreviewModal;
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
-    @ViewChild(AccountReportFilterModal)
-    private accountReportFilterModal: AccountReportFilterModal;
     @ViewChild(PostingJournalReportFilterModal)
     private postingJournalModal: PostingJournalReportFilterModal;
     @ViewChild(ResultAndBalanceReportFilterModal)
@@ -66,9 +55,6 @@ export class Overview {
         this.balanceListModal.open(report, this.previewModal);
     }
 
-    public showModalAccountReportFilterModal(report: ReportDefinition) {
-        this.accountReportFilterModal.open(report, this.previewModal);
-    }
     public showPostingJournalModalReportParameters(report: ReportDefinition) {
         this.postingJournalModal.open(report, this.previewModal);
     }

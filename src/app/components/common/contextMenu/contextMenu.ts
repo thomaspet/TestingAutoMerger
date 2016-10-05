@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {GuidService} from '../../../../app/services/common/guidService';
-import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 
 @Component({
     selector: 'uni-context-menu',
@@ -29,8 +28,7 @@ import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
             </li>
         </ul>
     </span>
-    `,
-    directives: [ClickOutsideDirective]
+    `
 })
 export class ContextMenu {
 

@@ -1,9 +1,7 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
-import {RequestMethod} from '@angular/http';
+import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../../app/AppConfig';
+import {AppConfig} from '../../appConfig';
 import {Altinn} from '../../unientities';
 
 

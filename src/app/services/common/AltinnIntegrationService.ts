@@ -1,13 +1,13 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable } from 'rxjs/Observable';
-import {SubEntityService } from '../services';
+import {Observable} from 'rxjs/Observable';
+import {SubEntityService} from '../services';
 import {IntegrationServerCaller} from './IntegrationServerCaller';
 import {Injectable} from '@angular/core';
 import {TaxCardReading} from '../../models/models';
 
-// @Injectable()
+@Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     public languages: any = [

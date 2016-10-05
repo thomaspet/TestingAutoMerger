@@ -14,8 +14,6 @@ declare const moment;
 
 @Component({
     selector: 'historic-vatreport-form',
-    directives: [UniTable],
-    providers: [VatReportService],
     template: `
         <article class='modal-content' *ngIf="config">
             <h1>Oversikt over MVA meldinger</h1>
@@ -84,12 +82,7 @@ export class HistoricVatReportTable implements OnInit {
 
 @Component({
     selector: 'historic-vatreport-modal',
-    template: `
-        <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
-    `,
-    directives: [UniModal],
-    providers: [PeriodService],
-    pipes: [PeriodDateFormatPipe]
+    template: `<uni-modal [type]='type' [config]='modalConfig'></uni-modal>`
 })
 export class HistoricVatReportModal {
     @ViewChild(UniModal)

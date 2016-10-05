@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter, ViewChild, OnDestroy, Renderer} from '@angular/core';
-import {Supplier} from '../../../unientities';
-import {SupplierDetails} from '../../sales/supplier/details/supplierDetails';
-import {KeyCodes} from '../../../../framework/uniform/interfaces';
+import {Supplier} from '../../../../unientities';
+import {SupplierDetails} from './supplierDetails';
+import {KeyCodes} from '../../../../../framework/uniform/interfaces';
 
 @Component({
     selector: 'supplier-detail-modal',
@@ -15,9 +15,7 @@ import {KeyCodes} from '../../../../framework/uniform/interfaces';
                 ></supplier-details>
             </article>
         </dialog>
-    `,
-    directives: [SupplierDetails],
-    providers: []
+    `
 })
 export class SupplierDetailsModal implements OnDestroy {
     public isOpen: boolean = false;

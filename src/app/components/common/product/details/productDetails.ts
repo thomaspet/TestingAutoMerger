@@ -5,19 +5,19 @@ import 'rxjs/add/observable/forkJoin';
 
 import {ProductService, AccountService, VatTypeService, ProjectService, DepartmentService} from '../../../../services/services';
 
-import {Product, Account, VatType, Project, Department} from '../../../../unientities';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {Product, Account, VatType} from '../../../../unientities';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
-import {UniImage, IUploadConfig} from '../../../../../framework/uniImage/uniImage';
-import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
+import {Project} from '../../../../unientities';
+import {Department} from '../../../../unientities';
+import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var _; // lodash
 
 @Component({
     selector: 'product-details',
-    templateUrl: 'app/components/common/product/details/productDetails.html',
-    directives: [UniForm, UniSave, UniImage],
-    providers: [ProductService, AccountService, VatTypeService, ProjectService, DepartmentService]
+    templateUrl: 'app/components/common/product/details/productDetails.html'
 })
 export class ProductDetails {
     @Input() public productId: any;

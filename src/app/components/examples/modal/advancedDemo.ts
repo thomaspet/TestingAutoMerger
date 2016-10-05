@@ -8,7 +8,7 @@ import {UniFieldLayout} from "../../../../framework/uniform/interfaces";
 
 @Component({
     selector: 'reusable-component',
-    directives: [UniForm],
+
     template: `
         <uni-form
             [config]='config'
@@ -53,7 +53,6 @@ export class ReusableComponent {
 
 @Component({
     selector: 'uni-modal-test',
-    directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
         <article class='modal-content'>
             <h1 *ngIf='config.title'>{{config.title}}</h1>
@@ -89,8 +88,7 @@ export class UniModalTest {
         <button (click)='openModal()'>Open</button>
         {{valueFromModal}}
         <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
-    `,
-    directives: [UniModal]
+    `
 })
 export class UniModalAdvancedDemo {
     @ViewChild(UniModal)

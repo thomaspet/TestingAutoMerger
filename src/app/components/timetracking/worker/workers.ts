@@ -8,8 +8,7 @@ export var view = new View('workers', 'Personer', 'WorkerListview', false, 'work
 
 @Component({
     selector: view.name,
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView]
+    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class WorkerListview {
     public viewconfig: IViewConfig;

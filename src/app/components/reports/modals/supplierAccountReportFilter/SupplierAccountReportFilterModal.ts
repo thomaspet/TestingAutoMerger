@@ -1,17 +1,14 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
-import {NgIf, NgFor, NgClass} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
-import {UniForm} from '../../../../../framework/uniform/uniform';
 
 @Component({
     selector: 'supplier-account-report-filter-form',
-    directives: [NgIf, NgFor, NgClass, UniComponentLoader, UniForm],
-    templateUrl: 'app/components/reports/modals/supplierAccountReportFilter/SupplierAccountReportFilterModal.html'
+    templateUrl: 'app/components/reports/modals/SupplierAccountReportFilter/SupplierAccountReportFilterModal.html'
+
 })
 export class SupplierAccountReportFilterForm implements OnInit {
     @Input('config')
@@ -112,11 +109,7 @@ export class SupplierAccountReportFilterForm implements OnInit {
 
 @Component({
     selector: 'supplier-account-report-filter-modal',
-    directives: [UniModal],
-    template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    providers: [ReportDefinitionParameterService]
+    template: `<uni-modal [type]="type" [config]="modalConfig"></uni-modal>`
 })
 export class SupplierAccountReportFilterModal {
     @ViewChild(UniModal)

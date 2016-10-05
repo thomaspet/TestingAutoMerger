@@ -1,10 +1,9 @@
 import {Component, Input} from '@angular/core';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 
 @Component({
     selector: 'amelding-aga-view',
-    templateUrl: 'app/components/salary/amelding/ameldingAga/aga.html',
-    directives: [UniTable]
+    templateUrl: 'app/components/salary/amelding/ameldingAga/aga.html'
 })
 
 export class AmeldingAgaView {

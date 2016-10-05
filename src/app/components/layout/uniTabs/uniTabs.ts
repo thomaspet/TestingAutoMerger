@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
 import {Router, Event} from '@angular/router';
-import {ROUTER_DIRECTIVES, RouterLinkActive} from '@angular/router';
 
 export interface IUniTabsRoute {
     name: string;
@@ -17,8 +16,7 @@ export interface IUniTabsRoute {
                 </a>
             </li>
         </ul>
-    `,
-    directives: [ROUTER_DIRECTIVES, RouterLinkActive],
+    `
 })
 export class UniTabs {
     @Input() public routes: IUniTabsRoute[];

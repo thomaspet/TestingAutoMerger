@@ -13,8 +13,7 @@ export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', Wo
     selector: view.name,
     template: `<genericdetail [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" (afterSave)="afterWorkerSaved($event)" ></genericdetail>
         <workrelations [hidden]="!currentId" (onValueChange)="onRelationvalueChanged($event)" [workerid]="currentId">
-    `,
-    directives: [GenericDetailview, RelationsSubView]
+    `
 })
 export class WorkerDetailview {
     @ViewChild(GenericDetailview) private detailForm: GenericDetailview;

@@ -10,8 +10,7 @@ export var view = new View('projects', 'Prosjekt', 'ProjectDetailview', true, ''
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
-    directives: [GenericDetailview]
+    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
 })
 export class ProjectDetailview {
     public viewconfig: IViewConfig;

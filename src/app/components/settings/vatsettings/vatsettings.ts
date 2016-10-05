@@ -2,13 +2,13 @@ import {Component, ViewChild} from '@angular/core';
 import {VatTypeList} from './vattypelist/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
 import {VatType} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'vat-settings',
-    templateUrl: 'app/components/settings/vatsettings/vatsettings.html',
-    directives: [VatTypeList, VatTypeDetails, UniSave]
+    templateUrl: 'app/components/settings/vatsettings/vatsettings.html'
 })
 export class VatSettings {
     @ViewChild(VatTypeList) private vatTypeList: VatTypeList;

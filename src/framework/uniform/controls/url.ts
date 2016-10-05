@@ -1,12 +1,11 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 declare var _,jQuery; // jquery and lodash
 
 @Component({
     selector: 'uni-url-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [REACTIVE_FORM_DIRECTIVES],
     template: `
         <input
             class="nir-url-input"

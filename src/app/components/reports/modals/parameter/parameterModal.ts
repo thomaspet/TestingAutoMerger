@@ -1,9 +1,7 @@
 import {Component, ViewChild, Type, Input} from '@angular/core';
-import {NgIf, NgFor, NgClass} from '@angular/common';
 import {Http} from '@angular/http';
 
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinition} from '../../../../unientities';
 
 import {ReportDefinitionParameterService} from '../../../../services/services';
@@ -11,7 +9,6 @@ import {PreviewModal} from '../preview/previewModal';
 
 @Component({
     selector: 'report-parameter-modal-type',
-    directives: [NgIf, NgFor, NgClass, UniComponentLoader],
     templateUrl: 'app/components/reports/modals/parameter/parameterModal.html'
 })
 export class ReportparameterModalType {
@@ -25,11 +22,9 @@ export class ReportparameterModalType {
 
 @Component({
     selector: 'report-parameter-modal',
-    directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    providers: [ReportDefinitionParameterService]
+    `
 })
 export class ParameterModal {
     @ViewChild(UniModal)

@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../../../framework/core/authService';
-import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';
 import 'rxjs/add/observable/fromEvent';
 
 declare var jQuery;
@@ -23,8 +22,7 @@ interface IUniUserDropdownItem {
                 </li>
             </ul>
         </article>
-    `,
-    directives: [ClickOutsideDirective]
+    `
 })
 export class UniUserDropdown {
     private dropdownElements: Array<IUniUserDropdownItem>;

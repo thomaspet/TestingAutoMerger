@@ -4,7 +4,7 @@ import {UniForm} from '../../../../../framework/uniform';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal} from '../../../../unientities';
 import {EmployeeService, MunicipalService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
-import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
+import {TaxCardRequestModal, ReadTaxCardModal} from '../employeeModals';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
@@ -13,8 +13,6 @@ declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
-    providers: [MunicipalService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails extends UniView  {

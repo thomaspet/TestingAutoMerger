@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {VatCodeGroup, VatType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 
+@Injectable()
 export class VatCodeGroupService extends BizHttp<VatCodeGroup> {
     
     constructor(http: UniHttp) {        

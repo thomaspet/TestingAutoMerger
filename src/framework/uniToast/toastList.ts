@@ -18,8 +18,7 @@ import {ToastService} from './toastService';
                 </uni-toast>
             </li>
         </ol>
-    `,
-    directives: [UniToast]
+    `
 })
 export class UniToastList {
 

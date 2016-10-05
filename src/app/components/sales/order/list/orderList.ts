@@ -14,8 +14,7 @@ declare var jQuery;
 @Component({
     selector: 'order-list',
     templateUrl: 'app/components/sales/order/list/orderList.html',
-    directives: [UniTable, PreviewModal],
-    providers: [CustomerOrderService, ReportDefinitionService]
+    directives: [PreviewModal]
 })
 export class OrderList {
 

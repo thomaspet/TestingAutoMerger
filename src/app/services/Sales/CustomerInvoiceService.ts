@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
@@ -6,6 +7,7 @@ import {Observable} from 'rxjs/Observable';
 
 declare var moment;
 
+@Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
     constructor(http: UniHttp) {        
@@ -44,7 +46,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public newCustomerInvoice(): Promise<CustomerInvoice>
     {       
         return new Promise(resolve => {
-            this.GetNewEntity([], CustomerInvoice.EntityType).subscribe(invoice => {
+            this.GetNewEntity([], CustomerInvoice.EntityType).subscribe((invoice: CustomerInvoice) => {
                 invoice.InvoiceDate = moment().toDate();
 
                 resolve(invoice);                

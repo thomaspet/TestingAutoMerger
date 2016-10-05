@@ -7,7 +7,6 @@ import {Observable} from 'rxjs/Observable';
 declare var _; // lodash
 @Component({
     selector: 'sub-entity-details',
-    directives: [UniForm],
     templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityDetails.html'
 })
 export class SubEntityDetails implements OnChanges {

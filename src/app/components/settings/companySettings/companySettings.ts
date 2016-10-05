@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
@@ -16,20 +16,7 @@ declare var _;
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    providers: [
-        CompanySettingsService,
-        CurrencyService,
-        AccountService,
-        AccountGroupSetService,
-        PeriodSeriesService,
-        VatTypeService,
-        CompanyTypeService,
-        VatReportFormService,
-        MunicipalService,
-        BankAccountService
-    ],
-    directives: [UniForm, UniSave, UniImage, BankAccountModal]
+    templateUrl: 'app/components/settings/companySettings/companySettings.html'
 })
 
 export class CompanySettings implements OnInit {

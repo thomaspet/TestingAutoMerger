@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
 
 import {View} from '../../models/view/view';
 import {view as workerView} from './worker/workers';
@@ -35,8 +34,7 @@ view.addSubView(projectDetailView);
 
 @Component({
     selector: 'uni-' + view.name,
-    template: `<router-outlet></router-outlet>`,
-    directives: [ROUTER_DIRECTIVES]
+    template: `<router-outlet></router-outlet>`
 })
 export class UniTimetracking {
     constructor() {}

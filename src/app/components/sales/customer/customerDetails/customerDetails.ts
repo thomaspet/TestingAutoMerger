@@ -4,10 +4,10 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {DepartmentService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from '../../../../services/services';
-import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
+import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {IUniSaveAction} from '../../../../../framework/save/save';
+import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
 
@@ -18,9 +18,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'customer-details',
-    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html',
-    directives: [RouterLink, AddressModal, EmailModal, PhoneModal, UniForm, ExternalSearch, UniSave],
-    providers: [DepartmentService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
+    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html'
 })
 export class CustomerDetails {
     @Input() public customerID: any;

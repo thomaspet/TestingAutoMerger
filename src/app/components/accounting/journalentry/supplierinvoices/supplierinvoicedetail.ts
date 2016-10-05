@@ -1,30 +1,27 @@
-import {Component, Input, OnInit, ViewChild, ComponentRef, OnDestroy} from '@angular/core';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import {Component, Input, OnInit, ViewChild, OnDestroy} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService} from '../../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {JournalEntryData} from '../../../..//models/models';
+import {JournalEntryData} from '../../../../models/models';
 import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
-import {UniDocumentUploader} from '../../../../../framework/documents/index';
 import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
-import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SupplierDetailsModal} from '../../../common/modals/supplierDetailModal';
 import {Subscription} from 'rxjs';
+import {IUniSaveAction} from '../../../../../framework/save/save';
+import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 
 declare var moment;
 declare const _;
 
 @Component({
     selector: 'supplier-invoice-detail',
-    templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html',
-    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave, RegisterPaymentModal, SupplierDetailsModal],
-    providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, SupplierInvoiceFileUploader]
+    templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html'
 })
 export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     @Input() private invoiceId: any;
@@ -67,7 +64,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private setError(error) {
-        console.log("== ERROR ==", error);
+        console.log('== ERROR ==', error);
         var messages = error._body ? JSON.parse(error._body) : error;
         if (messages) {
             this.errors = messages.Messages ? messages.Messages : [messages];

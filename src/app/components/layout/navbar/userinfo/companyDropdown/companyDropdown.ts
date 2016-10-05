@@ -2,9 +2,8 @@ import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';
 import {CompanySettingsService} from '../../../../../services/services';
-import {UniSelect, ISelectConfig} from '../../../../../../framework/uniform/controls/select/select';
+import {ISelectConfig} from '../../../../../../framework/uniform/controls/select/select';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
@@ -38,9 +37,7 @@ import {Observable} from 'rxjs/Observable';
                 </label>
             </section>
         </article>
-    `,
-    directives: [ClickOutsideDirective, UniSelect],
-    providers: [CompanySettingsService],
+    `
 })
 export class UniCompanyDropdown {
     private activeCompany: any;

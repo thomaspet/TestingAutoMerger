@@ -1,5 +1,5 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, EventEmitter} from '@angular/core';
-import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearch } from './interfaces';
+import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearch} from './interfaces';
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';

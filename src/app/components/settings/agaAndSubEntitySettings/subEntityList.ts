@@ -9,9 +9,7 @@ import {SubEntityDetails} from './subEntityDetails';
 declare var _; // lodash
 @Component({
     selector: 'sub-entity-list',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityList.html',
-    providers: [SubEntityService, AgaZoneService, MunicipalService, BusinessRelationService],
-    directives: [UniTable, SubEntityDetails]
+    templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityList.html'
 })
 export class SubEntityList implements OnInit {
 

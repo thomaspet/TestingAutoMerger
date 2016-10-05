@@ -13,8 +13,7 @@ var defaultSystemType = 1; // 1 - Hours (default)
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
-    directives: [GenericDetailview]
+    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
 })
 export class WorktypeDetailview {
     private viewconfig: IViewConfig;

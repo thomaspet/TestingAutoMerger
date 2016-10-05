@@ -1,4 +1,4 @@
-import {Project, Department, Responsible, Region, Dimensions} from '../../unientities';
+import {Dimensions} from '../../unientities';
 
 
 export function createGuid():string {

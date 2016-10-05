@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES, Validators} from '@angular/forms';
+import {FormControl, Validators} from '@angular/forms';
 import {AuthService} from '../../../framework/core/authService';
 
 @Component({
@@ -27,7 +27,6 @@ import {AuthService} from '../../../framework/core/authService';
             </article>
         </dialog>
     `,
-    directives: [REACTIVE_FORM_DIRECTIVES],
     styles: [
         'form { width: 20rem; margin: 0 auto; }'
     ]

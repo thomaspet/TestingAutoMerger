@@ -1,19 +1,17 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, JournalEntry} from '../../../../unientities';
+import {SupplierInvoice} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
 import {JournalEntryMode} from '../components/journalentrysimple/journalentrysimpleform';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 
 @Component({
     selector: 'journal-entry-manual',
     host: { '[class.runassubcomponent]': 'runAsSubComponent' },
-    templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
-    directives: [JournalEntrySimple, JournalEntryProfessional, UniSave],
-    providers: [JournalEntryService]
+    templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html'
 })
 export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public supplierInvoice: SupplierInvoice;

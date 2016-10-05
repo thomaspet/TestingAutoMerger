@@ -1,9 +1,11 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {AltinnAuthRequest} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 
+@Injectable()
 export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
 
     private ALTINN_USER_DATA_LOCALSTORAGE_KEY: string = 'AltinnUserData';

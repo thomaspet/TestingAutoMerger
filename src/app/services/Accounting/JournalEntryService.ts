@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions} from '../../unientities';
 import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from "rxjs/Observable";
@@ -8,6 +9,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 
 declare var moment;
 
+@Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
 
     constructor(http: UniHttp) {

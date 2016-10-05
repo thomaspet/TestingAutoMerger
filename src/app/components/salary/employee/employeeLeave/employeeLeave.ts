@@ -1,16 +1,15 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Employment, Employee} from '../../../../unientities';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {AsyncPipe} from '@angular/common';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniCacheService} from '../../../../services/services';
+
 import {UniView} from '../../../../../framework/core/uniView';
 
 @Component({
     selector: 'employee-permision',
-    templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html',
-    directives: [UniTable],
-    pipes: [AsyncPipe]
+    templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html'
+
 })
 export class EmployeeLeave extends UniView {
     private employee: Employee;

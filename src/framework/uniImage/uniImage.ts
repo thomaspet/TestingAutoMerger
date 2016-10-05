@@ -37,8 +37,7 @@ export interface IUploadConfig {
             </label>
         </section>
         <p *ngIf="uploadConfig && uploadConfig.isDisabled">{{uploadConfig.disableMessage}}</p>
-    `,
-    providers: [ImageUploader]
+    `
 })
 export class UniImage {
     @ViewChild('imageContainer')

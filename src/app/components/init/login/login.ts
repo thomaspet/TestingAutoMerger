@@ -1,14 +1,13 @@
 import {Component} from '@angular/core';
-import {FormControl, Validators, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
-import {Router, ROUTER_DIRECTIVES} from '@angular/router';
+import {FormControl, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniSelect, ISelectConfig} from '../../../../framework/uniform/controls/select/select';
+import {ISelectConfig} from '../../../../framework/uniform/controls/select/select';
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/init/login/login.html',
-    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniSelect]
+    templateUrl: 'app/components/init/login/login.html'
 })
 export class Login {
     private usernameControl: FormControl = new FormControl('', Validators.required);

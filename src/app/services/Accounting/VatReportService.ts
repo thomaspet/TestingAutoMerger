@@ -1,4 +1,5 @@
-﻿import {BizHttp} from '../../../framework/core/http/BizHttp';
+﻿import {Injectable} from '@angular/core';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {
     VatReport,
     VatReportMessage,
@@ -12,6 +13,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 
+@Injectable()
 export class VatReportService extends BizHttp<VatReport> {
 
     constructor(http: UniHttp) {

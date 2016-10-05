@@ -49,7 +49,6 @@ export class SelectAmeldingTypeModalContent {
 
 @Component({
     selector: 'select-amelding-type-modal',
-    directives: [UniModal],
     template: `<uni-modal [type]="type" [config]="modalConfig"></uni-modal>`
 })
 export class SelectAmeldingTypeModal {

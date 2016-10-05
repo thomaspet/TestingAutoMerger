@@ -3,15 +3,11 @@ import {UserService} from '../../../services/services';
 import {UniForm} from '../../../../framework/uniform';
 import {FieldType} from '../../../unientities';
 import {AuthService} from '../../../../framework/core/authService';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: "user-settings",
     templateUrl: "app/components/settings/userSettings/userSettings.html",
-    providers: [
-        UserService
-    ],
-    directives: [UniForm, UniSave]
 })
 
 export class UserSettings {

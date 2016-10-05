@@ -2,7 +2,7 @@ import {Http} from '@angular/http';
 import {Injectable, Inject} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
-import {AppConfig} from '../../../app/AppConfig';
+import {AppConfig} from '../../appConfig';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';

@@ -1,5 +1,5 @@
 import {Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
-import {REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, ValidatorFn} from '@angular/forms';
+import {FormGroup, FormControl, ValidatorFn} from '@angular/forms';
 import {UniFieldLayout, KeyCodes} from './interfaces';
 import {CONTROLS} from './controls/index';
 import {ShowError} from './showError';
@@ -71,8 +71,7 @@ declare var _; // lodash
             <show-error [control]="control" [messages]="messages"></show-error>
         </label>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [REACTIVE_FORM_DIRECTIVES, CONTROLS, ShowError],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniField {    
     @Input()

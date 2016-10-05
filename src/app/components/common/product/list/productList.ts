@@ -11,9 +11,7 @@ declare var jQuery;
 
 @Component({
     selector: 'product-list',
-    templateUrl: 'app/components/common/product/list/productList.html',
-    directives: [UniTable],
-    providers: [ProductService]
+    templateUrl: 'app/components/common/product/list/productList.html'
 })
 export class ProductList {
     private productTable: UniTableConfig;

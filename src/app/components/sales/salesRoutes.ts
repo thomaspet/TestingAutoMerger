@@ -1,3 +1,7 @@
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {AuthGuard} from '../../authGuard';
+
 import {Customer} from './customer/customer';
 import {routes as CustomerRoutes} from './customer/customerRoutes';
 
@@ -12,8 +16,9 @@ import {InvoiceDetails} from './invoice/details/invoiceDetails';
 
 import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
+import {UniSales} from './sales';
 
-export const routes = [    
+export const childRoutes = [
     {
         path: '',
         redirectTo: 'customer'
@@ -61,3 +66,19 @@ export const routes = [
     },
 
 ];
+
+const salesRoutes: Routes = [
+    {
+        path: 'sales',
+        component: UniSales,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(salesRoutes);

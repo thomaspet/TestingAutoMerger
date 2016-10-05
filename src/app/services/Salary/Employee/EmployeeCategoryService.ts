@@ -1,7 +1,9 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {EmployeeCategory} from '../../../unientities';
 
+@Injectable()
 export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
 
     constructor(http: UniHttp) {

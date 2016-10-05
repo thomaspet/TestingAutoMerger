@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
-import {MinutesToHoursPipe} from '../../utils/pipes';
 import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
 
 interface IStatSource {
@@ -16,8 +15,7 @@ interface IStatSource {
 
 @Component({
     selector: 'regtimetotals',
-    templateUrl: 'app/components/timetracking/timeentry/totals/totals.html',
-    pipes: [MinutesToHoursPipe]
+    templateUrl: 'app/components/timetracking/timeentry/totals/totals.html'
 })
 export class RegtimeTotals {
     private timesheet: TimeSheet;

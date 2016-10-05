@@ -1,9 +1,8 @@
 import {Component, Input, Output, ElementRef, ViewChild, EventEmitter} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {autocompleteDate} from '../../shared/autocompleteDate';
 import {UniCalendar} from './calendar';
-import {ClickOutsideDirective} from '../../../core/clickOutside';
 
 import moment from 'moment';
 declare var _;
@@ -31,8 +30,7 @@ declare var _;
                           (dateChange)="dateSelected($event)">
             </uni-calendar>
         </section>
-    `,
-    directives: [ClickOutsideDirective, UniCalendar, REACTIVE_FORM_DIRECTIVES]
+    `
 })
 export class UniDateInput {
     @ViewChild('input')

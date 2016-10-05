@@ -1,12 +1,12 @@
 import {Component, Input} from '@angular/core';
-import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 import {SalaryTransactionService} from '../../../../services/services';
 
 @Component({
     selector: 'amelding-periodsummary-view',
-    templateUrl: 'app/components/salary/amelding/ameldingPeriod/period.html',
-    directives: [UniTable],
-    providers: [SalaryTransactionService]
+    templateUrl: 'app/components/salary/amelding/ameldingPeriod/period.html'
+
+
 })
 
 export class AmeldingPeriodSummaryView {

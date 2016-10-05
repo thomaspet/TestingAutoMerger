@@ -10,8 +10,6 @@ import {CustomerOrder, CustomerOrderItem} from '../../../../unientities';
 
 @Component({
     selector: 'order-to-invoice-table',
-    directives: [UniTable],
-    providers: [ProductService],
     template: `
     <span *ngIf="order && orderItemTable">
         <uni-table  [resource]="order.Items"
@@ -57,7 +55,6 @@ export class OrderToInvoiceTable {
 // order-to-invoice modal type
 @Component({
     selector: 'order-to-invoice-modal-type',
-    directives: [OrderToInvoiceTable],
     template: `
         <article class="modal-content address-modal" *ngIf="config">
             <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -82,9 +79,7 @@ export class OrderToInvoiceModalType {
     selector: 'order-to-invoice-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    directives: [UniModal],
-    providers: [CustomerOrderService]
+    `
 })
 export class OrderToInvoiceModal {
     @Input() public order: CustomerOrder;

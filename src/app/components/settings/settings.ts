@@ -1,12 +1,10 @@
 ﻿import {Component} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
-import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {UniTabs} from '../layout/uniTabs/uniTabs';
+import {TabService} from '../layout/navbar/tabstrip/tabService';
+import {UniModules} from '../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/settings.html',
-    directives: [ROUTER_DIRECTIVES, UniTabs]
+    templateUrl: 'app/components/settings/settings.html'
 })
 export class Settings {
 

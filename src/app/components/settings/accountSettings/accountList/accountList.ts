@@ -8,9 +8,7 @@ declare var _;
 
 @Component({
     selector: 'account-list',
-    templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html',
-    directives: [UniTable],
-    providers: [AccountService]
+    templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html'
 })
 export class AccountList {
     @Output() public uniAccountChange: EventEmitter<Account> = new EventEmitter<Account>();

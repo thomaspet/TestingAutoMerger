@@ -9,8 +9,6 @@ import moment from 'moment';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
-    directives: [UniForm, UniTable],
-    providers: [CompanySalaryService, CompanyVacationRateService, AccountService],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModalContent.html'
 })
 export class VacationpaySettingModalContent {

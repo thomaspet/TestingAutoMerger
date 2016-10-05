@@ -1,12 +1,11 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 
 declare var _, accounting; // jquery and lodash
 
 @Component({
     selector: 'uni-numeric-input',
-    directives: [REACTIVE_FORM_DIRECTIVES],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input

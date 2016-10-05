@@ -3,21 +3,21 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {VatType, Account, SupplierInvoice, Dimensions, Department, Project} from '../../../../../unientities';
+
+import {VatType, Account, SupplierInvoice, Department, Project} from '../../../../../unientities';
 import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService} from '../../../../../services/services';
 
 import {JournalEntryData} from '../../../../../models/models';
-import {JournalEntrySimpleForm, JournalEntryMode} from './journalentrysimpleform';
+import {JournalEntryMode} from './journalentrysimpleform';
 
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {JournalEntrySimpleForm} from './journalentrysimpleform';
 
 declare var moment;
 
 @Component({
     selector: 'journal-entry-simple',
-    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html',
-    directives: [JournalEntrySimpleForm],
-    providers: [DepartmentService, ProjectService, VatTypeService, AccountService]
+    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html'
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;

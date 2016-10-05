@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
-import {NgClass} from '@angular/common';
-import {ROUTER_DIRECTIVES, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
 
@@ -20,8 +19,7 @@ export interface IUniTab {
                 <span class="close" (click)="closeTab(tab, i)"></span>
             </li>
         </ol>
-    `,
-    directives: [ROUTER_DIRECTIVES, NgClass]
+    `
 })
 export class UniTabStrip {
 

@@ -1,18 +1,14 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {WageTypeService, SalaryTransactionService, UniCacheService} from '../../../../services/services';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
-import {AsyncPipe} from '@angular/common';
 import {UniView} from '../../../../../framework/core/uniView';
 declare var _;
 
 @Component({
     selector: 'reccuringpost-list',
-    templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html',
-    directives: [UniTable],
-    providers: [WageTypeService, SalaryTransactionService],
-    pipes: [AsyncPipe]
+    templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html'
 })
 
 export class RecurringPost extends UniView {

@@ -1,15 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {ROUTER_DIRECTIVES, Router, ActivatedRoute} from '@angular/router';
-import {UniTabs} from '../../layout/uniTabs/uniTabs';
-import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
-import {EmployeeCategoryButtons} from './employeeCategoryButtons';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Employee, Employment, EmployeeLeave, SalaryTransaction} from '../../../unientities';
-import {EmployeeDS} from '../../../data/employee';
-import {STYRKCodesDS} from '../../../data/styrkCodes';
-import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -20,23 +13,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-employee-details',
-    templateUrl: 'app/components/salary/employee/employeeDetails.html',
-    providers: [
-        EmployeeDS,
-        STYRKCodesDS,
-        EmployeeService,
-        EmployeeLeaveService,
-        EmploymentService,
-        SalaryTransactionService,
-    ],
-    directives: [
-        ROUTER_DIRECTIVES,
-        WidgetPoster,
-        UniTabs,
-        EmployeeCategoryButtons,
-        ContextMenu,
-        UniSave
-    ]
+    templateUrl: 'app/components/salary/employee/employeeDetails.html'
 })
 export class EmployeeDetails extends UniView {
     @ViewChild(UniSave)

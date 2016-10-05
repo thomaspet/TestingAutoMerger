@@ -1,7 +1,7 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer, HostListener} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
-import {ClickOutsideDirective} from '../../core/clickOutside';
+
 declare var _; // lodash
 
 @Component({
@@ -64,8 +64,7 @@ declare var _; // lodash
             </ul>
             <small *ngIf="successMessage" class="good">Lagret.</small>
         </section>
-    `,
-    directives: [ClickOutsideDirective]
+    `
 })
 export class UniMultivalueInput {
     @Input()

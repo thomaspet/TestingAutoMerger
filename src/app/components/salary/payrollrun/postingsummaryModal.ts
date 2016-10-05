@@ -1,12 +1,11 @@
-import { Component, AfterViewInit, QueryList, ViewChildren, Type, Output, EventEmitter } from '@angular/core';
+import {Component, AfterViewInit, QueryList, ViewChildren, Type, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {ActivatedRoute} from '@angular/router';
 import {PostingsummaryModalContent} from './postingsummaryModalContent';
 
 @Component({
     selector: 'postingsummary-modal',
-    templateUrl: 'app/components/salary/payrollrun/postingsummaryModal.html',
-    directives: [UniModal]
+    templateUrl: 'app/components/salary/payrollrun/postingsummaryModal.html'
 })
 export class PostingsummaryModal implements AfterViewInit {
 

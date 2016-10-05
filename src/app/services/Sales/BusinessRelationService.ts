@@ -1,9 +1,11 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Customer, BusinessRelation} from '../../unientities';
+import {BusinessRelation} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
-import {RequestMethod} from "@angular/http";
+import {Observable} from 'rxjs/Observable';
+import {RequestMethod} from '@angular/http';
 
+@Injectable()
 export class BusinessRelationService extends BizHttp<BusinessRelation> {
     
     constructor(http: UniHttp) {        
@@ -14,6 +16,6 @@ export class BusinessRelationService extends BizHttp<BusinessRelation> {
     }       
     
     search(searchText: string): Observable<any> {
-        return this.Action(null, "search-data-hotel", "searchText=" + searchText, RequestMethod.Get);
+        return this.Action(null, 'search-data-hotel', 'searchText=' + searchText, RequestMethod.Get);
     }
 }

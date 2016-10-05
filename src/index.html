@@ -107,7 +107,7 @@
     <script>
         window.ENV = '<%= environment %>';
         System.import('system.config.js').then(function() {
-            System.import('app/bootstrap');
+            System.import('app/appModule');
         }).catch(console.error.bind(console));
     </script>
 </body>

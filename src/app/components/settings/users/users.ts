@@ -1,15 +1,11 @@
 ﻿import {Component} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
-import {FilterInactivePipe} from '../../../../framework/pipes/filterInactivePipe';
 import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
 
 @Component({
     selector: 'uni-users',
-    pipes: [OrderByPipe, FilterInactivePipe],
-    templateUrl: 'app/components/settings/users/users.html',
-    directives: [UniTable]
+    templateUrl: 'app/components/settings/users/users.html'
 })
 export class Users {
     // New user Form 

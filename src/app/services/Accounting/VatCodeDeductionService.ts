@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {VatCodeDeduction} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 
+@Injectable()
 export class VatCodeDeductionService extends BizHttp<VatCodeDeduction> {
     
     constructor(http: UniHttp) {        

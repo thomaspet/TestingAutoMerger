@@ -44,6 +44,7 @@ function getGitRevision() {
         
     } catch (e) {
         console.log('WARNING: Something went wrong when checking git revision in gulp task index.html');
+        console.log(e);
         return null;
     }
     

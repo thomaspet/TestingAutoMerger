@@ -13,9 +13,7 @@ declare var jQuery;
 
 @Component({
     selector: 'quote-item-list',
-    templateUrl: 'app/components/sales/quote/details/quoteItemList.html',
-    directives: [UniTable],
-    providers: [ProductService, VatTypeService, TradeItemHelper]
+    templateUrl: 'app/components/sales/quote/details/quoteItemList.html'
 })
 export class QuoteItemList implements OnInit{
     @Input() public quote: CustomerQuote;

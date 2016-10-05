@@ -1,13 +1,11 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
-import {UniSelect, ISelectConfig} from './select/select';
 declare var _; // jquery and lodash
 
 @Component({
     selector: 'uni-select-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [UniSelect],
     template: `
         <uni-select
             [config]="field?.Options"

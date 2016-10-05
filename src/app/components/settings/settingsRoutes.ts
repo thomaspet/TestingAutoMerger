@@ -1,11 +1,14 @@
-import {Route} from '@angular/router';
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 import {CompanySettings} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
+import {Settings} from "./settings";
+import {AuthGuard} from "../../authGuard";
 
-export const routes: Route[] = [
+export const childRoutes: Routes = [
     {
         path: '',
         redirectTo: 'company',
@@ -32,3 +35,19 @@ export const routes: Route[] = [
         component: AltinnSettings
     }
 ];
+
+const settingsRoutes: Routes = [
+    {
+        path: 'settings',
+        component: Settings,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(settingsRoutes);

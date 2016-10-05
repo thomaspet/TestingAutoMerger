@@ -1,5 +1,5 @@
 import {Component, Input, Output, HostBinding, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from '@angular/core';
-import {REACTIVE_FORM_DIRECTIVES, FormGroup} from '@angular/forms';
+import {FormGroup} from '@angular/forms';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
@@ -44,8 +44,7 @@ declare var _; // lodash
             </div>
         </article>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [REACTIVE_FORM_DIRECTIVES, UniFieldSet, UniCombo, UniField]
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSection {
     @Input()

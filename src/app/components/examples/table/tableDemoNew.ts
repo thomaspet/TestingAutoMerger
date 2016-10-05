@@ -30,7 +30,6 @@ import 'rxjs/add/operator/map';
                    (rowSelected)="rowSelected($event)">
         </uni-table>
     `,
-    directives: [UniTable],
     pipes: [AsyncPipe]
 })
 export class UniTableDemoNew {

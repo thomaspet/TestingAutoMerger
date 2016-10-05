@@ -9,8 +9,6 @@ declare var _;
 
 @Component({
     selector: 'uni-form-demo-2',
-    directives: [UniForm, NgIf],
-    providers: [EmployeeService],
     template: `
         <uni-form *ngIf='employee'
             

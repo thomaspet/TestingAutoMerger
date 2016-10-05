@@ -1,12 +1,11 @@
 import {Component, ViewChildren, Input, Output, SimpleChange, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
-import {BusinessRelationService} from "../../../services/services";
+import {Observable} from 'rxjs/Observable';
+import {BusinessRelationService} from '../../../services/services';
 
 @Component({
     selector: 'external-search',
-    templateUrl: 'app/components/common/externalSearch/externalSearch.html',
-    providers: [BusinessRelationService]
+    templateUrl: 'app/components/common/externalSearch/externalSearch.html'
 })
 export class ExternalSearch {
     @Input() searchText;

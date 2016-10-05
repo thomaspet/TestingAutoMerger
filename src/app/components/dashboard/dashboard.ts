@@ -1,8 +1,7 @@
 import {Component} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
-import {ROUTER_DIRECTIVES, Router} from '@angular/router';
-import {UniImage} from '../../../framework/uniImage/uniImage';
+import {Router} from '@angular/router';
 
 declare var Chart;
 declare var moment;
@@ -12,19 +11,18 @@ export interface IChartDataSet {
     labels: string[];
     chartType: string;
     backgroundColor: string[] | string;
-    borderColor: any; //String or null
+    borderColor: any; // String or null
     data: number[];
 }
 
 @Component({
     selector: 'uni-dashboard',
-    templateUrl: 'app/components/dashboard/dashboard.html',
-    directives: [ROUTER_DIRECTIVES, UniImage]
+    templateUrl: 'app/components/dashboard/dashboard.html'
 })
 
 export class Dashboard {
 
-    public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
+    public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
     public transactionList = [];
     public myTransactionList = [];
     public journalEntryList = [];
@@ -94,7 +92,7 @@ export class Dashboard {
 
     public hideWelcome() {
         this.welcomeHidden = true;
-        localStorage.setItem('welcomeHidden', 'true');
+        localStorage.setItem('welcomeHidden', JSON.stringify(true));
     }
 
     public widgetListItemClicked(url) {
@@ -169,7 +167,7 @@ export class Dashboard {
         }
     }
 
-    //Constructs the data for the assets pie chart
+    //  Constructs the data for the assets pie chart
     private assetsChartData(data: any): IChartDataSet {
         var myLabels = [];
         var myData = [];

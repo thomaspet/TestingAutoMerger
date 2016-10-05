@@ -1,16 +1,15 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AltinnIntegrationService} from '../../../services/services';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform/index'
+import {UniFieldLayout} from '../../../../framework/uniform/index';
 
 @Component({
     selector: 'altinn-settings',
-    templateUrl: 'app/components/settings/altinnSettings/altinnSettings.html',
-    providers: [AltinnIntegrationService, IntegrationServerCaller],
-    directives: [UniForm, UniSave]
+    templateUrl: 'app/components/settings/altinnSettings/altinnSettings.html'
+
 })
 export class AltinnSettings implements OnInit {
     private formConfig: UniFieldLayout[] = [];

@@ -5,12 +5,11 @@ import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'account-settings',
     templateUrl: 'app/components/settings/accountSettings/accountSettings.html',
-    directives: [AccountList, AccountDetails, UniSave]
 })
 export class AccountSettings {
     @ViewChild(AccountList) private accountlist: AccountList;

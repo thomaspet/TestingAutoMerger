@@ -6,7 +6,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMe
 import {Observable} from 'rxjs/Rx';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import {setDeepValue} from '../utils/utils';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime', false, '', RegisterTime);
@@ -22,9 +22,7 @@ interface IFilter {
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/regtime/regtime.html',
-    directives: [UniTable, UniSave],
-    providers: [WorkerService, TimesheetService]
+    templateUrl: 'app/components/timetracking/regtime/regtime.html'
 })
 export class RegisterTime {
     public view: View = view;

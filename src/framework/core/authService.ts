@@ -2,7 +2,7 @@ import {Injectable, Inject, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../app/AppConfig';
+import {AppConfig} from '../../app/appConfig';
 
 import {StaticRegisterService} from '../../app/services/staticregisterservice';
 
@@ -104,7 +104,11 @@ export class AuthService {
      * @returns {Boolean}
      */
     public isAuthenticated(): boolean {
-        return (!!this.jwt && !!this.jwtDecoded && !this.expiredToken);
+        let hasToken: boolean = !!this.jwt;
+        let isTokenDecoded: boolean = !!this.jwtDecoded;
+        let isExpired: boolean = this.expiredToken;
+        
+        return hasToken && isTokenDecoded && !isExpired;
     }
     
     /**

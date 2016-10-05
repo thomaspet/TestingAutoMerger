@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
+import {CanActivate, CanActivateChild, Router, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 import {AuthService} from '../framework/core/authService';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate, CanActivateChild {
     constructor(private authService: AuthService, private router: Router) {}
 
     public canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {        
@@ -19,11 +19,8 @@ export class AuthGuard implements CanActivate {
 
         return true;
     }
-    
-    private storeLastUrl(url) {
-        let lastNavAttempt = localStorage.getItem('lastNavigationAttempt');
-        if (!lastNavAttempt || lastNavAttempt === '/') {
-            localStorage.setItem('lastNavigationAttempt', url);
-        }
+
+    public canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        return this.canActivate(route, state);
     }
 }

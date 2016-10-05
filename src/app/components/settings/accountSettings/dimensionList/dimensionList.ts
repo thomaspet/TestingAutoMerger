@@ -4,8 +4,7 @@ import {Dimensions} from '../../../../unientities';
 
 @Component({
     selector: 'dimension-list',
-    templateUrl: 'app/components/settings/accountSettings/dimensionList/dimensionList.html',
-    directives: [UniTable]
+    templateUrl: 'app/components/settings/accountSettings/dimensionList/dimensionList.html'
 })
 export class DimensionList {
     @Input() public dimensions: Dimensions;

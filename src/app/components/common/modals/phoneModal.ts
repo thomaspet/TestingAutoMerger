@@ -7,7 +7,7 @@ import {PhoneService} from '../../../services/services';
 // Reusable address form
 @Component({
     selector: 'phone-form',
-    directives: [UniForm],
+
     template: `
         <article class="modal-content phone-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -170,9 +170,7 @@ export class PhoneForm {
     selector: 'phone-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `,
-    directives: [UniModal],
-    providers: [PhoneService]
+    `
 })
 export class PhoneModal {
     @Input() public phone: Phone;

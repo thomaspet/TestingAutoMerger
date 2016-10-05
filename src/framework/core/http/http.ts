@@ -1,7 +1,7 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import {AppConfig} from '../../../app/AppConfig';
+import {AppConfig} from '../../../app/appConfig';
 import {AuthService} from '../authService';
 
 export interface IUniHttpRequest {

@@ -1,11 +1,10 @@
 import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {ISelectConfig, UniSelect} from '../../../../framework/uniform/controls/select/select';
+import {ISelectConfig} from '../../../../framework/uniform/controls/select/select';
 declare var jQuery;
 
 @Component({
     selector: 'salarytrans-filter-content',
-    directives: [UniSelect],
     template: `
         <article class="modal-content" *ngIf="config">
             <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -68,7 +67,6 @@ export class SalarytransFilterContent {
 
 @Component({
     selector: 'salarytrans-filter',
-    directives: [UniModal],
     template: `
         <article class="buttonlist_component">
             <p id="button-list-label-id">Utvalg av ansatte, filtrert etter </p>

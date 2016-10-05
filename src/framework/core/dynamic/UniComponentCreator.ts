@@ -4,8 +4,8 @@ import {
     ComponentRef,
     ComponentFactory
 } from '@angular/core';
-import { RuntimeCompiler } from '@angular/compiler';
-import { AppModule } from '../../../app/bootstrap';
+import {RuntimeCompiler} from '@angular/compiler';
+import {AppModule} from '../../../app/appModule';
 import {IUniInputsAndOutputs} from './UniDynamic';
 
 @Injectable()

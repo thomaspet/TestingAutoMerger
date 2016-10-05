@@ -1,7 +1,6 @@
-import {Component, Type, ViewChild, Input} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
+import {Component, Type, ViewChild, Input, ComponentRef} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnReceiptService, EmployeeService} from '../../../../../app/services/services';
@@ -10,9 +9,6 @@ import {AltinnLoginModal} from './altinnLoginModal';
 declare var _; // lodash
 @Component({
     selector: 'read-tax-card-modal-content',
-    directives: [UniTable, AltinnLoginModal],
-    providers: [AltinnReceiptService],
-    pipes: [AsyncPipe],
     templateUrl: 'app/components/salary/employee/modals/readTaxCardModalContent.html'
 })
 export class ReadTaxCardModalContent {
@@ -28,10 +24,13 @@ export class ReadTaxCardModalContent {
     private employeeID: number;
     constructor(private _altinnReceiptService: AltinnReceiptService, private _employeeService: EmployeeService) {
 
-        _employeeService.employee$.subscribe((emp) => {
+    }
+
+    public ngOnChanges() {
+        this._employeeService.employee$.subscribe((emp) => {
             this.employeeID = emp.ID;
         })
-        
+
         let titleColumn = new UniTableColumn('Form', 'Tittel', UniTableColumnType.Text);
         let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.Date);
         let receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
@@ -40,7 +39,7 @@ export class ReadTaxCardModalContent {
             .setTemplate((rowModel) => {
                 return rowModel['HasBeenRegistered'] === true ? 'X' : '';
             });
-        
+
         let contextMenuItem = {
             label: 'Hent og les inn',
             action: (rowModel) => {
@@ -56,8 +55,6 @@ export class ReadTaxCardModalContent {
             .setContextMenu([contextMenuItem], false)
             .setPageSize(10)
             .setFilters([{field: 'Form', operator: 'eq', value: 'RF-1211', group: 0}]);
-
-
     }
 
     private readTaxCard( receiptID: number) {
@@ -83,8 +80,6 @@ export class ReadTaxCardModalContent {
 
 @Component({
     selector: 'read-tax-card-modal',
-    directives: [UniModal],
-    providers: [AltinnReceiptService],
     template: `
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
@@ -97,19 +92,23 @@ export class ReadTaxCardModal {
     private modal: UniModal;
 
     constructor(private _altinnReceiptService: AltinnReceiptService) {
-        this.config = {
+    }
+
+    public ngOnInit() {
+        let self = this;
+        self.config = {
             cancel: () => {
-                this.modal.getContent().then((component: ReadTaxCardModalContent) => {
-                    this.modal.close();
+                self.modal.getContent().then((component: ComponentRef<ReadTaxCardModalContent>) => {
+                    self.modal.close();
                 });
             }
         };
     }
 
     public openModal() {
-        this.modal.getContent().then((component: ReadTaxCardModalContent) => {
-            component.openModal();
-            this.modal.open();
+        this.modal.open();
+        this.modal.getContent().then((component: ComponentRef<ReadTaxCardModalContent>) => {
+            component.instance.openModal();
         });
     }
 }
