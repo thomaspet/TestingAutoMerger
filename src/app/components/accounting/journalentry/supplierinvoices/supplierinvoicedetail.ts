@@ -1,11 +1,11 @@
 import {Component, Input, OnInit, ViewChild, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService} from '../../../../services/services';
+import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, ProjectService, DepartmentService} from '../../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {JournalEntryData} from '../../../../models/models';
-import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType} from '../../../../unientities';
+import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType, Project, Department} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
@@ -21,6 +21,8 @@ declare const _;
 
 @Component({
     selector: 'supplier-invoice-detail',
+    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave, RegisterPaymentModal, SupplierDetailsModal],
+    providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, SupplierInvoiceFileUploader, ProjectService, DepartmentService],
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html'
 })
 export class SupplierInvoiceDetail implements OnInit, OnDestroy {
@@ -31,6 +33,8 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     private errors;
     private disabled: boolean = false;
     private subscriptions: Subscription[] = [];
+    private projects: Project[];
+    private departments: Department[];
 
     private previewId: number;
     private previewSize: UniImageSize;
@@ -54,7 +58,9 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         private fileuploader: SupplierInvoiceFileUploader,
         private router: Router,
         private route: ActivatedRoute,
-        private tabService: TabService) {
+        private tabService: TabService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService) {
 
         route.params.subscribe(params => {
             this.invoiceId = +params['id'];
@@ -123,14 +129,18 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
     private loadFormAndData() {
         Observable.forkJoin(
-            this._supplierInvoiceService.Get(this.invoiceId, ['JournalEntry', 'Supplier.Info']),
+            this._supplierInvoiceService.Get(this.invoiceId, ['JournalEntry', 'Supplier.Info', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']),
             this._supplierService.GetAll(null, ['Info']),
-            this._bankAccountService.GetAll(null)
+            this._bankAccountService.GetAll(null),
+            this.projectService.GetAll(null),
+            this.departmentService.GetAll(null)
         ).subscribe((response: any) => {
-            let [invoice, suppliers, bac] = response;
+            let [invoice, suppliers, bac, projects, departments] = response;
             this.supplierInvoice = invoice;
             this.suppliers = suppliers;
             this.bankAccounts = bac;
+            this.projects = projects;
+            this.departments = departments;
 
             // add blank to dropdown
             this.suppliers.unshift(null);
@@ -222,6 +232,10 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             this.setError({Message: 'KID eller melding må være fyllt ut.'});
             done('Ikke lagret');
             return;
+        }
+
+        if (this.supplierInvoice.Dimensions && (!this.supplierInvoice.DimensionsID || this.supplierInvoice.DimensionsID === 0)) {
+            this.supplierInvoice.Dimensions['_createguid'] = this._supplierInvoiceService.getNewGuid();
         }
 
         if (!!this.supplierInvoice.JournalEntryID) {
@@ -450,8 +464,44 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         paymentInformation.Property = 'PaymentInformation';
         paymentInformation.ReadOnly = false;
 
+        var project = new UniFieldLayout();
+        project.FieldSet = 0;
+        project.Section = 2;
+        project.Combo = 0;
+        project.FieldType = 3;
+        project.Label = 'Prosjekt';
+        project.Sectionheader = 'Dimensjoner';
+        project.Property = 'Dimensions.ProjectID';
+        project.ReadOnly = false;
+        project.Options = {
+            source: this.projects,
+            valueProperty: 'ID',
+            template: (item) => {
+                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+            },
+            debounceTime: 200
+        };
+
+        var department = new UniFieldLayout();
+        department.FieldSet = 0;
+        department.Section = 2;
+        department.Combo = 0;
+        department.FieldType = 3;
+        department.Label = 'Prosjekt';
+        department.Sectionheader = 'Dimensjoner';
+        department.Property = 'Dimensions.DepartmentID';
+        department.ReadOnly = false;
+        department.Options = {
+            source: this.departments,
+            valueProperty: 'ID',
+            template: (item) => {
+                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+            },
+            debounceTime: 200
+        };
+
         self.fields = [supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber,
-            bankAccount, paymentID, paymentInformation];
+            bankAccount, paymentID, paymentInformation, project, department];
 
         this.config = {
         };
@@ -462,6 +512,8 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private ready(event) {
+        this.setupSubscriptions(null);
+
         if (this.supplierInvoice.StatusCode < StatusCodeSupplierInvoice.Journaled) {
             this.form.editMode();
             this.disabled = false;
@@ -469,6 +521,19 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             this.form.readMode();
             this.disabled = true;
         }
+    }
+
+    private setupSubscriptions(event) {
+        this.form.field('SupplierID')
+             .onChange
+             .subscribe((data) => {
+                if (data) {
+                    this._supplierService.Get(this.supplierInvoice.SupplierID, ['Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((supplier: Supplier) => {
+                        this.supplierInvoice.Dimensions = _.cloneDeep(supplier.Dimensions);
+                        this.supplierInvoice = _.cloneDeep(this.supplierInvoice);
+                    });
+                }
+             });
     }
 
     private registerPayment(done) {

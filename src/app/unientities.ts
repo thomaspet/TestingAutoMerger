@@ -1718,12 +1718,12 @@ export class AmeldingData {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public feedbackFileID: number;
     public ID: number;
     public initiated: Date;
     public mainFileID: number;
     public messageID: string;
     public period: number;
-    public receiptFileID: number;
     public receiptID: number;
     public replacesID: number;
     public sent: Date;
@@ -2587,6 +2587,73 @@ export class TransitionFlow {
     public FromStatus: Status;
     public ToStatus: Status;
     public Transition: Transition;
+    public CustomFields: any;
+}
+
+
+export class UniQueryFilter {
+    public static RelativeUrl = 'uniqueryfilters';
+    public static EntityType = 'UniQueryFilter';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Field: string;
+    public Group: number;
+    public ID: number;
+    public Operator: string;
+    public StatusCode: number;
+    public UniQueryDefinitionID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public CustomFields: any;
+}
+
+
+export class UniQueryField {
+    public static RelativeUrl = 'uniqueryfields';
+    public static EntityType = 'UniQueryField';
+
+    public Alias: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Field: string;
+    public Header: string;
+    public ID: number;
+    public Index: number;
+    public Path: string;
+    public StatusCode: number;
+    public SumFunction: string;
+    public UniQueryDefinitionID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Width: string;
+    public CustomFields: any;
+}
+
+
+export class UniQueryDefinition {
+    public static RelativeUrl = 'uniquerydefinitions';
+    public static EntityType = 'UniQueryDefinition';
+
+    public ClickParam: string;
+    public ClickUrl: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public IsShared: boolean;
+    public MainModelName: string;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public UniQueryFilters: Array<UniQueryFilter>;
+    public UniQueryFields: Array<UniQueryField>;
     public CustomFields: any;
 }
 
