@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {WorkTypeSystemTypePipe} from '../utils/pipes';
@@ -7,13 +7,13 @@ import {GenericListView, IViewConfig} from '../genericview/list';
 
 export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype', WorktypeListview);
 
-@Component({    
+@Component({
     selector: view.name,
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView],    
+    directives: [GenericListView],
     pipes: [WorkTypeSystemTypePipe]
 })
-export class WorktypeListview {    
+export class WorktypeListview {
     public viewconfig: IViewConfig;
 
     constructor(private tabService: TabService) {
@@ -22,10 +22,10 @@ export class WorktypeListview {
 
     private createConfig(): IViewConfig {
         return {
-            moduleID: 17,
+            moduleID: UniModules.WorkTypes,
             detail: { route: '/timetracking/worktypes/'},
             tab: view,
-            data: { 
+            data: {
                 route: 'worktypes'
             },
             tableConfig: this.createTableConfig()

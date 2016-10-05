@@ -4,6 +4,7 @@ import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
 
@@ -21,7 +22,7 @@ export class WorkprofileDetailview {
     private createLayout(): IViewConfig {
 
         var layout: IViewConfig = {
-            moduleID: 15,
+            moduleID: UniModules.WorkProfiles,
             labels: { single: 'Mal', plural: 'Maler', createNew: 'Ny mal'},
             detail: { routeBackToList: '/timetracking/workprofiles'},
             tab: view,
@@ -39,6 +40,6 @@ export class WorkprofileDetailview {
         };
 
         return layout;
-    }   
+    }
 
 }

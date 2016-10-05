@@ -2,15 +2,16 @@ import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile', WorkprofileListview);
 
 @Component({
     selector: view.name,
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView] 
+    directives: [GenericListView]
 })
-export class WorkprofileListview {    
+export class WorkprofileListview {
 
     public viewconfig: IViewConfig;
 
@@ -20,10 +21,10 @@ export class WorkprofileListview {
 
     private createConfig(): IViewConfig {
         return {
-            moduleID: 15,
+            moduleID: UniModules.WorkProfiles,
             detail: { route: '/timetracking/workprofiles/'},
             tab: view,
-            data: { 
+            data: {
                 route: 'workprofiles',
             },
             tableConfig: this.createTableConfig()
@@ -37,5 +38,5 @@ export class WorkprofileListview {
         ];
         return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
     }
-       
+
 }

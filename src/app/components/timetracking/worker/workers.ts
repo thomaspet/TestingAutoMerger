@@ -2,15 +2,16 @@ import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {GenericListView, IViewConfig} from '../genericview/list';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker', WorkerListview);
 
-@Component({    
+@Component({
     selector: view.name,
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView]    
+    directives: [GenericListView]
 })
-export class WorkerListview {    
+export class WorkerListview {
     public viewconfig: IViewConfig;
 
     constructor() {
@@ -19,10 +20,10 @@ export class WorkerListview {
 
     private createConfig(): IViewConfig {
         return {
-            moduleID: 16,
+            moduleID: UniModules.Workers,
             detail: { route: '/timetracking/workers/'},
             tab: view,
-            data: { 
+            data: {
                 route: 'workers',
                 expand: 'info'
             },

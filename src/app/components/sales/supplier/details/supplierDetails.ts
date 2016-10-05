@@ -9,7 +9,7 @@ import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/e
 import {Supplier, Email, Phone, Address} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
@@ -130,7 +130,7 @@ export class SupplierDetails implements OnInit {
 
     private setTabTitle() {
         let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)';
-        this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
+        this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
     }
 
     private setup() {

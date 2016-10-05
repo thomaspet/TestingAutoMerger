@@ -21,7 +21,7 @@ import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
@@ -234,7 +234,7 @@ export class OrderDetails {
 
     private setTabTitle() {
         let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)';
-        this.tabService.addTab({ url: '/sales/orders/' + this.order.ID, name: tabTitle, active: true, moduleID: 4 });
+        this.tabService.addTab({ url: '/sales/orders/' + this.order.ID, name: tabTitle, active: true, moduleID: UniModules.Orders });
     }
 
     private extendFormConfig() {

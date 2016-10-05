@@ -5,7 +5,7 @@ import {Router} from '@angular/router';
 import {AccountService, JournalEntryService} from '../../../../services/services';
 import {Account} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var jQuery;
 declare var moment;
@@ -18,7 +18,7 @@ declare var moment;
 })
 export class TransqueryList {
     @ViewChild(UniForm) public form: UniForm;
-        
+
     private searchParams: any;
     private config: any;
     private fields: any[] = [];
@@ -28,54 +28,54 @@ export class TransqueryList {
     private periods$: Observable<any>;
     private isIncomingBalance: boolean;
 
-    constructor(private router: Router, 
-                private accountService: AccountService, 
+    constructor(private router: Router,
+                private accountService: AccountService,
                 private journalEntryService: JournalEntryService,
                 private tabService: TabService) {
         this.setupPeriodeTable();
-        this.tabService.addTab({ name: 'Forspørsel konto', url: '/accounting/transquery/list', moduleID: 8, active: true });
+        this.tabService.addTab({ name: 'Forspørsel konto', url: '/accounting/transquery/list', moduleID: UniModules.Transquery, active: true });
     }
-    
+
     public ngOnInit() {
-        
+
         this.config = {};
         this.fields = this.getLayout().Fields;
         this.searchParams = {
             Account: null
-        };         
+        };
     }
-    
+
     private loadTableData(account: Account) {
         this.account = account;
-        
+
         if (account) {
             this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID);
             this.periods$.subscribe((data) => {
-               this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null; 
+               this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null;
             });
         }
     }
-          
+
     private setupPeriodeTable() {
         var year: number = moment().year();
- 
+
         // Define columns to use in the table
         let periodeCol = new UniTableColumn('PeriodName', 'Periode').setWidth('60%');
         let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
             .setTemplate((period) => {
                 return `<a href='/#/accounting/transquery/details;Account_AccountNumber=${this.account.AccountNumber};year=${year - 1};period=${period.PeriodNo};isIncomingBalance=${this.isIncomingBalance}'>${period.PeriodSumYear1}</a>`;
             });
-        let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)            
+        let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)
             .setTemplate((period) => {
                 return `<a href='/#/accounting/transquery/details;Account_AccountNumber=${this.account.AccountNumber};year=${year    };period=${period.PeriodNo};isIncomingBalance=${this.isIncomingBalance}'>${period.PeriodSumYear2}</a>`;
             });
-        
+
         // Setup table
         this.periodeTable = new UniTableConfig(false, false)
             .setColumns([periodeCol, lastYearCol, thisYearCol])
             .setColumnMenuVisible(false);
     }
-    
+
     private getLayout() {
         return {
             Name: 'TransqueryList',
@@ -122,16 +122,16 @@ export class TransqueryList {
                         valueProperty: 'ID',
                         template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
                         minLength: 1,
-                        debounceTime: 200,   
+                        debounceTime: 200,
                         events: {
                             select: (model: any) => {
                                 this.accountService.Get(model.AccountID)
                                     .subscribe((account: Account) => {
-                                        this.loadTableData(account);  
+                                        this.loadTableData(account);
                                     });
                             }
                         }
-                    } 
+                    }
                 }
             ]
         };

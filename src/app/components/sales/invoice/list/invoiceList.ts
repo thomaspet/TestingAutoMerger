@@ -10,7 +10,7 @@ import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'invoice-list',
@@ -40,7 +40,7 @@ export class InvoiceList implements OnInit {
         private tabService: TabService) {
 
         this.setupInvoiceTable();
-        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: 5 });
+        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
     }
 
     private log(err) {
@@ -171,7 +171,7 @@ export class InvoiceList implements OnInit {
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
-                    // Must have saved at minimum 1 item related to the invoice 
+                    // Must have saved at minimum 1 item related to the invoice
                     return true;
                 }
                 return !rowModel._links.transitions.invoice;
@@ -193,7 +193,7 @@ export class InvoiceList implements OnInit {
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
-                    // Must have saved at minimum 1 item related to the invoice 
+                    // Must have saved at minimum 1 item related to the invoice
                     return true;
                 }
                 return !rowModel._links.transitions.invoice;
@@ -239,7 +239,7 @@ export class InvoiceList implements OnInit {
                     if (report) {
                         this.previewModal.openWithId(report, invoice.ID);
                         // report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
-                        // this.reportDefinitionService.generateReportPdf(report);                                        
+                        // this.reportDefinitionService.generateReportPdf(report);
                     }
                 });
             }

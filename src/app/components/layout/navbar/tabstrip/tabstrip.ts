@@ -1,14 +1,14 @@
 import {Component} from '@angular/core';
 import {NgClass} from '@angular/common';
 import {ROUTER_DIRECTIVES, Router} from '@angular/router';
-import {TabService} from './tabService';
+import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
 
 export interface IUniTab {
     url: string;
     name: string;
     active?: boolean;
-    moduleID?: number;
+    moduleID?: UniModules;
 }
 
 @Component({

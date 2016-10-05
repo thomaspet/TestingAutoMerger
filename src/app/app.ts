@@ -3,7 +3,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {ROUTER_DIRECTIVES} from '@angular/router';
 import {AuthService} from '../framework/core/authService';
-import {TabService} from './components/layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from './components/layout/navbar/tabstrip/tabService';
 import {UniNavbar} from './components/layout/navbar/navbar';
 import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';

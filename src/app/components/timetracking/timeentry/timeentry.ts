@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker} from '../../../unientities';
 import {WorkerService, IFilter} from '../../../services/timetracking/workerservice';
@@ -91,7 +91,7 @@ export class TimeEntry {
 
         this.filters = service.getIntervalItems();
 
-        this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
+        this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
 
         router.routerState.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
             if (item.workerId) {

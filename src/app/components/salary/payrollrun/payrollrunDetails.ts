@@ -4,7 +4,7 @@ import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './controlModal';
 import {PostingsummaryModal} from './postingsummaryModal';
 import {VacationpayModal} from './vacationpay/VacationpayModal';
@@ -13,6 +13,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
+import {UniBreadcrumbs} from '../../common/toolbar/breadcrumbs';
 
 declare var _;
 
@@ -21,7 +22,7 @@ declare var _;
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService, provide(RootRouteParamsService, { useClass: RootRouteParamsService })],
-    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm, VacationpayModal, ContextMenu]
+    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm, VacationpayModal, ContextMenu, UniBreadcrumbs]
 })
 
 export class PayrollrunDetails {
@@ -45,7 +46,7 @@ export class PayrollrunDetails {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
             this._rootRouteParamsService.params = params;
-            this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
+            this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: UniModules.Payrollrun, active: true });
             this.getPayrollRun();
         });
         this.contextMenuItems = [

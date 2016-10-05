@@ -7,7 +7,8 @@ import {EmployeeCategoryButtons} from './employeeCategoryButtons';
 import {Employee, Employment, EmployeeLeave, SalaryTransaction} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {RootRouteParamsService} from '../../../services/rootRouteParams';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -123,14 +124,14 @@ export class EmployeeDetails extends UniView {
                 this.tabService.addTab({
                     name: 'Ansattnr. ' + this.employeeID,
                     url: this.url + this.employeeID,
-                    moduleID: 12,
+                    moduleID: UniModules.Employees,
                     active: true
                 });
             } else {
                 this.tabService.addTab({
                     name: 'Ny ansatt',
                     url: this.url + this.employeeID,
-                    moduleID: 12,
+                    moduleID: UniModules.Employees,
                     active: true
                 });
             }

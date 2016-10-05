@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {TabService} from '../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {ROUTER_DIRECTIVES, Router} from '@angular/router';
 import {UniImage} from '../../../framework/uniImage/uniImage';
@@ -34,7 +34,7 @@ export class Dashboard {
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
 
     constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
-        this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: 0 });
+        this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
         Chart.defaults.global.maintainAspectRatio = false;
 
         this.getCompany().subscribe(

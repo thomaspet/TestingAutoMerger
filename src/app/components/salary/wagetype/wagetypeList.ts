@@ -7,7 +7,7 @@ import {WageTypeService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 
 import {WageType} from '../../../unientities';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'wagetypes',
@@ -22,7 +22,7 @@ export class WagetypeList implements OnInit {
     private wageTypes$: Observable<WageType>;
 
     constructor(private _router: Router, private tabSer: TabService, private _wageTypeService: WageTypeService) {
-        this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: 13, active: true });
+        this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true });
     }
 
     public ngOnInit() {
@@ -45,7 +45,7 @@ export class WagetypeList implements OnInit {
     public rowSelected(event) {
         this._router.navigateByUrl('/salary/wagetypes/' + event.rowModel.ID);
     }
-    
+
     public createWageType() {
         this._router.navigateByUrl('/salary/wagetypes/0');
     }

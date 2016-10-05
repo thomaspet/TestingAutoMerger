@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {AMeldingService} from '../../../services/Salary/AMelding/AMeldingService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -43,15 +43,15 @@ export class AMeldingView implements OnInit {
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
     public showView: string = '';
-    
+
 
     constructor(
-        private _tabService: TabService, 
+        private _tabService: TabService,
         private _ameldingService: AMeldingService,
         private _toastService: ToastService
     ) {
-        this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: 21, active: true});
-        
+        this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
+
         this.contextMenuItems = [
             {
                 label: 'Hent a-meldingsfil',
@@ -71,7 +71,7 @@ export class AMeldingView implements OnInit {
         this.currentPeriod = 1;
         this.currentMonth = moment.months()[this.currentPeriod - 1];
     }
-    
+
     public ngOnInit() {
         this.getAMeldingForPeriod();
     }
@@ -188,7 +188,7 @@ export class AMeldingView implements OnInit {
                 this.onError(error);
             });
     }
-    
+
     private updateSaveActions() {
         this.actions = [];
         this.actions.push({

@@ -7,7 +7,7 @@ import {Observable} from 'rxjs/Observable';
 
 import {Employee} from '../../../unientities';
 
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {EmployeeService} from '../../../services/services';
 
 @Component({
@@ -24,7 +24,7 @@ export class EmployeeList {
     constructor(private router: Router, private tabService: TabService, private _employeeService: EmployeeService) {
 
         this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0');
-        
+
         var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Number).setWidth('15%');
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
@@ -35,15 +35,15 @@ export class EmployeeList {
         this.employeeTableConfig = new UniTableConfig(false)
             .setColumns([idCol, nameCol, employmentDateCol]);
 
-        this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: 12, active: true });
+        this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: UniModules.Employees, active: true });
     }
 
     public rowSelected(event) {
         this.router.navigate(['/salary/employees/', event.rowModel.ID]);
     }
-    
+
     public newEmployee() {
         this.router.navigateByUrl('/salary/employees/' + 0);
     }
-    
+
 }

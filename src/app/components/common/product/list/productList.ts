@@ -4,7 +4,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService} from '../../../../services/services';
-import {TabService} from "../../../layout/navbar/tabstrip/tabService";
+import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var jQuery;
 
@@ -14,16 +14,16 @@ declare var jQuery;
     directives: [UniTable],
     providers: [ProductService]
 })
-export class ProductList {        
+export class ProductList {
     private productTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    
+
     constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private tabService: TabService) {
         this.setupProductTable();
-        this.tabService.addTab({ name: "Produkter", url: "/products/list/", active: true, moduleID: 6 });
+        this.tabService.addTab({ name: "Produkter", url: "/products/list/", active: true, moduleID: UniModules.Products });
     }
-    
-    private createProduct() { 
+
+    private createProduct() {
         this.router.navigateByUrl('/products/0');
     }
 
@@ -32,17 +32,17 @@ export class ProductList {
     };
 
     private setupProductTable() {
-        
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
-            
+
             if (params === null) {
                 params = new URLSearchParams();
             }
-                        
+
             return this.productService.GetAllByUrlSearchParams(params);
         };
-        
+
         // Define columns to use in the table
         var partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         var nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text).setFilterOperator('contains');
@@ -54,10 +54,10 @@ export class ProductList {
                             .setWidth('15%')
                             .setFormat('{0:n}')
                             .setCls('column-align-right');
-                                    
+
         // Setup table
-        this.productTable = new UniTableConfig(false, true, 25)            
-            .setSearchable(true)            
+        this.productTable = new UniTableConfig(false, true, 25)
+            .setSearchable(true)
             .setColumns([partNameCol, nameCol, priceExVatCol, priceIncVatCol]);
     }
 }

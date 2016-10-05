@@ -2,20 +2,21 @@ import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('projects', 'Prosjekter', 'ProjectListview', false, 'project', ProjectListview);
 
 @Component({
     selector: view.name,
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView]    
+    directives: [GenericListView]
 })
 export class ProjectListview {
     public viewconfig: IViewConfig;
 
     constructor() {
         this.viewconfig = {
-            moduleID: 101,
+            moduleID: UniModules.Projects,
             detail: { route: '/timetracking/projects/'},
             tab: view,
             data: {

@@ -3,6 +3,7 @@ import {ROUTER_DIRECTIVES, Router, Route} from '@angular/router';
 import {NgFor, NgClass} from '@angular/common';
 import {ClickOutsideDirective} from '../../../../../framework/core/clickOutside';
 import {routes} from '../../../../routes';
+import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
     private transform(componentList) {
@@ -39,13 +40,22 @@ export class HamburgerMenu {
     public availableComponents: Array<any>;
     private activeSection: number = 0;
 
+
+    // Get the corresponding parent app to a given module.
+    public static getParentApp(moduleID): any {
+        let _series = moduleID + '';
+        let _seriesIndex = +_series.slice(0, 1) - 1;
+        return this.getAvailableComponents()[_seriesIndex];
+    }
+
     public static getAvailableComponents(): Array<any> {
         return [
             {
                 componentListName: 'Nøkkeltall',
                 componentListHeader: 'Alt om deres økonomi',
+                componentListUrl: '/',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/'},
+                    {componentName: 'Nøkkeltall', componentUrl: '/', moduleID: UniModules.Dashboard},
                     {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
                     {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
                     {componentName: 'Aga-innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},
@@ -57,55 +67,69 @@ export class HamburgerMenu {
             {
                 componentListName: 'Salg',
                 componentListHeader: 'Utgående salg',
+                componentListUrl: '/sales',
                 componentList: [
-                    {componentName: 'Kunder', componentUrl: '/sales'},
-                    {componentName: 'Tilbud', componentUrl: '/sales/quotes'},
-                    {componentName: 'Ordre', componentUrl: '/sales/orders'},
-                    {componentName: 'Faktura', componentUrl: '/sales/invoices'},
-                    {componentName: 'Produkter', componentUrl: '/products'}
+                    {componentName: 'Kunder', componentUrl: '/sales', moduleID: UniModules.Customers},
+                    {componentName: 'Tilbud', componentUrl: '/sales/quotes', moduleID: UniModules.Quotes},
+                    {componentName: 'Ordre', componentUrl: '/sales/orders', moduleID: UniModules.Orders},
+                    {componentName: 'Faktura', componentUrl: '/sales/invoices', moduleID: UniModules.Invoices},
+                    {componentName: 'Produkter', componentUrl: '/products', moduleID: UniModules.Products}
                 ]
             },
             {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
+                componentListUrl: '/accounting',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting', moduleID: UniModules.Accounting},
                     {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices', hidden: true},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
-                    {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
-                    {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
-                    {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings'},
-                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
+                    {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery', moduleID: UniModules.Transquery},
+                    {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails},
+                    {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
+                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
                     {componentName: 'MVA-melding', componentUrl: '/accounting/vatreport'},
-                    {componentName: 'Leverandører', componentUrl: '/sales/suppliers'}
+                    {componentName: 'Leverandører', componentUrl: '/sales/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },
             {
                 componentListName: 'Lønn',
                 componentListHeader: 'Lønn og ansatte',
+                componentListUrl: '/salary',
                 componentList: [
-                    {componentName: 'Ansatte', componentUrl: '/salary/employees'},
-                    {componentName: 'Lønnsarter', componentUrl: '/salary/wagetypes'},
-                    {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun'},
-                    {componentName: 'A-Meldinger', componentUrl: '/salary/amelding'}
+                    {componentName: 'Ansatte', componentUrl: '/salary/employees', moduleID: UniModules.Employees},
+                    {componentName: 'Lønnsarter', componentUrl: '/salary/wagetypes', moduleID: UniModules.Wagetypes},
+                    {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun', moduleID: UniModules.Payrollrun},
+                    {componentName: 'A-Meldinger', componentUrl: '/salary/amelding', moduleID: UniModules.Amelding}
                 ]
             },
             {
                 componentListName: 'Timer',
                 componentListHeader: 'Timer',
+                componentListUrl: '/timetracking',
                 componentList: [
-                    {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles'},
-                    {componentName: 'Personer', componentUrl: '/timetracking/workers'},
-                    {componentName: 'Timearter', componentUrl: '/timetracking/worktypes'},
-                    {componentName: 'Timer', componentUrl: '/timetracking'},
+                    {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles', moduleID: UniModules.WorkProfiles},
+                    {componentName: 'Personer', componentUrl: '/timetracking/workers', moduleID: UniModules.Workers},
+                    {componentName: 'Timearter', componentUrl: '/timetracking/worktypes', moduleID: UniModules.WorkTypes},
+                    {componentName: 'Timer', componentUrl: '/timetracking', moduleID: UniModules.Timesheets},
                     {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'}
                 ]
             },
             {
                 componentListName: 'Rapporter',
                 componentListHeader: 'Oversikt på papir',
+                componentListUrl: '/reports',
                 componentList: [
-                    {componentName: 'Rapportoversikt', componentUrl: '/reports'}
+                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.Reports}
+                ]
+            },
+            {
+                componentListName: 'Dimensioner',
+                componentListHeader: 'Dimensioner',
+                componentList: [
+                    {componentName: 'Prosjekt', componentUrl: '/dimensions/project'},
+                    {componentName: 'Avdeling', componentUrl: '/dimensions/department'}
+
                 ]
             },
             {
@@ -142,4 +166,5 @@ export class HamburgerMenu {
         this.open = false;
         this.router.navigateByUrl(url);
     }
+
 }

@@ -6,7 +6,7 @@ import {JournalEntryLineService} from '../../../../services/Accounting/JournalEn
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {JournalEntryLine} from '../../../../unientities';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'transquery-details',
@@ -22,7 +22,7 @@ export class TransqueryDetails implements OnInit {
     private allowManualSearch: boolean = true;
 
     constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService) {
-        this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: 9, active: true });
+        this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
 
     public ngOnInit() {

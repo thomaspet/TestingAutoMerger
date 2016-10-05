@@ -5,6 +5,7 @@ import {IViewConfig} from '../genericview/list';
 import {Worker, WorkRelation} from '../../../unientities';
 import {GenericDetailview, IAfterSaveInfo} from '../genericview/detail';
 import {View as RelationsSubView} from './relations';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
@@ -24,7 +25,7 @@ export class WorkerDetailview {
 
     constructor() {
         this.viewconfig = this.createFormConfig();
-    }   
+    }
 
     public onItemChanged(item: Worker) {
         this.currentId = item.ID;
@@ -44,7 +45,7 @@ export class WorkerDetailview {
 
     private createFormConfig(): IViewConfig {
         return {
-            moduleID: 16,
+            moduleID: UniModules.Workers,
             labels: { single: view.label, plural: 'Personer', createNew: 'Ny person'},
             detail: { routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
             tab: view,
@@ -52,17 +53,17 @@ export class WorkerDetailview {
                 model: 'worker',
                 expand: 'info',
                 route: 'workers',
-                factory: () => { 
+                factory: () => {
                         var item = new Worker();
                         return item;
                     },
-                check: (item) => { 
+                check: (item) => {
                 }
             },
             formFields: [
                 createFormField('Info.Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
             ]
-        };        
+        };
     }
 
 }

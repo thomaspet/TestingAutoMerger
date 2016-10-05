@@ -12,7 +12,7 @@ import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/unifor
 import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
 
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
-import {TabService} from "../../../layout/navbar/tabstrip/tabService";
+import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
 
@@ -123,7 +123,7 @@ export class CustomerDetails {
 
     private setTabTitle() {
         let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Kunde (kladd)';
-        this.tabService.addTab({ url: '/sales/customer/details/' + this.customer.ID, name: tabTitle, active: true, moduleID: 1 });
+        this.tabService.addTab({ url: '/sales/customer/details/' + this.customer.ID, name: tabTitle, active: true, moduleID: UniModules.Customers });
     }
 
     public setup() {

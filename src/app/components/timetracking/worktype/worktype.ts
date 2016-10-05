@@ -5,10 +5,11 @@ import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../utils/pipes';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);
 
-var defaultSystemType = 1; // 1 - Hours (default) 
+var defaultSystemType = 1; // 1 - Hours (default)
 
 @Component({
     selector: view.name,
@@ -24,20 +25,20 @@ export class WorktypeDetailview {
     private createLayout(): IViewConfig {
 
         var layout: IViewConfig = {
-            moduleID: 17,
+            moduleID: UniModules.WorkTypes,
             labels: { single: 'Mal', plural: 'Maler', createNew: 'Ny Timeart'},
             detail: { routeBackToList: '/timetracking/worktypes'},
             tab: view,
             data: {
                 model: 'worktype',
                 route: 'worktypes',
-                factory: () => { 
+                factory: () => {
                         var item = new WorkType();
                         item.SystemType = defaultSystemType;
                         return item;
                     },
-                check: (item) => { 
-                    item.SystemType = item.SystemType || defaultSystemType; 
+                check: (item) => {
+                    item.SystemType = item.SystemType || defaultSystemType;
                 }
             },
             formFields: [
@@ -50,6 +51,6 @@ export class WorktypeDetailview {
         };
 
         return layout;
-    }   
+    }
 
 }

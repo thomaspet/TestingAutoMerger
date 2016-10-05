@@ -13,7 +13,7 @@ import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SupplierDetailsModal} from '../../../common/modals/supplierDetailModal';
 import {Subscription} from 'rxjs';
 
@@ -114,13 +114,13 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             }
             );
     }
-    
+
     private setTabTitle() {
-        let tabTitle = this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)'; 
-        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/' + this.invoiceId, name: tabTitle, active: true, moduleID: 7 });        
+        let tabTitle = this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)';
+        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/' + this.invoiceId, name: tabTitle, active: true, moduleID: UniModules.Accounting });
     }
-    
-    
+
+
     private getStatusText() {
         return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
     }
@@ -212,7 +212,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         }
     }
 
-   
+
 
     private save(runSmartBooking: boolean, done) {
         if (!this.supplierInvoice.SupplierID) {
@@ -220,7 +220,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             done('Ikke lagret');
             return;
         }
-        
+
         if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
             this.setError({Message: 'KID eller melding må være fyllt ut.'});
             done('Ikke lagret');
@@ -273,7 +273,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private saveAndBook(done) {
-        // save and run transition to booking        
+        // save and run transition to booking
         let journalEntryData = this.journalEntryManual.getJournalEntryData();
 
         // set date today if date is default value / empty
@@ -285,12 +285,12 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
         this._journalEntryService
             .saveJournalEntryData(journalEntryData)
-            .subscribe((newJournalEntryData: Array<JournalEntryData>) => {                
+            .subscribe((newJournalEntryData: Array<JournalEntryData>) => {
                 newJournalEntryData.forEach((line: JournalEntryData) => {
                     line.FinancialDate = moment(line.FinancialDate).toDate();
                 });
                 this.journalEntryManual.setJournalEntryData(newJournalEntryData);
-                
+
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                     .subscribe((res) => {
                         let sum = newJournalEntryData
@@ -299,7 +299,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                                     .reduce((a, b) => {
                                         return (a > 0 ? a : 0) + (b > 0 ? b : 0)
                                     });
-                                    
+
                         if (sum !== this.supplierInvoice.TaxInclusiveAmount) {
                             this.setError({ Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp' });
                             done('Bokføring feilet');
@@ -307,7 +307,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                             this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
                                 .subscribe((resBooking) => {
                                     done('Bokført');
-                                    this.refreshFormData(this.supplierInvoice);                                    
+                                    this.refreshFormData(this.supplierInvoice);
                                 },
                                 (error) => {
                                     this.setError(error);
@@ -427,7 +427,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         bankAccount.Label = 'Bankkonto';
         bankAccount.Property = 'BankAccount';
         bankAccount.ReadOnly = false;
-        //bankAccount.Options = {  // TODO: later on when using BankAccount                
+        //bankAccount.Options = {  // TODO: later on when using BankAccount
         //    source: this.bankAccounts,
         //    valueProperty: 'AccountNumber',
         //    displayProperty: 'AccountNumber',
@@ -442,7 +442,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         paymentID.Label = 'KID';
         paymentID.Property = 'PaymentID';
         paymentID.ReadOnly = false;
-        //paymentID.LineBreak = true; // TODO issue #724   
+        //paymentID.LineBreak = true; // TODO issue #724
 
         var paymentInformation = new UniFieldLayout();
         paymentInformation.FieldSet = 0;
@@ -477,7 +477,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     private registerPayment(done) {
         const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
 
-        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.        
+        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
@@ -496,7 +496,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             PaymentDate: new Date()
         };
 
-        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);        
+        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
     }
 
     public ngOnDestroy() {

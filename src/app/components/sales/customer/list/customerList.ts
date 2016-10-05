@@ -5,7 +5,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {URLSearchParams} from '@angular/http';
 import {CustomerService} from "../../../../services/services";
 import {Customer, BusinessRelation} from "../../../../unientities";
-import {TabService} from "../../../layout/navbar/tabstrip/tabService";
+import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var jQuery;
 
@@ -22,7 +22,7 @@ export class CustomerList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService, private tabService: TabService) {
-        this.tabService.addTab({ name: "Kunder", url: "/sales/customer", moduleID: 1, active: true });
+        this.tabService.addTab({ name: "Kunder", url: "/sales/customer", moduleID: UniModules.Customers, active: true });
         this.setupCustomerTable();
     }
 

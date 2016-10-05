@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -28,7 +28,7 @@ var labels = {
 
 export interface IResult {
     success: boolean;
-    msg?: string;   
+    msg?: string;
 }
 
 export interface IAfterSaveInfo {
@@ -55,11 +55,11 @@ export class GenericDetailview {
     public current: any;
     public fields: Array<any>;
     public config: any = {};
-    
-    public actions: IUniSaveAction[] = [ 
+
+    public actions: IUniSaveAction[] = [
         { label: labels.action_save, action: (done) => this.save(done), main: true, disabled: false },
         { label: labels.action_delete, action: (done) => this.delete(done), main: false, disabled: true}
-    ];     
+    ];
 
     constructor(private workerService: WorkerService, private route: ActivatedRoute, private tabService: TabService, private toastService: ToastService, private router: Router) {
         this.route.params.subscribe(params => this.ID = +params['id']);
@@ -68,7 +68,7 @@ export class GenericDetailview {
     public ngOnInit() {
         if (this.viewconfig) {
             this.fields = this.viewconfig.formFields;
-        }        
+        }
     }
 
     public onReady(event) {
@@ -77,7 +77,7 @@ export class GenericDetailview {
         if (this.form && this.form.section(1)) {
             this.form.section(1).toggle();
         }
-    }    
+    }
 
     public onDelete() {
         this.delete();
@@ -91,11 +91,11 @@ export class GenericDetailview {
 
     public onNavigate(direction = 'next') {
         this.busy = true;
-        this.navigate(direction).then(() => this.busy = false, () => this.busy = false);        
+        this.navigate(direction).then(() => this.busy = false, () => this.busy = false);
     }
 
-    private navigate(direction = 'next'): Promise<any> {        
-    
+    private navigate(direction = 'next'): Promise<any> {
+
         var params = 'model=' + this.viewconfig.data.model;
         var resultFld = 'minid';
 
@@ -110,7 +110,7 @@ export class GenericDetailview {
             this.workerService.getStatistics(params).subscribe((items) => {
                 if (items && items.length > 0 && items[0].Data && items[0].Data.length > 0) {
                     var key = items[0].Data[0][resultFld];
-                    if (key) {                
+                    if (key) {
                         this.loadCurrent(key);
                         resolve(true);
                         return;
@@ -151,15 +151,15 @@ export class GenericDetailview {
                 }
                 if (updateTitle) {
                     this.updateTitle();
-                }                
+                }
                 this.flagDirty(false);
-                this.busy = false;                
+                this.busy = false;
             }, (err) => {
                 this.showErrMsg(err._body || err.statusText, labels.err_loading, true);
-                this.busy = false; 
+                this.busy = false;
             });
         } else {
-            this.ID = 0;            
+            this.ID = 0;
             if (this.viewconfig.data && this.viewconfig.data.factory) {
                 this.current = this.viewconfig.data.factory();
                 this.current.ID = this.ID;
@@ -171,7 +171,7 @@ export class GenericDetailview {
                 this.updateTitle(this.viewconfig.labels.createNew);
             }
             this.itemChanged.emit(this.current);
-        }        
+        }
     }
 
     private enableAction(actionID: IAction, enable = true) {
@@ -181,10 +181,10 @@ export class GenericDetailview {
     private updateTitle(fallbackTitle?: string) {
         if (this.viewconfig) {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
-            this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || ''; 
+            this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || '';
             this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;
             var tabTitle = trimLength(this.title, 12);
-            var url = this.viewconfig.tab.url + '/' + this.ID;  
+            var url = this.viewconfig.tab.url + '/' + this.ID;
             this.tabService.addTab({ name: tabTitle, url: url, moduleID: this.viewconfig.moduleID, active: true });
         }
     }
@@ -196,7 +196,7 @@ export class GenericDetailview {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
-            
+
             var details: IAfterSaveInfo = { entity: item, promise: undefined };
             this.afterSave.emit(details);
 
@@ -222,7 +222,7 @@ export class GenericDetailview {
     }
 
     private ensureEditCompleted() {
-        var el: any = document.activeElement;        
+        var el: any = document.activeElement;
         if (el && el.blur) {
             el.blur();
             if (el.focus) {
@@ -255,7 +255,7 @@ export class GenericDetailview {
                 return;
             }
             this.loadCurrent(0);
-        });        
+        });
     }
 
     private showErrMsg(msg: string, title?: string, lookForMsg = false): string {
@@ -277,6 +277,6 @@ export class GenericDetailview {
         }
         this.toastService.addToast(title || labels.error, ToastType.bad, 6, txt);
         return txt;
-    }     
+    }
 
-}  
+}

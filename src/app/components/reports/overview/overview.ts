@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {ReportDefinition} from '../../../unientities';
 import {ReportDefinitionService} from '../../../services/services';
@@ -42,7 +42,7 @@ export class Overview {
     @ViewChild(AccountReportFilterModal)
     private accountReportFilterModal: AccountReportFilterModal;
     @ViewChild(PostingJournalReportFilterModal)
-    private postingJournalModal: PostingJournalReportFilterModal;    
+    private postingJournalModal: PostingJournalReportFilterModal;
     @ViewChild(ResultAndBalanceReportFilterModal)
     private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
     @ViewChild(BalanceGeneralLedgerFilterModal)
@@ -55,7 +55,7 @@ export class Overview {
     public reportCategories: Array<ReportCategory>;
 
     constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService) {
-        this.tabService.addTab({ name: 'Rapportoversikt', url: '/reports/overview', moduleID: 19, active: true });
+        this.tabService.addTab({ name: 'Rapportoversikt', url: '/reports/overview', moduleID: UniModules.Reports, active: true });
     }
 
     public showModalReportParameters(report: ReportDefinition) {
@@ -76,7 +76,7 @@ export class Overview {
     public showResultAndBalanceModalReportParameters(report: ReportDefinition) {
         this.resultAndBalanceModal.open(report, this.previewModal);
     }
-    
+
     public showBalanceGeneralLedgerFilterModal(report: ReportDefinition) {
         this.balanceGeneralLedgerFilterModal.open(report, this.previewModal);
     }

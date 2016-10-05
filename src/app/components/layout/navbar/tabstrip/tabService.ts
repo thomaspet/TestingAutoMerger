@@ -1,6 +1,47 @@
 import {Injectable} from '@angular/core';
 import {IUniTab} from './tabStrip';
 
+// The enum is numbered based on its parent app:
+//      1×× - Core
+//      2×× - Sales
+//      3×× - Accounting
+//      4×× - Salary
+//      5×× - Timetracking
+//      6×× - Reports
+//      9×× - Discontinued
+export enum UniModules {
+    Dashboard       = 100,
+    Settings        = 101,
+    Amelding        = 102,
+
+    Customers       = 200,
+    Suppliers       = 201,
+    Quotes          = 202,
+    Orders          = 203,
+    Invoices        = 204,
+    Products        = 205,
+
+    Accounting      = 300,
+    Transquery      = 301,
+    TransqueryDetails = 302,
+    Accountsettings = 303,
+    Vatsettings     = 304,
+
+    Employees       = 400,
+    Wagetypes       = 401,
+    Payrollrun      = 402,
+
+    WorkProfiles    = 500,
+    Workers         = 501,
+    WorkTypes       = 502,
+    Timesheets      = 503,
+    Projects        = 504,
+
+    Reports         = 600,
+
+    PaymentList     = 900
+}
+
 @Injectable()
 export class TabService {
     private _tabs: Array<IUniTab>;
@@ -69,7 +110,7 @@ export class TabService {
             this._tabs.splice(0, 1);
         }
         /***********************************************************************************************/
-        
+
     }
 
     // Sets tab active based on name

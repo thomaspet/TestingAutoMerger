@@ -1,10 +1,11 @@
 import {Component, Input} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTable, UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
+
 
 export interface IViewConfig {
     labels?: {
@@ -12,7 +13,7 @@ export interface IViewConfig {
         plural: string;
         createNew: string;
     };
-    moduleID: number;
+    moduleID: UniModules;
     detail: {
         route?: string;
         routeBackToList?: string;
@@ -30,13 +31,13 @@ export interface IViewConfig {
     formFields?: Array<any>;
 }
 
-@Component({    
+@Component({
     selector: 'genericlist',
     templateUrl: 'app/components/timetracking/genericview/list.html',
     directives: [UniTable],
     providers: [WorkerService]
 })
-export class GenericListView {    
+export class GenericListView {
     @Input() public viewconfig: IViewConfig;
     public label: string;
 
@@ -62,6 +63,6 @@ export class GenericListView {
 
     public onRowSelected(event) {
         this.router.navigateByUrl(this.viewconfig.detail.route + event.rowModel.ID);
-    };        
+    };
 
 }

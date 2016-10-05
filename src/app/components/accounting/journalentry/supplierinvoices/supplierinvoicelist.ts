@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Rx';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {SupplierInvoice, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
@@ -42,7 +42,7 @@ export class SupplierInvoiceList implements OnInit {
         private router: Router,
         private tabService: TabService,
         private journalEntryService: JournalEntryService) {
-        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices', moduleID: 7, active: true });
+        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices', moduleID: UniModules.Accounting, active: true });
     }
 
     private setError(error) {
@@ -182,7 +182,7 @@ export class SupplierInvoiceList implements OnInit {
                 {
                     label: 'Bokfør',
                     action: supplierInvoice => {
-                        //save and run transition to booking        
+                        //save and run transition to booking
                         let journalEntryData = this.journalEntryManual.getJournalEntryData();
 
                         // set date today if date is default value / empty

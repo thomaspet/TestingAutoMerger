@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Route, ROUTER_DIRECTIVES, Router} from '@angular/router';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 @Component({

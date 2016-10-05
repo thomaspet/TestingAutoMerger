@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PayrollrunService} from '../../../services/services';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionPay, SalaryTransactionPayLine} from '../../../unientities';
 
@@ -34,12 +34,12 @@ export class PaymentList implements OnInit {
     public ngOnInit() {
         this.busy = true;
         this._route.params.subscribe(params => {
-            
+
 
             this.payrollRunID = +params['id'];
 
             //Dummy moduleID, going to be removed!
-            this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: 997, active: true });
+            this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: UniModules.PaymentList, active: true });
             this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
                 this.paymentList = [response];
                 this.payLines = this.paymentList[0].PayList;
@@ -76,7 +76,7 @@ export class PaymentList implements OnInit {
         let companyAddressCol = new UniTableColumn('CompanyAddress', 'Adresse', UniTableColumnType.Text);
         let companyPostalCodeCol = new UniTableColumn('CompanyPostalCode', 'Postnr', UniTableColumnType.Text).setWidth('10%');
         let companyCityCol = new UniTableColumn('CompanyCity', 'Poststed', UniTableColumnType.Text);
-        
+
         this.withholdingConfig = new UniTableConfig(false, false)
             .setColumns([companyNameCol, companyAddressCol, companyPostalCodeCol, companyCityCol, witholdingCol]);
 

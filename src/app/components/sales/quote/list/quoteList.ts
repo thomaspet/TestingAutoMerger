@@ -7,7 +7,7 @@ import {CustomerQuoteService, ReportDefinitionService} from '../../../../service
 import {CustomerQuote} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'quote-list',
@@ -28,7 +28,7 @@ export class QuoteList {
         private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService) {
 
-        this.tabService.addTab({ name: 'Tilbud', url: '/sales/quote', active: true, moduleID: 3 });
+        this.tabService.addTab({ name: 'Tilbud', url: '/sales/quote', active: true, moduleID: UniModules.Quotes });
         this.setupQuoteTable();
     }
 
@@ -149,7 +149,7 @@ export class QuoteList {
             }
         });
 
-        // Define columns to use in the table        
+        // Define columns to use in the table
         var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
             .setFilterOperator('startswith')
             .setWidth('10%');

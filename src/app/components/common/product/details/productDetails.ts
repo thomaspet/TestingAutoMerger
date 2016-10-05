@@ -9,7 +9,7 @@ import {Product, Account, VatType, Project, Department} from '../../../../unient
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
 import {UniImage, IUploadConfig} from '../../../../../framework/uniImage/uniImage';
-import {TabService} from "../../../layout/navbar/tabstrip/tabService";
+import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
 
@@ -131,7 +131,7 @@ export class ProductDetails {
 
     private setTabTitle() {
         let tabTitle = this.product.PartName ? 'Produktnr. ' + this.product.PartName : 'Produkt (kladd)';
-        this.tabService.addTab({ url: '/products/' + this.product.ID, name: tabTitle, active: true, moduleID: 6 });
+        this.tabService.addTab({ url: '/products/' + this.product.ID, name: tabTitle, active: true, moduleID: UniModules.Products });
     }
 
     private ready(event) {

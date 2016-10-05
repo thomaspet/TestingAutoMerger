@@ -4,6 +4,7 @@ import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Project} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('projects', 'Prosjekt', 'ProjectDetailview', true, '', ProjectDetailview);
 
@@ -17,18 +18,18 @@ export class ProjectDetailview {
 
     constructor() {
         this.viewconfig = {
-            moduleID: 101,
+            moduleID: UniModules.Projects,
             labels: { single: 'Prosjekt', plural: 'Prosjekter', createNew: 'Nytt Prosjekt'},
             detail: { routeBackToList: '/timetracking/projects', nameProperty: 'Name'},
             tab: view,
             data: {
                 model: 'project',
                 route: 'projects',
-                factory: () => { 
+                factory: () => {
                         var item = new Project();
                         return item;
                     },
-                check: (item) => { 
+                check: (item) => {
                 }
             },
             formFields: [
