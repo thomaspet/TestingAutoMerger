@@ -53,7 +53,7 @@ export class PersonalDetails extends UniView  {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
             super.getStateSubject('employee').subscribe((employee) => {
-                this.employee = employee;
+                this.employee = _.cloneDeep(employee);
             });
         });
     }
@@ -112,7 +112,7 @@ export class PersonalDetails extends UniView  {
             } else {
                 this.employee.BankAccounts[0].Active = true;
             }
-        })
+        });
     }
 
     public onFormChange(employee) {
@@ -259,6 +259,8 @@ export class PersonalDetails extends UniView  {
             }
 
             this.employee.Sex = (controlNumbers % 2) + 1;
+
+            super.updateState('employee', this.employee, true);
         }
 
     }
