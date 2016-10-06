@@ -38,6 +38,8 @@ import {SupplierInvoiceDetail} from './journalentry/supplierinvoices/supplierinv
 import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
 import {SettingsModule} from '../settings/settingsModule';
+import {SupplierInvoiceFileUploader} from './journalentry/supplierinvoices/supplierinvoiceuploader';
+import {SalesModule} from '../sales/salesModule';
 
 @NgModule({
     imports: [
@@ -62,7 +64,8 @@ import {SettingsModule} from '../settings/settingsModule';
         SettingsModule,
 
         // Route module
-        AccountingRoutes
+        AccountingRoutes,
+        SalesModule
     ],
     declarations: [
         UniAccounting,
@@ -93,7 +96,7 @@ import {SettingsModule} from '../settings/settingsModule';
         TransqueryDetails
     ],
     providers: [
-
+        SupplierInvoiceFileUploader
     ],
     exports: [
         // journalentry
