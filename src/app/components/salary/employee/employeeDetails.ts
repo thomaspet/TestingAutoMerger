@@ -72,20 +72,20 @@ export class EmployeeDetails extends UniView {
                 this.checkDirty();
             });
 
-        super.getStateSubject('employments').subscribe((employments) => {
-            this.employments = employments;
-            this.checkDirty();
-        });
+            super.getStateSubject('employments').subscribe((employments) => {
+                this.employments = employments;
+                this.checkDirty();
+            });
 
-        super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
-            this.recurringPosts = recurringPosts;
-            this.checkDirty();
-        });
+            super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
+                this.recurringPosts = recurringPosts;
+                this.checkDirty();
+            });
 
-        super.getStateSubject('employeeLeave').subscribe((employeeLeave) => {
-            this.employeeLeave = employeeLeave;
-            this.checkDirty();
-        });
+            super.getStateSubject('employeeLeave').subscribe((employeeLeave) => {
+                this.employeeLeave = employeeLeave;
+                this.checkDirty();
+            });
 
 
             // If employee ID was changed by next/prev button clicks employee has been
@@ -277,20 +277,24 @@ export class EmployeeDetails extends UniView {
             return Observable.of(this.employee);
         }
 
+        if (!this.employee.BankAccounts[0].ID) {
+            this.employee.BankAccounts[0]['_createguid'] = this.employeeService.getNewGuid();
+        }
+
         brInfo.Emails.forEach((email) => {
-            if (email.ID === 0) {
+            if (!email.ID) {
                 email['_createguid'] = this.employeeService.getNewGuid();
             }
         });
 
         brInfo.Phones.forEach((phone) => {
-            if (phone.ID === 0) {
+            if (!phone.ID) {
                 phone['_createguid'] = this.employeeService.getNewGuid();
             }
         });
 
         brInfo.Addresses.forEach((address) => {
-            if (address.ID === 0) {
+            if (!address.ID) {
                 address['_createguid'] = this.employeeService.getNewGuid();
             }
         });
@@ -358,7 +362,7 @@ export class EmployeeDetails extends UniView {
             let saveCount = 0;
             let hasErrors = false;
 
-            recurringPosts.forEach((post) => {
+            recurringPosts.forEach((post, index) => {
                 if (post['_isDirty']) {
                     changeCount++;
 
@@ -384,7 +388,7 @@ export class EmployeeDetails extends UniView {
                     .subscribe(
                         (res: SalaryTransaction) => {
                             saveCount++;
-                            post = res;
+                            recurringPosts[index] = res;
                         },
                         (err) => {
                             hasErrors = true;
