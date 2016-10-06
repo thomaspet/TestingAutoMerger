@@ -241,20 +241,29 @@ export class AltinnAuthenticationDataModal {
     }
 
     public getUserAltinnAuthorizationData(): Promise<AltinnAuthenticationData> {
+        // KE: Should not be opened here, only when needed, but because of problem after upgrade
+        // to RC6 this does not work. Open it, and close it automatically for now to fix the
+        // problem right now
+        this.modal.open();
+
         return this.modal.getContent().then((component: AltinnAuthenticationDataModalContent) => {
             const authorizationData = this.getAuthenticationDataFromLocalstorage();
 
             if (!authorizationData) {
-                this.modal.open();
+                // should be opened here instead of the start of this function
+                // this.modal.open();
                 return component.getAltinnAuthenticationData()
                     .then(this.storeAuthenticationDataInLocalstorage)
                     .then(this.closeThisModal);
 
             } else if (authorizationData.isValid()) {
+                // this should not be done, the modal shouldn't have been opened at all
+                this.modal.close();
                 return Promise.resolve(authorizationData);
 
             } else {
-                this.modal.open();
+                // should be opened here instead of the start of this function
+                // this.modal.open();
                 return component.completeAltinnAuthenticationData(authorizationData)
                     .then(this.storeAuthenticationDataInLocalstorage)
                     .then(this.closeThisModal);
