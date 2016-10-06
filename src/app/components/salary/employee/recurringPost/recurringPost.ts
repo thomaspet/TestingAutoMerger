@@ -24,7 +24,6 @@ export class RecurringPost extends UniView {
                 route: ActivatedRoute) {
 
         super(router.url, cacheService);
-        // this.buildTableConfig();
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
@@ -35,7 +34,10 @@ export class RecurringPost extends UniView {
                 this.wagetypes = wagetypes;
             });
 
-            super.getStateSubject('recurringPosts').subscribe(recurringPosts => this.recurringPosts = recurringPosts);
+            super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
+                this.recurringPosts = _.cloneDeep(recurringPosts);
+            });
+
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
                 this.employments = employments || [];
                 this.buildTableConfig();
