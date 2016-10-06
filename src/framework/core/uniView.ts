@@ -29,7 +29,7 @@ export class UniView {
         this.cacheKey = rootRoute || routerUrl;
     }
 
-    protected updateState(key: string, data: any, isDirty: boolean = true): void {
+    protected updateState(key: string, data: any, isDirty: boolean = false): void {
         let pageCache = this.cacheService.getPageCache(this.cacheKey);
         let stateVariable = pageCache.state[key];
 
