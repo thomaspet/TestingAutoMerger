@@ -31,7 +31,8 @@ export class EmploymentDetails {
     private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
     private styrks: STYRKCode[];
-    private config: any;
+    private config: any = {};
+    private subEntities: any[] = [];
     private fields: UniFieldLayout[] = [];
 
     constructor(private employeeService: EmployeeService,
@@ -43,12 +44,10 @@ export class EmploymentDetails {
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
         this.buildForm();
 
-        if (!this.employmentService.subEntities) {
-            this.employeeService.getSubEntities().subscribe((response) => {
-                this.employmentService.subEntities = response;
-                this.employmentService.subEntities.unshift([{ID: 0}]);
-            });
-        }
+        this.employeeService.getSubEntities().subscribe((subEntities) => {
+            this.subEntities = subEntities;
+            this.buildForm();
+        });
     }
 
     private buildForm() {
@@ -78,6 +77,9 @@ export class EmploymentDetails {
                 }
             };
         });
+
+        const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
+        subEntityField.Options.source = this.subEntities;
     }
 
     private updateTitle(styrk) {
