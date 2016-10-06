@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges, Renderer} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {Department, Project, VatType, Account} from '../../../../../unientities';
+import {Department, Project, VatType, Account, FieldType} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 
 import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
@@ -342,7 +342,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         sameOrNewAlternative.FieldSet = 0;
         sameOrNewAlternative.Section = 0;
         sameOrNewAlternative.Combo = 0;
-        sameOrNewAlternative.FieldType = 3;
+        sameOrNewAlternative.FieldType = FieldType.DROPDOWN;
         sameOrNewAlternative.Label = 'Bilagsnr';
         sameOrNewAlternative.Property = 'SameOrNew';
         sameOrNewAlternative.ReadOnly = false;
@@ -365,7 +365,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         finanicalDate.FieldSet = 0;
         finanicalDate.Section = 0;
         finanicalDate.Combo = 0;
-        finanicalDate.FieldType = 2;
+        finanicalDate.FieldType = FieldType.DATEPICKER;
         finanicalDate.Label = 'Dato';
         finanicalDate.Property = 'FinancialDate';
         finanicalDate.ReadOnly = false;
@@ -384,7 +384,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         invoiceNumber.FieldSet = 0;
         invoiceNumber.Section = 0;
         invoiceNumber.Combo = 0;
-        invoiceNumber.FieldType = 10;
+        invoiceNumber.FieldType = FieldType.TEXT;
         invoiceNumber.Label = 'Fakturanr';
         invoiceNumber.Property = 'InvoiceNumber';
         invoiceNumber.ReadOnly = false;
@@ -404,7 +404,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitAccount.FieldSet = 0;
         debitAccount.Section = 0;
         debitAccount.Combo = 0;
-        debitAccount.FieldType = 0;
+        debitAccount.FieldType = FieldType.AUTOCOMPLETE;
         debitAccount.Label = 'Debet';
         debitAccount.Property = 'DebitAccountID';
         debitAccount.ReadOnly = false;
@@ -443,7 +443,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitVat.FieldSet = 0;
         debitVat.Section = 0;
         debitVat.Combo = 0;
-        debitVat.FieldType = 0;
+        debitVat.FieldType = FieldType.AUTOCOMPLETE;
         debitVat.Label = 'MVA';
         debitVat.Property = 'DebitVatTypeID';
         debitVat.ReadOnly = false;
@@ -466,7 +466,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditAccount.FieldSet = 0;
         creditAccount.Section = 0;
         creditAccount.Combo = 0;
-        creditAccount.FieldType = 0;
+        creditAccount.FieldType = FieldType.AUTOCOMPLETE;
         creditAccount.Label = 'Kredit';
         creditAccount.Property = 'CreditAccountID';
         creditAccount.ReadOnly = false;
@@ -505,7 +505,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditVat.FieldSet = 0;
         creditVat.Section = 0;
         creditVat.Combo = 0;
-        creditVat.FieldType = 0;
+        creditVat.FieldType = FieldType.AUTOCOMPLETE;
         creditVat.Label = 'MVA';
         creditVat.Property = 'CreditVatTypeID';
         creditVat.ReadOnly = false;
@@ -528,7 +528,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         amount.FieldSet = 0;
         amount.Section = 0;
         amount.Combo = 0;
-        amount.FieldType = 10;
+        amount.FieldType = FieldType.TEXT;
         amount.Label = 'Beløp';
         amount.Property = 'Amount';
         amount.ReadOnly = false;
@@ -544,7 +544,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         department.FieldSet = 0;
         department.Section = 0;
         department.Combo = 0;
-        department.FieldType = 3;
+        department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
         department.Property = 'Dimensions.DepartmentID';
         department.ReadOnly = false;
@@ -562,7 +562,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         project.FieldSet = 0;
         project.Section = 0;
         project.Combo = 0;
-        project.FieldType = 3;
+        project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
         project.Property = 'Dimensions.ProjectID';
         project.ReadOnly = false;
@@ -580,7 +580,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         description.FieldSet = 0;
         description.Section = 0;
         description.Combo = 0;
-        description.FieldType = 10;
+        description.FieldType = FieldType.TEXT;
         description.Label = 'Beskrivelse av føring';
         description.Property = 'Description';
         description.ReadOnly = false;
@@ -602,7 +602,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         addButton.Property = 'AddButton';
         addButton.Section = 0;
         addButton.Combo = 0;
-        addButton.FieldType = 1;
+        addButton.FieldType = FieldType.COMBOBOX;
         addButton.Label = 'Legg til';
         addButton.ReadOnly = false;
         addButton.Hidden = this.isEditMode;
@@ -618,7 +618,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         updateButton.Property = 'UpdateButton';
         updateButton.Section = 0;
         updateButton.Combo = 0;
-        updateButton.FieldType = 1;
+        updateButton.FieldType = FieldType.COMBOBOX;
         updateButton.Label = 'Oppdater';
         updateButton.ReadOnly = false;
         updateButton.Hidden = !this.isEditMode;
@@ -634,7 +634,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         emptyButton.Property = 'EmptyButton';
         emptyButton.Section = 0;
         emptyButton.Combo = 0;
-        emptyButton.FieldType = 1;
+        emptyButton.FieldType = FieldType.COMBOBOX;
         emptyButton.Label = 'Tøm';
         emptyButton.ReadOnly = false;
         emptyButton.Hidden = this.isEditMode;
@@ -649,7 +649,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         abortButton.Property = 'AbortButton';
         abortButton.Section = 0;
         abortButton.Combo = 0;
-        abortButton.FieldType = 1;
+        abortButton.FieldType = FieldType.COMBOBOX;
         abortButton.Label = 'Avbryt';
         abortButton.ReadOnly = false;
         abortButton.Hidden = !this.isEditMode;
@@ -664,7 +664,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         deleteButton.Property = 'DeleteButton';
         deleteButton.Section = 0;
         deleteButton.Combo = 0;
-        deleteButton.FieldType = 1;
+        deleteButton.FieldType = FieldType.COMBOBOX;
         deleteButton.Label = 'Slett';
         deleteButton.ReadOnly = false;
         deleteButton.Hidden = !this.isEditMode;

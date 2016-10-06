@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {Phone} from '../../../unientities';
+import {Phone, FieldType} from '../../../unientities';
 import {PhoneService} from '../../../services/services';
 
 // Reusable address form
@@ -41,7 +41,7 @@ export class PhoneForm {
                 Property: 'CountryCode',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Landskode',
@@ -69,7 +69,7 @@ export class PhoneForm {
                 Property: 'Number',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Telefonnr.',
@@ -97,7 +97,7 @@ export class PhoneForm {
                 Property: 'Description',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Beskrivelse',
@@ -125,7 +125,7 @@ export class PhoneForm {
                 Property: 'Type',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 3,
+                FieldType: FieldType.DROPDOWN,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Type',

@@ -1,6 +1,6 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
+import {UniQueryDefinition, UniQueryField, UniQueryFilter, FieldType} from '../../../../app/unientities';
 import {UniQueryDefinitionService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
@@ -55,7 +55,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Property: 'Name',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Navn',
@@ -72,7 +72,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Property: 'Description',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Beskrivelse',
@@ -89,7 +89,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Property: 'ClickUrl',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'URL ved klikk',
@@ -108,7 +108,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Property: 'ClickParam',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Kolonne som URL parameter',
@@ -127,7 +127,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Property: 'IsShared',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 5,
+                FieldType: FieldType.MULTISELECT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Delt uttrekk',

@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from '../../../../framework/uniform';
-import {Email} from '../../../unientities';
+import {Email, FieldType} from '../../../unientities';
 import {EmailService} from '../../../services/services';
 
 // Reusable email form
@@ -40,7 +40,7 @@ export class EmailForm {
                 Property: 'EmailAddress',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 11,
+                FieldType: FieldType.EMAIL,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Epostadresse',
@@ -68,7 +68,7 @@ export class EmailForm {
                 Property: 'Description',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Beskrivelse',

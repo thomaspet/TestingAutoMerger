@@ -33,7 +33,7 @@ export class ReusableComponent {
         firstName.FieldSet = 0;
         firstName.Section = 0;
         firstName.Combo = 0;
-        firstName.FieldType = 10;
+        firstName.FieldType = FieldType.TEXT;
         firstName.Label = 'First Name';
         firstName.Property = 'FirstName';
         firstName.ReadOnly = false;
@@ -42,7 +42,7 @@ export class ReusableComponent {
         lastName.FieldSet = 0;
         lastName.Section = 0;
         lastName.Combo = 0;
-        lastName.FieldType = 10;
+        lastName.FieldType = FieldType.TEXT;
         lastName.Label = 'Last Name';
         lastName.Property = 'LastName';
         lastName.ReadOnly = false;

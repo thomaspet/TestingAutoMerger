@@ -6,6 +6,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {TableBuilder} from '../../../../framework/uniTable/tableBuilder';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import {FieldType} from '../../../unientities';
 
 @Component({
     selector: 'unitable-demo',
@@ -364,7 +365,7 @@ export class UniTableDemoNew {
             {
                 Property: 'Product',
                 Label: 'Produkt',
-                FieldType: 0,
+                FieldType: FieldType.AUTOCOMPLETE,
                 DisplayField: 'Product.PartName',
                 Options: {
                     Cls: 'fooclass',
@@ -379,7 +380,7 @@ export class UniTableDemoNew {
             {
                 Property: 'Discount',
                 Label: 'Rabatt',
-                FieldType: 6,
+                FieldType: FieldType.NUMERIC,
                 Options: {
                     Editable: false
                 }

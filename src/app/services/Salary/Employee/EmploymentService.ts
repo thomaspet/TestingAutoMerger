@@ -139,7 +139,7 @@ export class EmploymentService extends BizHttp<Employment> {
                      Property: 'Standard',
                      Placement: 4,
                      Hidden: false,
-                     FieldType: 5,
+                     FieldType: FieldType.MULTISELECT,
                      ReadOnly: false,
                      LookupField: false,
                      Label: 'Standard',

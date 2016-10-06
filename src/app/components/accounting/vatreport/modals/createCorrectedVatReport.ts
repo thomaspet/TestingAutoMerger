@@ -2,7 +2,7 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@
 import {NgIf} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniForm';
-import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
+import {FieldLayout, Period, VatReport, FieldType} from '../../../../../app/unientities';
 import {VatReportService} from '../../../../services/Accounting/VatReportService';
 import {PeriodService} from '../../../../services/Accounting/PeriodService';
 import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
@@ -61,7 +61,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
             Property: 'correctionChoice',
             Placement: 1,
             Hidden: false,
-            FieldType: 9,
+            FieldType: FieldType.RADIOGROUP,
             ReadOnly: false,
             Label: '',
             Description: '',

@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniForm} from '../../../../../framework/uniform';
-import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
+import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
 import {AltinnIntegrationService} from '../../../../../app/services/services';
 
 declare var _;
@@ -57,7 +57,7 @@ export class TaxCardRequest {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
-            FieldType: 9,
+            FieldType: FieldType.RADIOGROUP,
             Property: 'singleEmpChoice',
             ReadOnly: false,
             Placeholder: 'Select',
@@ -75,7 +75,7 @@ export class TaxCardRequest {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
-            FieldType: 9,
+            FieldType: FieldType.RADIOGROUP,
             Hidden: true,
             Property: 'multiEmpChoice',
             ReadOnly: false,

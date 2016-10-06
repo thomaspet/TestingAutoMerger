@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from '../../../../framework/uniform';
-import {Address} from '../../../unientities';
+import {Address, FieldType} from '../../../unientities';
 import {AddressService} from '../../../services/services';
 
 // Reusable address form
@@ -54,7 +54,7 @@ export class AddressForm implements OnChanges {
                 Property: 'AddressLine1',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Adresse',
@@ -82,7 +82,7 @@ export class AddressForm implements OnChanges {
                 Property: 'AddressLine2',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Adresselinje to',
@@ -110,7 +110,7 @@ export class AddressForm implements OnChanges {
                 Property: 'AddressLine3',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Adresselinje tre',
@@ -138,7 +138,7 @@ export class AddressForm implements OnChanges {
                 Property: 'PostalCode',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Postnr.',
@@ -166,7 +166,7 @@ export class AddressForm implements OnChanges {
                 Property: 'City',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Poststed',
@@ -194,7 +194,7 @@ export class AddressForm implements OnChanges {
                 Property: 'CountryCode',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 10,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Landkode',
@@ -223,7 +223,7 @@ export class AddressForm implements OnChanges {
         this.fields.push({
             Property: '_question',
             Hidden: (this.config.question || '').length == 0,
-            FieldType: 5,
+            FieldType: FieldType.MULTISELECT,
             Label: this.config.question,
             ReadOnly: this.config.disableQuestion
         });

@@ -2,6 +2,7 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from '../../../../framework/uniForm';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
+import {FieldType} from '../../../unientities';
 
 @Component({
     selector: 'register-payment-form',
@@ -40,7 +41,7 @@ export class RegisterPaymentForm {
                 Property: 'PaymentDate',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 2,
+                FieldType: FieldType.DATEPICKER,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Betalingsdato',
@@ -68,7 +69,7 @@ export class RegisterPaymentForm {
                 Property: 'Amount',
                 Placement: 1,
                 Hidden: false,
-                FieldType: 6,
+                FieldType: FieldType.NUMERIC,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Beløp',

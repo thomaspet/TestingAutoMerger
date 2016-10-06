@@ -3,7 +3,7 @@ import {UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from '../../../../../framework/uniform';
 import {Router} from '@angular/router';
 import {AccountService, JournalEntryService} from '../../../../services/services';
-import {Account} from '../../../../unientities';
+import {Account, FieldType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -93,7 +93,7 @@ export class TransqueryList {
                     Property: 'AccountID',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 0,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Konto',

@@ -3,7 +3,7 @@ import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {NgIf} from '@angular/common';
-import {Employee, Employment} from '../../../unientities';
+import {Employee, Employment, FieldType} from '../../../unientities';
 
 declare var _;
 
@@ -41,7 +41,7 @@ export class XFormDemo {
             numericTest.FieldSet = 0;
             numericTest.Section = 0;
             numericTest.Combo = 0;
-            numericTest.FieldType = 6;
+            numericTest.FieldType = FieldType.NUMERIC;
             numericTest.Label = 'Numeric Input test';
             numericTest.Property = 'NumericTestProperty';
             numericTest.ReadOnly = false;
@@ -58,7 +58,7 @@ export class XFormDemo {
             maskedTest.FieldSet = 0;
             maskedTest.Section = 0;
             maskedTest.Combo = 0;
-            maskedTest.FieldType = 4;
+            maskedTest.FieldType = FieldType.MASKED;
             maskedTest.Label = 'Masked Input test';
             maskedTest.Property = 'MaskedTestProperty';
             maskedTest.ReadOnly = false;
@@ -69,7 +69,7 @@ export class XFormDemo {
             multiValueTest.FieldSet = 0;
             multiValueTest.Section = 0;
             multiValueTest.Combo = 0;
-            multiValueTest.FieldType = 14;
+            multiValueTest.FieldType = FieldType.MULTIVALUE;
             multiValueTest.Label = 'Multivalue';
             multiValueTest.Property = 'Employments';
             multiValueTest.ReadOnly = false;
@@ -95,7 +95,7 @@ export class XFormDemo {
             autocompleteTest.FieldSet = 0;
             autocompleteTest.Section = 0;
             autocompleteTest.Combo = 0;
-            autocompleteTest.FieldType = 0;
+            autocompleteTest.FieldType = FieldType.AUTOCOMPLETE;
             autocompleteTest.Label = 'Autocomplete';
             autocompleteTest.Property = 'AutocompleteTest';
             autocompleteTest.ReadOnly = false;
@@ -118,7 +118,7 @@ export class XFormDemo {
             emailTest.FieldSet = 0;
             emailTest.Section = 0;
             emailTest.Combo = 0;
-            emailTest.FieldType = 11;
+            emailTest.FieldType = FieldType.EMAIL;
             emailTest.Label = 'Email test';
             emailTest.Property = 'EmailTestProperty';
             emailTest.ReadOnly = false;
@@ -127,7 +127,7 @@ export class XFormDemo {
             passwordTest.FieldSet = 0;
             passwordTest.Section = 0;
             passwordTest.Combo = 0;
-            passwordTest.FieldType = 12;
+            passwordTest.FieldType = FieldType.PASSWORD;
             passwordTest.Label = 'Password test';
             passwordTest.Property = 'PasswodTestProperty';
             passwordTest.ReadOnly = false;
@@ -136,7 +136,7 @@ export class XFormDemo {
             textareaTest.FieldSet = 0;
             textareaTest.Section = 0;
             textareaTest.Combo = 0;
-            textareaTest.FieldType = 16;
+            textareaTest.FieldType = FieldType.TEXTAREA;
             textareaTest.Label = 'Textarea test';
             textareaTest.Property = 'TextareaTestProperty';
             textareaTest.ReadOnly = false;
@@ -145,7 +145,7 @@ export class XFormDemo {
             hyperlinkTest.FieldSet = 0;
             hyperlinkTest.Section = 0;
             hyperlinkTest.Combo = 0;
-            hyperlinkTest.FieldType = 13;
+            hyperlinkTest.FieldType = FieldType.HYPERLINK;
             hyperlinkTest.Label = 'Hyperlink test';
             hyperlinkTest.Property = 'HyperLinkProperty';
             hyperlinkTest.ReadOnly = false;
@@ -157,7 +157,7 @@ export class XFormDemo {
             urlTest.FieldSet = 0;
             urlTest.Section = 0;
             urlTest.Combo = 0;
-            urlTest.FieldType = 15;
+            urlTest.FieldType = FieldType.URL;
             urlTest.Label = 'Url test';
             urlTest.Property = 'UrlProperty';
             urlTest.ReadOnly = false;
@@ -166,7 +166,7 @@ export class XFormDemo {
             selectTest.FieldSet = 0;
             selectTest.Section = 0;
             selectTest.Combo = 0;
-            selectTest.FieldType = 3;
+            selectTest.FieldType = FieldType.DROPDOWN;
             selectTest.Label = 'Select';
             selectTest.Property = 'SelectTest';
             selectTest.ReadOnly = false;
@@ -187,7 +187,7 @@ export class XFormDemo {
             dateTest.FieldSet = 0;
             dateTest.Section = 0;
             dateTest.Combo = 0;
-            dateTest.FieldType = 2;
+            dateTest.FieldType = FieldType.DATEPICKER;
             dateTest.Label = 'Date';
             dateTest.Property = 'DateTest';
             dateTest.ReadOnly = false;
@@ -197,7 +197,7 @@ export class XFormDemo {
             radiogroupTest.FieldSet = 0;
             radiogroupTest.Section = 0;
             radiogroupTest.Combo = 0;
-            radiogroupTest.FieldType = 9;
+            radiogroupTest.FieldType = FieldType.RADIOGROUP;
             radiogroupTest.Label = 'Radio Group';
             radiogroupTest.Property = 'RadioGroupTest';
             radiogroupTest.ReadOnly = false;
@@ -215,7 +215,7 @@ export class XFormDemo {
             checkboxgroupTest.FieldSet = 0;
             checkboxgroupTest.Section = 0;
             checkboxgroupTest.Combo = 0;
-            checkboxgroupTest.FieldType = 8;
+            checkboxgroupTest.FieldType = FieldType.CHECKBOX;
             checkboxgroupTest.Label = 'Checkbox Group';
             checkboxgroupTest.Property = 'CheckboxGroupTest';
             checkboxgroupTest.ReadOnly = false;
@@ -234,7 +234,7 @@ export class XFormDemo {
             buttonTest.FieldSet = 0;
             buttonTest.Section = 0;
             buttonTest.Combo = 0;
-            buttonTest.FieldType = 1;
+            buttonTest.FieldType = FieldType.COMBOBOX;
             buttonTest.Label = 'Click here!';
             buttonTest.ReadOnly = false;
             buttonTest.Options = {

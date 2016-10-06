@@ -6,7 +6,7 @@ import 'rxjs/add/observable/forkJoin';
 import {DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from '../../../../services/services';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {Supplier, Email, Phone, Address} from '../../../../unientities';
+import {Supplier, Email, Phone, Address, FieldType} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -489,7 +489,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Info.Name',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Navn',
@@ -517,7 +517,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'OrgNumber',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Organisasjonsnummer',
@@ -545,7 +545,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Info.InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 14,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fakturaadresse',
@@ -573,7 +573,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Info.ShippingAddress',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 14,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Leveringsadresse',
@@ -601,7 +601,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Info.DefaultEmail',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 14,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'E-post adresser',
@@ -629,7 +629,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Info.DefaultPhone',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 14,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Telefonnumre',
@@ -657,7 +657,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'WebUrl',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 15,
+                    FieldType: FieldType.URL,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Webadresse',
@@ -685,7 +685,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 3,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Prosjekt',
@@ -714,7 +714,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'Dimensions.DepartmentID',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 3,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Avdeling',
@@ -742,7 +742,7 @@ export class SupplierDetails implements OnInit {
                     Property: 'DefaultBankAccountID',
                     Placement: 4,
                     Hidden: true, // false, // TODO: > 30.6
-                    FieldType: 3,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Bankkonto',

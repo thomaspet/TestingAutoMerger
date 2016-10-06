@@ -393,7 +393,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         invoiceDate.FieldSet = 0;
         invoiceDate.Section = 0;
         invoiceDate.Combo = 0;
-        invoiceDate.FieldType = 2;
+        invoiceDate.FieldType = FieldType.DATEPICKER;
         invoiceDate.Label = 'Fakturadato';
         invoiceDate.Property = 'InvoiceDate';
         invoiceDate.ReadOnly = false;
@@ -402,7 +402,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         paymentDueDate.FieldSet = 0;
         paymentDueDate.Section = 0;
         paymentDueDate.Combo = 0;
-        paymentDueDate.FieldType = 2;
+        paymentDueDate.FieldType = FieldType.DATEPICKER;
         paymentDueDate.Label = 'Forfallsdato';
         paymentDueDate.Property = 'PaymentDueDate';
         paymentDueDate.ReadOnly = false;
@@ -411,7 +411,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         taxInclusiveAmount.FieldSet = 0;
         taxInclusiveAmount.Section = 0;
         taxInclusiveAmount.Combo = 0;
-        taxInclusiveAmount.FieldType = 10;
+        taxInclusiveAmount.FieldType = FieldType.TEXT;
         taxInclusiveAmount.Label = 'Beløp';
         taxInclusiveAmount.Property = 'TaxInclusiveAmount';
         taxInclusiveAmount.ReadOnly = false;
@@ -423,7 +423,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         invoiceNumber.FieldSet = 0;
         invoiceNumber.Section = 0;
         invoiceNumber.Combo = 0;
-        invoiceNumber.FieldType = 10;
+        invoiceNumber.FieldType = FieldType.TEXT;
         invoiceNumber.Label = 'Fakturanr';
         invoiceNumber.Property = 'InvoiceNumber';
         invoiceNumber.ReadOnly = false;
@@ -432,7 +432,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         bankAccount.FieldSet = 0;
         bankAccount.Section = 0;
         bankAccount.Combo = 0;
-        bankAccount.FieldType = 10;
+        bankAccount.FieldType = FieldType.TEXT;
         bankAccount.Label = 'Bankkonto';
         bankAccount.Property = 'BankAccount';
         bankAccount.ReadOnly = false;
@@ -447,7 +447,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         paymentID.FieldSet = 0;
         paymentID.Section = 0;
         paymentID.Combo = 0;
-        paymentID.FieldType = 10;
+        paymentID.FieldType = FieldType.TEXT;
         paymentID.Label = 'KID';
         paymentID.Property = 'PaymentID';
         paymentID.ReadOnly = false;
@@ -457,7 +457,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         paymentInformation.FieldSet = 0;
         paymentInformation.Section = 0;
         paymentInformation.Combo = 0;
-        paymentInformation.FieldType = 10;
+        paymentInformation.FieldType = FieldType.TEXT;
         paymentInformation.Label = 'Melding til mottaker';
         paymentInformation.Property = 'PaymentInformation';
         paymentInformation.ReadOnly = false;
@@ -466,7 +466,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         project.FieldSet = 0;
         project.Section = 2;
         project.Combo = 0;
-        project.FieldType = 3;
+        project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
         project.Sectionheader = 'Dimensjoner';
         project.Property = 'Dimensions.ProjectID';
@@ -484,7 +484,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         department.FieldSet = 0;
         department.Section = 2;
         department.Combo = 0;
-        department.FieldType = 3;
+        department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Prosjekt';
         department.Sectionheader = 'Dimensjoner';
         department.Property = 'Dimensions.DepartmentID';
