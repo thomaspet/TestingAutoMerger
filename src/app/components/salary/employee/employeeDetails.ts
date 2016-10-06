@@ -262,6 +262,7 @@ export class EmployeeDetails extends UniView {
 
             },
             (error) => {
+                done('Lagring feilet');
                 let toastHeader = 'Noe gikk galt ved lagring av persondetaljer';
                 let toastBody = (error.json().Messages) ? error.json().Messages[0].Message : '';
                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
