@@ -45,22 +45,22 @@ export class BizHttp<T> {
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
-            params.set('orderby', this.DefaultOrderBy);            
+            params.set('orderby', this.DefaultOrderBy);
         }
-        
+
         // use default expands for service if no expand is specified
         if (!params.get('expand') && this.defaultExpand) {
             params.set('expand', this.defaultExpand.join());
         }
-        
+
         // remove empty filters, causes problem on backend
         if (params.get('filter') === '') {
             params.delete('filter');
         }
-                
+
         return this.http
             .usingBusinessDomain()
-            .asGET()            
+            .asGET()
             .withEndPoint(this.relativeURL)
             .send({}, params);
     }
@@ -118,8 +118,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asDELETE()
             .withEndPoint(this.relativeURL + '/' + ID)
-            .send()
-            .map(response => response.json());
+            .send();
     }
 
     public Transition<T>(ID: number, entity: T, transitionName: string): Observable<any> {
@@ -131,7 +130,7 @@ export class BizHttp<T> {
             .send()
             .map(response => response.json());
     }
-     
+
     public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {
         return this.http
             .usingBusinessDomain()
@@ -140,7 +139,7 @@ export class BizHttp<T> {
             .send()
             .map(response => response.json());
     }
-    
+
     public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put): Observable<any> {
         return this.http
             .usingBusinessDomain()
@@ -152,19 +151,19 @@ export class BizHttp<T> {
     }
 
     public GetAction<T>(ID: number, actionName: string, parameters: string = null) {
-        return this.Action(ID, actionName, parameters, RequestMethod.Get);    
+        return this.Action(ID, actionName, parameters, RequestMethod.Get);
     }
 
     public PostAction<T>(ID: number, actionName: string, parameters: string = null) {
-        return this.Action(ID, actionName, parameters, RequestMethod.Post);    
+        return this.Action(ID, actionName, parameters, RequestMethod.Post);
     }
 
     public PutAction<T>(ID: number, actionName: string, parameters: string = null) {
-        return this.Action(ID, actionName, parameters, RequestMethod.Put);    
+        return this.Action(ID, actionName, parameters, RequestMethod.Put);
     }
 
     public DeleteAction<T>(ID: number, actionName: string, parameters: string = null) {
-        return this.Action(ID, actionName, parameters, RequestMethod.Delete);    
+        return this.Action(ID, actionName, parameters, RequestMethod.Delete);
     }
 
     public GetNewEntity(expand?: string[], entityname: string = null) {
@@ -174,7 +173,7 @@ export class BizHttp<T> {
         }
 
         // TODO. Needs a more robust way to handle the Singular Url needed for this request.
-        // let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
+        // let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1);
         let relativeUrlSingular = entityname != null ? entityname : this.relativeURL.slice(0, this.relativeURL.length - 1);
         return this.http
             .usingMetadataDomain()
@@ -207,7 +206,7 @@ export class BizHttp<T> {
                 return [layout, entity];
             });
     }
-    
+
     public getNewGuid(): string {
         return(""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,function(){return(0|Math.random()*16).toString(16)});
     }

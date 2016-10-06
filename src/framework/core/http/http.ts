@@ -1,5 +1,5 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
-import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
+import {Http, Headers, URLSearchParams, Request, RequestMethod, ResponseContentType} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {AppConfig} from '../../../app/appConfig';
 import {AuthService} from '../authService';
@@ -17,6 +17,7 @@ export interface IUniHttpRequest {
     orderBy?: string;
     top?: number;
     skip?: number;
+    responseType?: number;
 }
 
 @Injectable()
@@ -83,6 +84,13 @@ export class UniHttp {
     public usingBusinessDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        this.baseUrl = AppConfig.BASE_URL;
+        return this;
+    }
+
+    public usingRootDomain() {
+        this.baseUrl = AppConfig.BASE_URL;
+        this.apiDomain = AppConfig.API_DOMAINS.ROOT;
         this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
@@ -196,6 +204,10 @@ export class UniHttp {
             headers: this.headers,
             body: ''
         };
+
+        if (request.responseType) {
+            options.responseType = request.responseType;
+        }
 
         const body = request.body || this.body || {};
         if (body) {

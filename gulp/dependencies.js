@@ -19,7 +19,10 @@ gulp.task('dependencies', function() {
 
             // Moment
             './node_modules/moment/min/moment.min.js',
-            './node_modules/moment/locale/nb.js'
+            './node_modules/moment/locale/nb.js',
+
+            // File saver
+            './node_modules/file-saver/filesaver.min.js',
         ], {
             base: './node_modules'
         })

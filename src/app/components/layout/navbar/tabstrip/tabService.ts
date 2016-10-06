@@ -38,6 +38,7 @@ export enum UniModules {
     Projects        = 504,
 
     Reports         = 600,
+    UniQuery        = 601,
 
     PaymentList     = 900
 }

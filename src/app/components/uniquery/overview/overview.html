@@ -1,0 +1,17 @@
+<section class="query_overview_page">
+    <h1>Oversikt over uttrekk</h1>
+    <button (click)="newQuery()" class="good">Nytt uttrekk</button>
+    <section class="query_categories_container">
+        <article class="query_group_card" *ngFor="let queryCategory of queryCategories">
+            <h2>{{ queryCategory.name }}</h2>
+            <div *ngFor="let uniQuery of queryCategory.queries">
+                <a [routerLink]="['../details/' + uniQuery.ID]">
+                    <h4 class="report_name">{{uniQuery.Name }}</h4>
+                    <p>{{uniQuery.Description}}</p>
+                </a>
+            </div>
+        </article>
+    </section>
+</section>
+<router-outlet></router-outlet>
+

@@ -1,0 +1,83 @@
+uni-query-overview
+    a
+        text-decoration: none
+
+uni-query-details
+
+    uni-table
+        font-size: smaller
+
+        td
+            padding: pxToRem(0) pxToRem(7)
+            height: 2rem
+
+        th
+            padding: pxToRem(0) pxToRem(7)
+
+    .application
+        margin-top: 0
+
+    .poster_toolbar
+        padding-left: 0
+        padding-right: 0
+
+    .placeholder-bottom
+        clear: both
+        height: pxToRem(10)
+
+.startinfo-container
+    float: left
+    width: calc(100% - 360px)
+
+    h1
+        margin-top: 0px
+
+.table-container
+    float: left
+    width: calc(100% - 330px)
+
+.table-container-full
+    float: left
+    width: 100%
+
+.model-container
+    margin-right: 1rem
+    float: left
+    width: pxToRem(300)
+
+.model-container
+    ul
+        list-style-type: none;
+        padding-left: pxToRem(10);
+
+.modeltreeview
+    a
+        font-weight: 300
+        font-size: 1rem
+        padding: 0 0 .2em 1rem
+        cursor: pointer
+
+        :not(.expandable)
+            padding: 0 0 .2em 1rem
+
+    .selectable[aria-selected=true]
+        font-weight: bold
+
+    .expandable
+        padding: 0 0 .2em 1rem
+        margin: 0
+        background: unicon-chevron-right($uni-color-scale5) no-repeat 0 .5rem
+        background-size: .35rem
+
+    .expandable[aria-expanded=true]
+        background: unicon-chevron-down($uni-color-scale5) no-repeat 0 .5rem
+        background-size: .7rem
+
+
+save-query-definition-modal
+    form
+        .large-field
+            width: 90%
+
+    .save-query-definition-form
+        height: pxToRem(600)

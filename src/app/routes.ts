@@ -23,12 +23,12 @@ export const routes = ([
         component: ProductList,
         canActivate: [AuthGuard]
     },
+
     {
         path: 'products/:id',
         component: ProductDetails,
         canActivate: [AuthGuard]
     },
-
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {

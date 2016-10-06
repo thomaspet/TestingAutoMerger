@@ -117,7 +117,8 @@ export class HamburgerMenu {
                 componentListHeader: 'Oversikt på papir',
                 componentListUrl: '/reports',
                 componentList: [
-                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.Reports}
+                    {componentName: 'Oversikt over uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.Reports},
+                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.UniQuery}
                 ]
             },
             {

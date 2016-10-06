@@ -54,11 +54,12 @@ export * from './common/AltinnReceiptService';
 export * from './common/UserService';
 export * from './salary/basicamount/BasicAmountService';
 export * from './common/guidService';
+export * from './common/StatisticsService';
 export * from './salary/companysalary/CompanyVacationRateService';
 export * from './accounting/BankService';
 export * from './salary/wagetype/InntektService';
 export * from './accounting/periodservice';
-
+export * from './common/UniQueryDefinitionService';
 export * from './common/AltinnAuthenticationService';
 
 export * from './cacheService';

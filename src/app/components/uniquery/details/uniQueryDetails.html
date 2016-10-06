@@ -1,0 +1,64 @@
+<header class="uniquery_poster" *ngIf="queryDefinition">
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="queryDefinition?.ID > 0">{{queryDefinition.Name}}</h1>
+            <p *ngIf="queryDefinition?.ID > 0">{{queryDefinition.Description}}</p>
+            <h1 *ngIf="queryDefinition?.ID == 0">Nytt uttrekk</h1>
+        </section>
+        <nav class="poster_toolbar_tools">
+            <a (click)="newUniQuery()" class="new">Nytt uttrekk</a>
+            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
+        </nav>
+    </article>
+</header>
+
+<section class="application uni-query-application" *ngIf="queryDefinition">
+    <section *ngIf="models">
+        <div class="model-container" *ngIf="hideModel === false">
+            <div class="modeltreeview">
+                <h3>Modeller/felter</h3>
+                <ul>
+                    <li *ngFor="let model of visibleModels">
+                        <a (click)="expandModel(model)" class="expandable selectable" [attr.aria-expanded]="model.Expanded" [attr.aria-selected]="model.Selected">{{model.Name}}</a>
+                        <ul *ngIf="model.Expanded">
+                            <li *ngFor="let relation of model.Relations">
+                                <a (click)="expandRelation(relation)" class="expandable" [attr.aria-expanded]="relation.Expanded">{{relation.Name}}</a>
+                                <dynamic-report-relation-node *ngIf="relation.Expanded" [relation]="relation" [path]="relation.Name" [models]="models" [showAllFields]="showAllFields" [selectedFields]="fields" (fieldAdded)="addOrRemoveFieldFromChild(model, $event)"></dynamic-report-relation-node>
+                            </li>
+                            <li *ngFor="let field of model.fieldArray">
+                                <a class="selectable" [attr.aria-selected]="model.Fields[field].Selected" (click)="addOrRemoveField(model, model.Fields[field].Publicname, model.Fields[field], null)">{{model.Fields[field].Publicname}}</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="startinfo-container" *ngIf="fields.length === 0">
+            <h1>Sett opp din egen rapport!</h1>
+            <p>Her har du full tilgang til alle data i løsningen, og kan på den måten lage dine egne rapporter. Hvis du vil kan du lagre rapportene, slik at du enkelt
+                kan hente de ut på ny senere - eller dele uttrekkene med andre.</p>
+            <p>Hvis du vil jobbe videre med dataene kan du enkelt eksportere dem til Excel med knappen nederst på skjermen</p>
+            <p>Klikk på feltene i trestrukturen til venstre, og du er i gang med å lage din egen rapport!</p>
+        </div>
+
+        <section [ngClass]="{'table-container': !hideModel, 'table-container-full': hideModel}" *ngIf="tableConfig && fields.length > 0">
+            <uni-table
+                [resource]="lookupFunction"
+                [config]="tableConfig"
+                (columnsChange)="onColumnsChange($event)"
+                (filtersChange)="onFiltersChange($event)"></uni-table>
+        </section>
+    </section>
+
+</section>
+
+<save-query-definition-modal (saved)="onSaved($event)"></save-query-definition-modal>
+
+<section class="placeholder-bottom"></section>
+
+<footer class="full-footer">
+    <section class="application">
+        <uni-save [actions]="saveactions"></uni-save>
+    </section>
+</footer>

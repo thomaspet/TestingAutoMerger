@@ -26,6 +26,7 @@ import {AppCommonModule} from './components/common/appCommonModule';
 import {Dashboard} from './components/dashboard/dashboard';
 import {ExamplesModule} from './components/examples/examplesModule';
 import {ReportsModule} from './components/reports/reportsModule';
+import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {SalaryModule} from './components/salary/salaryModule';
 import {InitModule} from './components/init/initModule';
 import {SalesModule} from './components/sales/salesModule';
@@ -72,7 +73,8 @@ if (window.ENV === 'production') {
         InitModule,
         SalesModule,
         SettingsModule,
-        TimetrackingModule
+        TimetrackingModule,
+        UniQueryModule
     ],
     declarations: [
         App,

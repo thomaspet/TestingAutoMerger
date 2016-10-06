@@ -16,6 +16,7 @@ export const AppConfig = ({
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',
+        ROOT: '/api/',
         METADATA: '/api/metadata/',
         STATISTICS: '/api/statistics/'
     },

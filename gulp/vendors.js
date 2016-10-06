@@ -12,6 +12,9 @@ var jsFiles = [
     require.resolve('accounting/accounting.min.js'),
     require.resolve('../kendo/js/kendo.all.min.js'),
 
+    // file saver
+    require.resolve('file-saver/FileSaver.min.js'),
+
     /// MOMENT
     require.resolve('moment/moment.js'),
     require.resolve('moment/locale/en-gb.js'),
@@ -31,7 +34,7 @@ var jsFiles = [
     require.resolve('reflect-metadata/Reflect.js'),
 
     require.resolve('systemjs/dist/system.src.js'),
-    
+
     require.resolve('rxjs/bundles/Rx.min.js')
 ];
 

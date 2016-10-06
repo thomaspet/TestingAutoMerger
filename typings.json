@@ -1,6 +1,10 @@
 {
   "ambientDependencies": {
     "es6-shim": "github:DefinitelyTyped/DefinitelyTyped/es6-shim/es6-shim.d.ts#4de74cb527395c13ba20b438c3a7a419ad931f1c",
-    "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#dd638012d63e069f2c99d06ef4dcc9616a943ee4"
+    "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#dd638012d63e069f2c99d06ef4dcc9616a943ee4",
+    "filesaver": "github:DefinitelyTyped/DefinitelyTyped/FileSaver/FileSaver.d.ts#d21f1bd1fd079bbc18bc88ed71d2be7f5707e33a"
+  },
+  "globalDependencies": {
+    "filesaver": "github:DefinitelyTyped/DefinitelyTyped/FileSaver/FileSaver.d.ts#d21f1bd1fd079bbc18bc88ed71d2be7f5707e33a"
   }
 }
