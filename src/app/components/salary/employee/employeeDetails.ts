@@ -221,7 +221,6 @@ export class EmployeeDetails extends UniView {
         });
     }
 
-
     private checkForSaveDone() {
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
@@ -232,7 +231,7 @@ export class EmployeeDetails extends UniView {
         }
     }
 
-    private saveAll() {
+    private saveAll(done?: (message: string) => void) {
         this.saveEmployee().subscribe(
             (employee) => {
                 super.updateState('employee', employee, false);
@@ -255,6 +254,10 @@ export class EmployeeDetails extends UniView {
                 if (super.isDirty('employeeLeave')) {
                     this.saveEmployeeLeave();
                     this.saveStatus.numberOfRequests++;
+                }
+
+                if (!this.saveStatus.numberOfRequests) {
+                    done('Lagring fullført');
                 }
 
             },
@@ -348,7 +351,6 @@ export class EmployeeDetails extends UniView {
                 );
         });
     }
-
 
     private saveRecurringPosts() {
         super.getStateSubject('recurringPosts').take(1).subscribe((recurringPosts: SalaryTransaction[]) => {
