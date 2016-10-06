@@ -61,6 +61,15 @@ export class RecurringPost extends UniView {
         });
     }
 
+    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
+    private fixTimezone(date): Date {
+        if (typeof date === 'string') {
+            return new Date(date);
+        }
+
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+
     private buildTableConfig() {
         const wagetypeCol = new UniTableColumn('_Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
@@ -80,7 +89,7 @@ export class RecurringPost extends UniView {
             });
 
         const descriptionCol = new UniTableColumn('Text', 'Beskrivelse');
-        
+
         const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((rowModel) => {
 
@@ -137,6 +146,14 @@ export class RecurringPost extends UniView {
                     this.calcItem(row);
                 }
 
+                if  (event.field === 'recurringPostValidFrom' && row['recurringPostValidFrom']) {
+                    row['recurringPostValidFrom'] = this.fixTimezone(row['recurringPostValidFrom']);
+                }
+
+                if  (event.field === 'recurringPostValidTo' && row['recurringPostValidTo']) {
+                    row['recurringPostValidTo'] = this.fixTimezone(row['recurringPostValidTo']);
+                }
+
                 // Update local array and cache
                 this.recurringPosts[row['_originalIndex']] = row;
                 super.updateState('recurringPosts', this.recurringPosts, true);
@@ -157,7 +174,7 @@ export class RecurringPost extends UniView {
         if (employment) {
             rowModel['EmploymentID'] = employment.ID;
         }
-        
+
         this.calcItem(rowModel);
     }
 
