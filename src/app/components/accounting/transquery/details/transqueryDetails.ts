@@ -42,9 +42,8 @@ export class TransqueryDetails implements OnInit {
             urlParams.set('filter', this.configuredFilter);
         }
 
-        urlParams.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
+        urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod,Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
-        urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod');
         return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
     }
 
