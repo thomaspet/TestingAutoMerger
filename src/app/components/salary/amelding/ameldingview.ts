@@ -238,12 +238,13 @@ export class AMeldingView implements OnInit {
     }
 
     private getFeedback(done) {
-        console.log('la oss hente den tilbakemeldingen');
         this.altinnAuthModal.getUserAltinnAuthorizationData()
             .then(authData => {
                 this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData)
-                    .subscribe(response => {
-                        
+                    .subscribe((response: AmeldingData) => {
+                        if (response) {
+                            this.currentAMelding = response;
+                        }
                     });
             });
         done('tilbakemelding hentet');

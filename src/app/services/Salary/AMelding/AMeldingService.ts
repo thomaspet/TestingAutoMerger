@@ -67,7 +67,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .asPUT()
             .usingBusinessDomain()
             .withHeaders(headers)
-            .withEndPoint(this.relativeURL + `/${id}?action=altinn-feedback`)
+            .withEndPoint(this.relativeURL + `/${id}?action=feedback`)
             .send()
             .map(response => response.json());
     }
