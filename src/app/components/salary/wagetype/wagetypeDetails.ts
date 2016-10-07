@@ -457,7 +457,9 @@ export class WagetypeDetail {
     }
 
     public saveWagetype(done) {
-        this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
+        if (this.supplementTable) {
+            this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
+        }
         if (this.wageType.ID > 0) {
             this.wageService.Put(this.wageType.ID, this.wageType)
                 .subscribe((wagetype) => {
