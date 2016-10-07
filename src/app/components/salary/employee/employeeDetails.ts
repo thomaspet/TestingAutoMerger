@@ -227,6 +227,7 @@ export class EmployeeDetails extends UniView {
                 this.saveComponent.manualSaveComplete('Lagring feilet');
             } else {
                 this.saveComponent.manualSaveComplete('Lagring fullført');
+                this.saveActions[0].disabled = true;
             }
         }
     }
@@ -376,7 +377,7 @@ export class EmployeeDetails extends UniView {
             let hasErrors = false;
 
             recurringPosts.forEach((post, index) => {
-                if (post['_isDirty']) {
+                if (post['_isDirty'] || post.Deleted) {
                     changeCount++;
 
                     post.IsRecurringPost = true;
@@ -393,7 +394,7 @@ export class EmployeeDetails extends UniView {
                             if (hasErrors) {
                                 this.saveStatus.hasErrors = true;
                             } else {
-                                super.updateState('recurringPosts', recurringPosts, false);
+                                super.updateState('recurringPosts', recurringPosts.filter(x => !x.Deleted), false);
                             }
                             this.checkForSaveDone();
                         }
@@ -424,7 +425,7 @@ export class EmployeeDetails extends UniView {
             let hasErrors = false;
 
             employeeLeave.forEach((leave) => {
-                if (leave['_isDirty']) {
+                if (leave['_isDirty'] || leave.Deleted) {
                     changeCount++;
 
                     let source = (leave.ID > 0)

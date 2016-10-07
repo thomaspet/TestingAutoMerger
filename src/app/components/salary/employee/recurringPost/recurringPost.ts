@@ -35,7 +35,7 @@ export class RecurringPost extends UniView {
             });
 
             super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
-                this.recurringPosts = _.cloneDeep(recurringPosts);
+                this.recurringPosts = recurringPosts.filter(post => !post.Deleted);
             });
 
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
@@ -70,6 +70,11 @@ export class RecurringPost extends UniView {
         }
 
         return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+
+    private onRowDeleted(event) {
+        this.recurringPosts[event.rowModel['_originalIndex']].Deleted = true;
+        super.updateState('recurringPosts', this.recurringPosts, true);
     }
 
     private buildTableConfig() {
@@ -121,12 +126,7 @@ export class RecurringPost extends UniView {
         const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
 
         this.tableConfig = new UniTableConfig()
-            .setDeleteButton({
-                deleteHandler: (rowModel: SalaryTransaction) => {
-                    if (isNaN(rowModel.ID)) { return true; }
-                    return this.salarytransService.delete(rowModel.ID);
-                }
-            })
+            .setDeleteButton(true)
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol,
                 amountCol, rateCol, sumCol

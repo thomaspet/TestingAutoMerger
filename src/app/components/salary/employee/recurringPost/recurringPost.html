@@ -1,5 +1,6 @@
 <article class="application" *ngIf="recurringPosts">
     <uni-table [resource]="recurringPosts"
-               [config]="tableConfig">
+               [config]="tableConfig"
+               (rowDeleted)="onRowDeleted($event)">
     </uni-table>
 </article>
