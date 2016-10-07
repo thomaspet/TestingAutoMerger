@@ -300,6 +300,18 @@ export class EmployeeDetails extends UniView {
             }
         });
 
+        if (brInfo.InvoiceAddress && brInfo.Addresses) {
+            brInfo.Addresses = brInfo.Addresses.filter(address => address !== brInfo.InvoiceAddress);
+        }
+
+        if (brInfo.DefaultPhone && brInfo.Phones) {
+            brInfo.Phones = brInfo.Phones.filter(phone => phone !== brInfo.DefaultPhone);
+        }
+
+        if (brInfo.DefaultEmail && brInfo.Emails) {
+            brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
+        }
+
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
