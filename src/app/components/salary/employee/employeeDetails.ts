@@ -235,6 +235,14 @@ export class EmployeeDetails extends UniView {
     private saveAll(done?: (message: string) => void) {
         this.saveEmployee().subscribe(
             (employee) => {
+
+                if (!this.employeeID) {
+                    super.updateState('employee', this.employee, false);
+                    let childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute);
+                    return;
+                }
+
                 // REVISIT: GETing the employee after saving is a bad "fix" but currenctly necessary
                 // because response will not contain any new email/address/phone.
                 // Anders is looking for a better way to solve this..
@@ -264,12 +272,20 @@ export class EmployeeDetails extends UniView {
                     }
 
                     if (!this.saveStatus.numberOfRequests) {
-                        done('Lagring fullført');
+                        if (done) {
+                            done('Lagring fullført');
+                        } else {
+                            this.saveComponent.manualSaveComplete('Lagring fullført');
+                        }
                     }
                 });
             },
             (error) => {
-                done('Lagring feilet');
+                if (done) {
+                    done('Lagring feilet');
+                } else {
+                    this.saveComponent.manualSaveComplete('Lagring feilet');
+                }
                 let toastHeader = 'Noe gikk galt ved lagring av persondetaljer';
                 let toastBody = (error.json().Messages) ? error.json().Messages[0].Message : '';
                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
@@ -285,7 +301,7 @@ export class EmployeeDetails extends UniView {
             return Observable.of(this.employee);
         }
 
-        if (!this.employee.BankAccounts[0].ID) {
+        if (this.employee.BankAccounts.length && !this.employee.BankAccounts[0].ID) {
             this.employee.BankAccounts[0]['_createguid'] = this.employeeService.getNewGuid();
         }
 
