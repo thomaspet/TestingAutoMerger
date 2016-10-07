@@ -496,7 +496,8 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 2,
                     Options: {
-                        description: 'Veiledning a-ordningen'
+                        description: 'Veiledning a-ordningen',
+                        target: '_blank'
                     },
                     Combo: 0
                 },
@@ -506,7 +507,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: '_uninavn',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Tilleggsinformasjon pakke',

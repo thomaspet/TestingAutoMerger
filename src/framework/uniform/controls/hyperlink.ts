@@ -7,7 +7,7 @@ declare var _; // jquery and lodash
     selector: 'uni-hyperlink-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <a [href]="getValue()"
+        <a [href]="getValue()" [attr.target]="field?.Options?.target"
         >{{field?.Options?.description}}</a>
     `
 })

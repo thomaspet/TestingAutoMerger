@@ -17,7 +17,7 @@ declare var _; // lodash
 })
 export class WagetypeDetail {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
-    private wageType: WageType;
+    private wageType: any;
     private wagetypeID: number;
     private accounts: Account[];
     private saveactions: IUniSaveAction[] = [
@@ -31,35 +31,33 @@ export class WagetypeDetail {
     private incomeTypeDatasource: any[] = [];
     private benefitDatasource: any[] = [];
     private descriptionDatasource: any[] = [];
-    private packagesForSelectedTypeFiltered: any[] = [];
-    private packagesForSelectedType: any[] = [];
-    private packages: any[] = [];
-    // private supplementaryInformations: any[] = [];
+
+    private supplementPackages: any[] = [];
 
     private tilleggspakkeConfig: UniTableConfig;
     private showSupplementaryInformations: boolean = false;
+    private hidePackageDropdown: boolean = true;
     private showBenefitAndDescriptionAsReadonly: boolean = true;
 
+    private currentPackage: string;
     public config: any = {};
     public fields: any[] = [];
 
     @ViewChild(UniForm)
     public uniform: UniForm;
 
+    @ViewChild(UniTable) private supplementTable: UniTable;
+
     constructor(private route: ActivatedRoute, private router: Router, private wageService: WageTypeService, private tabService: TabService, private accountService: AccountService, private inntektService: InntektService) {
 
-        this.config = {
-            submitText: ''
-        };
         this.route.params.subscribe(params => {
             this.wagetypeID = +params['id'];
 
             this.incomeTypeDatasource = [];
             this.benefitDatasource = [];
             this.descriptionDatasource = [];
-            this.packages = [];
-            this.packagesForSelectedType = [];
-            this.packagesForSelectedTypeFiltered = [];
+            this.supplementPackages = [];
+            
             this.setup();
         });
     }
@@ -92,6 +90,12 @@ export class WagetypeDetail {
                 }
 
                 this.setupTypes(validvaluesTypes);
+                
+                if (this.wageType.IncomeType !== null) {
+                    this.showBenefitAndDescriptionAsReadonly = false;
+                    this.filterSupplementPackages();
+                }
+
                 this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
 
                 if (this.wageType.ID === 0) {
@@ -105,7 +109,11 @@ export class WagetypeDetail {
                 this.updateUniformFields();
 
                 this.config = {
-                    submitText: ''
+                    submitText: '',
+                    sections: {
+                        '1': {isOpen: true},
+                        '2': {isOpen: true}
+                    }
                 };
 
                 this.setupTilleggspakkeConfig();
@@ -151,8 +159,11 @@ export class WagetypeDetail {
                 select: (model) => {
                     this.wageType.Benefit = '';
                     this.wageType.Description = '';
-                    this.setupIncomeType(model.IncomeType);
+                    this.showSupplementaryInformations = false;
+                    this.findByProperty(this.fields, '_uninavn').Hidden = true;
+                    this.filterSupplementPackages(model.IncomeType, true, false, false);
                     this.showBenefitAndDescriptionAsReadonly = false;
+                    this.uniform.field('Benefit').focus();
                 }
             }
         };
@@ -166,8 +177,11 @@ export class WagetypeDetail {
             template: (obj) => obj ? `${obj.text}` : '',
             events: {
                 select: (model) => {
-                    this.setupDescriptionDataSourceFiltered();
-                    this.setupFilteredTilleggsPakker('fordel');
+                    this.showSupplementaryInformations = false;
+                    this.findByProperty(this.fields, '_uninavn').Hidden = true;
+                    this.filterSupplementPackages('', false, true, false);
+                    this.setDescriptionDataSource();
+                    this.uniform.field('Description').focus();
                 }
             }
         };
@@ -182,7 +196,8 @@ export class WagetypeDetail {
             template: (obj) => obj ? `${obj.text}` : '',
             events: {
                 select: (model) => {
-                    this.setupFilteredTilleggsPakker('beskrivelse');
+                    this.filterSupplementPackages('', false, true, true);
+                    this.findByProperty(this.fields, '_uninavn').Hidden = false;
                 }
             }
         };
@@ -190,18 +205,13 @@ export class WagetypeDetail {
 
         let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_uninavn');
         tilleggsinfo.Options = {
-            source: this.packages,
+            source: this.supplementPackages,
             valueProperty: 'uninavn',
             displayProperty: 'uninavn',
             debounceTime: 200,
-            template: (obj) => obj ? `${obj.uninavn}` : '',
-            events: {
-                select: (model) => {
-                    this.showTilleggsPakker(model);
-                }
-            }
+            template: (obj) => obj ? `${obj.uninavn}` : ''
         };
-        tilleggsinfo.Hidden = this.packages.length <= 0;
+        tilleggsinfo.ReadOnly = this.hidePackageDropdown;
 
         this.fields = _.cloneDeep(this.fields);
     }
@@ -212,24 +222,32 @@ export class WagetypeDetail {
         });
     }
 
-    private setupIncomeType(selectedType: string) {
-        if (!selectedType) {
+    private filterSupplementPackages(selectedType: string = '', setSources: boolean = true, filterByFordel: boolean = true, filterByDescription: boolean = true) {
+        if (selectedType !== '') {
             selectedType = this.wageType.IncomeType;
         }
         this.inntektService.getSalaryValidValue(selectedType)
         .subscribe(response => {
-            this.packagesForSelectedType = this.packagesForSelectedTypeFiltered = response;
-            if (this.packagesForSelectedType) {
-                this.setupFordelAndDescription(selectedType);
+            this.supplementPackages = response;
+            if (this.supplementPackages) {
+                if (setSources) {
+                    this.setBenefitAndDescriptionSource(selectedType);
+                }
+                if (filterByFordel) {
+                    this.setPackagesFilteredByFordel();
+                }
+                if (filterByDescription) {
+                    this.setPackagesFilteredByDescription();
+                }
             }
         });
     }
 
-    private setupFordelAndDescription(selectedType: string) {
+    private setBenefitAndDescriptionSource(selectedType: string) {
         this.benefitDatasource = [];
         this.descriptionDatasource = [];
 
-        this.packagesForSelectedType.forEach(tp => {
+        this.supplementPackages.forEach(tp => {
             if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
                 this.benefitDatasource.push({text: tp.fordel});
             }
@@ -245,14 +263,15 @@ export class WagetypeDetail {
         this.updateUniformFields();
     }
 
-    private setupDescriptionDataSourceFiltered() {
-        let selectedFordel: string = this.wageType.Benefit;
+    private setDescriptionDataSource() {
         let tmp: any[] = [];
+
         this.descriptionDatasource.forEach(dp => {
-            if (dp.fordel === selectedFordel) {
+            if (dp.fordel === this.wageType.Benefit) {
                 tmp.push(dp);
             }
         });
+
         this.descriptionDatasource = tmp;
         this.updateUniformFields();
     }
@@ -294,76 +313,72 @@ export class WagetypeDetail {
 
     private updateForSkatteOgAvgiftregel() {
         let filtered: any[] = [];
-        this.packagesForSelectedTypeFiltered.forEach(pack => {
+        this.supplementPackages.forEach(pack => {
             if (pack.skatteOgAvgiftregel === null) {
                 filtered.push(pack);
             }
         });
-        this.packagesForSelectedTypeFiltered = filtered;
+        
+        this.supplementPackages = filtered;
     }
 
     private setupTilleggsPakker() {
         let selectedType: string = this.wageType.IncomeType;
-        this.packages = [];
+        let packs: any[] = [];
 
         // Ta bort alle objekter som har 'skatteOgAvgiftsregel' som noe annet enn null
         this.updateForSkatteOgAvgiftregel();
 
-        this.packagesForSelectedTypeFiltered.forEach(tp => {
+        this.supplementPackages.forEach(tp => {
             let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
             if (incometypeChild) {
                 let additions: WageTypeSupplement[] = this.addTilleggsInformasjon(incometypeChild);
                 if (additions.length > 0) {
-                    this.packages.push({uninavn: tp.uninavn, additions: additions});
+                    packs.push({uninavn: tp.uninavn, additions: additions});
                 }
             }
         });
+        this.hidePackageDropdown = packs.length > 0 ? false : true;
+        this.supplementPackages = packs;
         this.updateUniformFields();
     }
 
-    private setupFilteredTilleggsPakker(fromCombo: string) {
+    private setPackagesFilteredByFordel() {
         let filtered: any[] = [];
-        let selectedType: string = this.wageType.IncomeType;
-        let selectedFordel: string = this.wageType.Benefit;
-        let selectedDescription: string = this.wageType.Description;
 
-        switch (fromCombo) {
-            case 'fordel':
-                if (selectedFordel !== '' && this.benefitDatasource.length > 0) {
-                    this.packagesForSelectedTypeFiltered.forEach(tp => {
-                        if (tp.fordel === selectedFordel) {
-                            filtered.push(tp);
-                        }
-                    });
+        if (this.wageType.Benefit !== '' && this.benefitDatasource.length > 0) {
+            this.supplementPackages.forEach(tp => {
+                if (tp.fordel === this.wageType.Benefit) {
+                    filtered.push(tp);
                 }
-                this.packagesForSelectedTypeFiltered = filtered;
-                break;
-
-            case 'beskrivelse':
-                this.packagesForSelectedTypeFiltered.forEach(tp => {
-                    if (this.wageType.Description !== '' && this.descriptionDatasource.length > 0) {
-                        let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
-                        if (incometypeChild) {
-                            if (selectedDescription === incometypeChild.beskrivelse) {
-                                filtered.push(tp);
-                            }
-                        }
-                    }
-                });
-                this.packagesForSelectedTypeFiltered = filtered;
-                this.setupTilleggsPakker();
-                break;
-
-            default:
-                break;
+            });
+            this.supplementPackages = filtered;
         }
+    }
+
+    private setPackagesFilteredByDescription() {
+        let filtered: any[] = [];
+
+        if (this.wageType.Description !== '' && this.descriptionDatasource.length > 0) {
+            this.supplementPackages.forEach(tp => {
+                let incometypeChild: any = this.getIncometypeChildObject(tp, this.wageType.IncomeType);
+                if (incometypeChild) {
+                    if (this.wageType.Description === incometypeChild.beskrivelse) {
+                        filtered.push(tp);
+                    }
+                }
+            });
+            this.supplementPackages = filtered;
+        }
+
+        this.setupTilleggsPakker();
     }
 
     private addTilleggsInformasjon(tillegg) {
         let tilleggsObj: any = tillegg.tilleggsinformasjon;
         let spesiObj: any = tillegg.spesifikasjon;
         let additions: WageTypeSupplement[] = [];
-
+        
         if (tilleggsObj !== null) {
             for (var key in tilleggsObj) {
                 if (key !== null) {
@@ -390,7 +405,7 @@ export class WagetypeDetail {
                 }
             }
         }
-
+        
         if (spesiObj !== null) {
             for (var props in spesiObj) {
                 if (spesiObj.hasOwnProperty(props)) {
@@ -408,8 +423,7 @@ export class WagetypeDetail {
     }
 
     private showTilleggsPakker(model: any) {
-        let selectedPackage: any = this.packages.find(x => x.uninavn === model._uninavn);
-        this.wageType.SupplementaryInformations = [];
+        let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model._uninavn);
         this.showSupplementaryInformations = false;
 
         let supInfo: Array<any> = [];
@@ -429,17 +443,21 @@ export class WagetypeDetail {
         tilleggsopplysning.editable = false;
         let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
-        this.tilleggspakkeConfig = new UniTableConfig(true)
+        this.tilleggspakkeConfig = new UniTableConfig(true, true, 15)
         .setColumns([tilleggsopplysning, suggestedValue])
-        .setAutoAddNewRow(false)
-        .setPageable(false);
+        .setAutoAddNewRow(false);
     }
 
-    public change(value) {
+    public change(model) {
         this.updateUniformFields();
+        if (this.currentPackage !== this.wageType._uninavn) {
+            this.currentPackage = this.wageType._uninavn;
+            this.showTilleggsPakker(model);
+        }
     }
 
     public saveWagetype(done) {
+        this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
         if (this.wageType.ID > 0) {
             this.wageService.Put(this.wageType.ID, this.wageType)
                 .subscribe((wagetype) => {
@@ -450,7 +468,6 @@ export class WagetypeDetail {
                 },
                 (err) => {
                     this.log('Feil ved oppdatering av lønnsart', err);
-                    console.log(err);
                     this.saveactions[0].disabled = false;
                 });
         } else {
