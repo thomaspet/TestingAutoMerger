@@ -214,6 +214,11 @@ export class AMeldingView implements OnInit {
         this.actions.push({
             label: 'Generer A-melding',
             action: (done) => {
+                this.saveStatus = {
+                    numberOfRequests: 0,
+                    completeCount: 0,
+                    hasErrors: false,
+                };
                 if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 0) {
                     this.saveStatus.numberOfRequests++;
                     this.createAMelding(0);
