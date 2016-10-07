@@ -17,6 +17,10 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         ReportYear: number,
         fromPeriod: number,
         toPeriod: number,
+        fromProjectNo: number,
+        toProjectNo: number,
+        fromDepartmentNo: number,
+        toDepartmentNo: number,
         orderBy: string,
         reportFor: string,
         showFrontPage: boolean,
@@ -30,6 +34,10 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         ReportYear: new Date().getFullYear(),
         fromPeriod: 0,
         toPeriod: 12,
+        fromProjectNo: 0,
+        toProjectNo: 9,
+        fromDepartmentNo: 0,
+        toDepartmentNo: 9,
         orderBy: 'AccountNumber',
         reportFor: 'both',
         showFrontPage: true,
@@ -87,6 +95,26 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
                 Property: 'toPeriod'
             },
             <UniFieldLayout>{
+                FieldType: FieldType.TEXT,
+                Label: 'Fra prosjekt',
+                Property: 'fromProjectNo'
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.TEXT,
+                Label: 'Til prosjekt',
+                Property: 'toProjectNo'
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.TEXT,
+                Label: 'Fra avdeling',
+                Property: 'fromDepartmentNo'
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.TEXT,
+                Label: 'Til avdeling',
+                Property: 'toDepartmentNo'
+            },
+            <UniFieldLayout>{
                 FieldType: FieldType.RADIO,
                 Label: 'Vis udisp. beløp som del av EK',
                 Property: 'showUnallocated'
@@ -126,7 +154,11 @@ export class ResultAndBalanceReportFilterModal {
                                     case 'odatafilter':
                                         parameter.value = `Period.AccountYear eq '${component.model.ReportYear}'`
                                             + ` and Period.No ge ${component.model.fromPeriod}`
-                                            + ` and Period.No le ${component.model.toPeriod}`;
+                                            + ` and Period.No le ${component.model.toPeriod}`
+                                            + ` and Project.ProjectNumber ge ${component.model.fromProjectNo}`
+                                            + ` and Project.ProjectNumber le ${component.model.toProjectNo}`
+                                            + ` and Department.DepartmentNumber ge ${component.model.fromDepartmentNo}`
+                                            + ` and Department.DepartmentNumber le ${component.model.toDepartmentNo}`;
                                         break;
                                     case 'ReportYear':
                                     case 'showLastYear':
@@ -153,8 +185,29 @@ export class ResultAndBalanceReportFilterModal {
                             periodToParam.Name = 'PeriodTo';
                             periodToParam.value = component.model.toPeriod;
 
+                            //Project
+                            let projectNoFromParam = new CustomReportDefinitionParameter();
+                            projectNoFromParam.Name = 'ProjectNoFrom';
+                            projectNoFromParam.value = component.model.fromProjectNo;
+
+                            let projectNoToParam = new CustomReportDefinitionParameter();
+                            projectNoToParam.Name = 'ProjectNoTo';
+                            projectNoToParam.value = component.model.toProjectNo;
+
+                            let departmentNoFromParam = new CustomReportDefinitionParameter();
+                            departmentNoFromParam.Name = 'DepartmentNoFrom';
+                            departmentNoFromParam.value = component.model.fromDepartmentNo;
+
+                            let departmentNoToParam = new CustomReportDefinitionParameter();
+                            departmentNoToParam.Name = 'DepartmentNoTo';
+                            departmentNoToParam.value = component.model.toDepartmentNo;
+
                             this.modalConfig.report.parameters.push(periodFromParam);
                             this.modalConfig.report.parameters.push(periodToParam);
+                            this.modalConfig.report.parameters.push(projectNoFromParam);
+                            this.modalConfig.report.parameters.push(projectNoToParam);
+                            this.modalConfig.report.parameters.push(departmentNoFromParam);
+                            this.modalConfig.report.parameters.push(departmentNoToParam);
                                   
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
