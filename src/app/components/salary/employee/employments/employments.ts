@@ -43,7 +43,7 @@ export class Employments extends UniView {
 
                 // init selected to standard employment or first row in table
                 // checking for undefined here, as we dont want id === 0 to trigger the init
-                if (this.selectedIndex === undefined) {
+                if (this.selectedIndex === undefined && this.employments.length) {
                     let focusIndex = this.employments.findIndex(employment => employment.Standard);
                     if (focusIndex === -1) {
                         focusIndex = 0;
@@ -107,7 +107,7 @@ export class Employments extends UniView {
     private onRowSelected(event) {
         // Update table when switching rows
         const currentEmployment = this.employments[this.selectedIndex];
-        if (currentEmployment['_isDirty']) {
+        if (currentEmployment && currentEmployment['_isDirty']) {
             this.table.updateRow(this.selectedIndex, currentEmployment);
         }
 
