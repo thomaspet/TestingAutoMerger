@@ -1,6 +1,5 @@
 <article class="application employee-personal-details" [attr.aria-busy]="busy">
-    <tax-card-request-modal></tax-card-request-modal>
-    <read-tax-card-modal></read-tax-card-modal>
+    <tax-card-modal *ngIf="employee" [employeeID]="employee.ID" (updateEvent)="refreshEmployee()"></tax-card-modal>
 
     <uni-form *ngIf="employee"
               [config]="config"

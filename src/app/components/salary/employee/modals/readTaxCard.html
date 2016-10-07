@@ -1,0 +1,7 @@
+<article>
+    <h2>Hent skattekort</h2>
+    <p>Trykk på Hent og les inn-knappen for å lese inn skatteopplysinger fra Altinn. Du vil får opp påloggingsbildet for personlig pålogging til Altinn</p>
+    <uni-table [resource]="altinnReceipts$ | async" [config]="receiptTable"></uni-table>
+    <altinn-response-modal (updateTax)="triggerUpdate()" [responseMessage]="responseMessage"></altinn-response-modal>
+    <altinn-authentication-data-modal></altinn-authentication-data-modal>
+</article>

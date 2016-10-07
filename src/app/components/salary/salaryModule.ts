@@ -29,12 +29,10 @@ import {EmployeeList} from './employee/employeeList';
 import {EmployeeLeave} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
-import {AltinnLoginModalContent} from './employee/modals/altinnLoginModal';
-import {AltinnLoginModal} from './employee/modals/altinnLoginModal';
-import {ReadTaxCardModalContent} from './employee/modals/readTaxCardModal';
-import {ReadTaxCardModal} from './employee/modals/readTaxCardModal';
-import {TaxCardRequestModalContent} from './employee/modals/taxCardRequestModal';
-import {TaxCardRequestModal} from './employee/modals/taxCardRequestModal';
+import {TaxCardModal, TaxCardModalContent} from './employee/modals/TaxCardModal';
+import {AltinnResponseModal, AltinnResponseModalContent} from './employee/modals/altinnResponseModal';
+import {ReadTaxCard} from './employee/modals/readTaxCard';
+import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
 
@@ -104,12 +102,12 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         EmployeeLeave,
         EmploymentDetails,
         Employments,
-        AltinnLoginModalContent,
-        AltinnLoginModal,
-        ReadTaxCardModalContent,
-        ReadTaxCardModal,
-        TaxCardRequestModalContent,
-        TaxCardRequestModal,
+        TaxCardModal,
+        TaxCardModalContent,
+        ReadTaxCard,
+        TaxCardRequest,
+        AltinnResponseModal,
+        AltinnResponseModalContent,
         PersonalDetails,
         RecurringPost,
 
@@ -161,12 +159,12 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         EmployeeLeave,
         EmploymentDetails,
         Employments,
-        AltinnLoginModalContent,
-        AltinnLoginModal,
-        ReadTaxCardModalContent,
-        ReadTaxCardModal,
-        TaxCardRequestModalContent,
-        TaxCardRequestModal,
+        TaxCardModal,
+        TaxCardModalContent,
+        ReadTaxCard,
+        TaxCardRequest,
+        AltinnResponseModal,
+        AltinnResponseModalContent,
         PersonalDetails,
         RecurringPost,
 

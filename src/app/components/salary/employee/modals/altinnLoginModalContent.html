@@ -1,9 +1,0 @@
-<article class="modal-content" [attr.aria-busy]="busy">
-    <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
-    <p [innerHTML]="altinnMessage"></p>
-    <uni-form *ngIf="model && atLogin" [config]="formConfig" [fields]="fields" [model]="model"></uni-form>
-    <footer>
-        <button *ngIf="atLogin" (click)="getCorrespondence()">OK</button>
-        <button *ngIf="config" (click)="config.cancel()">{{closeBtnLabel}}</button>
-    </footer>
-</article>

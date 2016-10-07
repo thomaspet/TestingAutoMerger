@@ -443,6 +443,28 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'Employee',
+                    Property: 'TaxBtn',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Elektronisk skattekort',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'SKATTEKORT',
+                    IsLookUp: false
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'Employee',
                     Property: 'TaxTable',
                     Placement: 1,
                     Hidden: false,
@@ -458,7 +480,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: 'SKATTEKORT',
                     IsLookUp: false,
                     openByDefault: true,
                     Validations: [
@@ -497,50 +518,6 @@ export class EmployeeService extends BizHttp<Employee> {
                             Operator: 7 // required
                         }
                     ]
-                },
-                {
-                    ComponentLayoutID: 1,
-
-                    EntityType: 'Employee',
-                    Property: 'TaxRequestBtn',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Sende forespørsel om skattekort',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false
-                },
-                {
-                    ComponentLayoutID: 1,
-
-                    EntityType: 'Employee',
-                    Property: 'GetTaxCardBtn',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Hent skattekort',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false
                 },
                 {
                     ComponentLayoutID: 1,

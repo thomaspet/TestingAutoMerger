@@ -1,0 +1,12 @@
+<article class="modal-content">
+    <header>
+        <h2 *ngIf="responseMessage">Resultat</h2>
+        <h2 *ngIf="!responseMessage">Henter skattekort</h2>
+    </header>
+    <section *ngIf="config" [attr.aria-busy]="!responseMessage">
+        <p [innerHTML]="responseMessage"></p>
+    </section>
+    <footer>
+        <button (click)="config.close()">Lukk</button>
+    </footer>
+</article>

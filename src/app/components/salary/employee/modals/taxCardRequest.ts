@@ -1,17 +1,16 @@
-import {Component, Type, ViewChild, Input} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {UniModal} from '../../../../../framework/modals/modal';
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniForm} from '../../../../../framework/uniform';
 import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
-import {AltinnIntegrationService, EmployeeService} from '../../../../../app/services/services';
+import {AltinnIntegrationService} from '../../../../../app/services/services';
 
 declare var _;
 @Component({
-    selector: 'tax-card-request-modal-content',
-    templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html',
+    selector: 'tax-card-request',
+    templateUrl: 'app/components/salary/employee/modals/taxCardRequest.html',
     host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
+    
 })
-export class TaxCardRequestModalContent {
+export class TaxCardRequest {
     public title: string = '';
     public exitButton: string = '';
     public busy: boolean;
@@ -19,10 +18,12 @@ export class TaxCardRequestModalContent {
     public error: string = '';
     public isActive: boolean = false;
 
-    @Input('config')
-    private config: any;
-
+    @Input()
     private employeeID: number;
+
+    @Output()
+    public newReceipt: EventEmitter<boolean> = new EventEmitter<boolean>(true);
+
     public model: { singleEmpChoice: number, multiEmpChoice: number } = { singleEmpChoice: 1, multiEmpChoice: 1 };
     public fields: FieldLayout[] = [];
     public formConfig: any = {};
@@ -31,15 +32,9 @@ export class TaxCardRequestModalContent {
     public uniform: UniForm;
 
     constructor(
-        private _altinnService: AltinnIntegrationService,
-        private _employeeService: EmployeeService,
-        private _router: ActivatedRoute
+        private _altinnService: AltinnIntegrationService
     ) {
         this.initialize();
-        this._router.parent.params.subscribe(params => {
-            this.employeeID = +params['id'];
-        });
-
     }
 
     public checkForEnterSubmit(event) {
@@ -51,7 +46,7 @@ export class TaxCardRequestModalContent {
 
     }
 
-    private initialize() {
+    public initialize() {
         this.busy = true;
         this.sendAltinnVisible = true;
         this.title = 'Send forespørsel om skattekort';
@@ -119,14 +114,13 @@ export class TaxCardRequestModalContent {
 
     private taxRequest(option, empId = 0) {
         this.busy = true;
-        this.uniform.Hidden = true;
-        this.sendAltinnVisible = false;
         this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn-forespørsel';
                 this.error = 'Feilmelding fra Altinn: ' + response.ErrorText;
             } else {
                 this.title = 'Skatteforespørsel er sendt';
+                this.newReceipt.emit(true);
             }
             this.exitButton = 'OK';
             this.busy = false;
@@ -148,47 +142,8 @@ export class TaxCardRequestModalContent {
         this.fields = _.cloneDeep(this.fields);
     }
 
-    public updateConfig(newConfig: any) {
-        this.config = newConfig;
-    }
-
     public close() {
         this.initialize();
         this.uniform.Hidden = false;
     }
-}
-
-@Component({
-    selector: 'tax-card-request-modal',
-    template: `
-        <uni-modal [type]="type" [config]="config"></uni-modal>
-    `
-})
-export class TaxCardRequestModal {
-    public type: Type = TaxCardRequestModalContent;
-    public config: any = {};
-    @ViewChild(UniModal)
-    private modal: UniModal;
-
-    constructor() {
-        this.config = {
-            hasCancelButton: true,
-            cancel: () => {
-                this.modal.getContent().then((component: TaxCardRequestModalContent) => {
-                    this.modal.close();
-                    component.close();
-                    component.isActive = false;
-                });
-            }
-        };
-    }
-
-    public openModal() {
-        this.modal.open();
-        this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
-            modalContent.isActive = true;
-        });
-    }
-
-
 }

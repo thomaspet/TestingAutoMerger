@@ -4,7 +4,7 @@ import {UniForm} from '../../../../../framework/uniform';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal} from '../../../../unientities';
 import {EmployeeService, MunicipalService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
-import {TaxCardRequestModal, ReadTaxCardModal} from '../employeeModals';
+import {TaxCardModal} from '../modals/taxCardModal';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
@@ -15,7 +15,7 @@ declare var _;
     selector: 'employee-personal-details',
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
-export class PersonalDetails extends UniView  {
+export class PersonalDetails extends UniView {
 
     public busy: boolean;
     public expands: any = [
@@ -31,20 +31,20 @@ export class PersonalDetails extends UniView  {
     private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
 
-    @ViewChild(ReadTaxCardModal) public taxCardModal: ReadTaxCardModal;
-    @ViewChild(TaxCardRequestModal) public taxCardRequestModal: TaxCardRequestModal;
+    @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
 
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
+
     private employee: Employee;
 
     constructor(private employeeService: EmployeeService,
-                private router: Router,
-                private municipalService: MunicipalService,
-                route: ActivatedRoute,
-                cacheService: UniCacheService) {
+        private router: Router,
+        private municipalService: MunicipalService,
+        route: ActivatedRoute,
+        cacheService: UniCacheService) {
 
         super(router.url, cacheService);
         this.setupForm();
@@ -82,8 +82,8 @@ export class PersonalDetails extends UniView  {
                 this.config = {
                     submitText: '',
                     sections: {
-                        1: {isOpen: true},
-                        2: {isOpen: true}
+                        1: { isOpen: true },
+                        2: { isOpen: true }
                     }
                 };
                 this.municipalService.GetAll(null).subscribe((municipalities: Municipal[]) => {
@@ -216,18 +216,10 @@ export class PersonalDetails extends UniView  {
 
         };
 
-        let taxRequestBtn: UniFieldLayout = this.findByProperty(this.fields, 'TaxRequestBtn');
-        taxRequestBtn.Options = {
+        let taxButton: UniFieldLayout = this.findByProperty(this.fields, 'TaxBtn');
+        taxButton.Options = {
             click: (event) => {
-                this.openTaxCardRequestModal();
-            }
-        };
-
-        let getTaxCardBtn: UniFieldLayout = this.findByProperty(this.fields, 'GetTaxCardBtn');
-
-        getTaxCardBtn.Options = {
-            click: (event) => {
-                this.openReadTaxCardModal();
+                this.openTaxCardModal();
             }
         };
 
@@ -278,12 +270,21 @@ export class PersonalDetails extends UniView  {
 
     }
 
-    public openReadTaxCardModal() {
+    public openTaxCardModal() {
         this.taxCardModal.openModal();
     }
 
-    public openTaxCardRequestModal() {
-        this.taxCardRequestModal.openModal();
+    public refreshEmployee() {
+        if (this.employee) {
+            this.employeeService.get(this.employee.ID).subscribe((employee: Employee) => {
+                this.employee.TaxPercentage = employee.TaxPercentage;
+                this.employee.TaxTable = employee.TaxTable;
+                this.employee.NonTaxableAmount = employee.NonTaxableAmount;
+                this.employee.MunicipalityNo = employee.MunicipalityNo;
+                this.employee.NotMainEmployer = employee.NotMainEmployer;
+                this.updateState('employee', employee);
+            });
+        }
     }
 
     public log(err) {

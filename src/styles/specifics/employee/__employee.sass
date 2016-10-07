@@ -1,16 +1,26 @@
 @import 'employment'
 
-.taxCardRequestModal
-    h1
+.taxCardRequest
+    display: flex
+    align-items: flex-start
+    justify-content: space-between
+
+    tax-card-request,
+    read-tax-card
+        flex-basis: 45%
+
+    h1, h2
+        @extend h2
         margin: 0
 
     p
         margin-top: 0
 
-    uni-field
-        flex-basis: 100%
+    .taxCardRequestModal
+        uni-field
+            flex-basis: 100%
 
-        uni-radiogroup-input input[type=radio]+label
-            display: block
-            padding-bottom: .5rem
-            margin-left: -1rem
+            uni-radiogroup-input input[type=radio]+label
+                display: block
+                padding-bottom: .5rem
+                margin-left: -1rem
