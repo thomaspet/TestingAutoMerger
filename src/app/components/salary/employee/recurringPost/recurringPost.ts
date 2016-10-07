@@ -73,8 +73,21 @@ export class RecurringPost extends UniView {
     }
 
     private onRowDeleted(event) {
-        this.recurringPosts[event.rowModel['_originalIndex']].Deleted = true;
-        super.updateState('recurringPosts', this.recurringPosts, true);
+        if (event.rowModel['_isEmpty']) {
+            return;
+        }
+
+        let deletedIndex = event.rowModel['_originalIndex'];
+        let hasDirtyRow: boolean = true;
+
+        if (this.recurringPosts[deletedIndex].ID) {
+            this.recurringPosts[deletedIndex].Deleted = true;
+        } else {
+            this.recurringPosts.splice(deletedIndex, 1);
+            // Check if there are other rows in the array that are dirty
+            hasDirtyRow = this.recurringPosts.some(post => post['_isDirty']);
+        }
+        super.updateState('recurringPosts', this.recurringPosts, hasDirtyRow);
     }
 
     private buildTableConfig() {
