@@ -235,32 +235,38 @@ export class EmployeeDetails extends UniView {
     private saveAll(done?: (message: string) => void) {
         this.saveEmployee().subscribe(
             (employee) => {
-                super.updateState('employee', employee, false);
-                this.saveStatus = {
-                    numberOfRequests: 0,
-                    completeCount: 0,
-                    hasErrors: false,
-                };
+                // REVISIT: GETing the employee after saving is a bad "fix" but currenctly necessary
+                // because response will not contain any new email/address/phone.
+                // Anders is looking for a better way to solve this..
+                this.employeeService.get(this.employeeID).subscribe((emp) => {
+                    super.updateState('employee', emp, false);
+                    // super.updateState('employee', employee, false);
 
-                if (super.isDirty('employments')) {
-                    this.saveEmployments();
-                    this.saveStatus.numberOfRequests++;
-                }
+                    this.saveStatus = {
+                        numberOfRequests: 0,
+                        completeCount: 0,
+                        hasErrors: false,
+                    };
 
-                if (super.isDirty('recurringPosts')) {
-                    this.saveRecurringPosts();
-                    this.saveStatus.numberOfRequests++;
-                }
+                    if (super.isDirty('employments')) {
+                        this.saveEmployments();
+                        this.saveStatus.numberOfRequests++;
+                    }
 
-                if (super.isDirty('employeeLeave')) {
-                    this.saveEmployeeLeave();
-                    this.saveStatus.numberOfRequests++;
-                }
+                    if (super.isDirty('recurringPosts')) {
+                        this.saveRecurringPosts();
+                        this.saveStatus.numberOfRequests++;
+                    }
 
-                if (!this.saveStatus.numberOfRequests) {
-                    done('Lagring fullført');
-                }
+                    if (super.isDirty('employeeLeave')) {
+                        this.saveEmployeeLeave();
+                        this.saveStatus.numberOfRequests++;
+                    }
 
+                    if (!this.saveStatus.numberOfRequests) {
+                        done('Lagring fullført');
+                    }
+                });
             },
             (error) => {
                 done('Lagring feilet');
@@ -301,15 +307,15 @@ export class EmployeeDetails extends UniView {
             }
         });
 
-        if (brInfo.InvoiceAddress && brInfo.Addresses) {
+        if (brInfo.InvoiceAddress && brInfo.InvoiceAddress['_createguid']) {
             brInfo.Addresses = brInfo.Addresses.filter(address => address !== brInfo.InvoiceAddress);
         }
 
-        if (brInfo.DefaultPhone && brInfo.Phones) {
+        if (brInfo.DefaultPhone && brInfo.DefaultPhone['_createguid']) {
             brInfo.Phones = brInfo.Phones.filter(phone => phone !== brInfo.DefaultPhone);
         }
 
-        if (brInfo.DefaultEmail && brInfo.Emails) {
+        if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
 
