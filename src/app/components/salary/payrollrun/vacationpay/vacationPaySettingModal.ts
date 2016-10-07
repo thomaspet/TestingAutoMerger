@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild} from '@angular/core';
+import {Component, Type, ViewChild, AfterViewInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
 
@@ -6,7 +6,7 @@ import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
     selector: 'vacationpay-setting-modal',
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModal.html'
 })
-export class VacationpaySettingModal {
+export class VacationpaySettingModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
     private type: Type = VacationpaySettingModalContent;
     private modalConfig: {hasCancelButton: boolean, cancel: any};
@@ -18,6 +18,10 @@ export class VacationpaySettingModal {
                 this.modal.close();
             }
         };
+    }
+
+    public ngAfterViewInit() {
+        this.modal.createContent();
     }
 
     public openModal() {

@@ -1,4 +1,4 @@
-import {Component, ViewChild, Output, EventEmitter, Type} from '@angular/core';
+import {Component, ViewChild, Output, EventEmitter, Type, AfterViewInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
@@ -8,7 +8,7 @@ declare var _;
     selector: 'vacationpay-modal',
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html'
 })
-export class VacationpayModal {
+export class VacationpayModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
     private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number };
     
@@ -31,6 +31,10 @@ export class VacationpayModal {
             }
         });
 
+    }
+
+    public ngAfterViewInit() {
+        this.modal.createContent();
     }
 
     public openModal() {

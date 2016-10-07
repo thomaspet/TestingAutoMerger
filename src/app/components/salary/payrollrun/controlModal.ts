@@ -1,8 +1,8 @@
-import {Component, Type, ViewChild, QueryList, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
+import {Component, Type, ViewChild, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniFieldLayout} from '../../../../framework/uniform';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
@@ -177,7 +177,7 @@ export class ControlModalContent {
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
-export class ControlModal {
+export class ControlModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[] };
@@ -208,6 +208,10 @@ export class ControlModal {
             }]
         };
 
+    }
+
+    public ngAfterViewInit() {
+        this.modal.createContent();
     }
 
     public openModal() {

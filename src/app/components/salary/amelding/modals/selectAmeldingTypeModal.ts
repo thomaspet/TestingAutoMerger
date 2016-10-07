@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 import {FieldType} from '../../../../unientities';
@@ -51,7 +51,7 @@ export class SelectAmeldingTypeModalContent {
     selector: 'select-amelding-type-modal',
     template: `<uni-modal [type]="type" [config]="modalConfig"></uni-modal>`
 })
-export class SelectAmeldingTypeModal {
+export class SelectAmeldingTypeModal implements AfterViewInit {
     public ameldType: number;
     public modalConfig: any = {};
     public type: Type = SelectAmeldingTypeModalContent;
@@ -83,6 +83,10 @@ export class SelectAmeldingTypeModal {
                 }
             ]
         };
+    }
+
+    public ngAfterViewInit() {
+        this.modal.createContent();
     }
 
     public openModal() {

@@ -1,4 +1,4 @@
-<article class="postingsummary" [attr.aria-busy]="busy">
+<article *ngIf="config" class="postingsummary" [attr.aria-busy]="busy">
     <h3>{{headerString}}</h3>
 
     <section *ngIf="!showReceipt">        

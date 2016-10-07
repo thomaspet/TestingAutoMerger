@@ -1,4 +1,4 @@
-<article class="payrollControl" [attr.aria-busy]="busy">
+<article class="payrollControl" [attr.aria-busy]="busy" *ngIf="config">
     <h1 *ngIf="payrollRun">Kontroll av lønnsavregning {{payrollRun.ID}} - {{payrollRun.Description}}</h1>
 
     <header class="payrollControl_header">
@@ -18,7 +18,7 @@
         </li>
     </ol>
 
-    <footer class="payrollControl_footer" *ngIf="config">
+    <footer class="payrollControl_footer">
 
         <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" class="good">
             {{action.text}}

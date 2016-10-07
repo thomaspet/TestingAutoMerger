@@ -47,6 +47,7 @@ export class PostingsummaryModal implements AfterViewInit {
 
     public ngAfterViewInit() {
         this.modals = this.modalElements.toArray();
+        this.modals[0].createContent();
     }
 
     public openModal() {
