@@ -45,15 +45,20 @@ export class BankAccountForm {
         this.accountService.GetAll('filter=AccountNumber lt 3000').subscribe((accounts) => {
             this.accounts = accounts;
             this.fields = this.extendFields();
-       }); 
+
+            // This is here instead of in ready() because this.extendFields() runs _.cloneDeep which destroys bindings
+            setTimeout(() =>
+                this.form.field('AccountNumber')
+                    .onChange
+                    .subscribe((bankaccount) => {
+                        this.lookupBankAccountNumber(bankaccount);
+                    })
+            );
+       });
+
     }
 
     public ready(value) {
-        this.form.field('AccountNumber')
-            .onChange
-            .subscribe((bankaccount) => {
-                this.lookupBankAccountNumber(bankaccount);
-            });                        
     }
 
     private lookupBankAccountNumber(bankaccount) {
