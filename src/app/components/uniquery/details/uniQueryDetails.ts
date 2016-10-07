@@ -13,8 +13,7 @@ import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
-
-declare const saveAs;
+declare const saveAs; // filesaver.js
 declare const _; // lodash
 
 @Component({
@@ -118,8 +117,9 @@ export class UniQueryDetails {
         if (this.queryDefinitionID > 0) {
             this.uniQueryDefinitionService.Get(this.queryDefinitionID, ['UniQueryFilters', 'UniQueryFields'])
                 .subscribe(res => {
-                    this.tabService.addTab({ name: 'Uttrekk', url: '/uniqueries/details/' + this.queryDefinitionID, moduleID: UniModules.UniQuery, active: true });
                     this.queryDefinition = res;
+
+                    this.tabService.addTab({ name: this.queryDefinition.Name, url: '/uniqueries/details/' + this.queryDefinitionID, moduleID: UniModules.UniQuery, active: true });
 
                     this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
                        let f: UniTableColumn = new UniTableColumn();
@@ -159,6 +159,8 @@ export class UniQueryDetails {
                     this.toastService.addToast('Feil ved henting av uttrekk, se logg for mer informasjon', ToastType.bad);
                 });
         } else {
+            this.tabService.addTab({ name: 'Nytt uttrekk', url: '/uniqueries/details/0', moduleID: UniModules.UniQuery, active: true });
+
             this.queryDefinition = new UniQueryDefinition();
             this.queryDefinition.ID = 0;
             this.queryDefinition.IsShared = true;
@@ -261,6 +263,20 @@ export class UniQueryDetails {
             selects.push(selectableColName + ' as ' + aliasColName);
         }
 
+        if (this.queryDefinition.ClickUrl && this.queryDefinition.ClickParam) {
+            let params: Array<string> = this.queryDefinition.ClickParam.split(',');
+
+            params.forEach(param => {
+                let paramAlias = param.replace('.', '');
+                let paramSelect = param + ' as ' + paramAlias;
+
+                if (!selects.find(x => x === paramSelect)) {
+                    console.log('add extra field to select: ' + paramSelect);
+                    selects.push(paramSelect);
+                }
+            });
+        }
+
         this.selects = selects.join(',');
         this.expands = expands.join(',');
 
@@ -353,6 +369,27 @@ export class UniQueryDetails {
 
     private isFunction(field: string): boolean {
         return field.indexOf('(') > -1 && field.indexOf(')') > -1;
+    }
+
+    private onRowSelected(event) {
+        let selectedObject = event.rowModel;
+
+        if (this.queryDefinition.ClickUrl) {
+            let url = this.queryDefinition.ClickUrl;
+
+            // replace values in parameters with values from the selected row before navigating
+            if (this.queryDefinition.ClickParam) {
+                let params: Array<string> = this.queryDefinition.ClickParam.split(',');
+
+                params.forEach(param => {
+                   let paramAlias = param.replace('.', '');
+                   url = url.replace(`:${param}`, selectedObject[paramAlias]);
+                });
+            }
+
+            console.log('navigate to:' + url);
+            this.router.navigateByUrl(url);
+        }
     }
 
     private onColumnsChange(newColumns: Array<UniTableColumn>) {

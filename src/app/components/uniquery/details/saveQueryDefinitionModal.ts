@@ -93,6 +93,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'URL ved klikk',
+                Placeholder: 'URL brukeren sendes til, inkludert parametre, f.eks. /sales/customer/details/:Customer.ID',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -111,12 +112,14 @@ export class SaveQueryDefinitionForm implements OnInit {
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Kolonne som URL parameter',
+                Placeholder: 'Kommaseparart liste med navn på felt/kolonne, f.eks. Customer.ID',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
                 Section: 1,
                 Sectionheader: 'Avansert',
-                Legend: ''
+                Legend: '',
+                Classes: 'large-field'
             },
             <UniFieldLayout>{
                 ComponentLayoutID: 1,

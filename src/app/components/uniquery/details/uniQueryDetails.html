@@ -47,7 +47,8 @@
                 [resource]="lookupFunction"
                 [config]="tableConfig"
                 (columnsChange)="onColumnsChange($event)"
-                (filtersChange)="onFiltersChange($event)"></uni-table>
+                (filtersChange)="onFiltersChange($event)"
+                (rowSelected)="onRowSelected($event)"></uni-table>
         </section>
     </section>
 
