@@ -272,6 +272,7 @@ export class EmployeeDetails extends UniView {
                     }
 
                     if (!this.saveStatus.numberOfRequests) {
+                        this.saveActions[0].disabled = true;
                         if (done) {
                             done('Lagring fullført');
                         } else {
