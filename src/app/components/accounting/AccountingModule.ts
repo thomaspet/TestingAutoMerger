@@ -125,4 +125,5 @@ import {SalesModule} from '../sales/salesModule';
         TransqueryDetails
     ]
 })
-export class AccountingModule {}
+export class AccountingModule {
+}

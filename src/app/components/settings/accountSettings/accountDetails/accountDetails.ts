@@ -2,7 +2,6 @@ import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange, OnInit}
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {DimensionList} from '../dimensionList/dimensionList';
 import {Account, VatType, FieldType, AccountGroup} from '../../../../unientities';
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 import {AccountGroupService} from '../../../../services/Accounting/AccountGroupService';
@@ -24,12 +23,11 @@ export class AccountDetails implements OnInit {
     public config: any = {};
     public fields: any[] = this.getComponentLayout().Fields;
 
-    constructor(
-        private accountService: AccountService,
-        private currencyService: CurrencyService,
-        private vatTypeService: VatTypeService,
-        private accountGroupService: AccountGroupService
-    ) {}
+    constructor(private accountService: AccountService,
+                private currencyService: CurrencyService,
+                private vatTypeService: VatTypeService,
+                private accountGroupService: AccountGroupService) {
+    }
 
     public ngOnInit() {
         this.setup();
@@ -41,15 +39,15 @@ export class AccountDetails implements OnInit {
             this.currencyService.GetAll(null),
             this.vatTypeService.GetAll(null),
             this.accountGroupService.GetAll(null)
-         ).subscribe(
-                (dataset) => {
-                    this.currencies = dataset[0];
-                    this.vattypes = dataset[1];
-                    this.accountGroups = dataset[2];
-                    this.extendFormConfig();
-                },
-                (error) => console.log(error)
-            );
+        ).subscribe(
+            (dataset) => {
+                this.currencies = dataset[0];
+                this.vattypes = dataset[1];
+                this.accountGroups = dataset[2];
+                this.extendFormConfig();
+            },
+            (error) => console.log(error)
+        );
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
@@ -164,7 +162,7 @@ export class AccountDetails implements OnInit {
             ID: 1,
             CustomFields: null,
             Fields: [
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'AccountNumber',
@@ -192,7 +190,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'AccountGroupID',
@@ -219,7 +217,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'AccountName',
@@ -247,7 +245,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'Alias',
@@ -275,7 +273,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'CurrencyID',
@@ -303,7 +301,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'VatTypeID',
@@ -331,7 +329,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'SystemAccount',
@@ -359,7 +357,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'UsePostPost',
@@ -387,7 +385,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'UseDeductionPercent',
@@ -415,7 +413,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'LockManualPosts',
@@ -443,7 +441,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'Locked',
@@ -471,7 +469,7 @@ export class AccountDetails implements OnInit {
                     UpdatedBy: null,
                     CustomFields: null
                 },
-                <UniFieldLayout>{
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
                     Property: 'Visible',

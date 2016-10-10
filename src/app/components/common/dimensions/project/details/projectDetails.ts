@@ -30,13 +30,12 @@ export class ProjectDetails implements OnInit {
         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ett problem oppstod, forsøk igjen senere');
     }
 
-    constructor(
-        private projectService: ProjectService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private toastService: ToastService
-    ) {}
+    constructor(private projectService: ProjectService,
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService,
+                private toastService: ToastService) {
+    }
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
@@ -59,7 +58,7 @@ export class ProjectDetails implements OnInit {
         this.project = project;
         const tabTitle = this.project.ID ? 'Prosjekt ' + this.project.Name : 'Prosjekt (nytt)';
         const ID = this.project.ID ? this.project.ID : 'new';
-        this.tabService.addTab({ url: '/dimensions/project/' + ID, name: tabTitle, active: true, moduleID: 22 });
+        this.tabService.addTab({url: '/dimensions/project/' + ID, name: tabTitle, active: true, moduleID: 22});
     }
 
     public next() {
@@ -122,23 +121,24 @@ export class ProjectDetails implements OnInit {
 
     private getComponentFields(): UniFieldLayout[] {
         return [
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Prosjektnummer',
                 Property: 'ProjectNumber',
-                Placeholder: 'Autogenerert hvis blank'
+                Placeholder: 'Autogenerert hvis blank',
+
             },
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
                 Property: 'Name'
             },
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Prosjektleder',
                 Property: 'ProjectLeadName'
             },
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Beskrivelse',
                 Property: 'Description'

@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FieldType, Department} from '../../../../../unientities';
-import {UniSave, IUniSaveAction} from '../../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
+import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {DepartmentService} from '../../../../../services/common/DepartmentService';
+import {UniFieldLayout} from "../../../../../../framework/uniform/interfaces";
 
 @Component({
     selector: 'department-dimensions-details',
@@ -13,7 +13,7 @@ import {DepartmentService} from '../../../../../services/common/DepartmentServic
 })
 export class DepartmentDetails implements OnInit {
     public config: any = {};
-    public fields: UniFieldLayout[] = [];
+    public fields: any[] = [];
     private department: Department;
 
     public saveActions: IUniSaveAction[] = [
@@ -30,13 +30,12 @@ export class DepartmentDetails implements OnInit {
         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ett problem oppstod, forsøk igjen senere');
     }
 
-    constructor(
-        private departmentService: DepartmentService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private toastService: ToastService
-    ) {}
+    constructor(private departmentService: DepartmentService,
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService,
+                private toastService: ToastService) {
+    }
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
@@ -59,7 +58,7 @@ export class DepartmentDetails implements OnInit {
         this.department = department;
         const tabTitle = this.department.ID ? 'Avdeling ' + this.department.Name : 'Avdeling (ny)';
         const ID = this.department.ID ? this.department.ID : 'new';
-        this.tabService.addTab({ url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: 23 });
+        this.tabService.addTab({url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: 23});
     }
 
     public next() {
@@ -122,23 +121,23 @@ export class DepartmentDetails implements OnInit {
 
     private getComponentFields(): UniFieldLayout[] {
         return [
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Avdelingsnummer',
                 Property: 'DepartmentNumber',
                 Placeholder: 'Autogenerert hvis blank'
             },
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
                 Property: 'Name'
             },
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Avdelingsleder',
                 Property: 'DepartmentManagerName'
             },
-            <UniFieldLayout> {
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Beskrivelse',
                 Property: 'Description'

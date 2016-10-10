@@ -57,9 +57,8 @@
     "gulp-shell": "^0.5.2",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-template": "^3.0.0",
-    "gulp-tsc": "^1.1.5",
     "gulp-tslint": "^4.3.3",
-    "gulp-typescript": "^2.9.2",
+    "gulp-typescript": "^3.0.2",
     "gulp-uglify": "^1.5.3",
     "gulp-zip": "^3.2.0",
     "jasmine": "^2.3.2",
@@ -83,8 +82,7 @@
     "run-sequence": "^1.1.4",
     "sass-convert": "^0.5.2",
     "sassdoc": "^2.1.20",
-    "tsc": "^1.20150623.0",
     "tslint": "^3.3.0",
-    "typescript": "^1.8.9"
+    "typescript": "^2.0.3"
   }
 }

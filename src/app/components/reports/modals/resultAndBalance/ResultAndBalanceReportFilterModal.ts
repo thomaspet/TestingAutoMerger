@@ -55,11 +55,16 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         {ID: 'balance', Label: 'Balanse'}
     ];
 
-    constructor() {}
+    constructor() {
+    }
 
     public ngOnInit() {
-        this.fields = [
-            <UniFieldLayout>{
+        this.fields = this.getComponentFields();
+    }
+
+    private getComponentFields(): UniFieldLayout[] {
+        return [
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis rapport for',
                 Property: 'reportFor',
@@ -69,32 +74,32 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.RADIO,
                 Label: 'Vis forside',
                 Property: 'showFrontPage',
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.RADIO,
                 Label: 'Vis fjorårets tall',
                 Property: 'showLastYear'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Regnskapsår',
                 Property: 'ReportYear'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
                 Property: 'fromPeriod'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
                 Property: 'toPeriod'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra prosjekt',
                 Property: 'fromProjectNo'
@@ -126,18 +131,18 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
 @Component({
     selector: 'result-and-balance-report-filter-modal',
     template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
     `
 })
 export class ResultAndBalanceReportFilterModal {
     @ViewChild(UniModal)
     private modal: UniModal;
-    
+
     public modalConfig: any = {};
     public type: Type = ResultAndBalanceReportFilterForm;
-    
+
     private previewModal: PreviewModal;
-    
+
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService) {
         this.modalConfig = {
             title: 'Parametre',
@@ -175,12 +180,12 @@ export class ResultAndBalanceReportFilterModal {
                                         break;
                                 }
                             }
-                            
+
                             // Add report parameters                                              
                             let periodFromParam = new CustomReportDefinitionParameter();
                             periodFromParam.Name = 'PeriodFrom';
                             periodFromParam.value = component.model.fromPeriod;
-                            
+
                             let periodToParam = new CustomReportDefinitionParameter();
                             periodToParam.Name = 'PeriodTo';
                             periodToParam.value = component.model.toPeriod;
@@ -208,7 +213,7 @@ export class ResultAndBalanceReportFilterModal {
                             this.modalConfig.report.parameters.push(projectNoToParam);
                             this.modalConfig.report.parameters.push(departmentNoFromParam);
                             this.modalConfig.report.parameters.push(departmentNoToParam);
-                                  
+
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });

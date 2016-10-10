@@ -35,7 +35,7 @@ export class SaveQueryDefinitionForm implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @Output() public querySaved: EventEmitter<any> = new EventEmitter<any>();
 
-    private fields: Array<UniFieldLayout> = [];
+    private fields: Array<any> = [];
     private formConfig: any = {};
 
     constructor(private toastService: ToastService) {
@@ -49,7 +49,7 @@ export class SaveQueryDefinitionForm implements OnInit {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields = [
-            <UniFieldLayout>{
+            {
                 ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'Name',
@@ -66,7 +66,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Legend: '',
                 Classes: 'large-field'
             },
-            <UniFieldLayout>{
+            {
                 ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'Description',
@@ -83,7 +83,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Legend: '',
                 Classes: 'large-field'
             },
-            <UniFieldLayout>{
+            {
                 ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'ClickUrl',
@@ -102,7 +102,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Legend: '',
                 Classes: 'large-field'
             },
-            <UniFieldLayout>{
+            {
                 ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'ClickParam',
@@ -121,7 +121,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Legend: '',
                 Classes: 'large-field'
             },
-            <UniFieldLayout>{
+            {
                 ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'IsShared',
@@ -198,15 +198,15 @@ export class SaveQueryDefinitionModal {
 
     public openModal(query: UniQueryDefinition, saveAs: boolean) {
         if (this.modal) {
-           this.modalConfig.model = query;
+            this.modalConfig.model = query;
 
-           if (saveAs) {
-               this.modalConfig.title = 'Lagre som nytt uttrekk';
-           } else {
-               this.modalConfig.title = 'Lagre uttrekk';
-           }
+            if (saveAs) {
+                this.modalConfig.title = 'Lagre som nytt uttrekk';
+            } else {
+                this.modalConfig.title = 'Lagre uttrekk';
+            }
 
-           this.modal.open();
+            this.modal.open();
         }
     }
 }

@@ -12,7 +12,7 @@ import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
 export class BalanceGeneralLedgerFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: UniFieldLayout[];
+    public fields: any[];
     public model: {
         PeriodAccountYear: number,
         FromAccountNumber: number,
@@ -38,36 +38,43 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
         {field: 'Account.AccountName', name: 'Kontonavn'}
     ];
 
-    constructor() {}
+    constructor() {
+    }
 
     public ngOnInit() {
-        this.fields = [
-            <UniFieldLayout>{
+        this.fields = this.getComponentFields();
+
+
+    }
+
+    private getComponentFields(): UniFieldLayout[] {
+        return [
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fra konto',
                 Property: 'FromAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Til konto',
                 Property: 'ToAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Regnskapsår',
                 Property: 'PeriodAccountYear'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fra periode',
                 Property: 'FromPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Til periode',
                 Property: 'ToPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sortering',
                 Property: 'OrderBy',
@@ -77,19 +84,17 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
                     displayProperty: 'name',
                 }
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.MULTISELECT,
                 Label: 'Vis med korrigeringer',
                 Property: 'IncludeCorrections'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.MULTISELECT,
                 Label: 'Bruk farger',
                 Property: 'UseColors'
             }
         ];
-
-
     }
 }
 

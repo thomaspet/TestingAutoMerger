@@ -48,41 +48,41 @@ export class PostingJournalReportFilterForm implements OnInit {
     }
 
     public ngOnInit() {
-        this.createFields();
+        this.fields = this.getComponentFields();
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
             this.model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
             this.model = _.cloneDeep(this.model);
         });
     }
 
-    private createFields() {
-        this.fields = [
-            <UniFieldLayout>{
+    private getComponentFields(): UniFieldLayout[] {
+        return [
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra bilagsnr',
                 Property: 'FromJournalEntryNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til bilagsnr',
                 Property: 'ToJournalEntryNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Regnskapsår',
                 Property: 'PeriodAccountYear'
-            },    
-            <UniFieldLayout>{
+            },
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
                 Property: 'FromPeriod'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
                 Property: 'ToPeriod'
-            },           
-            <UniFieldLayout>{
+            },
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sortering',
                 Property: 'OrderBy',
@@ -92,7 +92,7 @@ export class PostingJournalReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis bilag',
                 Property: 'ShowFilter',
@@ -108,17 +108,17 @@ export class PostingJournalReportFilterForm implements OnInit {
 
 @Component({
     selector: 'postingjournal-report-filter-modal',
-    template: `<uni-modal [type]="type" [config]="modalConfig"></uni-modal>`
+    template: `<uni-modal [type]='type' [config]='modalConfig'></uni-modal>`
 })
 export class PostingJournalReportFilterModal {
     @ViewChild(UniModal)
     private modal: UniModal;
-    
+
     public modalConfig: any = {};
     public type: Type = PostingJournalReportFilterForm;
-    
+
     private previewModal: PreviewModal;
-    
+
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService) {
         this.modalConfig = {
             title: 'Parametre',
@@ -152,7 +152,7 @@ export class PostingJournalReportFilterModal {
                                         break;
                                 }
                             }
-                                                        
+
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });

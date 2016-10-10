@@ -12,7 +12,7 @@ import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
 export class CustomerAccountReportFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: UniFieldLayout[];
+    public fields: any[];
     public model: {
         FromAccountNumber: number,
         ToAccountNumber: number,
@@ -20,7 +20,7 @@ export class CustomerAccountReportFilterForm implements OnInit {
         PeriodAccountLastYear: number,
         FromPeriodNo: number,
         ToPeriodNo: number,
-        OrderBy: string,        
+        OrderBy: string,
         ShowFilter: string
     } = {
         FromAccountNumber: 100000,
@@ -29,7 +29,7 @@ export class CustomerAccountReportFilterForm implements OnInit {
         PeriodAccountLastYear: (new Date().getFullYear()) - 1,
         FromPeriodNo: 0,
         ToPeriodNo: 12,
-        OrderBy: 'customerjournal',        
+        OrderBy: 'customerjournal',
         ShowFilter: 'without'
     };
 
@@ -46,36 +46,41 @@ export class CustomerAccountReportFilterForm implements OnInit {
         {ID: 'only', Label: 'med KUN korrigeringer'}
     ];
 
-    constructor() {}
+    constructor() {
+    }
 
     public ngOnInit() {
-        this.fields = [
-            <UniFieldLayout>{
+        this.fields = this.getComponentFields();
+    }
+
+    private getComponentFields(): UniFieldLayout[] {
+        return [
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra kundenr',
                 Property: 'FromAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til kundenr',
                 Property: 'ToAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Regnskapsår',
                 Property: 'PeriodAccountYear'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
                 Property: 'FromPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
                 Property: 'ToPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sortering',
                 Property: 'OrderBy',
@@ -85,7 +90,7 @@ export class CustomerAccountReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis bilag',
                 Property: 'ShowFilter',
@@ -106,12 +111,12 @@ export class CustomerAccountReportFilterForm implements OnInit {
 export class CustomerAccountReportFilterModal {
     @ViewChild(UniModal)
     private modal: UniModal;
-    
+
     public modalConfig: any = {};
     public type: Type = CustomerAccountReportFilterForm;
-    
+
     private previewModal: PreviewModal;
-    
+
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService) {
         this.modalConfig = {
             title: 'Parametre',
@@ -163,7 +168,7 @@ export class CustomerAccountReportFilterModal {
                                         break;
                                 }
                             }
-                                                                                     
+
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });

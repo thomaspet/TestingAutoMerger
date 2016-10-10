@@ -5,14 +5,14 @@ var plugins = require('gulp-load-plugins')({
 
 var SRC = process.env.SRC_FOLDER || './src';
 var DIST = process.env.DIST_FOLDER || './dist';
-var tsproject = plugins.typescript.createProject('tsconfig.json');
+var tsProject = plugins.typescript.createProject('tsconfig.json');
 
 gulp.task('ts2js.dev', function() {
     return gulp.src('src/**/*.ts')
         .pipe(plugins.inlineNg2Template({ base: '/src' }))
         .pipe(plugins.plumber())
         .pipe(plugins.sourcemaps.init())
-        .pipe(plugins.typescript(tsproject))
+        .pipe(tsProject())
         .pipe(plugins.concat('app.bundle.js'))
         .pipe(plugins.sourcemaps.write('./'))
         // .pipe(plugins.uglify())
@@ -23,7 +23,7 @@ gulp.task('ts2js', function() {
     return gulp.src('src/**/*.ts')
         .pipe(plugins.inlineNg2Template({ base: '/src' }))
         .pipe(plugins.plumber())
-        .pipe(plugins.typescript(tsproject))
+        .pipe(tsProject())
         .pipe(plugins.concat('app.bundle.js'))
         // .pipe(plugins.uglify())
         .pipe(gulp.dest(DIST));

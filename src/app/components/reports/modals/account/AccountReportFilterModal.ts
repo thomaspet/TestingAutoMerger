@@ -43,42 +43,47 @@ export class AccountReportFilterForm implements OnInit {
 
     //TODO: Not completed yet
     private typeOOrderBy: { ID: string, Label: string }[] = [
-        { ID: 'accountAndDate', Label: 'Kontonr og dato' },
-        { ID: 'Account.AccountNumber', Label: 'Kontonr og bilagsnr' },
-        { ID: 'accountNameAndDate', Label: 'Kontonavn og bilagsnr' },
-        { ID: 'accountNameAndJournalNr', Label: 'Kontonavn og dato' }
+        {ID: 'accountAndDate', Label: 'Kontonr og dato'},
+        {ID: 'Account.AccountNumber', Label: 'Kontonr og bilagsnr'},
+        {ID: 'accountNameAndDate', Label: 'Kontonavn og bilagsnr'},
+        {ID: 'accountNameAndJournalNr', Label: 'Kontonavn og dato'}
     ];
 
-    constructor() { }
+    constructor() {
+    }
 
     public ngOnInit() {
-        this.fields = [
-            <UniFieldLayout>{
+        this.fields = this.getComponentFields();
+    }
+
+    private getComponentFields(): UniFieldLayout[] {
+        return [
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fra konto',
                 Property: 'FromAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Til konto',
                 Property: 'ToAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Regnskapsår',
                 Property: 'PeriodAccountYear'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
                 Property: 'FromPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
                 Property: 'ToPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sorter etter',
                 Property: 'OrderBy',
@@ -88,12 +93,12 @@ export class AccountReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.RADIO,
                 Label: 'Vis kontoer uten bevegelse',
                 Property: 'ShowAccountsWithoutDetails',
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.RADIO,
                 Label: 'Vis kontoer uten saldo',
                 Property: 'ShowAccountsWithoutBalance',
@@ -105,7 +110,7 @@ export class AccountReportFilterForm implements OnInit {
 @Component({
     selector: 'account-report-filter-modal',
     template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
     `
 })
 export class AccountReportFilterModal {

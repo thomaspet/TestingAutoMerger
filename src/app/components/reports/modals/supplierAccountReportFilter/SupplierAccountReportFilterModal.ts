@@ -3,7 +3,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
+import {UniFieldLayout} from "../../../../../framework/uniform/interfaces";
 
 @Component({
     selector: 'supplier-account-report-filter-form',
@@ -49,41 +49,46 @@ export class SupplierAccountReportFilterForm implements OnInit {
         {ID: 'only', Label: 'med KUN korrigeringer'}
     ];
 
-    constructor() {}
+    constructor() {
+    }
 
     public ngOnInit() {
-        this.fields = [
-            <UniFieldLayout>{
+        this.fields = this.getComponentFields();
+    }
+
+    public getComponentFields(): UniFieldLayout[] {
+        return [
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra kundenr',
                 Property: 'FromAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til kundenr',
                 Property: 'ToAccountNumber'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Regnskapsår',
                 Property: 'PeriodAccountYear'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra periode',
                 Property: 'FromPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til periode',
                 Property: 'ToPeriodNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Skjul kontoer uten bevegelse',
                 Property: 'HideAccounts'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Sortering',
                 Property: 'OrderBy',
@@ -93,7 +98,7 @@ export class SupplierAccountReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis bilag',
                 Property: 'ShowFilter',
