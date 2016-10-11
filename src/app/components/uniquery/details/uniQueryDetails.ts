@@ -1,11 +1,12 @@
-import {Component, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
+import {Component, ViewChild, Input} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter, IExpressionFilterValue} from 'unitable-ng2/main';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {StatisticsService, UniQueryDefinitionService} from '../../../services/services';
+import {AuthService} from '../../../../framework/core/authService';
 import {RelationNode} from './relationNode';
 import {SaveQueryDefinitionModal} from './saveQueryDefinitionModal';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
@@ -23,6 +24,11 @@ declare const _; // lodash
 export class UniQueryDetails {
     @ViewChild(UniTable) table: UniTable;
     @ViewChild(SaveQueryDefinitionModal) saveQueryDefinitionModal: SaveQueryDefinitionModal;
+
+    // externalID is used when using this report from another component, e.g. as a sub component
+    // in the customerDetails view. This way it is easy to set that the context of the uniquery
+    // is a specific ID, this customers ID in this case
+    @Input() public externalID: number;
 
     private models: any;
     private visibleModels: any;
@@ -42,6 +48,8 @@ export class UniQueryDetails {
     private editMode: boolean = false;
     private hideModel: boolean = true;
 
+    private currentUserGlobalIdentity: string = '';
+
     private contextMenuItems: IContextMenuItem[] = [];
     private saveactions: IUniSaveAction[] = [];
 
@@ -51,13 +59,19 @@ export class UniQueryDetails {
                 private tabService: TabService,
                 private statisticsService: StatisticsService,
                 private uniQueryDefinitionService: UniQueryDefinitionService,
-                private toastService: ToastService) {
+                private toastService: ToastService,
+                private authService: AuthService) {
 
         this.route.params.subscribe(params => {
             this.queryDefinitionID = +params['id'];
             this.setupModelData();
             this.loadQueryDefinition();
         });
+
+        let token = this.authService.getTokenDecoded();
+        if (token) {
+            this.currentUserGlobalIdentity = token.nameid;
+        }
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
@@ -280,12 +294,30 @@ export class UniQueryDetails {
         this.selects = selects.join(',');
         this.expands = expands.join(',');
 
+        let expressionFilterValues: Array<IExpressionFilterValue> = [
+            {
+                expression: 'currentuserid',
+                value: this.currentUserGlobalIdentity
+            }
+        ];
+
+        // if externalID is supplied (when using uniquery as a sub component), send the expressionfiltervalue
+        if (this.externalID) {
+            expressionFilterValues.push(
+                {
+                    expression: 'externalid',
+                    value: this.externalID.toString()
+                }
+            );
+        }
+
         // Setup table
         this.tableConfig = new UniTableConfig(false, true, 50)
             .setSearchable(true)
             .setAllowGroupFilter(true)
             .setAllowConfigChanges(this.editMode)
             .setColumnMenuVisible(true)
+            .setExpressionFilterValues(expressionFilterValues)
             .setFilters(this.filters)
             .setDataMapper((data) => {
                 let tmp = data !== null ? data.Data : [];
@@ -387,7 +419,6 @@ export class UniQueryDetails {
                 });
             }
 
-            console.log('navigate to:' + url);
             this.router.navigateByUrl(url);
         }
     }
@@ -453,16 +484,12 @@ export class UniQueryDetails {
 
     private showHideAllModels() {
         this.showAllModels = !this.showAllModels;
-
-        // trick to make angular redraw model tree
-        this.models = _.cloneDeep(this.models);
+        this.filterModels();
     }
 
     private showHideAllFields() {
         this.showAllFields = !this.showAllFields;
-
-        // trick to make angular redraw model tree
-        this.models = _.cloneDeep(this.models);
+        this.filterModels();
     }
 
     private saveQuery(saveAsNewQuery: boolean, completeEvent) {

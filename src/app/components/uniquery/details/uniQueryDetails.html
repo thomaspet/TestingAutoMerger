@@ -40,6 +40,15 @@
                 kan hente de ut på ny senere - eller dele uttrekkene med andre.</p>
             <p>Hvis du vil jobbe videre med dataene kan du enkelt eksportere dem til Excel med knappen nederst på skjermen</p>
             <p>Klikk på feltene i trestrukturen til venstre, og du er i gang med å lage din egen rapport!</p>
+            <h2>Tips og triks!</h2>
+            <p>Hvis du vil sette opp en rapport med forhåndsutfylte filtre kan du også legge inn dynamiske verdier, altså verdier som tilpasses ut fra hvem som er
+                pålogget, regnskapsår og lignende. Legg i så fall inn en parameter der verdi settes til en av følgende (viktig å ha med ":" før navnet):
+            </p>
+            <ul>
+                <li><b>:currentuserid</b> - hvis du sammenligner med f.eks. CreatedBy får du opp entiteter opprettet av pålogget bruker</li>
+                <li><b>:externalid</b> - brukes når UniQuery kjøres i en annen context, f.eks. i et kundedetaljbildet. ":externalid" byttes da ut med f.eks. kundeid</li>
+            </ul>
+            <p>... så kommer det litt mer senere her :-)</p>
         </div>
 
         <section [ngClass]="{'table-container': !hideModel, 'table-container-full': hideModel}" *ngIf="tableConfig && fields.length > 0">
