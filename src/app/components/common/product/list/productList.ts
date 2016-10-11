@@ -19,7 +19,7 @@ export class ProductList {
 
     constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private tabService: TabService) {
         this.setupProductTable();
-        this.tabService.addTab({ name: "Produkter", url: "/products/list/", active: true, moduleID: UniModules.Products });
+        this.tabService.addTab({ name: "Produkter", url: "/products", active: true, moduleID: UniModules.Products });
     }
 
     private createProduct() {
