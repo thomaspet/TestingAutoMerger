@@ -29,8 +29,8 @@ export class AltinnResponseModalContent {
         taxCardInfo.UserPassword = authData.password;
         taxCardInfo.Pin = authData.pin;
         taxCardInfo.ReceiptID = receiptID;
-        this._altinnService.readTaxCard(taxCardInfo).subscribe((responseMessage) => {
-            this.responseMessage = responseMessage;
+        this._altinnService.readTaxCard(taxCardInfo).subscribe((responseMessage: string) => {
+            this.responseMessage = responseMessage.replace('\r\n', '</br>');
             this.config.update();
         });
     }
