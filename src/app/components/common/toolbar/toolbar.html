@@ -1,0 +1,35 @@
+<uni-breadcrumbs></uni-breadcrumbs>
+
+<uni-statustrack *ngIf="config?.statustrack" [config]="config.statustrack"></uni-statustrack>
+
+<h1>{{config?.title}}
+    <small *ngFor="let subhead of config?.subheads"
+        [class]="subhead.classname || ''">
+        {{subhead.title}}
+    </small>
+</h1>
+
+<nav class="toolbar_tools">
+    <input *ngIf="config?.navigation?.find"
+        #query
+        type="search"
+        class="find"
+        (keydown.enter)="navigate('find', query.value)" />
+
+    <button *ngIf="config?.navigation?.prev"
+        class="previous"
+        type="button"
+        (click)="navigate('prev')">Forrige</button>
+
+    <button *ngIf="config?.navigation?.next"
+        class="next"
+        type="button"
+        (click)="navigate('next')">Neste</button>
+
+    <button *ngIf="config?.navigation?.add"
+        class="new"
+        type="button"
+        (click)="navigate('add')">Ny</button>
+
+    <uni-context-menu *ngIf="config?.contextmenu" [actions]="config.contextmenu"></uni-context-menu>
+</nav>

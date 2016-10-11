@@ -1,0 +1,49 @@
+.toolbar_tools
+    min-width: 14rem
+    text-align: right
+    cursor: pointer
+
+    a,
+    button
+        @extend %toolbarButton
+
+    .previous
+        background-image: unicon-prev($uni-color-scale3)
+        background-size: auto 1rem
+        &:hover,
+        &:focus
+            background-image: unicon-prev($uni-color-C2A)
+    .next
+        background-image: unicon-next($uni-color-scale3)
+        background-size: auto 1rem
+        &:hover,
+        &:focus
+            background-image: unicon-next($uni-color-C2A)
+    .new
+        background-image: unicon-new($uni-color-scale3)
+        &:hover,
+        &:focus
+            background-image: unicon-new($uni-color-C2A)
+    .edit
+        background-image: unicon-edit($uni-color-scale3)
+        &:hover
+            background-image: unicon-edit($uni-color-C2A)
+        &.-is-active
+            background-color: $uni-color-C2A
+            background-image: unicon-edit($uni-color-negative)
+    .down
+        background-image: unicon-down($uni-color-scale3)
+        &:hover
+            background-image: unicon-down($uni-color-C2A)
+    .trash
+        background-image: unicon-trash($uni-color-scale3)
+        &:hover
+            background-image: unicon-trash($uni-color-C2A)
+    .close
+        background-image: unicon-close($uni-color-scale3)
+        &:hover
+            background-image: unicon-close($uni-color-C2A)
+    .search
+        background-image: unicon-search($uni-color-scale3)
+        &:hover
+            background-image: unicon-search($uni-color-C2A)

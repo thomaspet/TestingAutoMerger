@@ -2,23 +2,25 @@ $statustrack-background: #fff
 $statustrack-height: 1.7rem
 $statustrack-border: .0625rem
 
-.poster_statustrack
+.poster_statustrack,
+uni-statustrack ol
     display: flex
     border: pxToRem(1) solid $uni-color-scale7
     border-radius: pxToRem(3)
     background: $statustrack-background
     box-sizing: border-box
     height: $statustrack-height + $statustrack-border
+    margin: .5rem 0
 
     li
         position: relative
         padding: 0 1.5rem
         line-height: $statustrack-height
 
-        &.-is-future
+        &.future
             color: $uni-color-scale5
 
-        &.-is-active
+        &.active
             z-index: 2
             background: $uni-color-C2A
             color: $uni-color-negative
@@ -37,11 +39,11 @@ $statustrack-border: .0625rem
             &:before
                 border-left-color: $uni-color-scale7
 
-            &.-is-active:after
+            &.active:after
                 border-left-color: $uni-color-C2A
 
-            &.-is-active:before,
-            & + .-is-active:before
+            &.active:before,
+            & + .active:before
                 display: none
 
         &:before,

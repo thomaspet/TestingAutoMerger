@@ -1,25 +1,6 @@
-<uni-breadcrumbs></uni-breadcrumbs>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <header class="poster" [attr.aria-busy]="busy">
-    <article class="poster_toolbar">
-        <div *ngIf="payrollrun">
-            <h1 class="poster_toolbar_headline">{{payrollrun.Description}}
-                <p class="poster_toolbar_orgnr">
-                    Lønnsavregning nr. {{payrollrun.ID}}, Utbetalingsdato: {{payDate | date: "dd.MM.yy"}}, Status: {{payStatus}}
-                </p>
-            </h1>
-        </div>
-
-        <nav class="poster_toolbar_tools">
-            <input type="search" class="poster_toolbar_search">
-            <a (click)="previousPayrollrun()" class="previous">Forrige</a>
-            <a (click)="nextPayrollrun()" class="next">Neste</a>
-            <a (click)="createNewRun()" class="new">Ny lønnsavregning</a>
-            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
-        </nav>
-
-    </article>
-
     <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
         <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>

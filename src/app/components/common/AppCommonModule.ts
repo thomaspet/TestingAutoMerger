@@ -24,6 +24,8 @@ import {BankAccountModal} from './modals/bankAccountModal';
 import {RegisterPaymentModal} from './modals/registerPaymentModal';
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
+import {UniStatusTrack} from './toolbar/statustrack';
+import {UniToolbar} from './toolbar/toolbar';
 
 @NgModule({
     imports: [
@@ -54,7 +56,10 @@ import {UniBreadcrumbs} from './toolbar/breadcrumbs';
         PhoneModal,
         RegisterPaymentForm,
         RegisterPaymentModal,
-        UniBreadcrumbs
+        UniBreadcrumbs,
+        UniStatusTrack.StatusTrack,
+        UniToolbar
+
     ],
     exports: [
         ContextMenu,
@@ -74,7 +79,9 @@ import {UniBreadcrumbs} from './toolbar/breadcrumbs';
         PhoneModal,
         RegisterPaymentForm,
         RegisterPaymentModal,
-        UniBreadcrumbs
+        UniBreadcrumbs,
+        UniStatusTrack.StatusTrack,
+        UniToolbar
     ]
 })
 export class AppCommonModule {

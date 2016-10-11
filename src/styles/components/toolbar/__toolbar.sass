@@ -1,0 +1,48 @@
+@import 'breadcrumbs'
+@import 'statustrack'
+@import 'navigation'
+
+uni-toolbar
+    @include unigrid-flush(14)
+    margin: 0 auto
+    padding: 0 1rem 0 0
+    display: flex
+    flex-wrap: wrap
+    justify-content: space-between
+    align-items: baseline
+
+    uni-breadcrumbs
+        flex-basis: 55%
+        flex-grow: 1
+        flex-shrink: 1
+        padding: 0
+        margin-top: 1.1rem // Magic number to line up baselines of crumbs and track
+        // (`align-self: baseline` alignes the baseline to the bottom of the track)
+
+    uni-statustrack
+        flex-basis: fit-content
+        flex-grow: 0
+
+    h1
+        display: flex
+        align-items: baseline
+        margin: 0 0 0 1rem
+        flex-basis: 55%
+        flex-grow: 1
+
+        small
+            @extend p
+            color: $uni-color-scale5
+            flex-basis: fit-content
+            margin: 0 0 0 1rem
+
+    nav
+        flex-basis: fit-content
+        flex-grow: 0
+        align-self: flex-end
+
+        input[type=search]
+            height: 2.2rem
+            width: 7rem
+            position: relative
+            top: .4rem

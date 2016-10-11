@@ -6,7 +6,7 @@ export module UniStatusTrack {
         Completed, // Past
         Active,    // Present
         Future,    // Potential
-        Obsolete,  // The data has changed si
+        Obsolete,  // The data has changed since
         Disabled   // Waiting for the right circumstances
     }
 

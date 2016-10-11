@@ -11,6 +11,8 @@ import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {IContextMenuItem} from 'unitable-ng2/main';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
 
 declare var _;
 
@@ -36,6 +38,7 @@ export class PayrollrunDetails {
     private saveactions: IUniSaveAction[] = [];
     private formIsReady: boolean = false;
     private contextMenuItems: IContextMenuItem[] = [];
+    private toolbarconfig: IToolbarConfig;
 
     constructor(private route: ActivatedRoute, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
         this.route.params.subscribe(params => {
@@ -90,7 +93,49 @@ export class PayrollrunDetails {
                 this.setEditMode();
             }
             this.busy = false;
+
+            this.toolbarconfig = {
+                title: this.payrollrun.Description ? this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID,
+                subheads: [{
+                    title: this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : ''
+                },
+                {
+                    title: 'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', {day: 'numeric', month: 'short', year: 'numeric'})
+                }],
+                statustrack: this.getStatustrackConfig(),
+                navigation: {
+                    find: (query) => { console.log(query); },
+                    prev: this.previousPayrollrun.bind(this),
+                    next: this.nextPayrollrun.bind(this),
+                    add: this.createNewRun.bind(this)
+                },
+                contextmenu: this.contextMenuItems
+            };
         });
+    }
+
+    private getStatustrackConfig() {
+        let statuses: string[] = ['Opprettet', 'Avregnet', 'Bokført'];
+        let statustrack: UniStatusTrack.IStatus[] = [];
+        let activeIndex = statuses.indexOf(this.payStatus);
+
+        statuses.forEach((status, i) => {
+            let _state: UniStatusTrack.States;
+
+            if (i > activeIndex) {
+                _state = UniStatusTrack.States.Future;
+            } else if (i < activeIndex) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (i === activeIndex) {
+                _state = UniStatusTrack.States.Active;
+            }
+
+            statustrack[i] = {
+                title: status,
+                state: _state
+            };
+        });
+        return statustrack;
     }
 
     private getPayrollRun() {
