@@ -2,7 +2,7 @@ import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChi
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, AGAZone, WageType, PayrollRun, SalaryTransaction} from '../../../unientities';
+import {Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums} from '../../../unientities';
 import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService} from '../../../services/services';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {ControlModal} from '../payrollrun/controlModal';
@@ -20,12 +20,11 @@ declare var _;
 export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, OnInit {
     private salarytransEmployeeTableConfig: any;
     private salarytransEmployeeTotalsTableConfig: any;
-    private employeeTotals: any[] = [];
+    private employeeTotals: SalaryTransactionSums;
     private wagetypes: WageType[] = [];
     public employee: Employee;
     private agaZone: AGAZone;
     public formModel: any = {};
-    private recalcTimeout: any;
     public errorMessage: string = '';
     public dirty: boolean = false;
 
@@ -118,6 +117,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
     public ngOnChanges() {
         this.busy = true;
+        this.dirty = false;
         if (this.tables && this.employeeID) {
             this.employeeService.get(this.employeeID, this.employeeExpands)
                 .subscribe((response: any) => {
@@ -437,7 +437,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {
                 if (response) {
-                    this.employeeTotals = [response];
+                    this.employeeTotals = response;
                 }
             }, (error: any) => {
                 this.log(error);
@@ -557,6 +557,13 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         }
 
         return error;
+    }
+
+    public hasError(): boolean {
+        let noBankAccounts = (!this.employee.BankAccounts) || this.noActiveBankAccounts();
+        let noTax = !this.employee.TaxTable && !this.employee.TaxPercentage;
+
+        return noBankAccounts || noTax;
     }
 
     public log(err) {
