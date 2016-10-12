@@ -104,12 +104,11 @@ export class PayrollrunDetails {
                 }],
                 statustrack: this.getStatustrackConfig(),
                 navigation: {
-                    find: (query) => { console.log(query); },
                     prev: this.previousPayrollrun.bind(this),
                     next: this.nextPayrollrun.bind(this),
                     add: this.createNewRun.bind(this)
                 },
-                contextmenu: this.contextMenuItems
+                contextmenu: this.contextMenuItems,
             };
         });
     }

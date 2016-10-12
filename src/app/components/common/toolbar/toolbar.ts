@@ -10,19 +10,13 @@ export interface IToolbarConfig {
     }[];
     statustrack?: UniStatusTrack.IStatus[];
     navigation?: {
-        find?: any;
-        prev?: any;
-        next?: any;
-        add?: any;
+        find?: (query: string) => void;
+        prev?: () => void;
+        next?: () => void;
+        add?: () => void;
     };
     contextmenu?: IContextMenuItem[];
-    hide?: {
-        breadcrumbs: boolean;
-        statustrack: boolean;
-        navigation: boolean;
-        search: boolean;
-        title: boolean;
-    };
+    hideBreadcrumbs?: boolean;
 }
 
 @Component({
