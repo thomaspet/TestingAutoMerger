@@ -145,6 +145,10 @@ export class UniMultivalueInput {
     }
 
     private showDropdown(event) {
+        if (!this.rows.length) {
+            this.addValue(event);
+        }
+
         if (document.activeElement === event.target) {
             this.listIsVisible = !this.listIsVisible;
         }
