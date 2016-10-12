@@ -15,9 +15,9 @@ declare var _; // lodash
                     [class.-has-editor]="field?.Options?.editor"
                     [readonly]="field?.Options?.editor || field?.ReadOnly"
                     [placeholder]="field?.Placeholder || ''"
-                    (click)="showDropdown($event)">
+                    (keypress)="showDropdown($event)">
 
-            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)">Ny</button>
+            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1">Ny</button>
 
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
