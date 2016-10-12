@@ -16,6 +16,7 @@ export class EmployeeLeave extends UniView {
     private employments: Employment[] = [];
     private employeeleaveItems: any[] = [];
     private tableConfig: UniTableConfig;
+    private unsavedEmployments: boolean;
 
     private leaveTypes: any[] = [
         { typeID: '0', text: 'Ikke satt' },
@@ -25,7 +26,6 @@ export class EmployeeLeave extends UniView {
 
     constructor(router: Router, route: ActivatedRoute, cacheService: UniCacheService) {
         super(router.url, cacheService);
-        this.buildTableConfig();
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
@@ -35,13 +35,9 @@ export class EmployeeLeave extends UniView {
             super.getStateSubject('employeeLeave').subscribe(employeeleave => this.employeeleaveItems = employeeleave);
 
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
-                this.employments = employments || [];
-
-                if (this.employments && this.employments.find(employment => !employment.ID)) {
-                    this.tableConfig.setEditable(false);
-                } else {
-                    this.tableConfig.setEditable(true);
-                }
+                this.employments = (employments || []).filter(emp => emp.ID > 0);
+                this.unsavedEmployments = this.employments.length !== employments.length;
+                this.buildTableConfig();
             });
         });
     }

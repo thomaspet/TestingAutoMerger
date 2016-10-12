@@ -1,3 +1,6 @@
 <article class="application" *ngIf="employeeleaveItems">
+    <small *ngIf="unsavedEmployments">
+        Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før lagring er kjørt.<br><br>
+    </small>
     <uni-table [resource]="employeeleaveItems" [config]="tableConfig"></uni-table>
 </article>

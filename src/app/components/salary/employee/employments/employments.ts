@@ -58,6 +58,15 @@ export class Employments extends UniView {
         });
     }
 
+    public ngOnDestroy() {
+        // Remove untouched new rows
+        let employments = this.employments.filter(emp => emp.ID > 0 || emp['_isDirty']);
+        if (employments.length !== this.employments.length) {
+            let isDirty = employments.some(emp => emp['_isDirty']);
+            super.updateState('employments', employments, isDirty);
+        }
+    }
+
     private newEmployment() {
         this.employmentService.GetNewEntity().subscribe((response: Employment) => {
             let newEmployment = response;

@@ -16,6 +16,7 @@ export class RecurringPost extends UniView {
     private recurringPosts: SalaryTransaction[] = [];
     private employments: Employment[] = [];
     private wagetypes: WageType[];
+    private unsavedEmployments: boolean;
 
     constructor(public router: Router,
                 private wagetypeService: WageTypeService,
@@ -39,14 +40,9 @@ export class RecurringPost extends UniView {
             });
 
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
-                this.employments = employments || [];
+                this.employments = (employments || []).filter(emp => emp.ID > 0);
+                this.unsavedEmployments = this.employments.length !== employments.length;
                 this.buildTableConfig();
-
-                if (this.employments && this.employments.find(employment => !employment.ID)) {
-                    this.tableConfig.setEditable(false);
-                } else {
-                    this.tableConfig.setEditable(true);
-                }
             });
         });
     }
