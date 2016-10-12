@@ -25,17 +25,22 @@ export class WagetypeList implements OnInit {
 
         this.wageTypes$ = this._wageTypeService.GetAll('WageTypeId ASC');
 
-        let idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
-        idCol.setWidth('10rem');
+        const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
+        idCol.setWidth('5rem');
 
-        var nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);
 
-        var descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
+        const accountNumberCol = new UniTableColumn('AccountNumber', 'Hovedbokskonto', UniTableColumnType.Number).setWidth('10rem');
 
-        this.tableConfig = new UniTableConfig()
-            .setColumns([idCol, nameCol, descCol])
-            .setEditable(false)
-            .setPageSize(15);
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
+
+        const basePaymentCol = new UniTableColumn('Base_Payment', 'Utbetales').setTemplate((wageType: WageType) => {
+            return wageType.Base_Payment ? 'Ja' : 'Nei';
+        });
+
+        this.tableConfig = new UniTableConfig(false, true, 15)
+            .setColumns([idCol, nameCol, accountNumberCol, rateCol, basePaymentCol])
+            .setSearchable(true);
     }
 
     public rowSelected(event) {

@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
-import {AsyncPipe} from '@angular/common';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 
 import {Observable} from 'rxjs/Observable';
 
@@ -21,17 +20,28 @@ export class EmployeeList {
 
     constructor(private router: Router, private tabService: TabService, private _employeeService: EmployeeService) {
 
-        this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0');
+        this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo']);
 
-        var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Number).setWidth('15%');
+        var idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
 
-        var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsesdato', UniTableColumnType.Date)
-            .setWidth('15%');
+        var emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail', 'Epost').setTemplate((employee: Employee) => {
+            
+            if (!employee.BusinessRelationInfo || !employee.BusinessRelationInfo.DefaultEmail || !employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
+                return '';
+            }
+
+            return `<a href="mailto:${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}" >${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}</a>`;
+        });
+
+        var birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.Date);
+
+        var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
 
         this.employeeTableConfig = new UniTableConfig(false)
-            .setColumns([idCol, nameCol, employmentDateCol]);
+            .setColumns([idCol, nameCol, emailCol, birthDateCol, subEntityCol])
+            .setSearchable(true);
 
         this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: UniModules.Employees, active: true });
     }

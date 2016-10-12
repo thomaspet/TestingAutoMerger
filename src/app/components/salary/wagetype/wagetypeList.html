@@ -1,5 +1,5 @@
 <article class="application wagetype">
     <h1>Lønnsarter</h1>
-    <button (click)="createWageType()" class="good salary-new">Ny lønnsart</button>
+    <button (click)="createWageType()" class="new-button">Ny lønnsart</button>
     <uni-table [resource]="wageTypes$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>

@@ -1,5 +1,5 @@
 <section class="application">
     <h1>Ansatte</h1>
-    <button (click)="newEmployee()" class="good salary-new">Ny ansatt</button>
+    <button (click)="newEmployee()" class="new-button">Ny ansatt</button>
     <uni-table [config]="employeeTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
 </section>

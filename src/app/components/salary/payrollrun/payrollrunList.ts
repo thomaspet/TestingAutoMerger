@@ -24,7 +24,7 @@ export class PayrollrunList implements OnInit {
 
         this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc');
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Text)
-        .setWidth('4rem');
+        .setWidth('5rem');
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text).setTemplate((payrollRun) => {
             var status = this.payrollService.getStatus(payrollRun);
@@ -35,7 +35,8 @@ export class PayrollrunList implements OnInit {
         var todateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
 
         this.payrollrunListConfig = new UniTableConfig(false)
-            .setColumns([idCol, nameCol, statusCol, paydateCol, fromdateCol, todateCol]);
+            .setColumns([idCol, nameCol, statusCol, paydateCol, fromdateCol, todateCol])
+            .setSearchable(true);
 
         this.tabSer.addTab({ name: 'Lønnsavregninger', url: 'salary/payrollrun', moduleID: UniModules.Payrollrun, active: true });
     }

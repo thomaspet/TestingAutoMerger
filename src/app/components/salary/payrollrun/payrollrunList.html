@@ -1,5 +1,5 @@
 <article [attr.aria-busy]="busy" class="application">
     <h1 class="poster_toolbar_headline">Lønnsavregninger</h1>
-    <button (click)="createPayrollrun()" class="good salary-new">Ny lønnsavregning</button>
+    <button (click)="createPayrollrun()" class="new-button">Ny lønnsavregning</button>
     <uni-table [resource]="payrollRuns$ | async" [config]="payrollrunListConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>
