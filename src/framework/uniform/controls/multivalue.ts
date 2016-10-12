@@ -92,7 +92,7 @@ export class UniMultivalueInput {
     private defaultRow: any;
 
     constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
-
+        this.onChange.subscribe(() => this.setFocusOnNextField());
     }
 
     public focus() {
@@ -304,5 +304,22 @@ export class UniMultivalueInput {
         $event.stopPropagation();
         $event.preventDefault();
         row._mode = 0;
+    }
+    
+    private setFocusOnNextField() {
+        const uniFieldParent = this.findAncestor(this.el.nativeElement, 'uni-field');
+        const nextUniField = uniFieldParent.nextElementSibling;
+        const input = <HTMLElement>nextUniField.querySelector('input,textarea,select,button');
+        input.focus();
+    }
+
+    private findAncestor(element: HTMLElement, selector: string): HTMLElement {
+        element = element.parentElement;
+        while (element) {
+            if (element.matches(selector)) {
+                return element;
+            }
+            element = element.parentElement;
+        }
     }
 }
