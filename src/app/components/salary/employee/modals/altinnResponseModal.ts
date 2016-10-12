@@ -1,7 +1,6 @@
 import {Component, Type, ViewChild, Input, AfterViewInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {AltinnCorrespondanceReader} from '../../../../../app/unientities';
 import {AltinnIntegrationService} from '../../../../../app/services/services';
 
 declare var _;
@@ -23,14 +22,8 @@ export class AltinnResponseModalContent {
     }
 
     public open(receiptID: number, authData: AltinnAuthenticationData) {
-        let taxCardInfo: AltinnCorrespondanceReader = new AltinnCorrespondanceReader();
-        taxCardInfo.UserID = authData.userID;
-        taxCardInfo.PreferredLogin = authData.preferredLogin;
-        taxCardInfo.UserPassword = authData.password;
-        taxCardInfo.Pin = authData.pin;
-        taxCardInfo.ReceiptID = receiptID;
-        this._altinnService.readTaxCard(taxCardInfo).subscribe((responseMessage: string) => {
-            this.responseMessage = responseMessage.replace('\r\n', '</br>');
+        this._altinnService.readTaxCard(authData, receiptID).subscribe((responseMessage: string) => {
+            this.responseMessage = responseMessage;
             this.config.update();
         });
     }

@@ -1,11 +1,11 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, FieldType, AltinnReceipt, AltinnCorrespondanceReader} from '../../unientities';
+import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService} from '../services';
 import {IntegrationServerCaller} from './IntegrationServerCaller';
 import {Injectable} from '@angular/core';
-import {TaxCardReading} from '../../models/models';
+import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {
@@ -34,8 +34,22 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
 
-    public readTaxCard(taxCardInfo: AltinnCorrespondanceReader) {
-        return this.http.usingBusinessDomain().withEndPoint('employees/?action=read-tax-cards').asPUT().withBody(taxCardInfo).send().map(response => response.json());
+    public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<string> {
+        
+        const headers = {
+            'x-altinn-userid': authData.userID,
+            'x-altinn-password': authData.password,
+            'x-altinn-pinmethod': authData.preferredLogin,
+            'x-altinn-pin': authData.pin
+        };
+
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withHeaders(headers)
+            .withEndPoint(`employees/?action=read-tax-cards&receiptID=${receiptID}`)
+            .send()
+            .map(response => response.json());
     }
 
 

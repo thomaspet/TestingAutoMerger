@@ -4,7 +4,7 @@
         <h2 *ngIf="!responseMessage">Henter skattekort</h2>
     </header>
     <section *ngIf="config" [attr.aria-busy]="!responseMessage">
-        <p [innerHTML]="responseMessage"></p>
+        <p class="preformatted"> {{responseMessage}} </p>
     </section>
     <footer>
         <button (click)="config.close()">Lukk</button>
