@@ -1,4 +1,7 @@
-import {Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
+import {
+    Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener,
+    ChangeDetectionStrategy, ElementRef, OnInit
+} from '@angular/core';
 import {FormGroup, FormControl, ValidatorFn} from '@angular/forms';
 import {UniFieldLayout, KeyCodes} from './interfaces';
 import {CONTROLS} from './controls/index';
@@ -73,7 +76,7 @@ declare var _; // lodash
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniField {    
+export class UniField {
     @Input()
     public controls: FormGroup;
 
@@ -109,7 +112,15 @@ export class UniField {
     public control: FormControl;
 
 
-    constructor(private ref: ChangeDetectorRef) { }
+    constructor(private ref: ChangeDetectorRef, private elementRef: ElementRef) {
+        this.onReady.subscribe(() => {
+            const input = this.elementRef.nativeElement.querySelector('input');
+            if (input) {
+                input.addEventListener('blur', event => this.eventHandler(event.type));
+                input.addEventListener('focus', event => this.eventHandler(event.type));
+            }
+        });
+    }
 
     public focus() {
         if (this.Component.focus) {
@@ -178,7 +189,7 @@ export class UniField {
      *
      *  EVENT HANDLERS
      *
-     * */
+     */
     @HostListener('keydown', ['$event'])
     public keyDownHandler(event: MouseEvent) {
         const key: string = KeyCodes[event.which];
@@ -195,17 +206,21 @@ export class UniField {
             combination.push(key.toLowerCase());
         }
         if (combination.length > 0) {
-            var methodName = combination.join("_");
-            if (this.field.Options && this.field.Options.events) {
-                var method = this.field.Options.events[methodName];
-                if (method) {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    method(this.model);
-                }
-            }
+            var methodName = combination.join('_');
+            this.eventHandler(methodName);
         }
         return;
+    }
+
+    private eventHandler(eventName) {
+        if (this.field.Options && this.field.Options.events) {
+            var method = this.field.Options.events[eventName];
+            if (method) {
+                event.stopPropagation();
+                event.preventDefault();
+                method(this.model);
+            }
+        }
     }
 }
 

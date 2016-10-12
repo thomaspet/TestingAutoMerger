@@ -290,9 +290,6 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
 
     private onLeaveInvoiceNumber() {
-
-        this.form.field('DebitAccountID').focus();
-
         if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
             this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
                 .subscribe((data) => {
@@ -391,12 +388,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         invoiceNumber.Hidden = this.mode !== JournalEntryMode.Payment;
         invoiceNumber.Options = {
             events: {
-                tab: (event) => {
-                    this.onLeaveInvoiceNumber();
-                },
-                enter: (event) => {
-                    this.onLeaveInvoiceNumber();
-                }
+                blur: () => this.onLeaveInvoiceNumber(),
+                enter: () => this.form.field('DebitAccountID').focus()
             }
         };
 
