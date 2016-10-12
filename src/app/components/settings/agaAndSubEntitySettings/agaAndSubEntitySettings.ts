@@ -248,7 +248,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         Observable.forkJoin(saveObs).subscribe((response: any) => {
             this.companySalary = response[0];
             if (this.subEntityList) {
-                this.subEntityList.refreshList();
+                this.subEntityList.refreshList(true);
             }
             done('Sist lagret: ');
             this.saveactions[0].disabled = false;

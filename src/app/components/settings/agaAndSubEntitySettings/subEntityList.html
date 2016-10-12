@@ -3,7 +3,7 @@
     <nav class="splitview_list">
 
         <uni-table
-            [resource]="subEntities$ | async"
+            [resource]="allSubEntities"
             [config]="subEntityListConfig"
             (rowSelected)="rowSelected($event)">
         </uni-table>
@@ -45,8 +45,7 @@
     <main class="splitview_detail">
 
         <sub-entity-details
-            [currentSubEntity]="currentSubEntity"
-            (refreshList)="refreshList()">
+            [currentSubEntity]="currentSubEntity">
         </sub-entity-details>
 
     </main>

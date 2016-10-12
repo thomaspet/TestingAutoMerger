@@ -3,7 +3,7 @@
 </section>
 <section class="splitview">
     <nav class="splitview_list">
-        <uni-table [config]="salarytransSelectionTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
+        <uni-table [config]="salarytransSelectionTableConfig" [resource]="employeeList" (rowSelected)="rowSelected($event)"></uni-table>
     </nav>
     <main class="splitview_detail">
         <salary-transactions-employee *ngIf="selectedEmployeeID" 

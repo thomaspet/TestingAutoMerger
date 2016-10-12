@@ -1,10 +1,10 @@
-import {Component, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Observable';
-import {SubEntityService, AgaZoneService, MunicipalService, BusinessRelationService} from '../../../services/services';
-import {SubEntity, Municipal, AGAZone} from '../../../unientities';
-import {SubEntityDetails} from './subEntityDetails';
+import { Component, ViewChild, OnInit, EventEmitter, Output } from '@angular/core';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+import { Observable } from 'rxjs/Observable';
+import { SubEntityService, AgaZoneService, MunicipalService } from '../../../services/services';
+import { SubEntity, Municipal, AGAZone } from '../../../unientities';
+import { SubEntityDetails } from './subEntityDetails';
 
 declare var _; // lodash
 @Component({
@@ -15,7 +15,6 @@ export class SubEntityList implements OnInit {
 
     private currentSubEntity: SubEntity;
     private busy: boolean;
-    private subEntities$: Observable<SubEntity>;
     private allSubEntities: SubEntity[];
     private subEntityListConfig: UniTableConfig;
     private mainOrg: SubEntity;
@@ -47,13 +46,10 @@ export class SubEntityList implements OnInit {
             this.agaZones = agaZones;
             this.municipalities = municipalities;
             this.createTableConfig();
+            this.refreshList();
             this.busy = false;
         });
-        this.subEntities$ = this._subEntityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']);
-        this._subEntityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']).subscribe((response: SubEntity[]) => {
-            this.currentSubEntity = response[0];
-            this.allSubEntities = response;
-        });
+
         this._subEntityService.getMainOrganization().subscribe(response => {
             this.mainOrg = response[0];
         });
@@ -83,12 +79,12 @@ export class SubEntityList implements OnInit {
                             let body = error['_body'] ? JSON.parse(error['_body']) : null;
                             if (body && body.Messages) {
                                 body.Messages.forEach((message) => {
-                                    this._toastService.addToast('Valideringsfeil' , ToastType.bad, 10, message.Message);
+                                    this._toastService.addToast('Valideringsfeil', ToastType.bad, 10, message.Message);
                                 });
                             } else {
                                 this._toastService.addToast('Valideringsfeil', ToastType.bad, 10, error['_body'] ? error['_body'] : error);
                             }
-                            
+
                         });
                     }
                 }
@@ -96,11 +92,13 @@ export class SubEntityList implements OnInit {
             .setPageable(false);
     }
 
-    public refreshList() {
-        this.subEntities$ = _.cloneDeep(this.subEntities$);
+    public refreshList(update: boolean = false) {
         this._subEntityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']).subscribe((response: SubEntity[]) => {
-            this.currentSubEntity = response[0];
             this.allSubEntities = response;
+            if (!update && this.allSubEntities) {
+                this.currentSubEntity = this.allSubEntities[0];
+                this.table.focusRow(0);
+            }
         });
     }
 
