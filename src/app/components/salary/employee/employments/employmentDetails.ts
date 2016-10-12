@@ -42,7 +42,6 @@ export class EmploymentDetails {
 
     public ngOnInit() {
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-        this.buildForm();
 
         this.employeeService.getSubEntities().subscribe((subEntities) => {
             this.subEntities = subEntities;

@@ -101,6 +101,7 @@ export class Employments extends UniView {
             employment.SeniorityDate = this.fixTimezone(employment.SeniorityDate);
         }
 
+        this.employments[this.selectedIndex] = employment;
         super.updateState('employments', this.employments, true);
     }
 
