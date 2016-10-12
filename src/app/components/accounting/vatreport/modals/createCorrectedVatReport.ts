@@ -204,6 +204,7 @@ export class CreateCorrectedVatReportModal {
         this.periodService.Get(periodID)
             .subscribe(response => {
                 this.period = response;
+                this.modal.open();
 
                 this.modal.getContent().then((modalContent: CreateCorrectedVatReportForm) => {
                     console.log('openModal for period: ' + periodID);
@@ -212,7 +213,6 @@ export class CreateCorrectedVatReportModal {
                     modalContent.period = this.period;
                     modalContent.model = { correctionChoice: 1 };
                     modalContent.title = 'Opprett endringsmelding for termin: ' + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
-                    this.modal.open();
                 });
             },
             err => {

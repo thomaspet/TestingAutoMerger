@@ -18,7 +18,7 @@ declare const moment;
         <article class='modal-content' *ngIf="config">
             <h1>Oversikt over MVA meldinger</h1>
             <p>Trykk på en av linjene under for å vise detaljer om MVA meldingen</p>
-            <uni-table [resource]="lookupFunction" [config]="uniTableConfig" (rowSelected)="selectedItemChanged($event)"></uni-table>            
+            <uni-table [resource]="lookupFunction" [config]="uniTableConfig" (rowSelected)="selectedItemChanged($event)"></uni-table>
         </article>
     `
 })
@@ -28,28 +28,28 @@ export class HistoricVatReportTable implements OnInit {
     @ViewChild(UniTable) public unitable: UniTable;
 
     @Output() public vatReportSelected: EventEmitter<any> = new EventEmitter<any>();
-    
+
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
-    
+
     constructor(private vatReportService: VatReportService, private toastService: ToastService) {
     }
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
         this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
-        
+
     }
 
     private getTableData(urlParams: URLSearchParams): Observable<VatReport[]> {
         urlParams = urlParams || new URLSearchParams();
         urlParams.set('expand', 'TerminPeriod,VatReportType,JournalEntry,VatReportArchivedSummary');
-        
+
         if (!urlParams.get('orderby')) {
             urlParams.set('orderby', 'TerminPeriod.AccountYear DESC, TerminPeriod.No DESC, ID DESC');
         }
-        
+
         return this.vatReportService.GetAllByUrlSearchParams(urlParams);
     }
 
@@ -58,7 +58,7 @@ export class HistoricVatReportTable implements OnInit {
             .setPageable(true)
             .setPageSize(10)
             .setSearchable(false)
-            .setColumns([                
+            .setColumns([
                 new UniTableColumn('VatReportType.Name', 'Type', UniTableColumnType.Text).setWidth('25%'),
                 new UniTableColumn('TerminPeriod.AccountYear', 'År', UniTableColumnType.Text).setWidth('15%'),
                 new UniTableColumn('TerminPeriod.No', 'Termin', UniTableColumnType.Text).setWidth('15%'),
@@ -70,13 +70,13 @@ export class HistoricVatReportTable implements OnInit {
                     .setTemplate((vatReport: VatReport) => {
                         return this.vatReportService.getStatusText(vatReport.StatusCode);
                     })
-                                                    
+
             ]);
     }
-    
+
     private selectedItemChanged(data: any) {
-        let vatReport: VatReport = data.rowModel;        
-        this.config.vatReportSelected(vatReport);        
+        let vatReport: VatReport = data.rowModel;
+        this.config.vatReportSelected(vatReport);
     }
 }
 
@@ -89,8 +89,8 @@ export class HistoricVatReportModal {
     public modal: UniModal;
 
     @Output() public vatReportSelected: EventEmitter<any> = new EventEmitter<any>();
-    
-    private modalConfig: any = {};    
+
+    private modalConfig: any = {};
     public type: Type = HistoricVatReportTable;
     public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
@@ -102,17 +102,17 @@ export class HistoricVatReportModal {
             class: 'good',
             vatReportSelected: (data) => {
                 this.vatReportSelected.emit(data);
-                this.modal.close();                
+                this.modal.close();
             }
         };
     }
 
     public openModal() {
-        if (this.modal) {            
-            this.modal.open();            
-            this.modal.getContent().then((cmp: HistoricVatReportTable) => {                
-                cmp.unitable.refreshTableData()
+        this.modal.open();
+        setTimeout(() => {
+            this.modal.getContent().then((cmp: HistoricVatReportTable) => {
+                cmp.unitable.refreshTableData();
             });
-        }
+        });
     }
 }

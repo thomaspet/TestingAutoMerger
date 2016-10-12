@@ -39,6 +39,8 @@ import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
 import {SettingsModule} from '../settings/settingsModule';
 import {SupplierInvoiceFileUploader} from './journalentry/supplierinvoices/supplierinvoiceuploader';
+import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
+import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
 import {SalesModule} from '../sales/salesModule';
 
 @NgModule({
@@ -89,6 +91,8 @@ import {SalesModule} from '../sales/salesModule';
         ReceiptVat,
         VatSummaryPerPost,
         VatReportView,
+        CreateCorrectedVatReportModal,
+        HistoricVatReportModal,
 
         // transquery
         Transquery,
@@ -118,6 +122,8 @@ import {SalesModule} from '../sales/salesModule';
         ReceiptVat,
         VatSummaryPerPost,
         VatReportView,
+        CreateCorrectedVatReportModal,
+        HistoricVatReportModal,
 
         // transquery
         Transquery,
