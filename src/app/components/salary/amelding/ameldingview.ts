@@ -32,8 +32,8 @@ export class AMeldingView implements OnInit {
     private aMeldingerInPeriod: AmeldingData[];
     private contextMenuItems: IContextMenuItem[] = [];
     private actions: IUniSaveAction[];
-    private clarifiedDate: string;
-    private submittedDate: string;
+    private clarifiedDate: string = '';
+    private submittedDate: string = '';
     private feedbackObtained: string;
     private totalAga: number = 0;
     private legalEntityNo: string;
@@ -144,6 +144,9 @@ export class AMeldingView implements OnInit {
         this.currentAMelding =  amelding;
         this.getSumUpForAmelding();
         this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
+        if (this.currentAMelding.sent) {
+            this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+        }
         this.updateSaveActions();
     }
 
@@ -204,13 +207,7 @@ export class AMeldingView implements OnInit {
     
     private updateSaveActions() {
         this.actions = [];
-        this.actions.push({
-            label: 'Send inn',
-            action: (done) => this.sendAmelding(done),
-            disabled: false,
-            main: this.currentAMelding !== undefined
-        });
-
+        
         this.actions.push({
             label: 'Generer A-melding',
             action: (done) => {
@@ -226,8 +223,15 @@ export class AMeldingView implements OnInit {
                     this.openAmeldingTypeModal(done);
                 }
             },
-            disabled: false,
+            disabled: this.clarifiedDate !== '',
             main: this.currentAMelding === undefined
+        });
+
+        this.actions.push({
+            label: 'Send inn',
+            action: (done) => this.sendAmelding(done),
+            disabled: this.submittedDate !== '' || this.clarifiedDate === '',
+            main: this.currentAMelding !== undefined && this.submittedDate === ''
         });
 
         this.actions.push({
@@ -237,8 +241,8 @@ export class AMeldingView implements OnInit {
                     this.getFeedback(done);
                 }
             },
-            disabled: false,
-            main: false
+            disabled: this.submittedDate === '' || this.clarifiedDate === '',
+            main: this.submittedDate !== ''
         });
     }
 
@@ -248,7 +252,7 @@ export class AMeldingView implements OnInit {
                 this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData)
                     .subscribe((response: AmeldingData) => {
                         if (response) {
-                            this.currentAMelding = response;
+                            this.setAMelding(response);
                         }
                     });
             });

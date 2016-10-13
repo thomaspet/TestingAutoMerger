@@ -63,6 +63,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             'x-altinn-pinmethod': authData.preferredLogin,
             'x-altinn-pin': authData.pin
         };
+        
         return this.http
             .asPUT()
             .usingBusinessDomain()
