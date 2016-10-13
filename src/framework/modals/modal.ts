@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef, ComponentFactory} from '@angular/core';
+import {Component, ViewContainerRef, ComponentFactory, ElementRef} from '@angular/core';
 import {Input} from '@angular/core';
 import {Type} from '@angular/core';
 import {AfterViewInit} from '@angular/core';
@@ -32,7 +32,7 @@ export class UniModal implements AfterViewInit {
     component: Promise<any>;
     factory:ComponentFactory<any>
 
-    constructor(public creator: ComponentCreator<any>) {
+    constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
         document.addEventListener('keyup', (e: any) => {
             if(e.keyCode === 27) {
                 this.isOpen = false;
@@ -62,6 +62,7 @@ export class UniModal implements AfterViewInit {
             this.createContent();
         }
         this.isOpen = true;
+        setTimeout(() => this.elementRef.nativeElement.querySelector('input,textarea,select').focus());
     }
 
     close() {
