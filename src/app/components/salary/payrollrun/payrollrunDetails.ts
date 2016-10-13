@@ -1,18 +1,18 @@
-import {Component, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {PayrollRun} from '../../../unientities';
-import {PayrollrunService} from '../../../services/services';
-import {Observable} from 'rxjs/Observable';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ControlModal} from './controlModal';
-import {PostingsummaryModal} from './postingsummaryModal';
-import {VacationpayModal} from './vacationpay/VacationpayModal';
-import {RootRouteParamsService} from '../../../services/rootRouteParams';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {IContextMenuItem} from 'unitable-ng2/main';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import { Component, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PayrollRun } from '../../../unientities';
+import { PayrollrunService } from '../../../services/services';
+import { Observable } from 'rxjs/Observable';
+import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { ControlModal } from './controlModal';
+import { PostingsummaryModal } from './postingsummaryModal';
+import { VacationpayModal } from './vacationpay/VacationpayModal';
+import { RootRouteParamsService } from '../../../services/rootRouteParams';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { IContextMenuItem } from 'unitable-ng2/main';
+import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import { UniStatusTrack } from '../../common/toolbar/statustrack';
 
 declare var _;
 
@@ -100,7 +100,7 @@ export class PayrollrunDetails {
                     title: this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : ''
                 },
                 {
-                    title: 'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', {day: 'numeric', month: 'short', year: 'numeric'})
+                    title: 'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
                 }],
                 statustrack: this.getStatustrackConfig(),
                 navigation: {
@@ -195,6 +195,15 @@ export class PayrollrunDetails {
                 disabled: this.payrollrun.StatusCode !== 1
             }
         ];
+    }
+
+    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
+    private fixTimezone(date): Date {
+        if (typeof date === 'string') {
+            return new Date(date);
+        }
+
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     }
 
     public openPostingSummaryModal(done) {
@@ -344,12 +353,12 @@ export class PayrollrunDetails {
         this.formIsReady = true;
     }
 
-    public change(value) {
-
-    }
-
     public savePayrollrun(done) {
         this.busy = true;
+
+        this.payrollrun.PayDate = this.fixTimezone(this.payrollrun.PayDate);
+        this.payrollrun.FromDate = this.fixTimezone(this.payrollrun.FromDate);
+        this.payrollrun.ToDate = this.fixTimezone(this.payrollrun.ToDate);
 
         if (this.payrollrun.ID > 0) {
             this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun)
@@ -386,13 +395,9 @@ export class PayrollrunDetails {
         var createdPayrollrun = new PayrollRun();
         var dates: Date[] = this.payrollrunService.getEmptyPayrollrunDates();
 
-        createdPayrollrun.FromDate = dates[0];
-        createdPayrollrun.ToDate = dates[1];
-        createdPayrollrun.PayDate = dates[2];
-
-        createdPayrollrun.FromDate.setHours(12);
-        createdPayrollrun.ToDate.setHours(12);
-        createdPayrollrun.PayDate.setHours(12);
+        createdPayrollrun.FromDate = this.fixTimezone(dates[0]);
+        createdPayrollrun.ToDate = this.fixTimezone(dates[1]);
+        createdPayrollrun.PayDate = this.fixTimezone(dates[2]);
 
         this.payrollrunService.Post(createdPayrollrun)
             .subscribe((response) => {

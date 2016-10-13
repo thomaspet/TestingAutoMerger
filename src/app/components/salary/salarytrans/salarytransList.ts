@@ -137,6 +137,15 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this.salarytransListReady.emit(true);
     }
 
+    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
+    private fixTimezone(date): Date {
+        if (typeof date === 'string') {
+            return new Date(date);
+        }
+
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+
     public refreshPayrollRun(value) {
         this._payrollRunService.Get(this.payrollRun.ID).subscribe((response: PayrollRun) => {
             this._payrollRunService.refreshPayrun(response);
@@ -387,8 +396,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         rowModel['Wagetype'] = wagetype;
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
-        rowModel['FromDate'] = this.payrollRun.FromDate;
-        rowModel['ToDate'] = this.payrollRun.ToDate;
+        rowModel['FromDate'] = this.fixTimezone(this.payrollRun.FromDate);
+        rowModel['ToDate'] = this.fixTimezone(this.payrollRun.ToDate);
         rowModel['_BasePayment'] = wagetype.Base_Payment;
         if (!rowModel.Amount) {
             rowModel['Amount'] = 1;
@@ -458,12 +467,10 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         let row: SalaryTransaction = event.rowModel;
 
         if (row.FromDate) {
-            row.FromDate = new Date(row.FromDate.toString());
-            row.FromDate.setHours(12);
+            row.FromDate = this.fixTimezone(row.FromDate);
         }
         if (row.ToDate) {
-            row.ToDate = new Date(row.ToDate.toString());
-            row.ToDate.setHours(12);
+            row.ToDate = this.fixTimezone(row.ToDate);
         }
 
         if (row.Wagetype || row.Text || row['_Employment'] || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
