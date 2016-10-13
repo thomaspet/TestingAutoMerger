@@ -254,6 +254,7 @@ export class SupplierDetails implements OnInit {
             });
 
         }
+        this.form.field('Info.Name').focus();
     }
 
     public extendFormConfig() {
