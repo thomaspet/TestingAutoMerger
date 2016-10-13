@@ -1,13 +1,14 @@
-import {Component, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {WageTypeService, AccountService, InntektService} from '../../../services/services';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
-import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
-import {WageType, Account, WageTypeSupplement} from '../../../unientities';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {Observable} from 'rxjs/Observable';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import { Component, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { WageTypeService, AccountService, InntektService } from '../../../services/services';
+import { UniForm, UniFieldLayout } from '../../../../framework/uniForm';
+import { WidgetPoster } from '../../../../framework/widgetPoster/widgetPoster';
+import { WageType, Account, WageTypeSupplement } from '../../../unientities';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { Observable } from 'rxjs/Observable';
+import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 declare var _; // lodash
 
@@ -17,7 +18,7 @@ declare var _; // lodash
 })
 export class WagetypeDetail {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
-    private wageType: any;
+    private wageType: WageType;
     private wagetypeID: number;
     private accounts: Account[];
     private saveactions: IUniSaveAction[] = [
@@ -43,6 +44,8 @@ export class WagetypeDetail {
     public config: any = {};
     public fields: any[] = [];
 
+    private toolbarConfig: IToolbarConfig;
+
     @ViewChild(UniForm)
     public uniform: UniForm;
 
@@ -57,7 +60,7 @@ export class WagetypeDetail {
             this.benefitDatasource = [];
             this.descriptionDatasource = [];
             this.supplementPackages = [];
-            
+
             this.setup();
         });
     }
@@ -75,6 +78,18 @@ export class WagetypeDetail {
                 this.wageType = wagetype;
                 this.fields = layout.Fields;
 
+                this.toolbarConfig = {
+                    title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
+                    subheads: [{
+                        title: this.wageType.ID ? 'Lønnsartnr. ' + this.wageType.ID : null
+                    }],
+                    navigation: {
+                        prev: this.previousWagetype.bind(this),
+                        next: this.nextWagetype.bind(this),
+                        add: this.newWagetype.bind(this)
+                    }
+                }
+
                 if (this.wageType.SupplementaryInformations.length > 0) {
                     this.showSupplementaryInformations = true;
                 } else {
@@ -82,15 +97,15 @@ export class WagetypeDetail {
                 }
 
                 if (this.wageType.Benefit !== '') {
-                    this.benefitDatasource.push({text: this.wageType.Benefit});
+                    this.benefitDatasource.push({ text: this.wageType.Benefit });
                 }
 
                 if (this.wageType.Description !== '') {
-                    this.descriptionDatasource.push({text: this.wageType.Description});
+                    this.descriptionDatasource.push({ text: this.wageType.Description });
                 }
 
                 this.setupTypes(validvaluesTypes);
-                
+
                 if (this.wageType.IncomeType !== null) {
                     this.showBenefitAndDescriptionAsReadonly = false;
                     this.filterSupplementPackages();
@@ -111,8 +126,8 @@ export class WagetypeDetail {
                 this.config = {
                     submitText: '',
                     sections: {
-                        '1': {isOpen: true},
-                        '2': {isOpen: true}
+                        '1': { isOpen: true },
+                        '2': { isOpen: true }
                     }
                 };
 
@@ -218,7 +233,7 @@ export class WagetypeDetail {
 
     private setupTypes(types: any[]) {
         types.forEach(tp => {
-            this.incomeTypeDatasource.push({text: tp});
+            this.incomeTypeDatasource.push({ text: tp });
         });
     }
 
@@ -227,20 +242,20 @@ export class WagetypeDetail {
             selectedType = this.wageType.IncomeType;
         }
         this.inntektService.getSalaryValidValue(selectedType)
-        .subscribe(response => {
-            this.supplementPackages = response;
-            if (this.supplementPackages) {
-                if (setSources) {
-                    this.setBenefitAndDescriptionSource(selectedType);
+            .subscribe(response => {
+                this.supplementPackages = response;
+                if (this.supplementPackages) {
+                    if (setSources) {
+                        this.setBenefitAndDescriptionSource(selectedType);
+                    }
+                    if (filterByFordel) {
+                        this.setPackagesFilteredByFordel();
+                    }
+                    if (filterByDescription) {
+                        this.setPackagesFilteredByDescription();
+                    }
                 }
-                if (filterByFordel) {
-                    this.setPackagesFilteredByFordel();
-                }
-                if (filterByDescription) {
-                    this.setPackagesFilteredByDescription();
-                }
-            }
-        });
+            });
     }
 
     private setBenefitAndDescriptionSource(selectedType: string) {
@@ -249,13 +264,13 @@ export class WagetypeDetail {
 
         this.supplementPackages.forEach(tp => {
             if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
-                this.benefitDatasource.push({text: tp.fordel});
+                this.benefitDatasource.push({ text: tp.fordel });
             }
             let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
 
             if (incometypeChild) {
                 if (!this.descriptionDatasource.find(x => x.text === incometypeChild.beskrivelse)) {
-                    this.descriptionDatasource.push({text: incometypeChild.beskrivelse, fordel: tp.fordel});
+                    this.descriptionDatasource.push({ text: incometypeChild.beskrivelse, fordel: tp.fordel });
                 }
             }
         });
@@ -281,7 +296,7 @@ export class WagetypeDetail {
         if (selType) {
             selectedType = selType;
         } else {
-            selectedType  = this.wageType.IncomeType;
+            selectedType = this.wageType.IncomeType;
         }
         let incometypeChild: any;
 
@@ -318,7 +333,7 @@ export class WagetypeDetail {
                 filtered.push(pack);
             }
         });
-        
+
         this.supplementPackages = filtered;
     }
 
@@ -334,7 +349,7 @@ export class WagetypeDetail {
             if (incometypeChild) {
                 let additions: WageTypeSupplement[] = this.addTilleggsInformasjon(incometypeChild);
                 if (additions.length > 0) {
-                    packs.push({uninavn: tp.uninavn, additions: additions});
+                    packs.push({ uninavn: tp.uninavn, additions: additions });
                 }
             }
         });
@@ -378,7 +393,7 @@ export class WagetypeDetail {
         let tilleggsObj: any = tillegg.tilleggsinformasjon;
         let spesiObj: any = tillegg.spesifikasjon;
         let additions: WageTypeSupplement[] = [];
-        
+
         if (tilleggsObj !== null) {
             for (var key in tilleggsObj) {
                 if (key !== null) {
@@ -405,7 +420,7 @@ export class WagetypeDetail {
                 }
             }
         }
-        
+
         if (spesiObj !== null) {
             for (var props in spesiObj) {
                 if (spesiObj.hasOwnProperty(props)) {
@@ -444,14 +459,14 @@ export class WagetypeDetail {
         let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
         this.tilleggspakkeConfig = new UniTableConfig(true, true, 15)
-        .setColumns([tilleggsopplysning, suggestedValue])
-        .setAutoAddNewRow(false);
+            .setColumns([tilleggsopplysning, suggestedValue])
+            .setAutoAddNewRow(false);
     }
 
     public change(model) {
         this.updateUniformFields();
-        if (this.currentPackage !== this.wageType._uninavn) {
-            this.currentPackage = this.wageType._uninavn;
+        if (this.currentPackage !== this.wageType['_uninavn']) {
+            this.currentPackage = this.wageType['_uninavn'];
             this.showTilleggsPakker(model);
         }
     }
@@ -510,6 +525,15 @@ export class WagetypeDetail {
                     this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
                 }
             });
+    }
+
+    private newWagetype() {
+        this.wageService.GetNewEntity().subscribe((response) => {
+            if (response) {
+                this.wageType = response;
+                this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
+            }
+        });
     }
 
     public log(title: string, err) {

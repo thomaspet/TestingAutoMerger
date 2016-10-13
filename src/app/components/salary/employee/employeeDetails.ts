@@ -1,14 +1,15 @@
-import {Component, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
-import {Router, ActivatedRoute} from '@angular/router';
-import {Employee, Employment, EmployeeLeave, SalaryTransaction} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService} from '../../../services/services';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import { Component, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Employee, Employment, EmployeeLeave, SalaryTransaction } from '../../../unientities';
+import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService } from '../../../services/services';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+import { UniSave, IUniSaveAction } from '../../../../framework/save/save';
+import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 
-import {UniView} from '../../../../framework/core/uniView';
+import { UniView } from '../../../../framework/core/uniView';
 declare var _; // lodash
 
 @Component({
@@ -22,7 +23,7 @@ export class EmployeeDetails extends UniView {
     public busy: boolean;
     private url: string = '/salary/employees/';
     private childRoutes: any[];
-    private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
+    private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
 
     private employeeID: number;
     private employee: Employee;
@@ -30,16 +31,18 @@ export class EmployeeDetails extends UniView {
     private recurringPosts: SalaryTransaction[];
     private employeeLeave: EmployeeLeave[];
     private saveActions: IUniSaveAction[];
+    private toolbarConfig: IToolbarConfig;
 
-    constructor(private route: ActivatedRoute,
-                private employeeService: EmployeeService,
-                private employeeLeaveService: EmployeeLeaveService,
-                private employmentService: EmploymentService,
-                private salaryTransService: SalaryTransactionService,
-                private toastService: ToastService,
-                private router: Router,
-                private tabService: TabService,
-                cacheService: UniCacheService) {
+    constructor(
+        private route: ActivatedRoute,
+        private employeeService: EmployeeService,
+        private employeeLeaveService: EmployeeLeaveService,
+        private employmentService: EmploymentService,
+        private salaryTransService: SalaryTransactionService,
+        private toastService: ToastService,
+        private router: Router,
+        private tabService: TabService,
+        cacheService: UniCacheService) {
 
         super(router.url, cacheService);
 
@@ -69,6 +72,17 @@ export class EmployeeDetails extends UniView {
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
                 this.employee = employee;
+                this.toolbarConfig = {
+                    title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
+                    subheads: [{
+                        title: this.employee.ID ? 'Ansattnr. ' + this.employee.ID : ''
+                    }],
+                    navigation: {
+                        prev: this.previousEmployee.bind(this),
+                        next: this.nextEmployee.bind(this),
+                        add: this.newEmployee.bind(this)
+                    }
+                };
                 this.checkDirty();
             });
 
@@ -175,6 +189,17 @@ export class EmployeeDetails extends UniView {
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
             }
+        });
+    }
+
+    public newEmployee() {
+        if (!super.canDeactivate()) {
+            return;
+        }
+        this.employeeService.get(0).subscribe((emp: Employee) => {
+            this.employee = emp;
+            let childRoute = this.router.url.split('/').pop();
+            this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
         });
     }
 
@@ -367,18 +392,18 @@ export class EmployeeDetails extends UniView {
             this.employeeService.Put(employee.ID, employee)
                 .finally(() => this.checkForSaveDone())
                 .subscribe(
-                    (res) => {
-                        this.saveStatus.completeCount++;
-                        this.getEmployments();
-                    },
-                    (err) => {
-                        this.saveStatus.completeCount++;
-                        this.saveStatus.hasErrors = true;
+                (res) => {
+                    this.saveStatus.completeCount++;
+                    this.getEmployments();
+                },
+                (err) => {
+                    this.saveStatus.completeCount++;
+                    this.saveStatus.hasErrors = true;
 
-                        let toastHeader = 'Noe gikk galt ved lagring av arbeidsforhold';
-                        let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                        this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                    }
+                    let toastHeader = 'Noe gikk galt ved lagring av arbeidsforhold';
+                    let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                }
                 );
         });
     }
@@ -412,7 +437,7 @@ export class EmployeeDetails extends UniView {
                             this.checkForSaveDone();
                         }
                     })
-                    .subscribe(
+                        .subscribe(
                         (res: SalaryTransaction) => {
                             saveCount++;
                             recurringPosts[index] = res;
@@ -425,7 +450,7 @@ export class EmployeeDetails extends UniView {
                             let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
                             this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                         }
-                    );
+                        );
                 }
             });
         });
@@ -459,7 +484,7 @@ export class EmployeeDetails extends UniView {
                             this.checkForSaveDone(); // check if all save functions are finished
                         }
                     })
-                    .subscribe(
+                        .subscribe(
                         (res: EmployeeLeave) => {
                             leave = res;
                             saveCount++;
@@ -471,7 +496,7 @@ export class EmployeeDetails extends UniView {
                             let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
                             this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                         }
-                    );
+                        );
                 }
             });
         });
