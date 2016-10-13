@@ -34,7 +34,7 @@ export class AMeldingView implements OnInit {
     private actions: IUniSaveAction[];
     private clarifiedDate: string = '';
     private submittedDate: string = '';
-    private feedbackObtained: string;
+    private feedbackObtained: boolean = false;
     private totalAga: number = 0;
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
@@ -146,6 +146,13 @@ export class AMeldingView implements OnInit {
         this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
         if (this.currentAMelding.sent) {
             this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+        } else {
+            this.submittedDate = '';
+        }
+        if (this.currentAMelding.feedbackFileID) {
+            this.feedbackObtained = true;
+        } else {
+            this.feedbackObtained = false;
         }
         this.updateSaveActions();
     }
@@ -195,6 +202,7 @@ export class AMeldingView implements OnInit {
                 this.onError(error);
             });
     }
+
     private checkForSaveDone() {
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
@@ -216,21 +224,16 @@ export class AMeldingView implements OnInit {
                     completeCount: 0,
                     hasErrors: false,
                 };
-                if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 0) {
-                    this.saveStatus.numberOfRequests++;
-                    this.createAMelding(0);
-                } else {
-                    this.openAmeldingTypeModal(done);
-                }
+                this.openAmeldingTypeModal(done);
             },
-            disabled: this.clarifiedDate !== '',
+            disabled: false,
             main: this.currentAMelding === undefined
         });
 
         this.actions.push({
             label: 'Send inn',
             action: (done) => this.sendAmelding(done),
-            disabled: this.submittedDate !== '' || this.clarifiedDate === '',
+            disabled: this.currentAMelding ? (this.currentAMelding.status >= 1 ? true : false) : true,
             main: this.currentAMelding !== undefined && this.submittedDate === ''
         });
 
@@ -241,7 +244,7 @@ export class AMeldingView implements OnInit {
                     this.getFeedback(done);
                 }
             },
-            disabled: this.submittedDate === '' || this.clarifiedDate === '',
+            disabled: this.currentAMelding ? (this.currentAMelding.status === 2 ? false : true) : true,
             main: this.submittedDate !== ''
         });
     }
@@ -282,7 +285,7 @@ export class AMeldingView implements OnInit {
         this.currentSumUp = {};
         this.clarifiedDate = '';
         this.submittedDate = '';
-        this.feedbackObtained = '';
+        this.feedbackObtained = false;
     }
 
     private spinner<T>(source: Observable<T>): Observable<T> {

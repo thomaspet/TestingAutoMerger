@@ -13,9 +13,10 @@ export class AmeldingSummaryView {
     @Input() public currentAMelding: any;
     private employeeTableConfig: UniTableConfig;
     private transactionTableConfig: UniTableConfig;
-    private createdDate: string;
+    private createdDate: string = '';
+    private sentDate: string = '';
     private statusText: string;
-    private statuses: any[] = ['Kladd', 'Opprettet', 'Sendt', 'Status fra altinn mottatt'];
+    private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
 
     constructor() {        
         this.setupEmployees();
@@ -31,6 +32,9 @@ export class AmeldingSummaryView {
         }
         if (this.currentAMelding) {
             this.createdDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
+            if (this.currentAMelding.sent) {
+                this.sentDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+            }
         }
     }
 
