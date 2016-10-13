@@ -1,9 +1,9 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, Operator, SalaryTransaction, EmployeeCategory} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import { Injectable } from '@angular/core';
+import { BizHttp } from '../../../../framework/core/http/BizHttp';
+import { UniHttp } from '../../../../framework/core/http/http';
+import { Employee, FieldType, Operator, SalaryTransaction, EmployeeCategory, SubEntity } from '../../../unientities';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
@@ -19,7 +19,7 @@ export class EmployeeService extends BizHttp<Employee> {
         'BankAccounts'
     ];
     public debounceTime: number = 500;
-    public subEntities: any[];
+    public subEntities: SubEntity[];
 
     constructor(http: UniHttp) {
         super(http);
@@ -43,13 +43,13 @@ export class EmployeeService extends BizHttp<Employee> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-                this.relativeURL
-                + '/'
-                + employeeID
-                + '/category')
+            this.relativeURL
+            + '/'
+            + employeeID
+            + '/category')
             .send()
             .map(response => response.json());
-            // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
+        // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
     }
 
     public saveEmployeeCategory(employeeID: number, category: EmployeeCategory) {
@@ -58,10 +58,10 @@ export class EmployeeService extends BizHttp<Employee> {
             .usingBusinessDomain()
             .withBody(category)
             .withEndPoint(
-                this.relativeURL
-                + '/'
-                + employeeID
-                + '/category')
+            this.relativeURL
+            + '/'
+            + employeeID
+            + '/category')
             .send()
             .map(response => response.json());
     }
@@ -71,21 +71,21 @@ export class EmployeeService extends BizHttp<Employee> {
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint(
-                this.relativeURL
-                + '/'
-                + employeeID
-                + '/category/'
-                + categoryID)
+            this.relativeURL
+            + '/'
+            + employeeID
+            + '/category/'
+            + categoryID)
             .send();
     }
 
-    public get(id: number| string, expand: string[] = null) {
+    public get(id: number | string, expand: string[] = null) {
         if (id === 0) {
             if (expand) {
                 return super.GetNewEntity(expand);
             }
             return super.GetNewEntity(this.defaultExpands);
-        }else {
+        } else {
             if (expand) {
                 return super.Get(id, expand);
             }
@@ -93,17 +93,20 @@ export class EmployeeService extends BizHttp<Employee> {
         }
     }
 
-    public getSubEntities() {
+    public getSubEntities(): Observable<SubEntity[]> {
         if (this.subEntities) {
             return Observable.of(this.subEntities);
         } else {
             return this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint('subentities')
-                .send({expand: 'BusinessRelationInfo'})
+                .send({ expand: 'BusinessRelationInfo' })
                 .switchMap((response) => {
                     let subentities = response.json() || [];
                     this.subEntities = subentities;
+                    if (this.subEntities.length > 1) {
+                        this.subEntities = this.subEntities.filter(x => x.SuperiorOrganizationID);
+                    }
                     return Observable.of(subentities);
                 });
         }
