@@ -407,7 +407,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Timer pr uke',
+                    Label: 'Timer pr uke full stilling',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,

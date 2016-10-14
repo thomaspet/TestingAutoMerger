@@ -1,9 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Employee, Employment, EmployeeLeave, SalaryTransaction } from '../../../unientities';
+import { Employee, Employment, EmployeeLeave, SalaryTransaction, SubEntity } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService } from '../../../services/services';
+import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService, SubEntityService } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { UniSave, IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -30,6 +30,7 @@ export class EmployeeDetails extends UniView {
     private employments: Employment[];
     private recurringPosts: SalaryTransaction[];
     private employeeLeave: EmployeeLeave[];
+    private subEntities: SubEntity[];
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
 
@@ -39,6 +40,7 @@ export class EmployeeDetails extends UniView {
         private employeeLeaveService: EmployeeLeaveService,
         private employmentService: EmploymentService,
         private salaryTransService: SalaryTransactionService,
+        private subEntityService: SubEntityService,
         private toastService: ToastService,
         private router: Router,
         private tabService: TabService,
@@ -68,6 +70,7 @@ export class EmployeeDetails extends UniView {
             this.employments = undefined;
             this.employeeLeave = undefined;
             this.recurringPosts = undefined;
+            this.subEntities = undefined;
 
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
@@ -99,6 +102,10 @@ export class EmployeeDetails extends UniView {
             super.getStateSubject('employeeLeave').subscribe((employeeLeave) => {
                 this.employeeLeave = employeeLeave;
                 this.checkDirty();
+            });
+
+            super.getStateSubject('subEntities').subscribe((subEntities: SubEntity[]) => {
+                this.subEntities = subEntities;
             });
 
 
@@ -152,6 +159,12 @@ export class EmployeeDetails extends UniView {
                         super.getStateSubject('employments').subscribe(() => {
                             this.getEmployeeLeave();
                         });
+                    }
+                }
+
+                if (childRoute !== 'employee-leave' && childRoute !== 'recurring-post') {
+                    if (!this.subEntities) {
+                        this.getSubEntities();
                     }
                 }
             }
@@ -233,6 +246,12 @@ export class EmployeeDetails extends UniView {
 
         this.employeeLeaveService.GetAll(`filter=${filterParts.join(' or ')}`).subscribe((response) => {
             super.updateState('employeeLeave', response, false);
+        });
+    }
+
+    private getSubEntities() {
+        this.subEntityService.GetAll(null, ['BusinessRelationInfo']).subscribe((response: SubEntity[]) => {
+            super.updateState('subEntities', response.length > 1 ? response.filter(x => x.SuperiorOrganizationID > 0) : response, false);
         });
     }
 

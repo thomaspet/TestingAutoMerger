@@ -8,6 +8,7 @@
     </nav>
     <main class="splitview_detail">
         <employment-details [employment]="employments[selectedIndex]"
+                            [subEntities]="subEntities"
                             (employmentChange)="onEmploymentChange($event)">
         </employment-details>
     </main>

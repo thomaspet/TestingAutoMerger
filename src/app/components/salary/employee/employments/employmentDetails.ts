@@ -1,9 +1,9 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {EmploymentService, StaticRegisterService} from '../../../../services/services';
-import {STYRKCode, Employment} from '../../../../unientities';
-import {UniForm} from '../../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
-import {EmployeeService} from '../../../../services/Salary/Employee/EmployeeService';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { EmploymentService, StaticRegisterService } from '../../../../services/services';
+import { STYRKCode, Employment, SubEntity } from '../../../../unientities';
+import { UniForm } from '../../../../../framework/uniform';
+import { UniFieldLayout } from '../../../../../framework/uniform/index';
+import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
 
 declare var _; // lodash
 
@@ -27,26 +27,33 @@ export class EmploymentDetails {
     @Input()
     private employment: Employment;
 
+    @Input()
+    private subEntities: SubEntity[];
+
     @Output()
     private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
     private styrks: STYRKCode[];
     private config: any = {};
-    private subEntities: any[] = [];
     private fields: UniFieldLayout[] = [];
+    private formBuild
 
-    constructor(private employeeService: EmployeeService,
-                private statReg: StaticRegisterService,
-                private employmentService: EmploymentService) {
+    constructor(
+        private employeeService: EmployeeService,
+        private statReg: StaticRegisterService,
+        private employmentService: EmploymentService) {
     }
 
     public ngOnInit() {
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
+        this.buildForm();
+    }
 
-        this.employeeService.getSubEntities().subscribe((subEntities) => {
-            this.subEntities = subEntities;
-            this.buildForm();
-        });
+    public ngOnChange() {
+        if (this.subEntities) {
+            const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
+            subEntityField.Options.source = this.subEntities;
+        }
     }
 
     private buildForm() {
@@ -54,7 +61,7 @@ export class EmploymentDetails {
             // Expand A-meldings section by default
             this.config = {
                 sections: {
-                    '1': {isOpen: true}
+                    '1': { isOpen: true }
                 }
             };
 
@@ -76,9 +83,6 @@ export class EmploymentDetails {
                 }
             };
         });
-
-        const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
-        subEntityField.Options.source = this.subEntities;
     }
 
     private updateTitle(styrk) {

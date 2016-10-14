@@ -1,14 +1,14 @@
-import {Component, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {UniForm} from '../../../../../framework/uniform';
-import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal} from '../../../../unientities';
-import {EmployeeService, MunicipalService} from '../../../../services/services';
-import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
-import {TaxCardModal} from '../modals/taxCardModal';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import { Component, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { UniForm } from '../../../../../framework/uniform';
+import { OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal, SubEntity } from '../../../../unientities';
+import { EmployeeService, MunicipalService } from '../../../../services/services';
+import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
+import { TaxCardModal } from '../modals/taxCardModal';
+import { UniFieldLayout } from '../../../../../framework/uniform/index';
 
-import {UniView} from '../../../../../framework/core/uniView';
-import {UniCacheService} from '../../../../services/services';
+import { UniView } from '../../../../../framework/core/uniView';
+import { UniCacheService } from '../../../../services/services';
 declare var _;
 
 @Component({
@@ -27,7 +27,7 @@ export class PersonalDetails extends UniView {
 
     public config: any = {};
     public fields: any[] = [];
-    private subEntities: any[];
+    private subEntities: SubEntity[];
     private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
 
@@ -40,27 +40,28 @@ export class PersonalDetails extends UniView {
 
     private employee: Employee;
 
-    constructor(private employeeService: EmployeeService,
+    constructor(
+        private employeeService: EmployeeService,
         private router: Router,
         private municipalService: MunicipalService,
         route: ActivatedRoute,
         cacheService: UniCacheService) {
 
         super(router.url, cacheService);
-        this.setupForm();
 
         // Update cache key and (re)subscribe when param changes (different employee)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
             super.getStateSubject('employee').subscribe((employee) => {
                 this.employee = _.cloneDeep(employee);
+                this.getSubEntities();
             });
         });
     }
 
-    private setupForm() {
-        this.employeeService.getSubEntities().subscribe((subEntities) => {
-            this.subEntities = subEntities;
+    private getSubEntities() {
+        super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
+            this.subEntities = subEntity;
             this.getLayout();
         });
     }

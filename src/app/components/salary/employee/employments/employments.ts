@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService} from '../../../../services/services';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {Employee, Employment} from '../../../../unientities';
+import {Employee, Employment, SubEntity} from '../../../../unientities';
 
 import {UniCacheService} from '../../../../services/services';
 
@@ -19,6 +19,7 @@ export class Employments extends UniView {
     private employments: Employment[] = [];
     private selectedIndex: number;
     private tableConfig: UniTableConfig;
+    private subEntities: SubEntity[];
 
     constructor(private employmentService: EmploymentService,
                 cacheService: UniCacheService,
@@ -37,6 +38,7 @@ export class Employments extends UniView {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
 
+            super.getStateSubject('subEntities').subscribe( subEntities => this.subEntities = subEntities );
             super.getStateSubject('employee').subscribe(employee => this.employee = employee);
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments || [];

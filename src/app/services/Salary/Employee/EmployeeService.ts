@@ -19,7 +19,6 @@ export class EmployeeService extends BizHttp<Employee> {
         'BankAccounts'
     ];
     public debounceTime: number = 500;
-    public subEntities: SubEntity[];
 
     constructor(http: UniHttp) {
         super(http);
@@ -90,25 +89,6 @@ export class EmployeeService extends BizHttp<Employee> {
                 return super.Get(id, expand);
             }
             return super.Get(id, this.defaultExpands);
-        }
-    }
-
-    public getSubEntities(): Observable<SubEntity[]> {
-        if (this.subEntities) {
-            return Observable.of(this.subEntities);
-        } else {
-            return this.http.asGET()
-                .usingBusinessDomain()
-                .withEndPoint('subentities')
-                .send({ expand: 'BusinessRelationInfo' })
-                .switchMap((response) => {
-                    let subentities = response.json() || [];
-                    this.subEntities = subentities;
-                    if (this.subEntities.length > 1) {
-                        this.subEntities = this.subEntities.filter(x => x.SuperiorOrganizationID);
-                    }
-                    return Observable.of(subentities);
-                });
         }
     }
 
