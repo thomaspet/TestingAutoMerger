@@ -1,14 +1,14 @@
-import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums} from '../../../unientities';
-import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService} from '../../../services/services';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {ControlModal} from '../payrollrun/controlModal';
-import {PostingsummaryModal} from '../payrollrun/postingsummaryModal';
-import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
-import {UniForm} from '../../../../framework/uniform';
+import { Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { UniHttp } from '../../../../framework/core/http/http';
+import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums } from '../../../unientities';
+import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService } from '../../../services/services';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { ControlModal } from '../payrollrun/controlModal';
+import { PostingsummaryModal } from '../payrollrun/postingsummaryModal';
+import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig } from 'unitable-ng2/main';
+import { UniForm } from '../../../../framework/uniform';
 
 declare var _;
 
@@ -18,7 +18,7 @@ declare var _;
 })
 
 export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, OnInit {
-    private salarytransEmployeeTableConfig: any;
+    private salarytransEmployeeTableConfig: UniTableConfig;
     private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: SalaryTransactionSums;
     private wagetypes: WageType[] = [];
@@ -125,6 +125,15 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                     this.setUnitableSource();
                     this.getAgaAndShowView();
                     this.salarytransChanged = [];
+                    if (this.salarytransEmployeeTableConfig) {
+                        this.salarytransEmployeeTableConfig.columns.find(x => x.field === '_Employment').editorOptions = {
+                            resource: this.employee.Employments,
+                            itemTemplate: (item) => {
+                                return item ? item.ID + ' - ' + item.JobName : '';
+                            }
+                        };
+                        this.salarytransEmployeeTableConfig = _.cloneDeep(this.salarytransEmployeeTableConfig); // Trigger change detection in unitable
+                    }
 
                 }, (error: any) => {
                     this.log(error);
@@ -427,7 +436,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round(( ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
+        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
     }
 
