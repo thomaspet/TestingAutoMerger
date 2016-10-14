@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { EmploymentService, StaticRegisterService } from '../../../../services/services';
-import { STYRKCode, Employment, SubEntity } from '../../../../unientities';
-import { UniForm } from '../../../../../framework/uniform';
-import { UniFieldLayout } from '../../../../../framework/uniform/index';
-import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {EmploymentService, StaticRegisterService, AccountService} from '../../../../services/services';
+import {STYRKCode, Employment, Account, SubEntity} from '../../../../unientities';
+import {UniForm} from '../../../../../framework/uniform';
+import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import {EmployeeService} from '../../../../services/Salary/Employee/EmployeeService';
 
 declare var _; // lodash
 
@@ -38,10 +38,10 @@ export class EmploymentDetails {
     private fields: UniFieldLayout[] = [];
     private formBuild
 
-    constructor(
-        private employeeService: EmployeeService,
-        private statReg: StaticRegisterService,
-        private employmentService: EmploymentService) {
+    constructor(private employeeService: EmployeeService,
+                private statReg: StaticRegisterService,
+                private employmentService: EmploymentService,
+                private accountService: AccountService) {
     }
 
     public ngOnInit() {
@@ -82,6 +82,14 @@ export class EmploymentDetails {
                     }
                 }
             };
+            let ledgerAccountField = this.fields.find(field => field.Property === 'LedgerAccount');
+            ledgerAccountField.Options = {
+            source: this.accountService,
+            search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
         });
     }
 

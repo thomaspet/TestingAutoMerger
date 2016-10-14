@@ -285,7 +285,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Property: 'LedgerAccount',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Hovedbokskonto',
