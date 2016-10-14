@@ -7,6 +7,11 @@ $cellpadding: pxToRem(5) pxToRem(10)
     min-height: calc(1.5rem + #{pxToRem(10)})
 
 uni-table
+    table.editable-table
+        -webkit-user-select: none
+        -moz-user-select: none
+        -ms-user-select: none
+
     position: relative
 
     table *
@@ -175,15 +180,13 @@ unitable-contextmenu
             background: transparent
 
 unitable-autocomplete
-    .uniAutocomplete
-        display: inline-block
-        position: absolute
+    .autocomplete
+        .uni-autocomplete-searchBtn
+            margin-top: pxToRem(1)
+            min-height: calc(1.5rem + #{pxToRem(10)})
 
-        input.uniAutocomplete_input
-            position: relative
-            z-index: 999
-            text-overflow: ellipsis
-            overflow: hidden
+        .uniTable_dropdown_list
+            margin-top: calc(1.5rem + #{pxToRem(12)})
 
 unitable-select
     .uniSelect
@@ -199,6 +202,9 @@ unitable-select
             text-overflow: ellipsis
             overflow: hidden
             cursor: pointer
+
+        .uniTable_dropdown_list
+            margin-top: 0
 
 unitable-datepicker
     .uni-datepicker
@@ -218,7 +224,6 @@ unitable-datepicker
     position: absolute
     @extend .uni-multivalue-values
     box-sizing: border-box
-    margin-top: 0
     min-width: pxToRem(300)
     max-height: 17rem
     overflow-y: auto

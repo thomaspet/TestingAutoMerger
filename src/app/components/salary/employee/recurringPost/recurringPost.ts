@@ -131,8 +131,8 @@ export class RecurringPost extends UniView {
         const fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.Date);
         const todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.Date);
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
-        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Currency);
+        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Currency);
 
         this.tableConfig = new UniTableConfig()
             .setDeleteButton(true)

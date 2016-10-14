@@ -66,12 +66,7 @@ export class EmployeeLeave extends UniView {
     public buildTableConfig() {
         const fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
         const toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);
-        const leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Number)
-            .setTemplate((rowModel) => {
-                const leavePercent = rowModel['LeavePercent'];
-                return (leavePercent) ? leavePercent + '%' : '';
-            });
-
+        const leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Percent);
         const commentCol = new UniTableColumn('Description', 'Kommentar');
         const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
