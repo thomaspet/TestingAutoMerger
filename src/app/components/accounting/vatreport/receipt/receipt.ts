@@ -15,8 +15,11 @@ export class ReceiptVat {
 
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthenticationDataModal: AltinnAuthenticationDataModal;
 
+    private busy: boolean = false;
+
     private onError: (error) => void = (error) => {
         this.toastService.addToast('Error', ToastType.bad, null, 'En feil oppstod, forsøk igjen senere!');
+        this.busy = false;
         console.log('An error occurred in the receipt.ts file:', error);
     };
 
@@ -26,8 +29,11 @@ export class ReceiptVat {
     ) {}
 
     public checkForReceipt() {
+
         this.altinnAuthenticationDataModal.getUserAltinnAuthorizationData()
-            .then(authData =>
+            .then(authData => {
+                this.busy = true;
+
                 this.vatReportService.tryToReadAndUpdateVatReportData(this.vatReport.ID, authData)
                     .subscribe(response => {
                             if (response.Status === AltinnGetVatReportDataFromAltinnStatus.WaitingForAltinnResponse) {
@@ -35,8 +41,10 @@ export class ReceiptVat {
                                     'Info',
                                     ToastType.warn,
                                     7,
-                                    'Du må signere MVA meldingen i Altinn før du kan hente kvitteringen'
+                                    'Du må signere MVA meldingen i Altinn før du kan hente kvitteringen. Dette kan gjøres direkte i Altinn eller med knappen nederst i skjermbildet'
                                 );
+
+                                this.busy = false;
                             } else if (response.Status === AltinnGetVatReportDataFromAltinnStatus.RejectedByAltinn) {
                                 this.toastService.addToast(
                                     'Info',
@@ -44,18 +52,24 @@ export class ReceiptVat {
                                     7,
                                     'MVA meldingen ble avvist av Altinn'
                                 );
+
+                                this.busy = false;
                             } else {
                                 this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod', 'VatReportType','VatReportArchivedSummary'])
                                     .subscribe(updatedVatReport => {
                                             this.vatReport = updatedVatReport;
                                             this.vatReportDidChange.emit(updatedVatReport);
+
+                                            this.toastService.addToast('Kvitteringsdata hentet fra Altinn', ToastType.good);
+                                            this.busy = false;
                                         },
                                         this.onError
                                     );
                             }
                         },
                         this.onError
-                    )
+                    );
+                }
             );
     }
 }

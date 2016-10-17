@@ -5,16 +5,18 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {
     CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
-    VatReportSummaryPerPost, VatReportNotReportedJournalEntryData
+    VatReportSummaryPerPost, VatReportNotReportedJournalEntryData, AltinnSigning, StatusCodeAltinnSigning
 } from '../../../unientities';
 import {VatReportService} from '../../../services/Accounting/VatReportService';
+import {AltinnAuthenticationService} from '../../../services/services';
 import {Observable, Subscription} from 'rxjs/Rx';
 import {VatTypeService} from '../../../services/Accounting/VatTypeService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from 'unitable-ng2/main';
-
+import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
+import {ReceiptVat} from './receipt/receipt';
 
 declare const moment;
 
@@ -25,7 +27,8 @@ declare const moment;
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
     @ViewChild(HistoricVatReportModal) private historicVatReportModal: HistoricVatReportModal;
-
+    @ViewChild(AltinnAuthenticationDataModal) private altinnAuthenticationDataModal: AltinnAuthenticationDataModal;
+    @ViewChild(ReceiptVat) private receiptVat: ReceiptVat;
 
     public internalComment: FormControl = new FormControl();
     public externalComment: FormControl = new FormControl();
@@ -50,7 +53,8 @@ export class VatReportView implements OnInit, OnDestroy {
         private companySettingsService: CompanySettingsService,
         private vatReportService: VatReportService,
         private vatTypeService: VatTypeService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private altinnAuthenticationService: AltinnAuthenticationService
     ) {
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport' });
 
@@ -115,13 +119,21 @@ export class VatReportView implements OnInit, OnDestroy {
             label: 'Kjør',
             action: (done) => this.runVatReport(done),
             disabled: this.IsExecuteActionDisabled(),
-            main: true
+            main: !this.IsExecuteActionDisabled() && this.IsSendActionDisabled()
         });
 
         this.actions.push({
             label: 'Send inn',
             action: (done) => this.sendVatReport(done),
-            disabled: this.IsSendActionDisabled()
+            disabled: this.IsSendActionDisabled(),
+            main: !this.IsSendActionDisabled()
+        });
+
+        this.actions.push({
+            label: 'Signer',
+            action: (done) => this.signVatReport(done),
+            disabled: this.IsSignActionDisabled(),
+            main: !this.IsSignActionDisabled()
         });
 
         this.actions.push({
@@ -133,8 +145,11 @@ export class VatReportView implements OnInit, OnDestroy {
         this.actions.push({
             label: 'Opprett endringsmelding ',
             action: (done) => this.createCorrectiveVatReport(done),
-            disabled: this.IsCreateCorrectionMessageAcionDisabled()
+            disabled: this.IsCreateCorrectionMessageAcionDisabled(),
+            main: !this.IsCreateCorrectionMessageAcionDisabled()
         });
+
+
     }
 
     private IsExecuteActionDisabled() {
@@ -148,6 +163,12 @@ export class VatReportView implements OnInit, OnDestroy {
     }
     private IsSendActionDisabled() {
         if (this.currentVatReport.StatusCode === StatusCodeVatReport.Executed) {
+            return false;
+        }
+        return true;
+    }
+    private IsSignActionDisabled() {
+        if (this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted) {
             return false;
         }
         return true;
@@ -288,24 +309,71 @@ export class VatReportView implements OnInit, OnDestroy {
 
     }
 
-    public approveManually(done) {
-        this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approve')
-            .subscribe(() => {
-                this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
-                    .subscribe(vatreport => {
-                        this.setVatreport(vatreport);
-                        done('Godkjent');
+    public signVatReport(done) {
+        this.altinnAuthenticationDataModal.getUserAltinnAuthorizationData()
+            .then(authData => {
+                this.vatReportService.signReport(this.currentVatReport.ID, authData)
+                    .subscribe((signing: AltinnSigning) => {
+                        if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
+                            // error occured while signing - not technical error
+                            this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
+                            done('Feil ved signering');
+                        } else {
+                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                                .subscribe(vatreport => {
+                                    this.setVatreport(vatreport);
+                                    this.showView = 'receipt';
+
+                                    this.toastService.addToast('Signert OK', ToastType.good);
+                                    done('Signert OK');
+
+                                    // check for receipt, this should be ready now - but use setTimeout to allow angular to switch views first
+                                    setTimeout(() => {
+                                        this.receiptVat.checkForReceipt();
+                                    });
+                                },
+                                err => this.onError(err, done)
+                                );
+                        }
                     },
                     err => {
-                        done('Feilet å hente vatreport');
-                        this.onError(err);
+                        // something is not working with the altinnauthentication it seems, clear the pincode to make
+                        // the user log in again
+                        if (err.status === 403) {
+                            console.log('nullstiller pin');
+                            authData.pin = '';
+                            this.altinnAuthenticationService.storeAltinnAuthenticationDataInLocalstorage(authData);
+                        }
+
+                        this.onError(err, done);
                     });
-            },
-            err => {
-                done('Godkjenning feilet');
-                this.onError(err);
-            }
+                }
             );
+    }
+
+
+    public approveManually(done) {
+        if (confirm('Er du sikker på at du vil godkjenne manuelt? Det er normalt bedre å bruke signering hvis mulig')) {
+            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approve')
+                .subscribe(() => {
+                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                        .subscribe(vatreport => {
+                            this.setVatreport(vatreport);
+                            done('Godkjent');
+                        },
+                        err => {
+                            done('Feilet å hente vatreport');
+                            this.onError(err);
+                        });
+                },
+                err => {
+                    done('Godkjenning feilet');
+                    this.onError(err);
+                }
+                );
+        } else {
+            done('Godkjenning avbrutt');
+        }
     }
 
     public isExecuted(): boolean {
@@ -344,11 +412,13 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private createCorrectiveVatReport(done) {
 
+        this.createCorrectedVatReportModal.openModal(this.currentVatReport.ID, this.currentVatReport.TerminPeriodID);
+
         // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.createCorrectedVatReportModal.changed.observers.length === 0) {
             this.createCorrectedVatReportModal.changed.subscribe((modalData: any) => {
-                console.log('createCorrectiveVatReport tilbakemelding. Id=' + modalData.id);
+
                 // Load the newly created report
                 if (modalData.id > 0) {
                     this.vatReportService.Get(modalData.id, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
@@ -360,12 +430,9 @@ export class VatReportView implements OnInit, OnDestroy {
                         });
                 }
 
-
-                done('mva endringsmelding registrert');
+                done('Endringsmelding opprettet');
             });
         }
-
-        this.createCorrectedVatReportModal.openModal(this.currentVatReport.ID, this.currentVatReport.TerminPeriodID);
     }
 
     public isControlledWithoutWarnings(): boolean {
@@ -401,11 +468,12 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private onError(error, optionalDoneHandler?: (error) => void) {
         let errorMsg = 'Det skjedde en feil';
+
         let errorBody = error.json();
         if (errorBody && errorBody.Message) {
-            errorMsg += ': ' + errorBody.Message;
+            errorMsg = errorBody.Message;
         }
-        this.toastService.addToast('Error', ToastType.bad, 0, errorMsg);
+        this.toastService.addToast('Feil oppsto', ToastType.bad, 0, errorMsg);
 
         if (optionalDoneHandler) {
             optionalDoneHandler('Det skjedde en feil, forsøk igjen senere');
@@ -419,7 +487,6 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public ShowVatReport(id: number) {
-        console.log('ShowVatReport id:', id);
         this.vatReportService.Get(id, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
             .subscribe(vatreport => {
                 this.setVatreport(vatreport);

@@ -2779,6 +2779,27 @@ export class Altinn {
 }
 
 
+export class AltinnSigning {
+    public static RelativeUrl = 'altinnsigning';
+    public static EntityType = 'AltinnSigning';
+
+    public AltinnReceiptID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public DateSigned: Date;
+    public Deleted: boolean;
+    public ID: number;
+    public SignatureReference: string;
+    public SignatureText: string;
+    public StatusCode: number;
+    public StatusText: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public AltinnReceipt: AltinnReceipt;
+    public CustomFields: any;
+}
+
+
 export class AltinnReceipt {
     public static RelativeUrl = 'altinnreceipts';
     public static EntityType = 'AltinnReceipt';
@@ -2798,6 +2819,7 @@ export class AltinnReceipt {
     public UpdatedBy: string;
     public UserSign: string;
     public XmlReceipt: string;
+    public Signings: Array<AltinnSigning>;
     public CustomFields: any;
 }
 
@@ -4492,6 +4514,15 @@ export enum StatusCodeCustomerQuote{
 	TransferredToOrder = 40105,
 	TransferredToInvoice = 40106,
 	Completed = 40107,
+}
+
+
+export enum StatusCodeAltinnSigning{
+	NotSigned = 43001,
+	PartialSigned = 43002,
+	Signed = 43003,
+	AlreadySigned = 43004,
+	Failed = 43005,
 }
 
 

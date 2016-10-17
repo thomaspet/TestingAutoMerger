@@ -9,8 +9,8 @@
                 <span *ngIf="i > 0">,   </span>
 
                 <a (click)="ShowVatReport(c.ID)" href="javascript:void(0);">
-                    <span *ngIf="c.ID == currentVatReport.ID"> <b>{{c.Title}}</b> </span> 
-                    <span *ngIf="c.ID != currentVatReport.ID"> {{c.Title}} </span> 
+                    <span *ngIf="c.ID == currentVatReport.ID"> <b>{{c.Title}}</b> </span>
+                    <span *ngIf="c.ID != currentVatReport.ID"> {{c.Title}} </span>
                 </a>
             </span>
         </section>
@@ -106,6 +106,7 @@
 
 <create-corrected-vatreport-modal></create-corrected-vatreport-modal>
 <historic-vatreport-modal (vatReportSelected)="historicVatReportSelected($event)"></historic-vatreport-modal>
+<altinn-authentication-data-modal></altinn-authentication-data-modal>
 
 <section class="application" [attr.aria-busy]="isBusy">
 

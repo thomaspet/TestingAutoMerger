@@ -1,10 +1,11 @@
-﻿<section class="application">
+﻿<altinn-authentication-data-modal></altinn-authentication-data-modal>
+
+<section class="application" [attr.aria-busy]="busy">
     <button *ngIf="!vatReport?.VatReportArchivedSummary?.PaymentID"
             type="button"
             (click)="checkForReceipt()">
         Hent kvittering fra Altinn
     </button>
-    <altinn-authentication-data-modal></altinn-authentication-data-modal>
 
     <article *ngIf="vatReport?.VatReportArchivedSummary?.PaymentID">
         <table class="vatReportReceiptTable">

@@ -7,7 +7,8 @@ import {
     VatReportSummary,
     AltinnGetVatReportDataFromAltinnResult,
     StatusCodeVatReport,
-    VatReportNotReportedJournalEntryData
+    VatReportNotReportedJournalEntryData,
+    AltinnSigning
 } from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
@@ -67,6 +68,23 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.json());
     }
 
+    public signReport(vatReportId: number, authenticationData: AltinnAuthenticationData): Observable<AltinnSigning> {
+        const headers = {
+            'x-altinn-userid': authenticationData.userID,
+            'x-altinn-password': authenticationData.password,
+            'x-altinn-pinmethod': authenticationData.preferredLogin,
+            'x-altinn-pin': authenticationData.pin
+        };
+
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withHeaders(headers)
+            .withEndPoint(this.relativeURL + `?action=sign-vatreport-altinn&vatReportID=${vatReportId}`)
+            .send()
+            .map(response => response.json());
+    }
+
     public getVatReportSummary(vatReportId: number, periodId: number): Observable<VatReportSummary[]> {
         return this.http
             .asGET()
@@ -95,7 +113,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .send()
             .map(response => response.json());
     }
-    
+
     public getNotReportedJournalEntryData(periodID: number): Observable<VatReportNotReportedJournalEntryData> {
         return this.http
             .asGET()
@@ -157,6 +175,6 @@ export class VatReportService extends BizHttp<VatReport> {
             }
         });
         return text;
-    };    
+    };
 
 }
