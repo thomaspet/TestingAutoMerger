@@ -116,9 +116,9 @@ export class ControlModalContent {
         let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
         let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
         let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
-        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
+        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
         let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
+        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money);
 
         this.tableConfig = new UniTableConfig()
             .setColumns([wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol])

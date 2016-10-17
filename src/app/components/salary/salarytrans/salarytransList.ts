@@ -72,8 +72,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
         this.busy = true;
 
-        this.createTotalTableConfig();
-
         this._wageTypeService.GetAll('').subscribe((wagetype: WageType[]) => {
             this.wagetypes = wagetype;
             if (this.payrollRun && this.employee) {
@@ -273,9 +271,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
-        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
+        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number, false);
+        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
         var employmentidCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
 
@@ -296,7 +294,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 }
             });
 
-        var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
+        var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setAlignment('right');
         var payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
@@ -376,23 +374,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             .setIsRowReadOnly((rowModel: SalaryTransaction) => {
                 return rowModel.IsRecurringPost;
             });
-    }
-
-    private createTotalTableConfig() {
-
-        var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', UniTableColumnType.Number);
-        var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', UniTableColumnType.Number);
-        var paidCol = new UniTableColumn('netPayment', 'Utbetalt beløp', UniTableColumnType.Number);
-        var agaCol = new UniTableColumn('calculatedAGA', 'Beregnet aga', UniTableColumnType.Number);
-        var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', UniTableColumnType.Number);
-
-        this.salarytransEmployeeTotalsTableConfig = new UniTableConfig()
-            .setColumns([
-                percentCol, taxtableCol, paidCol, agaCol, basevacationCol
-            ])
-            .setEditable(false)
-            .setPageable(false)
-            .setSearchable(false);
     }
 
     private mapWagetypeToTrans(rowModel) {

@@ -65,7 +65,7 @@ export class PostingsummaryModalContent {
     private createTableConfig() {
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         var accountCol = new UniTableColumn('Account.AccountNumber', 'Konto', UniTableColumnType.Number);
-        var sumCol = new UniTableColumn('Amount', 'Sum', UniTableColumnType.Number);
+        var sumCol = new UniTableColumn('Amount', 'Sum', UniTableColumnType.Money);
         this.accountTableConfig = new UniTableConfig(false, false)
             .setColumns( [accountCol, nameCol, sumCol])
             .setColumnMenuVisible(false)            

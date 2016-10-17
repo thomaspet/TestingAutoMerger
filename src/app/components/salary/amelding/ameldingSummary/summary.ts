@@ -73,7 +73,7 @@ export class AmeldingSummaryView {
                 return 'Nei';
             }
         });
-        let amountCol = new UniTableColumn('amount', 'Beløp', UniTableColumnType.Number)
+        let amountCol = new UniTableColumn('amount', 'Beløp', UniTableColumnType.Money)
         .setWidth('6rem')
         .setCls('column-align-right');
 

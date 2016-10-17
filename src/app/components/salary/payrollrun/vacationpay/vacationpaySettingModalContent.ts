@@ -134,8 +134,8 @@ export class VacationpaySettingModalContent {
     }
 
     private setTableConfig() {
-        var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Number);
-        var rate60Col = new UniTableColumn('Rate60', 'Sats over 60', UniTableColumnType.Number);
+        var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Percent);
+        var rate60Col = new UniTableColumn('Rate60', 'Sats over 60', UniTableColumnType.Percent);
         var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Number)
             .setTemplate((rowModel) => {
                 return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';

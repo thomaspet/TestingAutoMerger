@@ -46,13 +46,11 @@ export class AmeldingPeriodSummaryView {
         let soneCol = new UniTableColumn('AgaZone', 'Sone', UniTableColumnType.Text).setWidth('4rem');
         let municipalCol = new UniTableColumn('MunicipalName', 'Kommune', UniTableColumnType.Text);
         let typeCol = new UniTableColumn('_type', 'Type', UniTableColumnType.Number);
-        let rateCol = new UniTableColumn('AgaRate', 'Sats', UniTableColumnType.Text)
+        let rateCol = new UniTableColumn('AgaRate', 'Sats', UniTableColumnType.Number)
             .setWidth('4rem')
             .setCls('column-align-right');
-        let amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Text)
-            .setCls('column-align-right');
-        let agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Text)
-            .setCls('column-align-right');
+        let amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Money);
+        let agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money);
 
         this.systemTableConfig = new UniTableConfig(false, true, 10)
         .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);

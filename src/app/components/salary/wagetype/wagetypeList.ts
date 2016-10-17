@@ -29,10 +29,9 @@ export class WagetypeList implements OnInit {
         idCol.setWidth('5rem');
 
         const nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);
+        const accountNumberCol = new UniTableColumn('AccountNumber', 'Hovedbokskonto', UniTableColumnType.Text).setWidth('10rem').setAlignment('right');
 
-        const accountNumberCol = new UniTableColumn('AccountNumber', 'Hovedbokskonto', UniTableColumnType.Number).setWidth('10rem');
-
-        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
 
         const basePaymentCol = new UniTableColumn('Base_Payment', 'Utbetales').setTemplate((wageType: WageType) => {
             return wageType.Base_Payment ? 'Ja' : 'Nei';

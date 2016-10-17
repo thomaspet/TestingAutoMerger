@@ -174,12 +174,12 @@ export class VacationpayModalContent {
     private createTableConfig() {
         var nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Number, false);
         var nameCol = new UniTableColumn('Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
-        var systemGrunnlagCol = new UniTableColumn('SystemVacationPayBase', 'Feriegrunnlag (system)', UniTableColumnType.Number, false);
-        var manuellGrunnlagCol = new UniTableColumn('ManualVacationPayBase', 'Feriegrunnlag manuelt', UniTableColumnType.Number);
-        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number, false);
-        var vacationPayCol = new UniTableColumn('VacationPay', 'Feriepenger', UniTableColumnType.Number, false);
-        var earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Number, false);
-        var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Number);
+        var systemGrunnlagCol = new UniTableColumn('SystemVacationPayBase', 'Feriegrunnlag (system)', UniTableColumnType.Money, false);
+        var manuellGrunnlagCol = new UniTableColumn('ManualVacationPayBase', 'Feriegrunnlag manuelt', UniTableColumnType.Money);
+        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money, false);
+        var vacationPayCol = new UniTableColumn('VacationPay', 'Feriepenger', UniTableColumnType.Money, false);
+        var earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false);
+        var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money);
 
         this.tableConfig = new UniTableConfig()
         .setColumns([nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, rateCol, vacationPayCol, earlierPayCol, payoutCol])

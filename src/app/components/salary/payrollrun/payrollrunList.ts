@@ -23,7 +23,7 @@ export class PayrollrunList implements OnInit {
     public ngOnInit() {
 
         this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc');
-        var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Text)
+        var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
         .setWidth('5rem');
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text).setTemplate((payrollRun) => {

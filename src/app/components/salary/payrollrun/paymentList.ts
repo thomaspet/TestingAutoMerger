@@ -62,14 +62,14 @@ export class PaymentList implements OnInit {
         let addressCol = new UniTableColumn('Address', 'Adresse', UniTableColumnType.Text);
         let postalCodeCol = new UniTableColumn('PostalCode', 'Postnr', UniTableColumnType.Text).setWidth('10%');
         let cityCol = new UniTableColumn('City', 'Poststed', UniTableColumnType.Text);
-        let paymentCol = new UniTableColumn('NetPayment', 'Beløp', UniTableColumnType.Number);
+        let paymentCol = new UniTableColumn('NetPayment', 'Beløp', UniTableColumnType.Money);
 
         this.paymentListConfig = new UniTableConfig(false, false)
             .setColumns([
                 accountCol, nameCol, addressCol, postalCodeCol, cityCol, paymentCol
             ]);
 
-        let witholdingCol = new UniTableColumn('Withholding', 'Beløp', UniTableColumnType.Number);
+        let witholdingCol = new UniTableColumn('Withholding', 'Beløp', UniTableColumnType.Money);
         let companyNameCol = new UniTableColumn('CompanyName', 'Navn', UniTableColumnType.Text);
         let companyAddressCol = new UniTableColumn('CompanyAddress', 'Adresse', UniTableColumnType.Text);
         let companyPostalCodeCol = new UniTableColumn('CompanyPostalCode', 'Postnr', UniTableColumnType.Text).setWidth('10%');
