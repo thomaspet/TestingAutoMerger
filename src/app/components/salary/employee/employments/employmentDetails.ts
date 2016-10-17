@@ -1,9 +1,9 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {EmploymentService, StaticRegisterService, AccountService} from '../../../../services/services';
-import {STYRKCode, Employment, Account, SubEntity} from '../../../../unientities';
-import {UniForm} from '../../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
-import {EmployeeService} from '../../../../services/Salary/Employee/EmployeeService';
+import { Component, Input, Output, EventEmitter, ViewChild, OnChanges } from '@angular/core';
+import { EmploymentService, StaticRegisterService, AccountService } from '../../../../services/services';
+import { STYRKCode, Employment, Account, SubEntity } from '../../../../unientities';
+import { UniForm } from '../../../../../framework/uniform';
+import { UniFieldLayout } from '../../../../../framework/uniform/index';
+import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
 
 declare var _; // lodash
 
@@ -20,7 +20,7 @@ declare var _; // lodash
         </section>
     `
 })
-export class EmploymentDetails {
+export class EmploymentDetails implements OnChanges {
     @ViewChild(UniForm)
     private form: UniForm;
 
@@ -36,23 +36,21 @@ export class EmploymentDetails {
     private styrks: STYRKCode[];
     private config: any = {};
     private fields: UniFieldLayout[] = [];
-    private formBuild
+    private formReady: boolean;
 
-    constructor(private employeeService: EmployeeService,
-                private statReg: StaticRegisterService,
-                private employmentService: EmploymentService,
-                private accountService: AccountService) {
+    constructor(
+        private employeeService: EmployeeService,
+        private statReg: StaticRegisterService,
+        private employmentService: EmploymentService,
+        private accountService: AccountService) {
     }
 
-    public ngOnInit() {
-        this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-        this.buildForm();
-    }
-
-    public ngOnChange() {
-        if (this.subEntities) {
-            const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
-            subEntityField.Options.source = this.subEntities;
+    public ngOnChanges() {
+        if (!this.formReady && this.subEntities) {
+            if (!this.styrks) {
+                this.styrks = this.statReg.getStaticRegisterDataset('styrk');
+            }
+            this.buildForm();
         }
     }
 
@@ -84,12 +82,17 @@ export class EmploymentDetails {
             };
             let ledgerAccountField = this.fields.find(field => field.Property === 'LedgerAccount');
             ledgerAccountField.Options = {
-            source: this.accountService,
-            search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
-            displayProperty: 'AccountName',
-            valueProperty: 'AccountNumber',
-            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-        };
+                source: this.accountService,
+                search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+                displayProperty: 'AccountName',
+                valueProperty: 'AccountNumber',
+                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+            };
+
+            const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
+            subEntityField.Options.source = this.subEntities;
+
+            this.formReady = true;
         });
     }
 
