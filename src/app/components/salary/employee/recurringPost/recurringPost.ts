@@ -106,7 +106,7 @@ export class RecurringPost extends UniView {
 
         const descriptionCol = new UniTableColumn('Text', 'Beskrivelse');
 
-        const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Select)
+        const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((rowModel) => {
 
                 if (!rowModel['_Employment'] && !rowModel['EmploymentID']) {
@@ -122,7 +122,14 @@ export class RecurringPost extends UniView {
                 return (employment) ? employment.ID + ' - ' + employment.JobName : '';
             })
             .setEditorOptions({
-                resource: this.employments,
+                lookupFunction: (searchValue: string) => {
+                    return this.employments.filter((employment) => {
+                        let jobName = (employment.JobName || '').toLowerCase();
+                        let jobCode = (employment.JobCode || '').toLowerCase();
+                        return (jobName.indexOf(searchValue.toLowerCase()) > -1)
+                                || jobCode.startsWith(searchValue.toLowerCase());
+                    });
+                },
                 itemTemplate: (selectedItem) => {
                     return selectedItem ? selectedItem.ID + ' - ' + selectedItem.JobName : '';
                 }
@@ -131,8 +138,8 @@ export class RecurringPost extends UniView {
         const fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.Date);
         const todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.Date);
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Currency);
-        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Currency);
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
+        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money);
 
         this.tableConfig = new UniTableConfig()
             .setDeleteButton(true)
