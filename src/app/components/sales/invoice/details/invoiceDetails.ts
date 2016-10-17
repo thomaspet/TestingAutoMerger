@@ -620,11 +620,16 @@ export class InvoiceDetails {
     private payInvoice(done) {
         const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
+        // Set up subscription to listen canceled modal
+        if (this.registerPaymentModal.canceled.observers.length === 0) {
+            this.registerPaymentModal.canceled.subscribe(() => {
+                done();
+            });
+        }
+
         // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
-        // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
-
                 this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
 

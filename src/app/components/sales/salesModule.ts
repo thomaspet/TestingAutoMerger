@@ -31,7 +31,7 @@ import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {UniTableModule} from 'unitable-ng2/main';
-import {UniSales} from "./sales";
+import {UniSales} from './sales';
 
 @NgModule({
     imports: [

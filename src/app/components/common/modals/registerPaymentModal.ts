@@ -9,7 +9,7 @@ import {FieldType} from '../../../unientities';
     template: `
         <article class='modal-content email-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
-            <uni-form [config]="formConfig" [fields]="fields" [model]="model" (onChange)="onSubmit($event)" (onSubmit)="onSubmit($event)"></uni-form>
+            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (onChange)="onSubmit($event)" (onSubmit)="onSubmit($event)"></uni-form>
             <footer>
                 <button *ngFor='let action of config.actions; let i=index' (click)='action.method()' [ngClass]='action.class' type='button'>
                     {{action.text}}
@@ -30,7 +30,6 @@ export class RegisterPaymentForm {
 
     // TODO: Jorge: I have to use any to hide errors. Don't use any. Use FieldLayout, but respect interface
     public fields: any[];
-    public model: InvoicePaymentData = new InvoicePaymentData();
     public formConfig: any = {};
 
     public ngOnInit() {
@@ -129,26 +128,19 @@ export class RegisterPaymentModal {
                     text: 'Registrer betaling',
                     class: 'good',
                     method: () => {
-                        self.modal.getContent().then((form: RegisterPaymentForm) => {
-                            self.modal.close();
-                            // TODO: changed emitter emits any because emitted object is not InvoicePaymentData                            
-                            self.changed.emit({
-                                id: self.invoiceID,
-                                invoice: form.model
-                            });
+                        self.modal.close();
+                        self.changed.emit({
+                           id: self.invoiceID,
+                           invoice: self.modalConfig.model 
                         });
-
                         return false;
                     }
                 },
                 {
                     text: 'Avbryt',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
-                            self.canceled.emit(true);
-                        });
-
+                        self.modal.close();
+                        self.canceled.emit(true);
                         return false;
                     }
                 }
@@ -158,10 +150,8 @@ export class RegisterPaymentModal {
 
     public openModal(invoiceId: number, title: string, invoicePaymentData: InvoicePaymentData) {
         this.invoiceID = invoiceId;
-        this.modalConfig.title = title;
-        this.modal.getContent().then((form: RegisterPaymentForm) => {
-            form.model = invoicePaymentData;
-        });
+        this.modalConfig.title = title;        
+        this.modalConfig.model = invoicePaymentData;
         this.modal.open();
     }
 }
