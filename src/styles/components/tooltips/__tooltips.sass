@@ -1,0 +1,55 @@
+$tooltip-color: transparentize($uni-color-positive, .1)
+
+[data-tooltip]
+    position: relative
+    overflow: visible
+
+    &:hover,
+    &:focus
+        // The tooltip itself
+        &:before
+            box-sizing: border-box
+            display: block
+            content: attr(data-tooltip)
+            background: $tooltip-color
+            color: $uni-color-negative
+            font-weight: 400
+            position: absolute
+            bottom: 100%
+            margin-bottom: .75rem
+            left: 0
+            border-radius: pxToRem(3)
+            padding: .2rem .5rem
+            white-space: normal
+            overflow: initial
+            font-size: .9rem
+            line-height: 120%
+            backdrop-filter: blur(.2rem)
+            min-width: 6rem
+            max-width: 100%
+
+        // Arrow below
+        &:after
+            content: ''
+            display: block
+            position: absolute
+            bottom: 100%
+            left: 2rem
+            width: 0
+            height: 0
+            border-style: solid
+            border-width: .75rem .75rem 0 .75rem
+            border-color: $tooltip-color transparent transparent transparent
+            backdrop-filter: blur(.2rem)
+
+.tooltip-below
+    &:hover,
+    &:focus
+        &:after
+            border-width: 0 .75rem .75rem .75rem
+            border-color: transparent transparent $tooltip-color transparent
+            top: 100%
+
+        &:before
+            top: 100%
+            margin-top: .75rem
