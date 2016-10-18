@@ -29,6 +29,7 @@ declare var _; // lodash
                                   {{showDisplayValue(row)}}
                             </span>
                             <button type="button" class="uni-multivalue_edit_action-delete"
+                                *ngIf="field.Options == null || field.Options.allowDeleteValue == null || field.Options.allowDeleteValue === true"
                                 (click)="remove(row, $event)">
                                 Delete
                             </button>
@@ -54,7 +55,7 @@ declare var _; // lodash
 
                     </li>
                 </template>
-                <li>
+                <li *ngIf="field.Options == null || field.Options.allowAddValue == null || field.Options.allowAddValue === true">
                     <button class="uni-multivalue-addBtn"
                             type="button"
                             (click)="addValue($event)">
@@ -305,7 +306,7 @@ export class UniMultivalueInput {
         $event.preventDefault();
         row._mode = 0;
     }
-    
+
     private setFocusOnNextField() {
         const uniFieldParent = this.findAncestor(this.el.nativeElement, 'uni-field');
         const nextUniField = uniFieldParent.nextElementSibling;

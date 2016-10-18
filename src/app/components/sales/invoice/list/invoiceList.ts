@@ -35,7 +35,7 @@ export class InvoiceList implements OnInit {
         private tabService: TabService) {
 
         this.setupInvoiceTable();
-        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+        this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
     }
 
     private log(err) {
