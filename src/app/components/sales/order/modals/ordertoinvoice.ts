@@ -89,7 +89,7 @@ export class OrderToInvoiceModal {
     @Output() public canceled: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
-    public type: Type = OrderToInvoiceModalType;
+    public type: Type<any> = OrderToInvoiceModalType;
 
     constructor(private customerOrderService: CustomerOrderService) {
         var self = this;

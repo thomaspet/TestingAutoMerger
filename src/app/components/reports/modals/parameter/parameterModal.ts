@@ -31,7 +31,7 @@ export class ParameterModal {
     private modal: UniModal;
     
     public modalConfig: any = {};
-    public type: Type = ReportparameterModalType;
+    public type: Type<any> = ReportparameterModalType;
     
     private previewModal: PreviewModal;
     

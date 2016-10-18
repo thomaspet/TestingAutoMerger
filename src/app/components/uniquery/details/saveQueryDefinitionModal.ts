@@ -155,7 +155,7 @@ export class SaveQueryDefinitionModal {
     @Output() public cancelled: EventEmitter<any> = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
-    public type: Type = SaveQueryDefinitionForm;
+    public type: Type<any> = SaveQueryDefinitionForm;
 
     constructor(private toastService: ToastService, private uniQueryDefinitionService: UniQueryDefinitionService) {
         this.modalConfig = {

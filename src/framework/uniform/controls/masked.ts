@@ -68,7 +68,7 @@ export class UniMaskedInput {
         var self = this;
         options.change = function () {
             var val = this.value();
-            self.control.updateValue(this.raw(), {});
+            self.control.setValue(this.raw(), {});
             // to avoid mask disappearing in input field (due to control storing the raw string)
             this.value(val);
             _.set(self.model, self.field.Property, this.raw());

@@ -26,6 +26,11 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniToolbar} from './toolbar/toolbar';
+import {UniDimensions} from './dimensions/UniDimensions';
+import {ProjectList} from './dimensions/project/list/projectList';
+import {ProjectDetails} from './dimensions/project/details/projectDetails';
+import {DepartmentList} from './dimensions/department/list/departmentList';
+import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 
 @NgModule({
     imports: [
@@ -39,6 +44,11 @@ import {UniToolbar} from './toolbar/toolbar';
         AppCommonRoutes
     ],
     declarations: [
+        UniDimensions,
+        ProjectList,
+        ProjectDetails,
+        DepartmentList,
+        DepartmentDetails,
         ContextMenu,
         ExternalSearch,
         UniFeedback,
@@ -61,7 +71,21 @@ import {UniToolbar} from './toolbar/toolbar';
         UniToolbar
 
     ],
+    entryComponents:[
+        AddressForm,
+        BankAccountForm,
+        EmailForm,
+        PhoneForm,
+        RegisterPaymentForm,
+        AltinnAuthenticationDataModalContent
+
+    ],
     exports: [
+        UniDimensions,
+        ProjectList,
+        ProjectDetails,
+        DepartmentList,
+        DepartmentDetails,
         ContextMenu,
         ExternalSearch,
         UniFeedback,

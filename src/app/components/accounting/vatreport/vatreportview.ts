@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {

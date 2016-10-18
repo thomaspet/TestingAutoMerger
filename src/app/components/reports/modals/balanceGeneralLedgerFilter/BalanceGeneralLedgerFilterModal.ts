@@ -109,7 +109,7 @@ export class BalanceGeneralLedgerFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = BalanceGeneralLedgerFilterForm;
+    public type: Type<any> = BalanceGeneralLedgerFilterForm;
 
     private previewModal: PreviewModal;
 

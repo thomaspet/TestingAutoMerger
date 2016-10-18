@@ -111,7 +111,7 @@ export class EmailModal {
 
     private modalConfig: any = {};    
 
-    private type: Type = EmailForm;
+    private type: Type<any> = EmailForm;
 
     constructor(private emailService: EmailService) {
     }

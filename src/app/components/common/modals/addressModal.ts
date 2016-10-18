@@ -247,7 +247,7 @@ export class AddressModal {
     @Output() public Canceled = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
-    private type: Type = AddressForm;
+    private type: Type<any> = AddressForm;
 
     constructor(private addressService: AddressService) {
     }

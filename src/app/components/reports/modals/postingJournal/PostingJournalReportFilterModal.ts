@@ -115,7 +115,7 @@ export class PostingJournalReportFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = PostingJournalReportFilterForm;
+    public type: Type<any> = PostingJournalReportFilterForm;
 
     private previewModal: PreviewModal;
 

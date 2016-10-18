@@ -62,7 +62,7 @@ export class UniDateInput {
 
             if (value) {
                 this.selectedDate = new Date(value);
-                this.control.updateValue(moment(this.selectedDate).format('L'));
+                this.control.setValue(moment(this.selectedDate).format('L'));
             }
         }
     }
@@ -97,7 +97,7 @@ export class UniDateInput {
     private dateSelected(date) {
         this.selectedDate = date;
 
-        this.control.updateValue(date ? moment(date).format('L') : '');
+        this.control.setValue(date ? moment(date).format('L') : '');
 
         _.set(this.model, this.field.Property, date);
         this.onChange.emit(this.model);

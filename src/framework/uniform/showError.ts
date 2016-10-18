@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Control} from '@angular/common';
-import {NgIf} from '@angular/common';
+import {FormControl} from '@angular/forms';
 
 /**
  * Displays error message that is attached to an invalid control
@@ -14,7 +13,7 @@ import {NgIf} from '@angular/common';
 export class ShowError {
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Input()
     public messages: any[];

@@ -211,7 +211,7 @@ export class AltinnAuthenticationDataModalContent {
 })
 export class AltinnAuthenticationDataModal {
     public config: { close: () => void };
-    public type: Type = AltinnAuthenticationDataModalContent;
+    public type: Type<any> = AltinnAuthenticationDataModalContent;
 
     @ViewChild(UniModal)
     private modal: UniModal;

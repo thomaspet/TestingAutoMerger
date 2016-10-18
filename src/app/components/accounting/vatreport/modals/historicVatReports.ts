@@ -91,7 +91,7 @@ export class HistoricVatReportModal {
     @Output() public vatReportSelected: EventEmitter<any> = new EventEmitter<any>();
 
     private modalConfig: any = {};
-    public type: Type = HistoricVatReportTable;
+    public type: Type<any> = HistoricVatReportTable;
     public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
     constructor(private periodService: PeriodService, private toastService: ToastService) {

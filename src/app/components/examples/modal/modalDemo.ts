@@ -62,7 +62,7 @@ export class UniModalDemo {
     modalConfig2: any = {};
 
     valueFromModal: string = '';
-    type: Type = UniModalTest;
+    type: Type<any> = UniModalTest;
 
     constructor() {
         var self = this;

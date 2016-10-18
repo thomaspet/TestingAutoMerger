@@ -25,7 +25,7 @@ import {BalanceReportFilterForm} from './modals/balanceList/BalanceReportFilterM
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {CustomerAccountReportFilterForm} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {CustomerAccountReportFilterModal} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {ParameterModal} from './modals/parameter/parameterModal';
+import {ParameterModal, ReportparameterModalType} from './modals/parameter/parameterModal';
 import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {ReportPreviewModalType} from './modals/preview/previewModal';
@@ -79,10 +79,19 @@ import {UniReports} from './reports';
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
-        SupplierAccountReportFilterModal
+        SupplierAccountReportFilterModal,
+        ReportparameterModalType
     ],
-    providers: [
-
+    entryComponents: [
+        ReportPreviewModalType,
+        BalanceReportFilterForm,
+        AccountReportFilterForm,
+        BalanceGeneralLedgerFilterForm,
+        CustomerAccountReportFilterForm,
+        PostingJournalReportFilterForm,
+        ResultAndBalanceReportFilterForm,
+        SupplierAccountReportFilterForm,
+        ReportparameterModalType
     ],
     exports: [
         UniReports,
@@ -103,7 +112,8 @@ import {UniReports} from './reports';
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
-        SupplierAccountReportFilterModal
+        SupplierAccountReportFilterModal,
+        ReportparameterModalType
     ]
 })
 export class ReportsModule {}

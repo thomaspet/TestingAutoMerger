@@ -113,7 +113,7 @@ export class CustomerAccountReportFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = CustomerAccountReportFilterForm;
+    public type: Type<any> = CustomerAccountReportFilterForm;
 
     private previewModal: PreviewModal;
 

@@ -99,6 +99,10 @@ import {SalesModule} from '../sales/salesModule';
         TransqueryList,
         TransqueryDetails
     ],
+    entryComponents: [
+        HistoricVatReportTable,
+        CreateCorrectedVatReportForm
+    ],
     providers: [
         SupplierInvoiceFileUploader
     ],

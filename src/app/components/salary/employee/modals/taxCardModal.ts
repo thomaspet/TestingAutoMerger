@@ -69,7 +69,7 @@ export class TaxCardModalContent {
     `
 })
 export class TaxCardModal implements OnChanges, AfterViewInit {
-    public type: Type = TaxCardModalContent;
+    public type: Type<any> = TaxCardModalContent;
     public config: any = {};
 
     @Output()

@@ -23,6 +23,7 @@ import {UniSection} from './uniform/unisection';
 import {CONTROLS} from './uniform/controls/index';
 import {ShowError} from './uniform/showError';
 import {UniCalendar} from './uniform/controls/date/calendar';
+import {UniLineBreak} from './uniform/unilinebreak';
 
 
 @NgModule({
@@ -50,6 +51,7 @@ import {UniCalendar} from './uniform/controls/date/calendar';
         UniFieldSet,
         UniSection,
         ShowError,
+        UniLineBreak,
         CONTROLS
     ],
     providers: [

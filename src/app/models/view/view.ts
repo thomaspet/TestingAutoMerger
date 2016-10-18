@@ -1,4 +1,4 @@
-import {Route, RouterConfig} from '@angular/router';
+import {Route} from '@angular/router';
 
 export class View {
     public subViews: Array<View> = [];
@@ -33,11 +33,11 @@ export class View {
             };
     }
     
-    public getSubRoutes(): RouterConfig {
+    public getSubRoutes(): Route[] {
         if (!this.subViews.length) {
             return [];
         }
-        let subroutes: RouterConfig = [
+        let subroutes: Route[] = [
             {
                 path: '',
                 pathMatch: 'full', // default

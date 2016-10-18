@@ -118,7 +118,7 @@ export class AccountReportFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = AccountReportFilterForm;
+    public type: Type<any> = AccountReportFilterForm;
 
     private previewModal: PreviewModal;
 

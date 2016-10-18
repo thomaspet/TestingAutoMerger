@@ -25,10 +25,10 @@ export class AuthService {
     public jwtDecoded: any;
     public activeCompany: any;
     public expiredToken: boolean;
-    public companySettings : any;
+    public companySettings: any;
     public lastTokenUpdate: Date;
 
-    constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {
+    constructor(private router: Router, private http: Http) {
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
         this.jwt = localStorage.getItem('jwt') || undefined;
         this.jwtDecoded = this.decodeToken(this.jwt);

@@ -117,7 +117,7 @@ export class RegisterPaymentModal {
 
     private invoiceID: number;
 
-    public type: Type = RegisterPaymentForm;
+    public type: Type<any> = RegisterPaymentForm;
 
     constructor() {
         const self = this;

@@ -134,6 +134,16 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WagetypeDetail,
         WagetypeList
     ],
+    entryComponents: [
+        TaxCardModalContent,
+        AltinnResponseModalContent,
+        VacationpayModalContent,
+        VacationpaySettingModalContent,
+        ControlModalContent,
+        PostingsummaryModalContent,
+        SalarytransFilterContent,
+        SelectAmeldingTypeModalContent
+    ],
     providers: [
         CanDeactivateGuard
     ],

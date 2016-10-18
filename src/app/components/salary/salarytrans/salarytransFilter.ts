@@ -87,7 +87,7 @@ export class SalarytransFilter {
     private modals: UniModal[];
     private modalConfig: any = {};
     private filters: any[] = [];
-    public type: Type = SalarytransFilterContent;
+    public type: Type<any> = SalarytransFilterContent;
     private filterResultString: string;
     @Output() private filtStringChange: EventEmitter<string> = new EventEmitter<string>();
 

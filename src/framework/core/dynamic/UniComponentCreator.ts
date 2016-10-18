@@ -1,20 +1,17 @@
 import {
     Injectable,
     ViewContainerRef,
-    ComponentRef,
+    ComponentFactoryResolver,
     ComponentFactory
 } from '@angular/core';
-import {RuntimeCompiler} from '@angular/compiler';
-import {AppModule} from '../../../app/appModule';
 import {IUniInputsAndOutputs} from './UniDynamic';
 
 @Injectable()
 export class ComponentCreator<T> {
-    constructor(public compiler: RuntimeCompiler) {}
+    constructor(public componentFactoryResolver: ComponentFactoryResolver) {}
 
-    public compileComponent<T>(component, module): ComponentFactory<T> {
-        module = module || AppModule;
-        return <ComponentFactory<T>>this.compiler.compileComponentSync(component, module);
+    public compileComponent<T>(component): ComponentFactory<T> {
+        return <ComponentFactory<T>>this.componentFactoryResolver.resolveComponentFactory(component);
     }
 
     public attachComponentTo<T>(anchor: ViewContainerRef, factory: ComponentFactory<T>, inputsAndOutputs: IUniInputsAndOutputs) {

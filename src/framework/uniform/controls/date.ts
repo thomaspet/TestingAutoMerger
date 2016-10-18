@@ -73,7 +73,7 @@ export class UniDateInput {
             let value = _.get(this.model, this.field.Property);
             let options = this.field.Options || {};
             if (value) {
-                this.control.updateValue(moment(new Date(value)).format('DD.MM.YYYY'));    
+                this.control.setValue(moment(new Date(value)).format('DD.MM.YYYY'));
             }
         }
     }
@@ -103,7 +103,7 @@ export class UniDateInput {
                 _.set(self.model, self.field.Property, date.toDateString());
                 self.onChange.emit(self.model);
             } else {
-                self.control.updateValue(null, {});
+                self.control.setValue(null, {});
                 _.set(self.model, self.field.Property, null);
                 self.onChange.emit(self.model);
             }

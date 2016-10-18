@@ -53,8 +53,8 @@ import {UniQueries} from './uniQueries';
         SaveQueryDefinitionForm,
         SaveQueryDefinitionModal
     ],
-    providers: [
-
+    entryComponents: [
+        SaveQueryDefinitionForm
     ],
     exports: [
         UniQueries,

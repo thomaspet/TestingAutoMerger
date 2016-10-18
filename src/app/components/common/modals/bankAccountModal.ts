@@ -223,7 +223,7 @@ export class BankAccountModal {
 
     private modalConfig: any = {};    
 
-    private type: Type = BankAccountForm;
+    private type: Type<any> = BankAccountForm;
 
     constructor() {
     }

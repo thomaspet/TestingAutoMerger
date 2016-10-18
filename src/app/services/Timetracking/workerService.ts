@@ -38,7 +38,7 @@ export class WorkerService extends BizHttp<Worker> {
         company: ''
     };    
     
-    constructor(http: UniHttp, authService: AuthService ) {
+    constructor(http: UniHttp, authService: AuthService) {
         super(http);
         this.relativeURL = Worker.RelativeUrl;
         this.entityType = Worker.EntityType;

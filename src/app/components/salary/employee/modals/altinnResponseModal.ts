@@ -43,7 +43,7 @@ export class AltinnResponseModalContent {
 })
 export class AltinnResponseModal implements OnChanges, AfterViewInit {
     public config: { close: () => void, update: () => void };
-    public type: Type = AltinnResponseModalContent;
+    public type: Type<any> = AltinnResponseModalContent;
     private ready: boolean = false;
 
     @Input() private responseMessage: string = '';

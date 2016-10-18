@@ -44,7 +44,6 @@ export class SelectAmeldingTypeModalContent {
     }
 
 
-
 }
 
 @Component({
@@ -54,7 +53,7 @@ export class SelectAmeldingTypeModalContent {
 export class SelectAmeldingTypeModal implements AfterViewInit {
     public ameldType: number;
     public modalConfig: any = {};
-    public type: Type = SelectAmeldingTypeModalContent;
+    public type: Type<any> = SelectAmeldingTypeModalContent;
     @Output() private ameldTypeChange: EventEmitter<number> = new EventEmitter<number>();
 
     @ViewChild(UniModal)

@@ -35,7 +35,10 @@ var jsFiles = [
 
     require.resolve('systemjs/dist/system.src.js'),
 
-    require.resolve('rxjs/bundles/Rx.min.js')
+    // not handled by require since that file is created in a gulp task
+    // and could not be available.
+    // this file is also temporary until bug with Rx bundle is fixed.
+    './node_modules/.tmp/Rx.js'
 ];
 
 var cssFiles = [
@@ -44,13 +47,13 @@ var cssFiles = [
 
 gulp.task('vendors', ['vendors.js', 'vendors.css'])
 
-gulp.task('vendors.js', function() {
+gulp.task('vendors.js', ['rxbundle'], function () {
     gulp.src(jsFiles)
         .pipe(plugins.concat('vendors.bundle.js'))
         .pipe(gulp.dest('./dist'))
 });
 
-gulp.task('vendors.css', function() {
+gulp.task('vendors.css', function () {
     gulp.src(cssFiles)
         .pipe(plugins.concat('vendors.bundle.css'))
         .pipe(gulp.dest('./dist'))

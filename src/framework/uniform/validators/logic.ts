@@ -1,8 +1,8 @@
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 
 export function greaterThan(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (parseInt(c.value, 10) > value) {
             return null;
         }
@@ -14,7 +14,7 @@ export function greaterThan(value: number, key: string) {
 
 export function lowerThan(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (parseInt(c.value, 10) < value) {
             return null;
         }
@@ -26,7 +26,7 @@ export function lowerThan(value: number, key: string) {
 
 export function greaterEqualThan(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (parseInt(c.value, 10) >= value) {
             return null;
         }
@@ -38,7 +38,7 @@ export function greaterEqualThan(value: number, key: string) {
 
 export function lowerEqualThan(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (parseInt(c.value, 10) <= value) {
             return null;
         }
@@ -50,7 +50,7 @@ export function lowerEqualThan(value: number, key: string) {
 
 export function equalTo(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (parseInt(c.value, 10) === value) {
             return null;
         }
@@ -62,7 +62,7 @@ export function equalTo(value: number, key: string) {
 
 export function notEqualTo(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (parseInt(c.value, 10) !== value) {
             return null;
         }

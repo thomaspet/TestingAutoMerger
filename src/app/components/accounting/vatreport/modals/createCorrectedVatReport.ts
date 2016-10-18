@@ -1,5 +1,4 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
-import {NgIf} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniForm';
 import {FieldLayout, Period, VatReport, FieldType} from '../../../../../app/unientities';
@@ -170,7 +169,7 @@ export class CreateCorrectedVatReportModal {
     private vatReportID: number;
     private periodID: number;
     private period: Period;
-    public type: Type = CreateCorrectedVatReportForm;
+    public type: Type<any> = CreateCorrectedVatReportForm;
     public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
     constructor(private periodService: PeriodService, private toastService: ToastService) {

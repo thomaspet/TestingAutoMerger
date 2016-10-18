@@ -117,7 +117,7 @@ export class UniAutocompleteInput {
         // Perform initial lookup to get display value
         this.getInitialDisplayValue(this.control.value)
             .subscribe(result => {
-                this.control.updateValue(this.template(result[0]) || '', {emitEvent: false});
+                this.control.setValue(this.template(result[0]) || '', {emitEvent: false});
             });
 
         this.control.valueChanges

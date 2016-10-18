@@ -1,6 +1,5 @@
 import {Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactory} from '@angular/core';
 import {ComponentCreator} from '../../../../framework/core/dynamic/index';
-import {AppModule} from '../../../appModule';
 import {UniTestComponent} from './testComponent';
 
 @Component({
@@ -23,7 +22,7 @@ export class UniDynamicDemo {
     public status: string = 'Component is not created!';
 
     constructor(public creator: ComponentCreator<UniTestComponent>) {
-        this.factory = this.creator.compileComponent<UniTestComponent>(UniTestComponent, AppModule);
+        this.factory = this.creator.compileComponent<UniTestComponent>(UniTestComponent);
     }
 
     public create() {

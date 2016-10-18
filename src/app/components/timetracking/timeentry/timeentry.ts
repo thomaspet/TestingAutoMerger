@@ -12,7 +12,7 @@ import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 
 declare var moment;
 
@@ -84,13 +84,13 @@ export class TimeEntry {
 
     constructor(private tabService: TabService, private service: WorkerService,
                 private timesheetService: TimesheetService, private lookup: Lookupservice,
-                private toast: ToastService, private router: Router) {
+                private toast: ToastService, private route: ActivatedRoute) {
 
         this.filters = service.getIntervalItems();
 
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
 
-        router.routerState.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
+        route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
             if (item.workerId) {
                 console.info('workerId:' + item.workerId + ', workRelationId:' + item.workRelationId);
                 this.init(item.workerId);

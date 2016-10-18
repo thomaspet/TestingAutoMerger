@@ -71,7 +71,7 @@ export class BalanceReportFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = BalanceReportFilterForm;
+    public type: Type<any> = BalanceReportFilterForm;
 
     private previewModal: PreviewModal;
 

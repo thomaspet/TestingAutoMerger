@@ -84,6 +84,11 @@ require('./gulp/web-config');
  */
 require('./gulp/zip');
 
+/**
+ *  create systemjs bundle for rxjs lib
+ */
+require('./gulp/rxbundle');
+
 var tasks = {
     prod: [
         'index.html',

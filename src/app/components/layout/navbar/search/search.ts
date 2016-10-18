@@ -166,7 +166,7 @@ export class NavbarSearch implements AfterViewInit {
         const lower = name.toLowerCase();
 
         if (['faktura', 'tilbud', 'ordre'].indexOf(name.toLowerCase()) >= 0) {
-            this.inputControl.updateValue(name + ' ', { emitEvent: true });
+            this.inputControl.setValue(name + ' ', { emitEvent: true });
         }
     }
 
@@ -174,7 +174,7 @@ export class NavbarSearch implements AfterViewInit {
         setTimeout(() => {
             this.focusPositionTop = 0;
             this.searchResults = [];
-            this.inputControl.updateValue('', { emitEvent: false });
+            this.inputControl.setValue('', { emitEvent: false });
             this.isExpanded = false;
             this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
         }, 120);

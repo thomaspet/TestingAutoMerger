@@ -121,7 +121,7 @@ export class SupplierAccountReportFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = SupplierAccountReportFilterForm;
+    public type: Type<any> = SupplierAccountReportFilterForm;
 
     private previewModal: PreviewModal;
 

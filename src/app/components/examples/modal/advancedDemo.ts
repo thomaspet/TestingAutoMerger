@@ -1,14 +1,12 @@
-import {Component, ViewChild, ViewChildren, Type, Input, QueryList, ComponentRef} from '@angular/core';
-import {NgIf, NgModel, NgFor} from '@angular/common';
+import {Component, ViewChild, Type, Input, ComponentRef} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {UniForm} from '../../../../framework/uniform/index';
 import {FieldType} from '../../../unientities';
-import {UniFieldLayout} from "../../../../framework/uniform/interfaces";
+import {UniFieldLayout} from '../../../../framework/uniform/interfaces';
 
 @Component({
     selector: 'reusable-component',
-
     template: `
         <uni-form
             [config]='config'
@@ -56,7 +54,7 @@ export class ReusableComponent {
     template: `
         <article class='modal-content'>
             <h1 *ngIf='config.title'>{{config.title}}</h1>
-            <uni-component-loader></uni-component-loader>
+            <uni-component-loader [type]=""></uni-component-loader>
             <footer>
                 <button *ngFor='let action of config.actions; let i=index' (click)='action.method()'>
                     {{action.text}}
@@ -69,17 +67,8 @@ export class UniModalTest {
     @Input('config')
     config;
     @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;
     instance: Promise<ReusableComponent>;
-
-    ngAfterViewInit() {
-        var self = this;
-        this.ucl.load(ReusableComponent).then((cmp: ComponentRef<any>)=> {
-            self.instance = new Promise((resolve) => {
-                resolve(cmp.instance);
-            });
-        });
-    }
+    component: Type<any> = ReusableComponent;
 }
 
 @Component({
@@ -96,7 +85,7 @@ export class UniModalAdvancedDemo {
     modalConfig: any = {};
 
     valueFromModal: string = '';
-    type: Type = UniModalTest;
+    type: Type<any> = UniModalTest;
 
     constructor() {
         var self = this;

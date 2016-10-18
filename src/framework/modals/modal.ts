@@ -3,7 +3,6 @@ import {Input} from '@angular/core';
 import {Type} from '@angular/core';
 import {AfterViewInit} from '@angular/core';
 import {ViewChild} from '@angular/core';
-import {AppModule} from '../../app/appModule';
 import {ComponentCreator} from '../core/dynamic/UniComponentCreator';
 
 
@@ -22,7 +21,7 @@ export class UniModal implements AfterViewInit {
     config: any;
 
     @Input('type')
-    componentType: Type;
+    componentType: Type<any>;
 
     @ViewChild('modalContainer', {read: ViewContainerRef})
     container: ViewContainerRef;
@@ -42,12 +41,15 @@ export class UniModal implements AfterViewInit {
 
     ngAfterViewInit() {
         // compile the component
-        this.factory = this.creator.compileComponent<any>(this.componentType, AppModule);
+        this.factory = this.creator.compileComponent<any>(this.componentType);
     }
 
     createContent() {
         let self = this;
         let config = self.config || {};
+        if (!this.factory)  {
+            this.factory = this.creator.compileComponent<any>(this.componentType);
+        }
         let modal = this.creator.attachComponentTo(this.container, this.factory, {
             inputs: {
                 config: config,

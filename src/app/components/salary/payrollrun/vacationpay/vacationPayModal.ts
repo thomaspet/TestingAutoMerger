@@ -13,7 +13,7 @@ export class VacationpayModal implements AfterViewInit {
     private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number };
     
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
-    public type: Type = VacationpayModalContent;
+    public type: Type<any> = VacationpayModalContent;
 
     constructor(private router: ActivatedRoute) {
         this.router.params.subscribe((params) => {

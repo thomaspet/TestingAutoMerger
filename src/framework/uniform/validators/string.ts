@@ -1,8 +1,8 @@
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 
 export function contains(value: string, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (c.value.indexOf(value) > -1) {
             return null;
         }
@@ -14,7 +14,7 @@ export function contains(value: string, key: string) {
 
 export function eqLenght(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (c.value.length === value) {
             return null;
         }
@@ -26,7 +26,7 @@ export function eqLenght(value: number, key: string) {
 
 export function maxLenght(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (c.value.length < value) {
             return null;
         }
@@ -38,7 +38,7 @@ export function maxLenght(value: number, key: string) {
 
 export function minLength(value: number, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         if (c.value.length > value) {
             return null;
         }
@@ -50,7 +50,7 @@ export function minLength(value: number, key: string) {
 
 export function match(value: RegExp|string, key: string) {
     'use strict';
-    return function validator(c: Control): any {
+    return function validator(c: FormControl): any {
         var re: RegExp;
         if (typeof value === 'string') {
             re = new RegExp(value);

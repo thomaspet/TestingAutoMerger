@@ -31,7 +31,7 @@ export class PreviewModal {
     private modal: UniModal;
     
     public modalConfig: any = {};
-    public type: Type = ReportPreviewModalType;
+    public type: Type<any> = ReportPreviewModalType;
     
     private reportDefinition: ReportDefinition;
 

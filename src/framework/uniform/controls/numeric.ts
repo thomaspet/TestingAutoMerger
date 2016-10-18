@@ -85,11 +85,11 @@ export class UniNumericInput {
         var value: number;
         if (this.isArrowDown(event.keyCode)) {
             value = +this.control.value;
-            this.control.updateValue(value - this.field.Options.step);
+            this.control.setValue(value - this.field.Options.step);
         }
         if (this.isArrowUp(event.keyCode)) {
             value = +this.control.value;
-            this.control.updateValue(value + this.field.Options.step);
+            this.control.setValue(value + this.field.Options.step);
         }
     }
 
@@ -143,13 +143,13 @@ export class UniNumericInput {
             this.lastControlValue = this.control.value;
             let value = accounting.unformat(this.control.value);
             let stringValue = accounting.formatNumber(value, options.decimals, options.thousands);
-            this.control.updateValue(stringValue);
+            this.control.setValue(stringValue);
             _.set(this.model, this.field.Property, value);
             this.onChange.emit(this.model);
         } else {
             this.lastControlValue = _.get(this.model, this.field.Property) + '';
             let stringValue = accounting.formatNumber(_.get(this.model, this.field.Property), options.decimals, options.thousands);
-            this.control.updateValue(stringValue);
+            this.control.setValue(stringValue);
         }
     }
 
@@ -158,6 +158,6 @@ export class UniNumericInput {
             return;
         }
         let value = accounting.unformat(this.control.value);
-        this.control.updateValue(value);
+        this.control.setValue(value);
     }
 }

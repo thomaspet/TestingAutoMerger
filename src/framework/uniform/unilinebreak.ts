@@ -1,6 +1,4 @@
-import {Component, Input} from '@angular/core';
-import {Control} from '@angular/common';
-import {NgIf} from '@angular/common';
+import {Component} from '@angular/core';
 
 /**
  * Displays error message that is attached to an invalid control

@@ -139,7 +139,7 @@ export class ResultAndBalanceReportFilterModal {
     private modal: UniModal;
 
     public modalConfig: any = {};
-    public type: Type = ResultAndBalanceReportFilterForm;
+    public type: Type<any> = ResultAndBalanceReportFilterForm;
 
     private previewModal: PreviewModal;
 

@@ -180,7 +180,7 @@ export class PhoneModal {
     @Output() public Canceled = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
-    private type: Type = PhoneForm;
+    private type: Type<any> = PhoneForm;
 
     constructor(private phoneService: PhoneService) {
     }

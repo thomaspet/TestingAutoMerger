@@ -1,10 +1,10 @@
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 
 declare var _;
 
 export function isDate(value: any, key: string) {
     'use strict';
-    return function (c: Control): any {
+    return function (c: FormControl): any {
         if (_.isDate(c.value)) {
             return null;
         }
@@ -16,7 +16,7 @@ export function isDate(value: any, key: string) {
 
 export function isDateGreaterThan(value: any, key: string) {
     'use strict';
-    return function (c: Control): any {
+    return function (c: FormControl): any {
         if (_.isDate(c.value) && c.value.getTime() > value.getTime()) {
             return null;
         }
@@ -28,7 +28,7 @@ export function isDateGreaterThan(value: any, key: string) {
 
 export function isDateGreaterThanEqual(value: any, key: string) {
     'use strict';
-    return function (c: Control): any {
+    return function (c: FormControl): any {
         if (_.isDate(c.value) && c.value.getTime() >= value.getTime()) {
             return null;
         }
@@ -40,7 +40,7 @@ export function isDateGreaterThanEqual(value: any, key: string) {
 
 export function isDateLowerThan(value: any, key: string) {
     'use strict';
-    return function (c: Control): any {
+    return function (c: FormControl): any {
         if (_.isDate(c.value) && c.value.getTime() < value.getTime()) {
             return null;
         }
@@ -52,7 +52,7 @@ export function isDateLowerThan(value: any, key: string) {
 
 export function isDateLowerThanEqual(value: any, key: string) {
     'use strict';
-    return function (c: Control): any {
+    return function (c: FormControl): any {
         if (_.isDate(c.value) && c.value.getTime() <= value.getTime()) {
             return null;
         }

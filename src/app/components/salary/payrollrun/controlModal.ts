@@ -181,7 +181,7 @@ export class ControlModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[] };
-    public type: Type = ControlModalContent;
+    public type: Type<any> = ControlModalContent;
 
     constructor(private route: ActivatedRoute) {
         

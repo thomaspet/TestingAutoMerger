@@ -32,7 +32,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
     constructor(
         private uniHttp: UniHttp,
-        @Inject(ReportDefinitionDataSourceService)
         private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
         private reportGenerator: StimulsoftReportWrapper) {
 

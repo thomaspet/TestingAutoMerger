@@ -1,4 +1,4 @@
-import {Component, DynamicComponentLoader, ViewContainerRef, ComponentRef, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ComponentFactoryResolver, ComponentFactory, ViewContainerRef, ComponentRef, Input, Output, EventEmitter, Type} from '@angular/core';
 
 /**
  * Component Loader
@@ -19,7 +19,7 @@ import {Component, DynamicComponentLoader, ViewContainerRef, ComponentRef, Input
 export class UniComponentLoader {
 
     @Input()
-    public type: any;
+    public type: Type<any>;
 
     @Input()
     public loader: (cmp: ComponentRef<any>) => any | Promise<any> | void;
@@ -32,7 +32,7 @@ export class UniComponentLoader {
 
     public component: any;
 
-    constructor(public container: ViewContainerRef, public dcl: DynamicComponentLoader) {
+    constructor(public container: ViewContainerRef, public resolver: ComponentFactoryResolver) {
 
     }
 
@@ -41,39 +41,17 @@ export class UniComponentLoader {
      * Nothing if component has no parameters
      */
     public ngOnInit() {
-        var self = this;
-        if (this.type && this.loader) {
-            this.load(this.type).then(this.loader).then((cmp) => { this.onLoad.emit(cmp); });
-        } else if (this.type && this.config) {
-            this.dcl.loadNextToLocation(this.type, this.container)
-                .then((cmp: ComponentRef<any>) => {
-                    cmp.instance.config = self.config;
-                    self.component = cmp.instance;
-                    self.onLoad.emit(cmp.instance);
-                    return cmp;
-                });
-        } else if (this.type) {
-            this.dcl.loadNextToLocation(this.type, this.container).then((cmp: ComponentRef<any>) => {
-                self.component = cmp.instance;
-                self.onLoad.emit(cmp.instance);
-                return cmp;
-            });
-        }
+        let factory: ComponentFactory<any> = this.resolver.resolveComponentFactory(this.type);
+        let component: ComponentRef<any> = this.container.createComponent(factory);
+        component.instance.config = this.config || {};
+        this.component = component.instance;
+        this.onLoad.emit(component.instance);
     }
 
-    /**
-     * It returns a promise with the component we want to load
-     *
-     * @param type Element we want to load
-     * @param loader Function that can manage the component loaded
-     * @returns {any} (optional) it can return nothing or a promise
-     */
-    public load(type: any) {
-        var self = this;
-        return this.dcl.loadNextToLocation(type, this.container).then((cmp: ComponentRef<any>) => {
-            self.component = cmp.instance;
-            self.onLoad.emit(cmp.instance);
-            return cmp;
-        });
+    load(component: Type<any>) {
+        let factory: ComponentFactory<any> = this.resolver.resolveComponentFactory(component);
+        let cmp: ComponentRef<any> = this.container.createComponent(factory);
+        return cmp;
     }
+
 }

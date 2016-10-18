@@ -67,19 +67,17 @@ export class CustomerAdd {
        
     loadForm() {       
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef<UniForm>) => {
-           cmp.instance.fields = self.FormConfig;
-           setTimeout(() => {
-                self.formInstance = cmp.instance;
-                self.formInstance.field('Name')
-                    .control
-                    .valueChanges
-                    .debounceTime(300)
-                    .distinctUntilChanged()
-                    .subscribe((data) => self.searchText = data);
-           });
-        });       
-        
+        let cmp = this.UniCmpLoader.load(UniForm);
+        cmp.instance.fields = self.FormConfig;
+        setTimeout(() => {
+            self.formInstance = cmp.instance;
+            self.formInstance.field('Name')
+                .control
+                .valueChanges
+                .debounceTime(300)
+                .distinctUntilChanged()
+                .subscribe((data) => self.searchText = data);
+        });
     }  
 
     // TODO: update to 'ComponentLayout' respecting the interface

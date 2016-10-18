@@ -8,7 +8,7 @@ import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
 })
 export class VacationpaySettingModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
-    private type: Type = VacationpaySettingModalContent;
+    private type: Type<any> = VacationpaySettingModalContent;
     private modalConfig: {hasCancelButton: boolean, cancel: any};
 
     constructor() {

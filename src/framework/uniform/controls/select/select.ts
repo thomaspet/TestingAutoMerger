@@ -151,7 +151,7 @@ export class UniSelect {
 
     public close() {
         this.expanded = false;
-        this.searchControl.updateValue('');
+        this.searchControl.setValue('');
         this.filterString = '';
         this.filteredItems = this.items;
     }

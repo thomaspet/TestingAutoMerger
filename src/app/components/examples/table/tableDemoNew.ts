@@ -1,5 +1,4 @@
 import {Component, ViewChildren, QueryList} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Http, URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
@@ -30,8 +29,7 @@ import {FieldType} from '../../../unientities';
                    [config]="demoTable3"
                    (rowSelected)="rowSelected($event)">
         </uni-table>
-    `,
-    pipes: [AsyncPipe]
+    `
 })
 export class UniTableDemoNew {
     @ViewChildren(UniTable)

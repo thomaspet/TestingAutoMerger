@@ -13,7 +13,7 @@ export class PostingsummaryModal implements AfterViewInit {
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modals: UniModal[];
     private modalConfig: any;
-    public type: Type = PostingsummaryModalContent;
+    public type: Type<any> = PostingsummaryModalContent;
 
     constructor(private route: ActivatedRoute) {
 
