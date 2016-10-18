@@ -64,7 +64,12 @@ export class UniModal implements AfterViewInit {
             this.createContent();
         }
         this.isOpen = true;
-        setTimeout(() => this.elementRef.nativeElement.querySelector('input,textarea,select').focus());
+        setTimeout(() => {
+            const el = this.elementRef.nativeElement.querySelector('input,textarea,select');
+            if (el) {
+                el.focus();
+            }
+        });
     }
 
     close() {
