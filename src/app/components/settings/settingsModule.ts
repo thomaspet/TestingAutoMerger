@@ -19,7 +19,7 @@ import {AgaAndSubEntitySettings} from "./agaAndSubEntitySettings/agaAndSubEntity
 import {SubEntityDetails} from "./agaAndSubEntitySettings/subEntityDetails";
 import {SubEntityList} from "./agaAndSubEntitySettings/subEntityList";
 import {AltinnSettings} from "./altinnSettings/altinnSettings";
-import {CompanySettings} from "./companySettings/companySettings";
+import {CompanySettingsComponent} from "./companySettings/companySettings";
 import {Users} from "./users/users";
 import {UserSettings} from "./userSettings/userSettings";
 import {VatSettings} from "./vatsettings/vatsettings";
@@ -58,7 +58,7 @@ import {VatTypeList} from "./vatsettings/vattypelist/vatTypeList";
         SubEntityDetails,
         SubEntityList,
         AltinnSettings,
-        CompanySettings,
+        CompanySettingsComponent,
         Users,
         UserSettings,
         VatSettings,
@@ -75,7 +75,7 @@ import {VatTypeList} from "./vatsettings/vattypelist/vatTypeList";
         SubEntityDetails,
         SubEntityList,
         AltinnSettings,
-        CompanySettings,
+        CompanySettingsComponent,
         Users,
         UserSettings,
         VatSettings,

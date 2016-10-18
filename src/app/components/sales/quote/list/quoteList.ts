@@ -26,7 +26,7 @@ export class QuoteList {
         private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService) {
 
-        this.tabService.addTab({ name: 'Tilbud', url: '/sales/quote', active: true, moduleID: UniModules.Quotes });
+        this.tabService.addTab({ name: 'Tilbud', url: '/sales/quotes', active: true, moduleID: UniModules.Quotes });
         this.setupQuoteTable();
     }
 

@@ -11,7 +11,7 @@ export class Settings {
     private childRoutes: any[];
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'Settings', url: '/settings/company', moduleID: UniModules.Settings, active: true });
+        this.tabService.addTab({ name: 'Innstillinger', url: '/settings/company', moduleID: UniModules.Settings, active: true });
         this.childRoutes = [
             {name: 'Firmainnstillinger', path: 'company'},
             {name: 'Aga og virksomheter', path: 'aga-and-subentities'},

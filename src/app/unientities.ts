@@ -2263,9 +2263,9 @@ export class CompanySettings {
     public VatLockedDate: Date;
     public VatReportFormID: number;
     public WebAddress: string;
-    public Address: Array<Address>;
-    public Phones: Array<Phone>;
-    public Emails: Array<Email>;
+    public DefaultAddress: Address;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;

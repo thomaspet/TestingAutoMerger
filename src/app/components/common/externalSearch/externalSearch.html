@@ -1,30 +1,33 @@
 <section class="application">
     <section class="header">
         <section class="header-info">
-            <h3>Søk i eksterne registre:</h3>
+            <h3>Søk i brønnøysundregisteret:</h3>
+            <p *ngIf="helpText">{{helpText}}</p>
         </section>
         <section class="filter">
             <input type="text" id="searchText" *ngIf="useInternalSearchBox"/>
             <!--<input type="checkbox" value="BRREG" checked="true" />Brønnøysund
             <input type="checkbox" value="1880" />1880-->
-        </section>  
+        </section>
     </section>
-    <section class="search-content">        
+    <section class="search-content">
         <section class="search-result">
             <article *ngFor="let item of searchResult" (click)="selectItem(item)" class="search-result-item">
                 <section class="search-result-main-info">{{item.navn}}</section>
                 <section class="search-result-extra-info">Orgnr: {{item.orgnr}}, {{item.forradrpostnr + " " + item.forradrpoststed}}</section>
-            </article>            
+            </article>
         </section>
         <section class="more-results-info" *ngIf="fullSearchResult.length > MINIMUMHITS">
             Viser {{searchResult.length}} av {{fullSearchResult.length}} treff
             <a href="#" *ngIf="!showAllResults" (click)="doShowAllResults()">vis alle</a>
             <a href="#" *ngIf="showAllResults" (click)="doHideAllResults()">vis noen</a>
         </section>
-        <p *ngIf="fullSearchResult.length == 0">
+        <p *ngIf="fullSearchResult.length == 0 && (searchText === '' || !searchText)">
             Begynn å skrive noe i "Navn" under for å søke i Brønnøysundregisteret
         </p>
-        
+        <p *ngIf="fullSearchResult.length == 0 && searchText !== ''">
+            Ingen treff i Brønnøysundregisteret basert på søket {{searchText}}.
+        </p>
     </section>
-    <div class="clear"></div>    
+    <div class="clear"></div>
 </section>

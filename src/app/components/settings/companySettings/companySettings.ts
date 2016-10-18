@@ -7,26 +7,31 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount, Municipal} from '../../../unientities';
-import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService} from '../../../services/services';
-import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService} from '../../../services/services';
+import {CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount, Municipal, Address, Phone, Email} from '../../../unientities';
+import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, PhoneService, EmailService} from '../../../services/services';
+import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService, AddressService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
+import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 
-declare var _;
+declare const _;
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html'
 })
-
-export class CompanySettings implements OnInit {
+export class CompanySettingsComponent implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
+    @ViewChild(EmailModal) public emailModal: EmailModal;
+    @ViewChild(AddressModal) public addressModal: AddressModal;
+    @ViewChild(PhoneModal) public phoneModal: PhoneModal;
 
     private defaultExpands: any = [
-        'Address',
-        'Emails',
-        'Phones',
+        'DefaultAddress',
+        'DefaultEmail',
+        'DefaultPhone',
         'BankAccounts',
         'BankAccounts.Bank',
         'BankAccounts.Account',
@@ -35,7 +40,7 @@ export class CompanySettings implements OnInit {
         'SalaryBankAccount'
     ];
 
-    private company: any;
+    private company: CompanySettings;
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
@@ -46,8 +51,18 @@ export class CompanySettings implements OnInit {
     private municipalities: Municipal[] = [];
     private bankAccountChanged: any;
 
-    private showImageSection: boolean = true; // used in template
+    private showImageSection: boolean = false; // used in template
     private imageUploadOptions: IUploadConfig;
+
+    private addressChanged: any;
+    private emailChanged: any;
+    private phoneChanged: any;
+    public emptyPhone: Phone;
+    public emptyEmail: Email;
+    public emptyAddress: Address;
+
+    private showExternalSearch: boolean = false;
+    private searchText: string = '';
 
     public config: any = {};
     public fields: any[] = [];
@@ -61,7 +76,6 @@ export class CompanySettings implements OnInit {
         }
     ];
 
-    // TODO Use service instead of Http, Use interfaces!!
     constructor(private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
         private currencyService: CurrencyService,
@@ -71,7 +85,11 @@ export class CompanySettings implements OnInit {
         private vatReportFormService: VatReportFormService,
         private vatTypeService: VatTypeService,
         private municipalService: MunicipalService,
-        private bankAccountService: BankAccountService) {
+        private bankAccountService: BankAccountService,
+        private addressService: AddressService,
+        private phoneService: PhoneService,
+        private emailService: EmailService,
+        private toastService: ToastService) {
     }
 
     public ngOnInit() {
@@ -89,7 +107,10 @@ export class CompanySettings implements OnInit {
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll(null),
             this.companySettingsService.Get(1, this.defaultExpands),
-            this.municipalService.GetAll(null)
+            this.municipalService.GetAll(null),
+            this.phoneService.GetNewEntity(),
+            this.emailService.GetNewEntity(),
+            this.addressService.GetNewEntity(null, 'Address')
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -98,8 +119,21 @@ export class CompanySettings implements OnInit {
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
                 this.accounts = dataset[5];
-                this.company = dataset[6];
                 this.municipalities = dataset[7];
+                this.emptyPhone = dataset[8];
+                this.emptyEmail = dataset[9];
+                this.emptyAddress = dataset[10];
+
+                // do this after getting emptyPhone/email/address
+                this.company = this.setupCompanySettingsData(dataset[6]);
+
+                this.showExternalSearch = this.company.OrganizationNumber === '-';
+
+                if (this.showExternalSearch) {
+                    setTimeout(() => {
+                        this.searchText = this.company.CompanyName;
+                    });
+                }
 
                 this.extendFormConfig();
                 this.imageUploadOptions = {
@@ -111,39 +145,63 @@ export class CompanySettings implements OnInit {
                 };
 
                 setTimeout(() => {
-                    this.form.onReady.subscribe((event) => {
-                        this.updateMunicipalityName();
-
-                        this.form.field('OfficeMunicipalityNo')
-                            .onChange
-                            .subscribe((value) => {
-                                this.updateMunicipalityName();
+                    if (this.showExternalSearch) {
+                        this.form.field('CompanyName')
+                            .control
+                            .valueChanges
+                            .debounceTime(300)
+                            .distinctUntilChanged()
+                            .subscribe((data) => {
+                                this.searchText = data;
                             });
-                    });
+                    }
                 });
 
             },
-            error => alert('Feil ved henting av data')
+            error => this.toastService.addToast('Feil ved henting av data', ToastType.bad)
             );
     }
 
+    private setupCompanySettingsData(companySettings: CompanySettings) {
+        // this is done to make it easy to use the multivalue component - this works with arrays
+        // so we create dummy arrays and put our default address, phone and email in the arrays
+        // even though we actually only have one of each
+        companySettings.DefaultAddress = companySettings.DefaultAddress ? companySettings.DefaultAddress : this.emptyAddress;
+        companySettings['Addresses'] = [companySettings.DefaultAddress];
+        companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
+        companySettings['Phones'] = [companySettings.DefaultPhone];
+        companySettings.DefaultEmail = companySettings.DefaultEmail ? companySettings.DefaultEmail : this.emptyEmail;
+        companySettings['Emails'] = [companySettings.DefaultEmail];
+
+        return companySettings;
+    }
+
+    private addSearchInfo(searchInfo: SearchResultItem) {
+        let company = this.company;
+
+        company.OrganizationNumber = searchInfo.orgnr;
+        company.CompanyName = searchInfo.navn;
+        company.DefaultAddress.AddressLine1 = searchInfo.forretningsadr;
+        company.DefaultAddress.PostalCode = searchInfo.forradrpostnr;
+        company.DefaultAddress.City = searchInfo.forradrpoststed;
+        company.OfficeMunicipalityNo = searchInfo.forradrkommnr;
+        company.DefaultPhone.Number = searchInfo.tlf;
+        company.WebAddress = searchInfo.url;
+
+        let companyType = this.companyTypes.find(x => x != null && x.Name === searchInfo.organisasjonsform);
+        if (companyType) {
+            company.CompanyTypeID = companyType.ID;
+        }
+
+        this.company = _.cloneDeep(company);
+    }
 
     public saveSettings(complete) {
 
-        if (this.company.Address.length > 0 && !this.company.Address[0].ID) {
-            this.company.Address[0].ID = 0;
-            this.company.Address[0]._createguid = this.companySettingsService.getNewGuid();
-            this.company.Address[0].BusinessRelationID = 0;
-        }
-
-        if (this.company.Emails.length > 0 && !this.company.Emails[0].ID) {
-            this.company.Emails[0].ID = 0;
-            this.company.Emails[0]._createguid = this.companySettingsService.getNewGuid();
-        }
-
-        if (this.company.Phones.length > 0 && !this.company.Phones[0].ID) {
-            this.company.Phones[0].ID = 0;
-            this.company.Phones[0]._createguid = this.companySettingsService.getNewGuid();
+        if (this.company.OrganizationNumber === '-' || isNaN(<any>this.company.OrganizationNumber)) {
+            alert('Vennligst oppgi et gyldig organisasjonsnr');
+            complete('Ugyldig organisasjonsnr, lagring avbrutt');
+            return;
         }
 
         if (this.company.BankAccounts) {
@@ -152,6 +210,18 @@ export class CompanySettings implements OnInit {
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
                 }
             });
+        }
+
+        if (this.company.DefaultAddress.ID === 0 && !this.company.DefaultAddress['_createguid']) {
+            this.company.DefaultAddress['_createguid'] = this.addressService.getNewGuid();
+        }
+
+        if (this.company.DefaultEmail.ID === 0 && !this.company.DefaultEmail['_createguid']) {
+            this.company.DefaultEmail['_createguid'] = this.emailService.getNewGuid();
+        }
+
+        if (this.company.DefaultPhone.ID === 0 && !this.company.DefaultPhone['_createguid']) {
+            this.company.DefaultPhone['_createguid'] = this.phoneService.getNewGuid();
         }
 
         if (this.company.CompanyBankAccount) {
@@ -166,35 +236,115 @@ export class CompanySettings implements OnInit {
             this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.SalaryBankAccount);
         }
 
-        delete this.company.MunicipalityName;
-
         this.companySettingsService
             .Put(this.company.ID, this.company)
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1, this.defaultExpands).subscribe(company => {
-                    this.company = company;
+                    this.company = this.setupCompanySettingsData(company);
+                    this.showExternalSearch = this.company.OrganizationNumber === '-';
+
+                    this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                     complete('Innstillinger lagret');
-                })
+                });
             },
             (error) => {
                 complete('Feil oppsto ved lagring');
-                alert('Feil oppsto ved lagring:' + JSON.stringify(error.json()));
+                this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, null, JSON.stringify(error.json()));
             }
-            );
+        );
     }
 
     private updateMunicipalityName() {
         this.municipalService.GetAll(`filter=MunicipalityNo eq '${this.company.OfficeMunicipalityNo}'`)
             .subscribe((data) => {
                 if (data != null && data.length > 0) {
-                    this.company.MunicipalityName = data[0].MunicipalityName;
+                    this.company['MunicipalityName'] = data[0].MunicipalityName;
                     this.company = _.cloneDeep(this.company);
                 }
             });
     }
 
     private extendFormConfig() {
+
+        var defaultAddress: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultAddress');
+        defaultAddress.Options = {
+            allowAddValue: false,
+            allowDeleteValue: false,
+            entity: Address,
+            listProperty: 'Addresses',
+            displayValue: 'AddressLine1',
+            linkProperty: 'ID',
+            storeResultInProperty: 'DefaultAddressID',
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Address();
+                    value.ID = 0;
+                }
+
+                this.addressModal.openModal(value);
+
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                    this.addressChanged.unsubscribe();
+                    resolve(modalval);
+                });
+            }),
+            display: (address: Address) => {
+                return this.addressService.displayAddress(address);
+            }
+        };
+
+        var phones: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultPhone');
+
+        phones.Options = {
+            allowAddValue: false,
+            allowDeleteValue: false,
+            entity: Phone,
+            listProperty: 'Phones',
+            displayValue: 'Number',
+            linkProperty: 'ID',
+            storeResultInProperty: 'DefaultPhoneID',
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Phone();
+                    value.ID = 0;
+                }
+
+                this.phoneModal.openModal(value);
+
+                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => {
+                    this.phoneChanged.unsubscribe();
+                    resolve(modalval);
+                });
+            })
+        };
+
+        var emails: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultEmail');
+
+        emails.Options = {
+            allowAddValue: false,
+            allowDeleteValue: false,
+            entity: Email,
+            listProperty: 'Emails',
+            displayValue: 'EmailAddress',
+            linkProperty: 'ID',
+            storeResultInProperty: 'DefaultEmailID',
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Email();
+                    value.ID = 0;
+                }
+
+                this.emailModal.openModal(value);
+
+                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
+                    this.emailChanged.unsubscribe();
+                    resolve(modalval);
+                });
+            })
+        };
+
+
         this.accountGroupSets.unshift(null);
         let accountGroupSetID: UniFieldLayout = this.fields.find(x => x.Property === 'AccountGroupSetID');
         accountGroupSetID.Options = {
@@ -302,13 +452,13 @@ export class CompanySettings implements OnInit {
 
                 this.bankAccountModal.openModal(bankaccount);
 
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((bankaccount) => {
+                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
                     this.bankAccountChanged.unsubscribe();
 
                     // update BankAccounts list only active is updated directly
                     this.company.BankAccounts.forEach((ba, i) => {
-                        if ((ba.ID && ba.ID == bankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == bankaccount._createguid)) {
-                            this.company.BankAccounts[i] = bankaccount;
+                        if ((ba.ID && ba.ID == changedBankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == changedBankaccount._createguid)) {
+                            this.company.BankAccounts[i] = changedBankaccount;
                         }
                     });
 
@@ -415,10 +565,10 @@ export class CompanySettings implements OnInit {
                 ComponentLayoutID: 1,
 
                 EntityType: 'CompanySettings',
-                Property: 'Address[0].AddressLine1',
+                Property: 'DefaultAddress',
                 Placement: 2,
                 Hidden: false,
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.MULTIVALUE,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Adresse',
@@ -437,128 +587,11 @@ export class CompanySettings implements OnInit {
             },
             {
                 ComponentLayoutID: 1,
-
                 EntityType: 'CompanySettings',
-                Property: 'Address[0].AddressLine2',
+                Property: 'DefaultEmail',
                 Placement: 2,
                 Hidden: false,
-                FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Adresse 2',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                IsLookUp: false,
-                openByDefault: true,
-                Validations: []
-            },
-            {
-                ComponentLayoutID: 1,
-
-                EntityType: 'CompanySettings',
-                Property: 'Address[0].PostalCode',
-                Placement: 1,
-                Hidden: false,
-                FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Postnummer',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Sectionheader: '',
-                Placeholder: '',
-                Options: null,
-                LineBreak: null,
-                IsLookUp: false,
-                Validations: []
-            },
-            {
-                ComponentLayoutID: 1,
-
-                EntityType: 'CompanySettings',
-                Property: 'Address[0].City',
-                Placement: 3,
-                Hidden: false,
-                FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Poststed',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                IsLookUp: false,
-                hasLineBreak: true,
-                Validations: []
-            },
-            {
-                ComponentLayoutID: 1,
-
-                EntityType: 'CompanySettings',
-                Property: 'Address[0].CountryCode',
-                Placement: 4,
-                Hidden: false,
-                FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Landskode (land)',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                IsLookUp: false,
-                Validations: []
-            },
-            {
-                ComponentLayoutID: 1,
-
-                EntityType: 'CompanySettings',
-                Property: 'Address[0].Country',
-                Placement: 5,
-                Hidden: false,
-                FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Land',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                IsLookUp: false,
-                hasLineBreak: true,
-                Validations: []
-            },
-            {
-                ComponentLayoutID: 1,
-                EntityType: 'CompanySettings',
-                Property: 'Emails[0].EmailAddress',
-                Placement: 2,
-                Hidden: false,
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.MULTIVALUE,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Epost',
@@ -577,10 +610,10 @@ export class CompanySettings implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
-                Property: 'Phones[0].Number',
+                Property: 'DefaultPhone',
                 Placement: 2,
                 Hidden: false,
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.MULTIVALUE,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Telefon',

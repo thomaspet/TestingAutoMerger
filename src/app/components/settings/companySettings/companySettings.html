@@ -1,8 +1,13 @@
 ﻿<h2>Firmainnstillinger</h2>
-<article *ngIf="company">    
-    <uni-form class="companySettings"            
-            [config]="config" 
-            [fields]="fields" 
+<section class="poster_overview" *ngIf="showExternalSearch">
+    <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" [helpText]="'Registrer informasjon i feltene under, eller trykk på et av selskapene under for å fylle inn informasjon automatisk. Søket vil oppdatere seg hvis du endrer Firmanavn'"></external-search>
+</section>
+
+<article *ngIf="company">
+
+    <uni-form class="companySettings"
+            [config]="config"
+            [fields]="fields"
             [model]="company">
     </uni-form>
 
@@ -23,5 +28,9 @@
     <button (click)="syncVat()">Synkroniser mva</button>
     <button (click)="syncCurrency()">Last ned valuta</button>
 </section>
+
+<email-modal></email-modal>
+<phone-modal></phone-modal>
+<address-modal></address-modal>
 
 <uni-save [actions]="saveactions"></uni-save>

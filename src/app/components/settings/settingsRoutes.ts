@@ -1,6 +1,6 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {CompanySettings} from './companySettings/companySettings';
+import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
@@ -16,7 +16,7 @@ export const childRoutes: Routes = [
     },
     {
         path: 'company',
-        component: CompanySettings
+        component: CompanySettingsComponent
     },
     {
         path: 'aga-and-subentities',
