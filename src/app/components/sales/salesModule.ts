@@ -10,7 +10,6 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 import {routes as SalesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
-import {CustomerAdd} from './customer/add/customerAdd';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerList} from './customer/list/customerList';
 import {InvoiceItemList} from './invoice/details/invoiceItemList';
@@ -60,7 +59,6 @@ import {UniSales} from './sales';
     declarations: [
         UniSales,
         Customer,
-        CustomerAdd,
         CustomerDetails,
         CustomerList,
         InvoiceList,
@@ -89,7 +87,6 @@ import {UniSales} from './sales';
     exports: [
         UniSales,
         Customer,
-        CustomerAdd,
         CustomerDetails,
         CustomerList,
         InvoiceList,
