@@ -7,6 +7,8 @@ import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {JournalEntryLine} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {StatisticsService} from '../../../../services/common/StatisticsService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'transquery-details',
@@ -19,7 +21,7 @@ export class TransqueryDetails implements OnInit {
     private configuredFilter: string;
     private allowManualSearch: boolean = true;
 
-    constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService) {
+    constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService, private statisticsService: StatisticsService, private toastService: ToastService) {
         this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
 
@@ -33,33 +35,32 @@ export class TransqueryDetails implements OnInit {
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
-        console.log('urlParams:', urlParams);
 
-        // Some really complex filters cannot be defined through the unitable search module.
-        // The configuredFilter is set to an odatafilter in these cases, so that this can be
-        // used instead
         if (this.configuredFilter) {
             urlParams.set('filter', this.configuredFilter);
         }
 
-        urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod,Info,Dimensions,Dimensions.Department,Dimensions.Project');
+        urlParams.set('model', 'JournalEntryLine');
+        urlParams.set('select', 'JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear');
+        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
 
-        return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
+        return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
 
     public onFiltersChange(filter: string) {
 
-        // Some really complex filters cannot be defined through the unitable search module.
-        // The configuredFilter is set to an odatafilter in these cases, so that this can be
-        // used instead
-        if (this.configuredFilter) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(this.configuredFilter)
-                .subscribe(summary => this.summaryData = summary);
-        } else if (filter) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(filter)
-                .subscribe(summary => this.summaryData = summary);
+        var f = this.configuredFilter || filter;
+        if (f) {
+            f = f.split('Dimensions.').join('');
+            var urlParams = new URLSearchParams();
+            urlParams.set('model', 'JournalEntryLine');
+            urlParams.set('filter', f);
+            urlParams.set('select', 'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,sum(JournalEntryLine.Amount) as SumBalance');
+            urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
+            this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
+                this.summaryData = summary.Data[0];
+                this.summaryData.SumCredit *= -1;
+            });
         } else {
             this.summaryData = null;
         }
@@ -76,7 +77,7 @@ export class TransqueryDetails implements OnInit {
             && routeParams['isIncomingBalance']
         ) {
             const accountYear = `01.01.${routeParams['year']}`;
-            const nextAccountYear = `01.01.${routeParams['year'] + 1}`;
+            const nextAccountYear = `01.01.${parseInt(routeParams['year']) + 1}`;
             filter.push({field: 'Account.AccountNumber', operator: 'eq', value: routeParams['Account_AccountNumber'], group: 0});
             if (+routeParams['period'] === 0) {
                 filter.push({field: 'FinancialDate', operator: 'lt', value: accountYear, group: 0});
@@ -115,7 +116,7 @@ export class TransqueryDetails implements OnInit {
                     if (index > 0) {
                         this.configuredFilter += ' or ';
                     }
-                    this.configuredFilter += `(VatType.VatCode eq '${vatCode}' and Account.AccountNumber eq ${accountNo} )`;
+                    this.configuredFilter += `( VatType.VatCode eq '${vatCode}' and Account.AccountNumber eq ${accountNo} )`;
                 }
 
                 this.configuredFilter += ') ';
@@ -148,42 +149,58 @@ export class TransqueryDetails implements OnInit {
             .setFilters(unitableFilter)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
+            .setDataMapper((data) => {
+                let tmp = data !== null ? data.Data : [];
+
+                if (data !== null && data.Message !== null && data.Message !== '') {
+                    this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
+                }
+
+                return tmp;
+            })
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
-                    .setTemplate((journalEntryLine) => {
-                        return `<a href="/#/accounting/transquery/details;journalEntryNumber=${journalEntryLine.JournalEntryNumber}">
-                                ${journalEntryLine.JournalEntryNumber}
+                    .setTemplate(line => {
+                        return `<a href="/#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
+                                ${line.JournalEntryLineJournalEntryNumber}
                             </a>`;
                     })
                     .setFilterOperator('contains'),
                 new UniTableColumn('Account.AccountNumber', 'Kontonr')
-                    .setTemplate((journalEntryLine) => {
-                        return `<a href="/#/accounting/transquery/details;Account_AccountNumber=${journalEntryLine.Account.AccountNumber}">
-                                ${journalEntryLine.Account.AccountNumber}
+                    .setTemplate(line => {
+                        return `<a href="/#/accounting/transquery/details;Account_AccountNumber=${line.AccountAccountNumber}">
+                                ${line.AccountAccountNumber}
                             </a>`;
                     })
                     .setFilterOperator('contains'),
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('contains')
+                    .setTemplate(line => line.AccountAccountName),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.Date)
                     .setFilterOperator('contains')
-                    .setFormat('DD.MM.YYYY'),
+                    .setFormat('DD.MM.YYYY')
+                    .setTemplate(line => line.JournalEntryLineFinancialDate),
                 new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.Date)
                     .setFilterOperator('contains')
-                    .setFormat('DD.MM.YYYY'),
+                    .setFormat('DD.MM.YYYY')
+                    .setTemplate(line => line.JournalEntryLineVatDate),
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('contains')
+                    .setTemplate(line => line.JournalEntryLineDescription),
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
-                    .setFilterOperator('eq'),
+                    .setFilterOperator('eq')
+                    .setTemplate(line => line.VatTypeVatCode),
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
                     .setCls('column-align-right')
-                    .setFilterOperator('eq'),
+                    .setFilterOperator('eq')
+                    .setTemplate(line => line.JournalEntryLineAmount),
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Number)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
-                    .setVisible(showTaxBasisAmount),
-                new UniTableColumn('VatReportID', 'MVA rapportert', UniTableColumnType.Text)
-                    .setTemplate((line: JournalEntryLine) => line.VatReport && line.VatReport.TerminPeriod ? line.VatReport.TerminPeriod.No + '-' + line.VatReport.TerminPeriod.AccountYear : '')
+                    .setVisible(showTaxBasisAmount)
+                    .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
+                new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
+                    .setTemplate(line => line.VatReportTerminPeriodNo ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear : '')
                     .setFilterable(false)
                     .setVisible(false),
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
@@ -191,13 +208,13 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('eq')
                     .setVisible(false),
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-                    .setTemplate((line: JournalEntryLine) => this.journalEntryLineService.getStatusText(line.StatusCode))
+                    .setTemplate(line => this.journalEntryLineService.getStatusText(line.StatusCode))
                     .setFilterable(false)
                     .setVisible(false),
-                new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
-                    .setTemplate((data: JournalEntryLine) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; }),
-                new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
-                    .setTemplate((data: JournalEntryLine) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; })
+                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+                    .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
+                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; })
             ]);
     }
 }

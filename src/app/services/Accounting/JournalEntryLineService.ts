@@ -22,10 +22,6 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         this.DefaultOrderBy = null;
     }
     
-    public getJournalEntryLineRequestSummary(odataFilter: string): Observable<TransqueryDetailsCalculationsSummary> {
-        return super.GetAction(null, `get-journal-entry-period-data&odatafilter=${odataFilter}`);
-    }
-
     public periodNumberToPeriodDates(period: number, year: number): PeriodDates {
         const format = 'YYYY-MM-DD';
         const periodDates = new PeriodDates();

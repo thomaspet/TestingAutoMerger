@@ -19,6 +19,10 @@ export class StatisticsService extends BizHttp<string> {
         this.DefaultOrderBy = null;
     }
 
+    public GetDataByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
+        return this.GetAllByUrlSearchParams(params).map(response => response.json());
+    }
+
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
