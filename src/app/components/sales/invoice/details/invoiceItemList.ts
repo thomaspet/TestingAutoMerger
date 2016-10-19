@@ -8,8 +8,6 @@ import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../
 import {CustomerInvoice, CustomerInvoiceItem, Product, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-declare var jQuery;
-
 @Component({
     selector: 'invoice-item-list',
     templateUrl: 'app/components/sales/invoice/details/invoiceItemList.html'
@@ -18,6 +16,7 @@ export class InvoiceItemList implements OnInit {
     @Input() public invoice: CustomerInvoice;
     @ViewChild(UniTable) public table: UniTable;
     @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemDeleted: EventEmitter<any> = new EventEmitter<any>();
     @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
     @Input() public departments: Array<any> = [];
     @Input() public projects: Array<any> = [];
@@ -155,14 +154,21 @@ export class InvoiceItemList implements OnInit {
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
             ])
             .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.invoice))
+            .setDeleteButton(editable)
             .setChangeCallback((event) => {
                 return this.tradeItemHelper.tradeItemChangeCallback(event);
             });
     }
 
     public rowChanged(event) {
-        console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);
+    }
+
+    public onRowDelete(item: CustomerInvoiceItem) {
+        this.itemDeleted.emit(item);
+
+        // emit rowChanged also to make the parent component update it's collection
+        this.rowChanged(null);
     }
 }

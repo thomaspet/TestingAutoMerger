@@ -33,7 +33,7 @@
     </uni-form>
     <address-modal question="Lagre på kundekort?"></address-modal>
 
-    <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
+    <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
     <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
 
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">

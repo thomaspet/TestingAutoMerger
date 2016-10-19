@@ -53,7 +53,7 @@
     </uni-form>
     <address-modal question="Lagre på kundekort?"></address-modal>
 
-    <invoice-item-list *ngIf="invoice && dropdownData" [invoice]="invoice" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
+    <invoice-item-list *ngIf="invoice && dropdownData" [invoice]="invoice" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 
     <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy></section>
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
