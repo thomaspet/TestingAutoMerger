@@ -35,19 +35,24 @@ export class UniAutocompleteConfig {
         <div class="autocomplete">
             <input #query
                 *ngIf="control"
+                class="autocomplete_input"
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
-
-                (blur)="confirmSelection()"
                 (keypress)="onKeyPress()"
                 (keydown)="onKeyDown($event)"
-
-                class="autocomplete_input"
                 role="combobox"
+                autocomplete="false"
                 aria-autocomplete="inline"
                 [attr.aria-owns]="'results-'+guid"
             />
+
+            <button #toggleBtn class="uni-autocomplete-searchBtn"
+                    (click)="toggle()"
+                    (keydown.esc)="onKeyDown($event)"
+                    tabIndex="-1">
+                Søk
+            </button>
 
             <ul #list
                 class="autocomplete_results"
@@ -59,7 +64,7 @@ export class UniAutocompleteConfig {
                 <li *ngFor="let item of lookupResults; let idx = index"
                     class="autocomplete_result"
                     role="option"
-                    (mouseover)="onMouseover(idx)"
+                    (mouseover)="selectedIndex = idx"
                     (click)="confirmSelection()"
                     [attr.aria-selected]="selectedIndex === idx">
                     {{template(item)}}
@@ -72,6 +77,7 @@ export class UniAutocompleteConfig {
 export class UniAutocompleteInput {
     @ViewChild('list')  private list: ElementRef;
     @ViewChild('query') private inputElement: ElementRef;
+    @ViewChild('toggleBtn') private toggleBtn: ElementRef;
 
     @Input()
     private field: UniFieldLayout;
@@ -93,8 +99,8 @@ export class UniAutocompleteInput {
     private options: any;
     private source: BizHttp<any> | Array<any>;
     private lastValue: any;
-    private query: string;
     private value: string;
+    private initialDisplayValue: string;
 
 
     private busy: boolean = false;
@@ -115,18 +121,18 @@ export class UniAutocompleteInput {
         }
 
         // Perform initial lookup to get display value
-        this.getInitialDisplayValue(this.control.value)
-            .subscribe(result => {
-                this.control.setValue(this.template(result[0]) || '', {emitEvent: false});
-            });
+        this.getInitialDisplayValue(this.control.value).subscribe(result => {
+            this.initialDisplayValue = this.template(result[0]) || '';
+            this.control.setValue(this.initialDisplayValue, {emitEvent: false});
+        });
 
         this.control.valueChanges
-            .debounceTime(this.options.debounceTime || 250)
+            .debounceTime(this.options.debounceTime || 100)
             .filter((input: string) => {
-                this.lookupResults = [];
                 return (this.control.dirty && input.length >= (this.options.minLength || 0));
             })
             .switchMap((input: string) => {
+                this.lookupResults = [];
                 this.busy = true;
                 return this.search(input);
             })
@@ -163,7 +169,8 @@ export class UniAutocompleteInput {
     }
 
     private hasFocus() {
-        return document.activeElement === this.inputElement.nativeElement;
+        return document.activeElement === this.inputElement.nativeElement
+               || document.activeElement === this.toggleBtn.nativeElement;
     }
 
     private template(obj: any) {
@@ -200,27 +207,26 @@ export class UniAutocompleteInput {
 
         // Local search
         if (Array.isArray(this.source)) {
-            let filteredResults = (<Array<any>> this.source).filter((item) => {
-                return this.template(item).toLowerCase().indexOf(query.toLowerCase()) >= 0;
-            });
-            return Observable.of(filteredResults);
+            let filteredResults;
+            if (query && query.length) {
+                filteredResults = this.source.filter((item) => {
+                    return this.template(item).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+                });
+            } else {
+                filteredResults = this.source;
+            }
+            return Observable.of(filteredResults.slice(0, 50));
         }
         // Remote search
         else {
             const operator = /^\d+$/.test(query) ? 'startswith' : 'contains';
-            return (<BizHttp<any>> this.source).GetAll(`filter=${operator}(${this.field.Options.displayProperty},'${query}')`);
+            return (<BizHttp<any>> this.source).GetAll(`filter=${operator}(${this.field.Options.displayProperty},'${query}')&top=50`);
         }
     }
 
     private confirmSelection() {
         this.isExpanded = false;
-        this.cd.markForCheck();
         this.focusPositionTop = 0;
-
-        // If user just tabbed through the field without editing
-        if (!this.control.dirty || this.control.value === this.query) {
-            return;
-        }
 
         // Wait for response
         // (allows us to still select result[0] when user tabs out before lookup is finished)
@@ -232,101 +238,113 @@ export class UniAutocompleteInput {
             return;
         }
 
-        if (this.control.value.length) {
-            if (this.selectedIndex === -1) {
-                this.selectedIndex = 0;
-            }
-            let selectedItem = this.lookupResults[this.selectedIndex];
-            this.query = this.template(selectedItem);
-            this.value = _.get(selectedItem, this.field.Options.valueProperty);
-        } else {
-            this.query = '';
-            this.value = null;
+        // User just tabbed through the field
+        if (!this.selectedIndex || this.selectedIndex === -1 && this.control.value === this.initialDisplayValue) {
+            return;
         }
 
-        this.control.setValue(this.query);
+        let selectedItem;
+        if (this.control.value.length || this.selectedIndex > -1) {
+            const index = (this.selectedIndex > -1) ? this.selectedIndex : 0;
+            selectedItem = this.lookupResults[index];
+        } else {
+            selectedItem = null;
+        }
+
+        this.value = selectedItem ? _.get(selectedItem, this.field.Options.valueProperty) : null;
+        this.initialDisplayValue = selectedItem ? this.template(selectedItem) : '';
+        this.control.setValue(this.initialDisplayValue, {emitEvent: false});
         _.set(this.model, this.field.Property, this.value);
         if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
             this.field.Options.events.select(this.model);
         }
+        this.selectedIndex = -1;
 
         this.onChange.emit(this.model);
-    }
-
-    private onMouseover(index) {
-        if (index < this.selectedIndex) {
-            for (let i = index; i < this.selectedIndex; i++) {
-                this.focusPositionTop -= this.list.nativeElement.children[i].clientHeight;
-            }
-        } else if (index > this.selectedIndex) {
-            if (this.selectedIndex === -1) {
-                this.selectedIndex = 0;
-            }
-            for (let i = this.selectedIndex; i < index; i++) {
-                this.focusPositionTop += this.list.nativeElement.children[i].clientHeight;
-            }
-        }
-
-        this.selectedIndex = index;
+        this.cd.markForCheck();
     }
 
     private onKeyPress() {
         this.busy = true;
     }
 
-    private onKeyDown(event) {
-        var prevItem = undefined;
-        var currItem = undefined;
-        var overflow = 0;
+    private toggle() {
+        if (this.isExpanded) {
+            this.isExpanded = false;
+        } else {
+            this.search('').subscribe((items) => {
+                this.selectedIndex = -1;
+                this.lookupResults = items;
+                this.isExpanded = true;
+                this.busy = false;
+                this.cd.markForCheck();
+            });
+        }
+    }
 
+
+    private onKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
+            // Tab & enter
+            case 9:
             case 13:
                 this.confirmSelection();
             break;
+            // Escape
             case 27:
-                let selectedItem = this.lookupResults[this.selectedIndex];
-                this.query = this.template(selectedItem);
-                this.value = _.get(selectedItem, this.field.Options.valueProperty);
-                this.control.setValue(this.query);
                 this.isExpanded = false;
-                this.blur();
+                this.selectedIndex = -1;
+                this.control.setValue(this.initialDisplayValue, {emitEvent: false});
                 this.cd.markForCheck();
+                this.inputElement.nativeElement.focus();
+                try {
+                    this.inputElement.nativeElement.select();
+                } catch (e) {}
             break;
+            // Space
+            case 32:
+                if (!this.isExpanded && (!this.control.value || !this.control.value.length)) {
+                    event.preventDefault();
+                    this.toggle();
+                }
+            break;
+            // Arrow up
             case 38:
-                if (this.selectedIndex !== 0) {
+                event.preventDefault();
+                if (this.selectedIndex > 0) {
                     this.selectedIndex--;
-                    currItem = this.list.nativeElement.children[this.selectedIndex];
-                    if (currItem) {
-                        this.focusPositionTop -= currItem.clientHeight;
-
-                        overflow = this.focusPositionTop - this.list.nativeElement.scrollTop;
-
-                        if (overflow < 0) {
-                            this.list.nativeElement.scrollTop += overflow;
-                        }
-                    }
+                    this.scrollToListItem();
                 }
-
             break;
+            // Arrow down
             case 40:
-                if (this.selectedIndex !== (this.lookupResults.length - 1)) {
+                event.preventDefault();
+                if (event.altKey && !this.isExpanded) {
+                    this.toggle();
+                    return;
+                }
+
+                if (this.selectedIndex < (this.lookupResults.length - 1)) {
                     this.selectedIndex++;
-
-                    prevItem = this.list.nativeElement.children[this.selectedIndex - 1];
-                    currItem = this.list.nativeElement.children[this.selectedIndex];
-
-                    if (prevItem && currItem) {
-                        this.focusPositionTop += prevItem.clientHeight;
-
-                        overflow = (this.focusPositionTop + currItem.clientHeight) -
-                                (this.list.nativeElement.clientHeight + this.list.nativeElement.scrollTop);
-
-                        if (overflow > 0) {
-                            this.list.nativeElement.scrollTop += overflow;
-                        }
-                    }
+                    this.scrollToListItem();
                 }
             break;
+            // F4
+            case 115:
+                this.toggle();
+            break;
+        }
+    }
+
+    private scrollToListItem() {
+        const list = this.list.nativeElement;
+        const currItem = list.children[this.selectedIndex];
+        const bottom = list.scrollTop + list.offsetHeight - currItem.offsetHeight;
+
+        if (currItem.offsetTop <= list.scrollTop) {
+            list.scrollTop = currItem.offsetTop;
+        } else if (currItem.offsetTop >= bottom) {
+            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
     }
 }
