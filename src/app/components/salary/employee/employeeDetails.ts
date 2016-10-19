@@ -381,7 +381,6 @@ export class EmployeeDetails extends UniView {
             let hasStandard = false;
 
             // Build changes array consisting of only changed employments
-            // Append _createguid to new employments
             // Check for standard employment
             employments.forEach((employment) => {
                 if (employment.Standard) {
@@ -391,10 +390,6 @@ export class EmployeeDetails extends UniView {
                 if (employment['_isDirty']) {
                     employment.EmployeeID = this.employee.ID;
                     employment.EmployeeNumber = this.employee.EmployeeNumber;
-
-                    if (employment.ID === 0) {
-                        employment['_createguid'] = this.employeeService.getNewGuid();
-                    }
 
                     changes.push(employment);
                 }

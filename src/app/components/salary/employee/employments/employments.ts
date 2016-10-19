@@ -82,6 +82,8 @@ export class Employments extends UniView {
             newEmployment.SeniorityDate = new Date();
             newEmployment.SubEntityID = this.employee.SubEntityID;
 
+            newEmployment['_createguid'] = this.employmentService.getNewGuid();
+
             this.employments.push(newEmployment);
             this.table.addRow(newEmployment);
             this.table.focusRow(this.employments.length - 1);
@@ -113,7 +115,14 @@ export class Employments extends UniView {
         }
 
         // Update employments array and table row
-        const index = this.employments.findIndex(emp => emp.ID === employment.ID);
+        const index = this.employments.findIndex((emp) => {
+            if (!emp.ID) {
+                return emp['_createguid'] === employment['_createguid'];
+            }
+
+            return emp.ID === employment.ID;
+        });
+
         this.employments[index] = employment;
         this.table.updateRow(index, employment);
 
