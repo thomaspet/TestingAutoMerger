@@ -79,6 +79,10 @@ import {UniSales} from './sales';
         SupplierDetails,
         SupplierList
     ],
+    entryComponents: [
+        OrderToInvoiceModalType,
+        OrderToInvoiceTable
+    ],
     providers: [
         TradeItemHelper
     ],

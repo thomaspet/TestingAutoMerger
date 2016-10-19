@@ -6,10 +6,8 @@ import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
-import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
+import {CustomerOrder, CustomerOrderItem, Product, VatType, StatusCodeCustomerOrderItem} from '../../../../unientities';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-
-declare var jQuery;
 
 @Component({
     selector: 'order-item-list',
@@ -19,6 +17,7 @@ export class OrderItemList {
     @Input() public order: CustomerOrder;
     @ViewChild(UniTable) public table: UniTable;
     @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemDeleted: EventEmitter<any> = new EventEmitter<any>();
     @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
     @Input() public departments: Array<any> = [];
     @Input() public projects: Array<any> = [];
@@ -161,6 +160,16 @@ export class OrderItemList {
             .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.order))
             .setChangeCallback((event) => {
                 return this.tradeItemHelper.tradeItemChangeCallback(event);
+            })
+            .setIsRowReadOnly((item: CustomerOrderItem) => {
+                return item.StatusCode != null && item.StatusCode !== StatusCodeCustomerOrderItem.Draft && item.StatusCode !== StatusCodeCustomerOrderItem.Registered;
+            })
+            .setDeleteButton({
+                deleteHandler: (rowModel) => {
+                    this.deleteRow(rowModel);
+                    return true;
+                },
+                disableOnReadonlyRows: true
             });
 
     }
@@ -168,5 +177,12 @@ export class OrderItemList {
     public rowChanged(event) {
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);
+    }
+
+    public deleteRow(item: CustomerOrderItem) {
+        this.itemDeleted.emit(item);
+
+        // emit rowChanged also to make the parent component update it's collection
+        this.rowChanged(null);
     }
 }

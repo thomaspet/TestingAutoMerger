@@ -14,7 +14,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {InvoiceItemList} from './invoiceItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {CustomerInvoice, Customer, Address} from '../../../../unientities';
+import {CustomerInvoice, Customer, Address, CustomerInvoiceItem} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
@@ -28,8 +28,8 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
-declare var _;
-declare var moment;
+declare const _;
+declare const moment;
 
 class CustomerInvoiceExt extends CustomerInvoice {
     public _InvoiceAddress: Address;
@@ -59,6 +59,8 @@ export class InvoiceDetails {
     private fields: any[] = [];
 
     private invoice: CustomerInvoiceExt;
+    private deletedItems: Array<CustomerInvoiceItem>;
+
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -218,6 +220,8 @@ export class InvoiceDetails {
     }
 
     private setup() {
+        this.deletedItems = [];
+
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
                 err => {
@@ -507,6 +511,10 @@ export class InvoiceDetails {
         }, 2000);
     }
 
+    private deleteItem(item: CustomerInvoiceItem) {
+        this.deletedItems.push(item);
+    }
+
     private saveInvoiceTransition(done: any, transition: string, doneText: string) {
         this.saveInvoice(done, (invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
@@ -541,6 +549,18 @@ export class InvoiceDetails {
         this.addressService.addressToShipping(this.invoice, this.invoice._ShippingAddress);
 
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+
+        // set deleted items as deleted on server as well, using soft delete / complex put
+        this.deletedItems.forEach((item: CustomerInvoiceItem) => {
+           // don't send deleted items that has not been saved previously,
+           // because this can cause problems with validation
+           if (item.ID > 0) {
+               item.Deleted = true;
+               this.invoice.Items.push(item);
+           }
+        });
+
+        this.deletedItems = [];
 
         this.invoice.Items.forEach(item => {
             if (item.Dimensions && item.Dimensions.ID === 0) {

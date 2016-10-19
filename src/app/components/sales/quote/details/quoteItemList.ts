@@ -6,10 +6,8 @@ import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 import {ProductService, VatTypeService, CustomerQuoteItemService} from '../../../../services/services';
-import {CustomerQuote, CustomerQuoteItem, Product, VatType} from '../../../../unientities';
+import {CustomerQuote, CustomerQuoteItem, Product, VatType, StatusCodeCustomerQuote} from '../../../../unientities';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-
-declare var jQuery;
 
 @Component({
     selector: 'quote-item-list',
@@ -19,6 +17,7 @@ export class QuoteItemList implements OnInit{
     @Input() public quote: CustomerQuote;
     @ViewChild(UniTable) public table: UniTable;
     @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemDeleted: EventEmitter<any> = new EventEmitter<any>();
     @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
     @Input() public departments: Array<any> = [];
     @Input() public projects: Array<any> = [];
@@ -151,6 +150,16 @@ export class QuoteItemList implements OnInit{
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
             ])
             .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.quote))
+            .setDeleteButton({
+                deleteHandler: (rowModel) => {
+                    this.deleteRow(rowModel);
+                    return true;
+                },
+                disableOnReadonlyRows: true
+            })
+            .setIsRowReadOnly((item: CustomerQuoteItem) => {
+                return this.quote.StatusCode != null && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft && this.quote.StatusCode !== StatusCodeCustomerQuote.Registered;
+            })
             .setChangeCallback((event) => {
                 return this.tradeItemHelper.tradeItemChangeCallback(event);
             });
@@ -159,5 +168,12 @@ export class QuoteItemList implements OnInit{
     public rowChanged(event) {
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);
+    }
+
+    public deleteRow(item: CustomerQuoteItem) {
+        this.itemDeleted.emit(item);
+
+        // emit rowChanged also to make the parent component update it's collection
+        this.rowChanged(null);
     }
 }

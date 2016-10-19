@@ -15,7 +15,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 
 import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
-import {Address} from '../../../../unientities';
+import {Address, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
@@ -26,8 +26,8 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
-declare var _;
-declare var moment;
+declare const _;
+declare const moment;
 
 class CustomerQuoteExt extends CustomerQuote {
     public _InvoiceAddress: Address;
@@ -52,6 +52,7 @@ export class QuoteDetails {
     public fields: any[] = [];
 
     private quote: CustomerQuoteExt;
+    private deletedItems: Array<CustomerQuoteItem>;
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -186,6 +187,8 @@ export class QuoteDetails {
     }
 
     private setup() {
+        this.deletedItems = [];
+
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
                 err => {
@@ -448,6 +451,10 @@ export class QuoteDetails {
         }, 2000);
     }
 
+    private deleteItem(item: CustomerQuoteItem) {
+        this.deletedItems.push(item);
+    }
+
     private saveQuoteManual(done: any) {
         this.saveQuote(done);
     }
@@ -495,6 +502,18 @@ export class QuoteDetails {
             }
             return;
         }
+
+        // set deleted items as deleted on server as well, using soft delete / complex put
+        this.deletedItems.forEach((item: CustomerQuoteItem) => {
+           // don't send deleted items that has not been saved previously,
+           // because this can cause problems with validation
+           if (item.ID > 0) {
+               item.Deleted = true;
+               this.quote.Items.push(item);
+           }
+        });
+
+        this.deletedItems = [];
 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(

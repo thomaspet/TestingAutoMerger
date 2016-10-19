@@ -14,7 +14,7 @@ import {OrderItemList} from './orderItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {FieldType, CustomerOrder, Customer} from '../../../../unientities';
-import {Address} from '../../../../unientities';
+import {Address, CustomerOrderItem} from '../../../../unientities';
 import {StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
@@ -25,7 +25,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
-declare var _;
+declare const _;
 
 class CustomerOrderExt extends CustomerOrder {
     public _InvoiceAddress: Address;
@@ -52,6 +52,8 @@ export class OrderDetails {
     public fields: any[] = [];
 
     private order: CustomerOrderExt;
+    private deletedItems: Array<CustomerOrderItem>;
+
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -177,6 +179,8 @@ export class OrderDetails {
     }
 
     private setup() {
+        this.deletedItems = [];
+
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
                 err => {
@@ -425,6 +429,10 @@ export class OrderDetails {
         }, 2000);
     }
 
+    private deleteItem(item: CustomerOrderItem) {
+        this.deletedItems.push(item);
+    }
+
     private saveOrderManual(done: any) {
         this.saveOrder(done);
     }
@@ -496,6 +504,18 @@ export class OrderDetails {
                 item.Dimensions['_createguid'] = this.customerOrderItemService.getNewGuid();
             }
         });
+
+        // set deleted items as deleted on server as well, using soft delete / complex put
+        this.deletedItems.forEach((item: CustomerOrderItem) => {
+           // don't send deleted items that has not been saved previously,
+           // because this can cause problems with validation
+           if (item.ID > 0) {
+               item.Deleted = true;
+               this.order.Items.push(item);
+           }
+        });
+
+        this.deletedItems = [];
 
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.order.Items)) {

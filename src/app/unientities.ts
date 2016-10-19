@@ -449,6 +449,7 @@ export class Company {
     public static RelativeUrl = 'companies';
     public static EntityType = 'Company';
 
+    public ConnectionString: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1943,8 +1944,8 @@ export class SubEntity {
     public SuperiorOrganizationID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BusinessRelationInfo: BusinessRelation;
     public SuperiorOrganization: SubEntity;
+    public BusinessRelationInfo: BusinessRelation;
     public CustomFields: any;
 }
 
