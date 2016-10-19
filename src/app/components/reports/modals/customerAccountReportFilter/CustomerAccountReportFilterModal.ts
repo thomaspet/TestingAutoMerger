@@ -24,26 +24,26 @@ export class CustomerAccountReportFilterForm implements OnInit {
         ShowFilter: string
     } = {
         FromAccountNumber: 100000,
-        ToAccountNumber: 100000,
+        ToAccountNumber: 199999,
         PeriodAccountYear: new Date().getFullYear(),
         PeriodAccountLastYear: (new Date().getFullYear()) - 1,
-        FromPeriodNo: 0,
+        FromPeriodNo: 1,
         ToPeriodNo: 12,
-        OrderBy: 'customerjournal',
-        ShowFilter: 'without'
+        OrderBy: 'CustomerNrAndJournalNr',
+        ShowFilter: 'withoutCorrections'
     };
 
     private typeOfOrderBy: {ID: string, Label: string}[] = [
-        {ID: 'customerjournal', Label: 'Kundenr og bilagsnr'},
-        {ID: 'customerdate', Label: 'Kundenr og dato'},
-        {ID: 'namejournal', Label: 'Kundenavn og bilagsnr'},
-        {ID: 'namedate', Label: 'Kundenavn og dato'}
+        {ID: 'CustomerNrAndJournalNr', Label: 'Kundenr og bilagsnr'},
+        { ID: 'CustomerNrAndDate', Label: 'Kundenr og dato'},
+        { ID: 'CustomerNameAndJournalNr', Label: 'Kundenavn og bilagsnr'},
+        { ID: 'CustomerNameAndDate', Label: 'Kundenavn og dato'}
     ];
 
     private typeOfShowFilter: {ID: string, Label: string}[] = [
-        {ID: 'without', Label: 'uten korrigeringer'},
-        {ID: 'with', Label: 'med korrigeringer'},
-        {ID: 'only', Label: 'med KUN korrigeringer'}
+        {ID: 'withoutCorrections', Label: 'uten korrigeringer'},
+        {ID: 'withCorrections', Label: 'med korrigeringer'},
+        {ID: 'onlyCorrections', Label: 'med KUN korrigeringer'}
     ];
 
     constructor() {
@@ -145,20 +145,20 @@ export class CustomerAccountReportFilterModal {
                                         break;
                                     case 'OrderBy':
                                         switch (component.model['OrderBy']) {
-                                            case 'customerjournal':
-                                            case 'namejournal':
+                                            case 'CustomerNrAndJournalNr':
+                                            case 'CustomerNameAndJournalNr':
                                                 parameter.value = 'JournalEntryNumber';
                                                 break;
-                                            case 'customerdate':
-                                            case 'namedate':
+                                            case 'CustomerNrAndDate':
+                                            case 'CustomerNameAndDate':
                                                 parameter.value = 'FinancialDate';
                                                 break;
                                         }
                                         break;
                                     case 'OrderByGroup':
                                         switch (component.model['OrderBy']) {
-                                            case 'namejournal':
-                                            case 'namedate':
+                                            case 'CustomerNameAndJournalNr':
+                                            case 'CustomerNameAndDate':
                                                 parameter.value = 'name';
                                                 break;
                                             default:

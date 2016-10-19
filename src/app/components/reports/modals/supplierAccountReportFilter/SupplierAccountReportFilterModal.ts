@@ -26,27 +26,27 @@ export class SupplierAccountReportFilterForm implements OnInit {
         ShowFilter: string
     } = {
         FromAccountNumber: 200000,
-        ToAccountNumber: 200000,
+        ToAccountNumber: 299999,
         PeriodAccountYear: new Date().getFullYear(),
         PeriodAccountLastYear: (new Date().getFullYear()) - 1,
-        FromPeriodNo: 0,
+        FromPeriodNo: 1,
         ToPeriodNo: 12,
         HideAccounts: false,
-        OrderBy: 'supplierjournal',
-        ShowFilter: 'without'
+        OrderBy: 'SupplierNrAndJournalNr',
+        ShowFilter: 'withoutCorrections'
     };
 
-    private typeOfOrderBy: {ID: string, Label: string, Value: string}[] = [
-        {ID: 'supplierjournal', Label: 'Kundenr og bilagsnr', Value: ''},
-        {ID: 'supplierdate', Label: 'Kundenr og dato', Value: ''},
-        {ID: 'namejournal', Label: 'Kundenavn og bilagsnr', Value: ''},
-        {ID: 'namedate', Label: 'Kundenavn og dato', Value: ''}
+    private typeOfOrderBy: { ID: string, Label: string }[] = [
+        { ID: 'SupplierNrAndJournalNr', Label: 'Leverandørnr og bilagsnr' },
+        { ID: 'SupplierNrAndDate', Label: 'Leverandørnr og dato' },
+        { ID: 'SupplierNameAndJournalNr', Label: 'Leverandørnavn og bilagsnr' },
+        { ID: 'SupplierNameAndDate', Label: 'Leverandørnavn og dato' }
     ];
 
-    private typeOfShowFilter: {ID: string, Label: string}[] = [
-        {ID: 'without', Label: 'uten korrigeringer'},
-        {ID: 'with', Label: 'med korrigeringer'},
-        {ID: 'only', Label: 'med KUN korrigeringer'}
+    private typeOfShowFilter: { ID: string, Label: string }[] = [
+        { ID: 'withoutCorrections', Label: 'uten korrigeringer' },
+        { ID: 'withCorrections', Label: 'med korrigeringer' },
+        { ID: 'onlyCorrections', Label: 'med KUN korrigeringer' }
     ];
 
     constructor() {
@@ -139,8 +139,8 @@ export class SupplierAccountReportFilterModal {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
                                 switch (parameter.Name) {
                                     case 'ShowLastYear':
-                                    case 'ReportFor':
                                     case 'ShowFrontPage':
+                                    case 'ShowFilter':
                                     case 'FromAccountNumber':
                                     case 'ToAccountNumber':
                                     case 'FromPeriodNo':
@@ -154,20 +154,20 @@ export class SupplierAccountReportFilterModal {
                                         break;
                                     case 'OrderBy':
                                         switch (component.model['OrderBy']) {
-                                            case 'supplierjournal':
-                                            case 'namejournal':
+                                            case 'SupplierNrAndJournalNr':
+                                            case 'SupplierNameAndJournalNr':
                                                 parameter.value = 'JournalEntryNumber';
                                                 break;
-                                            case 'supplierdate':
-                                            case 'namedate':
+                                            case 'SupplierNrAndDate':
+                                            case 'SupplierNameAndDate':
                                                 parameter.value = 'FinancialDate';
                                                 break;
                                         }
                                         break;
                                     case 'OrderByGroup':
                                         switch (component.model['OrderBy']) {
-                                            case 'namejournal':
-                                            case 'namedate':
+                                            case 'SupplierNameAndJournalNr':
+                                            case 'SupplierNameAndDate':
                                                 parameter.value = 'name';
                                                 break;
                                             default:

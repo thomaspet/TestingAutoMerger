@@ -1,4 +1,4 @@
-<article class="report-parameter-modal report_parameter_modal supplier-account-report-filter-modal" *ngIf="config">
+﻿<article class="report-parameter-modal report_parameter_modal supplier-account-report-filter-modal" *ngIf="config">
     <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
     <section>
         <uni-form
@@ -10,6 +10,7 @@
             <button *ngFor="let action of config.actions" (click)="action.method()">
                 {{action.text}}
             </button>
+            <p>Sortering på dato virker ikke helt ennå.</p>
         </footer>
     </section>
 </article>

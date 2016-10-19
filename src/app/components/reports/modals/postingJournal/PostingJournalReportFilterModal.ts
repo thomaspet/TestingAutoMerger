@@ -27,21 +27,21 @@ export class PostingJournalReportFilterForm implements OnInit {
         FromJournalEntryNumber: 1,
         ToJournalEntryNumber: 1,
         PeriodAccountYear: new Date().getFullYear(),
-        FromPeriod: 0,
+        FromPeriod: 1,
         ToPeriod: 12,
         OrderBy: 'date',
-        ShowFilter: 'without'
+        ShowFilter: 'withoutCorrections'
     };
 
-    private typeOfOrderBy: {ID: string, Label: string}[] = [
-        {ID: 'date', Label: 'Bilagsnr og dato'},
-        {ID: 'accountnumber', Label: 'Bilagsnr og kontonr'}
+    private typeOfOrderBy: { ID: string, Label: string }[] = [
+        { ID: 'date', Label: 'Bilagsnr og dato' },
+        { ID: 'accountnumber', Label: 'Bilagsnr og kontonr' }
     ];
 
-    private typeOfShowFilter: {ID: string, Label: string}[] = [
-        {ID: 'without', Label: 'uten korrigeringer'},
-        {ID: 'with', Label: 'med korrigeringer'},
-        {ID: 'only', Label: 'med KUN korrigeringer'}
+    private typeOfShowFilter: { ID: string, Label: string }[] = [
+        { ID: 'withoutCorrections', Label: 'uten korrigeringer' },
+        { ID: 'withCorrections', Label: 'med korrigeringer' },
+        { ID: 'onlyCorrections', Label: 'med KUN korrigeringer' }
     ];
 
     constructor(private journalEntryService: JournalEntryService) {

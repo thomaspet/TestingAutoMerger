@@ -30,7 +30,7 @@ export class AccountReportFilterForm implements OnInit {
         ToAccountNumber: 8990,
         FromPeriodNo: 1,
         ToPeriodNo: 12,
-        OrderBy: 'Account.AccountNumber',
+        OrderBy: 'AccountNrAndJournalNr',
         IncludeCorrections: false,
         UseColors: true,
         ShowAccountsWithoutDetails: false,
@@ -41,12 +41,11 @@ export class AccountReportFilterForm implements OnInit {
     // * Show journal entries with/without corrections
     // * 
 
-    //TODO: Not completed yet
-    private typeOOrderBy: { ID: string, Label: string }[] = [
-        {ID: 'accountAndDate', Label: 'Kontonr og dato'},
-        {ID: 'Account.AccountNumber', Label: 'Kontonr og bilagsnr'},
-        {ID: 'accountNameAndDate', Label: 'Kontonavn og bilagsnr'},
-        {ID: 'accountNameAndJournalNr', Label: 'Kontonavn og dato'}
+        private typeOfOrderBy: { ID: string, Label: string }[] = [
+        { ID: 'AccountNrAndDate', Label: 'Kontonr og dato' },
+        { ID: 'AccountNrAndJournalNr', Label: 'Kontonr og bilagsnr' },
+        { ID: 'AccountNameAndDate', Label: 'Kontonavn og dato' },
+        { ID: 'AccountNameAndJournalNr', Label: 'Kontonavn og bilagsnr' }
     ];
 
     constructor() {
@@ -88,21 +87,23 @@ export class AccountReportFilterForm implements OnInit {
                 Label: 'Sorter etter',
                 Property: 'OrderBy',
                 Options: {
-                    source: this.typeOOrderBy,
+                    source: this.typeOfOrderBy,
                     valueProperty: 'ID',
                     displayProperty: 'Label'
                 }
-            },
-            <any>{
-                FieldType: FieldType.RADIO,
-                Label: 'Vis kontoer uten bevegelse',
-                Property: 'ShowAccountsWithoutDetails',
-            },
-            <any>{
-                FieldType: FieldType.RADIO,
-                Label: 'Vis kontoer uten saldo',
-                Property: 'ShowAccountsWithoutBalance',
             }
+            //TODO. These controls to be included?
+            //,
+            //<any>{
+            //    FieldType: FieldType.RADIO,
+            //    Label: 'Vis kontoer uten bevegelse',
+            //    Property: 'ShowAccountsWithoutDetails',
+            //},
+            //<any>{
+            //    FieldType: FieldType.RADIO,
+            //    Label: 'Vis kontoer uten saldo',
+            //    Property: 'ShowAccountsWithoutBalance',
+            //}
         ];
     }
 }
@@ -137,7 +138,30 @@ export class AccountReportFilterModal {
 
                             // set parametervalues
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                parameter.value = component.model[parameter.Name];
+                                switch (parameter.Name) {
+                                    case 'OrderBy':
+                                        switch (component.model['OrderBy']) {
+                                            case 'AccountNrAndDate':
+                                                parameter.value = 'Financialdate';
+                                                break;
+                                            case 'AccountNrAndJournalNr':
+                                                parameter.value = 'JournalEntryNumber';
+                                                break;
+                                            case 'AccountNameAndDate':
+                                                parameter.value = 'Financialdate';
+                                                break;
+                                            case 'AccountNameAndJournalNr':
+                                                parameter.value = 'JournalEntryNumber';
+                                                break;
+                                            default:
+                                                parameter.value = 'JournalEntryNumber';
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        parameter.value = component.model[parameter.Name];
+                                        break;
+                                }
                             }
 
                             // add custom parameters
@@ -145,6 +169,24 @@ export class AccountReportFilterModal {
                             accountLastYearParam.Name = 'PeriodAccountLastYear';
                             accountLastYearParam.value = component.model.PeriodAccountYear - 1;
                             this.modalConfig.report.parameters.push(accountLastYearParam);
+
+                            let orderByGroupParam = new CustomReportDefinitionParameter();
+                            orderByGroupParam.Name = 'OrderByGroup';
+                            switch (component.model['OrderBy']) {
+                                case 'AccountNrAndDate':
+                                case 'AccountNrAndJournalNr':
+                                    orderByGroupParam.value = 'number';
+                                    break;
+                                case 'AccountNameAndDate':
+                                case 'AccountNameAndJournalNr':
+                                    orderByGroupParam.value = 'name';
+                                    break;
+                                default:
+                                    orderByGroupParam.value = 'default';
+                                    break;
+                            }
+                            this.modalConfig.report.parameters.push(orderByGroupParam);
+
 
                             // add custom parameters
                             this.modal.close();
