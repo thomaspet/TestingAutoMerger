@@ -112,17 +112,15 @@ export class Employments extends UniView {
             employment.SeniorityDate = this.fixTimezone(employment.SeniorityDate);
         }
 
-        this.employments[this.selectedIndex] = employment;
+        // Update employments array and table row
+        const index = this.employments.findIndex(emp => emp.ID === employment.ID);
+        this.employments[index] = employment;
+        this.table.updateRow(index, employment);
+
         super.updateState('employments', this.employments, true);
     }
 
     private onRowSelected(event) {
-        // Update table when switching rows
-        const currentEmployment = this.employments[this.selectedIndex];
-        if (currentEmployment && currentEmployment['_isDirty']) {
-            this.table.updateRow(this.selectedIndex, currentEmployment);
-        }
-
         this.selectedIndex = event.rowModel['_originalIndex'];
     }
 }
