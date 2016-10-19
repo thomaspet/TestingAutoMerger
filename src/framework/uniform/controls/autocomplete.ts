@@ -76,7 +76,6 @@ export class UniAutocompleteConfig {
 export class UniAutocompleteInput {
     @ViewChild('list')  private list: ElementRef;
     @ViewChild('query') private inputElement: ElementRef;
-    @ViewChild('toggleBtn') private toggleBtn: ElementRef;
 
     @Input()
     private field: UniFieldLayout;
@@ -103,7 +102,7 @@ export class UniAutocompleteInput {
 
 
     private busy: boolean = false;
-    private selectedIndex: any;
+    private selectedIndex: number = -1;
     private lookupResults: any[] = [];
     private isExpanded: boolean;
     private focusPositionTop: number = 0;
@@ -172,21 +171,6 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
     }
 
-    private checkForClickOutside(event) {
-        console.log(event, event.target);
-        if (!this.el.nativeElement.contains(event.target)) {
-            this.isExpanded = false;
-        }
-    }
-
-    // private hasFocus() {
-    //     console.log(document.activeElement);
-    //     return document.activeElement === this.inputElement.nativeElement
-    //            || document.activeElement === this.toggleBtn.nativeElement
-    //            || document.activeElement === this.list.nativeElement
-    //            || this.list.nativeElement.contains(document.activeElement);
-    // }
-
     private template(obj: any) {
         if (!this.options.template) {
             return _.get(obj, this.options.displayProperty);
@@ -242,8 +226,6 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
         this.focusPositionTop = 0;
 
-        console.log(this.selectedIndex, this.control.value, this.initialDisplayValue);
-
         // Wait for response
         // (allows us to still select result[0] when user tabs out before lookup is finished)
         if (this.busy) {
@@ -255,7 +237,7 @@ export class UniAutocompleteInput {
         }
 
         // User just tabbed through the field
-        if (!this.selectedIndex || this.selectedIndex === -1 && this.control.value === this.initialDisplayValue) {
+        if (this.selectedIndex === -1 && this.control.value === this.initialDisplayValue) {
             return;
         }
 
