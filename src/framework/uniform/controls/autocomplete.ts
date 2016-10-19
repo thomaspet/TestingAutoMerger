@@ -32,14 +32,13 @@ export class UniAutocompleteConfig {
 @Component({
     selector: 'uni-autocomplete-input',
     template: `
-        <div class="autocomplete">
+        <div class="autocomplete" (clickOutside)="onClickOutside()">
             <input #query
                 *ngIf="control"
                 class="autocomplete_input"
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
-                (keypress)="onKeyPress()"
                 (keydown)="onKeyDown($event)"
                 role="combobox"
                 autocomplete="false"
@@ -55,11 +54,11 @@ export class UniAutocompleteConfig {
             </button>
 
             <ul #list
-                class="autocomplete_results"
+                class="uniTable_dropdown_list"
                 [id]="'results-' + guid"
                 role="listbox"
                 tabindex="-1"
-                [attr.aria-expanded]="isExpanded && hasFocus()">
+                [attr.aria-expanded]="isExpanded">
 
                 <li *ngFor="let item of lookupResults; let idx = index"
                     class="autocomplete_result"
@@ -109,7 +108,7 @@ export class UniAutocompleteInput {
     private isExpanded: boolean;
     private focusPositionTop: number = 0;
 
-    constructor(private renderer: Renderer, private cd: ChangeDetectorRef) {
+    constructor(private el: ElementRef, private renderer: Renderer, private cd: ChangeDetectorRef) {
         this.guid = 'autocomplete-' + performance.now();
     }
 
@@ -129,9 +128,10 @@ export class UniAutocompleteInput {
         this.control.valueChanges
             .debounceTime(this.options.debounceTime || 100)
             .filter((input: string) => {
-                return (this.control.dirty && input.length >= (this.options.minLength || 0));
+                return this.control.dirty;
             })
             .switchMap((input: string) => {
+                this.isExpanded = false;
                 this.lookupResults = [];
                 this.busy = true;
                 return this.search(input);
@@ -168,10 +168,24 @@ export class UniAutocompleteInput {
         this.cd.markForCheck();
     }
 
-    private hasFocus() {
-        return document.activeElement === this.inputElement.nativeElement
-               || document.activeElement === this.toggleBtn.nativeElement;
+    private onClickOutside() {
+        this.isExpanded = false;
     }
+
+    private checkForClickOutside(event) {
+        console.log(event, event.target);
+        if (!this.el.nativeElement.contains(event.target)) {
+            this.isExpanded = false;
+        }
+    }
+
+    // private hasFocus() {
+    //     console.log(document.activeElement);
+    //     return document.activeElement === this.inputElement.nativeElement
+    //            || document.activeElement === this.toggleBtn.nativeElement
+    //            || document.activeElement === this.list.nativeElement
+    //            || this.list.nativeElement.contains(document.activeElement);
+    // }
 
     private template(obj: any) {
         if (!this.options.template) {
@@ -228,6 +242,8 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
         this.focusPositionTop = 0;
 
+        console.log(this.selectedIndex, this.control.value, this.initialDisplayValue);
+
         // Wait for response
         // (allows us to still select result[0] when user tabs out before lookup is finished)
         if (this.busy) {
@@ -262,10 +278,6 @@ export class UniAutocompleteInput {
 
         this.onChange.emit(this.model);
         this.cd.markForCheck();
-    }
-
-    private onKeyPress() {
-        this.busy = true;
     }
 
     private toggle() {
