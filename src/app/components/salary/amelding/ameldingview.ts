@@ -2,6 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {AMeldingService} from '../../../services/Salary/AMelding/AMeldingService';
+import {PayrollrunService} from '../../../services/Salary/Payrollrun/PayrollrunService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -47,7 +48,8 @@ export class AMeldingView implements OnInit {
     constructor(
         private _tabService: TabService,
         private _ameldingService: AMeldingService,
-        private _toastService: ToastService
+        private _toastService: ToastService,
+        private _payrollService: PayrollrunService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -66,13 +68,16 @@ export class AMeldingView implements OnInit {
                 }
             }
         ];
-
-        this.currentPeriod = 1;
-        this.currentMonth = moment.months()[this.currentPeriod - 1];
     }
 
     public ngOnInit() {
-        this.getAMeldingForPeriod();
+        // REVISIT TODO: get correct year (as param 2) when settled from core how to use years
+        this._payrollService.getLatestSettledPeriod(1, 2016)
+            .subscribe((period) => {
+                this.currentPeriod = period;
+                this.currentMonth = moment.months()[this.currentPeriod - 1];
+                this.getAMeldingForPeriod();
+            });
     }
 
     public prevPeriod() {
@@ -256,10 +261,11 @@ export class AMeldingView implements OnInit {
                     .subscribe((response: AmeldingData) => {
                         if (response) {
                             this.setAMelding(response);
+                            done('tilbakemelding hentet');
                         }
                     });
             });
-        done('tilbakemelding hentet');
+        
     }
 
     private sendAmelding(done) {
@@ -270,14 +276,13 @@ export class AMeldingView implements OnInit {
                 if (this.currentAMelding.sent) {
                     this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
                 }
+                done('A-melding sendt inn');
             }
         });
-        done('A-melding sendt inn');
     }
 
     private openAmeldingTypeModal(done) {
         this.aMeldingTypeModal.openModal();
-        done('ferdig');
     }
 
     private clearAMelding() {

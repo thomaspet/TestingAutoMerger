@@ -42,6 +42,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public getStatus(payrollRun: PayrollRun) {        
         return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode); 
     }
+
+    public getLatestSettledPeriod(id: number, yr: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${id}?action=latestperiod&currYear=${yr}`)
+            .send()
+            .map(response => response.json());
+    }
     
     public getPrevious(ID: number) {
         return this.http

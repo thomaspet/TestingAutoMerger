@@ -14,6 +14,12 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         this.entityType = AmeldingData.EntityType;
     }
 
+    public getAMeldingWithFeedback(id: number | string): Observable<any> {
+        if (id !== 0) {
+            return this.Get(id);
+        }
+    }
+
     public getAMeldingForPeriod(periode: number): Observable<AmeldingData[]> {
         return this.http
             .asGET()
@@ -81,5 +87,4 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .send()
             .map(response => response.json());
     }
-    
 }

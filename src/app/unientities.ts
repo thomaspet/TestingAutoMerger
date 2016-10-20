@@ -223,7 +223,9 @@ export class Role {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DescriptionKey: string;
     public ID: number;
+    public LabelKey: string;
     public Name: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -1944,8 +1946,8 @@ export class SubEntity {
     public SuperiorOrganizationID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public SuperiorOrganization: SubEntity;
     public BusinessRelationInfo: BusinessRelation;
+    public SuperiorOrganization: SubEntity;
     public CustomFields: any;
 }
 
@@ -2245,6 +2247,9 @@ export class CompanySettings {
     public CreatedBy: string;
     public CustomerAccountID: number;
     public CustomerCreditDays: number;
+    public DefaultAddressID: number;
+    public DefaultEmailID: number;
+    public DefaultPhoneID: number;
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
     public ID: number;
@@ -2289,6 +2294,7 @@ export class User {
     public Email: string;
     public GlobalIdentity: string;
     public ID: number;
+    public LastLogin: Date;
     public PhoneNumber: string;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -2733,6 +2739,7 @@ export class File {
     public ID: number;
     public Md5: string;
     public Name: string;
+    public Pages: number;
     public PermaLink: string;
     public StatusCode: number;
     public StorageReference: string;
@@ -2757,6 +2764,24 @@ export class FileEntityLink {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public File: File;
+    public CustomFields: any;
+}
+
+
+export class Comment {
+    public static RelativeUrl = 'comments';
+    public static EntityType = 'Comment';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ID: number;
+    public StatusCode: number;
+    public Text: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
