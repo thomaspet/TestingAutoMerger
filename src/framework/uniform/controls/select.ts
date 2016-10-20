@@ -32,6 +32,9 @@ export class UniSelectInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
+    @Output()
+    public onFocus: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>();
+
     private items: any[];
     private selectedItem: any;
 
@@ -39,7 +42,8 @@ export class UniSelectInput {
     }
 
     public focus() {
-        this.elementRef.nativeElement.children[0].focus();
+        this.elementRef.nativeElement.children[0].children[0].children[0].focus();
+        this.onFocus.emit(this);
         return this;
     }
 

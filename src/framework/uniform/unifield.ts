@@ -1,11 +1,9 @@
 import {
     Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener,
-    ChangeDetectionStrategy, ElementRef, OnInit
+    ChangeDetectionStrategy, ElementRef
 } from '@angular/core';
 import {FormGroup, FormControl, ValidatorFn} from '@angular/forms';
 import {UniFieldLayout, KeyCodes} from './interfaces';
-import {CONTROLS} from './controls/index';
-import {ShowError} from './showError';
 import {MessageComposer} from './composers/messageComposer';
 import {ValidatorsComposer} from './composers/validatorsComposer';
 
@@ -21,54 +19,71 @@ declare var _; // lodash
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-autocomplete-input>
             <uni-button-input #selectedComponent *ngIf="field?.FieldType === 1 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-button-input>
             <uni-date-input #selectedComponent *ngIf="field?.FieldType === 2 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-date-input>
             <uni-select-input #selectedComponent *ngIf="field?.FieldType === 3 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-select-input>
             <uni-masked-input #selectedComponent *ngIf="field?.FieldType === 4 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-masked-input>
             <uni-checkbox-input #selectedComponent *ngIf="field?.FieldType === 5 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-checkbox-input>
             <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-numeric-input>
             <uni-radio-input #selectedComponent *ngIf="field?.FieldType === 7 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-radio-input>
             <uni-checkboxgroup-input #selectedComponent *ngIf="field?.FieldType === 8 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-checkboxgroup-input>
             <uni-radiogroup-input #selectedComponent *ngIf="field?.FieldType === 9 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-radiogroup-input>
             <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-text-input>
             <uni-email-input #selectedComponent *ngIf="field?.FieldType === 11 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-email-input>
             <uni-password-input #selectedComponent *ngIf="field?.FieldType === 12 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-password-input>
             <uni-hyperlink-input #selectedComponent *ngIf="field?.FieldType === 13 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-hyperlink-input>  
             <uni-multivalue-input #selectedComponent *ngIf="field?.FieldType === 14 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-multivalue-input>
             <uni-url-input #selectedComponent *ngIf="field?.FieldType === 15 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-url-input> 
             <uni-textarea-input #selectedComponent *ngIf="field?.FieldType === 16 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)"
             ></uni-textarea-input>                         
             
             <show-error [control]="control" [messages]="messages"></show-error>
@@ -91,6 +106,9 @@ export class UniField {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniField> = new EventEmitter<UniField>(true);
 
     public classes: (string | Function)[] = [];
 
@@ -120,6 +138,10 @@ export class UniField {
                 input.addEventListener('focus', event => this.eventHandler(event.type));
             }
         });
+    }
+
+    public onFocusHandler(event) {
+        this.onFocus.emit(event);
     }
 
     public focus() {

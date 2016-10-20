@@ -2,9 +2,8 @@ import {
     Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener,
     Renderer, ChangeDetectionStrategy, ChangeDetectorRef
 } from '@angular/core';
-import {FormControl, FormControlDirective} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {GuidService} from '../../../../app/services/common/guidService';
-import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 
 declare var _; // lodash
 
@@ -171,10 +170,13 @@ export class UniSelect {
 
     // Keyboard navigation
     @HostListener('keydown', ['$event'])
-    private onKeyDown(event) {
+    private onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode || 0;
 
         if (key === 38 || key === 40) {
+            if (event.ctrlKey === true) {
+                return;
+            }
             event.preventDefault();
         }
 
@@ -232,5 +234,9 @@ export class UniSelect {
         } else if (currItem.offsetTop >= bottom) {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
+    }
+
+    blurHandler() {
+        this.close();
     }
 }

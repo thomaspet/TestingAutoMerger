@@ -16,6 +16,7 @@ declare var _; // jquery and lodash
                 [checked]="isChecked(item)"
                 [value]="getValue(item)"
                 [name]="field?.Property"
+                (focus)="focusHandler()"
             />
             <label (click)="checkIt(item)">{{getLabel(item)}}</label>
         </template>
@@ -36,6 +37,9 @@ export class UniRadiogroupInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
     
     private items: any[] = [];
     
@@ -45,6 +49,10 @@ export class UniRadiogroupInput {
     public focus() {
         this.elementRef.nativeElement.focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

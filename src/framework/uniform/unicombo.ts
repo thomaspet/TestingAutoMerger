@@ -15,7 +15,8 @@ declare var _; // lodash
                 [field]="field" 
                 [model]="model"
                 (onReady)="onReadyHandler($event)"
-                (onChange)="onChangeHandler($event)">
+                (onChange)="onChangeHandler($event)"
+                (onFocus)="onFocusHandler($event)">
             </uni-field>
         </template>`
 })
@@ -34,6 +35,9 @@ export class UniCombo {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniCombo> = new EventEmitter<UniCombo>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -79,6 +83,10 @@ export class UniCombo {
         if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public onFocusHandler(event) {
+        this.onFocus.emit(event);
     }
 
     public countElements() {

@@ -15,6 +15,7 @@ declare var _,jQuery; // jquery and lodash
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
+            (focus)="focusHandler()"            
         />
         <button class="uni-url-openBtn" 
                 (click)="openUrl()" 
@@ -36,7 +37,10 @@ export class UniUrlInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniUrlInput> = new EventEmitter<UniUrlInput>(true);
+
     private lastControlValue: string;
     
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -45,6 +49,10 @@ export class UniUrlInput {
     public focus() {
         jQuery(this.elementRef.nativeElement).find('input').first().focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

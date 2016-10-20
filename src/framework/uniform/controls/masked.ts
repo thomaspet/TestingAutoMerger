@@ -13,6 +13,7 @@ declare var _, jQuery; // jquery and lodash
             [formControl]="control"
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder || ''"
+            (focus)="focusHandler()"
         />
     `
 })
@@ -32,6 +33,9 @@ export class UniMaskedInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
+    @Output()
+    public onFocus: EventEmitter<UniMaskedInput> = new EventEmitter<UniMaskedInput>(true);
+
     private maskedInput: kendo.ui.MaskedTextBox;
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -43,6 +47,10 @@ export class UniMaskedInput {
             .first()
             .focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

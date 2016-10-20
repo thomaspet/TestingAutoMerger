@@ -40,6 +40,7 @@ export class UniAutocompleteConfig {
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
                 (keydown)="onKeyDown($event)"
+                (focus)="focusHandler()"
                 role="combobox"
                 autocomplete="false"
                 aria-autocomplete="inline"
@@ -91,6 +92,9 @@ export class UniAutocompleteInput {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
 
     // state vars
     private guid: string;
@@ -149,6 +153,10 @@ export class UniAutocompleteInput {
         this.onReady.emit(this);
     }
 
+    public onFocusHandler() {
+        this.onFocus.emit(this);
+    }
+
     public focus() {
         this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
     }
@@ -169,6 +177,10 @@ export class UniAutocompleteInput {
 
     private onClickOutside() {
         this.isExpanded = false;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     private template(obj: any) {

@@ -12,6 +12,7 @@ declare var _; // jquery and lodash
             [class]="field?.Options?.class"
             [disabled]="field?.ReadOnly"
             (click)="clickHandler($event)"
+            (focus)="focusHandler($event)"
             type="button"
         >{{field.Label}}</button>
     `
@@ -31,10 +32,11 @@ export class UniButtonInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniButtonInput> = new EventEmitter<UniButtonInput>(true);
+
     @ViewChild('button') private buttonElement: ElementRef;
-    
-    private lastControlValue: string;
     
     constructor(public renderer: Renderer, public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
@@ -42,6 +44,10 @@ export class UniButtonInput {
     public focus() {
         this.renderer.invokeElementMethod(this.buttonElement.nativeElement, 'focus', []);
         this.cd.markForCheck();
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

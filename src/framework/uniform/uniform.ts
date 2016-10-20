@@ -1,13 +1,15 @@
 import {
-    Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, SimpleChange
+    Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, SimpleChange, ElementRef
 } from '@angular/core';
 import {FormGroup, FormBuilder} from '@angular/forms';
 import {FieldLayout} from '../../app/unientities';
-import {UniFieldLayout} from './interfaces';
+import {UniFieldLayout, KeyCodes} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
 import {UniFieldSet} from './unifieldset';
 import {UniSection} from './unisection';
+import {Observable} from 'rxjs/Observable';
+
 declare var _; // lodash
 
 /**
@@ -16,7 +18,7 @@ declare var _; // lodash
 @Component({
     selector: 'uni-form',
     template: `
-        <form (submit)="submit($event)" [formGroup]="controls">
+        <form (submit)="submit($event)" [formGroup]="controls" autocomplete="off">
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-field 
                     *ngIf="isField(item) && !item?.Hidden"
@@ -24,7 +26,8 @@ declare var _; // lodash
                     [field]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)">
+                    (onChange)="onChangeHandler($event)"
+                    (onFocus)="onFocusHandler($event)">
                 </uni-field>
                 <uni-combo-field 
                     *ngIf="isCombo(item)"
@@ -32,7 +35,8 @@ declare var _; // lodash
                     [fields]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)">
+                    (onChange)="onChangeHandler($event)"
+                    (onFocus)="onFocusHandler($event)">
                 </uni-combo-field>
                 <uni-field-set 
                     *ngIf="isFieldSet(item)" 
@@ -40,7 +44,8 @@ declare var _; // lodash
                     [fields]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)">                    
+                    (onChange)="onChangeHandler($event)"
+                    (onFocus)="onFocusHandler($event)">                    
                 </uni-field-set>
                 <uni-section 
                     *ngIf="isSection(item)"
@@ -49,7 +54,8 @@ declare var _; // lodash
                     [model]="model"
                     [formConfig]="config"
                     (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)">                        
+                    (onChange)="onChangeHandler($event)"
+                    (onFocus)="onFocusHandler($event)">                        
                 </uni-section>
                 <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>      
             </template>
@@ -96,8 +102,12 @@ export class UniForm {
 
     private hidden: boolean = false;
 
+    private lastFocusedComponent: UniField = null;
+
     @HostBinding('hidden')
-    public get Hidden() { return this.hidden; }
+    public get Hidden() {
+        return this.hidden;
+    }
 
     public set Hidden(value: boolean) {
         this.hidden = value;
@@ -106,12 +116,12 @@ export class UniForm {
     public hasLineBreak(item: FieldLayout) {
         return item.LineBreak;
     }
-    
-    constructor(private builder: FormBuilder) {
 
+    constructor(private builder: FormBuilder, private elementRef: ElementRef) {
     }
 
     public ngOnInit() {
+        this.addSectionEvents();
         this.controls = this.builder.group({});
     }
 
@@ -123,6 +133,17 @@ export class UniForm {
 
     public ngAfterViewInit() {
         this.readyFields = 0;
+        this.focusFirstElement();
+    }
+
+    public onFocusHandler(event) {
+        this.lastFocusedComponent = event;
+        console.log(event);
+    }
+
+    public focusFirstElement() {
+        const field = this.field(this.fields[0].Property);
+        field.focus();
     }
 
     public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
@@ -145,13 +166,13 @@ export class UniForm {
     public onChangeHandler(model: any) {
         var invalids = []
         var controls = this.controls.controls;
-        for(var prop in controls) {
+        for (var prop in controls) {
             if (controls.hasOwnProperty(prop)) {
                 if (!controls[prop].valid) {
                     invalids.push(prop);
                 }
-                    
-            }    
+
+            }
         }
         console.log(invalids.join(', '));
         this.onChange.emit(model);
@@ -164,6 +185,7 @@ export class UniForm {
         this.fieldsetElements.forEach((fs) => fs.readMode());
         this.sectionElements.forEach((s) => s.readMode());
     }
+
     public editMode() {
         this.fieldElements.forEach((f) => f.editMode());
         this.comboElements.forEach((c) => c.editMode());
@@ -279,7 +301,7 @@ export class UniForm {
     private isField(field: UniFieldLayout): boolean {
         return !_.isArray(field);
     }
-    
+
     private isCombo(field: UniFieldLayout): boolean {
         return _.isArray(field) && !field[0].Section && !field[0].FieldSet && field[0].Combo > 0;
     }
@@ -295,7 +317,7 @@ export class UniForm {
     private groupFields() {
         let group = [], section = [], fieldset = [], combo = [];
         let lastSection = 0, lastFieldSet = 0, lastCombo = 0;
-        
+
         let closeGroups = (field) => {
             if (field.Combo !== lastCombo && combo.length > 0) { // close last combo
                 group.push(combo);
@@ -308,12 +330,12 @@ export class UniForm {
             if (field.Section !== lastSection && section.length > 0) { // close last section
                 group.push(section);
                 section = [];
-            }   
+            }
             lastCombo = field.Combo;
             lastSection = field.Section;
-            lastFieldSet = field.FieldSet;     
+            lastFieldSet = field.FieldSet;
         };
-        
+
         this.fields.forEach((field: UniFieldLayout) => {
             if (!field.Section && !field.FieldSet && !field.Combo) { // manage fields
                 closeGroups(field);
@@ -340,4 +362,47 @@ export class UniForm {
         }
         return group;
     }
+
+    private addSectionEvents() {
+        const target = this.elementRef.nativeElement;
+        const keyUpEvent = Observable.fromEvent(target, 'keyup');
+        const ctrlEvent = keyUpEvent.filter((event: KeyboardEvent) => event.ctrlKey);
+        const ctrlArrow = ctrlEvent.filter((event: KeyboardEvent) => {
+            return event.keyCode === KeyCodes.ARROW_UP || event.keyCode === KeyCodes.ARROW_DOWN;
+        });
+
+        ctrlArrow.subscribe((event: KeyboardEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            let nextSectionID: number;
+            if (this.lastFocusedComponent === null) {
+                const field: UniField = this.field(this.fields[0].Property);
+                nextSectionID = field.field.Section;
+            } else {
+                if (event.keyCode === KeyCodes.ARROW_UP) {
+                    nextSectionID = this.lastFocusedComponent.field.Section - 1;
+                } else {
+                    nextSectionID = this.lastFocusedComponent.field.Section + 1;
+                }
+                if (nextSectionID <= 0) {
+                    const field: UniField = this.field(this.fields[0].Property);
+                    field.focus();
+                    return;
+                }
+            }
+            const section = this.section(nextSectionID);
+            if (section) {
+                const fieldData = section.fields[0];
+                const field = section.field(fieldData.Property);
+                if (!section.isOpen) {
+                    section.toggle();
+                }
+                setTimeout(() => {
+                    field.focus();
+                }, 200);
+
+            }
+        });
+    };
 }

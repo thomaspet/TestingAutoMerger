@@ -14,6 +14,7 @@ declare var _; // jquery and lodash
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
+            (focus)="focusHandler()"
         />
     `
 })
@@ -32,6 +33,9 @@ export class UniTextInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
     
     @ViewChild('input') private inputElement: ElementRef;
     
@@ -42,6 +46,10 @@ export class UniTextInput {
 
     public focus() {
         this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);        
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

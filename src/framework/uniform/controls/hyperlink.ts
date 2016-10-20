@@ -7,7 +7,7 @@ declare var _; // jquery and lodash
     selector: 'uni-hyperlink-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <a [href]="getValue()" [attr.target]="field?.Options?.target"
+        <a [href]="getValue()" [attr.target]="field?.Options?.target" (focus)="focusHandler()"
         >{{field?.Options?.description}}</a>
     `
 })
@@ -23,13 +23,19 @@ export class UniHyperlinkInput {
 
     @Output()
     public onReady: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
     
     constructor() {
     }
 
     public focus() {
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

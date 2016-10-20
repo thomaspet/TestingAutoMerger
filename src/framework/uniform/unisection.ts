@@ -21,7 +21,8 @@ declare var _; // lodash
                         [field]="item" 
                         [model]="model"
                         (onReady)="onReadyHandler($event)"
-                        (onChange)="onChangeHandler($event)">
+                        (onChange)="onChangeHandler($event)"
+                        (onFocus)="onFocusHandler($event)">
                     </uni-field>
                     <uni-combo-field 
                         *ngIf="isCombo(item)"
@@ -29,7 +30,8 @@ declare var _; // lodash
                         [fields]="item"
                         [model]="model"
                         (onReady)="onReadyHandler($event)"
-                        (onChange)="onChangeHandler($event)">
+                        (onChange)="onChangeHandler($event)"
+                        (onFocus)="onFocusHandler($event)">
                     </uni-combo-field>
                     <uni-field-set 
                         *ngIf="isFieldSet(item)" 
@@ -37,7 +39,8 @@ declare var _; // lodash
                         [fields]="item" 
                         [model]="model"
                         (onReady)="onReadyHandler($event)"
-                        (onChange)="onChangeHandler($event)">                    
+                        (onChange)="onChangeHandler($event)"
+                        (onFocus)="onFocusHandler($event)">                    
                     </uni-field-set>
                     <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
                 </template>
@@ -63,6 +66,9 @@ export class UniSection {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -129,6 +135,10 @@ export class UniSection {
         if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public onFocusHandler(event) {
+        this.onFocus.emit(event);
     }
 
     public countElements() {

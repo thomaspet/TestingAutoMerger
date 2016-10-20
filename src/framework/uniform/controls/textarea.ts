@@ -16,6 +16,7 @@ declare var _; // lodash
             [rows]="field?.Options?.rows || 10"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler($event)"
+            (focus)="focusHandler()"
         ></textarea>
     `
 })
@@ -34,7 +35,10 @@ export class UniTextareaInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniTextareaInput> = new EventEmitter<UniTextareaInput>(true);
+
     private lastControlValue: string;
     
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -43,6 +47,10 @@ export class UniTextareaInput {
     public focus() {
         this.elementRef.nativeElement.children[0].focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

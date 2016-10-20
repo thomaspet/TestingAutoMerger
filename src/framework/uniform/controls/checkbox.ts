@@ -13,6 +13,7 @@ declare var _; // jquery and lodash
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
                 [checked]="isChecked()"
+                (focus)="focusHandler()"
             />
             <label (click)="checkIt()">{{field?.Label}}</label>
     `
@@ -29,7 +30,10 @@ export class UniCheckboxInput {
 
     @Output()
     public onReady: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
+
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
@@ -40,6 +44,10 @@ export class UniCheckboxInput {
     public focus() {
         this.elementRef.nativeElement.focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

@@ -14,6 +14,7 @@ declare var _; // lodash
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder ||''"
             (blur)="blurHandler()"
+            (focus)="focusHandler()"
         />
     `
 })
@@ -32,7 +33,10 @@ export class UniEmailInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniEmailInput> = new EventEmitter<UniEmailInput>(true);
+
     private lastControlValue: string;
     
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -41,6 +45,10 @@ export class UniEmailInput {
     public focus() {
         this.elementRef.nativeElement.children[0].focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

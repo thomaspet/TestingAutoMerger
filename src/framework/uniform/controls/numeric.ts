@@ -38,6 +38,9 @@ export class UniNumericInput {
     @Output()
     public onChange: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
 
+    @Output()
+    public onFocus: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
+
     private lastControlValue: string;
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -83,11 +86,11 @@ export class UniNumericInput {
 
     private keyUpHandler(event: KeyboardEvent) {
         var value: number;
-        if (this.isArrowDown(event.keyCode)) {
+        if (this.isArrowDown(event.keyCode) && event.ctrlKey === false) {
             value = +this.control.value;
             this.control.setValue(value - this.field.Options.step);
         }
-        if (this.isArrowUp(event.keyCode)) {
+        if (this.isArrowUp(event.keyCode) && event.ctrlKey === false) {
             value = +this.control.value;
             this.control.setValue(value + this.field.Options.step);
         }
@@ -154,6 +157,7 @@ export class UniNumericInput {
     }
 
     private focusHandler() {
+        this.onFocus.emit(this);
         if (this.control.value === undefined || this.control.value === '' || this.control.value === null) {
             return;
         }

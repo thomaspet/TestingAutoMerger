@@ -15,7 +15,9 @@ declare var _; // lodash
                     [class.-has-editor]="field?.Options?.editor"
                     [readonly]="field?.Options?.editor || field?.ReadOnly"
                     [placeholder]="field?.Placeholder || ''"
-                    (keypress)="showDropdown($event)">
+                    (keypress)="showDropdown($event)"
+                    (focus)="focusHandler()"
+            />
 
             <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1">Ny</button>
 
@@ -83,6 +85,9 @@ export class UniMultivalueInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
+    @Output()
+    public onFocus: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
+
     @ViewChild('openbtn')
     private inputElement: ElementRef;
 
@@ -97,9 +102,13 @@ export class UniMultivalueInput {
     }
 
     public focus() {
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
+        this.renderer.invokeElementMethod(this.el.nativeElement.children[0].children[0], 'focus', []);
         this.cd.markForCheck();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

@@ -14,6 +14,7 @@ declare var _; // lodash
             [formControl]="control"
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder ||''"
+            (focus)="focusHandler()"
             (blur)="blurHandler()"
         />
     `
@@ -33,7 +34,10 @@ export class UniPasswordInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniPasswordInput> = new EventEmitter<UniPasswordInput>(true);
+
     private lastControlValue: string;
     
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -42,6 +46,10 @@ export class UniPasswordInput {
     public focus() {
         this.elementRef.nativeElement.children[0].focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

@@ -13,6 +13,7 @@ declare var _; // jquery and lodash
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
                 [checked]="isChecked()"
+                (focus)="focusHandler()"
             />
             <label (click)="checkIt()">{{field?.Label}}</label>
     `
@@ -32,13 +33,20 @@ export class UniRadioInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniRadioInput> = new EventEmitter<UniRadioInput>(true);
+
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
 
     public focus() {
         this.elementRef.nativeElement.focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

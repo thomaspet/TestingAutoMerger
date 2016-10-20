@@ -16,6 +16,7 @@ declare var _; // jquery and lodash
                 [checked]="isChecked(item)"
                 [value]="getValue(item)"
                 [name]="getValue(item)"
+                (focus)="focusHandler()"
             />
             <label (click)="checkIt(item)">{{getLabel(item)}}</label>
         </template>
@@ -36,7 +37,10 @@ export class UniCheckboxgroupInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
+    @Output()
+    public onFocus: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
+
     private items: any[] = [];
     private selectedItems: any[] = [];
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
@@ -45,6 +49,10 @@ export class UniCheckboxgroupInput {
     public focus() {
         this.elementRef.nativeElement.focus();
         return this;
+    }
+
+    public focusHandler() {
+        this.onFocus.emit(this);
     }
 
     public readMode() {

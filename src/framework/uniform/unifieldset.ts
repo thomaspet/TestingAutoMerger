@@ -18,7 +18,8 @@ declare var _; // lodash
                     [fields]="item"
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)">
+                    (onChange)="onChangeHandler($event)"
+                    (onFocus)="onFocusHandler($event)">
                 </uni-combo-field>
                 <uni-field
                     *ngIf="isField(item)"
@@ -26,7 +27,8 @@ declare var _; // lodash
                     [field]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)">
+                    (onChange)="onChangeHandler($event)"
+                    (onFocus)="onFocusHandler($event)">
                 </uni-field>
                 <uni-linebreak *ngIf="hasLineBreak(field)"></uni-linebreak>
             </template>
@@ -50,6 +52,9 @@ export class UniFieldSet {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onFocus: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -103,6 +108,10 @@ export class UniFieldSet {
         if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public onFocusHandler(event) {
+        this.onFocus.emit(event);
     }
 
     public countElements() {

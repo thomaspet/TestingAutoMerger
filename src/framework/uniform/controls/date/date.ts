@@ -15,6 +15,7 @@ declare var _;
                 *ngIf="control"
                 type="text"
                 (change)="inputChange()"
+                (focus)="onFocusHandler()"
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
@@ -51,6 +52,9 @@ export class UniDateInput {
     @Output()
     public onChange: EventEmitter<Date> = new EventEmitter<Date>();
 
+    @Output()
+    public onFocus: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();
+
     private calendarOpen: boolean;
     private selectedDate: Date;
     private options: any;
@@ -69,6 +73,10 @@ export class UniDateInput {
 
     public ngAfterViewInit() {
         this.onReady.emit(this);
+    }
+
+    public onFocusHandler() {
+        this.onFocus.emit(this);
     }
 
     public focus() {
