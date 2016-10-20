@@ -34,7 +34,7 @@ export interface IUploadConfig {
             <ul class="uni-thumbnail-list">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
                     <img [attr.src]="thumbnail"
-                        [attr.alt]="files[idx].Description"
+                        [attr.alt]="files[idx]?.Description"
                         (click)="thumbnailClicked(idx)">
                 </li>
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">

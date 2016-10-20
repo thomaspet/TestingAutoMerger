@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
@@ -9,6 +9,7 @@ import {JournalEntryLine} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {StatisticsService} from '../../../../services/common/StatisticsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ImageModal} from './ImageModal';
 
 @Component({
     selector: 'transquery-details',
@@ -20,6 +21,10 @@ export class TransqueryDetails implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private configuredFilter: string;
     private allowManualSearch: boolean = true;
+
+
+    @ViewChild(ImageModal)
+    private imageModal: ImageModal;
 
     constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService, private statisticsService: StatisticsService, private toastService: ToastService) {
         this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
@@ -41,7 +46,7 @@ export class TransqueryDetails implements OnInit {
         }
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', 'JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear');
+        urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear');
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
@@ -135,6 +140,10 @@ export class TransqueryDetails implements OnInit {
             }
         }
         return filter;
+    }
+
+    public rowSelected(journalEntryLine: JournalEntryLine) {
+        this.imageModal.open(JournalEntryLine.EntityType, journalEntryLine.ID);
     }
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {

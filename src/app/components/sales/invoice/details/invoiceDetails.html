@@ -1,55 +1,60 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
-
-<header class="invoice_poster" *ngIf="invoice">
-    <!-- Widget poster -->
-    <section class="poster_overview">
-        <uni-widget-poster [model]="invoice">
-            <section class="application" *ngIf="invoice">
-                <section>Restsum kr. {{invoice.RestAmount }}</section>
-                <section>
-                    Kreditert kr. {{invoice.CreditedAmount }}
-                    <span *ngFor="let c of creditInvoiceArr; let i=index">
+<section class="invoice-details">
+    <header class="invoice_poster" *ngIf="invoice">
+        <!-- Widget poster -->
+        <section class="poster_overview">
+            <uni-widget-poster [model]="invoice">
+                <section class="application" *ngIf="invoice">
+                    <section>Restsum kr. {{invoice.RestAmount }}</section>
+                    <section>
+                        Kreditert kr. {{invoice.CreditedAmount }}
+                        <span *ngFor="let c of creditInvoiceArr; let i=index">
                         <span *ngIf="i > 0">,   </span>
                         <a href="#/sales/invoices/{{c.ID}}">
                             Kreditnota nr. {{c.InvoiceNumber}}
                         </a>
                     </span>
+                    </section>
                 </section>
-            </section>
-        </uni-widget-poster>
-    </section>
-</header>
+            </uni-widget-poster>
+        </section>
+    </header>
 
-<section class="invoice-details application">
-    <uni-form *ngIf='invoice'
-              [config]="config"
-              [fields]="fields"
-              [model]="invoice"
-              (onChange)="change($event)"
-              (onReady)="ready($event)">
-    </uni-form>
-    <address-modal question="Lagre på kundekort?"></address-modal>
+    <section class="application">
+        <uni-form *ngIf='invoice'
+                  [config]="config"
+                  [fields]="fields"
+                  [model]="invoice"
+                  (onChange)="change($event)"
+                  (onReady)="ready($event)">
+        </uni-form>
+        <address-modal question="Lagre på kundekort?"></address-modal>
 
     <invoice-item-list *ngIf="invoice && dropdownData" [invoice]="invoice" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 
-    <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy></section>
-    <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
-        <dt>Avgiftsfritt</dt>
-        <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>
-        <dt>Avgiftsgrunnlag</dt>
-        <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>
-        <dt>Sum rabatt</dt>
-        <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>
-        <dt>Nettosum</dt>
-        <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>
-        <dt>Mva</dt>
-        <dd>Kr. {{itemsSummaryData.SumVat}}</dd>
-        <dt>Øreavrunding</dt>
-        <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>
-        <dt>Totalsum</dt>
-        <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
-    </dl>
+        <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy></section>
+        <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+            <dt>Avgiftsfritt</dt>
+            <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>
+            <dt>Avgiftsgrunnlag</dt>
+            <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>
+            <dt>Sum rabatt</dt>
+            <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>
+            <dt>Nettosum</dt>
+            <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>
+            <dt>Mva</dt>
+            <dd>Kr. {{itemsSummaryData.SumVat}}</dd>
+            <dt>Øreavrunding</dt>
+            <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>
+            <dt>Totalsum</dt>
+            <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
+        </dl>
+    </section>
 </section>
+
+<article class="invoice-details-document">
+    <uni-image [entity]="'CustomerInvoice'" [entityID]="invoice?.ID"></uni-image>
+</article>
 
 <report-preview-modal></report-preview-modal>
 <register-payment-modal></register-payment-modal>

@@ -37,16 +37,8 @@
 
 </section>
 
-<article class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
-    <!--<uni-image [imageId]="previewId" [size]="previewSize" *ngIf="previewId > 0"></uni-image>   -->
-
-    <p class="good validation" *ngIf="fileuploader.statusText">
-        <span>{{fileuploader.statusText}}</span>
-    </p>
-    <uni-document-uploader *ngIf="previewId == -1"
-    [service]="fileuploader"
-    [entity]="supplierInvoice"
-    (onFileUploaded)="onFileUploaded($event)"></uni-document-uploader>
+<article class="supplier-invoice-detail-document">
+    <uni-image [entity]="'SupplierInvoice'" [entityID]="supplierInvoice?.ID"></uni-image>
 </article>
 
 

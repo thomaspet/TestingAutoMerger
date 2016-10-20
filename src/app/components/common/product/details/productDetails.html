@@ -35,15 +35,10 @@
 
     <article class="collapsable" [ngClass]="{'-is-open': showImageComponent}">
         <h4 (click)="showImageComponent = !showImageComponent">Produktbilde</h4>
-        <!--<div class="collapsable-content">
-            <uni-image [entity]="'product/' + product.ID" [uploadConfig]="imageUploadConfig"></uni-image>
-        </div>-->
+        <div class="collapsable-content">
+            <uni-image [entity]="'product'" [entityID]="product.ID" [uploadConfig]="imageUploadConfig"></uni-image>
+        </div>
     </article>
-
-    <!--<label class="product-image" for="">
-        Produktbilde
-        <uni-image [imageId]="product.ImageFileID" [uploadConfig]="imageUploadConfig"></uni-image>
-    </label>-->
 </section>
 
 <footer class="full-footer">

@@ -15,9 +15,52 @@
     padding-bottom: pxToRem(150)
 
 invoice-details
-    uni-table-column-menu
-        button
-            float: right
+    display: flex
+    position: absolute
+    align-content: stretch
+    align-items: stretch
+    flex-wrap: wrap
+
+    // Adds a pseudo elem to represent the left gutter
+    &:before
+        content: ''
+        display: block
+        flex-grow: 0
+        height: pxToRem(1)
+
+        // The gutter is 1/2 a unigrid-column...
+        @each $size in map-keys($unigrid-columns)
+            @include media($size)
+                &
+                    width: (unigrid-colWidth($size) / 2)
+
+        // ...except on huge viewports, where it's a whole one
+        @include media(huge)
+            &
+                width: unigrid-colWidth(huge)
+
+    // ...and on mobile where it is gone
+
+    // Our main interface is 9cols, half or the whole pw
+    .invoice-details
+        @include unigrid(9, 4, 4)
+        flex-grow: 0
+        margin-top: 2rem
+        margin-bottom: 4rem
+
+        .supplier-invoice-detail-form
+            margin-left: -1rem
+
+    .invoice-details-document
+        flex-grow: 1
+        background: transparentize($uni-color-scale9, .5)
+        display: flex
+        justify-content: space-around
+        align-items: center
+        width: calc(50% - 8rem)
+
+        uni-image
+            width: 80%
 
     uni-widget-poster
         /* temporary hide widget - we don't have anything useful to show here */
@@ -28,3 +71,4 @@ invoice-details
                 margin-left: pxToRem(15)
                 margin-top: pxToRem(5)
                 margin-bottom: pxToRem(5)
+

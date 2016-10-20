@@ -6,13 +6,11 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {JournalEntryData} from '../../../../models/models';
 import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType, Project, Department} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
-import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Subscription} from 'rxjs';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
@@ -35,10 +33,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     private projects: Project[];
     private departments: Department[];
 
-    private previewId: number;
-    private previewSize: UniImageSize;
     private toolbarconfig: IToolbarConfig;
-
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
     @ViewChild(UniForm) private form: UniForm;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
@@ -54,7 +49,6 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         private _supplierService: SupplierService,
         private _bankAccountService: BankAccountService,
         private _journalEntryService: JournalEntryService,
-        private fileuploader: SupplierInvoiceFileUploader,
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService,
@@ -64,8 +58,6 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         route.params.subscribe(params => {
             this.invoiceId = +params['id'];
         });
-        this.previewId = 0;
-        this.previewSize = UniImageSize.medium;
     }
 
     private setError(error) {
@@ -130,7 +122,6 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 //this.setActionsDisabled();
                 this.updateSaveActions();
                 this.updateToolbar();
-                this.setPreviewId();
                 this.setTabTitle();
                 // call ready to set readonly fields if needed
                 this.ready(null);
@@ -166,7 +157,6 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
             this.updateSaveActions();
             this.updateToolbar();
-            this.setPreviewId();
             this.setTabTitle();
 
             this.buildForm();
@@ -391,18 +381,6 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             );
     }
 
-    private setPreviewId() {
-        let self = this;
-
-        this.fileuploader.getSlots(this.supplierInvoice.ID).then((data) => {
-            if (data && data.length) {
-                self.previewId = data[0].ID;
-            } else {
-                self.previewId = -1;
-            }
-        });
-    }
-
     private buildForm() {
         let self = this;
 
@@ -535,10 +513,6 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
         this.config = {
         };
-    }
-
-    private onFileUploaded(slot) {
-        this.previewId = slot.ID;
     }
 
     private ready(event) {

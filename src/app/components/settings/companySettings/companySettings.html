@@ -16,7 +16,12 @@
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
         <div class="collapsable-content">
-            <!--<uni-image [entity]="'companysettings/1'" [uploadConfig]="imageUploadOptions"></uni-image>-->
+            <uni-image
+                    [entity]="'companysettings'"
+                    [entityID]="1"
+                    [uploadConfig]="imageUploadOptions"
+                    [singleImage]="true"
+            ></uni-image>
         </div>
     </article>
 </article>

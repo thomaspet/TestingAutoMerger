@@ -38,10 +38,10 @@ import {SupplierInvoiceDetail} from './journalentry/supplierinvoices/supplierinv
 import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
 import {SettingsModule} from '../settings/settingsModule';
-import {SupplierInvoiceFileUploader} from './journalentry/supplierinvoices/supplierinvoiceuploader';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
 import {SalesModule} from '../sales/salesModule';
+import {ImageModal, ImageModalContent} from './transquery/details/ImageModal';
 
 @NgModule({
     imports: [
@@ -97,14 +97,16 @@ import {SalesModule} from '../sales/salesModule';
         // transquery
         Transquery,
         TransqueryList,
-        TransqueryDetails
+        TransqueryDetails,
+        ImageModal,
+        ImageModalContent
     ],
     entryComponents: [
         HistoricVatReportTable,
-        CreateCorrectedVatReportForm
+        CreateCorrectedVatReportForm,
+        ImageModalContent
     ],
     providers: [
-        SupplierInvoiceFileUploader
     ],
     exports: [
         // journalentry

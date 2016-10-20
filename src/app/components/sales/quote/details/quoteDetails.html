@@ -1,46 +1,52 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<section class="quote-detail">
 
 <header class="quote_poster" *ngIf="quote">
-     <!-- Widget poster -->
-    <section class="poster_overview">
-        <uni-widget-poster [model]="quote">
-            <section class="application">
-            </section>
-        </uni-widget-poster>
-    </section>
-</header>
+        <!-- Widget poster -->
+        <section class="poster_overview">
+            <uni-widget-poster [model]="quote">
+                <section class="application">
+                </section>
+            </uni-widget-poster>
+        </section>
+    </header>
 
-<section class="quote-details application">
-    <uni-form *ngIf="quote"
-              [config]="config"
-              [fields]="fields"
-              [model]="quote"
-              (onChange)="change($event)"
-              (onReady)="ready($event)">
-    </uni-form>
-    <address-modal question="Lagre på kundekort?"></address-modal>
+    <section class="application">
+        <uni-form *ngIf="quote"
+                  [config]="config"
+                  [fields]="fields"
+                  [model]="quote"
+                  (onChange)="change($event)"
+                  (onReady)="ready($event)">
+        </uni-form>
+        <address-modal question="Lagre på kundekort?"></address-modal>
 
     <quote-item-list *ngIf="quote && dropdownData" [quote]="quote" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></quote-item-list>
-    <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+        <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
 
+        </section>
+        <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+            <dt>Avgiftsfritt</dt>
+            <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>
+            <dt>Avgiftsgrunnlag</dt>
+            <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>
+            <dt>Sum rabatt</dt>
+            <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>
+            <dt>Nettosum</dt>
+            <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>
+            <dt>Mva</dt>
+            <dd>Kr. {{itemsSummaryData.SumVat}}</dd>
+            <dt>Øreavrunding</dt>
+            <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>
+            <dt>Totalsum</dt>
+            <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
+        </dl>
     </section>
-    <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
-        <dt>Avgiftsfritt</dt>
-        <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>
-        <dt>Avgiftsgrunnlag</dt>
-        <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>
-        <dt>Sum rabatt</dt>
-        <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>
-        <dt>Nettosum</dt>
-        <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>
-        <dt>Mva</dt>
-        <dd>Kr. {{itemsSummaryData.SumVat}}</dd>
-        <dt>Øreavrunding</dt>
-        <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>
-        <dt>Totalsum</dt>
-        <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
-    </dl>
 </section>
+
+<article class="quote-detail-document">
+    <uni-image [entity]="'quote'" [entityID]="quote?.ID"></uni-image>
+</article>
 
 <report-preview-modal></report-preview-modal>
 

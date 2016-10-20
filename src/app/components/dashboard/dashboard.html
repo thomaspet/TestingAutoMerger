@@ -15,7 +15,13 @@
     </header>
     <header class="dashboard_company" *ngIf="welcomeHidden">
         <section *ngIf="current">
-            <!--<uni-image [entity]="'companysettings/1'" class="header_logo"></uni-image>-->
+            <uni-image
+                    [entity]="'companysettings'"
+                    [entityID]="1"
+                    class="header_logo"
+                    [singleImage]="true"
+                    [readonly]="true"
+            ></uni-image>
         </section>
         <section *ngIf="current">
             <h1 (click)="widgetListItemClicked('/settings/company')">{{current.CompanyName}}</h1>
