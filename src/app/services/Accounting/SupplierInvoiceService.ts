@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {SupplierInvoice} from '../../unientities';
+import {SupplierInvoice, StatusCodeSupplierInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs/Observable';
@@ -9,6 +9,17 @@ declare var moment;
 
 @Injectable()
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
+
+    // TODO: To be retrieved from database schema shared.Status instead?
+    public statusTypes: Array<any> = [
+        { Code: StatusCodeSupplierInvoice.Draft, Text: 'Kladd'},
+        { Code: StatusCodeSupplierInvoice.ForApproval, Text: 'For godkjenning' },
+        { Code: StatusCodeSupplierInvoice.Approved, Text: 'Godkjent' },
+        { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført' },
+        { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Til betaling' },
+        { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delvis betalt' },
+        { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt' }
+    ];
 
     constructor(http: UniHttp) {
         super(http);
@@ -21,32 +32,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         this.DefaultOrderBy = null;
     }
 
-    // TODO: To be retrieved from database schema shared.Status instead?
-    public StatusTypes: Array<any> = [
-        { Code: '1', Text: 'Kladd' },
-        { Code: '10000', Text: 'Kladd' },
-        { Code: '10001', Text: 'Kladd' },
-        { Code: '20000', Text: 'Pending' },
-        { Code: '30000', Text: 'Active' },
-        { Code: '40000', Text: 'Fullført' },
-        { Code: '50000', Text: 'InActive' },
-        { Code: '60000', Text: 'Deviation' },
-        { Code: '70000', Text: 'Error' },
-        { Code: '90000', Text: 'Deleted' },
-
-        { Code: '30101', Text: 'Kladd'},
-        { Code: '30102', Text: 'For godkjenning' },
-        { Code: '30103', Text: 'Godkjent' },
-        { Code: '30104', Text: 'Bokført' },
-        { Code: '30105', Text: 'Til betaling' },
-        { Code: '30106', Text: 'Delvis betalt' },
-        { Code: '30107', Text: 'Betalt' },
-    ];
-
-    public getStatusText = (StatusCode: string) => {
+    public getStatusText(statusCode: number): string {
         var text = 'Udefinert';
-        this.StatusTypes.forEach((status) => {
-            if (status.Code == StatusCode) {
+        this.statusTypes.forEach((status) => {
+            if (status.Code === statusCode) {
                 text = status.Text;
                 return;
             }
@@ -100,8 +89,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.json());
     }
     
-    public newSupplierInvoice(): Promise<SupplierInvoice>
-    {       
+    public newSupplierInvoice(): Promise<SupplierInvoice> {       
         return new Promise(resolve => {
             this.GetNewEntity([], SupplierInvoice.EntityType).subscribe((invoice: SupplierInvoice) => {
                 invoice.CreatedBy = '-';

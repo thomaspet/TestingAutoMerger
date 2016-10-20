@@ -3,14 +3,24 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
 import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
-import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary';
+import {Observable} from 'rxjs/Observable';
 
 declare var moment;
 
 @Injectable()
 export class CustomerQuoteService extends BizHttp<CustomerQuote> {
-    
+
+    // TODO: To be retrieved from database schema shared.Status instead?
+    public statusTypes: Array<any> = [
+        { Code: StatusCodeCustomerQuote.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerQuote.Registered, Text: 'Registrert' },
+        //{ Code: StatusCodeCustomerQuote.ShippedToCustomer, Text: 'Sendt til kunde' }, // Not available yet
+        //{ Code: StatusCodeCustomerQuote.CustomerAccepted, Text: 'Kunde har godkjent' }, // Not available yet
+        { Code: StatusCodeCustomerQuote.TransferredToOrder, Text: 'Overført til ordre' },
+        { Code: StatusCodeCustomerQuote.TransferredToInvoice, Text: 'Overført til faktura' },
+        { Code: StatusCodeCustomerQuote.Completed, Text: 'Avsluttet' }
+    ];
+
     constructor(http: UniHttp) {        
         super(http);       
         this.relativeURL = CustomerQuote.RelativeUrl;
@@ -18,29 +28,18 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         this.DefaultOrderBy = null;
         this.defaultExpand = ['Customer'];
     }
-    
-    // TODO: To be retrieved from database schema shared.Status instead?
-    private statusTypes: Array<any> = [
-        { Code: StatusCodeCustomerQuote.Draft, Text: 'Kladd' },
-        { Code: StatusCodeCustomerQuote.Registered, Text: 'Registrert' },
-        { Code: StatusCodeCustomerQuote.ShippedToCustomer, Text: 'Sendt til kunde' },
-        { Code: StatusCodeCustomerQuote.CustomerAccepted, Text: 'Kunde har godkjent' },
-        { Code: StatusCodeCustomerQuote.TransferredToOrder, Text: 'Overført til ordre' },
-        { Code: StatusCodeCustomerQuote.TransferredToInvoice, Text: 'Overført til faktura' },
-        { Code: StatusCodeCustomerQuote.Completed, Text: 'Avsluttet' }
-    ];    
-            
-    next(currentID: number): Observable<CustomerQuote>
+
+    public next(currentID: number): Observable<CustomerQuote>
     {
         return super.GetAction(currentID, 'next');
     }
     
-    previous(currentID: number): Observable<CustomerQuote>
+    public previous(currentID: number): Observable<CustomerQuote>
     {
         return super.GetAction(currentID, 'previous');
     }
     
-    newCustomerQuote(): Promise<CustomerQuote>
+    public newCustomerQuote(): Promise<CustomerQuote>
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerQuote.EntityType).subscribe((quote: CustomerQuote) => {
@@ -52,7 +51,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         });
     }
 
-    calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        
+    public calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
@@ -62,15 +61,14 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
             .map(response => response.json());
     } 
 
-    public getStatusText = (statusCode: string) => {
+    public getStatusText(statusCode: number): string {
         var text = '';
         this.statusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
+            if (status.Code === statusCode) {
                 text = status.Text;
                 return;
             }
         });
         return text;
-    };
-    
+    };   
 }

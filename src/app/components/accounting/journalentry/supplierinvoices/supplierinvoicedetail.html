@@ -1,26 +1,6 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
 <section class="supplier-invoice-detail">
-
-    <header>
-        <h1 class="poster_toolbar_headline" 
-            *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
-            {{supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + supplierInvoice.InvoiceNumber : ''}}{{supplierInvoice.InvoiceNumber && supplierInvoice.Supplier ? ', ' : ''}}{{supplierInvoice.Supplier ? supplierInvoice.Supplier.Info.Name :''}}                                    
-        </h1>
-        <p class="poster_toolbar_descriptor" 
-            *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
-            Status: {{getStatusText()}}<span *ngIf="supplierInvoice.JournalEntry != null">, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</span>
-        </p>
-
-        <h1 class="poster_toolbar_headline" 
-            *ngIf="invoiceId == 0">
-            Ny leverandørfaktura
-        </h1>
-        <p class="poster_toolbar_descriptor" 
-            *ngIf="invoiceId == 0">
-            Ny faktura med smartbokføring
-        </p>            
-
-    </header>
-
     <section class="poster_overview">
         <uni-widget-poster [model]="supplierInvoice">
             <section class="application" *ngIf="supplierInvoice">

@@ -1,10 +1,8 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
 <header class="poster">
     <article class="poster_toolbar">
         <section>
-            <h1><b>Termin {{currentVatReport?.TerminPeriod?.No}}</b></h1>
-            <p>
-                <b>{{currentVatReport?.Title}}</b>, {{currentVatReport?.TerminPeriod | periodDateFormat}} <span> , Status: {{ statusText }} </span>
-            </p>
             <span *ngFor="let c of vatReportsInPeriod; let i=index">
                 <span *ngIf="i > 0">,   </span>
 
@@ -14,11 +12,6 @@
                 </a>
             </span>
         </section>
-        <nav class="poster_toolbar_tools">
-            <a (click)="onBackPeriod()" class="previous">Forrige</a>
-            <a (click)="onForwardPeriod()" class="next">Neste</a>
-            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
-        </nav>
     </article>
 
     <section class="poster_overview vatreportheader">

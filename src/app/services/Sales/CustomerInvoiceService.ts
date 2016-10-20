@@ -10,6 +10,21 @@ declare var moment;
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
+    // TODO: To be retrieved from database schema shared.Status instead?
+    public statusTypes: Array<any> = [
+        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' }
+    ];
+
+    public statusTypesCredit: Array<any> = [
+        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
+    ];
+    
     constructor(http: UniHttp) {        
         super(http);       
         this.relativeURL = CustomerInvoice.RelativeUrl;
@@ -17,21 +32,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         this.DefaultOrderBy = null;
         this.defaultExpand = ['Customer'];
     }    
-    
-    // TODO: To be retrieved from database schema shared.Status instead?
-    private statusTypes: Array<any> = [
-        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
-        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
-        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
-        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
-    ];
-
-    private statusTypesCredit: Array<any> = [
-        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd(Kreditnota)' },
-        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert(Kreditnota)' },
-        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt(Kreditnota)' },
-        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
-    ];
             
     public next(currentID: number): Observable<CustomerInvoice>
     {
@@ -81,7 +81,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
     } 
 
-    public getStatusText = (statusCode: number, invoiceType: number) => {
+    public getStatusText(statusCode: number, invoiceType: number): string {
         var text = '';
 
         // TODO use enum for invoiceType
@@ -101,5 +101,5 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             });
         }
         return text;
-    };    
+    };  
 }

@@ -3,32 +3,40 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrder, CustomerOrderItem} from '../../unientities';
 import {StatusCodeCustomerOrder} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
-import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
+import {Observable} from 'rxjs/Observable';
 
 declare var moment;
 
 @Injectable()
 export class CustomerOrderService extends BizHttp<CustomerOrder> {
-    
+
+    // TODO: To be retrieved from database schema shared.Status instead?
+    public statusTypes: Array<any> = [
+        { Code: StatusCodeCustomerOrder.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerOrder.Registered, Text: 'Registrert' },
+        { Code: StatusCodeCustomerOrder.PartlyTransferredToInvoice, Text: 'Delvis overført' },
+        { Code: StatusCodeCustomerOrder.TransferredToInvoice, Text: 'Overført' },
+        { Code: StatusCodeCustomerOrder.Completed, Text: 'Avsluttet' }
+    ];
+        
     constructor(http: UniHttp) {        
         super(http);       
         this.relativeURL = CustomerOrder.RelativeUrl;
         this.entityType = CustomerOrder.EntityType;
         this.DefaultOrderBy = null;
     }    
-            
-    next(currentID: number): Observable<CustomerOrder>
+
+    public next(currentID: number): Observable<CustomerOrder>
     {
         return super.GetAction(currentID, 'next');
     }
     
-    previous(currentID: number): Observable<CustomerOrder>
+    public previous(currentID: number): Observable<CustomerOrder>
     {
         return super.GetAction(currentID, 'previous');
     }
     
-    newCustomerOrder(): Promise<CustomerOrder>
+    public newCustomerOrder(): Promise<CustomerOrder>
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerOrder.EntityType).subscribe((order: CustomerOrder) => {
@@ -39,7 +47,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         });
     }
 
-    calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
+    public calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
@@ -49,19 +57,10 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
             .map(response => response.json());
     } 
 
-    // TODO: To be retrieved from database schema shared.Status instead?
-    private statusTypes: Array<any> = [
-        { Code: StatusCodeCustomerOrder.Draft, Text: 'Kladd' },
-        { Code: StatusCodeCustomerOrder.Registered, Text: 'Registrert' },
-        { Code: StatusCodeCustomerOrder.PartlyTransferredToInvoice, Text: 'Delvis overført til faktura' },
-        { Code: StatusCodeCustomerOrder.TransferredToInvoice, Text: 'Overført til faktura' },
-        { Code: StatusCodeCustomerOrder.Completed, Text: 'Avsluttet' }
-    ];
-
-    public getStatusText = (statusCode: string) => {
+    public getStatusText(statusCode: string): string  {
         var text = '';
         this.statusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
+            if (status.Code === statusCode) {
                 text = status.Text;
                 return;
             }

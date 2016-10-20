@@ -85,7 +85,7 @@ export class HamburgerMenu {
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails},
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
-                    {componentName: 'MVA-melding', componentUrl: '/accounting/vatreport'},
+                    {componentName: 'MVA-melding', componentUrl: '/accounting/vatreport', moduleID: UniModules.VatReport},
                     {componentName: 'Leverandører', componentUrl: '/sales/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },

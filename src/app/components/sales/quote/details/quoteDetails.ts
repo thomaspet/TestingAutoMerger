@@ -1,30 +1,23 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
-
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-
-import {QuoteItemList} from './quoteItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-
-
 import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
 import {Address, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
-
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 
 declare const _;
 declare const moment;
@@ -53,7 +46,6 @@ export class QuoteDetails {
 
     private quote: CustomerQuoteExt;
     private deletedItems: Array<CustomerQuoteItem>;
-    private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
@@ -69,6 +61,7 @@ export class QuoteDetails {
     private actions: IUniSaveAction[];
 
     private formIsInitialized: boolean = false;
+    private toolbarconfig: IToolbarConfig;
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
@@ -97,6 +90,29 @@ export class QuoteDetails {
 
     private log(err) {
         this.toastService.addToast(err._body, ToastType.bad);
+    }
+
+    private getStatustrackConfig() {
+        let statustrack: UniStatusTrack.IStatus[] = [];
+        let activeStatus = this.quote.StatusCode;
+
+        this.customerQuoteService.statusTypes.forEach((s, i) => {
+            let _state: UniStatusTrack.States;
+
+            if (s.Code > activeStatus) {
+                _state = UniStatusTrack.States.Future;
+            } else if (s.Code < activeStatus) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (s.Code === activeStatus) {
+                _state = UniStatusTrack.States.Active;
+            }
+
+            statustrack[i] = {
+                title: s.Text,
+                state: _state
+            };
+        });
+        return statustrack;
     }
 
     public nextQuote() {
@@ -142,7 +158,7 @@ export class QuoteDetails {
         });
     }
 
-    public change(value: CustomerQuote) { }
+    public change(value: CustomerQuote) {}
 
     public ready(event) {
         this.setupSubscriptions(null);
@@ -166,12 +182,12 @@ export class QuoteDetails {
 
                         if (customer.CreditDays !== null) {
                             this.quote.CreditDays = customer.CreditDays;
-                        }
-                        else {
+                        } else {
                             this.quote.CreditDays = this.companySettings.CustomerCreditDays;
                         }
 
                         this.quote = _.cloneDeep(this.quote);
+                        this.updateToolbar();
                     });
                 }
             });
@@ -182,6 +198,7 @@ export class QuoteDetails {
                     this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();
 
                     this.quote = _.cloneDeep(this.quote);
+                    this.updateToolbar();
                 }
             });
     }
@@ -216,11 +233,11 @@ export class QuoteDetails {
                 this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
-                this.updateStatusText();
                 this.addressService.setAddresses(this.quote);
                 this.setTabTitle();
 
                 this.updateSaveActions();
+                this.updateToolbar();
                 this.extendFormConfig();
 
                 this.formIsInitialized = true;
@@ -232,9 +249,9 @@ export class QuoteDetails {
             this.customerQuoteService.Get(this.quoteID, this.expandOptions)
                 .subscribe((quote) => {
                     this.quote = quote;
-                    this.updateStatusText();
                     this.addressService.setAddresses(this.quote);
                     this.setTabTitle();
+                    this.updateToolbar();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
@@ -266,8 +283,11 @@ export class QuoteDetails {
                 this.addressModal.openModal(value, !!!this.quote.CustomerID);
 
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { this.addressChanged.unsubscribe(); resolve(address); }
+                    if (address._question) { 
+                        self.saveAddressOnCustomer(address, resolve); 
+                    } else { 
+                        this.addressChanged.unsubscribe(); resolve(address); 
+                    }
                 });
             }),
             display: (address: Address) => {
@@ -291,8 +311,11 @@ export class QuoteDetails {
                 this.addressModal.openModal(value);
 
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { this.addressChanged.unsubscribe(); resolve(address); }
+                    if (address._question) { 
+                        self.saveAddressOnCustomer(address, resolve); 
+                    } else { 
+                        this.addressChanged.unsubscribe(); resolve(address); 
+                    }
                 });
             }),
             display: (address: Address) => {
@@ -329,11 +352,26 @@ export class QuoteDetails {
             this.quote.Customer.Info = info;
             this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
-        },(error) => {
+        }, (error) => {
             this.addressChanged.unsubscribe();
         });
     }
 
+    private updateToolbar() {
+        this.toolbarconfig = {
+            title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
+            subheads: [
+                {title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : ''},
+                {title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'}
+            ],
+            statustrack: this.getStatustrackConfig(),
+            navigation: {
+                prev: this.previousQuote.bind(this),
+                next: this.nextQuote.bind(this),
+                add: this.addQuote.bind(this)
+            }
+        };    
+    }
 
     private updateSaveActions() {
         this.actions = [];
@@ -443,6 +481,7 @@ export class QuoteDetails {
                 .subscribe((data) => {
                         this.itemsSummaryData = data;
                         this.updateSaveActions();
+                        this.updateToolbar();
                     },
                     (err) => {
                         console.log('Error when recalculating items:', err);
@@ -468,8 +507,8 @@ export class QuoteDetails {
                 this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
                     this.quote = data;
                     this.addressService.setAddresses(this.quote);
-                    this.updateStatusText();
                     this.updateSaveActions();
+                    this.updateToolbar();
                     this.setTabTitle();
                     this.ready(null);
                 });
@@ -521,8 +560,8 @@ export class QuoteDetails {
                     this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quoteGet => {
                         this.quote = quoteGet;
                         this.addressService.setAddresses(this.quote);
-                        this.updateStatusText();
                         this.updateSaveActions();
+                        this.updateToolbar();
                         this.setTabTitle();
                         this.ready(null);
 
@@ -539,10 +578,6 @@ export class QuoteDetails {
                     done('Lagring feilet');
                 }
             );
-    }
-
-    private updateStatusText() {
-        this.statusText = this.customerQuoteService.getStatusText((this.quote.StatusCode || '').toString());
     }
 
     private saveAndPrint(done) {

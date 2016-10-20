@@ -25,6 +25,10 @@ export class UniBreadcrumbs {
         let components = HamburgerMenu.getAvailableComponents();
         // The object for the parent app, from the hamburger.
         let parentApp = HamburgerMenu.getParentApp(this.moduleID);
+        if (!parentApp) { 
+            console.log('UniBreadcrumbs missing moduleID');
+            return; 
+        }
 
         // Some apps don't have a specific parent, like the dashboard
         // and settings, so we won't add the top level crumb to those.

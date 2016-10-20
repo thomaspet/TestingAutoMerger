@@ -1,19 +1,8 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
 <order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
 
 <header class="order_poster" *ngIf="order">
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="order">{{order.Customer ? (order.Customer.CustomerNumber + ' - ' + order.Customer.Info.Name) : order.CustomerName}}</h1>
-            <p>Ordrenr. {{order.OrderNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{order.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
-            <p></p>
-        </section>
-        <nav class="poster_toolbar_tools">
-            <a (click)="previousOrder()"  class="previous">Forrige</a>
-            <a (click)="nextOrder()"  class="next">Neste</a>
-            <a (click)="addOrder()"  class="new">Ny ordre</a>
-        </nav>
-    </article>
-
      <!-- Widget poster -->
     <section class="poster_overview">
         <uni-widget-poster [model]="order">

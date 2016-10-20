@@ -13,14 +13,31 @@ import {
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
+import {Subject} from 'rxjs/Subject';
 
 @Injectable()
 export class VatReportService extends BizHttp<VatReport> {
+
+    private vatreport: Subject<VatReport> = new Subject<VatReport>();
+    public refreshVatReport$: Observable<VatReport> = this.vatreport.asObservable();
+
+    // TODO: To be retrieved from database schema shared.Status instead?
+    public statusTypes: Array<any> = [
+        { Code: StatusCodeVatReport.Executed, Text: 'Kjørt' },
+        { Code: StatusCodeVatReport.Submitted, Text: 'Innsendt' },
+        { Code: StatusCodeVatReport.Rejected, Text: 'Avvist' },
+        { Code: StatusCodeVatReport.Approved, Text: 'Godkjent' },
+        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' }
+    ];
 
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = VatReport.RelativeUrl;
         this.entityType = VatReport.EntityType;
+    }
+
+    public refreshVatReport(vatReport: VatReport) {
+        return this.vatreport.next(vatReport);
     }
 
     public getCurrentPeriod(): Observable<VatReport> {
@@ -158,18 +175,10 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.json());
     }
 
-    private statusTypes: Array<any> = [
-        { Code: StatusCodeVatReport.Executed, Text: 'Kjørt' },
-        { Code: StatusCodeVatReport.Submitted, Text: 'Innsendt' },
-        { Code: StatusCodeVatReport.Rejected, Text: 'Avvist' },
-        { Code: StatusCodeVatReport.Approved, Text: 'Godkjent' },
-        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' }
-    ];
-
     public getStatusText = (statusCode: number) => {
         var text = '';
         this.statusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
+            if (status.Code === statusCode) {
                 text = status.Text;
                 return;
             }

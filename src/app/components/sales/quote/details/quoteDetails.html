@@ -1,17 +1,6 @@
-<header class="quote_poster" *ngIf="quote">
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="quote">{{quote.Customer ? (quote.Customer.CustomerNumber + ' - ' + quote.Customer.Info.Name) : quote.CustomerName}}</h1>
-            <p>Tilbudsnr. {{quote.QuoteNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{quote.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
-            <p></p>
-        </section>
-        <nav class="poster_toolbar_tools">
-            <a (click)="previousQuote()"  class="previous">Forrige</a>
-            <a (click)="nextQuote()"  class="next">Neste</a>
-            <a (click)="addQuote()"  class="new">Nytt tilbud</a>
-        </nav>
-    </article>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
+<header class="quote_poster" *ngIf="quote">
      <!-- Widget poster -->
     <section class="poster_overview">
         <uni-widget-poster [model]="quote">

@@ -1,29 +1,23 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
 import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
-
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-
-import {OrderItemList} from './orderItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-
-import {FieldType, CustomerOrder, Customer} from '../../../../unientities';
-import {Address, CustomerOrderItem} from '../../../../unientities';
-import {StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
+import {Address, CustomerOrderItem, Customer, FieldType} from '../../../../unientities';
+import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
-
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 
 declare const _;
 
@@ -54,8 +48,6 @@ export class OrderDetails {
     private order: CustomerOrderExt;
     private deletedItems: Array<CustomerOrderItem>;
 
-    private statusText: string;
-
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
     private customers: Customer[];
@@ -74,6 +66,7 @@ export class OrderDetails {
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     private formIsInitialized: boolean = false;
+    private toolbarconfig: IToolbarConfig;
 
     constructor(private customerService: CustomerService,
                 private customerOrderService: CustomerOrderService,
@@ -98,6 +91,29 @@ export class OrderDetails {
 
     private log(err) {
         this.toastService.addToast(err._body, ToastType.bad);
+    }
+
+    private getStatustrackConfig() {
+        let statustrack: UniStatusTrack.IStatus[] = [];
+        let activeStatus = this.order.StatusCode;
+
+        this.customerOrderService.statusTypes.forEach((s, i) => {
+            let _state: UniStatusTrack.States;
+
+            if (s.Code > activeStatus) {
+                _state = UniStatusTrack.States.Future;
+            } else if (s.Code < activeStatus) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (s.Code === activeStatus) {
+                _state = UniStatusTrack.States.Active;
+            }
+
+            statustrack[i] = {
+                title: s.Text,
+                state: _state
+            };
+        });
+        return statustrack;
     }
 
     public nextOrder() {
@@ -173,6 +189,7 @@ export class OrderDetails {
                         }
 
                         this.order = _.cloneDeep(this.order);
+                        this.updateToolbar();
                     });
                 }
             });
@@ -208,10 +225,10 @@ export class OrderDetails {
                 this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
-                this.updateStatusText();
                 this.addressService.setAddresses(this.order);
                 this.setTabTitle();
                 this.updateSaveActions();
+                this.updateToolbar();
                 this.extendFormConfig();
 
                 this.formIsInitialized = true;
@@ -223,9 +240,9 @@ export class OrderDetails {
             this.customerOrderService.Get(this.orderID, this.expandOptions)
                 .subscribe((order) => {
                     this.order = order;
-                    this.updateStatusText();
                     this.addressService.setAddresses(this.order);
                     this.setTabTitle();
+                    this.updateToolbar();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
@@ -258,8 +275,11 @@ export class OrderDetails {
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
 
                 this.addressChanged = this.addressModal.Changed.subscribe(address => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { this.addressChanged.unsubscribe(); resolve(address); }
+                    if (address._question) { 
+                        self.saveAddressOnCustomer(address, resolve); 
+                    } else { 
+                        this.addressChanged.unsubscribe(); resolve(address); 
+                    }
                 });
             }),
             display: (address: Address) => {
@@ -283,8 +303,11 @@ export class OrderDetails {
                 this.addressModal.openModal(value);
 
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { this.addressChanged.unsubscribe(); resolve(address); }
+                    if (address._question) { 
+                        self.saveAddressOnCustomer(address, resolve); 
+                    } else { 
+                        this.addressChanged.unsubscribe(); resolve(address); 
+                    }
                 });
             }),
             display: (address: Address) => {
@@ -304,7 +327,7 @@ export class OrderDetails {
     private saveAddressOnCustomer(address: Address, resolve) {
         var idx = 0;
 
-        if (!address.ID || address.ID == 0) {
+        if (!address.ID || address.ID === 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.order.Customer.Info.Addresses.push(address);
             idx = this.order.Customer.Info.Addresses.length - 1;
@@ -327,6 +350,21 @@ export class OrderDetails {
             });
     }
 
+    private updateToolbar() {
+        this.toolbarconfig = {
+            title: this.order.Customer ? (this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name) : this.order.CustomerName,
+            subheads: [
+                {title: this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber + '.' : ''},
+                {title: !this.itemsSummaryData ? 'Netto kr ' + this.order.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'}
+            ],
+            statustrack: this.getStatustrackConfig(),
+            navigation: {
+                prev: this.previousOrder.bind(this),
+                next: this.nextOrder.bind(this),
+                add: this.addOrder.bind(this)
+            }
+        };
+    }
 
     private updateSaveActions() {
         this.actions = [];
@@ -421,6 +459,7 @@ export class OrderDetails {
                 .subscribe((data) => {
                         this.itemsSummaryData = data;
                         this.updateSaveActions();
+                        this.updateToolbar();
                     },
                     (err) => {
                         console.log('Error when recalculating items:', err);
@@ -479,8 +518,8 @@ export class OrderDetails {
                 this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
                     this.order = data;
                     this.addressService.setAddresses(this.order);
-                    this.updateStatusText();
                     this.updateSaveActions();
+                    this.updateToolbar();
                     this.setTabTitle();
                     this.ready(null);
                 });
@@ -532,8 +571,8 @@ export class OrderDetails {
                     this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
                         this.order = orderGet;
                         this.addressService.setAddresses(this.order);
-                        this.updateStatusText();
                         this.updateSaveActions();
+                        this.updateToolbar();
                         this.setTabTitle();
 
                         if (next) {
@@ -549,10 +588,6 @@ export class OrderDetails {
                     this.log(err);
                 }
             );
-    }
-
-    private updateStatusText() {
-        this.statusText = this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
 
     private saveAndPrint(done) {

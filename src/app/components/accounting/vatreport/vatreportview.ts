@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {
@@ -17,6 +17,9 @@ import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 import {ReceiptVat} from './receipt/receipt';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {PeriodDateFormatPipe} from '../../../pipes/PeriodDateFormatPipe';
 
 declare const moment;
 
@@ -46,7 +49,8 @@ export class VatReportView implements OnInit, OnDestroy {
     private subs: Subscription[] = [];
     private vatReportsInPeriod: VatReport[];
     private contextMenuItems: IContextMenuItem[] = [];
-
+    private toolbarconfig: IToolbarConfig;
+    private periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
     constructor(
         private tabService: TabService,
@@ -56,8 +60,8 @@ export class VatReportView implements OnInit, OnDestroy {
         private toastService: ToastService,
         private altinnAuthenticationService: AltinnAuthenticationService
     ) {
-        this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport' });
-
+        this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
+    
         this.contextMenuItems = [
             {
                 label: 'Vis tidligere MVA meldinger',
@@ -66,6 +70,46 @@ export class VatReportView implements OnInit, OnDestroy {
                 }
             }
         ];
+
+        this.vatReportService.refreshVatReport$.subscribe((vatReport: VatReport) => {
+            this.toolbarconfig = {
+                title: vatReport.TerminPeriod ? 'Termin ' + vatReport.TerminPeriod.No : '',
+                subheads: [
+                    {
+                        title: vatReport.Title + ', ' + this.periodDateFormat.transform(vatReport.TerminPeriod)
+                    }         
+                ],
+                statustrack: this.getStatustrackConfig(),
+                navigation: {
+                    prev: this.onBackPeriod.bind(this),
+                    next: this.onForwardPeriod.bind(this),
+                },
+                contextmenu: this.contextMenuItems
+            };            
+        });
+    }
+
+    private getStatustrackConfig() {
+        let statustrack: UniStatusTrack.IStatus[] = [];
+        let activeStatus = this.currentVatReport.StatusCode;
+
+        this.vatReportService.statusTypes.forEach((s, i) => {
+            let _state: UniStatusTrack.States;
+
+            if (s.Code > activeStatus) {
+                _state = UniStatusTrack.States.Future;
+            } else if (s.Code < activeStatus) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (s.Code === activeStatus) {
+                _state = UniStatusTrack.States.Active;
+            }
+
+            statustrack[i] = {
+                title: s.Text,
+                state: _state
+            };
+        });
+        return statustrack;
     }
 
     public ngOnInit() {
@@ -189,6 +233,7 @@ export class VatReportView implements OnInit, OnDestroy {
     private setVatreport(vatReport: VatReport) {
         this.showView = '';
         this.currentVatReport = vatReport;
+        this.vatReportService.refreshVatReport(this.currentVatReport);
 
         this.vatReportSummary = null;
         this.vatReportService.getVatReportSummary(vatReport.ID, vatReport.TerminPeriodID)

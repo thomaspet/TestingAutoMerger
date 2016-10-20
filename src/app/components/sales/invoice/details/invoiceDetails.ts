@@ -2,31 +2,23 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
 import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
-
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-
-
-import {InvoiceItemList} from './invoiceItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-
 import {CustomerInvoice, Customer, Address, CustomerInvoiceItem} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType, CompanySettings} from '../../../../unientities';
-
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
-
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 
 declare const _;
 declare const moment;
@@ -61,8 +53,6 @@ export class InvoiceDetails {
     private invoice: CustomerInvoiceExt;
     private deletedItems: Array<CustomerInvoiceItem>;
 
-    private statusText: string;
-
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
     private customers: Customer[];
@@ -77,6 +67,7 @@ export class InvoiceDetails {
     private addressChanged: any;
     private companySettings: CompanySettings;
     private creditInvoiceArr: CustomerInvoice[];
+    private toolbarconfig: IToolbarConfig;
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
@@ -107,6 +98,29 @@ export class InvoiceDetails {
 
     private log(err) {
         this.toastService.addToast(err._body, ToastType.bad);
+    }
+
+    private getStatustrackConfig() {
+        let statustrack: UniStatusTrack.IStatus[] = [];
+        let activeStatus = this.invoice.StatusCode;
+ 
+        this.customerInvoiceService.statusTypes.forEach((s, i) => {
+            let _state: UniStatusTrack.States;
+
+            if (s.Code > activeStatus) {
+                _state = UniStatusTrack.States.Future;
+            } else if (s.Code < activeStatus) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (s.Code === activeStatus) {
+                _state = UniStatusTrack.States.Active;
+            }
+
+            statustrack[i] = {
+                title: s.Text,
+                state: _state
+            };
+        });
+        return statustrack;
     }
 
     public nextInvoice() {
@@ -193,6 +207,7 @@ export class InvoiceDetails {
                         this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
 
                         this.invoice = _.cloneDeep(this.invoice);
+                        this.updateToolbar();
                     });
                 }
             });
@@ -203,6 +218,7 @@ export class InvoiceDetails {
                 if (data.CreditDays) {
                     this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
                     this.invoice = _.cloneDeep(this.invoice);
+                    this.updateToolbar();
                 }
             });
 
@@ -214,6 +230,7 @@ export class InvoiceDetails {
                     if (newdays !== this.invoice.CreditDays) {
                         this.invoice.CreditDays = newdays;
                         this.invoice = _.cloneDeep(this.invoice);
+                        this.updateToolbar();
                     }
                 }
             });
@@ -254,10 +271,10 @@ export class InvoiceDetails {
                     this.invoiceButtonText = 'Krediter';
                     this.creditButtonText = 'Fakturer kreditnota';
                 }
-                this.updateStatusText();
                 this.addressService.setAddresses(this.invoice);
                 this.setTabTitle();
                 this.updateSaveActions();
+                this.updateToolbar();
                 this.getCreditInvoices();
                 this.extendFormConfig();
 
@@ -270,9 +287,9 @@ export class InvoiceDetails {
             this.customerInvoiceService.Get(this.invoiceID, this.expandOptions)
                 .subscribe((invoice) => {
                     this.invoice = invoice;
-                    this.updateStatusText();
                     this.addressService.setAddresses(this.invoice);
                     this.setTabTitle();
+                    this.updateToolbar();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
@@ -295,7 +312,7 @@ export class InvoiceDetails {
 
     private setTabTitle() {
         var tabTitle;
-        if (this.invoice.InvoiceType == 1) {
+        if (this.invoice.InvoiceType === 1) {
             tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
         } else {
             tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
@@ -376,7 +393,7 @@ export class InvoiceDetails {
     private saveAddressOnCustomer(address: Address, resolve) {
         var idx = 0;
 
-        if (!address.ID || address.ID == 0) {
+        if (!address.ID || address.ID === 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.invoice.Customer.Info.Addresses.push(address);
             idx = this.invoice.Customer.Info.Addresses.length - 1;
@@ -396,6 +413,23 @@ export class InvoiceDetails {
         }, (error) => {
             this.addressChanged.unsubscribe();
         });
+    }
+
+    private updateToolbar() {
+        this.toolbarconfig = {
+            title: this.invoice.Customer ? (this.invoice.Customer.CustomerNumber + ' - ' + this.invoice.Customer.Info.Name) : this.invoice.CustomerName,
+            subheads: [
+                {title: this.invoice.InvoiceNumber ? (this.invoice.InvoiceType === 0 ? 'Fakturanr. ' : 'Kreditnota. ') + this.invoice.InvoiceNumber : '' },
+                {title: !this.itemsSummaryData ? 'Netto kr ' + this.invoice.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'},
+                {title: this.invoice.InvoiceType === 1 && this.invoice.InvoiceReference ? 'Kreditering av <a href="#/sales/invoices/' + this.invoice.InvoiceReference.ID + '">faktura nr. ' + this.invoice.InvoiceReference.InvoiceNumber + '</a>' : ''}
+            ],
+            statustrack: this.getStatustrackConfig(),
+            navigation: {
+                prev: this.previousInvoice.bind(this),
+                next: this.nextInvoice.bind(this),
+                add: this.addInvoice.bind(this)
+            }
+        };
     }
 
     private updateSaveActions() {
@@ -502,6 +536,7 @@ export class InvoiceDetails {
                 .subscribe((data) => {
                         this.itemsSummaryData = data;
                         this.updateSaveActions();
+                        this.updateToolbar();
                     },
                     (err) => {
                         console.log('Error when recalculating items:', err);
@@ -525,8 +560,8 @@ export class InvoiceDetails {
                 this.customerInvoiceService.Get(invoice.ID, this.expandOptions).subscribe((data) => {
                     this.invoice = data;
                     this.addressService.setAddresses(this.invoice);
-                    this.updateStatusText();
                     this.updateSaveActions();
+                    this.updateToolbar();
                     this.setTabTitle();
                     this.ready(null);
                 });
@@ -587,9 +622,9 @@ export class InvoiceDetails {
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
                         this.invoice = invoiceGet;
                         this.addressService.setAddresses(this.invoice);
-                        this.updateStatusText();
                         this.setTabTitle();
                         this.updateSaveActions();
+                        this.updateToolbar();
                         this.ready(null);
                         this.setTabTitle();
 
@@ -606,10 +641,6 @@ export class InvoiceDetails {
                     this.log(err);
                 }
             );
-    }
-
-    private updateStatusText() {
-        this.statusText = this.customerInvoiceService.getStatusText(this.invoice.StatusCode, this.invoice.InvoiceType);
     }
 
     private saveAndPrint(done) {
@@ -656,8 +687,8 @@ export class InvoiceDetails {
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
                             this.invoice = data;
                             this.addressService.setAddresses(this.invoice);
-                            this.updateStatusText();
                             this.updateSaveActions();
+                            this.updateToolbar();
                             this.ready(null);
 
                             done('Betaling registrert');

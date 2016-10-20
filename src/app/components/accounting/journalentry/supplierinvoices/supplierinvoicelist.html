@@ -1,3 +1,5 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
 <section class="application">    
     <h2>Leverandørfaktura</h2><button class="new-button" (click)="createInvoice()">Ny leverandørfaktura</button>
     <p class="error validation" *ngIf="errors && errors.length > 0">

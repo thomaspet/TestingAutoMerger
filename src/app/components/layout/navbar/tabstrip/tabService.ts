@@ -26,6 +26,7 @@ export enum UniModules {
     TransqueryDetails = 302,
     Accountsettings = 303,
     Vatsettings     = 304,
+    VatReport       = 305,
 
     Employees       = 400,
     Wagetypes       = 401,
