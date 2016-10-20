@@ -137,7 +137,6 @@ export class UniForm {
 
     public ngAfterViewInit() {
         this.readyFields = 0;
-        this.focusFirstElement();
     }
 
     public onFocusHandler(event) {
@@ -154,6 +153,7 @@ export class UniForm {
         this.readyFields++;
         if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
+            this.focusFirstElement();
         }
     }
 
