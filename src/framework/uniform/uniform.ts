@@ -55,7 +55,8 @@ declare var _; // lodash
                     [formConfig]="config"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)"
-                    (onFocus)="onFocusHandler($event)">                        
+                    (onToggle)="onToggleHandler($event)"
+                    (onFocus)="onFocusHandler($event)">
                 </uni-section>
                 <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>      
             </template>
@@ -82,6 +83,9 @@ export class UniForm {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @Output()
+    public onToggle: EventEmitter<Object> = new EventEmitter<Object>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -164,7 +168,7 @@ export class UniForm {
     }
 
     public onChangeHandler(model: any) {
-        var invalids = []
+        var invalids = [];
         var controls = this.controls.controls;
         for (var prop in controls) {
             if (controls.hasOwnProperty(prop)) {
@@ -178,6 +182,9 @@ export class UniForm {
         this.onChange.emit(model);
     }
 
+    public onToggleHandler(section: any) {
+        this.onToggle.emit(section);
+    }
 
     public readMode() {
         this.fieldElements.forEach((f) => f.readMode());

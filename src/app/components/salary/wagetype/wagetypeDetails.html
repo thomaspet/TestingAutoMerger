@@ -6,12 +6,10 @@
     </section>
 </header>
 
-<section class="application wagetype">
-    <uni-form [config]="config" [fields]="fields" [model]="wageType" (onSubmit)="saveWagetype($event)" (onChange)="change($event)"></uni-form>
-    <section *ngIf="showSupplementaryInformations">
-        <p>
-            Valgte tilleggsopplysninger
-        </p>
+<section class="application">
+    <uni-form [config]="config" [fields]="fields" [model]="wageType" (onSubmit)="saveWagetype($event)" (onChange)="change($event)" (onToggle)="toggle($event)"></uni-form>
+    <section *ngIf="showSupplementaryInformations" class="supplementInfo">
+        <p>Valgte tilleggsopplysninger</p>
         <uni-table *ngIf="wageType.SupplementaryInformations" [config]="tilleggspakkeConfig" [resource]="wageType.SupplementaryInformations"></uni-table>
     </section>
 </section>

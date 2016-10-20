@@ -68,6 +68,9 @@ export class UniSection {
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
+    public onToggle: EventEmitter<Object> = new EventEmitter<Object>(true);
+
+	@Output()
     public onFocus: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
 
     @ViewChildren(UniField)
@@ -103,6 +106,7 @@ export class UniSection {
         this.isOpen = !this.isOpen;
         this.formConfig.sections[this.sectionId].isOpen = this.isOpen;
         this.cd.markForCheck();
+        this.onToggle.emit({sectionId: this.sectionId, isOpen: this.isOpen});
     }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {

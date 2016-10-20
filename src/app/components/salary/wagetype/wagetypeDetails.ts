@@ -471,6 +471,18 @@ export class WagetypeDetail {
         }
     }
 
+    public toggle(section) {
+        if (section.sectionId === 2) {
+            if (section.isOpen) {
+                if (this.wageType.SupplementaryInformations.length > 0) {
+                    this.showSupplementaryInformations = true;
+                }
+            } else {
+                this.showSupplementaryInformations = false;
+            }
+        }
+    }
+
     public saveWagetype(done) {
         if (this.supplementTable) {
             this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
