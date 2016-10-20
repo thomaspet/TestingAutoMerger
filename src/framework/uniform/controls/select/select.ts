@@ -237,6 +237,6 @@ export class UniSelect {
     }
 
     blurHandler() {
-        this.close();
+        // this.close();
     }
 }
