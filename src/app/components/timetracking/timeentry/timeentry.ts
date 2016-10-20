@@ -12,7 +12,7 @@ import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
-import {Router, ActivatedRoute} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 
 declare var moment;
 
@@ -257,7 +257,7 @@ export class TimeEntry {
                         let d1 = this.timeSheet.items[row].Date;
                         let d2 = this.timeSheet.items[row - 1].Date;
                         if (d1 && d2) {
-                            if (d1 === d2 && (this.timeSheet.items[row - 1].EndTime) ) {
+                            if (isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
                                 details.valueToSet = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
                                 details.copyAbove = false;
                             }
@@ -274,8 +274,16 @@ export class TimeEntry {
                 this.timeSheet.copyValueAbove(details.columnDefinition.name, details.position.row);
                 details.copyAbove = false;
             }
-
         }
+
+        function isSameDate(d1: any, d2: any): boolean {
+            if (d1 === d2) { return true; }
+            if ((d1.length && d1.length >= 10) && (d2.length && d2.length >= 10)) {
+                return d1.substr(0, 10) === d2.substr(0, 10);
+            }
+            return false;
+        }
+        
     }
 
     private validate(): boolean {
