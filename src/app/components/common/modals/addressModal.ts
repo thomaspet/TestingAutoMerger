@@ -1,8 +1,10 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm} from '../../../../framework/uniform';
-import {Address, FieldType} from '../../../unientities';
-import {AddressService} from '../../../services/services';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {Address, FieldType, Country, PostalCode} from '../../../unientities';
+import {AddressService, CountryService, PostalCodeService} from '../../../services/services';
+
+declare const _; // lodash
 
 // Reusable address form
 @Component({
@@ -25,13 +27,20 @@ export class AddressForm implements OnChanges {
     @Input() public question: string;
     @Input() public disableQuestion: boolean;
     @ViewChild(UniForm) public form: UniForm;
+    public config: any = {};
 
     private enableSave: boolean;
     private save: boolean;
 
-    private config: any = {};
+
     private fields: any[] = [];
     private formConfig: any = {};
+
+    private countries: Array<Country>;
+
+    constructor(private countryService: CountryService, private postalCodeService: PostalCodeService) {
+
+    }
 
     public ngOnInit() {
         this.setupForm();
@@ -45,9 +54,76 @@ export class AddressForm implements OnChanges {
     }
 
     private setupForm() {
+        this.fields = this.getFields();
+
+        if (!this.countries) {
+            this.countryService.GetAll('orderby=Name')
+                .subscribe(countries => {
+                    // place default country first in the dropdown
+                    let defaultCountry = countries.find(x => x.CountryCode === 'NO');
+                    if (defaultCountry) {
+                        countries = countries.filter(x => x.CountryCode !== 'NO');
+                        countries.unshift(defaultCountry);
+                    }
+                    this.countries = countries;
+
+                    this.extendFormConfig();
+                },
+                err => console.log('Error retrieving countries:', err)
+            );
+        }
+    }
+
+    private extendFormConfig() {
+
+        let country: UniFieldLayout = this.fields.find(x => x.Property === 'Country');
+        country.Options = {
+            source: this.countries,
+            valueProperty: 'Name',
+            displayProperty: 'Name',
+            events: {
+                blur: () => this.setCountryCodeBasedOnCountry()
+            }
+        };
+
+        this.fields = _.cloneDeep(this.fields);
+
+        setTimeout(() => {
+            this.form.field('PostalCode')
+                .onChange
+                .subscribe((address: Address) => {
+                    if (address.PostalCode) {
+                        // set city based on postalcode
+                        this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
+                            .subscribe((postalCodes: Array<PostalCode>) => {
+                                if (postalCodes.length > 0) {
+                                    address.City = postalCodes[0].City;
+                                    this.config.model = _.cloneDeep(address);
+                                }
+                            });
+                    }
+                });
+        });
+    }
+
+    private setCountryCodeBasedOnCountry() {
+        let model: Address = this.config.model;
+        if (model.Country) {
+            this.countryService.GetAll(`filter=Name eq '${model.Country}'&top=1`)
+                .subscribe((data: Country[]) => {
+                    if (data && data.length > 0) {
+                        model.CountryCode = data[0].CountryCode;
+                    }
+                },
+                err => console.log('Error setting countrycode based on country ', err)
+            );
+        }
+    }
+
+    private getFields() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        this.fields = [
+        return [
             {
                 ComponentLayoutID: 1,
                 EntityType: 'Address',
@@ -191,13 +267,13 @@ export class AddressForm implements OnChanges {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'Address',
-                Property: 'CountryCode',
+                Property: 'Country',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.DROPDOWN,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Landkode',
+                Label: 'Land',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -214,7 +290,8 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Classes: 'country-dropdown'
             }
         ];
     }
@@ -282,7 +359,13 @@ export class AddressModal {
     }
 
     public openModal(address: Address, disableQuestion: boolean = false) {
+        if (!address.Country || address.Country === '') {
+            address.Country = 'Norge';
+            address.CountryCode = 'NO';
+        }
+
         this.modalConfig.model = address;
+
         this.modalConfig.disableQuestion = disableQuestion;
         this.modal.open();
     }

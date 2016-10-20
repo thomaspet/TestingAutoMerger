@@ -15,6 +15,8 @@ import {UserService} from './UserService';
 import {VatReportFormService} from './VatReportFormService';
 import {StatisticsService} from './StatisticsService';
 import {UniQueryDefinitionService} from './UniQueryDefinitionService';
+import {CountryService} from './CountryService';
+import {PostalCodeService} from './PostalCodeService';
 
 @NgModule({
     providers: [
@@ -33,7 +35,9 @@ import {UniQueryDefinitionService} from './UniQueryDefinitionService';
         UserService,
         VatReportFormService,
         UniQueryDefinitionService,
-        StatisticsService
+        StatisticsService,
+        CountryService,
+        PostalCodeService
     ]
 })
 export class CommonServicesModule {

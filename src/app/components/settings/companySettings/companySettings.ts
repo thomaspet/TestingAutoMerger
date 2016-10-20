@@ -284,8 +284,11 @@ export class CompanySettingsComponent implements OnInit {
 
                 this.addressModal.openModal(value);
 
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                if (this.addressChanged) {
                     this.addressChanged.unsubscribe();
+                }
+
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
                     resolve(modalval);
                 });
             }),

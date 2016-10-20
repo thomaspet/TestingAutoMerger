@@ -17,19 +17,16 @@ import {ComponentCreator} from '../core/dynamic/UniComponentCreator';
 })
 export class UniModal implements AfterViewInit {
 
-    @Input('config')
-    config: any;
+    @Input('config') public config: any;
 
-    @Input('type')
-    componentType: Type<any>;
+    @Input('type') public componentType: Type<any>;
 
-    @ViewChild('modalContainer', {read: ViewContainerRef})
-    container: ViewContainerRef;
+    @ViewChild('modalContainer', {read: ViewContainerRef}) public container: ViewContainerRef;
 
-    isOpen: boolean = false;
+    private isOpen: boolean = false;
 
-    component: Promise<any>;
-    factory:ComponentFactory<any>
+    public component: Promise<any>;
+    private factory: ComponentFactory<any>;
 
     constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
         document.addEventListener('keyup', (e: any) => {
@@ -39,12 +36,12 @@ export class UniModal implements AfterViewInit {
         });
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         // compile the component
         this.factory = this.creator.compileComponent<any>(this.componentType);
     }
 
-    createContent() {
+    public createContent() {
         let self = this;
         let config = self.config || {};
         if (!this.factory)  {
@@ -59,11 +56,13 @@ export class UniModal implements AfterViewInit {
         this.component = new Promise(resolve => resolve(modal.instance));
     }
 
-    open() {
+    public open() {
         if (!this.component) {
             this.createContent();
         }
+
         this.isOpen = true;
+
         setTimeout(() => {
             const el = this.elementRef.nativeElement.querySelector('input,textarea,select');
             if (el) {
@@ -72,12 +71,11 @@ export class UniModal implements AfterViewInit {
         });
     }
 
-    close() {
+    public close() {
         this.isOpen = false;
     }
 
-    getContent() {
+    public getContent() {
         return this.component;
     }
-
 }

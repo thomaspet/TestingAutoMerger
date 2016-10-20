@@ -21,6 +21,8 @@ export * from './salary/wagetype/wagetypeservice'
 export * from './common/departmentservice';
 export * from './common/projectservice';
 export * from './common/currencyservice';
+export * from './common/CountryService';
+export * from './common/PostalCodeService';
 export * from './sales/phoneservice';
 export * from './common/productservice';
 export * from './sales/customerservice';

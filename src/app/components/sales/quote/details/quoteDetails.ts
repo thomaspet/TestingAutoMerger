@@ -281,12 +281,16 @@ export class QuoteDetails {
                 }
 
                 this.addressModal.openModal(value, !!!this.quote.CustomerID);
+				
+				if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
 
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { 
-                        self.saveAddressOnCustomer(address, resolve); 
-                    } else { 
-                        this.addressChanged.unsubscribe(); resolve(address); 
+                    if (address._question) {
+                        self.saveAddressOnCustomer(address, resolve);
+                    } else {
+                        resolve(address);
                     }
                 });
             }),
@@ -310,11 +314,15 @@ export class QuoteDetails {
 
                 this.addressModal.openModal(value);
 
+                if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
+
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { 
-                        self.saveAddressOnCustomer(address, resolve); 
-                    } else { 
-                        this.addressChanged.unsubscribe(); resolve(address); 
+                    if (address._question) {
+                        self.saveAddressOnCustomer(address, resolve);
+                    } else {
+                        resolve(address);
                     }
                 });
             }),
@@ -350,10 +358,7 @@ export class QuoteDetails {
         // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((info) => {
             this.quote.Customer.Info = info;
-            this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
-        }, (error) => {
-            this.addressChanged.unsubscribe();
         });
     }
 

@@ -340,11 +340,15 @@ export class InvoiceDetails {
 
                 this.addressModal.openModal(value);
 
+                if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
+
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) {
                         self.saveAddressOnCustomer(address, resolve);
                     } else {
-                        this.addressChanged.unsubscribe(); resolve(address);
+                        resolve(address);
                     }
                 });
             }),
@@ -368,11 +372,15 @@ export class InvoiceDetails {
 
                 this.addressModal.openModal(value);
 
+                if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
+
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) {
                         self.saveAddressOnCustomer(address, resolve);
                     } else {
-                        this.addressChanged.unsubscribe(); resolve(address);
+                        resolve(address);
                     }
                 });
             }),
@@ -408,10 +416,7 @@ export class InvoiceDetails {
         // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.invoice.Customer.Info.ID, this.invoice.Customer.Info).subscribe((info) => {
             this.invoice.Customer.Info = info;
-            this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
-        }, (error) => {
-            this.addressChanged.unsubscribe();
         });
     }
 

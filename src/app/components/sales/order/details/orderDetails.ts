@@ -274,12 +274,13 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
 
+                 if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
+
                 this.addressChanged = this.addressModal.Changed.subscribe(address => {
-                    if (address._question) { 
-                        self.saveAddressOnCustomer(address, resolve); 
-                    } else { 
-                        this.addressChanged.unsubscribe(); resolve(address); 
-                    }
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -302,12 +303,13 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value);
 
+                if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
+
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { 
-                        self.saveAddressOnCustomer(address, resolve); 
-                    } else { 
-                        this.addressChanged.unsubscribe(); resolve(address); 
-                    }
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -342,11 +344,7 @@ export class OrderDetails {
         // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
                 this.order.Customer.Info = info;
-                this.addressChanged.unsubscribe();
                 resolve(info.Addresses[idx]);
-            },
-            (error) => {
-                this.addressChanged.unsubscribe();
             });
     }
 
