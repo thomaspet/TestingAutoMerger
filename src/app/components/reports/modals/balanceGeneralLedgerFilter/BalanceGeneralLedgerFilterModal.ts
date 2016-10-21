@@ -88,12 +88,14 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
                 FieldType: FieldType.MULTISELECT,
                 Label: 'Vis med korrigeringer',
                 Property: 'IncludeCorrections'
-            },
-            <any>{
-                FieldType: FieldType.MULTISELECT,
-                Label: 'Bruk farger',
-                Property: 'UseColors'
             }
+            //TODO? Trenger vi dette? Bør vel løses generelt for alle rapporter?
+            //,
+            //<any>{
+            //    FieldType: FieldType.MULTISELECT,
+            //    Label: 'Bruk farger',
+            //    Property: 'UseColors'
+            //}
         ];
     }
 }
