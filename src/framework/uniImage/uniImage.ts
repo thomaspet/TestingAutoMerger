@@ -192,7 +192,7 @@ export class UniImage {
     }
 
     private generateImageUrl(file: File, width: number): string {
-        let url = `http://unifiles.azurewebsites.net/image/?key=${this.activeCompany.Key}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
+        let url = `https://unifiles.azurewebsites.net/image/?key=${this.activeCompany.Key}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
         return encodeURI(url);
     }
 
