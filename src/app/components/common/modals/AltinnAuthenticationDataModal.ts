@@ -1,10 +1,11 @@
-import {Component, Type, ViewChild, Input, EventEmitter} from '@angular/core';
+import {Component, Type, ViewChild, Input, EventEmitter, ElementRef, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {UniFieldLayout} from '../../../../framework/uniform';
 import {FieldType, AltinnAuthRequest} from '../../../unientities';
-import {AltinnAuthenticationService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../services/services';
+import {AltinnAuthenticationService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {KeyCodes} from '../../../../framework/uniform/interfaces';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,
@@ -47,7 +48,7 @@ enum LoginState {
             </div>
         </article>`
 })
-export class AltinnAuthenticationDataModalContent {
+export class AltinnAuthenticationDataModalContent implements OnInit {
     @Input()
     public config: { close: () => void };
 
@@ -73,8 +74,20 @@ export class AltinnAuthenticationDataModalContent {
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private elementRef: ElementRef
     ) {}
+
+    public ngOnInit() {
+        this.elementRef.nativeElement.addEventListener('keypress', event => {
+            if (
+                event.which === KeyCodes.ENTER
+                && this.formState === LoginState.Pin
+            ) {
+                this.submitPin();
+            }
+        });
+    }
 
     private createUsernameAndPasswordForm(): UniFieldLayout[] {
         var username: UniFieldLayout = new UniFieldLayout();
