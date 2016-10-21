@@ -102,6 +102,9 @@ export class UniImage {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
+        this.imgUrl = this.imgUrl2x = '';
+        this.thumbnails = [];
+
         if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
             this.http.asGET()
                 .usingBusinessDomain()
