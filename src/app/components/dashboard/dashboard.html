@@ -15,7 +15,7 @@
     </header>
     <header class="dashboard_company" *ngIf="welcomeHidden">
         <section *ngIf="current">
-            <uni-image *ngIf="current.LogoFileID" [imageId]="current?.LogoFileID" class="header_logo"></uni-image>
+            <!--<uni-image [entity]="'companysettings/1'" class="header_logo"></uni-image>-->
         </section>
         <section *ngIf="current">
             <h1 (click)="widgetListItemClicked('/settings/company')">{{current.CompanyName}}</h1>
@@ -51,7 +51,7 @@
                 endret <!--Should be dynamic-->
                 <strong><a (click)="widgetListItemClicked(trans.url)">{{trans.module}} {{trans.AuditLogEntityID}}</a></strong>
                 <time class="time_float">{{trans.time}}</time>
-            </li> 
+            </li>
         </ol>
     </figure>
 

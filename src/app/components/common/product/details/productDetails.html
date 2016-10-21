@@ -1,4 +1,4 @@
-<header class="product_poster" *ngIf="product">    
+<header class="product_poster" *ngIf="product">
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="productId > 0">{{product.Name}}</h1>
@@ -6,38 +6,38 @@
             <h1 *ngIf="productId == 0">Nytt produkt</h1>
             <p *ngIf="productId == 0">&nbsp;</p>
         </section>
-            
+
         <nav class="poster_toolbar_tools">
             <a (click)="previousProduct()"  class="previous">Forrige</a>
             <a (click)="nextProduct()"  class="next">Neste</a>
             <a (click)="addProduct()"  class="new">Nytt produkt</a>
-        </nav>         
-    </article>       
-    
+        </nav>
+    </article>
+
      <!-- Widget poster -->
-    <section class="poster_overview">        
+    <section class="poster_overview">
         <uni-widget-poster [model]="product">
             <section class="application">
                 <section>Utpris eks. MVA: kr. {{product.PriceExVat }}</section>
                 <section>Utpris ink. MVA: kr. {{product.PriceIncVat }}</section>
             </section>
-        </uni-widget-poster>        
-    </section> 
+        </uni-widget-poster>
+    </section>
 </header>
 
 <section *ngIf="product" class="product-details application">
-    <uni-form            
-        [config]="config" 
-        [fields]="fields" 
+    <uni-form
+        [config]="config"
+        [fields]="fields"
         [model]="product"
         (onReady)="ready($event)">
     </uni-form>
 
     <article class="collapsable" [ngClass]="{'-is-open': showImageComponent}">
         <h4 (click)="showImageComponent = !showImageComponent">Produktbilde</h4>
-        <div class="collapsable-content">
-            <uni-image [imageId]="product.ImageFileID" [uploadConfig]="imageUploadConfig"></uni-image>
-        </div>
+        <!--<div class="collapsable-content">
+            <uni-image [entity]="'product/' + product.ID" [uploadConfig]="imageUploadConfig"></uni-image>
+        </div>-->
     </article>
 
     <!--<label class="product-image" for="">
@@ -48,6 +48,6 @@
 
 <footer class="full-footer">
     <section class="application">
-        <uni-save [actions]="saveactions"></uni-save> 
+        <uni-save [actions]="saveactions"></uni-save>
     </section>
 </footer>

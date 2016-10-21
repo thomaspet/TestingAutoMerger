@@ -12,8 +12,8 @@
         </uni-widget-poster>
     </section>
 
-    <article class="supplier-invoice-detail-form">    
-        
+    <article class="supplier-invoice-detail-form">
+
         <p class="error validation" *ngIf="errors && errors.length > 0">
             <span *ngFor="let error of errors">
                     {{error.Message}}
@@ -25,7 +25,7 @@
             [fields]='fields'
             [model]='supplierInvoice'
             (onReady)="ready($event)">
-        </uni-form> 
+        </uni-form>
 
     </article>
 
@@ -38,11 +38,11 @@
 </section>
 
 <article class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
-    <uni-image [imageId]="previewId" [size]="previewSize" *ngIf="previewId > 0"></uni-image>   
+    <!--<uni-image [imageId]="previewId" [size]="previewSize" *ngIf="previewId > 0"></uni-image>   -->
 
     <p class="good validation" *ngIf="fileuploader.statusText">
         <span>{{fileuploader.statusText}}</span>
-    </p>           
+    </p>
     <uni-document-uploader *ngIf="previewId == -1"
     [service]="fileuploader"
     [entity]="supplierInvoice"

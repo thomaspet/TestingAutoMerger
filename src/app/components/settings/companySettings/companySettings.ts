@@ -136,13 +136,6 @@ export class CompanySettingsComponent implements OnInit {
                 }
 
                 this.extendFormConfig();
-                this.imageUploadOptions = {
-                    entityType: 'companysettings',
-                    entityId: 1,
-                    onSuccess: (imageId) => {
-                        this.company['LogoFileID'] = imageId;
-                    }
-                };
 
                 setTimeout(() => {
                     if (this.showExternalSearch) {
