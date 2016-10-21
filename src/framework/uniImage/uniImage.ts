@@ -198,6 +198,12 @@ export class UniImage {
 
     private uploadFileChange(event) {
         const source = event.srcElement || event.target;
+
+        if (!this.entity || !this.isDefined(this.entityID)) {
+            throw new Error(`Tried to upload a picture with either entity (${this.entity})`
+                 + `or entityID (${this.entityID}) being null`);
+        }
+
         if (source.files && source.files.length) {
             this.uploading = true;
             const newFile = source.files[0];
