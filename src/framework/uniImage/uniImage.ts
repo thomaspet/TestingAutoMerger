@@ -69,6 +69,8 @@ export class UniImage {
     @Input()
     public uploadConfig: IUploadConfig;
 
+    private baseUrl = 'https://unifiles.azurewebsites.net/';
+
     private jwt: any;
     private activeCompany: any;
 
@@ -192,7 +194,7 @@ export class UniImage {
     }
 
     private generateImageUrl(file: File, width: number): string {
-        let url = `https://unifiles.azurewebsites.net/image/?key=${this.activeCompany.Key}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
+        let url = `${this.baseUrl}/image/?key=${this.activeCompany.Key}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
         return encodeURI(url);
     }
 
@@ -233,7 +235,7 @@ export class UniImage {
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);
 
-        this.ngHttp.post('http://unifiles.azurewebsites.net/api/file', data)
+        this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
             .subscribe((res) => {
                 this.uploading = false;
