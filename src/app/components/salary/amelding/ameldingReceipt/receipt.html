@@ -1,11 +1,11 @@
 <section *ngIf="showFeedback">
     <uni-table [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
     <ul>
-        <li *ngFor="let avvik of alleAvvik; let index = index" class="amelding_summaryview" [ngClass]="{'-is-expanded':!avvik.collapsed}">
+        <li *ngFor="let avvik of alleAvvikNoder; let index = index" class="amelding_summaryview" [ngClass]="{'-is-expanded':!avvik.collapsed}">
             <h4 (click)="toggleCollapsed(index)">{{avvik.id}}</h4>
             <table *ngIf="!avvik.collapsed">
                 <tr>
-                    <th>ID</th>
+                    <th>Avvikstype</th>
                     <td>{{avvik.id}}</td>
                 </tr>
                 <tr>
@@ -13,12 +13,20 @@
                     <td>{{avvik.alvorlighetsgrad}}</td>
                 </tr>
                 <tr>
-                    <th>Detaljer</th>
-                    <td>{{avvik.detaljer}}</td>
+                    <th>Navn</th>
+                    <td colspan="3">{{avvik.navn}}</td>
+                </tr>
+                <tr *ngIf="avvik.arbeidsforholdId">
+                    <th>ArbeidsforholdID</th>
+                    <td>{{avvik.arbeidsforholdId}}</td>
+                </tr>
+                <tr *ngIf="avvik.yrke">
+                    <th>Stillingskode</th>
+                    <td>{{avvik.yrke}}</td>
                 </tr>
                 <tr>
-                    <th>Navn</th>
-                    <td>{{avvik.navn}}</td>
+                    <th>Detaljer</th>
+                    <td colspan="3">{{avvik.detaljer}}</td>
                 </tr>
             </table>
         </li>
