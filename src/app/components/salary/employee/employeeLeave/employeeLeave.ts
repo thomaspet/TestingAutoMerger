@@ -70,16 +70,15 @@ export class EmployeeLeave extends UniView {
         const commentCol = new UniTableColumn('Description', 'Kommentar');
         const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
-                const leaveType = this.leaveTypes.find(lt => lt.ID === dataItem.LeaveType);
+                const leaveType = this.leaveTypes.find(lt => +lt.typeID === +dataItem.LeaveType);
                 return (leaveType) ? leaveType.text : '';
             })
             .setEditorOptions({
-                itemTemplate: (selectedItem) => {
-                    return (selectedItem.typeID + ' - ' + selectedItem.text);
-                },
+                itemTemplate: selectedItem => selectedItem.text,
                 lookupFunction: (searchValue) => {
                     return this.leaveTypes.filter(lt => lt.text.toLowerCase().indexOf(searchValue) > -1);
-                }
+                },
+
             });
 
         const employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
