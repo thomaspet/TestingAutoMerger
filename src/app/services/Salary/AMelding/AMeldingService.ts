@@ -8,6 +8,12 @@ import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {
 
+    public internalAmeldingStatus: Array<any> = [
+        {Code: 1, Text: 'Generert'},
+        {Code: 2, Text: 'Innsendt'},
+        {Code: 3, Text: 'Tilbakemelding hentet'}
+    ];
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AmeldingData.RelativeUrl;
@@ -19,7 +25,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             return this.Get(id);
         }
     }
-
+    
     public getAMeldingForPeriod(periode: number): Observable<AmeldingData[]> {
         return this.http
             .asGET()

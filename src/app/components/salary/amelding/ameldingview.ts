@@ -7,15 +7,11 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {AmeldingControlView} from './ameldingControl/control';
-import {AmeldingSummaryView} from './ameldingSummary/summary';
-import {AmeldingAgaView} from './ameldingAga/aga';
-import {AmeldingReceiptView} from './ameldingReceipt/receipt';
-import {AmeldingPeriodSummaryView} from './ameldingPeriod/period';
-import {AmeldingAvstemView} from './ameldingAvstem/avstem';
 import {SelectAmeldingTypeModal} from './modals/selectAmeldingTypeModal';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 import {UniSave} from '../../../../framework/save/save';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
 
 declare var moment;
 
@@ -43,7 +39,7 @@ export class AMeldingView implements OnInit {
     @ViewChild(UniSave) private saveComponent: UniSave;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
-
+    private toolbarConfig: IToolbarConfig;
 
     constructor(
         private _tabService: TabService,
@@ -52,7 +48,7 @@ export class AMeldingView implements OnInit {
         private _payrollService: PayrollrunService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
-
+        
         this.contextMenuItems = [
             {
                 label: 'Hent a-meldingsfil',
@@ -68,6 +64,8 @@ export class AMeldingView implements OnInit {
                 }
             }
         ];
+
+        this.updateToolbar();
     }
 
     public ngOnInit() {
@@ -159,7 +157,46 @@ export class AMeldingView implements OnInit {
         } else {
             this.feedbackObtained = false;
         }
+        this.updateToolbar();
         this.updateSaveActions();
+    }
+
+    private updateToolbar() {
+        this.toolbarConfig = {
+            title: `Periode ${this.currentPeriod}`,
+            subheads: [{
+                title: this.currentMonth
+            }],
+            statustrack: this.getStatusTrackConfig(),
+            navigation: {
+                prev: this.prevPeriod.bind(this),
+                next: this.nextPeriod.bind(this)
+            },
+            contextmenu: this.contextMenuItems
+        };
+    }
+
+    private getStatusTrackConfig() {
+        let statustrack: UniStatusTrack.IStatus[] = [];
+        let activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
+
+        this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
+            let _state: UniStatusTrack.States;
+
+            if (amldStatus.Code > activeStatus) {
+                _state = UniStatusTrack.States.Future;
+            } else if (amldStatus.Code < activeStatus) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (amldStatus.Code === activeStatus) {
+                _state = UniStatusTrack.States.Active;
+            }
+
+            statustrack[indx] = {
+                title: amldStatus.Text,
+                state: _state
+            };
+        });
+        return statustrack;
     }
 
     private updateAMeldingerInPeriod(newAMelding) {
@@ -193,14 +230,13 @@ export class AMeldingView implements OnInit {
     }
 
     private getAMeldingForPeriod() {
-        this.spinner(
-            this._ameldingService.getAMeldingForPeriod(this.currentPeriod)
-        )
+        this.spinner(this._ameldingService.getAMeldingForPeriod(this.currentPeriod))
             .subscribe((ameldinger: AmeldingData[]) => {
                 this.aMeldingerInPeriod = ameldinger;
                 if (this.aMeldingerInPeriod.length > 0) {
                     this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                 } else {
+                    this.updateToolbar();
                     this.updateSaveActions();
                 }
             }, error => {

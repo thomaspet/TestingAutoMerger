@@ -1,21 +1,14 @@
 <header class="poster">
-    <article class="poster_toolbar">
-        <section>
-            <h1><b>Periode {{currentPeriod}} - {{currentMonth}}</b></h1>
-            <span *ngFor="let melding of aMeldingerInPeriod; let i = index">
+    <uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+    <section>
+        <span *ngFor="let melding of aMeldingerInPeriod; let i = index">
                 <span *ngIf="i > 0">,  </span>
-            <a *ngIf="currentAMelding" (click)="setAMelding(melding)" href="javascript:void(0);">
-                <span *ngIf="melding.ID == currentAMelding.ID"> <b>A-melding {{melding.ID}}</b></span>
-                <span *ngIf="melding.ID != currentAMelding.ID">A-melding {{melding.ID}}</span>
-            </a>
-            </span>
-        </section>
-        <nav class="poster_toolbar_tools">
-            <a (click)="prevPeriod()" class="previous">Forrige</a>
-            <a (click)="nextPeriod()" class="next">Neste</a>
-            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
-        </nav>
-    </article>
+        <a *ngIf="currentAMelding" (click)="setAMelding(melding)" href="javascript:void(0);">
+            <span *ngIf="melding.ID == currentAMelding.ID"> <b>A-melding {{melding.ID}}</b></span>
+            <span *ngIf="melding.ID != currentAMelding.ID">A-melding {{melding.ID}}</span>
+        </a>
+        </span>
+    </section>
 
     <section class="poster_overview">
         <div class="poster_widgets">
