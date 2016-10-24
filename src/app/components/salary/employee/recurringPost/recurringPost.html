@@ -2,7 +2,7 @@
     <small *ngIf="unsavedEmployments">
         Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før lagring er kjørt.<br><br>
     </small>
-    <uni-table [resource]="recurringPosts"
+    <uni-table [resource]="filteredPosts"
                [config]="tableConfig"
                (rowDeleted)="onRowDeleted($event)">
     </uni-table>

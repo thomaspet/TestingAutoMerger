@@ -4,6 +4,7 @@ import {WageTypeService, SalaryTransactionService, UniCacheService} from '../../
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
+import {Observable} from 'rxjs/Observable';
 declare var _;
 
 @Component({
@@ -14,9 +15,11 @@ declare var _;
 export class RecurringPost extends UniView {
     private tableConfig: UniTableConfig;
     private recurringPosts: SalaryTransaction[] = [];
+    private filteredPosts: SalaryTransaction[];
     private employments: Employment[] = [];
     private wagetypes: WageType[];
     private unsavedEmployments: boolean;
+    private employmentsMapped: boolean;
 
     constructor(public router: Router,
                 private wagetypeService: WageTypeService,
@@ -35,16 +38,36 @@ export class RecurringPost extends UniView {
                 this.wagetypes = wagetypes;
             });
 
-            super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
-                this.recurringPosts = recurringPosts.filter(post => !post.Deleted);
-            });
+            const recurringPostSubject = super.getStateSubject('recurringPosts');
+            const employmentSubject = super.getStateSubject('employments');
 
-            super.getStateSubject('employments').subscribe((employments: Employment[]) => {
-                this.employments = (employments || []).filter(emp => emp.ID > 0);
-                this.unsavedEmployments = this.employments.length !== employments.length;
-                this.buildTableConfig();
-            });
+            Observable.combineLatest(recurringPostSubject, employmentSubject).take(1)
+                .subscribe((res) => {
+                    let [recurring, employments] = res;
+                    this.employments = (employments || []).filter(emp => emp.ID > 0);
+                    this.recurringPosts = recurring;
+                    if (!this.employmentsMapped) {
+                        this.mapEmployments();
+                    }
+
+                    this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
+                    this.unsavedEmployments = this.employments.length !== employments.length;
+
+                    this.buildTableConfig();
+                });
         });
+    }
+
+    private mapEmployments() {
+        this.recurringPosts = this.recurringPosts.map((post) => {
+            if (post['EmploymentID']) {
+                post['_Employment'] = this.employments.find(emp => emp.ID === post['EmploymentID']);
+            }
+            return post;
+        });
+
+        this.employmentsMapped = true;
+        super.updateState('recurringPosts', this.recurringPosts, false);
     }
 
     // REVISIT (remove)!
@@ -108,15 +131,12 @@ export class RecurringPost extends UniView {
 
         const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((rowModel) => {
-
-                if (!rowModel['_Employment'] && !rowModel['EmploymentID']) {
-                    return '';
-                }
-
                 let employment = rowModel['_Employment'];
 
-                if (!employment) {
+                if (rowModel['EmploymentID']) {
                     employment = this.employments.find(emp => emp.ID === rowModel.EmploymentID);
+                } else {
+                    return '';
                 }
 
                 return (employment) ? employment.ID + ' - ' + employment.JobName : '';
@@ -150,6 +170,8 @@ export class RecurringPost extends UniView {
             .setChangeCallback((event) => {
                 let row = event.rowModel;
                 row['_isDirty'] = true;
+
+                console.log(row, row['_Employment'], row['EmploymentID']);
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
                     this.mapWagetypeToRecurrinpost(row);
