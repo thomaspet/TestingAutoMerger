@@ -53,7 +53,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(
-            this.accountService.GetAll(null),
+            this.accountService.GetAll('filter=Visible eq true'),
             this.vatCodeGroupService.GetAll(null)
             )
             .subscribe(response => {

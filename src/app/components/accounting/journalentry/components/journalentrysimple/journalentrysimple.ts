@@ -73,7 +73,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
-            this.accountService.GetAll(null, ['VatType'])
+            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber', ['VatType'])
         ).subscribe(response => {
             this.dropdownData = response;
         });
@@ -158,7 +158,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private getProject(id: number): Project {
         if (!id || !this.dropdownData) { return null; }
-        
+
         var project = this.dropdownData[1].find((d) => d ? d.ID === id : false);
         return project;
     }
@@ -265,7 +265,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         if (updatedLine.Dimensions) {
             updatedLine.Dimensions.Project = this.getProject(updatedLine.Dimensions.ProjectID);
-            updatedLine.Dimensions.Department = this.getDepartment(updatedLine.Dimensions.DepartmentID);        
+            updatedLine.Dimensions.Department = this.getDepartment(updatedLine.Dimensions.DepartmentID);
         }
 
         if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {

@@ -7,9 +7,9 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount, Municipal, Address, Phone, Email} from '../../../unientities';
+import {CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup} from '../../../unientities';
 import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, PhoneService, EmailService} from '../../../services/services';
-import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService, AddressService} from '../../../services/services';
+import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService, AddressService, AccountVisibilityGroupService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
 import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -49,6 +49,7 @@ export class CompanySettingsComponent implements OnInit {
     private accountGroupSets: Array<AccountGroup> = [];
     private accounts: Array<Account> = [];
     private municipalities: Municipal[] = [];
+    private accountVisibilityGroups: AccountVisibilityGroup[] = [];
     private bankAccountChanged: any;
 
     private showImageSection: boolean = false; // used in template
@@ -89,7 +90,8 @@ export class CompanySettingsComponent implements OnInit {
         private addressService: AddressService,
         private phoneService: PhoneService,
         private emailService: EmailService,
-        private toastService: ToastService) {
+        private toastService: ToastService,
+        private accountVisibilityGroupService: AccountVisibilityGroupService) {
     }
 
     public ngOnInit() {
@@ -105,12 +107,13 @@ export class CompanySettingsComponent implements OnInit {
             this.currencyService.GetAll(null),
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
-            this.accountService.GetAll(null),
+            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
             this.companySettingsService.Get(1, this.defaultExpands),
             this.municipalService.GetAll(null),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
-            this.addressService.GetNewEntity(null, 'Address')
+            this.addressService.GetNewEntity(null, 'Address'),
+            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes'])
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -123,6 +126,8 @@ export class CompanySettingsComponent implements OnInit {
                 this.emptyPhone = dataset[8];
                 this.emptyEmail = dataset[9];
                 this.emptyAddress = dataset[10];
+                // get accountvisibilitygroups that are not specific for a companytype
+                this.accountVisibilityGroups = dataset[11].filter(x => x.CompanyTypes.length === 0);
 
                 // do this after getting emptyPhone/email/address
                 this.company = this.setupCompanySettingsData(dataset[6]);
@@ -350,6 +355,15 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
+        this.accountVisibilityGroups.unshift(null);
+        let accountVisibilityGroupID: UniFieldLayout = this.fields.find(x => x.Property === 'AccountVisibilityGroupID');
+        accountVisibilityGroupID.Options = {
+            source: this.accountVisibilityGroups,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 200
+        };
+
         this.companyTypes.unshift(null);
         let companyTypeID: UniFieldLayout = this.fields.find(x => x.Property === 'CompanyTypeID');
         companyTypeID.Options = {
@@ -383,7 +397,7 @@ export class CompanySettingsComponent implements OnInit {
             valueProperty: 'ID',
             displayProperty: 'AccountNumber',
             debounceTime: 200,
-            template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
         let customerAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerAccountID');
@@ -392,7 +406,7 @@ export class CompanySettingsComponent implements OnInit {
             valueProperty: 'ID',
             displayProperty: 'AccountNumber',
             debounceTime: 200,
-            template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
         let officeMunicipality: UniFieldLayout = this.fields.find(x => x.Property === 'OfficeMunicipalityNo');
@@ -854,7 +868,29 @@ export class CompanySettingsComponent implements OnInit {
                 FieldType: FieldType.DROPDOWN,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Kontogruppeinndeling',
+                Label: 'Kontoplan',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'AccountVisibilityGroupID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.DROPDOWN,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Synlige kontoer',
                 Description: null,
                 HelpText: null,
                 FieldSet: 0,

@@ -6,6 +6,8 @@ import {Account, VatType, FieldType, AccountGroup} from '../../../../unientities
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 import {AccountGroupService} from '../../../../services/Accounting/AccountGroupService';
 
+declare const _; // lodash
+
 @Component({
     selector: 'account-details',
     templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html'
@@ -38,12 +40,12 @@ export class AccountDetails implements OnInit {
         Observable.forkJoin(
             this.currencyService.GetAll(null),
             this.vatTypeService.GetAll(null),
-            this.accountGroupService.GetAll(null)
+            this.accountGroupService.GetAll('orderby=GroupNumber')
         ).subscribe(
             (dataset) => {
                 this.currencies = dataset[0];
                 this.vattypes = dataset[1];
-                this.accountGroups = dataset[2];
+                this.accountGroups = dataset[2].filter(x => x.GroupNumber != null && x.GroupNumber.toString().length === 3);
                 this.extendFormConfig();
             },
             (error) => console.log(error)
@@ -96,8 +98,27 @@ export class AccountDetails implements OnInit {
         let accountGroup: UniFieldLayout = this.fields.find(x => x.Property === 'AccountGroupID');
         accountGroup.Options = {
             source: this.accountGroups,
-            template: (data: AccountGroup) => data.Name,
+            template: (data: AccountGroup) => `${data.GroupNumber} - ${data.Name}`,
             valueProperty: 'ID'
+        };
+
+        let accountNumber: UniFieldLayout = this.fields.find(x => x.Property === 'AccountNumber');
+        accountNumber.Options = {
+            events: {
+                blur: () => {
+                    if ((!this.account.ID || this.account.ID === 0 || !this.account.AccountGroupID) && this.account.AccountNumber.toString().length > 3) {
+                        let expectedAccountGroupNo =  this.account.AccountNumber.toString().substring(0, 3);
+
+                        let defaultAccountGroup = this.accountGroups.find(x => x.GroupNumber === expectedAccountGroupNo);
+
+                        if (defaultAccountGroup) {
+                            this.account.AccountGroupID = defaultAccountGroup.ID;
+                        }
+
+                        this.account = _.cloneDeep(this.account);
+                    }
+                }
+            }
         };
     }
 

@@ -130,7 +130,7 @@ export class JournalEntryProfessional {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this.accountService.GetAll(`filter=contains(AccountNumber,'${searchValue}') or contains(AccountName,'${searchValue}')`, ['VatType']);
+                    return this.accountService.GetAll(`filter=Visible eq true and (contains(AccountNumber,'${searchValue}') or contains(AccountName,'${searchValue}'))`, ['VatType']);
                 }
             });
 
@@ -169,7 +169,7 @@ export class JournalEntryProfessional {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this.accountService.GetAll(`filter=contains(AccountNumber,'${searchValue}') or contains(AccountName,'${searchValue}')`, ['VatType']);
+                    return this.accountService.GetAll(`filter=Visible eq true and (contains(AccountNumber,'${searchValue}') or contains(AccountName,'${searchValue}'))`, ['VatType']);
                 }
             });
 

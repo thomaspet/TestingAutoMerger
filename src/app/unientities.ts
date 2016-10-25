@@ -268,6 +268,39 @@ export class Permission {
 }
 
 
+export class AccountVisibilityGroupAccount {
+    public static RelativeUrl = '';
+    public static EntityType = 'AccountVisibilityGroupAccount';
+
+    public AccountNumber: number;
+    public AccountVisibilityGroupID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class AccountVisibilityGroup {
+    public static RelativeUrl = 'accountvisibilitygroups';
+    public static EntityType = 'AccountVisibilityGroup';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Accounts: Array<AccountVisibilityGroupAccount>;
+    public CompanyTypes: Array<CompanyType>;
+    public CustomFields: any;
+}
+
+
 export class PostalCode {
     public static RelativeUrl = 'postalcodes';
     public static EntityType = 'PostalCode';
@@ -488,6 +521,7 @@ export class CompanyType {
 
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DefaultAccountVisibilityGroupID: number;
     public DefaultPlanType: PlanTypeEnum;
     public Deleted: boolean;
     public Description: string;
@@ -2237,6 +2271,7 @@ export class CompanySettings {
 
     public AccountGroupSetID: number;
     public AccountingLockedDate: Date;
+    public AccountVisibilityGroupID: number;
     public AutoJournalPayment: boolean;
     public BaseCurrency: string;
     public CompanyBankAccountID: number;
@@ -3477,6 +3512,7 @@ export class AccountGroup {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public GroupNumber: string;
     public ID: number;
     public MainGroupID: number;
     public Name: string;

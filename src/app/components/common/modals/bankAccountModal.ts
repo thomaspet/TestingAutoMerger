@@ -20,12 +20,12 @@ declare var _;
            <footer [attr.aria-busy]="busy">
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
-                </button>                
+                </button>
             </footer>
         </article>
     `
 })
-export class BankAccountForm {    
+export class BankAccountForm {
     @ViewChild(UniForm) public form: UniForm;
     private config: any = {};
     private fields: any[] = [];
@@ -36,13 +36,13 @@ export class BankAccountForm {
     constructor(private bankService: BankService,
                 private toastService: ToastService,
                 private accountService: AccountService,
-                private addressService: AddressService) {    
+                private addressService: AddressService) {
     }
 
     public ngOnInit() {
         this.setupForm();
-  
-        this.accountService.GetAll('filter=AccountNumber lt 3000').subscribe((accounts) => {
+
+        this.accountService.GetAll('filter=AccountNumber lt 3000 and Visible eq true&orderby=AccountNumber').subscribe((accounts) => {
             this.accounts = accounts;
             this.fields = this.extendFields();
 
@@ -89,7 +89,7 @@ export class BankAccountForm {
             mask: '0000 00 00000',
             events: {
                 tab: (event) => {
-                    this.form.field('AccountID').focus(); 
+                    this.form.field('AccountID').focus();
                 },
                 shift_tab: (event) => {
                     this.form.field('AccountNumber').focus();
@@ -109,12 +109,12 @@ export class BankAccountForm {
         };
         return _.cloneDeep(this.fields);
     }
- 
-    private setupForm() {   
+
+    private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields = [
-            {         
+            {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
                 FieldType: FieldType.MASKED,
@@ -151,7 +151,7 @@ export class BankAccountForm {
                 ReadOnly: true,
                 Label: 'BIC',
                 Classes: 'small-field',
-            },    
+            },
             {
                 EntityType: 'Bank',
                 Property: 'Bank.Web',
@@ -160,7 +160,7 @@ export class BankAccountForm {
                 Label: 'Hjemmeside',
                 Classes: 'large-field',
                 LineBreak: true
-            },      
+            },
             {
                 EntityType: 'Bank',
                 Property: 'Bank.Address.AddressLine1',
@@ -177,7 +177,7 @@ export class BankAccountForm {
                 ReadOnly: true,
                 Label: 'Postnr',
                 Classes: 'small-field'
-            },            
+            },
             {
                 EntityType: 'Bank',
                 Property: 'Bank.Address.City',
@@ -202,7 +202,7 @@ export class BankAccountForm {
                 ReadOnly: true,
                 Label: 'Telefonnummer',
                 LineBreak: true
-            }            
+            }
         ];
     }
 }
@@ -215,34 +215,34 @@ export class BankAccountForm {
     `
 })
 export class BankAccountModal {
-    @Input() public bankaccount: BankAccount;    
+    @Input() public bankaccount: BankAccount;
     @ViewChild(UniModal) public modal: UniModal;
-    
+
     @Output() public Changed = new EventEmitter<BankAccount>();
     @Output() public Canceled = new EventEmitter<boolean>();
 
-    private modalConfig: any = {};    
+    private modalConfig: any = {};
 
     private type: Type<any> = BankAccountForm;
 
     constructor() {
     }
-    
-    public ngOnInit() {    
+
+    public ngOnInit() {
         this.modalConfig = {
-            model: this.bankaccount,            
+            model: this.bankaccount,
             title: 'Bankkonto',
             actions: [
                 {
                     text: 'Lagre bankkonto',
                     class: 'good',
-                    method: () => {               
+                    method: () => {
                         this.modal.close();
-                        
+
                         if (this.modalConfig.model.Account) {
                             this.modalConfig.model.Account = null;
                         }
-                        
+
                         this.Changed.emit(this.modalConfig.model);
                         return false;
                     }
@@ -259,8 +259,8 @@ export class BankAccountModal {
         };
     }
 
-    public openModal(bankaccount: BankAccount) {  
-        this.modalConfig.model = bankaccount;    
+    public openModal(bankaccount: BankAccount) {
+        this.modalConfig.model = bankaccount;
         this.modal.open();
     }
 }

@@ -15,9 +15,9 @@ export class AccountList {
     @ViewChild(UniTable) private table: UniTable;
     private accountTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    
+
     constructor(private accountService: AccountService) {
-        
+
     }
 
     public ngOnInit() {
@@ -33,27 +33,33 @@ export class AccountList {
     }
 
     private setupTable() {
-        
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
-            
+
             if (params === null) {
                 params = new URLSearchParams();
             }
-            
+
             if (!params.get('orderby')) {
                 params.set('orderby', 'AccountNumber');
             }
-            
+
+            if (!params.get('filter')) {
+                params.set('filter', 'AccountID eq null');
+            } else {
+                params.set('filter', '( ' + params.get('filter') + ' ) and AccountID eq null');
+            }
+
             params.set('expand', 'AccountGroup,VatType');
-            
+
             return this.accountService.GetAllByUrlSearchParams(params);
         };
-        
+
         // Define columns to use in the table
-        let accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Number)
+        let accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Text)
             .setWidth('5rem')
-            .setFilterOperator('eq');
+            .setFilterOperator('startswith');
 
         let accountNameCol = new UniTableColumn('AccountName', 'Kontonavn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
@@ -69,7 +75,7 @@ export class AccountList {
                     return account.VatType.VatCode + ' - ' + account.VatType.VatPercent + '%';
                 } else {
                     return '';
-                }   
+                }
             })
             .setFilterable(false);
 
@@ -82,7 +88,7 @@ export class AccountList {
                     iconsHtml += '<span class="is-visible" role="presentation">Visible</span>';
                 } else {
                     iconsHtml += '<span class="is-hidden" role="presentation">Hidden</span>';
-                } 
+                }
                 if (rowModel.Locked) {
                     iconsHtml += '<span class="is-locked" role="presentation">Locked</span>';
                 } else {
@@ -91,10 +97,10 @@ export class AccountList {
                 return iconsHtml;
             })
             .setWidth('5rem');
-                 
+
         // Setup table
-        this.accountTable = new UniTableConfig(false, true, 25)            
-            .setSearchable(true)            
+        this.accountTable = new UniTableConfig(false, true, 25)
+            .setSearchable(true)
             .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, lockedCol]);
     }
 }

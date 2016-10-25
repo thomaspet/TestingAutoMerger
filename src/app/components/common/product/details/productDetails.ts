@@ -73,7 +73,7 @@ export class ProductDetails {
             this.fields = this.getComponentLayout().Fields;
 
             Observable.forkJoin(
-                    this.accountService.GetAll(null),
+                    this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
                     this.vatTypeService.GetAll(null),
                     this.projectService.GetAll(null),
                     this.departmentService.GetAll(null)
