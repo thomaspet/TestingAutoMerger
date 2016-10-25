@@ -171,8 +171,6 @@ export class RecurringPost extends UniView {
                 let row = event.rowModel;
                 row['_isDirty'] = true;
 
-                console.log(row, row['_Employment'], row['EmploymentID']);
-
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
                     this.mapWagetypeToRecurrinpost(row);
                 }
