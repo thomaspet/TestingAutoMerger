@@ -21,16 +21,16 @@
             <uni-widget-poster [model]="supplier" *ngIf="supplier && supplier.ID > 0">
             </uni-widget-poster>
         </section>
-        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="supplier && supplier.ID == 0"></external-search>
+        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="supplier && supplier.ID == 0"></external-search>
     </section>
 </header>
 
 <section class="supplier-details application">
-    <uni-form *ngIf='supplier'            
-        [config]="config" 
-        [fields]="fields" 
-        [model]="supplier"                
-        (onChange)="change($event)">
+    <uni-form *ngIf='supplier'
+              [config]="config"
+              [fields]="fields"
+              [model]="supplier"
+              (changeEvent)="change($event)">
     </uni-form>
     
     <email-modal></email-modal>

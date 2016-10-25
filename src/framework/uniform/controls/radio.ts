@@ -29,13 +29,13 @@ export class UniRadioInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniRadioInput> = new EventEmitter<UniRadioInput>(true);
+    public readyEvent: EventEmitter<UniRadioInput> = new EventEmitter<UniRadioInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniRadioInput> = new EventEmitter<UniRadioInput>(true);
+    public focusEvent: EventEmitter<UniRadioInput> = new EventEmitter<UniRadioInput>(true);
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
@@ -46,7 +46,7 @@ export class UniRadioInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -60,7 +60,7 @@ export class UniRadioInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     public ngOnChanges(changes) {
@@ -68,7 +68,7 @@ export class UniRadioInput {
     
     public checkIt() {
         _.set(this.model, this.field.Property, !this.isChecked());
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
     }
     
     public isChecked() {

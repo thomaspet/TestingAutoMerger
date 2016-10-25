@@ -29,13 +29,13 @@ export class UniTextInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
+    public readyEvent: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
+    public focusEvent: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
     
     @ViewChild('input') private inputElement: ElementRef;
     
@@ -49,7 +49,7 @@ export class UniTextInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -67,7 +67,7 @@ export class UniTextInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     private blurHandler() {
@@ -78,7 +78,7 @@ export class UniTextInput {
         if (this.control.valid) {
             lodash.set(this.model, this.field.Property, this.control.value);
             this.lastControlValue = this.control.value;
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
         }
     }
 }

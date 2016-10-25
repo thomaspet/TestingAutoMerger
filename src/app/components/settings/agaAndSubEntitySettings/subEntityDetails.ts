@@ -128,11 +128,11 @@ export class SubEntityDetails implements OnChanges {
     public ready(event) {
         this.formReady = true;
         this.updateFields();
-        this.form.field('BusinessRelationInfo.InvoiceAddress.PostalCode').onChange.subscribe((value) => {
+        this.form.field('BusinessRelationInfo.InvoiceAddress.PostalCode').changeEvent.subscribe((value) => {
             this.updatePostalCodes();
         });
 
-        this.form.field('MunicipalityNo').onChange.subscribe((value) => {
+        this.form.field('MunicipalityNo').changeEvent.subscribe((value) => {
             this.refreshList.emit(true);
         });
     }

@@ -5,7 +5,7 @@
             <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
         </nav>
         <main class="splitview_detail">    
-            <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)" (change)="onChange($event)"></vattype-details>
+            <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)" (change)="changeEvent($event)"></vattype-details>
         </main>
     </section>
 </section>

@@ -19,12 +19,12 @@
 </header>
 
 <section class="application" >
-    <uni-form 
-              [config]="config"
-              [fields]="fields"
-              [model]="current"
-              (onChange)="onChange($event)"
-              (onReady)="onReady($event)">
+    <uni-form
+            [config]="config"
+            [fields]="fields"
+            [model]="current"
+            (changeEvent)="changeEvent($event)"
+            (readyEvent)="readyEvent($event)">
     </uni-form>
     <uni-save [actions]="actions"></uni-save>
 </section>

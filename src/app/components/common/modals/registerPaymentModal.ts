@@ -9,7 +9,7 @@ import {FieldType} from '../../../unientities';
     template: `
         <article class='modal-content email-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
-            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (onChange)="onSubmit($event)" (onSubmit)="onSubmit($event)"></uni-form>
+            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (changeEvent)="onSubmit($event)" (submitEvent)="onSubmit($event)"></uni-form>
             <footer>
                 <button *ngFor='let action of config.actions; let i=index' (click)='action.method()' [ngClass]='action.class' type='button'>
                     {{action.text}}

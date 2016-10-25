@@ -17,18 +17,18 @@ declare var _; // lodash
                     [controls]="controls"
                     [fields]="item"
                     [model]="model"
-                    (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)"
-                    (onFocus)="onFocusHandler($event)">
+                    (readyEvent)="onReadyHandler($event)"
+                    (changeEvent)="onChangeHandler($event)"
+                    (focusEvent)="onFocusHandler($event)">
                 </uni-combo-field>
                 <uni-field
                     *ngIf="isField(item)"
                     [controls]="controls"
                     [field]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)"
-                    (onFocus)="onFocusHandler($event)">
+                    (readyEvent)="onReadyHandler($event)"
+                    (changeEvent)="onChangeHandler($event)"
+                    (focusEvent)="onFocusHandler($event)">
                 </uni-field>
                 <uni-linebreak *ngIf="hasLineBreak(field)"></uni-linebreak>
             </template>
@@ -48,13 +48,13 @@ export class UniFieldSet {
     public model: any;
 
     @Output()
-    public onReady: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
+    public readyEvent: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
+    public focusEvent: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -106,12 +106,12 @@ export class UniFieldSet {
     public onReadyHandler(item: UniField | UniCombo | UniFieldSet) {
         this.readyFields++;
         if (this.readyFields === this.countElements()) {
-            this.onReady.emit(this);
+            this.readyEvent.emit(this);
         }
     }
 
     public onFocusHandler(event) {
-        this.onFocus.emit(event);
+        this.focusEvent.emit(event);
     }
 
     public countElements() {
@@ -123,7 +123,7 @@ export class UniFieldSet {
     }
     
     public onChangeHandler(model: any) {
-        this.onChange.emit(model);
+        this.changeEvent.emit(model);
     }
 
     public readMode() {

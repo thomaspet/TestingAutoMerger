@@ -28,13 +28,13 @@ export class UniButtonInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniButtonInput> = new EventEmitter<UniButtonInput>(true);
+    public readyEvent: EventEmitter<UniButtonInput> = new EventEmitter<UniButtonInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniButtonInput> = new EventEmitter<UniButtonInput>(true);
+    public focusEvent: EventEmitter<UniButtonInput> = new EventEmitter<UniButtonInput>(true);
 
     @ViewChild('button') private buttonElement: ElementRef;
     
@@ -47,7 +47,7 @@ export class UniButtonInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -65,7 +65,7 @@ export class UniButtonInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     private clickHandler(event) {

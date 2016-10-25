@@ -21,17 +21,17 @@
             <uni-widget-poster [model]="customer" *ngIf="customer && customer.ID > 0">
             </uni-widget-poster>
         </section>
-        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="customer && customer.ID == 0"></external-search>
+        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="customer && customer.ID == 0"></external-search>
     </section>
     
 </header>
 
 <section class="customer-details application">
-    <uni-form *ngIf='customer'            
-        [config]="config" 
-        [fields]="fields" 
-        [model]="customer"                
-        (onChange)="change($event)">
+    <uni-form *ngIf='customer'
+              [config]="config"
+              [fields]="fields"
+              [model]="customer"
+              (changeEvent)="change($event)">
     </uni-form>
     
     <email-modal></email-modal>

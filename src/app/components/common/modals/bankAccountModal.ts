@@ -16,7 +16,7 @@ declare var _;
     template: `
         <article class="modal-content bankaccount-modal" *ngIf="config.model">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (onReady)="ready($event)"></uni-form>
+           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (readyEvent)="ready($event)"></uni-form>
            <footer [attr.aria-busy]="busy">
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -49,7 +49,7 @@ export class BankAccountForm {
             // This is here instead of in ready() because this.extendFields() runs _.cloneDeep which destroys bindings
             setTimeout(() =>
                 this.form.field('AccountNumber')
-                    .onChange
+                    .changeEvent
                     .subscribe((bankaccount) => {
                         this.lookupBankAccountNumber(bankaccount);
                     })

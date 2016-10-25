@@ -82,7 +82,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     },
                     error => {
                         completeEvent('Feil ved lagring');
-                        console.log('error in vatdetails.onSubmit: ', error);
+                        console.log('error in vatdetails.submitEvent: ', error);
                         alert('Feil ved lagring: ' + JSON.stringify(error.json()));
                     }
                 );
@@ -96,7 +96,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     },
                     error => {
                         completeEvent('Feil ved lagring');
-                        console.log('error in vatdetails.onSubmit: ', error);
+                        console.log('error in vatdetails.submitEvent: ', error);
                         alert('Feil ved lagring: ' + JSON.stringify(error.json()));
                     }
                 );

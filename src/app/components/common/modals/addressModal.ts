@@ -90,7 +90,7 @@ export class AddressForm implements OnChanges {
 
         setTimeout(() => {
             this.form.field('PostalCode')
-                .onChange
+                .changeEvent
                 .subscribe((address: Address) => {
                     if (address.PostalCode) {
                         // set city based on postalcode

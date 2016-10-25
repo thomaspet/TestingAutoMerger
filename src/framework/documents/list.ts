@@ -21,10 +21,10 @@ export class UniDocumentList {
     public entity: any;
 
     @Output()
-    public onClickItem: EventEmitter<any> = new EventEmitter<any>(true);
+    public clickItem: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onDeleteItem: EventEmitter<any> = new EventEmitter<any>(true);
+    public deleteItem: EventEmitter<any> = new EventEmitter<any>(true);
 
     constructor() {
     }
@@ -37,7 +37,7 @@ export class UniDocumentList {
         var self = this;
         this.service.download(this.entity.ID, slot.ID)
             .then((response) => {
-                self.onClickItem.emit(response);
+                self.clickItem.emit(response);
             });
     }
 
@@ -45,7 +45,7 @@ export class UniDocumentList {
         var self = this;
         this.service.remove(this.entity.ID, slot)
             .then((response) => {
-                self.onDeleteItem.emit(response);
+                self.deleteItem.emit(response);
             });
     }
 }

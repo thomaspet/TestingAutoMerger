@@ -20,27 +20,27 @@ declare var _; // lodash
                         [controls]="controls"
                         [field]="item" 
                         [model]="model"
-                        (onReady)="onReadyHandler($event)"
-                        (onChange)="onChangeHandler($event)"
-                        (onFocus)="onFocusHandler($event)">
+                        (readyEvent)="onReadyHandler($event)"
+                        (changeEvent)="onChangeHandler($event)"
+                        (focusEvent)="onFocusHandler($event)">
                     </uni-field>
                     <uni-combo-field 
                         *ngIf="isCombo(item)"
                         [controls]="controls"
                         [fields]="item"
                         [model]="model"
-                        (onReady)="onReadyHandler($event)"
-                        (onChange)="onChangeHandler($event)"
-                        (onFocus)="onFocusHandler($event)">
+                        (readyEvent)="onReadyHandler($event)"
+                        (changeEvent)="onChangeHandler($event)"
+                        (focusEvent)="onFocusHandler($event)">
                     </uni-combo-field>
                     <uni-field-set 
                         *ngIf="isFieldSet(item)" 
                         [controls]="controls"
                         [fields]="item" 
                         [model]="model"
-                        (onReady)="onReadyHandler($event)"
-                        (onChange)="onChangeHandler($event)"
-                        (onFocus)="onFocusHandler($event)">                    
+                        (readyEvent)="onReadyHandler($event)"
+                        (changeEvent)="onChangeHandler($event)"
+                        (focusEvent)="onFocusHandler($event)">                    
                     </uni-field-set>
                     <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
                 </template>
@@ -62,16 +62,16 @@ export class UniSection {
     public formConfig: any;
 
     @Output()
-    public onReady: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
+    public readyEvent: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onToggle: EventEmitter<Object> = new EventEmitter<Object>(true);
+    public toggleEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
 
 	@Output()
-    public onFocus: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
+    public focusEvent: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -106,7 +106,7 @@ export class UniSection {
         this.isOpen = !this.isOpen;
         this.formConfig.sections[this.sectionId].isOpen = this.isOpen;
         this.cd.markForCheck();
-        this.onToggle.emit({sectionId: this.sectionId, isOpen: this.isOpen});
+        this.toggleEvent.emit({sectionId: this.sectionId, isOpen: this.isOpen});
     }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
@@ -137,12 +137,12 @@ export class UniSection {
     public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
         this.readyFields++;
         if (this.readyFields === this.countElements()) {
-            this.onReady.emit(this);
+            this.readyEvent.emit(this);
         }
     }
 
     public onFocusHandler(event) {
-        this.onFocus.emit(event);
+        this.focusEvent.emit(event);
     }
 
     public countElements() {
@@ -155,7 +155,7 @@ export class UniSection {
     }
 
     public onChangeHandler(model: any) {
-        this.onChange.emit(model);
+        this.changeEvent.emit(model);
     }
     
     public readMode() {

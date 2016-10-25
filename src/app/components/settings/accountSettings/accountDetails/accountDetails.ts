@@ -13,7 +13,7 @@ import {AccountGroupService} from '../../../../services/Accounting/AccountGroupS
 export class AccountDetails implements OnInit {
     @Input() public inputAccount: Account;
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
-    @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
+    @Output() public changeEvent: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniForm) public form: UniForm;
 
     private account: Account = null;

@@ -11,14 +11,14 @@ import {UniHttp} from '../../../../framework/core/http/http';
         <uni-document-uploader 
             [service]="service" 
             [entity]="employee"
-            (onFileUploaded)="onFileUploaded($event)"
+            (fileUploaded)="onFileUploaded($event)"
         ></uni-document-uploader>
         <p class="error" style="min-height:40px"><span>{{service.statusText}}</span></p>
         <uni-document-list
             [service]="service"
             [entity]="employee"
-            (onClickItem)="onClickItem($event)"
-            (onDeleteItem)="onDeleteItem($event)"
+            (clickItem)="onClickItem($event)"
+            (deleteItem)="onDeleteItem($event)"
         >
         </uni-document-list>
     `

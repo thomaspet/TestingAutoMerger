@@ -33,13 +33,13 @@ export class UniNumericInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
+    public readyEvent: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
 
     @Output()
-    public onChange: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
+    public changeEvent: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
+    public focusEvent: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
 
     private lastControlValue: string;
 
@@ -68,7 +68,7 @@ export class UniNumericInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 
     private initOptions() {
@@ -148,7 +148,7 @@ export class UniNumericInput {
             let stringValue = accounting.formatNumber(value, options.decimals, options.thousands);
             this.control.setValue(stringValue);
             _.set(this.model, this.field.Property, value);
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
         } else {
             this.lastControlValue = _.get(this.model, this.field.Property) + '';
             let stringValue = accounting.formatNumber(_.get(this.model, this.field.Property), options.decimals, options.thousands);
@@ -157,7 +157,7 @@ export class UniNumericInput {
     }
 
     private focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
         if (this.control.value === undefined || this.control.value === '' || this.control.value === null) {
             return;
         }

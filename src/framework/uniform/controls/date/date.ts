@@ -47,13 +47,13 @@ export class UniDateInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();
+    public readyEvent: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();
 
     @Output()
-    public onChange: EventEmitter<Date> = new EventEmitter<Date>();
+    public changeEvent: EventEmitter<Date> = new EventEmitter<Date>();
 
     @Output()
-    public onFocus: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();
+    public focusEvent: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();
 
     private calendarOpen: boolean;
     private selectedDate: Date;
@@ -72,11 +72,11 @@ export class UniDateInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 
     public onFocusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public focus() {
@@ -108,7 +108,7 @@ export class UniDateInput {
         this.control.setValue(date ? moment(date).format('L') : '');
 
         _.set(this.model, this.field.Property, date);
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
     }
 
     private hideCalendar() {

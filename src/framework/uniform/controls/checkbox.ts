@@ -29,13 +29,13 @@ export class UniCheckboxInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
+    public readyEvent: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
+    public focusEvent: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
     
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
         
@@ -47,7 +47,7 @@ export class UniCheckboxInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -61,12 +61,12 @@ export class UniCheckboxInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     public checkIt() {
         _.set(this.model, this.field.Property, !this.isChecked());
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
     }
     
     public isChecked() {

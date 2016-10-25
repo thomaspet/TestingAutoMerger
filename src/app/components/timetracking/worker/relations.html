@@ -37,12 +37,12 @@
                 </nav>
 
                 <main class="splitview_detail">
-                    <uni-form 
+                    <uni-form
                             [config]="formConfig"
                             [fields]="layout.formFields"
                             [model]="currentRelation"
-                            (onChange)="onChange($event)"
-                            (onReady)="onReady($event)">
+                            (changeEvent)="changeEvent($event)"
+                            (readyEvent)="readyEvent($event)">
                     </uni-form>                    
                 </main>
                 

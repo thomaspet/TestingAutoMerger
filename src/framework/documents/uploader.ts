@@ -30,7 +30,7 @@ export class UniDocumentUploader {
     public entity: any;
 
     @Output()
-    public onFileUploaded: EventEmitter<any> = new EventEmitter<any>(true);
+    public fileUploaded: EventEmitter<any> = new EventEmitter<any>(true);
 
     private files: FileList;
     private elem: any;
@@ -73,7 +73,7 @@ export class UniDocumentUploader {
     }
 
     public manageResponse(response) {
-        this.onFileUploaded.emit(this.service.Slot);
+        this.fileUploaded.emit(this.service.Slot);
         this.cleanInput();
     }
 

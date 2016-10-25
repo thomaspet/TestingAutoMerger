@@ -30,13 +30,13 @@ export class UniPasswordInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniPasswordInput> = new EventEmitter<UniPasswordInput>(true);
+    public readyEvent: EventEmitter<UniPasswordInput> = new EventEmitter<UniPasswordInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniPasswordInput> = new EventEmitter<UniPasswordInput>(true);
+    public focusEvent: EventEmitter<UniPasswordInput> = new EventEmitter<UniPasswordInput>(true);
 
     private lastControlValue: string;
     
@@ -49,7 +49,7 @@ export class UniPasswordInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -67,7 +67,7 @@ export class UniPasswordInput {
     }
     
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     private blurHandler() {
@@ -78,7 +78,7 @@ export class UniPasswordInput {
         if (this.control.valid) {
             lodash.set(this.model, this.field.Property, this.control.value);
             this.lastControlValue = this.control.value;
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
         }
     }
 }

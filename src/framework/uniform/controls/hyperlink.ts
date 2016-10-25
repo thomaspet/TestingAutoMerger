@@ -22,10 +22,10 @@ export class UniHyperlinkInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
+    public readyEvent: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
+    public focusEvent: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
     
     constructor() {
     }
@@ -35,7 +35,7 @@ export class UniHyperlinkInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -51,6 +51,6 @@ export class UniHyperlinkInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 }

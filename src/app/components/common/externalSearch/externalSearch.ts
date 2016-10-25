@@ -11,7 +11,7 @@ export class ExternalSearch {
     @Input() private searchText;
     @Input() private useInternalSearchBox: boolean;
     @Input() private helpText: string;
-    @Output() private onSelect = new EventEmitter<SearchResultItem>();
+    @Output() private selectEvent = new EventEmitter<SearchResultItem>();
 
     private lastClickedName: string;
     private showAllResults: boolean;
@@ -75,7 +75,7 @@ export class ExternalSearch {
     private selectItem(item: any) {
         this.lastClickedName = item.navn;
 
-        this.onSelect.emit(item);
+        this.selectEvent.emit(item);
         return false;
     }
 }

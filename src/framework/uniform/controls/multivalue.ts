@@ -80,13 +80,13 @@ export class UniMultivalueInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
+    public readyEvent: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
+    public focusEvent: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
 
     @ViewChild('openbtn')
     private inputElement: ElementRef;
@@ -98,7 +98,7 @@ export class UniMultivalueInput {
     private defaultRow: any;
 
     constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
-        this.onChange.subscribe(() => this.setFocusOnNextField());
+        this.changeEvent.subscribe(() => this.setFocusOnNextField());
     }
 
     public focus() {
@@ -108,7 +108,7 @@ export class UniMultivalueInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -144,14 +144,14 @@ export class UniMultivalueInput {
                 });
             }
 
-            if (this.field.Options.onChange) {
-                this.onChange.subscribe(value => this.field.Options.onChange(this.defaultRow));
+            if (this.field.Options.changeEvent) {
+                this.changeEvent.subscribe(value => this.field.Options.changeEvent(this.defaultRow));
             }
         }
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 
     private showDropdown(event) {
@@ -177,7 +177,7 @@ export class UniMultivalueInput {
 
     public selectRow(row) {
         this.setAsDefault(row);
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
         this.close();
     }
 
@@ -221,7 +221,7 @@ export class UniMultivalueInput {
             this.currentValue = '';
             let row = this.rows[this.rows.length - 1];
             this.edit(row, $event);
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
         } else {
             this.field.Options.editor(null).then(newEntity => {
                 self.rows = [].concat(self.rows, newEntity);
@@ -233,7 +233,7 @@ export class UniMultivalueInput {
                 }
                 self.setAsDefault(newEntity);
                 self.cd.markForCheck();
-                self.onChange.emit(self.model);
+                self.changeEvent.emit(self.model);
             });
         }
     }
@@ -260,7 +260,7 @@ export class UniMultivalueInput {
                     _.set(self.model, self.field.Property, self.rows);
                 }
                 self.setAsDefault(editedEntity);
-                self.onChange.emit(self.model);
+                self.changeEvent.emit(self.model);
 
                 self.cd.markForCheck();
             });
@@ -289,7 +289,7 @@ export class UniMultivalueInput {
             }
             _.set(row, this.field.Options.displayValue, tempValue);
             _.set(this.model, this.field.Property, this.rows);
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
             row._mode = 0;
         }
     }
@@ -303,7 +303,7 @@ export class UniMultivalueInput {
                 var index = this.rows.indexOf(row);
                 this.rows = this.rows.slice(0, index).concat(this.rows.slice(index + 1));
                 _.set(this.model, this.field.Property, this.rows);
-                this.onChange.emit(this.model);
+                this.changeEvent.emit(this.model);
                 this.cd.markForCheck();
             }
         }, 5000);

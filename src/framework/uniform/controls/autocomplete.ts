@@ -88,13 +88,13 @@ export class UniAutocompleteInput {
     private control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
+    public readyEvent: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
+    public focusEvent: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
 
     // state vars
     private guid: string;
@@ -150,11 +150,11 @@ export class UniAutocompleteInput {
 
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 
     public onFocusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public focus() {
@@ -180,7 +180,7 @@ export class UniAutocompleteInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     private template(obj: any) {
@@ -270,7 +270,7 @@ export class UniAutocompleteInput {
         }
         this.selectedIndex = -1;
 
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
         this.cd.markForCheck();
     }
 

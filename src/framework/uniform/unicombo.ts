@@ -14,9 +14,9 @@ declare var _; // lodash
                 [controls]="controls"
                 [field]="field" 
                 [model]="model"
-                (onReady)="onReadyHandler($event)"
-                (onChange)="onChangeHandler($event)"
-                (onFocus)="onFocusHandler($event)">
+                (readyEvent)="onReadyHandler($event)"
+                (changeEvent)="onChangeHandler($event)"
+                (focusEvent)="onFocusHandler($event)">
             </uni-field>
         </template>`
 })
@@ -31,13 +31,13 @@ export class UniCombo {
     public model: any;
 
     @Output()
-    public onReady: EventEmitter<UniCombo> = new EventEmitter<UniCombo>(true);
+    public readyEvent: EventEmitter<UniCombo> = new EventEmitter<UniCombo>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniCombo> = new EventEmitter<UniCombo>(true);
+    public focusEvent: EventEmitter<UniCombo> = new EventEmitter<UniCombo>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -81,12 +81,12 @@ export class UniCombo {
     public onReadyHandler(item: UniField) {
         this.readyFields++;
         if (this.readyFields === this.countElements()) {
-            this.onReady.emit(this);
+            this.readyEvent.emit(this);
         }
     }
 
     public onFocusHandler(event) {
-        this.onFocus.emit(event);
+        this.focusEvent.emit(event);
     }
 
     public countElements() {
@@ -97,7 +97,7 @@ export class UniCombo {
     }
     
     public onChangeHandler(model: any) {
-        this.onChange.emit(model);
+        this.changeEvent.emit(model);
     }
 
     public readMode() {

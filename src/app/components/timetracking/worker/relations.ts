@@ -16,7 +16,7 @@ export class View {
         this.currentId = id;
         this.loadList();
     }
-    @Output() public onValueChange: EventEmitter<any> = new EventEmitter();
+    @Output() public valueChange: EventEmitter<any> = new EventEmitter();
 
     public collapseView: boolean = false;
     public items: Array<WorkRelation> = [];
@@ -44,7 +44,7 @@ export class View {
     }
 
     public onChange(event: any) {
-        this.onValueChange.emit(this.currentRelation);
+        this.valueChange.emit(this.currentRelation);
         var ix = this.items.indexOf(this.currentRelation);
         this.changeMap.add(ix, this.currentRelation);
     }
@@ -67,7 +67,7 @@ export class View {
         this.items.push(item);
         this.onItemClicked(item);
         this.changeMap.add(this.items.indexOf(item), this.currentRelation);
-        this.onValueChange.emit(this.currentRelation);
+        this.valueChange.emit(this.currentRelation);
     }
 
     public onRegisterHours() {
@@ -78,7 +78,7 @@ export class View {
         var rel = this.currentRelation;
         if (rel && rel.ID) {
             this.changeMap.addRemove(rel.ID, rel);
-            this.onValueChange.emit(rel);
+            this.valueChange.emit(rel);
         }
         if (rel) {
             var ix = this.items.indexOf(rel);

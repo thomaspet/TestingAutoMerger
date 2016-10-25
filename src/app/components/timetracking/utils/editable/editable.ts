@@ -23,7 +23,7 @@ export {IChangeEvent, ICol, IPos, Column, ColumnType, ITypeSearch, ILookupDetail
 
 @Directive({
     selector: '[editable]',
-    outputs: ['onChange']
+    outputs: ['changeEvent']
 })
 export class Editable implements AfterViewInit, OnDestroy {
 

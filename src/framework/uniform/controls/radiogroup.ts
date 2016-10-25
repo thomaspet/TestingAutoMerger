@@ -33,13 +33,13 @@ export class UniRadiogroupInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
+    public readyEvent: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
+    public focusEvent: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
     
     private items: any[] = [];
     
@@ -52,7 +52,7 @@ export class UniRadiogroupInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -66,7 +66,7 @@ export class UniRadiogroupInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     public ngOnChanges(changes) {
@@ -96,11 +96,11 @@ export class UniRadiogroupInput {
         var itemValue = _.get(item, this.field.Options.valueProperty);
         if (this.isChecked(item)) { // uncheck
             _.set(this.model, this.field.Property, null);
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
             return;
         }
         _.set(this.model, this.field.Property, itemValue);
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
     }
     
     public isChecked(item) {

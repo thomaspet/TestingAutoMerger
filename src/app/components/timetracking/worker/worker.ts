@@ -12,7 +12,7 @@ export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', Wo
 @Component({
     selector: view.name,
     template: `<genericdetail [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" (afterSave)="afterWorkerSaved($event)" ></genericdetail>
-        <workrelations [hidden]="!currentId" (onValueChange)="onRelationvalueChanged($event)" [workerid]="currentId">
+        <workrelations [hidden]="!currentId" (valueChange)="onRelationvalueChanged($event)" [workerid]="currentId">
     `
 })
 export class WorkerDetailview {

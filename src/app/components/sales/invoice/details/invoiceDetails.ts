@@ -184,7 +184,7 @@ export class InvoiceDetails {
 
     private setupSubscriptions(event) {
         this.form.field('CustomerID')
-            .onChange
+            .changeEvent
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
@@ -213,7 +213,7 @@ export class InvoiceDetails {
             });
 
         this.form.field('CreditDays')
-            .onChange
+            .changeEvent
             .subscribe((data) => {
                 if (data.CreditDays) {
                     this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
@@ -223,7 +223,7 @@ export class InvoiceDetails {
             });
 
         this.form.field('PaymentDueDate')
-            .onChange
+            .changeEvent
             .subscribe((data) => {
                 if (data.PaymentDueDate) {
                     var newdays = moment(data.PaymentDueDate).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');

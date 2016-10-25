@@ -167,7 +167,7 @@ export class OrderDetails {
 
     private setupSubscriptions(event) {
         this.form.field('CustomerID')
-            .onChange
+            .changeEvent
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {

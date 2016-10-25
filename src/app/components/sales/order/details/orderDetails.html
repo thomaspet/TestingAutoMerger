@@ -16,8 +16,8 @@
                   [config]="config"
                   [fields]="fields"
                   [model]="order"
-                  (onChange)="change($event)"
-                  (onReady)="ready($event)">
+                  (changeEvent)="change($event)"
+                  (readyEvent)="ready($event)">
         </uni-form>
         <address-modal question="Lagre på kundekort?"></address-modal>
 

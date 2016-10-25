@@ -1,11 +1,11 @@
 <section class="journalEntrySimple_form">
-    <uni-form *ngIf='journalEntryLine && vattypes'            
-        [config]='config' 
-        [fields]='fields' 
-        [model]='journalEntryLine'
-        
-        (onSubmit)='submit($event)'
-        (onChange)='change($event)'
-        (onReady)='ready($event)'>
+    <uni-form *ngIf='journalEntryLine && vattypes'
+              [config]='config'
+              [fields]='fields'
+              [model]='journalEntryLine'
+
+              (submitEvent)='submit($event)'
+              (changeEvent)='change($event)'
+              (readyEvent)='ready($event)'>
     </uni-form>
 </section>

@@ -27,13 +27,13 @@ export class UniSelectInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>(true);
+    public readyEvent: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>();
+    public focusEvent: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>();
 
     private items: any[];
     private selectedItem: any;
@@ -43,7 +43,7 @@ export class UniSelectInput {
 
     public focus() {
         this.elementRef.nativeElement.children[0].children[0].children[0].focus();
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
         return this;
     }
 
@@ -78,7 +78,7 @@ export class UniSelectInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 
     private onChangeHandler(item) {
@@ -88,6 +88,6 @@ export class UniSelectInput {
         }
 
         _.set(this.model, this.field.Property, value ? value : item);
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
     }
 }

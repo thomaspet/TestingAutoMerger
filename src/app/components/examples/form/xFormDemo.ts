@@ -16,9 +16,9 @@ declare var _;
             [fields]='fields' 
             [model]='employee'
             
-            (onSubmit)='submit($event)'
-            (onChange)='change($event)'
-            (onReady)='ready($event)'        
+            (submitEvent)='submit($event)'
+            (changeEvent)='change($event)'
+            (readyEvent)='ready($event)'        
             
         ></uni-form>
     `

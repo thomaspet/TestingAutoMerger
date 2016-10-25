@@ -15,7 +15,7 @@ declare const moment;
     template: `
         <article class='modal-content' *ngIf="config">
             <h1>{{title}}</h1>
-            <uni-form [config]="formConfig" [fields]="fields" [model]="model" (onSubmit)="onSubmit($event)"></uni-form>
+            <uni-form [config]="formConfig" [fields]="fields" [model]="model" (submitEvent)="onSubmit($event)"></uni-form>
             <p>{{error}}</p>
             <footer>
                 <button *ngIf="createButtonVisible" (click)="submit()">Opprett endringsmelding</button>

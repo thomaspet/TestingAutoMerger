@@ -266,14 +266,14 @@ export class ProductDetails {
     private setupSubscriptions(event) {
 
         this.form.field('VatTypeID')
-                .onChange
+                .changeEvent
                 .subscribe((data) => {
                     // recalculate when vattype changes also
                     this.calculateAndUpdatePrice();
                 });
 
         this.form.field('AccountID')
-                .onChange
+                .changeEvent
                 .subscribe((data) => {
                     if (this.product.AccountID) {
                         // set vattypeid based on account
@@ -287,7 +287,7 @@ export class ProductDetails {
 
         if (this.form.field('PriceExVat')) {
             this.form.field('PriceExVat')
-                .onChange
+                .changeEvent
                 .subscribe((data) => {
                     if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
                         this.calculateAndUpdatePrice();
@@ -297,7 +297,7 @@ export class ProductDetails {
 
         if (this.form.field('PriceIncVat')) {
             this.form.field('PriceIncVat')
-                .onChange
+                .changeEvent
                 .subscribe((data) => {
                     if (this.product.CalculateGrossPriceBasedOnNetPrice) {
                         this.calculateAndUpdatePrice();
@@ -306,7 +306,7 @@ export class ProductDetails {
         }
 
         this.form.field('CalculateGrossPriceBasedOnNetPrice')
-            .onChange
+            .changeEvent
             .subscribe((value) => {
                 this.showHidePriceFields(value);
             });

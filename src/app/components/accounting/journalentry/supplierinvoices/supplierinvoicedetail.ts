@@ -529,7 +529,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
     private setupSubscriptions(event) {
         this.form.field('SupplierID')
-             .onChange
+             .changeEvent
              .subscribe((data) => {
                 if (data) {
                     this._supplierService.Get(this.supplierInvoice.SupplierID, ['Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((supplier: Supplier) => {

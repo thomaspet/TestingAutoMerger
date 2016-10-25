@@ -27,10 +27,10 @@
 
 <section *ngIf="product" class="product-details application">
     <uni-form
-        [config]="config"
-        [fields]="fields"
-        [model]="product"
-        (onReady)="ready($event)">
+            [config]="config"
+            [fields]="fields"
+            [model]="product"
+            (readyEvent)="ready($event)">
     </uni-form>
 
     <article class="collapsable" [ngClass]="{'-is-open': showImageComponent}">

@@ -15,7 +15,7 @@ declare var _; // lodash
                       [config]="config"
                       [fields]="fields"
                       [model]="employment"
-                      (onChange)="onFormChange($event)">
+                      (changeEvent)="onFormChange($event)">
             </uni-form>
         </section>
     `

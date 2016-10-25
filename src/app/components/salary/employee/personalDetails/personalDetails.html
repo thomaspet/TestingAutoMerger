@@ -5,8 +5,8 @@
               [config]="config"
               [fields]="fields"
               [model]="employee"
-              (onChange)="onFormChange($event)"
-              (onReady)="onFormReady($event)">
+              (changeEvent)="onFormChange($event)"
+              (readyEvent)="onFormReady($event)">
     </uni-form>
 
     <email-modal></email-modal>

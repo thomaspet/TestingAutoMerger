@@ -21,10 +21,10 @@
         </p>
 
         <uni-form *ngIf='supplierInvoice'
-            [config]='config'
-            [fields]='fields'
-            [model]='supplierInvoice'
-            (onReady)="ready($event)">
+                  [config]='config'
+                  [fields]='fields'
+                  [model]='supplierInvoice'
+                  (readyEvent)="ready($event)">
         </uni-form>
 
     </article>

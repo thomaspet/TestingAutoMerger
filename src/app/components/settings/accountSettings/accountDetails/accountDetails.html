@@ -1,9 +1,9 @@
 <div *ngIf="config && account">
-     <uni-form            
-        [config]="config" 
-        [fields]="fields" 
-        [model]="account"                
-        (onChange)="change($event)">
+     <uni-form
+             [config]="config"
+             [fields]="fields"
+             [model]="account"
+             (changeEvent)="change($event)">
     </uni-form>
 </div>
 <div *ngIf="!config || !account">

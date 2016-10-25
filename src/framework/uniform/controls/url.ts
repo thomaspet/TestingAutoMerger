@@ -33,13 +33,13 @@ export class UniUrlInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniUrlInput> = new EventEmitter<UniUrlInput>(true);
+    public readyEvent: EventEmitter<UniUrlInput> = new EventEmitter<UniUrlInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniUrlInput> = new EventEmitter<UniUrlInput>(true);
+    public focusEvent: EventEmitter<UniUrlInput> = new EventEmitter<UniUrlInput>(true);
 
     private lastControlValue: string;
     
@@ -52,7 +52,7 @@ export class UniUrlInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -70,7 +70,7 @@ export class UniUrlInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     private blurHandler() {
@@ -87,7 +87,7 @@ export class UniUrlInput {
         if (this.validateURL(newUrl)) {
             lodash.set(this.model, this.field.Property, newUrl);
             this.lastControlValue = newUrl;
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
         }
     }
     

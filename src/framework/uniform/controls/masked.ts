@@ -28,13 +28,13 @@ export class UniMaskedInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniMaskedInput> = new EventEmitter<UniMaskedInput>(true);
+    public readyEvent: EventEmitter<UniMaskedInput> = new EventEmitter<UniMaskedInput>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniMaskedInput> = new EventEmitter<UniMaskedInput>(true);
+    public focusEvent: EventEmitter<UniMaskedInput> = new EventEmitter<UniMaskedInput>(true);
 
     private maskedInput: kendo.ui.MaskedTextBox;
 
@@ -50,7 +50,7 @@ export class UniMaskedInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -80,7 +80,7 @@ export class UniMaskedInput {
             // to avoid mask disappearing in input field (due to control storing the raw string)
             this.value(val);
             _.set(self.model, self.field.Property, this.raw());
-            self.onChange.emit(self.model);
+            self.changeEvent.emit(self.model);
         };
 
         maskedInput = jQuery(this.elementRef.nativeElement)
@@ -95,7 +95,7 @@ export class UniMaskedInput {
         if (!_.isNil(this.control.value) && this.control.value.length > 0) {
             maskedInput.value(this.control.value);
         }
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

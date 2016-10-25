@@ -104,7 +104,7 @@ export class PersonalDetails extends UniView {
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
         this.uniform.field('BusinessRelationInfo.Name').focus();
-        this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
+        this.uniform.field('SocialSecurityNumber').changeEvent.subscribe(() => {
             this.updateInfoFromSSN();
         });
         

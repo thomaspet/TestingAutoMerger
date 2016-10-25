@@ -25,27 +25,27 @@ declare var _; // lodash
                     [controls]="controls"
                     [field]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)"
-                    (onFocus)="onFocusHandler($event)">
+                    (readyEvent)="onReadyHandler($event)"
+                    (changeEvent)="onChangeHandler($event)"
+                    (focusEvent)="onFocusHandler($event)">
                 </uni-field>
                 <uni-combo-field 
                     *ngIf="isCombo(item)"
                     [controls]="controls"
                     [fields]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)"
-                    (onFocus)="onFocusHandler($event)">
+                    (readyEvent)="onReadyHandler($event)"
+                    (changeEvent)="onChangeHandler($event)"
+                    (focusEvent)="onFocusHandler($event)">
                 </uni-combo-field>
                 <uni-field-set 
                     *ngIf="isFieldSet(item)" 
                     [controls]="controls"
                     [fields]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)"
-                    (onFocus)="onFocusHandler($event)">                    
+                    (readyEvent)="onReadyHandler($event)"
+                    (changeEvent)="onChangeHandler($event)"
+                    (focusEvent)="onFocusHandler($event)">                    
                 </uni-field-set>
                 <uni-section 
                     *ngIf="isSection(item)"
@@ -53,10 +53,10 @@ declare var _; // lodash
                     [fields]="item" 
                     [model]="model"
                     [formConfig]="config"
-                    (onReady)="onReadyHandler($event)"
-                    (onChange)="onChangeHandler($event)"
-                    (onToggle)="onToggleHandler($event)"
-                    (onFocus)="onFocusHandler($event)">
+                    (readyEvent)="onReadyHandler($event)"
+                    (changeEvent)="onChangeHandler($event)"
+                    (toggleEvent)="onToggleHandler($event)"
+                    (focusEvent)="onFocusHandler($event)">
                 </uni-section>
                 <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>      
             </template>
@@ -76,16 +76,16 @@ export class UniForm {
     public model: any;
 
     @Output()
-    public onSubmit: EventEmitter<any> = new EventEmitter<any>(true);
+    public submitEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onReady: EventEmitter<any> = new EventEmitter<any>(true);
+    public readyEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onToggle: EventEmitter<Object> = new EventEmitter<Object>(true);
+    public toggleEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -152,7 +152,7 @@ export class UniForm {
     public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
         this.readyFields++;
         if (this.readyFields === this.countElements()) {
-            this.onReady.emit(this);
+            this.readyEvent.emit(this);
             this.focusFirstElement();
         }
     }
@@ -179,11 +179,11 @@ export class UniForm {
             }
         }
         console.log(invalids.join(', '));
-        this.onChange.emit(model);
+        this.changeEvent.emit(model);
     }
 
     public onToggleHandler(section: any) {
-        this.onToggle.emit(section);
+        this.toggleEvent.emit(section);
     }
 
     public readMode() {
@@ -302,7 +302,7 @@ export class UniForm {
 
     private submit(event) {
         event.preventDefault();
-        this.onSubmit.emit(this.model);
+        this.submitEvent.emit(this.model);
     }
 
     private isField(field: UniFieldLayout): boolean {

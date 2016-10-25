@@ -33,13 +33,13 @@ export class UniCheckboxgroupInput {
     public control: FormControl;
 
     @Output()
-    public onReady: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
+    public readyEvent: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
     
     @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+    public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
-    public onFocus: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
+    public focusEvent: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
 
     private items: any[] = [];
     private selectedItems: any[] = [];
@@ -52,7 +52,7 @@ export class UniCheckboxgroupInput {
     }
 
     public focusHandler() {
-        this.onFocus.emit(this);
+        this.focusEvent.emit(this);
     }
 
     public readMode() {
@@ -66,7 +66,7 @@ export class UniCheckboxgroupInput {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        this.readyEvent.emit(this);
     }
     
     public ngOnChanges(changes) {
@@ -96,11 +96,11 @@ export class UniCheckboxgroupInput {
         var itemValue = _.get(item, this.field.Options.valueProperty);
         if (this.isChecked(item)) {
             _.set(this.model, this.field.Property, null);
-            this.onChange.emit(this.model);
+            this.changeEvent.emit(this.model);
             return;
         }
         _.set(this.model, this.field.Property, itemValue);
-        this.onChange.emit(this.model);
+        this.changeEvent.emit(this.model);
     }
     
     public isChecked(item) {

@@ -166,7 +166,7 @@ export class QuoteDetails {
 
     private setupSubscriptions(event) {
         this.form.field('CustomerID')
-            .onChange
+            .changeEvent
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
@@ -192,7 +192,7 @@ export class QuoteDetails {
                 }
             });
         this.form.field('QuoteDate')
-            .onChange
+            .changeEvent
             .subscribe((data) => {
                 if (data) {
                     this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();
