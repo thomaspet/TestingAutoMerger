@@ -27,6 +27,19 @@ export class UniTabStrip {
         authService.companyChanged$.subscribe((change) => {
             this.tabService.removeAllTabs();
         });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.keyCode === 87 && event.altKey) {
+                this.closeTab(this.tabService.currentActiveTab, this.tabService.currentActiveIndex);
+            } else if (event.keyCode === 37 && event.altKey) {
+                let newIndex = this.tabService.currentActiveIndex > 0 ? this.tabService.currentActiveIndex - 1 : this.tabService.tabs.length - 1;
+                this.activateTab(this.tabService.tabs[newIndex], newIndex);
+            } else if (event.keyCode === 39 && event.altKey) {
+                let newIndex = this.tabService.currentActiveIndex >= this.tabService.tabs.length - 1 ? 0 : this.tabService.currentActiveIndex + 1;
+                this.activateTab(this.tabService.tabs[newIndex], newIndex);
+            }
+        });
+
     }
 
     private activateTab(tab: IUniTab, index: number): void {
