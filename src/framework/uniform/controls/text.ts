@@ -45,7 +45,8 @@ export class UniTextInput {
     }
 
     public focus() {
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);        
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'select', []);
     }
 
     public focusHandler() {

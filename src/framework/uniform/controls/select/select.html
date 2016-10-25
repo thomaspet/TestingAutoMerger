@@ -12,7 +12,6 @@
         (click)="toggle()"
         [value]="getDisplayValue(selectedItem)"
         [placeholder]="config?.Placeholder || ''"
-        (blur)="blurHandler()"
         readonly />
 
     <article class="uniSelect_dropdown" bind-hidden="!expanded">

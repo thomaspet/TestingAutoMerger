@@ -1,6 +1,16 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    ElementRef,
+    EventEmitter,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
+import {Observable} from 'rxjs/Observable';
+
 declare var _; // jquery and lodash
 
 @Component({
@@ -12,7 +22,7 @@ declare var _; // jquery and lodash
             [items]="items"
             [value]="selectedItem"
             [newButtonAction]="field?.Options?.newButtonAction"
-            (valueChange)="onChangeHandler($event)">
+            (valueChange)="onChange($event)">
         </uni-select>
     `
 })
@@ -43,6 +53,7 @@ export class UniSelectInput {
 
     public focus() {
         this.elementRef.nativeElement.children[0].children[0].children[0].focus();
+        this.elementRef.nativeElement.children[0].children[0].children[0].select();
         this.focusEvent.emit(this);
         return this;
     }
@@ -79,9 +90,17 @@ export class UniSelectInput {
 
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
+        this.createFocusListener();
     }
 
-    private onChangeHandler(item) {
+    private createFocusListener() {
+        const target = this.elementRef.nativeElement.children[0].children[0].children[0];
+        Observable.fromEvent(target, 'focus').subscribe(() => {
+            this.focusEvent.emit(this);
+        });
+    }
+
+    private onChange(item) {
         let value;
         if (this.field.Options.valueProperty) {
             value = _.get(item, this.field.Options.valueProperty);

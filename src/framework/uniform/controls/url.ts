@@ -47,7 +47,7 @@ export class UniUrlInput {
     }
 
     public focus() {
-        jQuery(this.elementRef.nativeElement).find('input').first().focus();
+        jQuery(this.elementRef.nativeElement).find('input').first().focus().select();
         return this;
     }
 

@@ -1,6 +1,16 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer, HostListener} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    ElementRef,
+    EventEmitter,
+    ChangeDetectorRef,
+    ViewChild,
+    Renderer
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {UniFieldLayout} from '../interfaces';
+import {UniFieldLayout, KeyCodes} from '../interfaces';
+import {Observable} from 'rxjs/Observable';
 
 declare var _; // lodash
 
@@ -98,11 +108,85 @@ export class UniMultivalueInput {
     private defaultRow: any;
 
     constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
-        this.changeEvent.subscribe(() => this.setFocusOnNextField());
+    }
+
+    private createOpenCloseListeners() {
+        const target = this.el.nativeElement.children[0].children[0];
+        const keyDownEvent = Observable.fromEvent(target, 'keydown');
+        const f4AndSpaceEvent = keyDownEvent.filter((event: KeyboardEvent) => {
+            return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
+        });
+        const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
+            return (event.keyCode === KeyCodes.ARROW_UP
+                || event.keyCode === KeyCodes.ARROW_DOWN)
+                && event.altKey;
+        });
+
+        Observable.merge(f4AndSpaceEvent, arrowDownEvent)
+            .subscribe((event: KeyboardEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.toggle();
+            });
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESC)
+            .subscribe((event: KeyboardEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.close();
+            });
+    }
+
+    private createTabAndEnterListener() {
+        const keyDownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
+        const tabEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB);
+        const enterEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER);
+        tabEvent.subscribe((event: KeyboardEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.shiftKey) {
+                this.setFocusOnPrevField();
+            } else {
+                this.setFocusOnNextField();
+            }
+            this.close();
+        });
+        enterEvent.subscribe((event: KeyboardEvent) => {
+            this.close();
+        });
+    }
+
+    public createListNavigationListeners() {
+        let keydownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
+        let arrowsEvent = keydownEvent.filter((event: KeyboardEvent) => {
+            return event.keyCode === KeyCodes.ARROW_DOWN || event.keyCode === KeyCodes.ARROW_UP;
+        });
+        arrowsEvent.subscribe((event: KeyboardEvent) => {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            let index: number = 0;
+            index = this.rows.indexOf(this.defaultRow);
+            switch (event.keyCode) {
+                case KeyCodes.ARROW_DOWN:
+                    index = index + 1;
+                    index = index < this.rows.length ? index : this.rows.length - 1;
+                    break;
+                case KeyCodes.ARROW_UP:
+                    index = index - 1;
+                    index = index < 0 ? 0 : index;
+                    break;
+            }
+
+            this.defaultRow = this.rows[index];
+            this.setAsDefault(this.defaultRow);
+        });
     }
 
     public focus() {
         this.renderer.invokeElementMethod(this.el.nativeElement.children[0].children[0], 'focus', []);
+        this.renderer.invokeElementMethod(this.el.nativeElement.children[0].children[0], 'select', []);
         this.cd.markForCheck();
         return this;
     }
@@ -144,31 +228,47 @@ export class UniMultivalueInput {
                 });
             }
 
-            if (this.field.Options.changeEvent) {
-                this.changeEvent.subscribe(value => this.field.Options.changeEvent(this.defaultRow));
+            if (this.field.Options.onChange) {
+                this.changeEvent.subscribe(value => this.field.Options.onChange(this.defaultRow));
             }
         }
     }
 
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
+        this.createOpenCloseListeners();
+        this.createListNavigationListeners();
+        this.createTabAndEnterListener();
     }
 
-    private showDropdown(event) {
+    private showDropdown(event: KeyboardEvent) {
+        if (event.keyCode === KeyCodes.ENTER || event.keyCode === KeyCodes.TAB) {
+            return;
+        }
         if (!this.rows.length) {
             this.addValue(event);
         }
-
         if (document.activeElement === event.target) {
-            this.listIsVisible = !this.listIsVisible;
+            this.toggle();
         }
     }
 
+    private toggle() {
+        if (this.listIsVisible) {
+            this.close();
+        } else {
+            this.open();
+        }
+    }
+
+    private open() {
+        this.listIsVisible = true;
+        this.cd.markForCheck();
+    }
+
     private close() {
-        setTimeout(() => {
-            this.listIsVisible = false;
-            this.cd.markForCheck();
-        });
+        this.listIsVisible = false;
+        this.cd.markForCheck();
     }
 
     private isSelected(row) {
@@ -179,6 +279,7 @@ export class UniMultivalueInput {
         this.setAsDefault(row);
         this.changeEvent.emit(this.model);
         this.close();
+        this.setFocusOnNextField();
     }
 
     private setAsDefault(row) {
@@ -319,8 +420,17 @@ export class UniMultivalueInput {
     private setFocusOnNextField() {
         const uniFieldParent = this.findAncestor(this.el.nativeElement, 'uni-field');
         const nextUniField = uniFieldParent.nextElementSibling;
-        const input = <HTMLElement>nextUniField.querySelector('input,textarea,select,button');
+        const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
         input.focus();
+        input.select();
+    }
+
+    private setFocusOnPrevField() {
+        const uniFieldParent = this.findAncestor(this.inputElement.nativeElement, 'uni-field');
+        const nextUniField = uniFieldParent.previousElementSibling;
+        const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
+        input.focus();
+        input.select();
     }
 
     private findAncestor(element: HTMLElement, selector: string): HTMLElement {

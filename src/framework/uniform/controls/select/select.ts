@@ -4,6 +4,8 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {GuidService} from '../../../../app/services/common/guidService';
+import {Observable} from "rxjs/Observable";
+import {KeyCodes} from "../../interfaces";
 
 declare var _; // lodash
 
@@ -54,7 +56,7 @@ export class UniSelect {
     private focusedIndex: any = 0;
     private activeDecentantId: string;
 
-    constructor(gs: GuidService, private renderer: Renderer, private cd: ChangeDetectorRef) {
+    constructor(gs: GuidService, private renderer: Renderer, private cd: ChangeDetectorRef, private el: ElementRef) {
         // Set a guid for DOM elements, etc.
         this.guid = gs.guid();
     }
@@ -78,34 +80,120 @@ export class UniSelect {
 
     public ngAfterViewInit() {
         this.focusedIndex = this.focusedIndex || 0;
-
         this.searchControl.valueChanges
             .distinctUntilChanged()
-            .subscribe((value) => {
-                if (value !== this.filterString) {
-                    this.filterItems(value);
+            .subscribe((value: string) => {
+                this.filterItems(value);
+            });
+        this.createOpenCloseListeners();
+        this.createNavigationListener();
+        this.createSearchListener();
+
+    }
+
+    private createOpenCloseListeners() {
+        const keyDownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
+        const f4AndSpaceEvent = keyDownEvent.filter((event: KeyboardEvent) => {
+            return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
+        });
+        const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
+            return (event.keyCode === KeyCodes.ARROW_UP
+                || event.keyCode === KeyCodes.ARROW_DOWN)
+                && event.altKey;
+        });
+
+        Observable.merge(f4AndSpaceEvent, arrowDownEvent)
+            .subscribe((event: KeyboardEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.toggle();
+            });
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESC)
+            .subscribe((event: KeyboardEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.close();
+            });
+
+        keyDownEvent.filter((event: KeyboardEvent) => {
+            return event.keyCode === KeyCodes.ENTER || event.keyCode === KeyCodes.TAB;
+        }).subscribe(() => {
+            this.confirmSelection();
+            this.close();
+        });
+    }
+
+    private createSearchListener() {
+        const keypressEvent = Observable.fromEvent(this.el.nativeElement, 'keypress');
+        keypressEvent.filter((event: KeyboardEvent) => event.keyCode !== KeyCodes.ENTER)
+            .subscribe((event: KeyboardEvent) => {
+                const character = String.fromCharCode(event.which);
+                if (!this.searchable) {
+                    const focusIndex = this.items.findIndex((item) => {
+                        try {
+                            return item[this.config.displayProperty][0].toLowerCase() === character;
+                        } catch (e) {
+                        }
+                        return false;
+                    });
+
+                    if (focusIndex >= 0) {
+                        this.focusedIndex = focusIndex;
+                    }
+                    this.confirmSelection();
+                } else {
+                    if (!this.expanded) {
+                        this.open();
+                        this.cd.markForCheck();
+                        setTimeout(() => {
+                            this.inputElement.nativeElement.focus();
+                            this.searchControl.setValue(this.searchControl.value + character);
+                        }, 200);
+                    }
+
                 }
             });
     }
 
-    // Focus first item matching character pressed
-    @HostListener('keypress', ['$event'])
-    private onKeypress(event) {
-        // If select is searchable we dont want this
-        if (!this.searchable) {
-            const character = String.fromCharCode(event.which);
-            const focusIndex = this.items.findIndex((item) => {
-                try {
-                    return item[this.config.displayProperty][0].toLowerCase() === character;
-                } catch (e) {}
-
-                return false;
+    private createNavigationListener() {
+        const arrowsEvents = Observable.fromEvent(this.el.nativeElement, 'keydown')
+            .filter((event: KeyboardEvent) => !(event.altKey || event.shiftKey || event.ctrlKey))
+            .filter((event: KeyboardEvent) => {
+                return event.keyCode === KeyCodes.ARROW_UP
+                    || event.keyCode === KeyCodes.ARROW_DOWN
+                    || event.keyCode === KeyCodes.ARROW_RIGHT
+                    || event.keyCode === KeyCodes.ARROW_LEFT;
             });
 
-            if (focusIndex >= 0) {
-                this.focusedIndex = focusIndex;
+
+        arrowsEvents.subscribe((event: KeyboardEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            let index = -1;
+
+            switch (event.keyCode) {
+                case KeyCodes.ARROW_UP:
+                case KeyCodes.ARROW_LEFT:
+                    index = this.focusedIndex - 1;
+                    if (index < 0) {
+                        index = 0;
+                    }
+                    break;
+                case KeyCodes.ARROW_DOWN:
+                case KeyCodes.ARROW_RIGHT:
+                    index = this.focusedIndex + 1;
+                    if (index > this.filteredItems.length - 1) {
+                        index = this.filteredItems.length - 1;
+                    }
+                    break;
             }
-        }
+
+            this.focusedIndex = index;
+            this.confirmSelection();
+            this.scrollToListItem();
+        });
     }
 
     private filterItems(filterString: string) {
@@ -133,19 +221,15 @@ export class UniSelect {
     }
 
     private confirmSelection() {
-        setTimeout(() => {
-            this.selectedItem = this.filteredItems[this.focusedIndex];
-            this.valueChange.emit(this.selectedItem);
-            this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
-            this.cd.markForCheck();
-        });
+        this.selectedItem = this.filteredItems[this.focusedIndex];
+        this.valueChange.emit(this.selectedItem);
+        this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+        this.cd.markForCheck();
     }
 
     public open() {
         this.expanded = true;
-        setTimeout(() => {
-            this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
-        });
+        this.cd.markForCheck();
     }
 
     public close() {
@@ -153,6 +237,7 @@ export class UniSelect {
         this.searchControl.setValue('');
         this.filterString = '';
         this.filteredItems = this.items;
+        this.cd.markForCheck();
     }
 
     public onNewItemClick() {
@@ -168,62 +253,6 @@ export class UniSelect {
         }
     }
 
-    // Keyboard navigation
-    @HostListener('keydown', ['$event'])
-    private onKeyDown(event: KeyboardEvent) {
-        const key = event.which || event.keyCode || 0;
-
-        if (key === 38 || key === 40) {
-            if (event.ctrlKey === true) {
-                return;
-            }
-            event.preventDefault();
-        }
-
-        // Tab or enter
-        if (key === 9 || key === 13) {
-            if (this.expanded) {
-                this.confirmSelection();
-                this.expanded = false;
-            }
-            // Escape
-        } else if (key === 27) {
-            this.expanded = false;
-            // Space
-        } else if (key === 32) {
-            event.preventDefault();
-            if (this.expanded) {
-                this.confirmSelection();
-                this.expanded = false;
-            } else {
-                this.open();
-            }
-            // Arrow up
-        } else if (key === 38 && this.focusedIndex > 0) {
-            this.focusedIndex--;
-            this.scrollToListItem();
-            // Arrow down
-        } else if (key === 40) {
-            if (!this.expanded) {
-                this.expanded = true;
-            } else {
-                this.moveDown();
-            }
-        }
-    }
-
-    private moveDown() {
-        if (!this.focusedIndex && this.focusedIndex !== 0) {
-            this.focusedIndex = 0;
-            return;
-        }
-
-        if (this.focusedIndex < (this.filteredItems.length - 1)) {
-            this.focusedIndex++;
-            this.scrollToListItem();
-        }
-    }
-
     private scrollToListItem() {
         const list = this.itemDropdown.nativeElement;
         const currItem = list.children[this.focusedIndex];
@@ -234,9 +263,5 @@ export class UniSelect {
         } else if (currItem.offsetTop >= bottom) {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
-    }
-
-    blurHandler() {
-        // this.close();
     }
 }

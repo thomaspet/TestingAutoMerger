@@ -45,7 +45,8 @@ export class UniMaskedInput {
         jQuery(this.elementRef.nativeElement)
             .find('input')
             .first()
-            .focus();
+            .focus()
+            .select();
         return this;
     }
 

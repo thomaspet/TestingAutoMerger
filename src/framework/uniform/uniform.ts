@@ -126,6 +126,7 @@ export class UniForm {
 
     public ngOnInit() {
         this.addSectionEvents();
+        this.addNavigationEvents();
         this.controls = this.builder.group({});
     }
 
@@ -141,12 +142,15 @@ export class UniForm {
 
     public onFocusHandler(event) {
         this.lastFocusedComponent = event;
-        console.log(event);
     }
 
     public focusFirstElement() {
         const field = this.field(this.fields[0].Property);
-        field.focus();
+        if (field) {
+            setTimeout(() => {
+                field.focus();
+            }, 200);
+        }
     }
 
     public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
@@ -178,7 +182,6 @@ export class UniForm {
 
             }
         }
-        console.log(invalids.join(', '));
         this.changeEvent.emit(model);
     }
 
@@ -368,6 +371,52 @@ export class UniForm {
             group.push(section);
         }
         return group;
+    }
+
+    private addNavigationEvents() {
+        const target = this.elementRef.nativeElement;
+        const enterEvent = Observable.fromEvent(target, 'keyup')
+            .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER);
+        const tabEvent = Observable.fromEvent(target, 'keydown')
+            .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB && !event.shiftKey);
+
+        const tabAndEnterEvent = Observable.merge(enterEvent, tabEvent);
+
+        tabAndEnterEvent.subscribe((event: KeyboardEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const field: UniField = this.findNextElementFormLastFocusedComponent();
+            if (field.field.Section > 0) {
+                const section = this.section(field.field.Section);
+                if (!section.isOpen) {
+                    section.toggle();
+                }
+            }
+            setTimeout(() => {
+                field.focus();
+            }, 200);
+        });
+    }
+
+    private findNextElementFormLastFocusedComponent() {
+        if (!this.lastFocusedComponent) {
+            this.lastFocusedComponent = this.field(this.fields[0].Property);
+        }
+
+        let property: string = this.lastFocusedComponent.field.Property;
+        let index: number = 0;
+        let located: boolean = false;
+        for (let i = 0; i < this.fields.length && !located; i++) {
+            if (this.fields[i].Property === property) {
+                index = i;
+                located = true;
+            }
+        }
+        if (!located || index + 1 >= this.fields.length) {
+            return this.lastFocusedComponent;
+        } else {
+            return this.field(this.fields[index + 1].Property);
+        }
     }
 
     private addSectionEvents() {

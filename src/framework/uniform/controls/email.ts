@@ -44,6 +44,7 @@ export class UniEmailInput {
 
     public focus() {
         this.elementRef.nativeElement.children[0].focus();
+        this.elementRef.nativeElement.children[0].select();
         return this;
     }
 
