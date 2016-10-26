@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {AMeldingService} from '../../../../services/Salary/AMelding/AMeldingService';
 import {AmeldingData} from '../../../../unientities';
 
 @Component({
@@ -16,18 +15,14 @@ export class AmeldingReceiptView {
     private mottattLeveranserIPeriodenConfig: UniTableConfig;
     private showFeedback: boolean;
 
-    constructor(private _ameldService: AMeldingService) {
+    constructor() {
         this.setupMottakTable();
     }
 
     public ngOnChanges() {
         this.showFeedback = false;
         if (this.currentAMelding) {
-            this._ameldService.getAMeldingWithFeedback(this.currentAMelding.ID)
-            .subscribe((ameld) => {
-                this.currentAMelding = ameld;
-                this.getAlleAvvik();
-            });
+            this.getAlleAvvik();
         }
     }
 
@@ -65,7 +60,10 @@ export class AmeldingReceiptView {
                     });
                 } else {
                     this.setMottattLeveranser(alleMottak.mottattLeveranse);
-                    this.getAvvikRec(alleMottak);
+                    const pr = alleMottak.kalendermaaned;
+                    if ((parseInt(pr.split('-').pop()) === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                        this.getAvvikRec(alleMottak);
+                    }
                 }
                 this.showFeedback = true;
             } else {

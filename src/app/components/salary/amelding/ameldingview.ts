@@ -144,21 +144,24 @@ export class AMeldingView implements OnInit {
 
     public setAMelding(amelding: AmeldingData) {
         this.showView = '';
-        this.currentAMelding =  amelding;
-        this.getSumUpForAmelding();
-        this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
-        if (this.currentAMelding.sent) {
-            this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
-        } else {
-            this.submittedDate = '';
-        }
-        if (this.currentAMelding.feedbackFileID) {
-            this.feedbackObtained = true;
-        } else {
-            this.feedbackObtained = false;
-        }
-        this.updateToolbar();
-        this.updateSaveActions();
+        this._ameldingService.getAMeldingWithFeedback(amelding.ID)
+        .subscribe((ameldingAndFeedback) => {
+            this.currentAMelding =  ameldingAndFeedback;
+            this.getSumUpForAmelding();
+            this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
+            if (this.currentAMelding.sent) {
+                this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+            } else {
+                this.submittedDate = '';
+            }
+            if (this.currentAMelding.feedbackFileID) {
+                this.feedbackObtained = true;
+            } else {
+                this.feedbackObtained = false;
+            }
+            this.updateToolbar();
+            this.updateSaveActions();
+        });
     }
 
     private updateToolbar() {

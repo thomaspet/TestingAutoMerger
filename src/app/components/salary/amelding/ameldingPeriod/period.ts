@@ -2,11 +2,11 @@ import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 import {SalaryTransactionService} from '../../../../services/services';
 
+declare var moment;
+
 @Component({
     selector: 'amelding-periodsummary-view',
     templateUrl: 'app/components/salary/amelding/ameldingPeriod/period.html'
-
-
 })
 
 export class AmeldingPeriodSummaryView {
@@ -15,13 +15,21 @@ export class AmeldingPeriodSummaryView {
     private sumForskuddstrekk: number;
     private systemData: any[] = [];
     private systemTableConfig: UniTableConfig;
-    @Input() private currentPeriod: number; 
+
+    private forfallsdato: string = '';
+    private amldData: any[] = [];
+    private amldTableConfig: UniTableConfig;
+    
+    @Input() private currentPeriod: number;
+    @Input() private currentAMelding: any;
 
     constructor(private _salarytransService: SalaryTransactionService) {
         this.setupSystemTableConfig();
+        this.setupAmeldingTableConfig();
     }
 
-    public ngAfterViewInit() {
+    public ngOnChanges() {
+
         if (this.currentPeriod) {
             this._salarytransService.getSumsInPeriod(this.currentPeriod, this.currentPeriod, 2016)
             .subscribe((response) => {
@@ -39,6 +47,57 @@ export class AmeldingPeriodSummaryView {
                 });
             });
         }
+        if (this.currentAMelding) {
+            this.getAmeldingData();
+            this.forfallsdato = moment(this.currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
+        }
+    }
+
+    private getAmeldingData() {
+        if (this.currentAMelding.hasOwnProperty('feedBack')) {
+            if (this.currentAMelding.feedBack !== null) {
+                let alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+                if (alleMottak instanceof Array) {
+                    alleMottak.forEach(mottak => {
+                        const pr = mottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop());
+                        if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                            this.checkLeveranser(mottak.mottattLeveranse, period);
+                        }
+                    });
+                } else {
+                    const pr = alleMottak.kalendermaaned;
+                    const period = parseInt(pr.split('-').pop());
+                    if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                        this.checkLeveranser(alleMottak.mottattLeveranse, period);
+                    }
+                }
+            }
+        }
+    }
+
+    private checkLeveranser(leveranser, periode) {
+        if (leveranser instanceof Array) {
+            leveranser.forEach(leveranse => {
+                this.checkAvgiftOgTrekk(leveranse, periode);
+            });
+        } else {
+            this.checkAvgiftOgTrekk(leveranser, periode);
+        }
+    }
+
+    private checkAvgiftOgTrekk(leveranse, periode) {
+        let amldObj: any = {};
+        amldObj.Periode = periode;
+        amldObj.MeldingsId = leveranse.meldingsId;
+        if (leveranse.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+            amldObj.Ftrekk = leveranse.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+            amldObj.Agatrekk = leveranse.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+        } else {
+            amldObj.Ftrekk = '0';
+            amldObj.Agatrekk = '0';
+        }
+        this.amldData.push(amldObj);
     }
 
     private setupSystemTableConfig() {
@@ -54,5 +113,15 @@ export class AmeldingPeriodSummaryView {
 
         this.systemTableConfig = new UniTableConfig(false, true, 10)
         .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);
+    }
+
+    private setupAmeldingTableConfig() {
+        let periodCol = new UniTableColumn('Periode', 'Periode', UniTableColumnType.Text);
+        let meldCol = new UniTableColumn('MeldingsId', 'MeldingsID', UniTableColumnType.Text);
+        let ftrekkCol = new UniTableColumn('Ftrekk', 'Forskuddstrekk', UniTableColumnType.Money);
+        let agaCol = new UniTableColumn('Agatrekk', 'Arbeidsgiveravgift', UniTableColumnType.Money);
+
+        this.amldTableConfig = new UniTableConfig(false, true, 10)
+        .setColumns([periodCol, meldCol, ftrekkCol, agaCol]);
     }
 }
