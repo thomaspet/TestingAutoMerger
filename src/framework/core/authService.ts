@@ -158,14 +158,13 @@ export class AuthService {
      * @param {Number} [offSetMinutes=0] offset
      * @returns {Boolean}
      */
-    public isTokenExpired(offSetMinutes: number = 0): boolean {
+    public isTokenExpired(offsetMinutes: number = 0): boolean {
         if (!this.jwtDecoded) {
             return true;
         }
 
         let expires = new Date(0);
         expires.setUTCSeconds(this.jwtDecoded.exp);
-
-        return (expires.valueOf() > new Date().valueOf() + (offSetMinutes * 60000));
+        return (expires.valueOf() < new Date().valueOf() + (offsetMinutes * 60000));
     }
 }
