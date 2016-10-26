@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
 
@@ -25,7 +25,11 @@ export interface IToolbarConfig {
 })
 export class UniToolbar {
     @Input() public config: IToolbarConfig;
+    @Output() public statusSelectEvent: EventEmitter<any> = new EventEmitter();
     public navigate(type: string, arg: any) {
         this.config.navigation[type](arg);
+    }
+    public selectStatus(event) {
+        this.statusSelectEvent.emit(event);
     }
 }

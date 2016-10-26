@@ -3,7 +3,7 @@ $statustrack-height: 1.7rem
 $statustrack-border: .0625rem
 
 .poster_statustrack,
-uni-statustrack ol
+uni-statustrack > ol
     display: flex
     border: pxToRem(1) solid $uni-color-scale7
     border-radius: pxToRem(3)
@@ -12,7 +12,7 @@ uni-statustrack ol
     height: $statustrack-height + $statustrack-border
     margin: .5rem 0
 
-    li
+    & > li
         position: relative
         padding: 0 1.5rem
         line-height: $statustrack-height
@@ -20,7 +20,8 @@ uni-statustrack ol
         &.future
             color: $uni-color-scale5
 
-        &.active
+        &.active,
+        &.obsolete
             z-index: 2
             background: $uni-color-C2A
             color: $uni-color-negative
@@ -32,6 +33,9 @@ uni-statustrack ol
             &:last-of-type
                 border-radius: 0 pxToRem(2) pxToRem(2) 0
 
+        &.obsolete
+            background: $uni-color-Warn
+
         &:not(:last-of-type)
             &:after
                 border-left-color: $statustrack-background
@@ -42,6 +46,9 @@ uni-statustrack ol
             &.active:after
                 border-left-color: $uni-color-C2A
 
+            &.obsolete:after
+                border-left-color: $uni-color-Warn
+
             &.active:before,
             & + .active:before
                 display: none
@@ -50,10 +57,10 @@ uni-statustrack ol
         &:after
             content: ''
             position: absolute
-            display:  block
+            display: block
             height: 0
-            width:  0
-            top:    -#{$statustrack-border}
+            width: 0
+            top: -#{$statustrack-border}
             border-color: transparent
             border-style: solid
             border-width: (($statustrack-height/2) + $statustrack-border) 0 (($statustrack-height/2)+$statustrack-border) .5rem
@@ -65,3 +72,74 @@ uni-statustrack ol
         &:after
             z-index: 3
             right: -.5rem
+
+.statustrack_title[data-badge]:after
+    content: attr(data-badge)
+    display: block
+    position: absolute
+    top: -.7rem
+    right: -1rem
+    background: $uni-color-scale2
+    border-radius: 99rem
+    min-width: 1.2rem
+    line-height: 1.2rem
+    font-size: .9rem
+    text-align: center
+    z-index: 4
+
+.statustrack_substati
+    @extend %popover
+    padding: 0 1rem
+
+    li:hover &,
+    li:focus &
+        @extend %popover-active
+
+    li
+        font-weight: 400
+        padding: .5rem 0
+        line-height: 120%
+        cursor: pointer
+
+        &:not(:last-of-type)
+            border-bottom: solid pxToRem(.5) $uni-color-scale8
+
+        time
+            display: block
+            font-size: .9rem
+            color: $uni-color-scale5
+
+        &:hover
+            background: $uni-color-C2A
+            color: $uni-color-negative
+            width: 100%
+            margin-left: -1rem
+            padding: .5rem 1rem
+
+            time
+                color: $uni-color-negative
+
+        &:before
+            display: none
+
+        &.active
+            position: relative
+
+            &:after
+                content: '\2713'
+                display: block
+                position: absolute
+                right: 0rem
+                top: calc(50% - .5rem)
+                height: 1rem
+                width: 1rem
+                border-radius: 99rem
+                background-color: $uni-color-scale5
+                color: $uni-color-negative
+                text-align: center
+                font-size: .9rem
+
+            &:hover:after
+                right: 1rem
+                background: $uni-color-negative
+                color: $uni-color-C2A

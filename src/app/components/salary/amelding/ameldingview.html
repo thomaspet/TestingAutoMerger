@@ -1,14 +1,5 @@
 <header class="poster">
-    <uni-toolbar [config]="toolbarConfig"></uni-toolbar>
-    <section>
-        <span *ngFor="let melding of aMeldingerInPeriod; let i = index">
-                <span *ngIf="i > 0">,  </span>
-        <a *ngIf="currentAMelding" (click)="setAMelding(melding)" href="javascript:void(0);">
-            <span *ngIf="melding.ID == currentAMelding.ID"> <b>A-melding {{melding.ID}}</b></span>
-            <span *ngIf="melding.ID != currentAMelding.ID">A-melding {{melding.ID}}</span>
-        </a>
-        </span>
-    </section>
+    <uni-toolbar [config]="toolbarConfig" (statusSelectEvent)="setAmeldingFromEvent($event)"></uni-toolbar>
 
     <section class="poster_overview">
         <div class="poster_widgets">

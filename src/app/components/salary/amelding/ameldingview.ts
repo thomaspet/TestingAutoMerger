@@ -48,7 +48,7 @@ export class AMeldingView implements OnInit {
         private _payrollService: PayrollrunService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
-        
+
         this.contextMenuItems = [
             {
                 label: 'Hent a-meldingsfil',
@@ -166,6 +166,9 @@ export class AMeldingView implements OnInit {
             title: `Periode ${this.currentPeriod}`,
             subheads: [{
                 title: this.currentMonth
+            },
+            {
+                title: this.currentAMelding ? 'A-melding ' + this.currentAMelding.ID : null
             }],
             statustrack: this.getStatusTrackConfig(),
             navigation: {
@@ -182,21 +185,45 @@ export class AMeldingView implements OnInit {
 
         this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
             let _state: UniStatusTrack.States;
+            let _substatuses: UniStatusTrack.IStatus[] = [];
 
             if (amldStatus.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
             } else if (amldStatus.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
             } else if (amldStatus.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+
+                if (this.currentAMelding === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]) {
+                    _state = UniStatusTrack.States.Active;
+                } else {
+                    // If we're not on the last of the A-meldings in the period, we'll assume the data is obsolete.
+                    _state = UniStatusTrack.States.Obsolete;
+                }
+
+                this.aMeldingerInPeriod.forEach(amelding => {
+                    _substatuses.push({
+                        title: 'A-melding ' + amelding.ID,
+                        state: amelding.ID === this.currentAMelding.ID ? UniStatusTrack.States.Active : UniStatusTrack.States.Obsolete,
+                        timestamp: amelding.UpdatedAt ? new Date(amelding.UpdatedAt) : new Date(amelding.CreatedAt),
+                        data: amelding
+                    });
+                });
             }
 
             statustrack[indx] = {
                 title: amldStatus.Text,
-                state: _state
+                state: _state,
+                badge: (_state === UniStatusTrack.States.Active || _state === UniStatusTrack.States.Obsolete) && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
+                substatusList: _substatuses
             };
         });
+
         return statustrack;
+    }
+
+    private setAmeldingFromEvent(event) {
+        if (!event[0] || !event[0].data) { return; }
+        this.setAMelding(event[0].data);
     }
 
     private updateAMeldingerInPeriod(newAMelding) {
@@ -253,10 +280,10 @@ export class AMeldingView implements OnInit {
             }
         }
     }
-    
+
     private updateSaveActions() {
         this.actions = [];
-        
+
         this.actions.push({
             label: 'Generer A-melding',
             action: (done) => {
@@ -301,7 +328,7 @@ export class AMeldingView implements OnInit {
                         }
                     });
             });
-        
+
     }
 
     private sendAmelding(done) {

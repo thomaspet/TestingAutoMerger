@@ -12,7 +12,6 @@ import {IUniTab} from './tabStrip';
 export enum UniModules {
     Dashboard       = 100,
     Settings        = 101,
-    Amelding        = 102,
 
     Customers       = 200,
     Suppliers       = 201,
@@ -31,6 +30,7 @@ export enum UniModules {
     Employees       = 400,
     Wagetypes       = 401,
     Payrollrun      = 402,
+    Amelding        = 403,
 
     WorkProfiles    = 500,
     Workers         = 501,

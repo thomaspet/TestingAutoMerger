@@ -1,6 +1,9 @@
 <uni-breadcrumbs *ngIf="!config?.hideBreadcrumbs"></uni-breadcrumbs>
 
-<uni-statustrack *ngIf="config?.statustrack" [config]="config.statustrack"></uni-statustrack>
+<uni-statustrack *ngIf="config?.statustrack"
+    [config]="config.statustrack"
+    (statusSelectEvent)="selectStatus($event)">
+</uni-statustrack>
 
 <h1>{{config?.title}}
     <small *ngFor="let subhead of config?.subheads"

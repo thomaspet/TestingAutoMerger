@@ -103,3 +103,35 @@ body.half .employee-personal-details form
 
   & > uni-section:nth-of-type(3)
     display: none
+
+%popover
+  display: none
+  position: absolute
+  max-width: 30rem
+  color: $uni-color-positive
+  padding: 1rem
+  background: $uni-color-negative
+  border: pxToRem(1) solid $uni-color-scale8
+  box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+  border-radius: pxToRem(5)
+  min-width: 12rem
+  z-index: 9999
+  margin-left: calc(-50% - 1rem)
+
+  &:before
+    $size: .5rem
+    $color: $uni-color-negative
+    content: ''
+    display: block
+    position: absolute
+    height: 0
+    width: 0
+    top: -#{$size}
+    right: calc(50% - (#{$size} / 2))
+    border-bottom: $size solid $color
+    border-left: $size solid transparent
+    border-right: $size solid transparent
+
+%popover-active
+  display: block
+
