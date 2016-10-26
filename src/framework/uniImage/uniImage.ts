@@ -69,9 +69,9 @@ export class UniImage {
     @Input()
     public uploadConfig: IUploadConfig;
 
-    private baseUrl = 'https://unifiles.azurewebsites.net/';
+    private baseUrl: string = 'https://unifiles.azurewebsites.net/';
 
-    private jwt: any;
+    private token: any;
     private activeCompany: any;
 
     private uploading: boolean;
@@ -88,18 +88,10 @@ export class UniImage {
     private imgUrl2x: string = '';
 
     constructor(private ngHttp: Http, private http: UniHttp, private imageUploader: ImageUploader, authService: AuthService) {
-        this.jwt = authService.getToken();
-        this.activeCompany = authService.getActiveCompany();
-
-        // Subscribe to authentication changes
-        authService.authenticationStatus$.subscribe((authenticated) => {
-            if (authenticated) {
-                this.jwt = authService.getToken();
-            }
-        });
-
-        authService.companyChanged$.subscribe((activeCompany) => {
-            this.activeCompany = authService.getActiveCompany();
+        // Subscribe to authentication/activeCompany changes
+        authService.authentication$.subscribe((authDetails) => {
+            this.token = authDetails.token;
+            this.activeCompany = authDetails.activeCompany;
         });
     }
 
@@ -228,7 +220,7 @@ export class UniImage {
 
     public uploadFile(file) {
         let data = new FormData();
-        data.append('Token', this.jwt);
+        data.append('Token', this.token);
         data.append('CompanyKey', this.activeCompany.Key);
         data.append('EntityType', this.entity);
         data.append('EntityID', this.entityID);

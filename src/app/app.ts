@@ -33,45 +33,39 @@ export class App {
         // Open login modal if authService requests re-authentication during runtime
         authService.requestAuthentication$.subscribe((event) => {
             if (!this.loginModal.isOpen && (location.href.indexOf('login') === -1)) {
-                this.loginModal.open(event.onAuthenticated);
+                this.loginModal.open();
             }
         });
 
-        // Check if selected company needs to be initialized
-        authService.companyChanged$.subscribe((event) => {
-            this.http.asGET()
-                .usingBusinessDomain()
-                .withEndPoint('companysettings?action=exists')
-                .send()
-                .map(response => response.json())
-                .subscribe((isActive: boolean) => {
-                    // TODO: Switch to !isActive after testing!
-                    if (!isActive) {
-                        this.companySyncModal.open();
-                    }
-                });
-        });
-
-        // Subscribe to event fired when user has authenticated
-        // Anything you want to GET on startup should be put here
-        // preferably through a service
-        authService.authenticationStatus$.subscribe((isAuthenticated) => {
-            this.isAuthenticated = isAuthenticated;
-
-            if (isAuthenticated) {
-                this.getCompanySettings();
-                this.staticRegisterService.checkForStaticRegisterUpdate();
+        authService.authentication$.subscribe((authDetails) => {
+            this.isAuthenticated = authDetails.token && authDetails.activeCompany;
+            if (this.isAuthenticated) {
+                this.initialize();
             }
         });
     }
 
-    private getCompanySettings() {
+    private initialize() {
+        // Get companysettings
         this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint('companysettings')
             .send()
             .map(response => response.json())
             .subscribe(response => localStorage.setItem('companySettings', JSON.stringify(response[0])));
-    }
 
+        // Check if company needs to be initialized
+        this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('companysettings?action=exists')
+            .send()
+            .map(response => response.json())
+            .subscribe((isActive: boolean) => {
+                if (!isActive) {
+                    this.companySyncModal.open();
+                }
+            });
+
+        this.staticRegisterService.checkForStaticRegisterUpdate();
+    }
 }

@@ -1,47 +1,52 @@
-import {Injectable, Inject, Output, EventEmitter} from '@angular/core';
+import {Injectable, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/appConfig';
-
-import {StaticRegisterService} from '../../app/services/staticregisterservice';
-
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/map';
-
 declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
+
+export interface IAuthDetails {
+    token: string;
+    activeCompany: any;
+}
 
 @Injectable()
 export class AuthService {
     @Output()
-    public authenticationStatus$: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public companyChanged$: EventEmitter<any> = new EventEmitter();
-
-    @Output()
     public requestAuthentication$: EventEmitter<any> = new EventEmitter();
 
+    @Output()
+    public companyChange: EventEmitter<any> = new EventEmitter();
+
+    public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
-    public expiredToken: boolean;
     public companySettings: any;
-    public lastTokenUpdate: Date;
 
     constructor(private router: Router, private http: Http) {
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
         this.jwt = localStorage.getItem('jwt') || undefined;
         this.jwtDecoded = this.decodeToken(this.jwt);
 
-        // Store expired state in class variable and update every 25 seconds (with 30 seconds offset).
-        // This is done because navbar will check expired state in ngIf, and we dont want to perform the check
-        // multiple times every second.
-        this.expiredToken = this.isTokenExpired(this.jwt);
-        setInterval(() => {
-            this.expiredToken = this.isTokenExpired(this.jwt, 30);
-        }, 25000);
+        if (this.isAuthenticated()) {
+            this.authentication$.next({
+                token: this.jwt,
+                activeCompany: this.activeCompany
+            });
+        } else {
+            this.clearAuthAndGotoLogin();
+        }
 
-        this.emitAuthenticationStatus();
+        // Check expired status every minute, with a 10 minute offset on the expiration check
+        // This allows the user to re-authenticate before http calls start 401'ing
+        setInterval(() => {
+            if (this.jwt && this.isTokenExpired(10)) {
+                this.requestAuthentication$.emit(true);
+            }
+        }, 60000);
     }
 
     /**
@@ -51,7 +56,6 @@ export class AuthService {
      */
     public authenticate(credentials: {username: string, password: string}): Observable<any> {
         let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'sign-in';
-
         let headers = new Headers({'Content-Type': 'application/json', 'Accept': 'application/json'});
 
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
@@ -60,14 +64,9 @@ export class AuthService {
                     this.jwt = response.json().access_token;
                     this.jwtDecoded = this.decodeToken(this.jwt);
                     localStorage.setItem('jwt', this.jwt);
-
-                    this.expiredToken = false;
-                    this.lastTokenUpdate = new Date();
-
-                    this.emitAuthenticationStatus();
                 }
 
-                return Observable.from([response.json()]);
+                return Observable.of(response.json());
             });
     }
 
@@ -94,9 +93,8 @@ export class AuthService {
     public setActiveCompany(activeCompany: any): void {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
         this.activeCompany = activeCompany;
-
-        this.companyChanged$.next(true);
-        this.emitAuthenticationStatus();
+        this.companyChange.emit(this.activeCompany);
+        this.authentication$.next({token: this.jwt, activeCompany: activeCompany});
     }
 
     /**
@@ -114,7 +112,7 @@ export class AuthService {
     public isAuthenticated(): boolean {
         let hasToken: boolean = !!this.jwt;
         let isTokenDecoded: boolean = !!this.jwtDecoded;
-        let isExpired: boolean = this.expiredToken;
+        let isExpired: boolean = this.isTokenExpired(this.jwtDecoded);
 
         return hasToken && isTokenDecoded && !isExpired;
     }
@@ -130,14 +128,13 @@ export class AuthService {
     /**
      * Removes web token from localStorage and memory, then redirects to /login
      */
-    public logout(): void {
+    public clearAuthAndGotoLogin(): void {
         localStorage.removeItem('jwt');
         localStorage.removeItem('activeCompany');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;
-        this.authenticationStatus$.emit(false);
-
+        this.authentication$.next({token: undefined, activeCompany: undefined});
         this.router.navigateByUrl('init/login');
     }
 
@@ -154,31 +151,21 @@ export class AuthService {
     }
 
     /**
-     * Returns a boolean indicating whether or not the token is expired
+     * Returns a boolean indicating whether or not the token is expired.
+     * If offSetMinutes is passed to the function it will check if token
+     * will expire in the next n minutes
      * @param {Object} decodedToken
-     * @param {Number} [offsetSeconds=0] offsetSecods
+     * @param {Number} [offSetMinutes=0] offset
      * @returns {Boolean}
      */
-    private isTokenExpired(decodedToken: any, offsetSeconds: number = 0): boolean {
-        if (!decodedToken) {
+    public isTokenExpired(offSetMinutes: number = 0): boolean {
+        if (!this.jwtDecoded) {
             return true;
         }
 
-        var expires = new Date(0);
-        expires.setUTCSeconds(decodedToken.exp);
-        return (expires.valueOf() < new Date().valueOf() + (offsetSeconds * 1000));
-    }
+        let expires = new Date(0);
+        expires.setUTCSeconds(this.jwtDecoded.exp);
 
-    private emitAuthenticationStatus() {
-        // Timeout to push emit to the back of the call stack
-        // this allows app.ts to set up before we emit
-        // (when emitting from constructor)
-        setTimeout(() => {
-            if (this.isAuthenticated() && this.hasActiveCompany()) {
-                this.authenticationStatus$.emit(true);
-            } else {
-                this.authenticationStatus$.emit(false);
-            }
-        });
+        return (expires.valueOf() > new Date().valueOf() + (offSetMinutes * 60000));
     }
 }

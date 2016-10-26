@@ -1,5 +1,5 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
-import {Http, Headers, URLSearchParams, Request, RequestMethod, ResponseContentType} from '@angular/http';
+import {Http, Headers, URLSearchParams, Request, Response, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {AppConfig} from '../../../app/appConfig';
 import {AuthService} from '../authService';
@@ -223,31 +223,12 @@ export class UniHttp {
             options.search = UniHttp.buildUrlParams(request);
         }
 
-        return this.http.request(new Request(options))
-        .retryWhen(errors => errors.switchMap(err => {
+        return this.http.request(new Request(options)).catch((err) => {
             if (err.status === 401) {
-                if (!this.authService.isAuthenticated()
-                    || !this.authService.lastTokenUpdate
-                    || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1) {
-
-                    this.lastReAuthentication = new Date();
-                    this.authService.requestAuthentication$.emit({
-                        onAuthenticated: (newToken) => {
-                            this.headers.set('Authorization', 'Bearer ' + newToken);
-                            this.reAuthenticated$.emit(true);
-                        }
-                    });
-
-                    return this.reAuthenticated$;
-                } else {
-                    return Observable.timer(500);
-                }
-
-            } else {
-                    return Observable.throw(err);
+                this.authService.clearAuthAndGotoLogin();
             }
-        }))
-        .switchMap(response => Observable.of(response));
+            return Observable.throw(err);
+        });
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

@@ -24,9 +24,7 @@ export interface IUniTab {
 export class UniTabStrip {
 
     constructor(private router: Router, private tabService: TabService, authService: AuthService) {
-        authService.companyChanged$.subscribe((change) => {
-            this.tabService.removeAllTabs();
-        });
+        authService.companyChange.subscribe(change => this.tabService.removeAllTabs());
 
         window.addEventListener('keydown', (event) => {
             if (event.keyCode === 87 && event.altKey) {

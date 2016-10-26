@@ -40,7 +40,7 @@ export class UniUserDropdown {
             },
             {
                 title: 'Logg ut', action: () => {
-                    this.authService.logout();
+                    this.authService.clearAuthAndGotoLogin();
                 }
             },
         ];

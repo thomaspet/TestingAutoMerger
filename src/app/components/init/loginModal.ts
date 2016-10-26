@@ -40,9 +40,6 @@ export class LoginModal {
     private usernameControl: FormControl = new FormControl('', Validators.required);
     private passwordControl: FormControl = new FormControl('', Validators.required);
 
-    // private userID: string = '';
-    // private password: string = '';
-
     constructor(private authService: AuthService) {}
 
     private authenticate() {
@@ -54,7 +51,6 @@ export class LoginModal {
             password: this.passwordControl.value
         }).subscribe(
             (response) => {
-                this.onAuthenticated(response.access_token);
                 this.working = false;
                 this.isOpen = false;
             },
@@ -65,8 +61,7 @@ export class LoginModal {
         );
     }
 
-    public open(onAuthenticated: () => any) {
-        this.onAuthenticated = onAuthenticated;
+    public open() {
         this.isOpen = true;
     }
 
