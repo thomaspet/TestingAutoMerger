@@ -5,7 +5,7 @@ import {UniSalary} from './salary';
 import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
-import {WagetypeDetail} from './wagetype/wagetypeDetails';
+import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeList} from './wagetype/wagetypeList';
 import {EmployeeList} from './employee/employeeList';
 import {EmployeeDetails} from './employee/employeeDetails';
@@ -13,6 +13,7 @@ import {PayrollrunList} from './payrollrun/payrollrunList';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PaymentList} from './payrollrun/paymentList';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
+import {routes as WageTypeRoutes} from './wagetype/wagetypeRoutes';
 import {AMeldingView} from './amelding/ameldingview';
 
 
@@ -26,7 +27,9 @@ export const childRoutes = [
     },
     {
         path: 'wagetypes/:id',
-        component: WagetypeDetail
+        component: WageTypeView,
+        children: WageTypeRoutes,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'wagetypes',

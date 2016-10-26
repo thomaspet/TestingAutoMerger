@@ -53,7 +53,10 @@ import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
 import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 
-import {WagetypeDetail} from './wagetype/wagetypeDetails';
+import {WageTypeView} from './wagetype/wagetypeView';
+import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
+import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
+import {WageTypeLimitValues} from './wagetype/views/wagetypeLimitValues';
 import {WagetypeList} from './wagetype/wagetypeList';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
@@ -131,8 +134,11 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryTransactionEmployeeList,
 
         // Wagetype
+        WageTypeView,
         WagetypeDetail,
-        WagetypeList
+        WagetypeList,
+        WageTypeSettings,
+        WageTypeLimitValues
     ],
     entryComponents: [
         TaxCardModalContent,
@@ -198,8 +204,11 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryTransactionEmployeeList,
 
         // Wagetype
+        WageTypeView,
         WagetypeDetail,
-        WagetypeList
+        WagetypeList,
+        WageTypeSettings,
+        WageTypeLimitValues
     ]
 })
 export class SalaryModule {

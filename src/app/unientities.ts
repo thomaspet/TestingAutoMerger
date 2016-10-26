@@ -2056,8 +2056,6 @@ export class WageType {
 
     public AccountNumber: number;
     public AccountNumber_balance: number;
-    public Aga_nav: boolean;
-    public Aga_otp: boolean;
     public Base_div1: boolean;
     public Base_div2: boolean;
     public Base_div3: boolean;
@@ -2069,6 +2067,7 @@ export class WageType {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public GetRateFrom: GetRateFrom;
     public HideFromPaycheck: boolean;
     public ID: number;
     public IncomeType: string;
@@ -2081,6 +2080,8 @@ export class WageType {
     public Rate: number;
     public RateFactor: number;
     public RatetypeColumn: RateTypeColumn;
+    public SpecialAgaRule: SpecialAgaRule;
+    public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
     public StandardWageTypeFor: StdWageType;
     public StatusCode: number;
     public SystemRequiredWageType: number;
@@ -4390,7 +4391,12 @@ export enum WorkingHoursScheme{
 	ShiftWork = 5,
 }
 
-
+export enum GetRateFrom{
+	WageType = 0,
+	MonthlyPayEmployee = 1,
+	HourlyPayEmployee = 2,
+	FreeRateEmployee = 3,
+}
 export enum LimitType{
 	None = 0,
 	Amount = 1,
@@ -4403,6 +4409,24 @@ export enum RateTypeColumn{
 	Employment = 1,
 	Employee = 2,
 	Salary_scale = 3,
+}
+
+
+export enum SpecialAgaRule{
+	Regular = 0,
+	AgaRefund = 1,
+	AgaPension = 2,
+}
+
+
+export enum SpecialTaxAndContributionsRule{
+	Standard = 0,
+	NettoPayment = 1,
+	SpesialDeductionForMaritim = 2,
+	Svalbard = 3,
+	PayAsYouEarnTaxOnPensions = 4,
+	JanMayenAndBiCountries = 5,
+	NettoPaymentForMaritim = 6,
 }
 
 

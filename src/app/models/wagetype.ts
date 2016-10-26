@@ -4,6 +4,9 @@ import {
     TaxType,
     LimitType,
     StdWageType,
+	GetRateFrom,
+	SpecialAgaRule,
+	SpecialTaxAndContributionsRule,
     WageTypeSupplement,
 } from '../unientities'
 
@@ -48,6 +51,9 @@ export class WageTypeModel implements WageType {
 	CustomFields: any = {};
     SupplementaryInformations: Array<WageTypeSupplement> = null;
     CustomValues: any = {};
+	GetRateFrom: GetRateFrom = GetRateFrom.WageType;
+	SpecialAgaRule: SpecialAgaRule = SpecialAgaRule.Regular;
+	SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
     
     static createFromObject(data: any){
         let instance = new WageTypeModel();

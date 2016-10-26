@@ -1,37 +1,29 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { WageTypeService, AccountService, InntektService } from '../../../services/services';
-import { UniForm, UniFieldLayout } from '../../../../framework/uniForm';
-import { WidgetPoster } from '../../../../framework/widgetPoster/widgetPoster';
-import { WageType, Account, WageTypeSupplement } from '../../../unientities';
-import { IUniSaveAction } from '../../../../framework/save/save';
+import { WageTypeService, AccountService, InntektService } from '../../../../services/services';
+import { UniForm, UniFieldLayout } from '../../../../../framework/uniForm';
+import { WageType, Account, WageTypeSupplement } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
+
+import { UniView } from '../../../../../framework/core/uniView';
+import { UniCacheService } from '../../../../services/services';
 
 declare var _; // lodash
 
 @Component({
     selector: 'wagetype-details',
-    templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html'
+    templateUrl: 'app/components/salary/wagetype/views/wagetypeDetails.html'
 })
-export class WagetypeDetail {
+export class WagetypeDetail extends UniView {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
     private wageType: WageType;
     private wagetypeID: number;
     private accounts: Account[];
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre lønnsart',
-            action: this.saveWagetype.bind(this),
-            main: true,
-            disabled: false
-        }
-    ];
     private incomeTypeDatasource: any[] = [];
     private benefitDatasource: any[] = [];
     private descriptionDatasource: any[] = [];
+    private validValuesTypes: any[] = [];
 
     private supplementPackages: any[] = [];
 
@@ -44,84 +36,53 @@ export class WagetypeDetail {
     public config: any = {};
     public fields: any[] = [];
 
-    private toolbarConfig: IToolbarConfig;
-
     @ViewChild(UniForm)
     public uniform: UniForm;
 
     @ViewChild(UniTable) private supplementTable: UniTable;
 
-    constructor(private route: ActivatedRoute, private router: Router, private wageService: WageTypeService, private tabService: TabService, private accountService: AccountService, private inntektService: InntektService) {
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private wageService: WageTypeService,
+        private accountService: AccountService,
+        private inntektService: InntektService,
+        public cacheService: UniCacheService) {
 
-        this.route.params.subscribe(params => {
-            this.wagetypeID = +params['id'];
+        super(router.url, cacheService);
 
-            this.incomeTypeDatasource = [];
-            this.benefitDatasource = [];
-            this.descriptionDatasource = [];
-            this.supplementPackages = [];
+        this.route.parent.params.subscribe(params => {
+            super.updateCacheKey(router.url);
+            super.getStateSubject('wagetype').subscribe((wageType: WageType) => {
+                this.wageType = _.cloneDeep(wageType);
 
-            this.setup();
+                this.incomeTypeDatasource = [];
+                this.benefitDatasource = [];
+                this.descriptionDatasource = [];
+                this.supplementPackages = [];
+
+                if (!this.wagetypeID) {
+                    this.wagetypeID = wageType.ID;
+                    this.setup();
+                } else {
+                    this.checkAmeldingInfo();
+                }
+            });
         });
     }
 
     private setup() {
         Observable.forkJoin(
-            this.wageService.getWageType(this.wagetypeID),
             this.wageService.layout('WagetypeDetails'),
-            this.accountService.GetAll(null),
-            this.inntektService.getSalaryValidValueTypes()
+            this.inntektService.getSalaryValidValueTypes(),
+            this.accountService.GetAll(null)
         ).subscribe(
             (response: any) => {
-                let [wagetype, layout, accountList, validvaluesTypes] = response;
-                this.accounts = accountList;
-                this.wageType = wagetype;
+                let [layout, validvaluesTypes, accounts] = response;
                 this.fields = layout.Fields;
-
-                this.toolbarConfig = {
-                    title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
-                    subheads: [{
-                        title: this.wageType.ID ? 'Lønnsartnr. ' + this.wageType.ID : null
-                    }],
-                    navigation: {
-                        prev: this.previousWagetype.bind(this),
-                        next: this.nextWagetype.bind(this),
-                        add: this.newWagetype.bind(this)
-                    }
-                }
-
-                if (this.wageType.SupplementaryInformations.length > 0) {
-                    this.showSupplementaryInformations = true;
-                } else {
-                    this.showSupplementaryInformations = false;
-                }
-
-                if (this.wageType.Benefit !== '') {
-                    this.benefitDatasource.push({ text: this.wageType.Benefit });
-                }
-
-                if (this.wageType.Description !== '') {
-                    this.descriptionDatasource.push({ text: this.wageType.Description });
-                }
-
-                this.setupTypes(validvaluesTypes);
-
-                if (this.wageType.IncomeType !== null) {
-                    this.showBenefitAndDescriptionAsReadonly = false;
-                    this.filterSupplementPackages();
-                }
-
-                this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
-
-                if (this.wageType.ID === 0) {
-                    this.wageType.WageTypeNumber = null;
-                    this.wageType.AccountNumber = null;
-                    this.tabService.addTab({ name: 'Ny lønnsart', url: 'salary/wagetypes/' + this.wagetypeID, moduleID: UniModules.Wagetypes, active: true });
-                } else {
-                    this.tabService.addTab({ name: 'Lønnsartnr. ' + this.wageType.WageTypeNumber, url: 'salary/wagetypes/' + this.wagetypeID, moduleID: UniModules.Wagetypes, active: true });
-                }
-
-                this.updateUniformFields();
+                this.accounts = accounts;
+                this.validValuesTypes = validvaluesTypes;
+                this.checkAmeldingInfo();
 
                 this.config = {
                     submitText: '',
@@ -130,14 +91,46 @@ export class WagetypeDetail {
                         '2': { isOpen: true }
                     }
                 };
-
-                this.setupTilleggspakkeConfig();
-
+                
             },
             (err) => {
                 this.log('Feil ved henting av lønnsart', err);
             }
             );
+    }
+
+    private checkAmeldingInfo() {
+        if (this.wageType.SupplementaryInformations && this.wageType.SupplementaryInformations.length > 0) {
+            this.showSupplementaryInformations = true;
+        } else {
+            this.showSupplementaryInformations = false;
+        }
+
+        if (this.wageType.Benefit !== '') {
+            this.benefitDatasource.push({ text: this.wageType.Benefit });
+        }
+
+        if (this.wageType.Description !== '') {
+            this.descriptionDatasource.push({ text: this.wageType.Description });
+        }
+
+        this.setupTypes(this.validValuesTypes);
+
+        if (this.wageType.IncomeType !== null) {
+            this.showBenefitAndDescriptionAsReadonly = false;
+            this.filterSupplementPackages();
+        }
+
+        this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
+
+        if (this.wageType.ID === 0) {
+            this.wageType.WageTypeNumber = null;
+            this.wageType.AccountNumber = null;
+        }
+
+        this.updateUniformFields();
+
+        this.setupTilleggspakkeConfig();
     }
 
     private updateUniformFields() {
@@ -148,20 +141,16 @@ export class WagetypeDetail {
         accountNumber.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
 
         let accountNumberBalance: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber_balance');
         accountNumberBalance.Options = {
             source: this.accounts,
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
-        accountNumberBalance.Hidden = !this.wageType.Base_Payment;
+        accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
 
         let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
         incomeType.Options = {
@@ -469,8 +458,15 @@ export class WagetypeDetail {
             this.currentPackage = this.wageType['_uninavn'];
             this.showTilleggsPakker(model);
         }
-    }
 
+        if (this.supplementTable) {
+            this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
+        } else {
+            this.wageType.SupplementaryInformations = null;
+        }
+
+        super.updateState('wagetype', model, true);
+    }
     public toggle(section) {
         if (section.sectionId === 2) {
             if (section.isOpen) {
@@ -483,69 +479,9 @@ export class WagetypeDetail {
         }
     }
 
-    public saveWagetype(done) {
-        if (this.supplementTable) {
-            this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
-        }
-        if (this.wageType.ID > 0) {
-            this.wageService.Put(this.wageType.ID, this.wageType)
-                .subscribe((wagetype) => {
-                    this.wageType = wagetype;
-                    done('Sist lagret: ');
-                    this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
-                    this.saveactions[0].disabled = false;
-                },
-                (err) => {
-                    this.log('Feil ved oppdatering av lønnsart', err);
-                    this.saveactions[0].disabled = false;
-                });
-        } else {
-            this.wageService.Post(this.wageType)
-                .subscribe((wagetype) => {
-                    this.wageType = wagetype;
-                    done('Sist lagret: ');
-                    this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
-                    this.saveactions[0].disabled = false;
-                },
-                (err) => {
-                    this.log('Feil ved lagring av lønnsart', err);
-                    this.saveactions[0].disabled = false;
-                });
-        }
-    }
-
     private findByProperty(fields, name) {
         var field = fields.find((fld) => fld.Property === name);
         return field;
-    }
-
-    public previousWagetype() {
-        this.wageService.getPrevious(this.wageType.ID)
-            .subscribe((response) => {
-                if (response) {
-                    this.wageType = response;
-                    this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
-                }
-            });
-    }
-
-    public nextWagetype() {
-        this.wageService.getNext(this.wageType.ID)
-            .subscribe((response) => {
-                if (response) {
-                    this.wageType = response;
-                    this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
-                }
-            });
-    }
-
-    private newWagetype() {
-        this.wageService.GetNewEntity().subscribe((response) => {
-            if (response) {
-                this.wageType = response;
-                this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
-            }
-        });
     }
 
     public log(title: string, err) {
