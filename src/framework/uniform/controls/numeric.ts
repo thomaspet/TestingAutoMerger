@@ -1,24 +1,28 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
-
 declare var _, accounting; // jquery and lodash
+
+export interface INumberOptions {
+    format?: string;
+    decimalLength?: number;
+    thousandSeparator?: string;
+    decimalSeparator?: string;
+}
 
 @Component({
     selector: 'uni-numeric-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <input
+        <input #inputElement
             *ngIf="control"
             type="text"
             [formControl]="control"
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder || ''"
-            
+
             (blur)="blurHandler($event)"
             (focus)="focusHandler($event)"
-            (keyup)="keyUpHandler($event)"
-            (keydown)="keyDownHandler($event)"
         />
     `
 })
@@ -42,8 +46,26 @@ export class UniNumericInput {
     public focusEvent: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
 
     private lastControlValue: string;
+    private options: INumberOptions;
 
-    constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
+    constructor(private elementRef: ElementRef, private cd: ChangeDetectorRef) {
+
+    }
+
+    public ngOnChanges(changes) {
+        this.lastControlValue = this.control.value;
+
+        if (changes.field && this.field) {
+            this.initOptions(this.field.Options || {});
+        }
+
+        if (this.elementRef && document.activeElement !== this.elementRef.nativeElement) {
+            this.formatControlValue();
+        }
+    }
+
+    public ngAfterViewInit() {
+        this.readyEvent.emit(this);
     }
 
     public focus() {
@@ -62,107 +84,80 @@ export class UniNumericInput {
         this.cd.markForCheck();
     }
 
-    public ngOnChanges() {
-        var self = this;
-        this.lastControlValue = this.control.value;
-        this.initOptions();
-    }
+    private initOptions(fieldOptions: INumberOptions) {
+        // Should we get default values from locale?
+        let options = {
+            format: fieldOptions.format,
+            thousandSeparator: fieldOptions.thousandSeparator || ' ',
+            decimalSeparator: fieldOptions.decimalSeparator || ',',
+            decimalLength: fieldOptions.decimalLength
+        };
 
-    public ngAfterViewInit() {
-        this.readyEvent.emit(this);
-    }
-
-    private initOptions() {
-        this.field.Options = this.field.Options || {};
-        this.field.Options.step = this.field.Options.step || 1;
-        this.field.Options.thousands = this.field.Options.thousands || '';
-        this.field.Options.decimals = this.field.Options.decimals || 0;
-    }
-
-    private keyDownHandler(event: KeyboardEvent) {
-        if (!this.isAllowedKey(event.keyCode) && !this.isSpecialAction(event)) {
-            event.preventDefault();
+        if (!options.decimalLength && fieldOptions.format === 'money') {
+            options.decimalLength = 2;
         }
+
+        this.options = options;
     }
 
-    private keyUpHandler(event: KeyboardEvent) {
-        var value: number;
-        if (this.isArrowDown(event.keyCode) && event.ctrlKey === false) {
-            value = +this.control.value;
-            this.control.setValue(value - this.field.Options.step);
+    private formatControlValue() {
+        if (!this.control.value) {
+            return;
         }
-        if (this.isArrowUp(event.keyCode) && event.ctrlKey === false) {
-            value = +this.control.value;
-            this.control.setValue(value + this.field.Options.step);
+
+        let value = this.control.value;
+
+        if (this.options.decimalLength) {
+            value = parseFloat(value).toFixed(this.options.decimalLength);
         }
-    }
 
-    private isArrowUp(keycode: number): boolean {
-        return keycode === 38;
-    }
+        let [integer, decimal] = value.toString().split('.');
+        integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, this.options.thousandSeparator);
 
-    private isArrowDown(keycode: number): boolean {
-        return keycode === 40;
-    }
-
-    private isSpecialAction(e: KeyboardEvent) {
-        var actions =
-            // Allow: Ctrl+A
-            (e.keyCode === 65 && e.ctrlKey === true) ||
-            // Allow: Ctrl+C
-            (e.keyCode === 67 && e.ctrlKey === true) ||
-            // Allow: Ctrl+V
-            (e.keyCode === 86 && e.ctrlKey === true) ||
-            // Allow: Ctrl+X
-            (e.keyCode === 88 && e.ctrlKey === true);
-        return actions;
-    }
-
-    private isAllowedKey(keycode: number): boolean {
-        var isKeyBoardNumber = keycode >= 48 && keycode <= 57;
-        var isNumericBoardNumber = keycode >= 96 && keycode <= 105;
-        var isPoint = keycode === 190;
-        var isMinus = keycode === 189 || keycode === 109;
-        var arrows = [37, 38, 39, 40].indexOf(keycode) > -1;
-        var special = [8, 9, 13, 27, 16, 17, 18, 35, 36, 33, 34, 45, 46].indexOf(keycode) > -1;
-        if (
-            !isKeyBoardNumber
-            && !isNumericBoardNumber
-            && !isPoint
-            && !isMinus
-            && !arrows
-            && !special
-        ) {
-            return false;
+        value = decimal ? (integer + this.options.decimalSeparator + decimal) : integer;
+        if (this.options.format === 'percent') {
+            value += '%';
         }
-        return true;
+
+        this.control.setValue(value);
+    }
+
+    private unFormatControlValue() {
+        if (!this.control.value) {
+            return;
+        }
+
+        let unformatted = this.control.value.toString().replace(/[% ]/g, '');
+        let valueParts = unformatted.split(/[.,]/g);
+        if (valueParts.length > 1) {
+            const decimal = valueParts.pop();
+            unformatted = valueParts.join('') + this.options.decimalSeparator + decimal;
+        }
+
+        this.control.setValue(unformatted);
+    }
+
+    private getParsedValue(): number {
+        let value = this.control.value || '';
+        return parseFloat(value.replace(',', '.')) || null;
     }
 
     private blurHandler() {
-        var options = this.field.Options;
-        if (this.lastControlValue === this.control.value) {
-            return;
+        if (this.lastControlValue !== this.control.value) {
+            this.unFormatControlValue();
+
+            if (this.control.valid) {
+                _.set(this.model, this.field.Property, this.getParsedValue());
+                this.changeEvent.emit(this.model);
+                this.lastControlValue = this.control.value;
+            }
         }
-        if (this.control.valid) {
-            this.lastControlValue = this.control.value;
-            let value = accounting.unformat(this.control.value);
-            let stringValue = accounting.formatNumber(value, options.decimals, options.thousands);
-            this.control.setValue(stringValue);
-            _.set(this.model, this.field.Property, value);
-            this.changeEvent.emit(this.model);
-        } else {
-            this.lastControlValue = _.get(this.model, this.field.Property) + '';
-            let stringValue = accounting.formatNumber(_.get(this.model, this.field.Property), options.decimals, options.thousands);
-            this.control.setValue(stringValue);
-        }
+
+        this.formatControlValue();
     }
 
     private focusHandler() {
         this.focusEvent.emit(this);
-        if (this.control.value === undefined || this.control.value === '' || this.control.value === null) {
-            return;
-        }
-        let value = accounting.unformat(this.control.value);
-        this.control.setValue(value);
+        this.unFormatControlValue();
     }
 }
