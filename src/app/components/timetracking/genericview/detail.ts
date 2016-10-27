@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Router, ActivatedRoute} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -70,7 +70,7 @@ export class GenericDetailview {
         }
     }
 
-    public onReady(event) {
+    public readyEvent(event) {
         this.loadCurrent(this.ID);
         // Auto open first secion:
         if (this.form && this.form.section(1)) {
