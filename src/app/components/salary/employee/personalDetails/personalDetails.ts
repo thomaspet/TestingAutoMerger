@@ -107,7 +107,7 @@ export class PersonalDetails extends UniView {
         this.uniform.field('SocialSecurityNumber').changeEvent.subscribe(() => {
             this.updateInfoFromSSN();
         });
-        
+
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
@@ -124,11 +124,13 @@ export class PersonalDetails extends UniView {
         if (employee.BirthDate) {
             employee.BirthDate = this.fixTimezone(employee.BirthDate);
         }
-
-        if (!this.employee.BankAccounts[0].AccountNumber) {
-            this.employee.BankAccounts[0].Active = false;
-        } else {
-            this.employee.BankAccounts[0].Active = true;
+        
+        if (this.employee.BankAccounts[0]) {
+            if (!this.employee.BankAccounts[0].AccountNumber) {
+                this.employee.BankAccounts[0].Active = false;
+            } else {
+                this.employee.BankAccounts[0].Active = true;
+            }
         }
 
         super.updateState('employee', employee, true);
