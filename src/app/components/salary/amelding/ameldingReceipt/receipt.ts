@@ -86,7 +86,11 @@ export class AmeldingReceiptView {
                         this.alleAvvikNoder.push(avvik);
                     });
                 } else {
-                    this.alleAvvikNoder.push(obj[propname]);
+                    let avvik = obj[propname];
+                    if (obj.hasOwnProperty('arbeidsforholdId')) {
+                        avvik.arbeidsforholdId = obj['arbeidsforholdId'];
+                    }
+                    this.alleAvvikNoder.push(avvik);
                 }
             } else {
                 if (typeof obj[propname] === 'object' && obj[propname] !== null) {

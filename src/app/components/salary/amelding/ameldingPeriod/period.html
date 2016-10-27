@@ -10,6 +10,7 @@
         <dd>{{sumForskuddstrekk}}</dd>
     </dl>
 </section>
+
 <h1>FRA A-MELDING</h1>
 <uni-table *ngIf="amldData.length" [config]="amldTableConfig" [resource]="amldData"></uni-table>
 <section>
@@ -17,8 +18,8 @@
         <dt>Forfallsdato</dt>
         <dd>{{forfallsdato}}</dd>
         <dt>Sum aga</dt>
-        <dd>{{currentAMelding.feedBack.melding.Mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift}}</dd>
+        <dd>{{sumAmldAga}}</dd>
         <dt>Sum forskuddstrekk</dt>
-        <dd>{{currentAMelding.feedBack.melding.Mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk}}</dd>
+        <dd>{{sumAmldFtrekk}}</dd>
     </dl>
 </section>

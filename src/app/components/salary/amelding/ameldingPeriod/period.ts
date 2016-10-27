@@ -17,6 +17,8 @@ export class AmeldingPeriodSummaryView {
     private systemTableConfig: UniTableConfig;
 
     private forfallsdato: string = '';
+    private sumAmldAga: number = 0;
+    private sumAmldFtrekk: number = 0;
     private amldData: any[] = [];
     private amldTableConfig: UniTableConfig;
     
@@ -50,6 +52,14 @@ export class AmeldingPeriodSummaryView {
         if (this.currentAMelding) {
             this.getAmeldingData();
             this.forfallsdato = moment(this.currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
+            if (this.currentAMelding.hasOwnProperty('feedBack')) {
+                if (this.currentAMelding.feedBack.melding.Mottak.hasOwnProperty('mottattPeriode')) {
+                    if (this.currentAMelding.feedBack.melding.Mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+                        this.sumAmldAga = this.currentAMelding.feedBack.melding.Mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+                        this.sumAmldFtrekk = this.currentAMelding.feedBack.melding.Mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+                    }
+                }
+            }
         }
     }
 

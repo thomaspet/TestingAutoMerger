@@ -34,7 +34,8 @@ export class SelectAmeldingTypeModalContent {
         ameldTypeField.Options = {
             source: [
                 {id: 1, name: 'Full a-melding'},
-                {id: 2, name: 'Bare arbeidsforhold'}
+                {id: 2, name: 'Bare arbeidsforhold'},
+                {id: 3, name: 'Nullstille a-meldingen'}
             ],
             displayProperty: 'name',
             valueProperty: 'id'
