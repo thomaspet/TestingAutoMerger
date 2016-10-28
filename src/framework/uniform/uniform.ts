@@ -134,6 +134,16 @@ export class UniForm {
         if (changes['fields']) {
             this.groupedFields = this.groupFields();
         }
+        if (changes['fields'] || changes['model']) {
+            if (this.lastFocusedComponent) {
+                // put this at the end of the call stack
+                setTimeout(() => {
+                    this.field(this.lastFocusedComponent.field.Property).focus();
+                });
+            } else {
+                this.focusFirstElement();
+            }
+        }
     }
 
     public ngAfterViewInit() {
@@ -145,6 +155,9 @@ export class UniForm {
     }
 
     public focusFirstElement() {
+        if (!this.fields || this.fields.length <= 0) {
+            return;
+        }
         const field = this.field(this.fields[0].Property);
         if (field) {
             setTimeout(() => {
@@ -271,34 +284,38 @@ export class UniForm {
 
     public field(property: string): UniField {
         // Look inside top level fields;
-        var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
-            return cmp.field.Property === property;
-        });
-        if (item.length > 0) {
-            return item[0];
-        }
-
-        // Look inside fieldsets
-        var element: UniField;
-        this.fieldsetElements.forEach((cmp: UniFieldSet) => {
-            if (!element) {
-                element = cmp.field(property);
+        if (this.fieldElements) {
+            var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
+                return cmp.field.Property === property;
+            });
+            if (item.length > 0) {
+                return item[0];
             }
-        });
-        if (element) {
-            return element;
+        }
+        // Look inside fieldsets
+        if (this.fieldsetElements) {
+            var element: UniField;
+            this.fieldsetElements.forEach((cmp: UniFieldSet) => {
+                if (!element) {
+                    element = cmp.field(property);
+                }
+            });
+            if (element) {
+                return element;
+            }
         }
 
         // Look inside sections
-        this.sectionElements.forEach((cmp: UniSection) => {
-            if (!element) {
-                element = cmp.field(property);
+        if (this.sectionElements) {
+            this.sectionElements.forEach((cmp: UniSection) => {
+                if (!element) {
+                    element = cmp.field(property);
+                }
+            });
+            if (element) {
+                return element;
             }
-        });
-        if (element) {
-            return element;
         }
-
         // nothing found
         return;
     }
