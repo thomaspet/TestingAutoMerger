@@ -9,13 +9,12 @@ declare var _;
 @Component({
     selector: 'uni-date-input',
     template: `
-        <section class="uni-datepicker" (clickOutside)="hideCalendar()">
+        <section class="uni-datepicker" (clickOutside)="close()">
             <input #input
                 *ngIf="control"
                 type="text"
                 (change)="inputChange()"
                 (focus)="onFocus()"
-                (blur)="onBlur()"
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
@@ -156,17 +155,11 @@ export class UniDateInput {
 
     private dateSelected(date) {
         this.selectedDate = date;
-
         this.control.setValue(date ? moment(date).format('L') : '');
-
         _.set(this.model, this.field.Property, date);
+        this.setFocusOnNextField();
         this.changeEvent.emit(this.model);
     }
-
-    private hideCalendar() {
-        this.calendarOpen = false;
-    }
-
 
     private createTabListener() {
         const keyDownEvent = Observable.fromEvent(this.inputElement.nativeElement, 'keydown');
@@ -176,8 +169,10 @@ export class UniDateInput {
             event.stopPropagation();
             if (event.shiftKey) {
                 this.setFocusOnPrevField();
+                this.close();
             } else {
                 this.setFocusOnNextField();
+                this.close();
             }
         });
     }
@@ -206,9 +201,5 @@ export class UniDateInput {
             }
             element = element.parentElement;
         }
-    }
-
-    private onBlur() {
-        this.hideCalendar();
     }
 }
