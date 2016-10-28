@@ -54,15 +54,12 @@ export class PersonalDetails extends UniView {
             super.updateCacheKey(router.url);
             super.getStateSubject('employee').subscribe((employee) => {
                 this.employee = _.cloneDeep(employee);
-                this.getSubEntities();
             });
-        });
-    }
 
-    private getSubEntities() {
-        super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
-            this.subEntities = subEntity;
-            this.getLayout();
+            super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
+                this.subEntities = subEntity;
+                this.getLayout();
+            });
         });
     }
 
