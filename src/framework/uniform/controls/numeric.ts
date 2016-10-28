@@ -101,7 +101,7 @@ export class UniNumericInput {
     }
 
     private formatControlValue() {
-        if (!this.control.value) {
+        if (!this.control.value || this.options.format === 'none') {
             return;
         }
 
@@ -123,7 +123,7 @@ export class UniNumericInput {
     }
 
     private unFormatControlValue() {
-        if (!this.control.value) {
+        if (!this.control.value || this.options.format === 'none') {
             return;
         }
 
