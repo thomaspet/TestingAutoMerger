@@ -41,8 +41,8 @@
                             [config]="formConfig"
                             [fields]="layout.formFields"
                             [model]="currentRelation"
-                            (changeEvent)="changeEvent($event)"
-                            (readyEvent)="readyEvent($event)">
+                            (changeEvent)="onChange($event)"
+                            (readyEvent)="onReady($event)">
                     </uni-form>                    
                 </main>
                 

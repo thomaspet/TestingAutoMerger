@@ -70,7 +70,7 @@ export class GenericDetailview {
         }
     }
 
-    public readyEvent(event) {
+    public onReady(event) {
         this.loadCurrent(this.ID);
         // Auto open first secion:
         if (this.form && this.form.section(1)) {
