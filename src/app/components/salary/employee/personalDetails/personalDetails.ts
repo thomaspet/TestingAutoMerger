@@ -53,7 +53,7 @@ export class PersonalDetails extends UniView {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
             super.getStateSubject('employee').subscribe((employee) => {
-                this.employee = _.cloneDeep(employee);
+                this.employee = employee;
             });
 
             super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
@@ -117,11 +117,10 @@ export class PersonalDetails extends UniView {
     }
 
     public onFormChange(employee: Employee) {
-
         if (employee.BirthDate) {
             employee.BirthDate = this.fixTimezone(employee.BirthDate);
         }
-        
+
         if (this.employee.BankAccounts[0]) {
             if (!this.employee.BankAccounts[0].AccountNumber) {
                 this.employee.BankAccounts[0].Active = false;
@@ -130,6 +129,7 @@ export class PersonalDetails extends UniView {
             }
         }
 
+        this.employee = _.cloneDeep(employee);
         super.updateState('employee', employee, true);
     }
 
@@ -266,6 +266,7 @@ export class PersonalDetails extends UniView {
 
             this.employee.Sex = (controlNumbers % 2) + 1;
 
+            this.employee = _.cloneDeep(this.employee);
             super.updateState('employee', this.employee, true);
         }
 
