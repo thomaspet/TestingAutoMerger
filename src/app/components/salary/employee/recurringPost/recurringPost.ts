@@ -1,10 +1,12 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {WageTypeService, SalaryTransactionService, UniCacheService} from '../../../../services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
+import {Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {Observable} from 'rxjs/Observable';
+import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
+
 declare var _;
 
 @Component({
@@ -20,6 +22,7 @@ export class RecurringPost extends UniView {
     private wagetypes: WageType[];
     private unsavedEmployments: boolean;
     private employmentsMapped: boolean;
+    @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     constructor(public router: Router,
                 private wagetypeService: WageTypeService,
@@ -34,7 +37,7 @@ export class RecurringPost extends UniView {
             super.updateCacheKey(router.url);
 
             // TODO: cache this?
-            this.wagetypeService.GetAll('').subscribe((wagetypes: WageType[]) => {
+            this.wagetypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
                 this.wagetypes = wagetypes;
             });
 
@@ -163,6 +166,11 @@ export class RecurringPost extends UniView {
 
         this.tableConfig = new UniTableConfig()
             .setDeleteButton(true)
+            .setContextMenu([{
+                label: 'Tilleggsopplysninger', action: (row) => {
+                    this.openSuplementaryInformationModal(row);
+                }
+            }])
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol,
                 amountCol, rateCol, sumCol
@@ -213,6 +221,28 @@ export class RecurringPost extends UniView {
             rowModel['EmploymentID'] = employment.ID;
         }
 
+        let supplements: SalaryTransactionSupplement[] = [];
+
+        if (rowModel['Supplements']) {
+                rowModel['Supplements']
+                    .filter(x => x.ID)
+                    .forEach((supplement: SalaryTransactionSupplement) => {
+                        supplement.Deleted = true;
+                        supplements.push(supplement);
+                    });
+            }
+
+        if (wagetype.SupplementaryInformations) {
+
+            wagetype.SupplementaryInformations.forEach((supplement: WageTypeSupplement) => {
+                let transSupplement = new SalaryTransactionSupplement();
+                transSupplement.WageTypeSupplementID = supplement.ID;
+                transSupplement.WageTypeSupplement = supplement;
+                supplements.push(transSupplement);
+            });
+            rowModel['Supplements'] = supplements;
+        }
+
         this.calcItem(rowModel);
     }
 
@@ -223,6 +253,20 @@ export class RecurringPost extends UniView {
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
         let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round(( ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
+    }
+
+    public openSuplementaryInformationModal(row: SalaryTransaction) {
+        this.supplementModal.openModal(row);
+    }
+
+    public updateSingleSalaryTransaction(trans: SalaryTransaction) {
+        if (trans) {
+            let row: SalaryTransaction = this.recurringPosts.find(x => x.ID === trans.ID && !x.Deleted);
+            if (row) {
+                row.Supplements = trans.Supplements;
+                super.updateState('recurringPosts', this.recurringPosts, true);
+            }
+        }
     }
 
 }

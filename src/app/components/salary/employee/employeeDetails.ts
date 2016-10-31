@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Employee, Employment, EmployeeLeave, SalaryTransaction, SubEntity } from '../../../unientities';
+import { Employee, Employment, EmployeeLeave, SalaryTransaction, SubEntity, SalaryTransactionSupplement} from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService, SubEntityService } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
@@ -231,7 +231,7 @@ export class EmployeeDetails extends UniView {
 
     private getRecurringPosts() {
         let filter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
-        this.salaryTransService.GetAll('filter=' + filter).subscribe((response) => {
+        this.salaryTransService.GetAll('filter=' + filter, ['Supplements.WageTypeSupplement']).subscribe((response) => {
             super.updateState('recurringPosts', response, false);
         });
     }
@@ -435,6 +435,14 @@ export class EmployeeDetails extends UniView {
                     post.IsRecurringPost = true;
                     post.EmployeeID = this.employee.ID;
                     post.EmployeeNumber = this.employee.EmployeeNumber;
+
+                    if (post.Supplements) {
+                        post.Supplements
+                            .filter(x => !x.ID)
+                            .forEach((supplement: SalaryTransactionSupplement) => {
+                                supplement['_createguid'] = this.salaryTransService.getNewGuid();
+                            });
+                    }
 
                     let source = (post.ID > 0)
                         ? this.salaryTransService.Put(post.ID, post)
