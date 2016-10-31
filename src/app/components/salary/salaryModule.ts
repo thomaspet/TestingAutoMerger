@@ -53,6 +53,8 @@ import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
 import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 
+import {SalaryTransactionSupplementsModal, SalaryTransactionSupplementsModalContent} from './modals/salaryTransactionSupplementsModal';
+
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
@@ -132,6 +134,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarytransFilterContent,
         SalarytransFilter,
         SalaryTransactionEmployeeList,
+        SalaryTransactionSupplementsModal,
+        SalaryTransactionSupplementsModalContent,
 
         // Wagetype
         WageTypeView,
@@ -148,7 +152,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         ControlModalContent,
         PostingsummaryModalContent,
         SalarytransFilterContent,
-        SelectAmeldingTypeModalContent
+        SelectAmeldingTypeModalContent,
+        SalaryTransactionSupplementsModalContent
     ],
     providers: [
         CanDeactivateGuard
@@ -202,6 +207,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarytransFilterContent,
         SalarytransFilter,
         SalaryTransactionEmployeeList,
+        SalaryTransactionSupplementsModal,
+        SalaryTransactionSupplementsModalContent,
 
         // Wagetype
         WageTypeView,

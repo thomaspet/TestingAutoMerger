@@ -1,0 +1,12 @@
+<article class="modal-content">
+	<header>
+		<h1>Tillegsopplysninger</h1>
+	</header>
+	<section>
+		<uni-form [config]="config" [fields]="fields" [model]="salaryTransaction"></uni-form>
+	</section>
+	<footer *ngIf="config">
+		<button class="good" (click)="config.submit(salaryTransaction)">OK</button>
+		<button class="bad" (click)="config.cancel()">Avbryt</button>
+	</footer>
+</article>

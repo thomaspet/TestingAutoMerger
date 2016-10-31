@@ -2,13 +2,14 @@ import { Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewCh
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums } from '../../../unientities';
+import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement } from '../../../unientities';
 import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService } from '../../../services/services';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { ControlModal } from '../payrollrun/controlModal';
 import { PostingsummaryModal } from '../payrollrun/postingsummaryModal';
-import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig } from 'unitable-ng2/main';
+import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IContextMenuItem } from 'unitable-ng2/main';
 import { UniForm } from '../../../../framework/uniform';
+import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 
 declare var _;
 
@@ -19,7 +20,6 @@ declare var _;
 
 export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, OnInit {
     private salarytransEmployeeTableConfig: UniTableConfig;
-    private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: SalaryTransactionSums;
     private wagetypes: WageType[] = [];
     public employee: Employee;
@@ -41,6 +41,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(ControlModal) private controllModal: ControlModal;
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
+    @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     @Input() private employeeID: number;
 
@@ -50,7 +51,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
-    @ViewChildren(UniTable) public tables: QueryList<UniTable>;
+    @ViewChild(UniTable) public table: UniTable;
 
     private busy: boolean;
     private salarytransChanged: any[] = [];
@@ -72,7 +73,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
         this.busy = true;
 
-        this._wageTypeService.GetAll('').subscribe((wagetype: WageType[]) => {
+        this._wageTypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetype: WageType[]) => {
             this.wagetypes = wagetype;
             if (this.payrollRun && this.employee) {
                 this.createTableConfig();
@@ -85,11 +86,10 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
             this.busy = true;
             this.payrollRun = payrollRun;
-            if (this.tables && this.employeeID) {
+            if (this.table && this.employeeID) {
                 this.employeeService.get(this.employeeID, this.employeeExpands)
                     .subscribe((response: any) => {
                         this.employee = response;
-                        this.setUnitableSource();
                         this.refreshSaveActions();
                         this.setUnitableSource();
                         if (this.wagetypes) {
@@ -114,9 +114,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     }
 
     public ngOnChanges() {
-        this.busy = true;
-        this.dirty = false;
-        if (this.tables && this.employeeID) {
+        if (this.table && this.employeeID && this.payrollRun) {
+            this.busy = true;
+            this.dirty = false;
             this.employeeService.get(this.employeeID, this.employeeExpands)
                 .subscribe((response: any) => {
                     this.employee = response;
@@ -207,6 +207,14 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this.payrollRun.transactions.forEach((trans: SalaryTransaction) => {
             trans.Wagetype = null;
             trans.Employee = null;
+            if (trans.Supplements) {
+                trans.Supplements.forEach((supplement: SalaryTransactionSupplement) => {
+                    if (!supplement.ID) {
+                        supplement['_createguid'] = this._payrollRunService.getNewGuid();
+                    }
+                    supplement.WageTypeSupplement = null;
+                });
+            }
         });
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
@@ -334,6 +342,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             });
 
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
+            .setContextMenu([{
+                label: 'Tilleggsopplysninger', action: (row) => {
+                    this.openSuplementaryInformationModal(row);
+                }
+            }])
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
                     if (isNaN(rowModel.ID)) { return true; }
@@ -401,6 +414,29 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         if (employment) {
             rowModel['EmploymentID'] = employment.ID;
         }
+
+        let supplements: SalaryTransactionSupplement[] = [];
+
+        if (rowModel['Supplements']) {
+                rowModel['Supplements']
+                    .filter(x => x.ID)
+                    .forEach((supplement: SalaryTransactionSupplement) => {
+                        supplement.Deleted = true;
+                        supplements.push(supplement);
+                    });
+            }
+
+        if (wagetype.SupplementaryInformations) {
+            
+            wagetype.SupplementaryInformations.forEach((supplement: WageTypeSupplement) => {
+                let transSupplement = new SalaryTransactionSupplement();
+                transSupplement.WageTypeSupplementID = supplement.ID;
+                transSupplement.WageTypeSupplement = supplement;
+                supplements.push(transSupplement);
+            });
+            rowModel['Supplements'] = supplements;
+        }
+
         this.calcItem(rowModel);
     }
 
@@ -429,7 +465,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             .withEndPoint('salarytrans')
             .send({
                 filter: filter,
-                expand: '@Wagetype'
+                expand: '@Wagetype.SupplementaryInformations,@Supplements.WageTypeSupplement'
             })
             .map(response => response.json());
 
@@ -452,8 +488,23 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         return null;
     }
 
+    public openSuplementaryInformationModal(row: SalaryTransaction) {
+        this.supplementModal.openModal(row);
+    }
+
+    public updateSingleSalaryTransaction(trans: SalaryTransaction) {
+        if (trans) {
+            let rows: SalaryTransaction[] = this.table.getTableData();
+            let row: SalaryTransaction = rows.find(x => x.ID === trans.ID);
+            if (row) {
+                row.Supplements = trans.Supplements;
+                this.updateSalaryChanged(row);
+                this.table.updateRow(row['_originalIndex'], row);
+            }
+        }
+    }
+
     public rowChanged(event) {
-        let updated: boolean = false;
         let row: SalaryTransaction = event.rowModel;
 
         if (row.FromDate) {
@@ -468,25 +519,31 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             row['PayrollRunID'] = this.payrollRun.ID;
             row['_createguid'] = this.salarytransService.getNewGuid();
 
-            if (this.salarytransChanged.length > 0) {
-                for (var i = 0; i < this.salarytransChanged.length; i++) {
-                    var salaryItem = this.salarytransChanged[i];
-                    if (row['_originalIndex'] === salaryItem._originalIndex) {
-                        this.salarytransChanged[i] = row;
-                        updated = true;
-                        break;
-                    }
-                }
-                if (!updated) {
-                    this.salarytransChanged.push(row);
-                }
-            } else {
-                this.salarytransChanged.push(row);
-            }
+            this.updateSalaryChanged(row);
+
         }
 
         this.saveactions[0].disabled = false;
         this.dirty = (this.salarytransChanged.length > 0);
+    }
+
+    private updateSalaryChanged(row) {
+        let updated: boolean = false;
+        if (this.salarytransChanged.length > 0) {
+            for (var i = 0; i < this.salarytransChanged.length; i++) {
+                var salaryItem = this.salarytransChanged[i];
+                if (row['_originalIndex'] === salaryItem._originalIndex) {
+                    this.salarytransChanged[i] = row;
+                    updated = true;
+                    break;
+                }
+            }
+            if (!updated) {
+                this.salarytransChanged.push(row);
+            }
+        } else {
+            this.salarytransChanged.push(row);
+        }
     }
 
     public showPayList(done) {
