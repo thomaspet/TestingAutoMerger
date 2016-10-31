@@ -89,8 +89,14 @@ require('./gulp/zip');
  */
 require('./gulp/rxbundle');
 
+/**
+ *  Generate the correct config files
+ */
+require('./gulp/app-config');
+
 var tasks = {
     prod: [
+        'app-config-prod',
         'index.html',
         'apidoc.html',
         'angular2',
@@ -102,6 +108,20 @@ var tasks = {
         'system.config'
     ],
     dev: [
+        'app-config-dev',
+        'index.html.dev',
+        'apidoc.html',
+        'angular2',
+        'dependencies',
+        'stimulsoft',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config',
+        'ts-source'
+    ],
+    pilot: [
+        'app-config-pilot',
         'index.html.dev',
         'apidoc.html',
         'angular2',
@@ -115,12 +135,17 @@ var tasks = {
     ]
 };
 
+gulp.task('build.prod', ['build']); // alias
 gulp.task('build', function(done) {
     runSequence(tasks.prod, done);
 });
 
 gulp.task('build.dev', function(done) {
     runSequence(tasks.dev, done);
+});
+
+gulp.task('build.pilot', function(done) {
+    runSequence(tasks.pilot, done);
 });
 
 gulp.task('build.dev.watch', function(done) {

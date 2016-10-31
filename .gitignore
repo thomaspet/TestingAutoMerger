@@ -262,3 +262,6 @@ coverage
 
 #dist zip
 dist.zip
+
+# destination AppConfig file (ignored because it's generated on build)
+src/app/AppConfig.ts

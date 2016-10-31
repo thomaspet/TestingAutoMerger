@@ -3,6 +3,7 @@ import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
 import moment from 'moment';
+import {AppConfig} from '../../../AppConfig';
 declare var APP_VERSION;
 
 @Component({
@@ -77,7 +78,7 @@ export class UniFeedback {
 
         this.busy = true;
         this.http.post(
-            'https://devintegrations-unieconomy.azurewebsites.net/api/feedback',
+            AppConfig.BASE_URL_INTEGRATION + 'api/feedback',
             JSON.stringify(body),
             {headers: this.headers}
         ).subscribe(

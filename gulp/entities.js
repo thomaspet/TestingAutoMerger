@@ -2,30 +2,31 @@ var gulp = require('gulp');
 var fs = require('fs');
 var request = require('request');
 
-var SERVER = process.env.SERVER_URL || 'https://devapi-unieconomy.azurewebsites.net';
-//var SERVER = 'http://localhost:29077';
+
+var SERVER_URL = process.env.SERVER_URL;
 
 var URL = [
-    SERVER,
+    SERVER_URL,
     'api/metadata/typescriptentities'
 ].join('/');
 
 var CLIENT = process.env.UNI_CLIENT || 'jorgeas';
 
-var options = {
-    url: URL,
-    headers: {
-        'client': CLIENT
-    }
-};
-
 module.export = gulp.task('entities', function(done) {
 
-    var callback = function(error, response, body) {
-        error ? done(error) : fs.writeFile('./src/app/unientities.ts', body, done);
-    };
+    if (!SERVER_URL) {
+        console.log('You need to specify the server url before the command `set SERVER_URL=https://devapi-unieconomy.azurewebsites.net&&gulp entities`');
+        process.exit(1);
+    }
 
-    request(options, callback);
+    request({
+        url: URL,
+        headers: {
+            'client': CLIENT
+        }
+    }, function(error, response, body) {
+        error ? done(error) : fs.writeFile('./src/app/unientities.ts', body, done);
+    });
 });
 
 gulp.task('unientities', ['entities']); // alias

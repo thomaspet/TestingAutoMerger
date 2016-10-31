@@ -5,6 +5,7 @@ import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
 import {ImageUploader} from './imageUploader';
 import {Observable} from 'rxjs/Observable';
+import {AppConfig} from '../../app/AppConfig';
 
 export enum UniImageSize {
     small = 150,
@@ -69,7 +70,7 @@ export class UniImage {
     @Input()
     public uploadConfig: IUploadConfig;
 
-    private baseUrl: string = 'https://unifiles.azurewebsites.net/';
+    private baseUrl: string = AppConfig.BASE_URL_FILES;
 
     private token: any;
     private activeCompany: any;
