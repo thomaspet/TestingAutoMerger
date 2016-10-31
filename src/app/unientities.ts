@@ -272,7 +272,7 @@ export class AccountVisibilityGroupAccount {
     public static RelativeUrl = '';
     public static EntityType = 'AccountVisibilityGroupAccount';
 
-    public AccountNumber: number;
+    public AccountSetupID: number;
     public AccountVisibilityGroupID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1750,6 +1750,7 @@ export class AmeldingData {
     public static RelativeUrl = 'amelding';
     public static EntityType = 'AmeldingData';
 
+    public altinnStatus: string;
     public attachmentFileID: number;
     public created: Date;
     public CreatedAt: Date;
@@ -1999,6 +2000,7 @@ export class Grant {
     public FromDate: Date;
     public ID: number;
     public StatusCode: number;
+    public SubentityID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -2105,14 +2107,12 @@ export class WageTypeSupplement {
     public Description: string;
     public ID: number;
     public Name: string;
-    public SalaryTransactionSupplementID: number;
     public StatusCode: number;
     public SuggestedValue: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ValueType: Valuetype;
     public WageTypeID: number;
-    public SalaryTransactionSupplement: SalaryTransactionSupplement;
     public CustomFields: any;
 }
 
@@ -2197,7 +2197,6 @@ export class Employee {
     public InternasjonalIDCountry: string;
     public InternasjonalIDType: InternationalIDType;
     public InternationalID: string;
-    public isPensioner: boolean;
     public MunicipalityNo: string;
     public NonTaxableAmount: number;
     public NotMainEmployer: boolean;
@@ -2683,6 +2682,7 @@ export class UniQueryDefinition {
 
     public ClickParam: string;
     public ClickUrl: string;
+    public Code: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2690,8 +2690,10 @@ export class UniQueryDefinition {
     public ID: number;
     public IsShared: boolean;
     public MainModelName: string;
+    public ModuleID: number;
     public Name: string;
     public StatusCode: number;
+    public SystemGeneratedQuery: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
@@ -3937,6 +3939,18 @@ export class SupplierBalanceReportData {
 }
 
 
+export class AmeldingAgaAndTaxSums {
+    public AccountNumber: string;
+    public DueDate: Date;
+    public EmploymentTax: number;
+    public KIDEmploymentTax: string;
+    public KIDTaxDraw: string;
+    public MessageID: string;
+    public period: number;
+    public TaxDraw: number;
+}
+
+
 export class SalaryTransactionPay {
     public CompanyAccount: string;
     public CompanyAddress: string;
@@ -4391,12 +4405,15 @@ export enum WorkingHoursScheme{
 	ShiftWork = 5,
 }
 
+
 export enum GetRateFrom{
 	WageType = 0,
 	MonthlyPayEmployee = 1,
 	HourlyPayEmployee = 2,
 	FreeRateEmployee = 3,
 }
+
+
 export enum LimitType{
 	None = 0,
 	Amount = 1,
@@ -4600,6 +4617,14 @@ export enum StatusCodeCustomerQuote{
 	TransferredToOrder = 40105,
 	TransferredToInvoice = 40106,
 	Completed = 40107,
+}
+
+
+export enum InternalAmeldingStatus{
+	IN_PROGRESS = 0,
+	GENERATED = 1,
+	SENT = 2,
+	STATUS_FROM_ALTINN_RECEIVED = 3,
 }
 
 

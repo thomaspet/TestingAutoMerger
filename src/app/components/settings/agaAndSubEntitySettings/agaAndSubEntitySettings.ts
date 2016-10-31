@@ -6,6 +6,8 @@ import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {SubEntityList} from './subEntityList';
 import {FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector} from '../../../unientities';
 import {CompanySalaryService, AccountService, SubEntityService, AgaZoneService} from '../../../services/services';
+import {GrantsModal} from './modals/grantsModal';
+import {FreeamountModal} from './modals/freeamountModal';
 
 declare var _; // lodash
 
@@ -17,8 +19,12 @@ declare var _; // lodash
 export class AgaAndSubEntitySettings implements OnInit {
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(SubEntityList) public subEntityList: SubEntityList;
+    @ViewChild(GrantsModal) public grantsModal: GrantsModal;
+    @ViewChild(FreeamountModal) public freeamountModal: FreeamountModal;
 
     public showSubEntities: boolean = true;
+
+    private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
     private fields: UniFieldLayout[] = [];
     private accountfields: UniFieldLayout[] = [];
@@ -73,6 +79,9 @@ export class AgaAndSubEntitySettings implements OnInit {
                 this.agaRules = rules;
 
                 this.buildForms();
+
+                this.mainOrganization['_AgaSoneLink'] = this.agaSoneOversiktUrl;
+
                 this.busy = false;
             },
             error => {
@@ -124,12 +133,48 @@ export class AgaAndSubEntitySettings implements OnInit {
             debounceTime: 500,
         };
         
-        var freeAmount = new UniFieldLayout();
-        freeAmount.EntityType = 'CompanySalary';
-        freeAmount.Label = 'Fribeløp';
-        freeAmount.Property = 'FreeAmount';
-        freeAmount.FieldType = FieldType.TEXT;
-        freeAmount.Section = 1;
+        var mainOrgFreeAmount = new UniFieldLayout();
+        mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';
+        mainOrgFreeAmount.EntityType = 'mainOrganization';
+        mainOrgFreeAmount.Property = 'freeAmount';
+        mainOrgFreeAmount.FieldType = FieldType.NUMERIC;
+        mainOrgFreeAmount.Section = 1;
+
+        var grantBtn = new UniFieldLayout();
+        grantBtn.Label = 'Tilskudd';
+        grantBtn.EntityType = 'mainOrganization';
+        grantBtn.Property = 'TilskuddBtn';
+        grantBtn.FieldType = FieldType.COMBOBOX;
+        grantBtn.Section = 1;
+        grantBtn.Options = {
+            click: (event) => {
+                this.openGrantsModal();
+            }
+        };
+
+        var freeAmountBtn = new UniFieldLayout();
+        freeAmountBtn.Label = 'Oversikt fribeløp';
+        freeAmountBtn.EntityType = 'mainOrganization';
+        freeAmountBtn.Property = 'FreeAmountBtn';
+        freeAmountBtn.FieldType = FieldType.COMBOBOX;
+        freeAmountBtn.Section = 1;
+        freeAmountBtn.Options = {
+            click: (event) => {
+                this.openFreeamountModal();
+            }
+        };
+
+        var agaSoneLink = new UniFieldLayout();
+        agaSoneLink.Label = 'AGA soner';
+        agaSoneLink.HelpText = 'Oversikt over arbeidsgiveravgift soner';
+        agaSoneLink.EntityType = 'mainOrganization';
+        agaSoneLink.Property = '_AgaSoneLink';
+        agaSoneLink.FieldType = FieldType.HYPERLINK;
+        agaSoneLink.Section = 1;
+        agaSoneLink.Options = {
+            description: 'Arbeidsgiveravgift soner',
+            target: '_blank'
+        };
 
         var mainAccountAlocatedAga = new UniFieldLayout();
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
@@ -206,7 +251,11 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainOrgName,
             mainOrgOrg,
             mainOrgZone,
-            mainOrgRule
+            mainOrgRule,
+            mainOrgFreeAmount,
+            grantBtn,
+            freeAmountBtn,
+            agaSoneLink
         ];
 
         this.accountfields = [
@@ -214,9 +263,16 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountCostAga,
             mainAccountAllocatedAgaVacation,
             mainAccountCostAgaVacation,
-            interrimRemit,
-            freeAmount,
+            interrimRemit
         ];
+    }
+
+    public openGrantsModal() {
+        this.grantsModal.openGrantsModal();
+    }
+
+    public openFreeamountModal() {
+        this.freeamountModal.openFreeamountModal();
     }
 
     public saveButtonIsDisabled(isDisabled: boolean) {

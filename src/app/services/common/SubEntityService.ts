@@ -176,6 +176,25 @@ export class SubEntityService extends BizHttp<SubEntity> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: ''
+                },
+                {
+                    ComponentLayoutID: 1,
+                    Property: 'freeAmount',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: CONTROLS_ENUM.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fribeløp',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: ''
                 }
             ]
         }]);

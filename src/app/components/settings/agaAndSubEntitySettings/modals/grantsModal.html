@@ -1,0 +1,9 @@
+<article class="modal-content" *ngIf="config">
+    <h1 *ngIf="config.title">{{config.title}}</h1>
+    <uni-table [config]="grantTableConfig" [resource]="grantData"></uni-table>
+    <footer>
+        {{infoText}}
+        <button *ngFor="let action of config.actions; let i=index" class="action.class" (click)="action.method()">{{action.text}}</button>
+        <button class="bad" (click)="config.cancel()">Avbryt</button>
+    </footer>
+</article>
