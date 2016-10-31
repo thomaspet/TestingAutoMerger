@@ -327,17 +327,20 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 }
             });
 
-        var wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Select)
-            .setTemplate((dataItem) => {
-
-                let wagetype: WageType = dataItem['Wagetype'];
-
-                return wagetype ? wagetype.WageTypeNumber.toString() : '';
-            })
+        var wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
+            .setDisplayField('WageTypeNumber')
             .setEditorOptions({
-                resource: this.wagetypes,
-                itemTemplate: (item: WageType) => {
-                    return item ? item.WageTypeNumber + ' - ' + item.WageTypeName : '';
+                itemTemplate: (selectedItem: WageType) => {
+                    return (selectedItem.WageTypeNumber + ' - ' + selectedItem.WageTypeName);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.wagetypes.filter((wagetype) => {
+                        if (isNaN(searchValue)) {
+                            return (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1);
+                        } else {
+                            return wagetype.WageTypeNumber.toString().startsWith(searchValue.toString());
+                        }
+                    });
                 }
             });
 
