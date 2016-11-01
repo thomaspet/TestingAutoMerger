@@ -19,7 +19,7 @@
     </table>
 </section>
 
-<section>
+<section class="unitableWidthAuto">
     <ul *ngIf="currentSumUp">
         <li *ngFor="let virksomhet of currentSumUp.entities; let index = index" class="amelding_summaryview" [ngClass]="{'-is-expanded':!virksomhet.collapsed}">
             <h4 (click)="toggleCollapsed(index)">{{virksomhet.name}} - {{virksomhet.orgNumber}}</h4>

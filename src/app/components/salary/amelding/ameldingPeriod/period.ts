@@ -111,15 +111,15 @@ export class AmeldingPeriodSummaryView {
     }
 
     private setupSystemTableConfig() {
-        let orgnrCol = new UniTableColumn('OrgNumber', 'Org.nr.', UniTableColumnType.Text);
+        let orgnrCol = new UniTableColumn('OrgNumber', 'Org.nr.', UniTableColumnType.Text).setWidth('7rem');
         let soneCol = new UniTableColumn('AgaZone', 'Sone', UniTableColumnType.Text).setWidth('4rem');
         let municipalCol = new UniTableColumn('MunicipalName', 'Kommune', UniTableColumnType.Text);
-        let typeCol = new UniTableColumn('_type', 'Type', UniTableColumnType.Number);
+        let typeCol = new UniTableColumn('_type', 'Type', UniTableColumnType.Number).setWidth('7rem');
         let rateCol = new UniTableColumn('AgaRate', 'Sats', UniTableColumnType.Number)
             .setWidth('4rem')
             .setCls('column-align-right');
-        let amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Money);
-        let agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money);
+        let amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Money).setWidth('7rem');
+        let agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money).setWidth('7rem');
 
         this.systemTableConfig = new UniTableConfig(false, true, 10)
         .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);

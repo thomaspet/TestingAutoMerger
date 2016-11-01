@@ -1,25 +1,29 @@
 <h1>FRA SYSTEM</h1>
-<uni-table [config]="systemTableConfig" [resource]="systemData"></uni-table>
-<section>
-    <dl class="summary">
-        <dt>Grunnlag aga</dt>
-        <dd>{{sumGrunnlagAga}}</dd>
-        <dt>Sum aga</dt>
-        <dd>{{sumCalculatedAga}}</dd>
-        <dt>Sum forskuddstrekk</dt>
-        <dd>{{sumForskuddstrekk}}</dd>
-    </dl>
+<section class="unitableWidthAuto">
+    <uni-table [config]="systemTableConfig" [resource]="systemData"></uni-table>
+    <section>
+        <dl class="summary">
+            <dt>Grunnlag aga</dt>
+            <dd>{{sumGrunnlagAga}}</dd>
+            <dt>Sum aga</dt>
+            <dd>{{sumCalculatedAga}}</dd>
+            <dt>Sum forskuddstrekk</dt>
+            <dd>{{sumForskuddstrekk}}</dd>
+        </dl>
+    </section>
 </section>
 
 <h1>FRA A-MELDING</h1>
-<uni-table *ngIf="amldData.length" [config]="amldTableConfig" [resource]="amldData"></uni-table>
-<section>
-    <dl class="summary">
-        <dt>Forfallsdato</dt>
-        <dd>{{forfallsdato}}</dd>
-        <dt>Sum aga</dt>
-        <dd>{{sumAmldAga}}</dd>
-        <dt>Sum forskuddstrekk</dt>
-        <dd>{{sumAmldFtrekk}}</dd>
-    </dl>
+<section class="unitableWidthAuto">
+    <uni-table *ngIf="amldData.length" [config]="amldTableConfig" [resource]="amldData"></uni-table>
+    <section>
+        <dl class="summary">
+            <dt>Forfallsdato</dt>
+            <dd>{{forfallsdato}}</dd>
+            <dt>Sum aga</dt>
+            <dd>{{sumAmldAga}}</dd>
+            <dt>Sum forskuddstrekk</dt>
+            <dd>{{sumAmldFtrekk}}</dd>
+        </dl>
+    </section>
 </section>

@@ -1,4 +1,4 @@
-<section *ngIf="showFeedback">
+<section class="unitableWidthAuto" *ngIf="showFeedback">
     <uni-table [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
     <ul>
         <li *ngFor="let avvik of alleAvvikNoder; let index = index" class="amelding_summaryview" [ngClass]="{'-is-expanded':!avvik.collapsed}">

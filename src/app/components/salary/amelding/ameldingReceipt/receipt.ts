@@ -2,6 +2,8 @@ import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {AmeldingData} from '../../../../unientities';
 
+declare var moment;
+
 @Component({
     selector: 'amelding-receipt-view',
     templateUrl: 'app/components/salary/amelding/ameldingReceipt/receipt.html'
@@ -49,6 +51,7 @@ export class AmeldingReceiptView {
             let feedback = this.currentAMelding.feedBack;
             if (feedback !== null) {
                 this.alleAvvikNoder = [];
+                
                 let alleMottak = this.currentAMelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
                     alleMottak.forEach(mottak => {
@@ -101,9 +104,9 @@ export class AmeldingReceiptView {
     }
 
     private setupMottakTable() {
-        let refCol = new UniTableColumn('altinnReferanse', 'Altinn referanse', UniTableColumnType.Text);
-        let kildeCol = new UniTableColumn('kildesystem', 'Kilde', UniTableColumnType.Text);
-        let meldingCol = new UniTableColumn('meldingsId', 'MeldingsID', UniTableColumnType.Text).setWidth('7rem')
+        let refCol = new UniTableColumn('altinnReferanse', 'Altinn referanse', UniTableColumnType.Text).setWidth('5rem');
+        let kildeCol = new UniTableColumn('kildesystem', 'Kilde', UniTableColumnType.Text).setWidth('6rem');
+        let meldingCol = new UniTableColumn('meldingsId', 'MeldingsID', UniTableColumnType.Text).setWidth('5rem')
             .setTemplate((dataItem) => {
                 let mldID = 0;
                 this.aMeldingerInPeriod.forEach(amelding => {
@@ -114,7 +117,10 @@ export class AmeldingReceiptView {
                 return mldID === 0 ? dataItem.meldingsId : mldID;
             });
         let statusCol = new UniTableColumn('mottakstatus', 'Status', UniTableColumnType.Text).setWidth('5rem');
-        let tidCol = new UniTableColumn('tidsstempelFraAltinn', 'Tid i altinn', UniTableColumnType.Date);
+        let tidCol = new UniTableColumn('tidsstempelFraAltinn', 'Tid i altinn', UniTableColumnType.Text).setWidth('7rem')
+            .setTemplate((dataItem) => {
+                return moment(dataItem.tidsstempelFraAltinn).format('DD.MM.YYYY HH:mm');
+            });
         let antallCol = new UniTableColumn('antallInntektsmottakere', 'Ant. inntektsmottakere', UniTableColumnType.Text).setWidth('12rem');
         let leveringCol = new UniTableColumn('leveringstidspunkt', 'Leveringstidspunkt', UniTableColumnType.Date).setWidth('10rem');
 
