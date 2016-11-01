@@ -1,46 +1,68 @@
-<header class="customer_poster" *ngIf="customer">
-    
+<header class="customer_poster">
+
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="customer && customer.ID > 0">{{customer.Info.Name}}</h1>
-            <p *ngIf="customer && customer.ID > 0">Kundenr. {{customer.CustomerNumber}}</p>
-            <h1 *ngIf="customerID == 0">Ny kunde</h1>
-            <p *ngIf="customerID == 0">&nbsp;</p>
+            <h1 *ngIf="customer?.ID">{{customer.Info.Name}}</h1>
+            <p *ngIf="customer?.ID">Kundenr. {{customer.CustomerNumber}}</p>
+            <h1 *ngIf="!customer?.ID">Ny kunde</h1>
+            <p *ngIf="!customer?.ID">&nbsp;</p>
         </section>
-            
+
         <nav class="poster_toolbar_tools">
             <a (click)="previousCustomer()" class="previous">Forrige</a>
             <a (click)="nextCustomer()" class="next">Neste</a>
             <a (click)="addCustomer()" class="new">Ny kunde</a>
-        </nav>         
+        </nav>
     </article>
-    
-    <!-- Widget poster -->
+
     <section class="poster_overview">
-        <section class="application">        
-            <uni-widget-poster [model]="customer" *ngIf="customer && customer.ID > 0">
+        <section class="application">
+            <uni-widget-poster [model]="customer" *ngIf="customer?.ID">
             </uni-widget-poster>
         </section>
-        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="customer && customer.ID == 0"></external-search>
+        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="!customer?.ID"></external-search>
     </section>
-    
-</header>
 
-<section class="customer-details application">
-    <uni-form *ngIf='customer'
+    <div class="horizontal_nav" *ngIf="customer?.ID">
+        <ul>
+            <li>
+                <a
+                        [class]="showReportWithID ? '' : 'router-link-active'"
+                        (click)="showReport(null)"
+                >Detaljer</a>
+            </li>
+            <li *ngFor="let link of reportLinks">
+                <a
+                        [class]="showReportWithID == link.id ? 'router-link-active' : ''"
+                        (click)="showReport(link.id)"
+                >{{link.name}}</a>
+            </li>
+        </ul>
+    </div>
+
+</header>
+<section *ngIf='customer' class="customer-details application">
+    <uni-form *ngIf="!showReportWithID"
               [config]="config"
               [fields]="fields"
               [model]="customer"
               (changeEvent)="change($event)">
     </uni-form>
-    
-    <email-modal></email-modal>
-    <phone-modal></phone-modal>
-    <address-modal></address-modal>
+    <uni-query-read-only
+            *ngFor="let link of reportLinks"
+            [hidden]="showReportWithID != link.id"
+            [ngClass]="{'hidden': showReportWithID != link.id}"
+            [queryDefinitionID]="link.id"
+            [externalID]="customer.ID"
+    ></uni-query-read-only>
 </section>
 
-<footer class="full-footer">
+<footer class="full-footer" *ngIf='!showReportWithID'>
     <section class="application">
         <uni-save [actions]="saveactions"></uni-save> 
     </section>
 </footer>
+
+<email-modal></email-modal>
+<phone-modal></phone-modal>
+<address-modal></address-modal>

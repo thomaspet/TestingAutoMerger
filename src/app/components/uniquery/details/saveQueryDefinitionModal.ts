@@ -6,6 +6,7 @@ import {ToastService} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Observable, Subject} from 'rxjs/Rx';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 declare const _;
 declare const moment;
@@ -93,7 +94,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'URL ved klikk',
-                Placeholder: 'URL brukeren sendes til, inkludert parametre, f.eks. /sales/customer/details/:Customer.ID',
+                Placeholder: 'URL brukeren sendes til, inkludert parametre, f.eks. /sales/customer/:Customer.ID',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -120,6 +121,32 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Sectionheader: 'Avansert',
                 Legend: '',
                 Classes: 'large-field'
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'QueryDefinition',
+                Property: 'ModuleID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.DROPDOWN,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Hvilket skjermbilde den vises på',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 1,
+                Sectionheader: 'Avansert',
+                Legend: '',
+                Classes: 'large-field',
+                Options: {
+                    source: Object.keys(UniModules)
+                        .map(key => +key)
+                        .filter(key => key >= 0)
+                        .map(key => ({id: key, name: UniModules[key]})),
+                    displayProperty: 'name',
+                    valueProperty: 'id'
+                }
             },
             {
                 ComponentLayoutID: 1,

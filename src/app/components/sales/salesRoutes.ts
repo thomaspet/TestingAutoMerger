@@ -20,10 +20,6 @@ import {UniSales} from './sales';
 
 export const childRoutes = [
     {
-        path: '',
-        redirectTo: 'customer'
-    },
-    {
         path: 'customer',
         component: Customer,
         children: CustomerRoutes

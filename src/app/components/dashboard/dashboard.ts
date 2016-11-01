@@ -246,7 +246,7 @@ export class Dashboard {
             case 'NumberSeries':
                 data.module = 'Nummerserie';
                 /*NEED REAL URL*/
-                data.url = '/sales/customer/list';
+                data.url = '/sales/customer/';
                 break;
             case 'AccountGroup':
                 data.module = 'Kontogruppe';
@@ -258,7 +258,7 @@ export class Dashboard {
                 break;
             case 'Customer':
                 data.module = 'Kunde';
-                data.url = '/sales/customer/details/' + entityID;
+                data.url = '/sales/customer/' + entityID;
                 break;
             case 'Product':
                 data.module = 'Produkt';
@@ -267,7 +267,7 @@ export class Dashboard {
             case 'SalaryTransaction':
                 data.module = 'SalaryTransaction';
                 /*NEED REAL URL*/
-                data.url = '/sales/customer/list';
+                data.url = '/sales/customer/';
                 break;
             case 'PayrollRun':
                 data.module = 'Lønnsavregning';
@@ -280,17 +280,17 @@ export class Dashboard {
             case 'Address':
                 data.module = 'Adresse';
                 /*NEED REAL URL*/
-                data.url = '/sales/customer/list';
+                data.url = '/sales/customer/';
                 break;
             case 'Dimensions':
                 data.module = 'Dimensions';
                 /*NEED REAL URL*/
-                data.url = '/sales/customer/list';
+                data.url = '/sales/customer/';
                 break;
             case 'File':
                 data.module = 'File';
                 /*NEED REAL URL*/
-                data.url = '/sales/customer/list';
+                data.url = '/sales/customer/';
                 break;
             case 'CompanySettings':
                 data.module = 'Innstillinger';

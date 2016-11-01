@@ -1,0 +1,11 @@
+<section class="table-container-full" *ngIf="tableConfig && fields.length">
+    <uni-table
+            [resource]="lookupFunction"
+            [config]="tableConfig"
+            (rowSelected)="onRowSelected($event)"
+    ></uni-table>
+    <a
+            class="edit_original_link"
+            [routerLink]="['/uniqueries/details/', queryDefinitionID]"
+    >Rediger original uttrekket</a>
+</section>

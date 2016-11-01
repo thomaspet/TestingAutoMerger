@@ -66,7 +66,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentListUrl: '/sales',
                 componentList: [
-                    {componentName: 'Kunder', componentUrl: '/sales', moduleID: UniModules.Customers},
+                    {componentName: 'Kunder', componentUrl: '/sales/customer', moduleID: UniModules.Customers},
                     {componentName: 'Tilbud', componentUrl: '/sales/quotes', moduleID: UniModules.Quotes},
                     {componentName: 'Ordre', componentUrl: '/sales/orders', moduleID: UniModules.Orders},
                     {componentName: 'Faktura', componentUrl: '/sales/invoices', moduleID: UniModules.Invoices},

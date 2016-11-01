@@ -4,14 +4,10 @@ import {CustomerDetails} from './customerDetails/customerDetails';
 export const routes = [
     {
         path: '',
-        redirectTo: 'list'
-    },
-    {
-        path: 'list',
         component: CustomerList
     },
     {
-        path: 'details/:id',
+        path: ':id',
         component: CustomerDetails
     }
 ];

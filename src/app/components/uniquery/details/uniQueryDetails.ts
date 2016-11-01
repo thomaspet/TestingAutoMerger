@@ -309,6 +309,8 @@ export class UniQueryDetails {
                     value: this.externalID.toString()
                 }
             );
+        } else {
+            this.filters = this.filters.filter(filter => filter.value !== ':externalid');
         }
 
         // Setup table

@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -12,7 +12,9 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {ComponentLayout, Customer, Email, Phone, Address, FieldType} from '../../../../unientities';
 
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
-import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {IReference} from '../../../../models/iReference';
+import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
 
 declare var _; // lodash
 
@@ -39,6 +41,8 @@ export class CustomerDetails {
     public emptyPhone: Phone;
     public emptyEmail: Email;
     public emptyAddress: Address;
+    public reportLinks: IReference[];
+    public showReportWithID: number;
 
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
 
@@ -53,7 +57,9 @@ export class CustomerDetails {
          }
     ];
 
-    constructor(private departmentService: DepartmentService,
+    constructor(
+                private uniQueryDefinitionService: UniQueryDefinitionService,
+                private departmentService: DepartmentService,
                 private projectService: ProjectService,
                 private customerService: CustomerService,
                 private router: Router,
@@ -67,39 +73,16 @@ export class CustomerDetails {
         this.route.params.subscribe(params => {
             this.customerID = +params['id'];
             this.setup();
+            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                links => this.reportLinks = links,
+                err => console.log('Error loading customer:', err)
+            );
         });
+
     }
 
     public log(err) {
         alert(err._body);
-    }
-
-    public nextCustomer() {
-        this.customerService.NextCustomer(this.customer.ID)
-            .subscribe((data) => {
-                this.router.navigateByUrl('/sales/customer/details/' + data.ID);
-            },
-            (err) => {
-                console.log('Error getting next customer: ', err);
-                alert('Ikke flere kunder etter denne');
-            }
-            );
-    }
-
-    public previousCustomer() {
-        this.customerService.PreviousCustomer(this.customer.ID)
-            .subscribe((data) => {
-                this.router.navigateByUrl('/sales/customer/details/' + data.ID);
-            },
-            (err) => {
-                console.log('Error getting previous customer: ', err);
-                alert('Ikke flere kunder før denne');
-            }
-            );
-    }
-
-    public addCustomer() {
-        this.router.navigateByUrl('/sales/customer/details/0');
     }
 
     private change(model) {
@@ -119,9 +102,43 @@ export class CustomerDetails {
         }
     }
 
+    public nextCustomer() {
+        this.customerService.getNextID(this.customer ? this.customer.ID : 0)
+            .subscribe(id => {
+                    if (id) {
+                        this.router.navigateByUrl('/sales/customer/' + id);
+                    } else {
+                        alert('Ikke flere kunder etter denne');
+                    }
+                },
+                err => console.log('Error getting next customer: ', err)
+            );
+    }
+
+    public previousCustomer() {
+        this.customerService.getPreviousID(this.customer ? this.customer.ID : 0)
+            .subscribe(id => {
+                    if (id) {
+                        this.router.navigateByUrl('/sales/customer/' + id);
+                    } else {
+                        alert('Ikke flere kunder før denne');
+                    }
+                },
+                err => console.log('Error getting previous customer: ', err)
+            );
+    }
+
+    public addCustomer() {
+        this.router.navigateByUrl('/sales/customer/new');
+    }
+
     private setTabTitle() {
         let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Kunde (kladd)';
-        this.tabService.addTab({ url: '/sales/customer/details/' + this.customer.ID, name: tabTitle, active: true, moduleID: UniModules.Customers });
+        this.tabService.addTab({ url: '/sales/customer/' + this.customer.ID, name: tabTitle, active: true, moduleID: UniModules.Customers });
+    }
+
+    public showReport(id: number) {
+        this.showReportWithID = id;
     }
 
     public setup() {
@@ -451,7 +468,7 @@ export class CustomerDetails {
                 .subscribe(
                     (newCustomer) => {
                         completeEvent('Kunde lagret');
-                        this.router.navigateByUrl('/sales/customer/details/' + newCustomer.ID);
+                        this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');

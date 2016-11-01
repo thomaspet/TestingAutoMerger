@@ -31,6 +31,7 @@ import {ProjectList} from './dimensions/project/list/projectList';
 import {ProjectDetails} from './dimensions/project/details/projectDetails';
 import {DepartmentList} from './dimensions/department/list/departmentList';
 import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
+import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 
 @NgModule({
     imports: [
@@ -68,7 +69,8 @@ import {DepartmentDetails} from './dimensions/department/details/departmentDetai
         RegisterPaymentModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
-        UniToolbar
+        UniToolbar,
+        UniQueryReadOnly
 
     ],
     entryComponents:[
@@ -105,7 +107,8 @@ import {DepartmentDetails} from './dimensions/department/details/departmentDetai
         RegisterPaymentModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
-        UniToolbar
+        UniToolbar,
+        UniQueryReadOnly
     ]
 })
 export class AppCommonModule {

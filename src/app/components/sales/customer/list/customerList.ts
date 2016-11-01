@@ -25,11 +25,11 @@ export class CustomerList {
     }
 
     private createCustomer() {
-        this.router.navigateByUrl('/sales/customer/details/0');
+        this.router.navigateByUrl('/sales/customer/new');
     }
 
     private onRowSelected(event) {
-        this.router.navigateByUrl('/sales/customer/details/' + event.rowModel.ID);
+        this.router.navigateByUrl('/sales/customer/' + event.rowModel.ID);
     };
 
     private setupCustomerTable() {
