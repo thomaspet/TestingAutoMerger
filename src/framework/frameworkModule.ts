@@ -24,6 +24,7 @@ import {CONTROLS} from './uniform/controls/index';
 import {ShowError} from './uniform/showError';
 import {UniCalendar} from './uniform/controls/date/calendar';
 import {UniLineBreak} from './uniform/unilinebreak';
+import {Logger} from './core/logger';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import {UniLineBreak} from './uniform/unilinebreak';
     providers: [
         ImageUploader,
         ToastService,
-        StimulsoftReportWrapper
+        StimulsoftReportWrapper,
+        Logger
     ],
     exports: [
         // Modules

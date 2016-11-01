@@ -91,6 +91,13 @@
     <link rel="stylesheet" href="main.min.css?v=<%= version %>">
 
     <base href="/">
+    <script type="text/javascript">
+        !function(a,b,c,d,e,f,g,h){a.RaygunObject=e,a[e]=a[e]||function(){
+                    (a[e].o=a[e].o||[]).push(arguments)},f=b.createElement(c),g=b.getElementsByTagName(c)[0],
+                f.async=1,f.src=d,g.parentNode.insertBefore(f,g),h=a.onerror,a.onerror=function(b,c,d,f,g){
+            h&&h(b,c,d,f,g),g||(g=new Error(b)),a[e].q=a[e].q||[],a[e].q.push({
+                e:g})}}(window,document,"script","//cdn.raygun.io/raygun4js/raygun.min.js","rg4js");
+    </script>
 </head>
 
 <body>
@@ -101,8 +108,8 @@
 
     <!-- SCRIPTS
      ------------------------------------------------------------------------->
-    <script src="vendors.bundle.js?v=<%= version %>"></script>
-    <script src="app.bundle.js?v=<%= version %>"></script>
+    <script crossorigin="anonymous" src="vendors.bundle.js?v=<%= version %>"></script>
+    <script crossorigin="anonymous" src="app.bundle.js?v=<%= version %>"></script>
     <script>APP_VERSION = "<%= gitRevision %>";</script>
     <script>
         window.ENV = '<%= environment %>';
@@ -110,6 +117,7 @@
             System.import('app/appModule');
         }).catch(console.error.bind(console));
     </script>
+    <%= raygunApiKeyCode %>
 </body>
 
 </html>
