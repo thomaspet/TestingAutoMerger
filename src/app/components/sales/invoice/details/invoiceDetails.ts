@@ -426,7 +426,10 @@ export class InvoiceDetails {
             subheads: [
                 {title: this.invoice.InvoiceNumber ? (this.invoice.InvoiceType === 0 ? 'Fakturanr. ' : 'Kreditnota. ') + this.invoice.InvoiceNumber : '' },
                 {title: !this.itemsSummaryData ? 'Netto kr ' + this.invoice.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'},
-                {title: this.invoice.InvoiceType === 1 && this.invoice.InvoiceReference ? 'Kreditering av <a href="#/sales/invoices/' + this.invoice.InvoiceReference.ID + '">faktura nr. ' + this.invoice.InvoiceReference.InvoiceNumber + '</a>' : ''}
+                {
+                    title: this.invoice.InvoiceType === 1 && this.invoice.InvoiceReference ? 'Kreditering av faktura nr. ' + this.invoice.InvoiceReference.InvoiceNumber : '', 
+                    link: this.invoice.InvoiceType === 1 && this.invoice.InvoiceReference ? '#/sales/invoices/' + this.invoice.InvoiceReference.ID : ''
+                }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {

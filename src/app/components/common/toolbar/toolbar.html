@@ -8,7 +8,8 @@
 <h1>{{config?.title}}
     <small *ngFor="let subhead of config?.subheads"
         [class]="subhead.classname || ''">
-        {{subhead.title}}
+        <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title}}</a>
+        {{subhead.link ? '' : subhead.title}}
     </small>
 </h1>
 

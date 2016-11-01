@@ -7,6 +7,7 @@ export interface IToolbarConfig {
     subheads?: {
         title: string;
         classname?: string;
+        link?: string;
     }[];
     statustrack?: UniStatusTrack.IStatus[];
     navigation?: {
