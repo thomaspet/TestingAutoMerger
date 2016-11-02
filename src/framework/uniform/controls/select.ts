@@ -5,11 +5,13 @@ import {
     ElementRef,
     EventEmitter,
     ChangeDetectionStrategy,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    ViewChild
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 import {Observable} from 'rxjs/Observable';
+import {UniSelect} from "./select/select";
 
 declare var _; // jquery and lodash
 
@@ -17,7 +19,7 @@ declare var _; // jquery and lodash
     selector: 'uni-select-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <uni-select
+        <uni-select #uniselect
             [config]="field?.Options"
             [items]="items"
             [value]="selectedItem"
@@ -45,6 +47,9 @@ export class UniSelectInput {
     @Output()
     public focusEvent: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>();
 
+    @ViewChild('uniselect')
+    public uniSelect: UniSelect;
+
     private items: any[];
     private selectedItem: any;
 
@@ -52,8 +57,8 @@ export class UniSelectInput {
     }
 
     public focus() {
-        this.elementRef.nativeElement.children[0].children[0].children[0].focus();
-        this.elementRef.nativeElement.children[0].children[0].children[0].select();
+        this.uniSelect.focus();
+        this.uniSelect.select();
         this.focusEvent.emit(this);
         return this;
     }
@@ -94,10 +99,12 @@ export class UniSelectInput {
     }
 
     private createFocusListener() {
-        const target = this.elementRef.nativeElement.children[0].children[0].children[0];
-        Observable.fromEvent(target, 'focus').subscribe(() => {
-            this.focusEvent.emit(this);
-        });
+        this.uniSelect.readyEvent.subscribe(() => {
+            Observable.fromEvent(this.uniSelect.inputElement.nativeElement, 'focus').subscribe(() => {
+                this.focusEvent.emit(this);
+            });
+        })
+
     }
 
     private onChange(item) {

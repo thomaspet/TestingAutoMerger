@@ -24,7 +24,7 @@ export interface ISelectConfig {
 })
 export class UniSelect {
     @ViewChild('searchInput')
-    private inputElement: ElementRef;
+    public inputElement: ElementRef;
 
     @ViewChild('itemDropdown')
     private itemDropdown: ElementRef;
@@ -43,6 +43,9 @@ export class UniSelect {
 
     @Output()
     public valueChange: EventEmitter<any> = new EventEmitter<any>();
+
+    @Output()
+    public readyEvent: EventEmitter<UniSelect> = new EventEmitter<UniSelect>();
 
     private guid: string;
     private expanded: boolean = false;
@@ -88,6 +91,7 @@ export class UniSelect {
         this.createOpenCloseListeners();
         this.createNavigationListener();
         this.createSearchListener();
+        this.readyEvent.emit(this);
 
     }
 
@@ -263,5 +267,13 @@ export class UniSelect {
         } else if (currItem.offsetTop >= bottom) {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
+    }
+
+    public focus(){
+        this.inputElement.nativeElement.focus();
+    }
+
+    public select() {
+        this.inputElement.nativeElement.select();
     }
 }
