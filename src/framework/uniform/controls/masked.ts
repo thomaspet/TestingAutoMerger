@@ -39,6 +39,7 @@ export class UniMaskedInput {
     private maskedInput: kendo.ui.MaskedTextBox;
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
+        console.warn('UNI MICRO WARNING MESSAGE: To use MASKED input could lead uniform to unexpected behaviour, please avoid use it for now.');
     }
 
     public focus() {

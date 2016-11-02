@@ -117,7 +117,7 @@ export class BankAccountForm {
             {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
-                FieldType: FieldType.MASKED,
+                FieldType: FieldType.TEXT,
                 Label: 'Kontonummer',
             },
             {

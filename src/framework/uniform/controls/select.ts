@@ -24,7 +24,8 @@ declare var _; // jquery and lodash
             [items]="items"
             [value]="selectedItem"
             [newButtonAction]="field?.Options?.newButtonAction"
-            (valueChange)="onChange($event)">
+            (valueChange)="onChange($event)"
+            (readyEvent)="createFocusListener($event)">
         </uni-select>
     `
 })
@@ -95,16 +96,13 @@ export class UniSelectInput {
 
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
-        this.createFocusListener();
     }
 
-    private createFocusListener() {
-        this.uniSelect.readyEvent.subscribe(() => {
-            Observable.fromEvent(this.uniSelect.inputElement.nativeElement, 'focus').subscribe(() => {
-                this.focusEvent.emit(this);
-            });
-        })
-
+    private createFocusListener(component: UniSelect) {
+        const self = this;
+        Observable.fromEvent(component.valueInput.nativeElement, 'focus').subscribe(() => {
+            self.focusEvent.emit(self);
+        });
     }
 
     private onChange(item) {

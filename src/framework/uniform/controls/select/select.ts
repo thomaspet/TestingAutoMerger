@@ -24,7 +24,10 @@ export interface ISelectConfig {
 })
 export class UniSelect {
     @ViewChild('searchInput')
-    public inputElement: ElementRef;
+    public searchInput: ElementRef;
+
+    @ViewChild('valueInput')
+    public valueInput: ElementRef;
 
     @ViewChild('itemDropdown')
     private itemDropdown: ElementRef;
@@ -45,7 +48,7 @@ export class UniSelect {
     public valueChange: EventEmitter<any> = new EventEmitter<any>();
 
     @Output()
-    public readyEvent: EventEmitter<UniSelect> = new EventEmitter<UniSelect>();
+    public readyEvent: EventEmitter<UniSelect> = new EventEmitter<UniSelect>(true);
 
     private guid: string;
     private expanded: boolean = false;
@@ -56,7 +59,7 @@ export class UniSelect {
     private filterString: string = '';
 
     private selectedItem: any;
-    private focusedIndex: any = 0;
+    private focusedIndex: any = -1;
     private activeDecentantId: string;
 
     constructor(gs: GuidService, private renderer: Renderer, private cd: ChangeDetectorRef, private el: ElementRef) {
@@ -82,7 +85,7 @@ export class UniSelect {
     }
 
     public ngAfterViewInit() {
-        this.focusedIndex = this.focusedIndex || 0;
+        this.focusedIndex = this.focusedIndex || -1;
         this.searchControl.valueChanges
             .distinctUntilChanged()
             .subscribe((value: string) => {
@@ -151,7 +154,7 @@ export class UniSelect {
                         this.open();
                         this.cd.markForCheck();
                         setTimeout(() => {
-                            this.inputElement.nativeElement.focus();
+                            this.searchInput.nativeElement.focus();
                             this.searchControl.setValue(this.searchControl.value + character);
                         }, 200);
                     }
@@ -204,7 +207,7 @@ export class UniSelect {
         this.filteredItems = this.items.filter((item) => {
             return this.getDisplayValue(item).toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
         });
-        this.focusedIndex = 0;
+        this.focusedIndex = -1;
         this.cd.markForCheck();
     }
 
@@ -225,7 +228,10 @@ export class UniSelect {
     }
 
     private confirmSelection() {
-        this.selectedItem = this.filteredItems[this.focusedIndex];
+        if (this.focusedIndex > -1) {
+            this.selectedItem = this.filteredItems[this.focusedIndex];
+        }
+        this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
         this.valueChange.emit(this.selectedItem);
         this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
         this.cd.markForCheck();
@@ -269,11 +275,11 @@ export class UniSelect {
         }
     }
 
-    public focus(){
-        this.inputElement.nativeElement.focus();
+    public focus() {
+        this.valueInput.nativeElement.focus();
     }
 
     public select() {
-        this.inputElement.nativeElement.select();
+        this.valueInput.nativeElement.select();
     }
 }
