@@ -1,70 +1,126 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {VatType, Project, Department, SupplierInvoice} from '../../../../../unientities';
-import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService} from '../../../../../services/services';
+import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice} from '../../../../../unientities';
+import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService} from '../../../../../services/services';
 import {JournalEntryData} from '../../../../../models/models';
+import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
+import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+
+declare const _;
+declare const moment;
 
 @Component({
-    selector: "journal-entry-professional",
-    templateUrl: "app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html",
+    selector: 'journal-entry-professional',
+    templateUrl: 'app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html',
 })
-export class JournalEntryProfessional {
+export class JournalEntryProfessional implements OnInit {
     @Input() public supplierInvoice: SupplierInvoice;
-    @Input() public runAsSubComponent : boolean = false;
-    @Input() public disabled : boolean = false;
+    @Input() public journalEntryID: number = 0;
+    @Input() public runAsSubComponent: boolean = false;
+    @Input() public mode: number = JournalEntryMode.Manual;
+    @Input() public disabled: boolean = false;
+    @Input() public journalEntryLines: JournalEntryData[] = [];
 
-    @ViewChild(UniTable) table: UniTable;
-    journalEntryTable: UniTableConfig;
+    @ViewChild(UniTable) private table: UniTable;
+    private journalEntryTableConfig: UniTableConfig;
 
-    @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
-    @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+    @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+    @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
 
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-    journalEntryLines: JournalEntryData[] = [];
+    private accounts: Account[];
+
+    private SAME_OR_NEW_NEW: string = '1';
+    private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
+    public journalEntryNumberAlternatives: Array<any> = [];
+
+    private firstAvailableJournalEntryNumber: string = '';
+    private lastUsedJournalEntryNumber: string = '';
 
     constructor(private uniHttpService: UniHttp,
             private vatTypeService: VatTypeService,
             private accountService: AccountService,
             private journalEntryService: JournalEntryService,
             private departmentService: DepartmentService,
-            private projectService: ProjectService) {
+            private projectService: ProjectService,
+            private customerInvoiceService: CustomerInvoiceService,
+            private toastService: ToastService) {
 
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.setupJournalEntryTable();
     }
 
-    ngOnChanges() {
-        //this.setupJournalEntryTable();
-    }
+    private setupJournalEntryTable() {
+        let journalentrytoday: JournalEntryData = new JournalEntryData()
+        journalentrytoday.FinancialDate = moment().toDate();
 
-    setupJournalEntryTable() {
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
-            this.vatTypeService.GetAll(null)
+            this.vatTypeService.GetAll(null),
+            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
         ).subscribe(
             (data) => {
                 this.departments = data[0];
                 this.projects = data[1];
                 this.vattypes = data[2];
+                this.accounts = data[3];
+                this.firstAvailableJournalEntryNumber = data[4];
+
                 this.setupUniTable();
 
-                this.dataLoaded.emit([]);
+                this.dataLoaded.emit(this.journalEntryLines);
             },
             (err) => console.log('Error retrieving data: ', err)
         );
     }
 
+    private setJournalEntryNumberProperties(newRow) {
+
+        if (newRow.JournalEntryID) {
+            // if this is a saved journalentry, dont try to updated JournalEntryNo, this will normally not
+            // be displayed to the user anyway in these cases
+            return;
+        }
+
+        let data = this.table.getTableData();
+
+        if (newRow.SameOrNewDetails) {
+            if (newRow.SameOrNewDetails.ID === this.SAME_OR_NEW_NEW) {
+                newRow.JournalEntryNo = this.firstAvailableJournalEntryNumber;
+            } else {
+                newRow.JournalEntryNo = newRow.SameOrNewDetails.Name;
+            }
+        } else {
+            if (data.length === 0) {
+                // set New number as default if nothing is specified and no previous numbers have been used
+                newRow.SameOrNewDetails = this.journalEntryNumberAlternatives[this.journalEntryNumberAlternatives.length - 1];
+                newRow.JournalEntryNo = this.firstAvailableJournalEntryNumber;
+            } else {
+                newRow.JournalEntryNo = this.lastUsedJournalEntryNumber;
+            }
+        }
+
+        newRow.SameOrNew = newRow.JournalEntryNo;
+        newRow.SameOrNewDetails = {ID: newRow.JournalEntryNo, Name: newRow.JournalEntryNo};
+
+        setTimeout(() => {
+            // update alternatives, this will change when new numbers are used. Do this after datasource is updated, using setTimeout
+            // because we need the updated alternatives to reuse the same method
+            this.setupSameNewAlternatives();
+        });
+    }
 
     private setDebitAccountProperties(rowModel) {
         let account = rowModel.DebitAccount;
-        if (account != null) {
+        if (account) {
             rowModel.DebitAccountID = account.ID;
             rowModel.DebitVatType = account.VatType;
             rowModel.DebitVatTypeID = account.VatTypeID;
@@ -89,7 +145,6 @@ export class JournalEntryProfessional {
         rowModel.DebitVatTypeID = vattype != null ? vattype.ID : null;
     }
 
-
     private setCreditVatTypeProperties(rowModel) {
         let vattype = rowModel.CreditVatType;
         rowModel.CreditVatTypeID = vattype != null ? vattype.ID : null;
@@ -111,32 +166,94 @@ export class JournalEntryProfessional {
         }
     }
 
+    private setCustomerInvoiceProperties(rowModel: JournalEntryData) {
+        let invoice = rowModel['CustomerInvoice'];
+        if (invoice) {
+            rowModel.InvoiceNumber = invoice.InvoiceNumber;
+        }
+
+        if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
+            for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
+                let line = invoice.JournalEntry.Lines[i];
+
+                if (line.Account.UsePostPost) {
+                    rowModel.CustomerInvoiceID = invoice.ID;
+                    rowModel.Amount = line.RestAmount;
+
+                    if (line.SubAccount) {
+                        rowModel.CreditAccountID = line.SubAccountID;
+                        rowModel.CreditAccount = line.SubAccount;
+                    } else {
+                        rowModel.CreditAccountID = line.AccountID;
+                        rowModel.CreditAccount = line.Account;
+                    }
+
+                    let defaultBankAccount = this.accounts.find(x => x.AccountNumber === 1920);
+                    if (defaultBankAccount) {
+                        rowModel.DebitAccount = defaultBankAccount;
+                        rowModel.DebitAccountID = defaultBankAccount.ID;
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
     private setupUniTable() {
 
-        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth("7%");
+        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('6%')
+            .setSkipOnEnterKeyNavigation(true)
+            .setEditorOptions({
+                displayField: 'Name',
+                lookupFunction: (searchValue) => {
+                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0)]);
+                },
+                itemTemplate: (item) => {
+                    return item ? item.Name : '';
+                }
+            })
+            .setTemplate((item) => {
+                return item.JournalEntryNo ? item.JournalEntryNo : '';
+            });
+
+        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth('7%');
+
+        let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Fakturanr', UniTableColumnType.Lookup)
+            .setDisplayField('InvoiceNumber')
+            .setWidth('10%')
+            .setEditorOptions({
+                itemTemplate: (selectedItem: CustomerInvoice) => {
+                    return selectedItem ? (`Fakturanr: ${selectedItem.InvoiceNumber}. Restbeløp: ${selectedItem.RestAmount}`) : '';
+                },
+                lookupFunction: (searchValue) => {
+                    return this.customerInvoiceService.GetAll(`filter=startswith(InvoiceNumber, '${searchValue}')&top=10&expand=JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,JournalEntry.Lines.SubAccount`);
+                }
+            });
 
         let debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
                     let account = rowModel.DebitAccount;
-                    return account.AccountNumber + ': ' + account.AccountName;
+                    return !rowModel._isEmpty ? account.AccountNumber + ': ' + account.AccountName : '';
                 }
                 return '';
             })
-            .setWidth("15%")
+            .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this.accountService.GetAll(`filter=Visible eq true and (contains(AccountNumber,'${searchValue}') or contains(AccountName,'${searchValue}'))`, ['VatType']);
+                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]);
                 }
             });
 
-        let debitVatTypeCol = new UniTableColumn('DebitVatType', 'Debet MVA', UniTableColumnType.Lookup)
+        let debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
             .setDisplayField('DebitVatType.VatCode')
-            .setWidth("8%")
+            .setWidth('8%')
+            .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
                 if (rowModel.DebitVatType) {
                     let vatType = rowModel.DebitVatType;
@@ -146,7 +263,6 @@ export class JournalEntryProfessional {
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    //return 'test';
                     return (item.VatCode + ': ' + item.Name + ' - ' + item.VatPercent + '%');
                 },
                 lookupFunction: (searchValue) => {
@@ -154,7 +270,7 @@ export class JournalEntryProfessional {
                 }
             });
 
-        let creditAccountCol = new UniTableColumn('CreditAccount', 'Debet', UniTableColumnType.Lookup)
+        let creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
             .setDisplayField('CreditAccount.AccountNumber')
             .setTemplate((rowModel) => {
                 if (rowModel.CreditAccount) {
@@ -163,18 +279,19 @@ export class JournalEntryProfessional {
                 }
                 return '';
             })
-            .setWidth("15%")
+            .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this.accountService.GetAll(`filter=Visible eq true and (contains(AccountNumber,'${searchValue}') or contains(AccountName,'${searchValue}'))`, ['VatType']);
+                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]);
                 }
             });
 
-        let creditVatTypeCol = new UniTableColumn('CreditVatType', 'Kredit MVA', UniTableColumnType.Lookup)
-            .setWidth("8%")
+        let creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)
+            .setWidth('8%')
+            .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
                 if (rowModel.CreditVatType) {
                     let vatType = rowModel.CreditVatType;
@@ -191,10 +308,10 @@ export class JournalEntryProfessional {
                 }
             });
 
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number).setWidth("5%");
+        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number).setWidth('7%');
 
-        /*let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
-            .setWidth("8%")
+        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+            .setWidth('8%')
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
                     let project = rowModel.Dimensions.Project;
@@ -211,11 +328,9 @@ export class JournalEntryProfessional {
                 }
             });
 
-
         let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
-            .setWidth("8%")
+            .setWidth('8%')
             .setTemplate((rowModel) => {
-
                 if (rowModel.Dimensions && rowModel.Dimensions.Department && rowModel.Dimensions.Department.Name) {
                     let dep = rowModel.Dimensions.Department;
                     return dep.ID + ' - ' + dep.Name;
@@ -230,51 +345,196 @@ export class JournalEntryProfessional {
                    return Observable.from([this.departments.filter((dep) => dep.ID == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
-        */
 
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
 
-        this.journalEntryTable = new UniTableConfig(true, false, 100)
-            .setColumns([
-                financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol,
-                /*projectCol, departmentCol,*/ descriptionCol
-            ])
+        let defaultRowData = {
+            Dimensions: {},
+            DebitAccount: null,
+            DebitAccountID: null,
+            CreditAccount: null,
+            CreditAccountID: null,
+            // KE: We might want to set these as "Nytt bilag" for some entrymodes, but expected behaviour with
+            //     UniTable is to copy value from the row above it you dont enter anything. Leave this for now, need to be considered
+
+            // SameOrNew: this.journalEntryNumberAlternatives[this.journalEntryNumberAlternatives.length - 1].ID,
+            // SameOrNewDetails: this.journalEntryNumberAlternatives[this.journalEntryNumberAlternatives.length - 1],
+            Description: ''
+        };
+
+        let columns: Array<UniTableColumn> = [];
+
+        if (this.mode === JournalEntryMode.Supplier) {
+            creditAccountCol.setSkipOnEnterKeyNavigation(true);
+
+            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, amountCol,
+                projectCol, departmentCol, descriptionCol];
+        } else if (this.mode === JournalEntryMode.Payment) {
+            debitAccountCol.setSkipOnEnterKeyNavigation(true);
+            debitVatTypeCol.setSkipOnEnterKeyNavigation(true);
+            creditAccountCol.setSkipOnEnterKeyNavigation(true);
+            creditVatTypeCol.setSkipOnEnterKeyNavigation(true);
+            descriptionCol.setSkipOnEnterKeyNavigation(true);
+
+            defaultRowData.Description = 'Innbetaling';
+
+            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
+                 descriptionCol];
+        } else {
+
+            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol,
+                projectCol, departmentCol, descriptionCol];
+        }
+
+        this.journalEntryTableConfig = new UniTableConfig(!this.disabled, false, 100)
+            .setColumns(columns)
             .setAutoAddNewRow(true)
             .setMultiRowSelect(false)
-            .setDefaultRowData({
-                Dimensions: {}
-            })
+            .setContextMenu([
+                {
+                    action: (item) => this.deleteLine(item),
+                    disabled: (item) => { return this.disabled; },
+                    label: 'Slett linje'
+                }
+            ])
+            .setDefaultRowData(defaultRowData)
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
 
-                //console.log('data endret, felt: ' + event.field + ', rowModel:', newRow);
+                if (event.field === 'SameOrNewDetails' || !newRow.JournalEntryNo) {
+                    this.setJournalEntryNumberProperties(newRow);
+                }
 
                 if (event.field === 'DebitAccount') {
                     this.setDebitAccountProperties(newRow);
-                }
-                else if (event.field === 'CreditAccount') {
+                } else if (event.field === 'CreditAccount') {
                     this.setCreditAccountProperties(newRow);
-                }
-                else if (event.field === 'DebitVatType') {
+                } else if (event.field === 'DebitVatType') {
                     this.setDebitVatTypeProperties(newRow);
-                }
-                else if (event.field === 'CreditVatType') {
+                } else if (event.field === 'CreditVatType') {
                     this.setCreditVatTypeProperties(newRow);
-                }
-                else if (event.field === 'Dimensions.Department') {
+                } else if (event.field === 'Dimensions.Department') {
                     this.setDepartmentProperties(newRow);
-                }
-                else if (event.field === 'Dimensions.Project') {
+                } else if (event.field === 'Dimensions.Project') {
                     this.setProjectProperties(newRow);
+                } else if (event.field === 'CustomerInvoice') {
+                    this.setCustomerInvoiceProperties(newRow);
                 }
 
                 // Return the updated row to the table
                 return newRow;
             });
+
+        setTimeout(() => {
+            this.setupSameNewAlternatives();
+        });
+
+    }
+
+    private deleteLine(line) {
+        if (confirm('Er du sikker på at du vil slette linjen?')) {
+            this.table.removeRow(line._originalIndex);
+        }
+    }
+
+    private setupSameNewAlternatives() {
+
+        if (this.journalEntryTableConfig
+            && this.journalEntryTableConfig.columns
+            && this.journalEntryTableConfig.columns.length > 0
+            && this.journalEntryTableConfig.columns[0].field === 'SameOrNewDetails') {
+
+            this.journalEntryNumberAlternatives = [];
+
+            let currentRow: any;
+
+            // add list of possible numbers from start to end if we have any table data
+            if (this.table) {
+                currentRow = this.table.getCurrentRow();
+                let tableData = this.table.getTableData();
+
+                if (tableData.length > 0) {
+                    let range = this.journalEntryService.findJournalNumbersFromLines(tableData);
+                    this.lastUsedJournalEntryNumber = range.lastNumber;
+                    this.firstAvailableJournalEntryNumber = range.nextNumber;
+
+                    for (let i = 0; i <= (range.last - range.first); i++) {
+                        let jn = `${i + range.first}-${range.year}`;
+                        this.journalEntryNumberAlternatives.push({ID: jn, Name: jn});
+                    }
+                }
+            }
+
+            // new always last one
+            this.journalEntryNumberAlternatives.push(this.newAlternative);
+
+            // update editor with new options
+            this.journalEntryTableConfig.columns[0].editorOptions.resource = this.journalEntryNumberAlternatives;
+        }
+    }
+
+    private validateData(data: Array<JournalEntryData>, completeCallback): string {
+        let invalidRows = data.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
+
+        if (invalidRows.length > 0) {
+            return 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene. Vennligst korriger og lagre igjen';
+        }
+
+        return null;
     }
 
     public postJournalEntryData(completeCallback) {
-        console.log('NOT IMPLEMENTED - SHOULD BE REFACTORED TO USE JOURNAL-ENTRY-MANUAL');
+
+        let tableData = this.table.getTableData();
+
+        let validationMessage = this.validateData(tableData, completeCallback);
+
+        if (validationMessage) {
+            this.toastService.addToast('Feil ved validering av data:', ToastType.bad, null, validationMessage);
+            completeCallback('Validering feilet');
+            return;
+        }
+
+        this.journalEntryService.postJournalEntryData(tableData)
+            .subscribe(
+            data => {
+                var firstJournalEntry = data[0];
+                var lastJournalEntry = data[data.length - 1];
+
+                // Validate if journalEntry number has changed
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
+
+                if (firstJournalEntry.JournalEntryNo !== numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNo !== numbers.lastNumber) {
+                    this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
+
+                } else {
+                    this.toastService.addToast('Lagring var vellykket!', ToastType.good, 10);
+                }
+
+                completeCallback('Lagret og bokført');
+
+                // Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+
+                this.dataChanged.emit(this.journalEntryLines);
+            },
+            err => {
+                completeCallback('Lagring feilet');
+
+                let message = '';
+                if (err._body && err._body.Messages && err._body.Messages.length > 0) {
+                    err._body.Messages.forEach(msg => {
+                        message += msg + '<br />';
+                    });
+                } else {
+                    message = JSON.stringify(err._body);
+                }
+
+                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, message);
+                console.log('error in postJournalEntryData: ', err);
+            });
+
     }
 
     public removeJournalEntryData() {
@@ -283,9 +543,34 @@ export class JournalEntryProfessional {
         }
     }
 
+    public addJournalEntryLine(data) {
+        let newItems = this.table.getTableData();
+
+        data.JournalEntryNo = this.lastUsedJournalEntryNumber ? this.lastUsedJournalEntryNumber : this.firstAvailableJournalEntryNumber;
+        data.SameOrNew = data.JournalEntryNo;
+
+        newItems.push(data);
+
+        // Use JSON parse/stringify because UniTable reacts to data in different formats (object vs JournalEntryData objects).
+        // Not sure why this happens, but _.cloneDeep, concat ect does not solve the problem.
+        this.journalEntryLines = JSON.parse(JSON.stringify(newItems));
+
+        // run this in settimeout because we need to wait for the unitable to update it's datasource before
+        // setting up the updated alternatives
+        setTimeout(() => {
+            this.setupSameNewAlternatives();
+        });
+
+        this.dataChanged.emit(this.journalEntryLines);
+    }
+
     private rowChanged(event) {
         var tableData = this.table.getTableData();
 
         this.dataChanged.emit(tableData);
+    }
+
+    public getTableData() {
+        return this.table.getTableData();
     }
 }

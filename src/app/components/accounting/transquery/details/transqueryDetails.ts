@@ -215,14 +215,15 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
+                    .setTemplate(line => line.JournalEntryLineRestAmount)
                     .setVisible(false),
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-                    .setTemplate(line => this.journalEntryLineService.getStatusText(line.StatusCode))
                     .setFilterable(false)
+                    .setTemplate(line => this.journalEntryLineService.getStatusText(line.JournalEntryLineStatusCode))
                     .setVisible(false),
-                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
-                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; })
             ]);
     }

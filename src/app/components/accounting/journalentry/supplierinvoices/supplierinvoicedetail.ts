@@ -167,7 +167,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
     private updateToolbar() {
         this.toolbarconfig = {
-            title: this.supplierInvoice !== null && this.supplierInvoice.ID > 0 ? (this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : '') : '', 
+            title: this.supplierInvoice !== null && this.supplierInvoice.ID > 0 ? (this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : '') : '',
             subheads: [
                 {title: this.supplierInvoice.Supplier ? ' ' + this.supplierInvoice.Supplier.Info.Name : ''},
                 {title: this.supplierInvoice !== null && this.supplierInvoice.ID > 0 ? 'bilagsnr: ' + (this.supplierInvoice.JournalEntry !== null && this.supplierInvoice.JournalEntry.JournalEntryNumber !== null ? this.supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført') : ''}

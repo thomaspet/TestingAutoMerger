@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChange, ViewChildren, QueryList, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
+import {Component, Input, SimpleChange, ViewChildren, QueryList, OnInit, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -8,18 +8,16 @@ import {VatType, Account, SupplierInvoice, Department, Project} from '../../../.
 import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService} from '../../../../../services/services';
 
 import {JournalEntryData} from '../../../../../models/models';
-import {JournalEntryMode} from './journalentrysimpleform';
+import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {JournalEntrySimpleForm} from './journalentrysimpleform';
-
-declare var moment;
 
 @Component({
     selector: 'journal-entry-simple',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html'
 })
-export class JournalEntrySimple implements OnInit, OnChanges {
+export class JournalEntrySimple implements OnInit {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
@@ -45,30 +43,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     public ngOnInit() {
-        if (this.supplierInvoice) {
-            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
-                .subscribe(data => {
-                    for (var line in data) {
-                        data[line].FinancialDate = new Date(data[line].FinancialDate);
-                    }
-                    this.journalEntryLines = data;
-                    this.dataLoaded.emit(data);
-                });
-        } else if (this.journalEntryID > 0) {
-            this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
-                .subscribe(data => {
-                    for (var line in data) {
-                        data[line].FinancialDate = new Date(data[line].FinancialDate);
-                    }
-                    this.journalEntryLines = data;
-                    this.dataLoaded.emit(data);
-                });
-        }
-        else {
-            this.journalEntryLines = new Array<JournalEntryData>();
-            this.dataLoaded.emit(this.journalEntryLines);
-        }
-
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
@@ -77,30 +51,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         ).subscribe(response => {
             this.dropdownData = response;
         });
-    }
-
-    public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        if (this.supplierInvoice) {
-            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
-                .subscribe(data => {
-                    for (var line in data) {
-                        data[line].FinancialDate = new Date(data[line].FinancialDate);
-                    }
-                    this.journalEntryLines = data;
-                });
-        }
-        else if (this.journalEntryID > 0) {
-            this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
-                .subscribe(data => {
-                    for (var line in data) {
-                        data[line].FinancialDate = new Date(data[line].FinancialDate);
-                    }
-                    this.journalEntryLines = data;
-                });
-        }
-        else {
-            this.journalEntryLines = new Array<JournalEntryData>();
-        }
     }
 
     public checkIfFormsHaveChanges() {
@@ -301,6 +251,12 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private getFinancialDateString(line: JournalEntryData): string {
-        return line.FinancialDate !== null && line.FinancialDate.toISOString() !== '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : '';
+        try {
+            return line.FinancialDate.toISOString() !== '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : '';
+        } catch (e) {
+
+        }
+
+        return '';
     }
 }

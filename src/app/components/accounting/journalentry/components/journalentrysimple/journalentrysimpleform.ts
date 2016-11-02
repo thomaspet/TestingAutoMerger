@@ -5,16 +5,10 @@ import {JournalEntryData} from '../../../../../models/models';
 
 import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
 import {AccountService, JournalEntryService, CustomerInvoiceService} from '../../../../../services/services';
+import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 
 declare var _;
 declare var moment;
-
-export enum JournalEntryMode {
-    Manual,
-    Supplier,
-    Payment,
-    JournalEntryView
-}
 
 @Component({
     selector: 'journal-entry-simple-form',
@@ -192,7 +186,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             });
         } else {
             let oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
- 
+
             if (this.mode !== JournalEntryMode.Supplier) {
                 var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
                 if (numbers) {

@@ -10,10 +10,17 @@
     </strong>
 </p>
 
+<section class="modeswitcher">
+    <button *ngIf="journalEntryMode == 'PROFESSIONAL'" (click)="setJournalEntryMode('SIMPLE')">Vis forenklet registrering...</button>
+    <button *ngIf="journalEntryMode == 'SIMPLE'" (click)="setJournalEntryMode('PROFESSIONAL')">Vis proff registrering...</button>
+</section>
 <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
                             [runAsSubComponent]="runAsSubComponent"
                             [disabled]="disabled"
-                            *ngIf="journalEntryMode == 'PROFFESIONAL'">
+                            [mode]="mode"
+                            [supplierInvoice]="supplierInvoice"
+                            [journalEntryID]="journalEntryID"
+                            *ngIf="journalEntryMode == 'PROFESSIONAL'">
 </journal-entry-professional>
 
 <dl class="summary journalEntry_summary"

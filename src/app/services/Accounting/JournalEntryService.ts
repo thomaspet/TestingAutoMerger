@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions} from '../../unientities';
 import {JournalEntryData} from '../../models/accounting/journalentrydata';
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/from";
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -11,20 +11,34 @@ declare var moment;
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
+    private JOURNALENTRYMODE_LOCALSTORAGE_KEY: string;
 
     constructor(http: UniHttp) {
         super(http);
-
-        //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
         this.relativeURL = JournalEntry.RelativeUrl;
-
         this.entityType = JournalEntry.EntityType;
-
-        //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }
 
-    getLastJournalEntryNumber(): Observable<any> {
+    public getJournalEntryMode(): string {
+        let mode = localStorage.getItem(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY);
+
+        if (!mode) {
+            mode = 'PROFESSIONAL';
+        }
+
+        if (mode !== 'SIMPLE' && mode !== 'PROFESSIONAL') {
+            mode = 'PROFESSIONAL';
+        }
+
+        return mode;
+    }
+
+    public setJournalEntryMode(newMode: string) {
+        localStorage.setItem(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY, newMode);
+    }
+
+    public getLastJournalEntryNumber(): Observable<any> {
         return this.http
             .asGET()
             .usingEmptyDomain()
@@ -33,7 +47,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    getNextJournalEntryNumber(journalentry: JournalEntryData): Observable<any> {
+    public getNextJournalEntryNumber(journalentry: JournalEntryData): Observable<any> {
         return this.http
             .asPOST()
             .withBody(journalentry)
@@ -43,7 +57,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    getJournalEntryPeriodData(accountID: number): Observable<any> {
+    public getJournalEntryPeriodData(accountID: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -52,7 +66,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+    public postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -62,7 +76,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+    public saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -72,7 +86,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+    public validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -82,7 +96,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    getJournalEntryDataBySupplierInvoiceID(supplierInvoiceID: number): Observable<any> {
+    public getJournalEntryDataBySupplierInvoiceID(supplierInvoiceID: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -91,7 +105,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
+    public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -100,7 +114,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    calculateJournalEntrySummary(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+    public calculateJournalEntrySummary(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()

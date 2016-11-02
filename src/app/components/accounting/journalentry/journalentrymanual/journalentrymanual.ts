@@ -5,8 +5,14 @@ import {SupplierInvoice} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
-import {JournalEntryMode} from '../components/journalentrysimple/journalentrysimpleform';
 import {IUniSaveAction} from '../../../../../framework/save/save';
+
+export enum JournalEntryMode {
+    Manual,
+    Supplier,
+    Payment,
+    JournalEntryView
+}
 
 @Component({
     selector: 'journal-entry-manual',
@@ -17,11 +23,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
-    @Input() public mode: number = JournalEntryMode.Manual;
-    @Input() public journalEntryMode: string;
+    @Input() public mode: number;
     @Input() public disabled: boolean = false;
+
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
+
+    private journalEntryMode: string;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     public validationResult: any;
@@ -39,26 +47,90 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public ngOnInit() {
-        this.journalEntryMode = 'SIMPLE';
+        this.journalEntryMode = this.journalEntryService.getJournalEntryMode();
 
         if (this.supplierInvoice) {
             this.mode = JournalEntryMode.Supplier;
+
+            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
+                .subscribe(data => {
+                    this.setJournalEntryData(data);
+                });
         } else if (this.journalEntryID > 0) {
             this.mode = JournalEntryMode.JournalEntryView;
+
+            this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
+                .subscribe((data: Array<JournalEntryData>) => {
+                    this.setJournalEntryData(data);
+                });
         }
 
         this.setupSubscriptions();
     }
 
+    public setJournalEntryMode(newMode: string) {
+        let lines: Array<JournalEntryData>;
+
+        // get existing data from the view that is visible now
+        if (newMode === 'SIMPLE') {
+            if (this.journalEntryProfessional) {
+                lines = this.journalEntryProfessional.getTableData();
+            }
+        } else {
+            if (this.journalEntrySimple) {
+                lines = this.journalEntrySimple.journalEntryLines;
+            }
+        }
+
+        // update localstorage with preference for what mode to use (simple/professional)
+        this.journalEntryService.setJournalEntryMode(newMode);
+        this.journalEntryMode = this.journalEntryService.getJournalEntryMode();
+
+        // fix data to avoid problem with different formats/structures
+        let data = JSON.parse(JSON.stringify(lines));
+        data.forEach(line => {
+            line.FinancialDate = new Date(line.FinancialDate);
+        });
+
+        // let angular setup the viewchild, it does not exist until a change cycle has been runAsSubComponent
+        setTimeout(() => {
+            if (newMode === 'SIMPLE') {
+                if (this.journalEntrySimple) {
+                    this.journalEntrySimple.journalEntryLines = data;
+                }
+            } else {
+                if (this.journalEntryProfessional) {
+                    this.journalEntryProfessional.journalEntryLines = data;
+                }
+            }
+        });
+    }
+
+    public addJournalEntryData(data: JournalEntryData) {
+        data.SameOrNew = '1';
+
+        if (this.journalEntryProfessional) {
+            this.journalEntryProfessional.addJournalEntryLine(data);
+        } else if (this.journalEntrySimple) {
+
+            this.journalEntrySimple.journalEntryLines.push(data);
+            this.onDataChanged(this.journalEntrySimple.journalEntryLines);
+        }
+    }
+
     public getJournalEntryData(): Array<JournalEntryData> {
         if (this.journalEntrySimple) {
             return this.journalEntrySimple.journalEntryLines;
+        } else if (this.journalEntryProfessional) {
+            return this.journalEntryProfessional.getTableData();
         }
     }
 
     public setJournalEntryData(lines: Array<JournalEntryData>) {
         if (this.journalEntrySimple) {
             this.journalEntrySimple.journalEntryLines = lines;
+        } else if (this.journalEntryProfessional) {
+            this.journalEntryProfessional.journalEntryLines = lines;
         }
     }
 

@@ -24,6 +24,22 @@ journal-entry-manual:not(.runassubcomponent)
     width: calc(100% - 2rem) !important
     margin: 0 auto
 
+journal-entry-manual
+    .modeswitcher
+        float: right
+
+        button
+            @extend a:link
+            display: inline-block
+            background: 0 0
+            box-shadow: none
+            text-shadow: none
+            border: none
+            padding: 0
+            margin-left: .3rem
+            text-decoration: none
+            font-size: small
+
 journal-entry-manual.runassubcomponent
     display: block
 

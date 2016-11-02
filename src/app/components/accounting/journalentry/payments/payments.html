@@ -1,3 +1,12 @@
 <h2>Registrering av betalinger</h2>
 <journal-entry-manual [mode]="2"></journal-entry-manual>
 
+<h2>Ubetalte fakturaer</h2>
+<section class="payment-invoice-data">
+    <p>Registrer betalinger ved å legge inn fakturanr i tabellen over, eller kryss av for hvilke fakturaer som skal registreres som betalt i tabellen under. Data lagres ikke før du trykker Lagre og bokfør.</p>
+    <uni-table
+        [resource]="lookupFunction"
+        [config]="invoiceTable"
+        (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
+    </uni-table>
+</section>
