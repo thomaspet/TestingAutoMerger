@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {WageTypeService, SalaryTransactionService, UniCacheService} from '../../../../services/services';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
 import {Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {Observable} from 'rxjs/Observable';
@@ -22,6 +22,7 @@ export class RecurringPost extends UniView {
     private wagetypes: WageType[];
     private unsavedEmployments: boolean;
     private employmentsMapped: boolean;
+    @ViewChild(UniTable) private uniTable: UniTable;
     @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     constructor(public router: Router,
@@ -264,6 +265,8 @@ export class RecurringPost extends UniView {
             let row: SalaryTransaction = this.recurringPosts.find(x => x.ID === trans.ID && !x.Deleted);
             if (row) {
                 row.Supplements = trans.Supplements;
+                row['_isDirty'] = true;
+                this.uniTable.updateRow(row['_originalIndex'], row);
                 super.updateState('recurringPosts', this.recurringPosts, true);
             }
         }
