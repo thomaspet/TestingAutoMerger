@@ -419,18 +419,32 @@ export class UniMultivalueInput {
 
     private setFocusOnNextField() {
         const uniFieldParent = this.findAncestor(this.el.nativeElement, 'uni-field');
-        const nextUniField = uniFieldParent.nextElementSibling;
-        const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
-        input.focus();
-        input.select();
+        let nextUniField = uniFieldParent.nextElementSibling;
+        if (nextUniField) {
+            if (nextUniField.tagName === 'UNI-LINEBREAK') {
+                nextUniField = nextUniField.nextElementSibling;
+            }
+            const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
     }
 
     private setFocusOnPrevField() {
         const uniFieldParent = this.findAncestor(this.inputElement.nativeElement, 'uni-field');
-        const nextUniField = uniFieldParent.previousElementSibling;
-        const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
-        input.focus();
-        input.select();
+        let nextUniField = uniFieldParent.previousElementSibling;
+        if (nextUniField) {
+            if (nextUniField.tagName === 'UNI-LINEBREAK') {
+                nextUniField = nextUniField.previousElementSibling;
+            }
+            const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
     }
 
     private findAncestor(element: HTMLElement, selector: string): HTMLElement {
