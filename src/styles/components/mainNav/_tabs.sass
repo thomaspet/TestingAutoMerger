@@ -19,8 +19,8 @@
             color: $navbarBackground
 
             .close
-                border: pxToRem(1) solid mix($uni-color-C2A, $navbarBackground, 70%)
-                background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-C2A, $navbarBackground, 50%) 0, mix($uni-color-C2A, $navbarBackground, 60%) 100%)
+                border: pxToRem(1) solid $navbarBackground
+                background-image: unicon-close($uni-color-negative), linear-gradient(to top, $navbarBackground 0, $navbarBackground 100%)
                 opacity: .8
 
     li
@@ -42,7 +42,7 @@
             color: $navbarBackground
 
             .close
-                border: pxToRem(1) solid mix($uni-color-C2A, $navbarBackground, 70%)
+                border: pxToRem(1) solid mix($navbarBackground, $navbarBackground, 70%)
                 background-image: unicon-close($uni-color-negative)
                 opacity: .8
 
@@ -69,14 +69,14 @@
             border-radius: pxToRem(3)
             border: pxToRem(1) solid transparent
             background-image: unicon-close($uni-color-negative)
-            background-color: mix($uni-color-positive, $uni-color-C2A, 25%)
+            background-color: mix($uni-color-positive, $navbarBackground, 25%)
             background-position: center center
             background-repeat: no-repeat
             background-size: .4rem, contain
 
             &:hover,
             &:focus
-                border: pxToRem(1) solid $uni-color-C2A
+                border: pxToRem(1) solid $navbarBackground
 
         &:hover,
         &:focus
