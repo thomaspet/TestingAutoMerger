@@ -3,7 +3,14 @@ uni-checkbox-input label, uni-radio-input label
 
 input[type=checkbox],
 input[type=radio]
-    display: none
+    @extend %visuallyHidden
+
+    &:focus + label
+        &:before
+            background: $uni-color-scale9
+
+        &:after
+            border-color: $uni-color-negative
 
     & + label
         user-select: none

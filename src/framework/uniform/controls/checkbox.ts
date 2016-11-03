@@ -15,7 +15,7 @@ declare var _; // jquery and lodash
                 [checked]="isChecked()"
                 (focus)="focusHandler()"
             />
-            <label (click)="checkIt()">{{field?.Label}}</label>
+            <label (click)="checkIt()" tabindex="-1">{{field?.Label}}</label>
     `
 })
 export class UniCheckboxInput {
@@ -36,13 +36,13 @@ export class UniCheckboxInput {
 
     @Output()
     public changeEvent: EventEmitter<any> = new EventEmitter<any>(true);
-    
+
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
-        
+
     }
 
     public focus() {
-        this.elementRef.nativeElement.focus();
+        this.elementRef.nativeElement.getElementsByTagName('input')[0].focus();
         return this;
     }
 
@@ -63,14 +63,14 @@ export class UniCheckboxInput {
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
     }
-    
+
     public checkIt() {
         _.set(this.model, this.field.Property, !this.isChecked());
         this.changeEvent.emit(this.model);
     }
-    
+
     public isChecked() {
         var modelValue = _.get(this.model, this.field.Property);
-        return modelValue; 
+        return modelValue;
     }
 }
