@@ -133,6 +133,7 @@ export class AccountReportFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: AccountReportFilterForm) => {
 

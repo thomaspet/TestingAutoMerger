@@ -3,57 +3,56 @@
     <figure class="report_group_card" *ngFor="let reportCategory of reportCategories">
         <h2>{{ reportCategory.name }}</h2>
         <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">
-            <div [ngSwitch]="report.ID">
-                <a
-                        *ngSwitchCase="12"
+            <!-- Uni Query -->
+            <div *ngIf="!report.Category">
+                <a (click)="showUniQuery(report)">
+                    <h4 class="report_name">{{report.Name}} <small>(uttrekk)</small></h4>
+                    <p>{{report.Description}}</p>
+                </a>
+            </div>
+            <!-- Reports -->
+            <div *ngIf="report.Category" [ngSwitch]="report.Id">
+                <a *ngSwitchCase="12"
                         (click)="showBalanceListModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-                <a
-                        *ngSwitchCase="13"
+                <a *ngSwitchCase="13"
                         (click)="showBalanceListModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-                <a
-                        *ngSwitchCase="14"
+                <a *ngSwitchCase="14"
                         (click)="showResultAndBalanceModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-                <a
-                        *ngSwitchCase="15"
+                <a *ngSwitchCase="15"
                         (click)="showBalanceGeneralLedgerFilterModal(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-                <a
-                        *ngSwitchCase="16"
+                <a *ngSwitchCase="16"
                         (click)="showPostingJournalModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-
                 <a *ngSwitchCase="17"
-                   (click)="showModalAccountReportFilterModal(report)">
+                        (click)="showModalAccountReportFilterModal(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-
-                <a
-                        *ngSwitchCase="18"
+                <a *ngSwitchCase="18"
                         (click)="showCustomerAccountModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
-                <a
-                        *ngSwitchCase="19"
+                <a *ngSwitchCase="19"
                         (click)="showSupplierAccountModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
-                </a>                <a
-                        *ngSwitchDefault
+                </a>
+                <a *ngSwitchDefault
                         (click)="showModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>

@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ReportDefinition} from '../../../unientities';
-import {ReportDefinitionService} from '../../../services/services';
+import {ReportDefinition, UniQueryDefinition} from '../../../unientities';
+import {ReportDefinitionService, UniQueryDefinitionService} from '../../../services/services';
 import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
@@ -12,10 +12,14 @@ import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFil
 import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
+import {Router} from '@angular/router';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
 
 class ReportCategory {
     public name: string;
-    public reports: Array<ReportDefinition>;
+    public reports: Array<any>;
+    public priority: number;
 }
 
 @Component({
@@ -41,10 +45,10 @@ export class Overview {
     private customerAccountModal: CustomerAccountReportFilterModal;
     @ViewChild(SupplierAccountReportFilterModal)
     private supplierAccountModal: SupplierAccountReportFilterModal;
-
+    
     public reportCategories: Array<ReportCategory>;
 
-    constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService) {
+    constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService, private uniQueryDefinitionService: UniQueryDefinitionService, private router: Router) {
         this.tabService.addTab({ name: 'Rapportoversikt', url: '/reports/overview', moduleID: UniModules.Reports, active: true });
     }
 
@@ -79,23 +83,48 @@ export class Overview {
         this.supplierAccountModal.open(report, this.previewModal);
     }
 
+    public showUniQuery(report: UniQueryDefinition) {
+        this.router.navigateByUrl('/uniqueries/details/' + report.ID);
+    }
+
     public ngOnInit() {
-        this.reportDefinitionService.GetAll<ReportDefinition>(null).subscribe(reports => {
+        Observable.forkJoin(
+            this.reportDefinitionService.GetAll<ReportDefinition>(null),
+            this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null)
+        ).subscribe(response => {
+            let reports = response[0].concat(response[1]);           
             this.reportCategories = new Array<ReportCategory>();
 
             for (const report of reports) {
-                let reportCategory: ReportCategory = this.reportCategories.find(category => category.name === report.Category);
+                if (report.Visible || !report.Category) {
+                    let reportName = report.Category || report.MainModelName;
+                    let reportCategory: ReportCategory = this.reportCategories.find(category => category.name === reportName);
+               
+                    if (typeof reportCategory === 'undefined') {
+                        reportCategory = new ReportCategory();
 
-                if (typeof reportCategory === 'undefined') {
-                    reportCategory = new ReportCategory();
+                        reportCategory.name = reportName;
+                        reportCategory.reports = new Array<Report>();
+                        reportCategory.priority = this.priorityByCategoryName(reportCategory.name);
 
-                    reportCategory.name = report.Category;
-                    reportCategory.reports = new Array<Report>();
-
-                    this.reportCategories.push(reportCategory);
+                        this.reportCategories.push(reportCategory);
+                    }
+                    reportCategory.reports.push(report);
                 }
-                reportCategory.reports.push(report);
             }
+
+            this.reportCategories.sort((a, b) => a.priority - b.priority);
         });
+    }
+
+    private priorityByCategoryName(name: string): number {
+        switch (name) {
+            case 'Faktura':
+            case 'Tilbud':
+            case 'Ordre':
+                return 1;
+            default:
+                return 0;
+        }
     }
 }

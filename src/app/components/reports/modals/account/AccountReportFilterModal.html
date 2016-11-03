@@ -6,7 +6,7 @@
                   [model]="model">
         </uni-form>
         <footer>
-            <button *ngFor="let action of config.actions" (click)="action.method()">
+            <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                 {{action.text}}
             </button>
             <p>Sortering på dato virker ikke helt ennå.</p>

@@ -124,6 +124,7 @@ export class BalanceGeneralLedgerFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: BalanceGeneralLedgerFilterForm) => {
 

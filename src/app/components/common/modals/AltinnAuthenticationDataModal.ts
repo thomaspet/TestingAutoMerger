@@ -37,8 +37,8 @@ enum LoginState {
                     [model]="userLoginData"
                 ></uni-form>
                 <footer>
-                    <button (click)="submitPin()">OK</button>
                     <button *ngIf="config" (click)="config.close()">Avbryt</button>
+                    <button (click)="submitPin()" class="good">OK</button>
                 </footer>
             </div>
             <div *ngIf="formState == LOGIN_STATE_ENUM.LoggedIn">

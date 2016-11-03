@@ -1,8 +1,9 @@
 import {Component, ViewChild, Type, Input} from '@angular/core';
-import {Http} from '@angular/http';
+import {Http, URLSearchParams} from '@angular/http';
 
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
+import {StatisticsService} from '../../../../services/services';
 
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
@@ -36,7 +37,7 @@ export class ParameterModal {
     private previewModal: PreviewModal;
     
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService,
-                private http: Http)
+                private http: Http, private statisticsService: StatisticsService)
     {
         this.modalConfig = {
             title: 'Parametre',
@@ -46,6 +47,7 @@ export class ParameterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then(() => {
                             this.modal.close();
@@ -72,8 +74,41 @@ export class ParameterModal {
         this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
-            this.modalConfig.report.parameters = params;
-            this.modal.open();        
+            // Find param value to be replaced
+            let param: CustomReportDefinitionParameter = params.find(x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0);
+            if (param) {
+                let statparams = new URLSearchParams();
+                statparams.set('model', 'NumberSeries');
+                statparams.set('select', 'NextNumber');
+
+                switch (param.Name) {
+                    case 'InvoiceNumber':
+                        statparams.set('filter', 'Name eq \'Customer Invoice number series\'');
+                        break;
+                    case 'OrderNumber':
+                        statparams.set('filter', 'Name eq \'Customer Order number series\'');
+                        break;
+                    case 'QuoteNumber':
+                        statparams.set('filter', 'Name eq \'Customer Quote number series\'');
+                        break;
+                }
+
+                // Get param value
+                this.statisticsService.GetDataByUrlSearchParams(statparams).subscribe(stat => {
+                    let val = stat.Data[0].NumberSeriesNextNumber - 1;
+                    if (val > 0) { param.value = val; }
+
+                    this.modalConfig.report.parameters = params;
+                    this.modal.open();        
+                });
+            } else {
+                this.modalConfig.report.parameters = params;
+                this.modal.open();        
+            }
         });
     }
+}
+
+class CustomReportDefinitionParameter extends ReportDefinitionParameter {
+    public value: any;
 }

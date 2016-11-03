@@ -84,6 +84,7 @@ export class BalanceReportFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: BalanceReportFilterForm) => {
                             for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {

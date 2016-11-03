@@ -38,7 +38,7 @@ export class UniQueryOverview {
 
                     queryCategory.name = uniQuery.MainModelName;
                     queryCategory.queries = new Array<UniQueryDefinition>();
-
+        
                     this.queryCategories.push(queryCategory);
                 }
                 queryCategory.queries.push(uniQuery);

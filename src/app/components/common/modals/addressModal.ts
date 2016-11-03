@@ -338,6 +338,14 @@ export class AddressModal {
 
             actions: [
                 {
+                    text: 'Avbryt',
+                    method: () => {
+                        this.modal.close();
+                        this.Canceled.emit(true);
+                        return false;
+                    }
+                },
+                {
                     text: 'Lagre adresse',
                     class: 'good',
                     method: () => {
@@ -346,14 +354,6 @@ export class AddressModal {
                         return false;
                     }
                 },
-                {
-                    text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                }
             ]
         };
     }

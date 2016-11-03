@@ -152,6 +152,7 @@ export class ResultAndBalanceReportFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: ResultAndBalanceReportFilterForm) => {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {

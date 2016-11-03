@@ -13,6 +13,7 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
+import {UniQueryModule} from '../uniquery/uniqueryModule';
 
 // routes
 import {routes as ReportRoutes} from './reportsRoutes';
@@ -56,6 +57,7 @@ import {UniReports} from './reports';
         AppCommonModule,
         AppPipesModule,
         AppServicesModule,
+        UniQueryModule,
 
         // Route module
         ReportRoutes

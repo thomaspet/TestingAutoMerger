@@ -134,6 +134,7 @@ export class SupplierAccountReportFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: SupplierAccountReportFilterForm) => {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {

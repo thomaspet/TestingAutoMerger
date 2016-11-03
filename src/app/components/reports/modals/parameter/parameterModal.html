@@ -11,7 +11,7 @@
         </tr>
     </table>
     <footer>
-        <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
+        <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
             {{action.text}}
         </button>
     </footer>

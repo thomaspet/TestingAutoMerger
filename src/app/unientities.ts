@@ -1245,6 +1245,7 @@ export class ReportDefinition {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
+    public Visible: boolean;
 }
 
 
@@ -3597,7 +3598,6 @@ export class Currency {
     public UpdatedBy: string;
     public CustomFields: any;
 }
-
 
 export class FinancialYear {
     public static RelativeUrl = 'financialyears';

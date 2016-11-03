@@ -6,7 +6,7 @@
             <h2>{{ queryCategory.name }}</h2>
             <div *ngFor="let uniQuery of queryCategory.queries">
                 <a [routerLink]="['../details/' + uniQuery.ID]">
-                    <h4 class="report_name">{{uniQuery.Name }}</h4>
+                    <h4 class="report_name">{{uniQuery.Name}}</h4>
                     <p>{{uniQuery.Description}}</p>
                 </a>
             </div>
