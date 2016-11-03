@@ -1747,6 +1747,125 @@ export class Phone {
 }
 
 
+export class AGACalculation {
+    public static RelativeUrl = '';
+    public static EntityType = 'AGACalculation';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public PayrollRunID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public freeAmountUsed: Array<FreeAmountUsed>;
+    public agaTax: Array<AGATax>;
+    public agaDraw: Array<AGADraw>;
+    public foreignerWithPercent: Array<ForeignerWithPercent>;
+    public foreignerWithAmount: Array<ForeignerWithAmount>;
+    public payrollRun: Array<PayrollRun>;
+    public CustomFields: any;
+}
+
+
+export class FreeAmountUsed {
+    public static RelativeUrl = '';
+    public static EntityType = 'FreeAmountUsed';
+
+    public AGACalculationID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public freeAmount: number;
+    public ID: number;
+    public StatusCode: number;
+    public SubEntityID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public subEntity: SubEntity;
+    public CustomFields: any;
+}
+
+
+export class AGATax {
+    public static RelativeUrl = '';
+    public static EntityType = 'AGATax';
+
+    public agaBase: number;
+    public AGACalculationID: number;
+    public agaRate: number;
+    public AGARateID: number;
+    public beregningsKode: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public zone: number;
+    public CustomFields: any;
+}
+
+
+export class AGADraw {
+    public static RelativeUrl = '';
+    public static EntityType = 'AGADraw';
+
+    public agaBase: number;
+    public AGACalculationID: number;
+    public agaRate: number;
+    public AGARateID: number;
+    public beregningsKode: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public zone: number;
+    public CustomFields: any;
+}
+
+
+export class ForeignerWithPercent {
+    public static RelativeUrl = '';
+    public static EntityType = 'ForeignerWithPercent';
+
+    public agaBase: number;
+    public AGACalculationID: number;
+    public agaRate: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class ForeignerWithAmount {
+    public static RelativeUrl = '';
+    public static EntityType = 'ForeignerWithAmount';
+
+    public aga: number;
+    public AGACalculationID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public persons: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class AmeldingData {
     public static RelativeUrl = 'amelding';
     public static EntityType = 'AmeldingData';
@@ -1975,6 +2094,7 @@ export class SubEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public freeAmount: number;
     public ID: number;
     public MunicipalityNo: string;
     public OrgNumber: string;
@@ -2153,6 +2273,7 @@ export class SalaryTransaction {
     public payrollrun: PayrollRun;
     public Employee: Employee;
     public Wagetype: WageType;
+    public employment: Employment;
     public Supplements: Array<SalaryTransactionSupplement>;
     public CustomFields: any;
 }

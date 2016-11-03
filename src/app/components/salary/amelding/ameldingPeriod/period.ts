@@ -52,17 +52,6 @@ export class AmeldingPeriodSummaryView {
 
         if (this.currentAMelding) {
             this.getAmeldingData();
-            if (this.currentAMelding.hasOwnProperty('feedBack')) {
-                if (this.currentAMelding.feedBack !== null) {
-                    this.forfallsdato = moment(this.currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
-                    if (this.currentAMelding.feedBack.melding.Mottak.hasOwnProperty('mottattPeriode')) {
-                        if (this.currentAMelding.feedBack.melding.Mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
-                            this.sumAmldAga = this.currentAMelding.feedBack.melding.Mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
-                            this.sumAmldFtrekk = this.currentAMelding.feedBack.melding.Mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -75,14 +64,18 @@ export class AmeldingPeriodSummaryView {
                         const pr = mottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
                         if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                            this.forfallsdato = moment(mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
                             this.checkLeveranser(mottak.mottattLeveranse, period);
+                            this.checkMottattPeriode(mottak);
                         }
                     });
                 } else {
                     const pr = alleMottak.kalendermaaned;
                     const period = parseInt(pr.split('-').pop());
                     if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                        this.forfallsdato = moment(alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
                         this.checkLeveranser(alleMottak.mottattLeveranse, period);
+                        this.checkMottattPeriode(alleMottak);
                     }
                 }
             }
@@ -96,6 +89,15 @@ export class AmeldingPeriodSummaryView {
             });
         } else {
             this.checkAvgiftOgTrekk(leveranser, periode);
+        }
+    }
+
+    private checkMottattPeriode(mottak) {
+        if (mottak.hasOwnProperty('mottattPeriode')) {
+            if (mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+                this.sumAmldAga = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+                this.sumAmldFtrekk = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+            }
         }
     }
 

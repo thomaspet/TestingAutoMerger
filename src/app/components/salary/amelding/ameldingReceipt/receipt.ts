@@ -120,10 +120,10 @@ export class AmeldingReceiptView {
             .setTemplate((dataItem) => {
                 return moment(dataItem.tidsstempelFraAltinn).format('DD.MM.YYYY HH:mm');
             });
-        let antallCol = new UniTableColumn('antallInntektsmottakere', 'Ant. inntektsmottakere', UniTableColumnType.Text);
+        let antallCol = new UniTableColumn('antallInntektsmottakere', 'Antall inntektsmottakere', UniTableColumnType.Text);
         let replaceCol = new UniTableColumn('erstatterMeldingsId', 'Erstatter ID', UniTableColumnType.Number);
-        let agaCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Sum aga', UniTableColumnType.Money);
-        let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Sum trekk', UniTableColumnType.Money);
+        let agaCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Aga', UniTableColumnType.Money);
+        let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money);
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig(false, true, 15)
         .setColumns([meldingCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol]);
