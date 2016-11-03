@@ -18,6 +18,7 @@ import {VatPostService} from './VatPostService';
 import {VatReportService} from './VatReportService';
 import {VatTypeService} from './VatTypeService';
 import {AccountVisibilityGroupService} from './AccountVisibilityGroupService';
+import {FinancialYearService} from './FinancialYearService';
 
 @NgModule({
     providers: [
@@ -39,7 +40,8 @@ import {AccountVisibilityGroupService} from './AccountVisibilityGroupService';
         VatPostService,
         VatReportService,
         VatTypeService,
-        AccountVisibilityGroupService
+        AccountVisibilityGroupService,
+        FinancialYearService
     ]
 })
 export class AccountingServicesModule {

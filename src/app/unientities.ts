@@ -2280,6 +2280,7 @@ export class CompanySettings {
     public CompanyTypeID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public CurrentAccountingYear: number;
     public CustomerAccountID: number;
     public CustomerCreditDays: number;
     public DefaultAddressID: number;
@@ -3599,7 +3600,7 @@ export class Currency {
 
 
 export class FinancialYear {
-    public static RelativeUrl = '';
+    public static RelativeUrl = 'financialyears';
     public static EntityType = 'FinancialYear';
 
     public CreatedAt: Date;

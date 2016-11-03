@@ -64,6 +64,7 @@ export * from './salary/wagetype/InntektService';
 export * from './accounting/periodservice';
 export * from './common/UniQueryDefinitionService';
 export * from './common/AltinnAuthenticationService';
+export * from './accounting/FinancialYearService';
 export * from './common/UniMenuAim';
 export * from './Salary/Grants/GrantService';
 export * from './cacheService';
