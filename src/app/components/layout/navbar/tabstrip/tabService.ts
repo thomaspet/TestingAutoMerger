@@ -7,11 +7,13 @@ import {IUniTab} from './tabStrip';
 //      3×× - Accounting
 //      4×× - Salary
 //      5×× - Timetracking
-//      6×× - Reports
+//      6×× - Reports (Discontinued)
 //      9×× - Discontinued
 export enum UniModules {
     Dashboard       = 100,
     Settings        = 101,
+    Reports         = 102,
+    UniQuery        = 103,
 
     Customers       = 200,
     Suppliers       = 201,
@@ -38,9 +40,6 @@ export enum UniModules {
     WorkTypes       = 502,
     Timesheets      = 503,
     Projects        = 504,
-
-    Reports         = 600,
-    UniQuery        = 601,
 
     PaymentList     = 900
 }

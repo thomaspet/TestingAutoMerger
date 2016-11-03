@@ -17,6 +17,7 @@ import {StatisticsService} from './StatisticsService';
 import {UniQueryDefinitionService} from './UniQueryDefinitionService';
 import {CountryService} from './CountryService';
 import {PostalCodeService} from './PostalCodeService';
+import {UniMenuAim} from './UniMenuAim';
 
 @NgModule({
     providers: [
@@ -37,7 +38,8 @@ import {PostalCodeService} from './PostalCodeService';
         UniQueryDefinitionService,
         StatisticsService,
         CountryService,
-        PostalCodeService
+        PostalCodeService,
+        UniMenuAim
     ]
 })
 export class CommonServicesModule {
