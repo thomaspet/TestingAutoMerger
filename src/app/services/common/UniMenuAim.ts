@@ -90,7 +90,7 @@ export class UniMenuAim {
             }
         });
 
-        rows.forEach((row) => {
+        [].forEach.call(rows, (row) => {
             row.addEventListener('mouseenter', (e: MouseEvent) => {
                 if (timeoutId) {
                     clearTimeout(timeoutId);
