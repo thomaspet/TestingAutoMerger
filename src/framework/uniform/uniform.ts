@@ -284,6 +284,7 @@ export class UniForm {
 
     public field(property: string): UniField {
         // Look inside top level fields;
+        var element: UniField;
         if (this.fieldElements) {
             var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
                 return cmp.field.Property === property;
@@ -294,7 +295,6 @@ export class UniForm {
         }
         // Look inside fieldsets
         if (this.fieldsetElements) {
-            var element: UniField;
             this.fieldsetElements.forEach((cmp: UniFieldSet) => {
                 if (!element) {
                     element = cmp.field(property);
@@ -403,6 +403,7 @@ export class UniForm {
             event.preventDefault();
             event.stopPropagation();
             const field: UniField = this.findNextElementFormLastFocusedComponent();
+            this.lastFocusedComponent = field;
             if (field.field.Section > 0) {
                 const section = this.section(field.field.Section);
                 if (!section.isOpen) {
@@ -432,6 +433,10 @@ export class UniForm {
         if (!located || index + 1 >= this.fields.length) {
             return this.lastFocusedComponent;
         } else {
+            // Jump Hidden elements since they are not displayed
+            while (this.fields[index + 1].Hidden) {
+                index++;
+            }
             return this.field(this.fields[index + 1].Property);
         }
     }
