@@ -140,6 +140,15 @@ uni-salary .detail_tables
     border-bottom: pxToRem(1) solid $uni-color-scale9
     pointer-events: none
     transition: color 1000ms ease-in
+    position: relative
+
+    &:before
+        content: 'Summarytable is deprecated. Use <uni-summary> instead!'
+        display: block
+        background: yellow
+        position: absolute
+        top: 0
+        left: 0
 
     &.-is-dirty
         @extend dl.summary.-is-dirty
