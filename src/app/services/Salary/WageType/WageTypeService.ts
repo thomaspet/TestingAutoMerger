@@ -1,47 +1,9 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {WageType, TaxType, StdWageType, FieldType, GetRateFrom, SpecialAgaRule, SpecialTaxAndContributionsRule} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import { Injectable } from '@angular/core';
+import { BizHttp } from '../../../../framework/core/http/BizHttp';
+import { UniHttp } from '../../../../framework/core/http/http';
+import { WageType, FieldType } from '../../../unientities';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
-
-let taxType: Array<any> = [
-    {ID: TaxType.Tax_None, Name: 'Ingen'},
-    {ID: TaxType.Tax_Table, Name: 'Tabelltrekk'},
-    {ID: TaxType.Tax_Percent, Name: 'Prosenttrekk'},
-    {ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk'}
-];
-
-let stdWageType: Array<any> = [
-    {ID: StdWageType.None, Name: 'Ingen'},
-    {ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk'},
-    {ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk'},
-    {ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk'},
-    {ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år'},
-    {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
-];
-
-let getRateFrom: {ID: GetRateFrom, Name: string}[] = [
-    {ID: GetRateFrom.WageType, Name: 'Lønnsart'},
-    {ID: GetRateFrom.MonthlyPayEmployee, Name: 'Månedslønn ansatt'},
-    {ID: GetRateFrom.HourlyPayEmployee, Name: 'Timelønn ansatt'},
-    {ID: GetRateFrom.FreeRateEmployee, Name: 'Frisats ansatt'}
-];
-
-let specialAgaRule: {ID: SpecialAgaRule, Name: string}[] = [
-    {ID: SpecialAgaRule.Regular, Name: 'Vanlig'},
-    {ID: SpecialAgaRule.AgaRefund, Name: 'Aga refusjon'},
-    {ID: SpecialAgaRule.AgaPension, Name: 'Aga pensjon'}
-];
-
-let specialTaxAndContributionsRule: {ID: SpecialTaxAndContributionsRule, Name: string}[] = [
-    {ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt'},
-    {ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbar'},
-    {ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene'},
-    {ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn'},
-    {ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk'},
-    {ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister'}
-];
 
 @Injectable()
 export class WageTypeService extends BizHttp<WageType> {
@@ -122,14 +84,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -150,14 +105,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -174,12 +122,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: {
-                        source: specialAgaRule,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID',
-                        debounceTime: 500
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -204,14 +147,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -231,21 +167,8 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    Options: {
-                        source: taxType,
-                        template: (obj) => obj.Name,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID',
-                        debounceTime: 500
-                    },
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    Options: null,
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -268,13 +191,6 @@ export class WageTypeService extends BizHttp<WageType> {
                     Combo: null,
                     hasLineBreak: false,
                     openByDefault: true
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
                 },
                 {
                     ComponentLayoutID: 1,
@@ -295,14 +211,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -323,14 +232,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 }, 
                 {
                     ComponentLayoutID: 1,
@@ -351,14 +253,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -379,14 +274,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -403,11 +291,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: {
-                        source: getRateFrom,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID',
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -474,14 +358,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -492,11 +369,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: 'Name',
-                    Options: {
-                        source: stdWageType,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID'
-                    },
+                    Options: null,
                     Label: 'Systemets standard lønnsart for',
                     Description: null,
                     HelpText: null,
@@ -506,14 +379,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -594,12 +460,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 2,
                     Placeholder: null,
-                    Options: {
-                        source: specialTaxAndContributionsRule,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID',
-                        debounceTime: 500
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -644,22 +505,4 @@ export class WageTypeService extends BizHttp<WageType> {
             ]
         }]);
     };
-    
-    // // mocks layout request
-    // public getLayout(ID: string) {
-    //     return Observable.of(layout(ID));
-    // }
-
-    // // mocked with layout request
-    // public getLayoutAndEntity(layoutID: string, entityID: number) {
-    //     var layout, self = this;
-    //     return this.GetLayout(layoutID)
-    //         .concatMap((data: any) => {
-    //             layout = data;
-    //             return self.Get(entityID, data.Expands);
-    //         })
-    //         .map((entity: any) => {
-    //             return [layout, entity];
-    //         });
-    // }
 }

@@ -42,7 +42,7 @@ export class WageTypeView extends UniView {
             {name: 'Detaljer', path: 'details'},
             {name: 'Spesialinnstillinger', path: 'spesial-settings'},
             {name: 'Grenseverdier', path: 'limit-values'}
-        ]
+        ];
 
         this.saveActions = [{
             label: 'Lagre',
@@ -61,7 +61,7 @@ export class WageTypeView extends UniView {
                 this.toolbarConfig = {
                     title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
                     subheads: [{
-                        title: this.wageType.ID ? 'Lønnsartnr. ' + this.wageType.ID : null
+                        title: this.wageType.ID ? 'Lønnsartnr. ' + this.wageType.WageTypeNumber : null
                     }],
                     navigation: {
                         prev: this.previousWagetype.bind(this),
@@ -69,6 +69,23 @@ export class WageTypeView extends UniView {
                         add: this.newWagetype.bind(this)
                     }
                 };
+
+                if (this.wageType.WageTypeNumber) {
+                    this.tabService.addTab({
+                        name: 'Lønnsartnr. ' + this.wageType.WageTypeNumber,
+                        url: this.url + this.wageType.WageTypeNumber,
+                        moduleID: UniModules.Wagetypes,
+                        active: true
+                    });
+                } else {
+                    this.tabService.addTab({
+                        name: 'Ny lønnsart',
+                        url: this.url + this.wagetypeID,
+                        moduleID: UniModules.Wagetypes,
+                        active: true
+                    });
+                }
+
                 this.checkDirty();
             });
             if (this.wageType && this.wageType.ID === +params['id']) {
@@ -77,21 +94,7 @@ export class WageTypeView extends UniView {
                 this.wageType = undefined;
             }
 
-            if (this.wagetypeID) {
-                this.tabService.addTab({
-                    name: 'Lønnsartnr. ' + this.wagetypeID,
-                    url: this.url + this.wagetypeID,
-                    moduleID: UniModules.Wagetypes,
-                    active: true
-                });
-            } else {
-                this.tabService.addTab({
-                    name: 'Ny lønnsart',
-                    url: this.url + this.wagetypeID,
-                    moduleID: UniModules.Wagetypes,
-                    active: true
-                });
-            }
+            
         });
 
         this.router.events.subscribe((event: any) => {

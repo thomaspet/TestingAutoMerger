@@ -2,9 +2,9 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService } from '../../../../services/services';
 import { UniForm, UniFieldLayout } from '../../../../../framework/uniForm';
-import { WageType, Account, WageTypeSupplement } from '../../../../unientities';
+import { WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
@@ -36,10 +36,45 @@ export class WagetypeDetail extends UniView {
     public config: any = {};
     public fields: any[] = [];
 
-    @ViewChild(UniForm)
-    public uniform: UniForm;
+    @ViewChild(UniForm) public uniform: UniForm;
 
-    @ViewChild(UniTable) private supplementTable: UniTable;
+    private specialTaxAndContributionsRule: {ID: SpecialTaxAndContributionsRule, Name: string}[] = [
+        {ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt'},
+        {ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbar'},
+        {ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene'},
+        {ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn'},
+        {ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk'},
+        {ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister'}
+    ];
+
+    private getRateFrom: {ID: GetRateFrom, Name: string}[] = [
+        {ID: GetRateFrom.WageType, Name: 'Lønnsart'},
+        {ID: GetRateFrom.MonthlyPayEmployee, Name: 'Månedslønn ansatt'},
+        {ID: GetRateFrom.HourlyPayEmployee, Name: 'Timelønn ansatt'},
+        {ID: GetRateFrom.FreeRateEmployee, Name: 'Frisats ansatt'}
+    ];
+
+    private stdWageType: Array<any> = [
+        {ID: StdWageType.None, Name: 'Ingen'},
+        {ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk'},
+        {ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk'},
+        {ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk'},
+        {ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år'},
+        {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
+    ];
+
+    private specialAgaRule: {ID: SpecialAgaRule, Name: string}[] = [
+        {ID: SpecialAgaRule.Regular, Name: 'Vanlig'},
+        {ID: SpecialAgaRule.AgaRefund, Name: 'Aga refusjon'},
+        {ID: SpecialAgaRule.AgaPension, Name: 'Aga pensjon'}
+    ];
+
+    private taxType: Array<any> = [
+        {ID: TaxType.Tax_None, Name: 'Ingen'},
+        {ID: TaxType.Tax_Table, Name: 'Tabelltrekk'},
+        {ID: TaxType.Tax_Percent, Name: 'Prosenttrekk'},
+        {ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk'}
+    ];
 
     constructor(
         private route: ActivatedRoute,
@@ -54,18 +89,16 @@ export class WagetypeDetail extends UniView {
         this.route.parent.params.subscribe(params => {
             super.updateCacheKey(router.url);
             super.getStateSubject('wagetype').subscribe((wageType: WageType) => {
-                this.wageType = _.cloneDeep(wageType);
-
-                this.incomeTypeDatasource = [];
-                this.benefitDatasource = [];
-                this.descriptionDatasource = [];
-                this.supplementPackages = [];
-
-                if (!this.wagetypeID) {
+                if (wageType.ID !== this.wagetypeID) {
+                    this.wageType = wageType;
                     this.wagetypeID = wageType.ID;
+                    
+                    this.incomeTypeDatasource = [];
+                    this.benefitDatasource = [];
+                    this.descriptionDatasource = [];
+                    this.supplementPackages = [];
+                    
                     this.setup();
-                } else {
-                    this.checkAmeldingInfo();
                 }
             });
         });
@@ -82,8 +115,7 @@ export class WagetypeDetail extends UniView {
                 this.fields = layout.Fields;
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
-                this.checkAmeldingInfo();
-
+                
                 this.config = {
                     submitText: '',
                     sections: {
@@ -92,11 +124,125 @@ export class WagetypeDetail extends UniView {
                     }
                 };
                 
+                this.extendFields();
+                this.updateUniformFields();
+                this.checkAmeldingInfo();
             },
             (err) => {
                 this.log('Feil ved henting av lønnsart', err);
             }
             );
+    }
+
+    private extendFields() {
+        let wageTypeNumber: UniFieldLayout = this.findByProperty('WageTypeNumber');
+        wageTypeNumber.ReadOnly = this.wageType.ID > 0;
+
+        let accountNumber: UniFieldLayout = this.findByProperty('AccountNumber');
+        accountNumber.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
+
+        let accountNumberBalance: UniFieldLayout = this.findByProperty('AccountNumber_balance');
+        accountNumberBalance.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
+        accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
+
+        let specialAgaRule = this.findByProperty('SpecialAgaRule');
+        specialAgaRule.Options = {
+            source: this.specialAgaRule,
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+            debounceTime: 500,
+            events: {
+                tab: (event) => {
+                    this.uniform.field('AccountNumber').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('WageTypeName').focus();
+                }
+            }
+        };
+
+        let taxtype = this.findByProperty('taxtype');
+        taxtype.Options = {
+            source: this.taxType,
+            template: (obj) => obj.Name,
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+            debounceTime: 500,
+            events: {
+                tab: (event) => {
+                    this.uniform.field('GetRateFrom').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('AccountNumber').focus();
+                }
+            }
+        };
+
+        let getRateFrom = this.fields.find(x => x.Property === 'GetRateFrom');
+        getRateFrom.Options = {
+            source: this.getRateFrom,
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+            events: {
+                tab: (event) => {
+                    this.uniform.field('Rate').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('taxtype').focus();
+                }
+            }
+        };
+
+        let standardWageTypeFor = this.fields.find(x => x.Property === 'StandardWageTypeFor');
+        standardWageTypeFor.Options = {
+            source: this.stdWageType,
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+            events: {
+                tab: (event) => {
+                    this.uniform.field('IncomeType').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('AccountNumber_balance').focus();
+                }
+            }
+        };
+
+        let specialTaxAndContributionsRule = this.fields.find(x => x.Property === 'SpecialTaxAndContributionsRule');
+        specialTaxAndContributionsRule.Options = {
+            source: this.specialTaxAndContributionsRule,
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+            debounceTime: 500,
+            events: {
+                tab: (event) => {
+                    this.uniform.field('_uninavn').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('Description').focus();
+                }
+            }
+        };
+
+        let uninavnField = this.fields.find(x => x.Property === '_uninavn');
+        uninavnField.Options = {
+            events: {
+                tab: (event) => {
+                    this.uniform.field('WageTypeNumber').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('SpecialTaxAndContributionsRule').focus();
+                }
+            }
+        };
     }
 
     private checkAmeldingInfo() {
@@ -123,36 +269,14 @@ export class WagetypeDetail extends UniView {
 
         this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
 
-        if (this.wageType.ID === 0) {
-            this.wageType.WageTypeNumber = null;
-            this.wageType.AccountNumber = null;
-        }
-
         this.updateUniformFields();
 
         this.setupTilleggspakkeConfig();
     }
 
     private updateUniformFields() {
-        let wageTypeNumber: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeNumber');
-        wageTypeNumber.ReadOnly = this.wagetypeID > 0;
 
-        let accountNumber: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber');
-        accountNumber.Options = {
-            source: this.accounts,
-            valueProperty: 'AccountNumber',
-            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-        };
-
-        let accountNumberBalance: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber_balance');
-        accountNumberBalance.Options = {
-            source: this.accounts,
-            valueProperty: 'AccountNumber',
-            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-        };
-        accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
-
-        let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
+        let incomeType: UniFieldLayout = this.findByProperty('IncomeType');
         incomeType.Options = {
             source: this.incomeTypeDatasource,
             valueProperty: 'text',
@@ -164,15 +288,18 @@ export class WagetypeDetail extends UniView {
                     this.wageType.Benefit = '';
                     this.wageType.Description = '';
                     this.showSupplementaryInformations = false;
-                    this.findByProperty(this.fields, '_uninavn').Hidden = true;
+                    this.findByProperty('_uninavn').Hidden = true;
                     this.filterSupplementPackages(model.IncomeType, true, false, false);
                     this.showBenefitAndDescriptionAsReadonly = false;
+                    this.uniform.field('Benefit').focus();
+                },
+                tab: (event) => {
                     this.uniform.field('Benefit').focus();
                 }
             }
         };
 
-        let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
+        let benefit: UniFieldLayout = this.findByProperty('Benefit');
         benefit.Options = {
             source: this.benefitDatasource,
             valueProperty: 'text',
@@ -182,7 +309,7 @@ export class WagetypeDetail extends UniView {
             events: {
                 select: (model) => {
                     this.showSupplementaryInformations = false;
-                    this.findByProperty(this.fields, '_uninavn').Hidden = true;
+                    this.findByProperty('_uninavn').Hidden = true;
                     this.filterSupplementPackages('', false, true, false);
                     this.setDescriptionDataSource();
                     this.uniform.field('Description').focus();
@@ -191,7 +318,7 @@ export class WagetypeDetail extends UniView {
         };
         benefit.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
 
-        let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
+        let description: UniFieldLayout = this.findByProperty('Description');
         description.Options = {
             source: this.descriptionDatasource,
             valueProperty: 'text',
@@ -201,13 +328,13 @@ export class WagetypeDetail extends UniView {
             events: {
                 select: (model) => {
                     this.filterSupplementPackages('', false, true, true);
-                    this.findByProperty(this.fields, '_uninavn').Hidden = false;
+                    this.findByProperty('_uninavn').Hidden = false;
                 }
             }
         };
         description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
 
-        let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_uninavn');
+        let tilleggsinfo: UniFieldLayout = this.findByProperty('_uninavn');
         tilleggsinfo.Options = {
             source: this.supplementPackages,
             valueProperty: 'uninavn',
@@ -277,7 +404,6 @@ export class WagetypeDetail extends UniView {
         });
 
         this.descriptionDatasource = tmp;
-        this.updateUniformFields();
     }
 
     private getIncometypeChildObject(tp: any, selType: string = '') {
@@ -288,30 +414,32 @@ export class WagetypeDetail extends UniView {
             selectedType = this.wageType.IncomeType;
         }
         let incometypeChild: any;
+        if (selectedType) {
+            switch (selectedType.toLowerCase()) {
+                case 'lønn':
+                    incometypeChild = tp.loennsinntekt;
+                    break;
+                case 'ytelsefraoffentlige':
+                    incometypeChild = tp.ytelseFraOffentlige;
+                    break;
+                case 'pensjonellertrygd':
+                    incometypeChild = tp.pensjonEllerTrygd;
+                    break;
+                case 'næringsinntekt':
+                    incometypeChild = tp.naeringsinntekt;
+                    break;
+                case 'fradrag':
+                    incometypeChild = tp.fradrag;
+                    break;
+                case 'forskuddstrekk':
+                    incometypeChild = tp.forskuddstrekk;
+                    break;
 
-        switch (selectedType.toLowerCase()) {
-            case 'lønn':
-                incometypeChild = tp.loennsinntekt;
-                break;
-            case 'ytelsefraoffentlige':
-                incometypeChild = tp.ytelseFraOffentlige;
-                break;
-            case 'pensjonellertrygd':
-                incometypeChild = tp.pensjonEllerTrygd;
-                break;
-            case 'næringsinntekt':
-                incometypeChild = tp.naeringsinntekt;
-                break;
-            case 'fradrag':
-                incometypeChild = tp.fradrag;
-                break;
-            case 'forskuddstrekk':
-                incometypeChild = tp.forskuddstrekk;
-                break;
-
-            default:
-                break;
+                default:
+                    break;
+            }
         }
+        
         return incometypeChild;
     }
 
@@ -362,7 +490,6 @@ export class WagetypeDetail extends UniView {
 
     private setPackagesFilteredByDescription() {
         let filtered: any[] = [];
-
         if (this.wageType.Description !== '' && this.descriptionDatasource.length > 0) {
             this.supplementPackages.forEach(tp => {
                 let incometypeChild: any = this.getIncometypeChildObject(tp, this.wageType.IncomeType);
@@ -393,7 +520,7 @@ export class WagetypeDetail extends UniView {
                                 let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                 wtSupp.Name = prop;
                                 wtSupp.SuggestedValue = obj[prop];
-                                wtSupp.WageTypeID = this.wagetypeID;
+                                wtSupp.WageTypeID = this.wageType.ID;
                                 wtSupp['_createguid'] = this.wageService.getNewGuid();
                                 additions.push(wtSupp);
                             }
@@ -402,7 +529,7 @@ export class WagetypeDetail extends UniView {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
                         wtSupp.SuggestedValue = obj;
-                        wtSupp.WageTypeID = this.wagetypeID;
+                        wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
                         additions.push(wtSupp);
                     }
@@ -416,7 +543,7 @@ export class WagetypeDetail extends UniView {
                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                     wtSupp.Name = props;
                     wtSupp.SuggestedValue = spesiObj[props];
-                    wtSupp.WageTypeID = this.wagetypeID;
+                    wtSupp.WageTypeID = this.wageType.ID;
                     wtSupp['_createguid'] = this.wageService.getNewGuid();
                     additions.push(wtSupp);
                 }
@@ -429,14 +556,13 @@ export class WagetypeDetail extends UniView {
     private showTilleggsPakker(model: any) {
         let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model._uninavn);
         this.showSupplementaryInformations = false;
-
+        
         let supInfo: Array<any> = [];
         selectedPackage.additions.forEach(addition => {
             supInfo.push(addition);
         });
 
         this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
-
         if (this.wageType.SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
         }
@@ -453,20 +579,13 @@ export class WagetypeDetail extends UniView {
     }
 
     public change(model) {
-        this.updateUniformFields();
         if (this.currentPackage !== this.wageType['_uninavn']) {
             this.currentPackage = this.wageType['_uninavn'];
             this.showTilleggsPakker(model);
         }
-
-        if (this.supplementTable) {
-            this.wageType.SupplementaryInformations = this.supplementTable.getTableData();
-        } else {
-            this.wageType.SupplementaryInformations = null;
-        }
-
         super.updateState('wagetype', model, true);
     }
+
     public toggle(section) {
         if (section.sectionId === 2) {
             if (section.isOpen) {
@@ -479,9 +598,8 @@ export class WagetypeDetail extends UniView {
         }
     }
 
-    private findByProperty(fields, name) {
-        var field = fields.find((fld) => fld.Property === name);
-        return field;
+    private findByProperty(name) {
+        return this.fields.find((fld) => fld.Property === name);
     }
 
     public log(title: string, err) {
