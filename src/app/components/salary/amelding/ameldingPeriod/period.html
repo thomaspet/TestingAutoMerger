@@ -13,17 +13,19 @@
     </section>
 </section>
 
-<h1>FRA A-MELDING</h1>
-<section class="unitableWidthAuto">
-    <uni-table *ngIf="amldData.length" [config]="amldTableConfig" [resource]="amldData"></uni-table>
-    <section>
-        <dl class="summary">
-            <dt>Forfallsdato</dt>
-            <dd>{{forfallsdato}}</dd>
-            <dt>Sum aga</dt>
-            <dd>{{sumAmldAga}}</dd>
-            <dt>Sum forskuddstrekk</dt>
-            <dd>{{sumAmldFtrekk}}</dd>
-        </dl>
+<section *ngIf="amldData.length">
+    <h1>FRA A-MELDING</h1>
+    <section class="unitableWidthAuto">
+        <uni-table [config]="amldTableConfig" [resource]="amldData"></uni-table>
+        <section>
+            <dl class="summary">
+                <dt>Forfallsdato</dt>
+                <dd>{{forfallsdato}}</dd>
+                <dt>Sum aga</dt>
+                <dd>{{sumAmldAga}}</dd>
+                <dt>Sum forskuddstrekk</dt>
+                <dd>{{sumAmldFtrekk}}</dd>
+            </dl>
+        </section>
     </section>
 </section>

@@ -88,7 +88,7 @@ export class WageTypeView extends UniView {
 
                 this.checkDirty();
             });
-            if (this.wageType && this.wageType.ID === +params['id']) {
+            if (this.wageType && this.wageType.WageTypeNumber === +params['id']) {
                 super.updateState('wagetype', this.wageType, false);
             } else {
                 this.wageType = undefined;

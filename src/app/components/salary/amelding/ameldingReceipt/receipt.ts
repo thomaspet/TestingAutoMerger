@@ -104,9 +104,8 @@ export class AmeldingReceiptView {
     }
 
     private setupMottakTable() {
-        let refCol = new UniTableColumn('altinnReferanse', 'Altinn referanse', UniTableColumnType.Text).setWidth('5rem');
-        let kildeCol = new UniTableColumn('kildesystem', 'Kilde', UniTableColumnType.Text).setWidth('6rem');
-        let meldingCol = new UniTableColumn('meldingsId', 'MeldingsID', UniTableColumnType.Text).setWidth('5rem')
+        let refCol = new UniTableColumn('altinnReferanse', 'Altinn referanse', UniTableColumnType.Text);
+        let meldingCol = new UniTableColumn('meldingsId', 'MeldingsID', UniTableColumnType.Text)
             .setTemplate((dataItem) => {
                 let mldID = 0;
                 this.aMeldingerInPeriod.forEach(amelding => {
@@ -116,15 +115,17 @@ export class AmeldingReceiptView {
                 });
                 return mldID === 0 ? dataItem.meldingsId : mldID;
             });
-        let statusCol = new UniTableColumn('mottakstatus', 'Status', UniTableColumnType.Text).setWidth('5rem');
-        let tidCol = new UniTableColumn('tidsstempelFraAltinn', 'Tid i altinn', UniTableColumnType.Text).setWidth('7rem')
+        let statusCol = new UniTableColumn('mottakstatus', 'Status', UniTableColumnType.Text);
+        let tidCol = new UniTableColumn('tidsstempelFraAltinn', 'Tid i altinn', UniTableColumnType.Text)
             .setTemplate((dataItem) => {
                 return moment(dataItem.tidsstempelFraAltinn).format('DD.MM.YYYY HH:mm');
             });
-        let antallCol = new UniTableColumn('antallInntektsmottakere', 'Ant. inntektsmottakere', UniTableColumnType.Text).setWidth('12rem');
-        let leveringCol = new UniTableColumn('leveringstidspunkt', 'Leveringstidspunkt', UniTableColumnType.Date).setWidth('10rem');
+        let antallCol = new UniTableColumn('antallInntektsmottakere', 'Ant. inntektsmottakere', UniTableColumnType.Text);
+        let replaceCol = new UniTableColumn('erstatterMeldingsId', 'Erstatter ID', UniTableColumnType.Number);
+        let agaCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Sum aga', UniTableColumnType.Money);
+        let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Sum trekk', UniTableColumnType.Money);
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig(false, true, 15)
-        .setColumns([refCol, kildeCol, meldingCol, statusCol, tidCol, antallCol, leveringCol]);
+        .setColumns([meldingCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol]);
     }
 }

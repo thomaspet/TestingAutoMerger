@@ -30,7 +30,7 @@
             <article class="poster_widget">
                 <ul class="statuslist">
                     <li [className]="clarifiedDate ? 'success' : 'warn'">
-                        {{clarifiedDate ? 'Klargjort - ' + clarifiedDate : 'Ikke klargjort'}}
+                        {{clarifiedDate ? 'Generert - ' + clarifiedDate : 'Ikke generert'}}
                     </li>
                     <li [className]="submittedDate ? 'success' : 'warn'">
                         {{submittedDate ? 'Innsendt - ' + submittedDate : 'Ikke innsendt'}}
@@ -60,9 +60,9 @@
             <li>
                 <a (click)="showView = 'periodsummary'" [class.router-link-active]="showView == 'periodsummary'">Periodeoppsummering</a>
             </li>
-            <li>
+            <!--<li>
                 <a (click)="showView = 'avstem'" [class.router-link-active]="showView == 'avstem'">Avstemming</a>
-            </li>
+            </li>-->
         </ul>
     </div>
 </header>
@@ -77,7 +77,7 @@
     <amelding-aga-view *ngIf="showView == 'aga'" [currentSumUp]="currentSumUp"></amelding-aga-view>
     <amelding-receipt-view *ngIf="showView == 'receipt'" [currentAMelding]="currentAMelding" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-receipt-view>
     <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [currentPeriod]="currentPeriod"></amelding-periodsummary-view>
-    <amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>
+    <!--<amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>-->
 
     <footer class="full-footer">
         <section class="application" *ngIf="actions">
