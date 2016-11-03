@@ -1,0 +1,11 @@
+uni-table
+    a:link[href*='/#/'],
+    a:visited[href*='/#/']
+            @extend %internal-links
+
+    table:not(.editable-table) tr
+        &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
+        &:focus:not([aria-readonly=true])
+            a:link[href*='/#/'],
+            a:visited[href*='/#/']
+                color: $uni-color-negative
