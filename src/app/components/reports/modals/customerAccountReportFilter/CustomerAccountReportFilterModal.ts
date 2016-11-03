@@ -126,6 +126,7 @@ export class CustomerAccountReportFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: CustomerAccountReportFilterForm) => {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {

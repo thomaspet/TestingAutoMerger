@@ -128,6 +128,7 @@ export class PostingJournalReportFilterModal {
             actions: [
                 {
                     text: 'Ok',
+                    class: 'good',
                     method: () => {
                         this.modal.getContent().then((component: PostingJournalReportFilterForm) => {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {

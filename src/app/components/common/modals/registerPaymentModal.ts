@@ -125,6 +125,14 @@ export class RegisterPaymentModal {
             title: 'Registrer betaling',
             actions: [
                 {
+                    text: 'Avbryt',
+                    method: () => {
+                        self.modal.close();
+                        self.canceled.emit(true);
+                        return false;
+                    }
+                },
+                {
                     text: 'Registrer betaling',
                     class: 'good',
                     method: () => {
@@ -133,14 +141,6 @@ export class RegisterPaymentModal {
                            id: self.invoiceID,
                            invoice: self.modalConfig.model 
                         });
-                        return false;
-                    }
-                },
-                {
-                    text: 'Avbryt',
-                    method: () => {
-                        self.modal.close();
-                        self.canceled.emit(true);
                         return false;
                     }
                 }
