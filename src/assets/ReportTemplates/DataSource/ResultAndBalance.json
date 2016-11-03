@@ -1,0 +1,287 @@
+{
+  "companysettings": [
+    {
+      "CustomValues": {
+        
+      },
+      "AccountGroupSetID": 1,
+      "AccountingLockedDate": null,
+      "AutoJournalPayment": false,
+      "BaseCurrency": "NOK",
+      "CompanyBankAccountID": 1,
+      "CompanyName": "Oktober 10 AS",
+      "CompanyRegistered": true,
+      "CompanyTypeID": 1,
+      "CreatedAt": "2016-10-07T13:17:40.32Z",
+      "CreatedBy": "Rune",
+      "CustomerAccountID": 89,
+      "CustomerCreditDays": 14,
+      "DefaultAddressID": 1,
+      "DefaultEmailID": 1,
+      "DefaultPhoneID": 1,
+      "Deleted": false,
+      "ForceSupplierInvoiceApproval": null,
+      "ID": 1,
+      "LogoFileID": 1,
+      "OfficeMunicipalityNo": "1252",
+      "OrganizationNumber": "910142763",
+      "PeriodSeriesAccountID": 3,
+      "PeriodSeriesVatID": 1,
+      "SalaryBankAccountID": null,
+      "SettlementVatAccountID": 217,
+      "StatusCode": null,
+      "SupplierAccountID": 196,
+      "TaxBankAccountID": null,
+      "TaxMandatory": true,
+      "UpdatedAt": "2016-10-07T13:22:15.427Z",
+      "UpdatedBy": "a8934e00-c167-48b9-93ba-f8484e2a449b",
+      "VatLockedDate": null,
+      "VatReportFormID": 1,
+      "WebAddress": "",
+      "DefaultPhone": {
+        "CustomValues": {
+          
+        },
+        "BusinessRelationID": 1,
+        "CountryCode": null,
+        "CreatedAt": null,
+        "CreatedBy": null,
+        "Deleted": false,
+        "Description": null,
+        "ID": 1,
+        "Number": "48899399",
+        "StatusCode": null,
+        "Type": "150101",
+        "UpdatedAt": "2016-10-07T13:19:55.14Z",
+        "UpdatedBy": "a8934e00-c167-48b9-93ba-f8484e2a449b"
+      },
+      "DefaultEmail": {
+        "CustomValues": {
+          
+        },
+        "BusinessRelationID": 1,
+        "CreatedAt": null,
+        "CreatedBy": null,
+        "Deleted": false,
+        "Description": null,
+        "EmailAddress": "rune@unimicro.no",
+        "ID": 1,
+        "StatusCode": null,
+        "Type": null,
+        "UpdatedAt": "2016-10-07T13:19:55.157Z",
+        "UpdatedBy": "a8934e00-c167-48b9-93ba-f8484e2a449b"
+      },
+      "DefaultAddress": {
+        "CustomValues": {
+          
+        },
+        "AddressLine1": "Modalen 1491",
+        "AddressLine2": null,
+        "AddressLine3": null,
+        "BusinessRelationID": 1,
+        "City": "Modalen",
+        "Country": "Norge",
+        "CountryCode": "NO",
+        "CreatedAt": null,
+        "CreatedBy": null,
+        "Deleted": false,
+        "ID": 1,
+        "PostalCode": "5729",
+        "Region": null,
+        "StatusCode": null,
+        "UpdatedAt": "2016-10-07T13:19:55.127Z",
+        "UpdatedBy": "a8934e00-c167-48b9-93ba-f8484e2a449b",
+        "_links": {
+          "actions": {
+            
+          },
+          "relations": {
+            
+          },
+          "transitions": {
+            
+          }
+        }
+      },
+      "_links": {
+        "actions": {
+          
+        },
+        "relations": {
+          "Self": {
+            "href": "/api/biz/companysettings/1",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "SupplierAccount": {
+            "href": "/api/biz/accounts/196",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "CustomerAccount": {
+            "href": "/api/biz/accounts/89",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "BankAccounts": {
+            "href": "/api/biz/bankaccounts?filter=CompanySettingsID eq 1",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "CompanyBankAccount": {
+            "href": "/api/biz/bankaccounts/1",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "SettlementVatAccount": {
+            "href": "/api/biz/accounts/217",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          }
+        },
+        "transitions": {
+          
+        }
+      }
+    }
+  ],
+  "resultaccountgroups": {
+    "Data": [
+      {
+        "MainGroupID": 3,
+        "MainGroupName": "SALGS- OG DRIFTSINNTEKT"
+      },
+      {
+        "MainGroupID": 4,
+        "MainGroupName": "VAREKOSTNAD"
+      },
+      {
+        "MainGroupID": 5,
+        "MainGroupName": "LØNNSKOSTNAD"
+      },
+      {
+        "MainGroupID": 6,
+        "MainGroupName": "ANDRE DRIFTSKOSTNADER"
+      },
+      {
+        "MainGroupID": 7,
+        "MainGroupName": "ANDRE DRIFTSKOSTNADER"
+      },
+      {
+        "MainGroupID": 8,
+        "MainGroupName": "FINANSINNTEKT OG -KOSTNAD"
+      }
+    ],
+    "Success": true,
+    "Message": ""
+  },
+  "balanceaccountgroups": {
+    "Data": [
+      {
+        "MainGroupID": 1,
+        "MainGroupName": "EIENDELER"
+      },
+      {
+        "MainGroupID": 2,
+        "MainGroupName": "EGENKAPITAL OG GJELD"
+      }
+    ],
+    "Success": true,
+    "Message": ""
+  },
+  "accountsums": {
+    "Data": [
+      {
+        "accountgroupMainGroupID": 17,
+        "maingroupName": "Kortsiktige fordringer",
+        "accountAccountNumber": 1500,
+        "sumCurrentYear": 250000.0000,
+        "sumPreviousYear": 0.0000,
+        "accountAccountName": "Kundefordringer"
+      },
+      {
+        "accountgroupMainGroupID": 21,
+        "maingroupName": "Kontanter, bankinnskudd o.l.",
+        "accountAccountNumber": 1920,
+        "sumCurrentYear": 30000.0000,
+        "sumPreviousYear": 0.0000,
+        "accountAccountName": "Bankinnskudd"
+      },
+      {
+        "accountgroupMainGroupID": 22,
+        "maingroupName": "Egenkapital",
+        "accountAccountNumber": 2099,
+        "sumCurrentYear": -20000.0000,
+        "sumPreviousYear": 0.0000,
+        "accountAccountName": "Udisponert resultat"
+      },
+      {
+        "accountgroupMainGroupID": 42,
+        "maingroupName": "Forbruk av råvarer og innkjøpte halvfabrikata",
+        "accountAccountNumber": 4000,
+        "sumCurrentYear": -210000.0000,
+        "sumPreviousYear": 0.0000,
+        "accountAccountName": "Innkjøp av råvarer og halvfabrikata, høy avgiftssats"
+      },
+      {
+        "accountgroupMainGroupID": null,
+        "maingroupName": null,
+        "accountAccountNumber": 4001,
+        "sumCurrentYear": -50000.0000,
+        "sumPreviousYear": 0.0000,
+        "accountAccountName": "AAA"
+      }
+    ],
+    "Success": true,
+    "Message": ""
+  },
+  "resulttotalyearsum": {
+    "Data": [
+      {
+        "sumTotalCurrentYear": -9404880,
+        "sumTotalPreviousYear": 0
+      }
+    ],
+    "Success": true,
+    "Message": ""
+  },
+  "balancetotalyearsum": {
+    "Data": [
+      {
+        "sumTotalCurrentYear": -900000,
+        "sumTotalPreviousYear": -10000
+      }
+    ],
+    "Success": true,
+    "Message": ""
+  },
+  "user": {
+    "DisplayName": "Economy Test",
+    "Email": "economy.test@unimicro.no",
+    "GlobalIdentity": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+    "PhoneNumber": "",
+    "LastLogin": "2016-10-25T11:58:39.957Z",
+    "StatusCode": 18,
+    "CustomValues": {
+      
+    },
+    "ID": 1,
+    "Deleted": false,
+    "CreatedAt": null,
+    "UpdatedAt": null,
+    "CreatedBy": null,
+    "UpdatedBy": null
+  }
+}

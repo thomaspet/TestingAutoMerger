@@ -32,17 +32,17 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         balancelastgroup: number
     } = {
         ReportYear: new Date().getFullYear(),
-        fromPeriod: 0,
+        fromPeriod: 1,
         toPeriod: 12,
         fromProjectNo: 0,
-        toProjectNo: 9,
+        toProjectNo: 99999,
         fromDepartmentNo: 0,
-        toDepartmentNo: 9,
+        toDepartmentNo: 99999,
         orderBy: 'AccountNumber',
         reportFor: 'both',
         showFrontPage: true,
         showLastYear: true,
-        showUnallocated: false,
+        showUnallocated: true,
         resultfirstgroup: 94,
         resultlastgroup: 99,
         balancefirstgroup: 92,
@@ -161,10 +161,10 @@ export class ResultAndBalanceReportFilterModal {
                                         parameter.value = `Period.AccountYear eq '${component.model.ReportYear}'`
                                             + ` and Period.No ge ${component.model.fromPeriod}`
                                             + ` and Period.No le ${component.model.toPeriod}`
-                                            + ` and Project.ProjectNumber ge ${component.model.fromProjectNo}`
-                                            + ` and Project.ProjectNumber le ${component.model.toProjectNo}`
-                                            + ` and Department.DepartmentNumber ge ${component.model.fromDepartmentNo}`
-                                            + ` and Department.DepartmentNumber le ${component.model.toDepartmentNo}`;
+                                            + ` and isnull(Project.ProjectNumber\,0) ge ${component.model.fromProjectNo}`
+                                            + ` and isnull(Project.ProjectNumber\,0) le ${component.model.toProjectNo}`
+                                            + ` and isnull(Department.DepartmentNumber\,0) ge ${component.model.fromDepartmentNo}`
+                                            + ` and isnull(Department.DepartmentNumber\,0) le ${component.model.toDepartmentNo}`;
                                         break;
                                     case 'ReportYear':
                                     case 'showLastYear':
@@ -208,12 +208,17 @@ export class ResultAndBalanceReportFilterModal {
                             departmentNoToParam.Name = 'DepartmentNoTo';
                             departmentNoToParam.value = component.model.toDepartmentNo;
 
+                            let unallocatedParam = new CustomReportDefinitionParameter();
+                            unallocatedParam.Name = 'showUnallocated';
+                            unallocatedParam.value = component.model.showUnallocated;
+
                             this.modalConfig.report.parameters.push(periodFromParam);
                             this.modalConfig.report.parameters.push(periodToParam);
                             this.modalConfig.report.parameters.push(projectNoFromParam);
                             this.modalConfig.report.parameters.push(projectNoToParam);
                             this.modalConfig.report.parameters.push(departmentNoFromParam);
                             this.modalConfig.report.parameters.push(departmentNoToParam);
+                            this.modalConfig.report.parameters.push(unallocatedParam);
 
                             this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
