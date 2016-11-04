@@ -14,52 +14,70 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     public statusTypes: Array<any> = [
         { Code: StatusCodeCustomerQuote.Draft, Text: 'Kladd' },
         { Code: StatusCodeCustomerQuote.Registered, Text: 'Registrert' },
-        //{ Code: StatusCodeCustomerQuote.ShippedToCustomer, Text: 'Sendt til kunde' }, // Not available yet
-        //{ Code: StatusCodeCustomerQuote.CustomerAccepted, Text: 'Kunde har godkjent' }, // Not available yet
+        // { Code: StatusCodeCustomerQuote.ShippedToCustomer, Text: 'Sendt til kunde' }, // Not available yet
+        // { Code: StatusCodeCustomerQuote.CustomerAccepted, Text: 'Kunde har godkjent' }, // Not available yet
         { Code: StatusCodeCustomerQuote.TransferredToOrder, Text: 'Overført til ordre' },
         { Code: StatusCodeCustomerQuote.TransferredToInvoice, Text: 'Overført til faktura' },
         { Code: StatusCodeCustomerQuote.Completed, Text: 'Avsluttet' }
     ];
 
-    constructor(http: UniHttp) {        
-        super(http);       
+    public getFilteredStatusTypes(statusCode: number): Array<any> {
+        let statusTypesFiltered: Array<any> = [];
+
+        this.statusTypes.forEach((s, i) => {
+            if (s.Code === StatusCodeCustomerQuote.Draft &&
+                statusCode !== StatusCodeCustomerQuote.Draft) {
+                return;
+            } else if (s.Code === StatusCodeCustomerQuote.Completed &&
+                statusCode !== StatusCodeCustomerQuote.Completed) {
+                return;
+            } else if (s.Code === StatusCodeCustomerQuote.TransferredToInvoice &&
+                statusCode === StatusCodeCustomerQuote.Completed) {
+                return;
+            } else {
+                statusTypesFiltered.push(s);
+            }
+        });
+        return statusTypesFiltered;
+    };
+
+
+    constructor(http: UniHttp) {
+        super(http);
         this.relativeURL = CustomerQuote.RelativeUrl;
         this.entityType = CustomerQuote.EntityType;
         this.DefaultOrderBy = null;
         this.defaultExpand = ['Customer'];
     }
 
-    public next(currentID: number): Observable<CustomerQuote>
-    {
+    public next(currentID: number): Observable<CustomerQuote> {
         return super.GetAction(currentID, 'next');
     }
-    
-    public previous(currentID: number): Observable<CustomerQuote>
-    {
+
+    public previous(currentID: number): Observable<CustomerQuote> {
         return super.GetAction(currentID, 'previous');
     }
-    
-    public newCustomerQuote(): Promise<CustomerQuote>
-    {       
+
+    public newCustomerQuote(): Promise<CustomerQuote> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerQuote.EntityType).subscribe((quote: CustomerQuote) => {
                 quote.QuoteDate = moment().toDate();
                 quote.ValidUntilDate = moment().add(1, 'month').toDate();
-                
-                resolve(quote);                
-            });               
+
+                resolve(quote);
+            });
         });
     }
 
-    public calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        
-        return this.http 
+    public calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {
+        return this.http
             .asPOST()
             .usingBusinessDomain()
             .withBody(quoteItems)
             .withEndPoint(this.relativeURL + '?action=calculate-quote-summary')
             .send()
             .map(response => response.json());
-    } 
+    }
 
     public getStatusText(statusCode: number): string {
         var text = '';
@@ -70,5 +88,5 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
             }
         });
         return text;
-    };   
+    };
 }

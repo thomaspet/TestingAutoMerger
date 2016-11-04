@@ -11,6 +11,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
 import {Address, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
+import {StatusCode} from '../../salesHelper/salesEnums';
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -18,6 +19,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import { ISummaryConfig } from '../../../common/summary/summary';
 
 declare const _;
 declare const moment;
@@ -62,41 +64,44 @@ export class QuoteDetails {
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
+    public summary: ISummaryConfig[] = [];
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
-    constructor(private customerService: CustomerService,
-                private customerQuoteService: CustomerQuoteService,
-                private customerQuoteItemService: CustomerQuoteItemService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private addressService: AddressService,
-                private businessRelationService: BusinessRelationService,
-                private reportDefinitionService: ReportDefinitionService,
-                private companySettingsService: CompanySettingsService,
-                private toastService: ToastService,
+    constructor(
+        private customerService: CustomerService,
+        private customerQuoteService: CustomerQuoteService,
+        private customerQuoteItemService: CustomerQuoteItemService,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private addressService: AddressService,
+        private businessRelationService: BusinessRelationService,
+        private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
 
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService) {
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService) { }
 
+    public ngOnInit() {
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
+            this.setSums();
             this.setup();
         });
     }
-
     private log(err) {
         this.toastService.addToast(err._body, ToastType.bad);
     }
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let activeStatus = this.quote.StatusCode;
+        let activeStatus = this.quote ? (this.quote.StatusCode ? this.quote.StatusCode : 1) : 0;
 
-        this.customerQuoteService.statusTypes.forEach((s, i) => {
+        this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((s, i) => {
             let _state: UniStatusTrack.States;
 
             if (s.Code > activeStatus) {
@@ -118,47 +123,36 @@ export class QuoteDetails {
     public nextQuote() {
         this.customerQuoteService.next(this.quote.ID)
             .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                    }
-                },
-                (err) => {
-                    console.log('Error getting next quote: ', err);
-                    this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
+                if (data) {
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
+            },
+            (err) => {
+                console.log('Error getting next quote: ', err);
+                this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
+            }
             );
     }
 
     public previousQuote() {
         this.customerQuoteService.previous(this.quote.ID)
             .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                    }
-                },
-                (err) => {
-                    console.log('Error getting previous quote: ', err);
-                    this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
+                if (data) {
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
+            },
+            (err) => {
+                console.log('Error getting previous quote: ', err);
+                this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
+            }
             );
     }
 
     public addQuote() {
-        this.customerQuoteService.newCustomerQuote().then(quote => {
-            this.customerQuoteService.Post(quote)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                    },
-                    (err) => {
-                        console.log('Error creating quote: ', err);
-                        this.log(err);
-                    }
-                );
-        });
+        this.router.navigateByUrl('/sales/quotes/0');
     }
 
-    public change(value: CustomerQuote) {}
+    public change(value: CustomerQuote) { }
 
     public ready(event) {
         this.setupSubscriptions(null);
@@ -208,10 +202,10 @@ export class QuoteDetails {
 
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
-                err => {
-                    console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-                });
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+            });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -219,7 +213,11 @@ export class QuoteDetails {
             Observable.forkJoin(
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
-                this.customerQuoteService.Get(this.quoteID, this.expandOptions),
+                (
+                    this.quoteID > 0 ?
+                        this.customerQuoteService.Get(this.quoteID, this.expandOptions)
+                        : this.customerQuoteService.newCustomerQuote()
+                ),
                 this.customerService.GetAll(null, ['Info']),
                 this.addressService.GetNewEntity(null, 'address')
             ).subscribe(response => {
@@ -246,21 +244,24 @@ export class QuoteDetails {
                 this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
             });
         } else {
-            this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                .subscribe((quote) => {
-                    this.quote = quote;
-                    this.addressService.setAddresses(this.quote);
-                    this.setTabTitle();
-                    this.updateToolbar();
-                } , (err) => {
-                    console.log('Error retrieving data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-                });
+            const source = this.quoteID > 0 ?
+                this.customerQuoteService.Get(this.quoteID, this.expandOptions)
+                : Observable.fromPromise(this.customerQuoteService.newCustomerQuote());
+
+            source.subscribe(response => {
+                this.quote = response;
+                this.addressService.setAddresses(this.quote);
+                this.setTabTitle();
+                this.updateToolbar();
+            }, (err) => {
+                console.log('Error retrieving data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+            });
         }
     }
 
     private setTabTitle() {
-        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud (kladd)';
+        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud';
         this.tabService.addTab({ url: '/sales/quotes/' + this.quote.ID, name: tabTitle, active: true, moduleID: UniModules.Quotes });
     }
 
@@ -281,8 +282,8 @@ export class QuoteDetails {
                 }
 
                 this.addressModal.openModal(value, !!!this.quote.CustomerID);
-				
-				if (this.addressChanged) {
+
+                if (this.addressChanged) {
                     this.addressChanged.unsubscribe();
                 }
 
@@ -343,7 +344,7 @@ export class QuoteDetails {
     private saveAddressOnCustomer(address: Address, resolve) {
         var idx = 0;
 
-        if (!address.ID || address.ID == 0) {
+        if (!address.ID || address.ID === 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.quote.Customer.Info.Addresses.push(address);
             idx = this.quote.Customer.Info.Addresses.length - 1;
@@ -366,8 +367,8 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
             subheads: [
-                {title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : ''},
-                {title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'}
+                { title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : '' },
+                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -375,7 +376,7 @@ export class QuoteDetails {
                 next: this.nextQuote.bind(this),
                 add: this.addQuote.bind(this)
             }
-        };    
+        };
     }
 
     private updateSaveActions() {
@@ -384,21 +385,21 @@ export class QuoteDetails {
         this.actions.push({
             label: 'Lagre',
             action: (done) => this.saveQuoteManual(done),
-            main: true,
-            disabled: false
+            disabled: this.quote.ID === 0,
+            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
 
         this.actions.push({
             label: 'Lagre og skriv ut',
             action: (done) => this.saveAndPrint(done),
-            disabled: false
+            disabled: this.quote.ID === 0
         });
 
         this.actions.push({
             label: 'Registrer',
-            action: (done) => this.saveQuoteTransition(done, 'register', 'Registrert'),
-            disabled: (this.quote.StatusCode !== StatusCodeCustomerQuote.Draft)
-
+            action: (done) => this.saveQuoteAsRegistered(done),
+            disabled: this.IsTransferToRegisterDisabled(),
+            main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
         });
 
         // TODO: Add a actions for shipToCustomer,customerAccept
@@ -421,12 +422,25 @@ export class QuoteDetails {
             disabled: this.IsTransferToCompleteDisabled()
 
         });
+        this.actions.push({
+            label: 'Lagre som kladd',
+            action: (done) => this.saveQuoteAsDraft(done),
+            disabled: (this.quote.ID > 0)
+        });
 
         this.actions.push({
             label: 'Slett',
             action: (done) => this.deleteQuote(done),
             disabled: true
         });
+    }
+
+    private IsTransferToRegisterDisabled() {
+        if (this.quote.ID > 0 &&
+            this.quote.StatusCode !== StatusCodeCustomerQuote.Draft) {
+            return true;
+        }
+        return false;
     }
 
     private IsTransferToOrderDisabled() {
@@ -462,6 +476,9 @@ export class QuoteDetails {
     }
 
     public recalcItemSums(quoteItems: any) {
+        if (quoteItems === null || quoteItems === undefined) {
+            return;
+        }
         this.quote.Items = quoteItems;
 
         // Do recalc after 2 second to avoid to much requests
@@ -484,14 +501,15 @@ export class QuoteDetails {
 
             this.customerQuoteService.calculateQuoteSummary(quoteItems)
                 .subscribe((data) => {
-                        this.itemsSummaryData = data;
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                    },
-                    (err) => {
-                        console.log('Error when recalculating items:', err);
-                        this.log(err);
-                    });
+                    this.itemsSummaryData = data;
+                    this.updateSaveActions();
+                    this.updateToolbar();
+                    this.setSums();
+                },
+                (err) => {
+                    console.log('Error when recalculating items:', err);
+                    this.log(err);
+                });
         }, 2000);
     }
 
@@ -500,6 +518,19 @@ export class QuoteDetails {
     }
 
     private saveQuoteManual(done: any) {
+        this.saveQuote(done);
+    }
+
+    private saveQuoteAsRegistered(done: any) {
+        if (this.quote.ID > 0) {
+            this.saveQuoteTransition(done, 'register', 'Registrert');
+        } else {
+            this.saveQuote(done);
+        }
+    }
+
+    private saveQuoteAsDraft(done: any) {
+        this.quote.StatusCode = StatusCode.Draft;
         this.saveQuote(done);
     }
 
@@ -539,7 +570,7 @@ export class QuoteDetails {
         });
 
         // Save only lines with products from product list
-        if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
+        if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
             console.log('Linjer uten produkt. Lagring avbrutt.');
             if (done) {
                 done('Lagring feilet');
@@ -549,21 +580,22 @@ export class QuoteDetails {
 
         // set deleted items as deleted on server as well, using soft delete / complex put
         this.deletedItems.forEach((item: CustomerQuoteItem) => {
-           // don't send deleted items that has not been saved previously,
-           // because this can cause problems with validation
-           if (item.ID > 0) {
-               item.Deleted = true;
-               this.quote.Items.push(item);
-           }
+            // don't send deleted items that has not been saved previously,
+            // because this can cause problems with validation
+            if (item.ID > 0) {
+                item.Deleted = true;
+                this.quote.Items.push(item);
+            }
         });
 
         this.deletedItems = [];
 
-        this.customerQuoteService.Put(this.quote.ID, this.quote)
-            .subscribe(
+        if (this.quote.ID > 0) {
+            this.customerQuoteService.Put(this.quote.ID, this.quote)
+                .subscribe(
                 (quoteSaved) => {
-                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quoteGet => {
-                        this.quote = quoteGet;
+                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(newQuoate => {
+                        this.quote = newQuoate;
                         this.addressService.setAddresses(this.quote);
                         this.updateSaveActions();
                         this.updateToolbar();
@@ -582,7 +614,58 @@ export class QuoteDetails {
                     this.log(err);
                     done('Lagring feilet');
                 }
-            );
+                );
+        } else {
+            this.customerQuoteService.Post(this.quote)
+                .subscribe(
+                (quoteSaved) => {
+                    this.customerQuoteService.Get(quoteSaved.ID, this.expandOptions).subscribe(newQuote => {
+                        this.quote = newQuote;
+                        this.addressService.setAddresses(this.quote);
+                        this.updateSaveActions();
+                        this.updateToolbar();
+                        this.setTabTitle();
+                        this.ready(null);
+
+                        if (next) {
+                            next(this.quote);
+                        } else {
+                            done('Tilbud lagret');
+                        }
+                    });
+                },
+                (err) => {
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                    done('Lagring feilet');
+                }
+                );
+        }
+    }
+
+    private setSums() {
+        this.summary = [{
+            value: this.itemsSummaryData ? this.itemsSummaryData.SumNoVatBasis.toString() : null,
+            title: 'Avgiftsfritt',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumVatBasis.toString() : null,
+                title: 'Avgiftsgrunnlag',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumDiscount.toString() : null,
+                title: 'Sum rabatt',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat.toString() : null,
+                title: 'Nettosum',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumVat.toString() : null,
+                title: 'Mva',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.DecimalRounding.toString() : null,
+                title: 'Øreavrunding',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalIncVat.toString() : null,
+                title: 'Totalsum',
+            }];
     }
 
     private saveAndPrint(done) {

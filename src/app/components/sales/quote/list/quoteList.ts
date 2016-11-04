@@ -35,18 +35,19 @@ export class QuoteList {
     }
 
     public createQuote() {
-        this.customerQuoteService.newCustomerQuote().then(quote => {
-            this.customerQuoteService.Post(quote)
-                .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating quote: ', err);
-                    this.log(err);
-                }
-                );
-        });
+        this.router.navigateByUrl('/sales/quotes/0');
+        //this.customerQuoteService.newCustomerQuote().then(quote => {
+        //    this.customerQuoteService.Post(quote)
+        //        .subscribe(
+        //        (data) => {
+        //            this.router.navigateByUrl('/sales/quotes/' + data.ID);
+        //        },
+        //        (err) => {
+        //            console.log('Error creating quote: ', err);
+        //            this.log(err);
+        //        }
+        //        );
+        //});
     }
 
     private setupQuoteTable() {
