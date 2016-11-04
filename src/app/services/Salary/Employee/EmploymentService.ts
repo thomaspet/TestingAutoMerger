@@ -232,7 +232,9 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        format: 'money'
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -254,7 +256,9 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 0,
                     Sectionheader: '',
                     Placeholder: '',
-                    Options: null,
+                    Options: {
+                        format: 'money'
+                    },
                     LineBreak: null,
                     IsLookUp: false,
                 },
@@ -273,7 +277,9 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        format: 'money'
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',

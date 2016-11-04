@@ -108,6 +108,7 @@ export class UniNumericInput {
         let value = this.control.value;
 
         if (this.options.decimalLength) {
+            value = value.toString().replace(',', '.');
             value = parseFloat(value).toFixed(this.options.decimalLength);
         }
 
