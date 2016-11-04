@@ -68,3 +68,4 @@ export * from './accounting/FinancialYearService';
 export * from './common/UniMenuAim';
 export * from './Salary/Grants/GrantService';
 export * from './cacheService';
+export * from './common/NumberFormatService';

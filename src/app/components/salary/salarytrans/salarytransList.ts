@@ -1,3 +1,4 @@
+import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -67,7 +68,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         private _wageTypeService: WageTypeService,
         private salarytransService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
-        private router: Router) {
+        private router: Router,
+        private numberFormat: NumberFormat
+    ) {
 
     }
 
@@ -501,23 +504,24 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
 
     private setSums() {
+
         this.summary = [{
-            value: this.employeeTotals ? this.employeeTotals.percentTax.toString() : null,
+            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.percentTax),
             title: 'Prosenttrekk',
-            description: this.employeeTotals && this.employeeTotals.basePercentTax ? `av ${this.employeeTotals.basePercentTax}` : null
+            description: this.employeeTotals && this.employeeTotals.basePercentTax ? `av ${this.numberFormat.asMoney(this.employeeTotals.basePercentTax)}` : null
         }, {
-            value: this.employeeTotals ? this.employeeTotals.tableTax.toString() : null,
+            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.tableTax),
             title: 'Tabelltrekk',
-            description: this.employeeTotals && this.employeeTotals.baseTableTax ? `av ${this.employeeTotals.baseTableTax}` : null
+            description: this.employeeTotals && this.employeeTotals.baseTableTax ? `av ${this.numberFormat.asMoney(this.employeeTotals.baseTableTax)}` : null
         }, {
             title: 'Utbetalt beløp',
-            value: this.employeeTotals ? this.employeeTotals.netPayment.toString() : null
+            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.netPayment)
         }, {
             title: 'Beregnet AGA',
-            value: this.employeeTotals ? this.employeeTotals.calculatedAGA.toString() : null
+            value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.calculatedAGA) : null
         }, {
             title: 'Grunnlag feriepenger',
-            value: this.employeeTotals ? this.employeeTotals.baseVacation.toString() : null
+            value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.baseVacation) : null
         }];
     }
 
