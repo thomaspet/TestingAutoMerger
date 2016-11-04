@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 import {SalaryTransactionService} from '../../../../services/services';
+import {AmeldingData} from '../../../../unientities';
 
 declare var moment;
 
@@ -24,6 +25,7 @@ export class AmeldingPeriodSummaryView {
     
     @Input() private currentPeriod: number;
     @Input() private currentAMelding: any;
+    @Input() public aMeldingerInPeriod: AmeldingData[];
 
     constructor(private _salarytransService: SalaryTransactionService) {
         this.setupSystemTableConfig();
@@ -132,7 +134,16 @@ export class AmeldingPeriodSummaryView {
 
     private setupAmeldingTableConfig() {
         let periodCol = new UniTableColumn('Periode', 'Periode', UniTableColumnType.Text);
-        let meldCol = new UniTableColumn('MeldingsId', 'MeldingsID', UniTableColumnType.Text);
+        let meldCol = new UniTableColumn('MeldingsId', 'MeldingsID', UniTableColumnType.Text)
+            .setTemplate((dataItem) => {
+                let mldID = 0;
+                this.aMeldingerInPeriod.forEach(amelding => {
+                    if (dataItem.MeldingsId === amelding.messageID) {
+                        mldID = amelding.ID;
+                    }
+                });
+                return mldID === 0 ? dataItem.MeldingsId : mldID;
+            });
         let ftrekkCol = new UniTableColumn('Ftrekk', 'Forskuddstrekk', UniTableColumnType.Money);
         let agaCol = new UniTableColumn('Agatrekk', 'Arbeidsgiveravgift', UniTableColumnType.Money);
 
