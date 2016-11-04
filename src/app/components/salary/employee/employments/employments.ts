@@ -124,12 +124,11 @@ export class Employments extends UniView {
         });
 
         this.employments[index] = employment;
-        this.table.updateRow(index, employment);
-
         super.updateState('employments', this.employments, true);
     }
 
     private onRowSelected(event) {
+        this.table.updateRow(this.selectedIndex, this.employments[this.selectedIndex]);
         this.selectedIndex = event.rowModel['_originalIndex'];
     }
 }
