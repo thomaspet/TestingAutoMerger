@@ -10,6 +10,7 @@ import { PostingsummaryModal } from '../payrollrun/postingsummaryModal';
 import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IContextMenuItem } from 'unitable-ng2/main';
 import { UniForm } from '../../../../framework/uniform';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
+import { ISummaryConfig } from '../../common/summary/summary';
 
 declare var _;
 
@@ -27,6 +28,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     public formModel: any = {};
     public errorMessage: string = '';
     public dirty: boolean = false;
+    public summary: ISummaryConfig[] = [];
 
     private employeeExpands: string[] = [
         'BusinessRelationInfo',
@@ -86,12 +88,15 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
             this.busy = true;
             this.payrollRun = payrollRun;
+            this.employeeTotals = null;
+            this.setSums();
             if (this.table && this.employeeID) {
                 this.employeeService.get(this.employeeID, this.employeeExpands)
                     .subscribe((response: any) => {
                         this.employee = response;
                         this.refreshSaveActions();
-                        this.setUnitableSource();
+                        this.setSummarySource();
+                        this.setSalaryTransactionsSource();
                         if (this.wagetypes) {
                             this.createTableConfig();
                         }
@@ -117,10 +122,13 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         if (this.table && this.employeeID && this.payrollRun) {
             this.busy = true;
             this.dirty = false;
+            this.employeeTotals = null;
+            this.setSums();
+            this.setSummarySource();
             this.employeeService.get(this.employeeID, this.employeeExpands)
                 .subscribe((response: any) => {
                     this.employee = response;
-                    this.setUnitableSource();
+                    this.setSalaryTransactionsSource();
                     this.getAgaAndShowView();
                     this.salarytransChanged = [];
                     if (this.salarytransEmployeeTableConfig) {
@@ -204,6 +212,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
     public saveSalarytrans(done) {
         this.payrollRun.transactions = this.salarytransChanged;
+        this.employeeTotals = null;
+        this.setSums();
         this.payrollRun.transactions.forEach((trans: SalaryTransaction) => {
             trans.Wagetype = null;
             trans.Employee = null;
@@ -219,7 +229,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
             this.dirty = false;
-            this.setUnitableSource();
+            this.setSalaryTransactionsSource();
+            this.setSummarySource();
             this.refreshSaveActions();
             done('Lønnsposter lagret: ');
         },
@@ -227,6 +238,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 this.log(err);
                 done('Feil ved lagring av lønnspost', err);
                 this.saveactions[0].disabled = false;
+                this.setSummarySource();
             });
 
     }
@@ -421,16 +433,16 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         let supplements: SalaryTransactionSupplement[] = [];
 
         if (rowModel['Supplements']) {
-                rowModel['Supplements']
-                    .filter(x => x.ID)
-                    .forEach((supplement: SalaryTransactionSupplement) => {
-                        supplement.Deleted = true;
-                        supplements.push(supplement);
-                    });
-            }
+            rowModel['Supplements']
+                .filter(x => x.ID)
+                .forEach((supplement: SalaryTransactionSupplement) => {
+                    supplement.Deleted = true;
+                    supplements.push(supplement);
+                });
+        }
 
         if (wagetype.SupplementaryInformations) {
-            
+
             wagetype.SupplementaryInformations.forEach((supplement: WageTypeSupplement) => {
                 let transSupplement = new SalaryTransactionSupplement();
                 transSupplement.WageTypeSupplementID = supplement.ID;
@@ -460,7 +472,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         rowModel['Sum'] = sum;
     }
 
-    private setUnitableSource() {
+    private setSalaryTransactionsSource() {
         var filter = this.buildFilter();
 
         this.salarytransItems$ = this._uniHttpService.asGET()
@@ -471,16 +483,42 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 expand: '@Wagetype.SupplementaryInformations,@Supplements.WageTypeSupplement'
             })
             .map(response => response.json());
+    }
 
+    private setSummarySource() {
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {
                 if (response) {
                     this.employeeTotals = response;
+                    this.setSums();
                 }
             }, (error: any) => {
                 this.log(error);
                 console.log(error);
             });
+    }
+
+
+
+    private setSums() {
+        this.summary = [{
+            value: this.employeeTotals ? this.employeeTotals.percentTax.toString() : null,
+            title: 'Prosenttrekk',
+            description: this.employeeTotals && this.employeeTotals.basePercentTax ? `av ${this.employeeTotals.basePercentTax}` : null
+        }, {
+            value: this.employeeTotals ? this.employeeTotals.tableTax.toString() : null,
+            title: 'Tabelltrekk',
+            description: this.employeeTotals && this.employeeTotals.baseTableTax ? `av ${this.employeeTotals.baseTableTax}` : null
+        }, {
+            title: 'Utbetalt beløp',
+            value: this.employeeTotals ? this.employeeTotals.netPayment.toString() : null
+        }, {
+            title: 'Beregnet AGA',
+            value: this.employeeTotals ? this.employeeTotals.calculatedAGA.toString() : null
+        }, {
+            title: 'Grunnlag feriepenger',
+            value: this.employeeTotals ? this.employeeTotals.baseVacation.toString() : null
+        }];
     }
 
     private getEmploymentFromEmployee(employmentID: number) {

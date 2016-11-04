@@ -1,7 +1,9 @@
+
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 import {SalaryTransactionService} from '../../../../services/services';
 import {AmeldingData} from '../../../../unientities';
+import { ISummaryConfig } from '../../../common/summary/summary';
 
 declare var moment;
 
@@ -22,7 +24,10 @@ export class AmeldingPeriodSummaryView {
     private sumAmldFtrekk: number = 0;
     private amldData: any[] = [];
     private amldTableConfig: UniTableConfig;
-    
+
+    private systemPeriodSums: ISummaryConfig[] = [];
+    private ameldingPeriodSums: ISummaryConfig[] = [];
+
     @Input() private currentPeriod: number;
     @Input() private currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
@@ -36,20 +41,33 @@ export class AmeldingPeriodSummaryView {
 
         if (this.currentPeriod) {
             this._salarytransService.getSumsInPeriod(this.currentPeriod, this.currentPeriod, 2016)
-            .subscribe((response) => {
-                this.systemData = response;
-                
-                this.sumCalculatedAga = 0;
-                this.sumForskuddstrekk = 0;
-                this.sumGrunnlagAga = 0;
-                
-                this.systemData.forEach(dataElement => {
-                    dataElement._type = 'Grunnlag';
-                    this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
-                    this.sumGrunnlagAga += dataElement.Sums.baseAGA;
-                    this.sumForskuddstrekk += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+                .subscribe((response) => {
+                    this.systemData = response;
+
+                    this.sumGrunnlagAga = 0;
+                    this.sumCalculatedAga = 0;
+                    this.sumForskuddstrekk = 0;
+
+                    this.systemData.forEach(dataElement => {
+                        dataElement._type = 'Grunnlag';
+                        this.sumGrunnlagAga += dataElement.Sums.baseAGA;
+                        this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
+                        this.sumForskuddstrekk += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+                    });
+
+                    this.systemPeriodSums = [
+                        {
+                            title: 'Grunnlag aga',
+                            value: this.sumGrunnlagAga.toString()
+                        }, {
+                            title: 'Sum aga',
+                            value: this.sumCalculatedAga.toString()
+                        }, {
+                            title: 'Sum forskuddstrekk',
+                            value: this.sumForskuddstrekk.toString()
+                        }];
+
                 });
-            });
         }
 
         if (this.currentAMelding) {
@@ -80,6 +98,17 @@ export class AmeldingPeriodSummaryView {
                         this.checkMottattPeriode(alleMottak);
                     }
                 }
+
+                this.ameldingPeriodSums = [{
+                    title: 'Forfallsdato',
+                    value: this.forfallsdato
+                }, {
+                    title: 'Sum aga',
+                    value: this.sumAmldAga ? this.sumAmldAga.toString() : null
+                }, {
+                    title: 'Sum forskuddstrekk',
+                    value: this.sumAmldFtrekk ? this.sumAmldFtrekk.toString() : null
+                }];
             }
         }
     }
@@ -129,7 +158,7 @@ export class AmeldingPeriodSummaryView {
         let agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money).setWidth('7rem');
 
         this.systemTableConfig = new UniTableConfig(false, true, 10)
-        .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);
+            .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);
     }
 
     private setupAmeldingTableConfig() {
@@ -148,6 +177,6 @@ export class AmeldingPeriodSummaryView {
         let agaCol = new UniTableColumn('Agatrekk', 'Arbeidsgiveravgift', UniTableColumnType.Money);
 
         this.amldTableConfig = new UniTableConfig(false, true, 10)
-        .setColumns([periodCol, meldCol, ftrekkCol, agaCol]);
+            .setColumns([periodCol, meldCol, ftrekkCol, agaCol]);
     }
 }

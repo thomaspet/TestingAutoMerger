@@ -26,22 +26,7 @@
 
 <section [attr.aria-busy]="busy" class="detail_tables">
     <uni-table [resource]="salarytransItems$ | async" [config]="salarytransEmployeeTableConfig" (rowChanged)="rowChanged($event)" class="maintable"></uni-table>
-    <dl *ngIf="employeeTotals" class="summary" [ngClass]="{'-is-dirty':dirty}">
-        <dt>Prosenttrekk</dt>
-        <dd>{{employeeTotals.percentTax}}</dd>
-
-        <dt>Tabelltrekk</dt>
-        <dd>{{employeeTotals.tableTax}}</dd>
-
-        <dt>Utbetalt beløp</dt>
-        <dd>{{employeeTotals.netPayment}}</dd>
-
-        <dt>Beregnet aga</dt>
-        <dd>{{employeeTotals.calculatedAGA}}</dd>
-
-        <dt>Grunnlag feriepenger</dt>
-        <dd>{{employeeTotals.baseVacation}}</dd>
-    </dl>
+    <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
 <control-modal (updatePayrollRun)="refreshPayrollRun($value)"></control-modal>
 <postingsummary-modal (updatePayrollRun)="refreshPayrollRun($value)"></postingsummary-modal>
