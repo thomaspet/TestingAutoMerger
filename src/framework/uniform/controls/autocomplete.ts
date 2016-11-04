@@ -3,7 +3,7 @@ import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 
 import {BizHttp} from '../../core/http/BizHttp';
-import {UniFieldLayout} from '../interfaces';
+import {UniFieldLayout, KeyCodes} from '../interfaces';
 
 import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/debounceTime';
@@ -48,6 +48,7 @@ export class UniAutocompleteConfig {
             />
 
             <button #toggleBtn class="uni-autocomplete-searchBtn"
+                    type="button"
                     (click)="toggle()"
                     (keydown.esc)="onKeyDown($event)"
                     tabIndex="-1">
@@ -104,8 +105,6 @@ export class UniAutocompleteInput {
     private value: string;
     private initialDisplayValue: string;
 
-
-    private busy: boolean = false;
     private selectedIndex: number = -1;
     private lookupResults: any[] = [];
     private isExpanded: boolean;
@@ -117,9 +116,9 @@ export class UniAutocompleteInput {
 
     public ngOnChanges(changes) {
         if (changes['model']) {
-            this.lastValue = null;
+            this.lastValue = this.lastValue || null;
             this.options = this.field.Options || {};
-            this.source = this.options.source;
+            this.source = this.options.source || [];
         }
 
         // Perform initial lookup to get display value
@@ -136,14 +135,13 @@ export class UniAutocompleteInput {
             .switchMap((input: string) => {
                 this.isExpanded = false;
                 this.lookupResults = [];
-                this.busy = true;
                 return this.search(input);
             })
+            .filter((items: any[]) => items.length > 0)
             .subscribe((items: any[]) => {
                 this.selectedIndex = -1;
                 this.lookupResults = items;
                 this.isExpanded = true;
-                this.busy = false;
                 this.cd.markForCheck();
             });
     }
@@ -238,27 +236,20 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
         this.focusPositionTop = 0;
 
-        // Wait for response
-        // (allows us to still select result[0] when user tabs out before lookup is finished)
-        if (this.busy) {
-            setTimeout(() => {
-                this.confirmSelection();
-            }, 200);
-
-            return;
-        }
-
         // User just tabbed through the field
         if (this.selectedIndex === -1 && this.control.value === this.initialDisplayValue) {
             return;
         }
 
         let selectedItem;
-        if (this.control.value.length || this.selectedIndex > -1) {
-            const index = (this.selectedIndex > -1) ? this.selectedIndex : 0;
-            selectedItem = this.lookupResults[index];
-        } else {
+        if  (this.control.value.length === 0) {
             selectedItem = null;
+            this.lastValue = null;
+        } else if (this.control.value.length && this.selectedIndex > -1) {
+            selectedItem = this.lookupResults[this.selectedIndex];
+            this.lastValue = selectedItem;
+        } else {
+            selectedItem = this.lastValue;
         }
 
         this.value = selectedItem ? _.get(selectedItem, this.field.Options.valueProperty) : null;
@@ -276,28 +267,30 @@ export class UniAutocompleteInput {
 
     private toggle() {
         if (this.isExpanded) {
-            this.isExpanded = false;
+            this.close();
         } else {
-            this.search('').subscribe((items) => {
-                this.selectedIndex = -1;
-                this.lookupResults = items;
-                this.isExpanded = true;
-                this.busy = false;
-                this.cd.markForCheck();
-            });
+            this.open();
         }
     }
 
+    private open() {
+        this.isExpanded = true;
+        this.cd.markForCheck();
+    }
+
+    private close() {
+        this.isExpanded = false;
+        this.cd.markForCheck();
+    }
 
     private onKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
-            // Tab & enter
-            case 9:
-            case 13:
+            case KeyCodes.TAB:
+            case KeyCodes.ENTER:
                 this.confirmSelection();
+                this.close();
             break;
-            // Escape
-            case 27:
+            case KeyCodes.ESC:
                 this.isExpanded = false;
                 this.selectedIndex = -1;
                 this.control.setValue(this.initialDisplayValue, {emitEvent: false});
@@ -307,26 +300,23 @@ export class UniAutocompleteInput {
                     this.inputElement.nativeElement.select();
                 } catch (e) {}
             break;
-            // Space
-            case 32:
+            case KeyCodes.SPACE:
                 if (!this.isExpanded && (!this.control.value || !this.control.value.length)) {
                     event.preventDefault();
                     this.toggle();
                 }
             break;
-            // Arrow up
-            case 38:
+            case KeyCodes.ARROW_UP:
                 event.preventDefault();
                 if (this.selectedIndex > 0) {
                     this.selectedIndex--;
                     this.scrollToListItem();
                 }
             break;
-            // Arrow down
-            case 40:
+            case KeyCodes.ARROW_DOWN:
                 event.preventDefault();
                 if (event.altKey && !this.isExpanded) {
-                    this.toggle();
+                    this.open();
                     return;
                 }
 
@@ -335,8 +325,7 @@ export class UniAutocompleteInput {
                     this.scrollToListItem();
                 }
             break;
-            // F4
-            case 115:
+            case KeyCodes.F4:
                 this.toggle();
             break;
         }
