@@ -1,5 +1,5 @@
-import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
 
@@ -14,7 +14,10 @@ export interface IUniTab {
     selector: 'uni-tabstrip',
     template: `
         <ol class="navbar_tabs">
-            <li *ngFor="let tab of tabService.tabs; let i = index" (click)="activateTab(tab, i)" [ngClass]="{'router-tab-active': tab.active, '': !tab.active}">
+            <li *ngFor="let tab of tabService.tabs; let i = index"
+                (click)="activateTab(tab, i)"
+                (mouseup)="possiblyCloseTab(tab, i, $event)"
+                [ngClass]="{'router-tab-active': tab.active, '': !tab.active}">
                 {{tab.name}}
                 <span class="close" (click)="closeTab(tab, i)"></span>
             </li>
@@ -40,7 +43,14 @@ export class UniTabStrip {
 
     }
 
+    private possiblyCloseTab(tab: IUniTab, index: number, event: MouseEvent) {
+        if (event.button === 1) {
+            this.closeTab(tab, index);
+        }
+    }
+
     private activateTab(tab: IUniTab, index: number): void {
+
         // Removes active class on previous active
         this.tabService.currentActiveTab.active = false;
 
