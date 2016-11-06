@@ -13,16 +13,36 @@ export class Lookupservice {
         return this.GET(route + '/' + id);
     }
 
-    public query<T>(route: string, searchString: string, matchCols: string, expand?: string, select?: string, filter?: string): Observable<T> {
+    public query<T>(route: string, searchString: string, matchCols: string, expand?: string, select?: string, filter?: string, useModel?: string): Observable<T> {
         var cols = matchCols.split(',');
-        var params = '';
+        var params = '', prefix = '?';
+        var useStatistics = false;
+        
+        if (useModel) {
+            route = '?model=' + useModel;
+            useStatistics = true;
+            prefix = '&';
+        }
         cols.forEach((value: string, index: number) => {
             params += (index > 0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
         });
-        params = '?filter=' + ( filter ? filter + ' and ( ' + params + ' )' : params );  
+        params = prefix + 'filter=' + ( filter ? filter + ' and ( ' + params + ' )' : params );  
         if (expand) { params += '&expand=' + expand; }
-        if (select) { params += '&select=' + select; }
-        return this.GET(route + params);
+        if (select) { params += '&select=' + this.mapStatSelect(select, useStatistics); }
+        return this.GET(route + params, undefined, useStatistics );
+    }
+
+    private mapStatSelect(cols: string, useStatistics = false): string {
+        if (!useStatistics) { return cols; }
+        var arr = cols.split(',');
+        var outArr = [];
+        arr.forEach( item => { 
+            if (item.indexOf(' as ') < 0) {
+                item += ' as ' + item; 
+            }
+            outArr.push(item);
+        });
+        return outArr.join(',');
     }
 
     private userInput(value: string): { iKey: number, key: any, label: string, isBlank: boolean } {
@@ -119,15 +139,30 @@ export class Lookupservice {
             // Build combo-template
             var searchCols = lookup.select || 'ID,Name';
             var cols = searchCols.split(',');
-            details.renderFunc = (item: any) => { var ret = ''; for (var i = 0; i < cols.length; i++) { ret += (i > 0 ? ' - ' : '') + item[cols[i]]; } return ret; };
-            details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
+            var filter = lookup.filter;
+            if (details.value === '' && lookup.blankFilter) {
+                filter = lookup.blankFilter;
+            }
+            details.renderFunc = (item: any) => { 
+                var ret = ''; 
+                for (var i = 0; i < cols.length && i < 2; i++) { 
+                    ret += (i > 0 ? ' - ' : '') + item[cols[i]]; 
+                }
+                return ret; 
+            };
+            details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, filter, details.columnDefinition.lookup.model).toPromise();
         }
     }    
 
 
    // http helpers (less verbose?)
     
-    private GET(route: string, params?: any ): Observable<any> {
+    private GET(route: string, params?: any, useStatistics = false ): Observable<any> {
+        if (useStatistics) {
+            return this.http.asGET().usingStatisticsDomain()
+            .withEndPoint(route).send(params)
+            .map(response => response.json().Data);
+        }
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
         .map(response => response.json());

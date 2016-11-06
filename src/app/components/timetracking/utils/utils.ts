@@ -38,6 +38,16 @@ export function safeInt(value: any) {
     return tmp;
 }
 
+export function safeDec(value: any) {
+    if (value === undefined) { return 0; }
+    if (typeof(value) === 'number') { return value; }
+    var tmp = parseFloat(value);
+    if (isNaN(tmp)) {
+        return 0;
+    }
+    return tmp;
+}
+
 export function createFormField(name: string, label: string, fieldType = ControlTypes.TextInput, size = FieldSize.Normal, hideLabel = false, section = 0, sectionHeader?: string, fieldSet = 0, options?: any): any {
     return {
         Property: name, Label: label,

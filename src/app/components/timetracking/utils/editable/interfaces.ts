@@ -9,6 +9,13 @@ export interface IChangeEvent {
     userTypedValue: boolean;
 }
 
+export interface IStartEdit {
+    col: number;
+    row: number;
+    cancel: boolean;
+    columnDefinition: ICol;
+}
+
 export interface IPos {
     col: number;
     row: number;
@@ -134,4 +141,6 @@ export interface ILookupDetails {
     select?: string;
     filter?: string;    
     visualKey?: string;
+    blankFilter?: string;
+    model?: string;
 }

@@ -53,7 +53,7 @@
                 <footer>
                     <table class='timeentry_toolbar'><tr>
                     <td>
-                        <button class="secondary-button" (click)="onAddNew()">Ny timeføring</button>
+                        <button class="good" (click)="onAddNew()">Ny timeføring</button>
                         <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
                         <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
                     </td>

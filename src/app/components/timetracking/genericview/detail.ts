@@ -106,9 +106,10 @@ export class GenericDetailview {
         }
 
         return new Promise((resolve, reject) => {
-            this.workerService.getStatistics(params).subscribe((items) => {
-                if (items && items.length > 0 && items[0].Data && items[0].Data.length > 0) {
-                    var key = items[0].Data[0][resultFld];
+            this.workerService.getStatistics(params).subscribe((data) => {
+                var items = data.Data;
+                if (items && items.length > 0) {
+                    var key = items[0][resultFld];
                     if (key) {
                         this.loadCurrent(key);
                         resolve(true);

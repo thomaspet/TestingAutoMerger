@@ -42,6 +42,10 @@ import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedV
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
 import {SalesModule} from '../sales/salesModule';
 import {ImageModal, ImageModalContent} from './transquery/details/ImageModal';
+import {BillsView} from './bill/bills';
+import {BillView} from './bill/detail/bill';
+import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe} from './bill/detail/journal/simple';
+import {TimetrackingModule} from '../timetracking/timetrackingmodule';
 
 @NgModule({
     imports: [
@@ -67,7 +71,8 @@ import {ImageModal, ImageModalContent} from './transquery/details/ImageModal';
 
         // Route module
         AccountingRoutes,
-        SalesModule
+        SalesModule,
+        TimetrackingModule        
     ],
     declarations: [
         UniAccounting,
@@ -82,6 +87,10 @@ import {ImageModal, ImageModalContent} from './transquery/details/ImageModal';
         Payments,
         SupplierInvoiceList,
         SupplierInvoiceDetail,
+        BillsView,
+        BillView,
+        BillSimpleJournalEntryView,
+        AccountPipe, VatCodePipe,
 
         // vatreport
         CheckListVat,
@@ -119,6 +128,7 @@ import {ImageModal, ImageModalContent} from './transquery/details/ImageModal';
         Payments,
         SupplierInvoiceList,
         SupplierInvoiceDetail,
+        BillsView,
 
         // vatreport
         CheckListVat,

@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, WorkType} from '../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from 'unitable-ng2/main';

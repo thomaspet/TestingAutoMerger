@@ -1,5 +1,5 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, EventEmitter} from '@angular/core';
-import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearch} from './interfaces';
+import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearch, IStartEdit} from './interfaces';
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';
@@ -15,10 +15,11 @@ export interface IConfig {
         onSelectionChange?(cell: IPos),
         onTypeSearch?(details: ITypeSearch)
         onCopyCell?(details: ICopyEventDetails)
+        onStartEdit?(details: IStartEdit)
     };
 }
 
-export {IChangeEvent, ICol, IPos, Column, ColumnType, ITypeSearch, ILookupDetails} from './interfaces';
+export {IChangeEvent, IStartEdit, ICol, IPos, Column, ColumnType, ITypeSearch, ILookupDetails} from './interfaces';
 
 
 @Directive({
@@ -129,6 +130,14 @@ export class Editable implements AfterViewInit, OnDestroy {
             return;
         }
 
+        if (this.config && this.config.events && this.config.events.onStartEdit) {
+            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col }; 
+            this.raiseEvent('onStartEdit', startDetails);
+            if (startDetails.cancel) {
+                return;
+            }
+        }
+
         this.current.active = el;
         this.focusCell(el);
 
@@ -210,7 +219,7 @@ export class Editable implements AfterViewInit, OnDestroy {
             cancel: false,
             updateCell: true,
             userTypedValue: userTypedValue,
-            columnDefinition: this.config.columns ? this.config.columns[pos.col] : undefined
+            columnDefinition: this.config && this.config.columns ? this.config.columns[pos.col] : undefined
         };
 
         var async: Promise<any> = this.raiseEvent('onChange', eventDetails);
@@ -364,7 +373,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     private getLayoutColumn(colIndex: number): ICol {
-        return this.config.columns ? this.config.columns[colIndex] : undefined;
+        return this.config && this.config.columns ? this.config.columns[colIndex] : undefined;
     }
 
     private focusCell(cell: IJQItem) {

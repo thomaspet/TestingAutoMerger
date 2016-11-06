@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {UniTable, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
@@ -19,7 +19,7 @@ export interface IViewConfig {
         routeBackToList?: string;
         nameProperty?: string;
     };
-    tab: View;
+    tab: View | { label: string, url: string };
     data: {
         route: string;
         model?: string;

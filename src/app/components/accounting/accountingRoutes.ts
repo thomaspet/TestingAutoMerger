@@ -7,6 +7,9 @@ import {AccountSettings} from '../settings/accountSettings/accountSettings';
 import {VatSettings} from '../settings/vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
 
+import {BillsView} from './bill/bills';
+import {BillView} from './bill/detail/bill';
+
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
 import {UniAccounting} from './accounting';
@@ -40,6 +43,14 @@ export const childRoutes = [
     {
         path: 'vatreport',
         component: VatReportView
+    },
+    {
+        path: 'bills',
+        component: BillsView
+    },
+    {
+        path: 'bill/:id',
+        component: BillView
     }
 ];
 

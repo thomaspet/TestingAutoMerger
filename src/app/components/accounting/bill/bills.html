@@ -1,0 +1,33 @@
+<section class="application supplierinvoice-listview">
+
+    <header>
+        <table class='timeentry_toolbar'><tr>
+        <td>
+            <button class="good" (click)="onAddNew()">Ny regning</button>
+        </td>
+        <td>Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}</td>
+        </tr></table>
+    </header>    
+
+    <aside class="horizontal_nav no-print">
+        <ul>
+            <li *ngFor="let filter of filters">
+                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}&nbsp;<span *ngIf="filter.count" class="tab_counter">{{filter.count}}</span></a> 
+            </li>
+        </ul>    
+    </aside>
+    
+    <article [attr.aria-busy]="busy" >
+        
+        <uni-table [resource]="listOfInvoices"
+            [config]="tableConfig"
+            (rowSelected)="onRowSelected($event)">
+        </uni-table>
+
+        <div class="right total">
+            Totalsum {{totals.grandTotal | unicurrency:0 }}
+        </div>
+
+    </article>
+
+</section>

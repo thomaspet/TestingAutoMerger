@@ -1,0 +1,127 @@
+/* NEW SUPPLIER-INVOICE  */
+
+.supplier-invoice-table-payment-overdue
+	color: $uni-color-Bad
+
+.supplier-invoice-table-payment-ok
+	color: $uni-color-Good
+
+.supplier-invoice-table-plus
+	color: $uni-color-plus !important
+
+supplier-invoice-table-minus
+	color: $uni-color-minus !important
+
+.no-wrap
+	white-space: nowrap
+	display: inline-block
+
+.no-topmargin
+	margin-top: 0 !important
+	padding-top: 0 !important
+
+.no-horzmargins
+	margin-left: 0 !important
+	margin-right: 0 !important
+
+.split-tabs
+	display: flex
+	min-height: 100vh
+	margin: 0 auto
+
+	aside
+		flex-shrink: 0
+		width: 500px
+		margin-right: 1em
+		overflow-x: hidden
+		text-overflow: ellipsis
+
+		uni-field
+			width: 100%
+
+			&.half-width
+				width: calc(50% - 2rem)
+
+			ul
+				margin-top: 0
+
+		input
+			&.autocomplete_input
+				width: calc(100% - 3.4rem)
+
+		button.tiny
+			display: inherit
+			margin: inherit
+			padding-left: 4px
+			padding-right: 4px
+			box-shadow: none
+			border: 0
+			border-radius: 0
+
+	div
+		flex-grow: 1
+
+@media all and (max-width: 800px)
+	.split-tabs
+		flex-flow: column
+	aside
+		width: 100%
+
+.split-tabs-parent
+	margin-top: 0
+	padding-top: 0
+
+.left
+	text-align: left !important
+
+.right
+	text-align: right !important
+
+.total
+	padding-right: 0.5rem
+	font-weight: bold
+
+$border-color: $uni-color-scale8
+
+bill-simple-journalentry
+	width: 100%
+
+.compact-journalentry-table
+	width: calc(100% - 1rem)
+    table-layout: fixed
+    border-collapse: collapse
+	border-spacing: 0
+    cursor: pointer
+	margin-left: 1rem
+	margin-right: 1rem
+
+	tbody tr:first-of-type td
+		border-top: 1px solid $uni-color-scale5
+
+	tbody tr td:first-of-type
+		border-left: 1px solid $border-color
+
+	tbody td		
+		border-right: 1px solid $border-color
+		border-bottom: 1px solid $border-color
+		padding: pxToRem(4)
+
+	th
+		text-align: left
+		font-weight: normal
+
+	td
+		text-overflow: ellipsis
+		overflow-x: hidden
+		white-space: nowrap
+
+	&.editable td
+		background-color: white
+
+	td.accountname
+		width: calc(50%-1rem)
+
+	th.accountname
+		width: calc(50% - 1rem)
+
+		  

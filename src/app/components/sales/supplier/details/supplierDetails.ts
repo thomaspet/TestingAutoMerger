@@ -127,6 +127,7 @@ export class SupplierDetails implements OnInit {
     }
 
     private setTabTitle() {
+        if (this.modalMode) { return; }
         let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)';
         this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
     }

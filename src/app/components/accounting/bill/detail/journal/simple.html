@@ -1,0 +1,17 @@
+<table editable [config]="tableConfig" class="compact-journalentry-table" [class.editable]="!isReadOnly" >
+    <thead>
+        <tr>
+            <th class="left accountname">Konto</th>
+            <th class="left">Mva%</th>            
+            <th class="right">Sum</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of costItems; let i=index">
+            <td class="accountname">{{item.Account | account }}</td>
+            <td>{{item.VatType | vatcode }}</td>
+            <td class="right">{{item.Amount | unicurrency }}</td>
+        </tr>
+    </tbody>
+</table>
+
