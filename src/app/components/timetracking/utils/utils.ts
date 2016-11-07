@@ -41,6 +41,14 @@ export function safeInt(value: any) {
 export function safeDec(value: any) {
     if (value === undefined) { return 0; }
     if (typeof(value) === 'number') { return value; }
+    if (typeof(value) === 'string') {
+        var ixDot = value.indexOf('.');
+        var ixComma = value.indexOf(',');
+        if (ixDot && ixComma && ixComma > ixDot) {
+            value = value.replace(new RegExp('[.]', 'g'), '');
+            value = value.replace(new RegExp('[,]', 'g'), '.');
+        }
+    }
     var tmp = parseFloat(value);
     if (isNaN(tmp)) {
         return 0;

@@ -31,7 +31,7 @@ supplier-invoice-table-minus
 
 	aside
 		flex-shrink: 0
-		width: 500px
+		width: 50%
 		margin-right: 1em
 		overflow-x: hidden
 		text-overflow: ellipsis
@@ -58,14 +58,20 @@ supplier-invoice-table-minus
 			border: 0
 			border-radius: 0
 
+		uni-numeric-input
+			
+			input
+				text-align: right
+
 	div
 		flex-grow: 1
 
 @media all and (max-width: 800px)
 	.split-tabs
 		flex-flow: column
-	aside
-		width: 100%
+
+		aside
+			width: 100%
 
 .split-tabs-parent
 	margin-top: 0
@@ -87,8 +93,9 @@ bill-simple-journalentry
 	width: 100%
 
 .compact-journalentry-table
-	width: calc(100% - 1rem)
+	width: calc(100% - 1rem) !important 
     table-layout: fixed
+	word-break: break-word 
     border-collapse: collapse
 	border-spacing: 0
     cursor: pointer
@@ -119,9 +126,44 @@ bill-simple-journalentry
 		background-color: white
 
 	td.accountname
-		width: calc(50%-1rem)
+		width: 20rem
 
 	th.accountname
-		width: calc(50% - 1rem)
+		width: 20rem
 
-		  
+	th.actions
+		width: 2.2rem
+
+	td.actions
+		padding: 0
+		margin: 0
+
+	td button
+		width: 2rem
+		margin: 0 0 0 pxToRem(2)
+		padding: 0 pxToRem(2) pxToRem(7) pxToRem(2)
+		background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
+		background-size: 0.9rem    
+		box-shadow: none
+		height: 1em
+
+.compact-journalentry
+
+	li
+		overflow-x: hidden
+		white-space: nowrap
+		
+.compact-summary
+	width: 100%
+	margin-top: 0.5rem
+	margin-left: 1rem
+	margin-right: 1rem
+
+	td
+		width: 25%
+		text-align: left
+		padding: pxToRem(5)
+
+	td.warning
+		color: red
+		font-weight: bold

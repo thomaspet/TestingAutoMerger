@@ -1,17 +1,28 @@
-<table editable [config]="tableConfig" class="compact-journalentry-table" [class.editable]="!isReadOnly" >
-    <thead>
+<div class="compact-journalentry" >
+    <table editable [config]="tableConfig" class="compact-journalentry-table" [class.editable]="!isReadOnly" >
+        <thead>
+            <tr>
+                <th class="left accountname">Konto</th>
+                <th class="left">Mva.</th>            
+                <th class="right">Bruttosum</th>
+                <th class="actions"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of costItems; let i=index">
+                <td>{{item.Account | account }}</td>
+                <td>{{item.VatType | vatcode }}</td>
+                <td class="right">{{item.Amount | unicurrency }}</td>
+                <td class='actions'><button (click)="onRowActionClicked(i, item)"></button></td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="compact-summary">
         <tr>
-            <th class="left accountname">Konto</th>
-            <th class="left">Mva%</th>            
-            <th class="right">Sum</th>
+            <td>Differanse</td>
+            <td [class.warning]="sumRemainder">{{ sumRemainder | unicurrency}}</td>
+            <td>Sum Mva</td>
+            <td>{{ sumVat | unicurrency}}</td>
         </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let item of costItems; let i=index">
-            <td class="accountname">{{item.Account | account }}</td>
-            <td>{{item.VatType | vatcode }}</td>
-            <td class="right">{{item.Amount | unicurrency }}</td>
-        </tr>
-    </tbody>
-</table>
-
+    </table>
+</div>

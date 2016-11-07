@@ -1,6 +1,6 @@
-import {Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
+import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
 import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
-import {IConfig as ITableConfig, Column, ColumnType, IChangeEvent, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
+import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/unitoast/toastservice';
 import {safeDec, trimLength} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
@@ -16,19 +16,22 @@ export class BillSimpleJournalEntryView {
     @Input() public set supplierinvoice(value: SupplierInvoice ) {
         this.current = value;
         this.initFromInvoice(this.current);
+        this.calcRemainder();
     }
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
 
+    @ViewChild(Editable) private editable: Editable;
     public hasMultipleEntries: boolean = false;
     public current: SupplierInvoice;
-    public rootItem: JournalEntryLineDraft;
     public costItems: Array<JournalEntryLineDraft> = [];
     public tableConfig: ITableConfig;
+
+    public sumVat: number = 0;
+    public sumRemainder: number = 0;
 
     private financialYearID: number = 0;
     private financialYears: Array<FinancialYear>;
     private isReadOnly: boolean = false;
-    private editable: Editable;
 
     constructor(
         private toast: ToastService,
@@ -52,26 +55,56 @@ export class BillSimpleJournalEntryView {
     private clear() {
         this.isReadOnly = false;
         this.costItems.length = 0; 
-        this.rootItem = this.newEntry(4000);
-        this.costItems.push(this.rootItem);
+        this.ensureWeHaveSingleEntry();
     }
 
-    private newEntry(account?: number): JournalEntryLineDraft {
+    private ensureWeHaveSingleEntry() {
+        if (this.costItems.length === 0) {
+            this.addEmptyRowAtBottom();
+        }
+    }
+
+    private addEmptyRowAtBottom() {
+        this.costItems.push(this.newEntry());        
+    }
+
+    private newEntry(sum = 0): JournalEntryLineDraft {
         var entry = new JournalEntryLineDraft();
-        entry.Amount = 0;
+        entry.Amount = sum;
         var acc = new Account();
         acc.AccountNumber = 0;
         acc.AccountName = '';        
         entry.Account = acc;
-        entry.VatPercent = 25;
+        entry.VatPercent = 0;
         return entry;
+    }
+
+    private calcRemainder(): number {
+        var sumItems = 0;
+        var total: number = this.current && this.current.TaxInclusiveAmount ? this.current.TaxInclusiveAmount : 0;
+        var sumVat: number = 0;
+        if (total) {
+            this.costItems.forEach( x => {
+                var value = safeDec(x.Amount);
+                if (value > 10000) {
+                    debugger;
+                    console.log('test');
+                } 
+                if (x.VatType && x.VatType.VatPercent) {
+                    sumVat += parseFloat((value * x.VatType.VatPercent / 100).toFixed(2));
+                }
+                sumItems += value;
+            });  
+            this.sumVat = sumVat;
+            this.sumRemainder = total - sumItems;              
+            return this.sumRemainder;
+        }
+        return 0;
     }
 
     private analyzeEntries(invoice: SupplierInvoice) {
 
         if (!invoice) { return; }
-
-        // this.toast.addToast('analyzeEntries: lines =' + ((invoice && invoice.JournalEntry && invoice.JournalEntry.DraftLines) ? invoice.JournalEntry.DraftLines.length : 0), ToastType.good, 2);
 
         var entry = invoice && invoice.JournalEntry ? invoice.JournalEntry : null;
         var lines = entry && entry.DraftLines ? entry.DraftLines : [];
@@ -83,6 +116,7 @@ export class BillSimpleJournalEntryView {
             var firstLine = lines[0];
             this.costItems.length = 0; 
 
+            // Extract 'non-supplier' items
             lines.forEach((x, index) => {
                 let acc = x.Account ? x.Account.AccountNumber : 0;
                 if ((acc !== 0) && (acc !== invoice.Supplier.SupplierNumber)) {
@@ -99,8 +133,6 @@ export class BillSimpleJournalEntryView {
                 if (numberOfCostAccounts > 1) {
                     this.hasMultipleEntries = true;
                 }
-                this.rootItem = firstLine;
-
                 if (!this.isReadOnly) {
                     this.costItems.push(this.newEntry());
                 }
@@ -108,28 +140,37 @@ export class BillSimpleJournalEntryView {
             } else {
                 this.clear();
             }
-
         }
+
+        // Remainder ?
+        var remainder = this.calcRemainder();
+        if (remainder) {
+            this.costItems[this.costItems.length - 1].Amount = remainder;
+        }
+
     }    
 
     private initTableConfig() {
         this.tableConfig = {
             columns: [
-                new Column('Account.AccountNumber', '', 
-                    ColumnType.Integer, { 
+                new Column('Account.AccountNumber', '', ColumnType.Integer, 
+                    { 
                         route: 'accounts', 
                         select: 'AccountNumber,AccountName,ID', visualKey: 'AccountNumber', 
                         blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999',
-                        model: 'account' 
+                        model: 'account',
+                        expand: 'VatType' 
                     }),
-                new Column('VatTypeID', '',
-                    ColumnType.Integer, {
+                new Column('VatTypeID', '', ColumnType.Integer, 
+                    {
                         route: 'vattypes',
-                        select: 'VatCode,Name,ID', visualKey: 'VatCode',
-                        model: 'vattype'
+                        select: 'VatCode,Name,VatPercent,ID', visualKey: 'VatCode',
+                        model: 'vattype',
+                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name,12)}`)
                     }
                 ),
-                { name: 'Amount' }
+                new Column('Amount'), // , '', ColumnType.Decimal, { route: '', colToSave: 'sum' }),
+                new Column('delete', '', ColumnType.Action)
             ],
             events: {
                 onChange: (event: IChangeEvent) => {
@@ -140,11 +181,74 @@ export class BillSimpleJournalEntryView {
                         info.cancel = true;
                     }
                 },
-                onTypeSearch: details => this.lookup.onTypeSearch(details),
-                onInit: control => this.editable                
+                onTypeSearch: details => {
+                    if (details.columnDefinition.name === 'Amount') {
+                        this.createGrossValueData(details);
+                    } else {
+                        this.lookup.onTypeSearch(details);
+                    }
+                },
+                onCopyCell: (details: ICopyEventDetails) => {
+                    var row = this.costItems[details.position.row];
+                    var rowAbove = this.costItems[details.position.row - 1];
+                    switch (details.columnDefinition.name) {
+                        case 'Account.AccountNumber':
+                            row.Account = rowAbove.Account;
+                            row.AccountID = rowAbove.AccountID;
+                            row.VatType = rowAbove.VatType;
+                            row.VatTypeID = rowAbove.VatTypeID;
+                            break; 
+                        case 'VatTypeID':
+                            row.VatType = rowAbove.VatType;
+                            row.VatTypeID = rowAbove.VatTypeID;
+                            break;
+                        case 'Amount':
+                            row.Amount = rowAbove.Amount;
+                            break; 
+                    }
+                    details.copyAbove = false;
+                    this.raiseUpdateEvent(details.position.row);
+                    if (details.position.row >= this.costItems.length - 1) {
+                        this.addEmptyRowAtBottom();
+                    } 
+                }
             }
         };
     }
+
+    private createGrossValueData(details: ITypeSearch) {
+        var line: JournalEntryLineDraft = this.costItems[details.position.row];
+        if (line.VatType && line.VatType.VatPercent) {
+            var currentSum = safeDec(details.value);
+            var grossValue = (currentSum * ((100 + line.VatType.VatPercent) / 100)).toFixed(2);
+            details.rows = [{ sum: grossValue }];
+            details.renderFunc = x => `+ ${line.VatType.VatPercent}% = ${x.sum}`;
+            details.ignore = false;
+        }
+    }
+
+    private raiseUpdateEvent(costIndex: number, cargo?: any) {
+        var line = this.costItems[costIndex];
+        this.calcRemainder();
+        if (!line) { return; }
+        var actualRowIndex = line['_rowIndex'];
+        if (actualRowIndex >= 0 ) {
+            this.valueChange.emit({ rowIndex: actualRowIndex, item: line, details: cargo });
+        }        
+    }
+
+
+    public onRowActionClicked(rowIndex: number, item: any) {
+        this.editable.closeEditor();
+        var line = this.costItems[rowIndex];
+        var actualRowIndex = line['_rowIndex'];
+        this.costItems.splice(rowIndex, 1);
+        if (actualRowIndex) {
+            line.Deleted = true;
+            this.raiseUpdateEvent(rowIndex, { action: 'deleted' });
+        }
+        this.ensureWeHaveSingleEntry();
+    }    
 
     private updateChange(change: IChangeEvent) {
         var line: JournalEntryLineDraft;
@@ -157,7 +261,7 @@ export class BillSimpleJournalEntryView {
             line = this.costItems[change.row];
         }
 
-        // Existing row ?
+        // New row ?
         actualRowIndex = line['_rowIndex'];
         if (actualRowIndex === undefined) {
             this.current.JournalEntry = this.current.JournalEntry || new JournalEntry();
@@ -176,6 +280,7 @@ export class BillSimpleJournalEntryView {
                     line.Account = change.lookupValue;
                     line.AccountID = change.lookupValue.ID;
                     line.VatTypeID = change.lookupValue.VatTypeID;
+                    line.VatType = change.lookupValue.VatType;
                 }
                 break;
             case 'VatTypeID':
@@ -186,21 +291,29 @@ export class BillSimpleJournalEntryView {
                 }
                 break;
             case 'Amount':
-                line.Amount = safeDec(change.value);
+                debugger;
+                if (typeof(change.value) === 'object') {
+                    line.Amount = change.value.sum;
+                } else {
+                    line.Amount = safeDec(change.value);
+                }                                
+                change.reloadAfterEdit = true;
                 break;
         }
 
         change.updateCell = false;
 
         if (isLastRow) {
-            this.costItems.push(this.newEntry());
+            this.addEmptyRowAtBottom();
         }
 
-
-        this.valueChange.emit({ rowIndex: actualRowIndex, item: line, details: change });
+        this.raiseUpdateEvent(change.row, change);
     }
 
     private asyncValidationFailed(event: IChangeEvent) {
+        if (!this.editable) {
+            return;
+        }
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
         if (droplistItems && droplistItems.length === 1 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
@@ -234,7 +347,7 @@ export class BillSimpleJournalEntryView {
     private checkJournalYear(entry: JournalEntry) {
         if (!entry.FinancialYearID) {
             if ((!this.financialYearID) && (this.financialYears && this.financialYears.length > 0)) {
-                // todo: locate matching year
+                // todo: locate ideally matching year
                 this.financialYearID = this.financialYears[0].ID;
             }
             entry.FinancialYearID =  this.financialYearID;
@@ -252,6 +365,7 @@ export class AccountPipe implements PipeTransform {
 
     public transform(value: any, format?: string) {
         var acc: Account = value;
+
         if (acc && acc.AccountNumber) {
             return acc.AccountNumber + ' - ' + trimLength(acc.AccountName, 18);
         }

@@ -7,6 +7,7 @@ export interface IChangeEvent {
     columnDefinition?: ICol;
     lookupValue?: any;
     userTypedValue: boolean;
+    reloadAfterEdit?: boolean;
 }
 
 export interface IStartEdit {
@@ -143,4 +144,6 @@ export interface ILookupDetails {
     visualKey?: string;
     blankFilter?: string;
     model?: string;
+    expand?: string;
+    render?: (x: any) => string;
 }

@@ -54,7 +54,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         $(window).on('resize', this.handlers.onResize );
 
         this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
-            var value = item[details.itemPropertyToSet];
+            var value = (item && details && details.itemPropertyToSet) ? item[details.itemPropertyToSet] : item;
             this.dropList.hide();
             this.handleChange(value, this.currentPosition(), false);
         };
@@ -219,7 +219,8 @@ export class Editable implements AfterViewInit, OnDestroy {
             cancel: false,
             updateCell: true,
             userTypedValue: userTypedValue,
-            columnDefinition: this.config && this.config.columns ? this.config.columns[pos.col] : undefined
+            columnDefinition: this.config && this.config.columns ? this.config.columns[pos.col] : undefined,
+            reloadAfterEdit: false
         };
 
         var async: Promise<any> = this.raiseEvent('onChange', eventDetails);
@@ -227,13 +228,12 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (async) {
             var cell = this.current.active;
             async.then(() => {
-                setTimeout(() => {
-                    this.onResize();
-                    this.loadTextIntoEditor();
-                });
+                this.reloadCellValue();
             }, (reason) => {
                 cell.css('background-color', '#ffe0e0');
             });
+        } else if (eventDetails.reloadAfterEdit) {
+            this.reloadCellValue();
         }
 
         if (!eventDetails.cancel) {
@@ -243,6 +243,13 @@ export class Editable implements AfterViewInit, OnDestroy {
             }
             return true;
         }
+    }
+
+    private reloadCellValue() {
+        setTimeout(() => {
+            this.onResize();
+            this.loadTextIntoEditor();
+        });     
     }
 
     private raiseEvent(name: string, cargo: any): any {

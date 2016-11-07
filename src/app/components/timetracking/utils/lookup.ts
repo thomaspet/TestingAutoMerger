@@ -10,7 +10,7 @@ export class Lookupservice {
     constructor(private http: UniHttp) {}
 
     public getSingle<T>(route: string, id: any, expand = ''): Observable<T> {
-        return this.GET(route + '/' + id);
+        return this.GET(route + '/' + id + (expand ? '?expand=' + expand : ''));
     }
 
     public query<T>(route: string, searchString: string, matchCols: string, expand?: string, select?: string, filter?: string, useModel?: string): Observable<T> {
@@ -24,7 +24,9 @@ export class Lookupservice {
             prefix = '&';
         }
         cols.forEach((value: string, index: number) => {
-            params += (index > 0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
+            if (index < 2) {
+                params += (index > 0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
+            }
         });
         params = prefix + 'filter=' + ( filter ? filter + ' and ( ' + params + ' )' : params );  
         if (expand) { params += '&expand=' + expand; }
@@ -98,7 +100,7 @@ export class Lookupservice {
             if (event.userTypedValue && lookupDef.visualKey) {                
                 p = new Promise((resolve, reject) => {
                     var filter = `?filter=${lookupDef.visualKey} eq ${key}`;
-                    this.getSingle<any>(lookupDef.route, filter).subscribe((rows: any) => {
+                    this.getSingle<any>(lookupDef.route, filter, lookupDef.expand).subscribe((rows: any) => {
                         var item = (rows && rows.length > 0) ? rows[0] : {};
                         event.value = item[lookupDef.colToSave || 'ID'];
                         event.lookupValue = item;
@@ -115,7 +117,7 @@ export class Lookupservice {
 
             // Normal lookup value (by foreignKey) ?
             p = new Promise((resolve, reject) => {                
-                this.getSingle<any>(lookupDef.route, key).subscribe( (item: any) => {
+                this.getSingle<any>(lookupDef.route, key, lookupDef.expand).subscribe( (item: any) => {
                     event.lookupValue = item;
                     event.value = key;
                     success(event);
@@ -143,13 +145,13 @@ export class Lookupservice {
             if (details.value === '' && lookup.blankFilter) {
                 filter = lookup.blankFilter;
             }
-            details.renderFunc = (item: any) => { 
+            details.renderFunc = details.columnDefinition.lookup.render || ((item: any) => { 
                 var ret = ''; 
                 for (var i = 0; i < cols.length && i < 2; i++) { 
                     ret += (i > 0 ? ' - ' : '') + item[cols[i]]; 
                 }
                 return ret; 
-            };
+            });
             details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, filter, details.columnDefinition.lookup.model).toPromise();
         }
     }    

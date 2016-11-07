@@ -38,7 +38,7 @@ const lang = {
 
     col_supplier: 'Leverandør',
     col_invoice: 'Fakturanr.',
-    col_total: 'Beløp',
+    col_total: 'Sum inkl.mva',
     col_date: 'Fakturadato',
     col_due: 'Forfallsdato',
     col_kid: 'KID',
@@ -157,7 +157,7 @@ export class BillView {
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             createFormField('BankAccount', lang.col_bank, ControlTypes.TextInput, FieldSize.Double),
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
-            createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.TextInput, FieldSize.Double) 
+            createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double) 
         ];
 
         this.fields = list;
@@ -166,6 +166,7 @@ export class BillView {
 
     public onFormReady(event) {
         this.createNewSupplierButton();
+        // this.busy = false;
     }    
 
     public onFormChange(model: SupplierInvoice) {
@@ -207,6 +208,7 @@ export class BillView {
         this.setupToolbar();
         this.flagUnsavedChanged(true);
         this.flagActionBar(actionBar.delete, false);
+        this.busy = false;
     }
 
     private flagUnsavedChanged(reset = false) {
@@ -218,7 +220,9 @@ export class BillView {
     }    
 
     private fetchInvoice(id: number | string) {
+        this.busy = true;
         this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
+            this.busy = false;
             this.current = result;
             this.setupToolbar();
             this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
@@ -311,7 +315,6 @@ export class BillView {
     }
 
     public onEntryChange(details: { rowIndex: number, item: JournalEntryLineDraft, extra: any }) {
-        // debugger;
         this.flagUnsavedChanged();
     }
 
@@ -381,7 +384,18 @@ export class BillView {
                 btn.parentElement.insertBefore(sibling, dropDown);
             } else {
                 this.toast.addToast('Autocomplete element not found', ToastType.warn, 2);
-            }        
+            }
+            // shortcut (F3) ?
+            el = frm.elementRef.nativeElement.getElementsByTagName('input');
+            if (el && el.length > 0) {
+                el[0].addEventListener('keydown', (event) => {
+                    if (event.which === 114) {
+                        this.supplierDetailsModal.open();
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
         }
     }
 
