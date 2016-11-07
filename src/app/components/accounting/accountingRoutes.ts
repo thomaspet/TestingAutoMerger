@@ -6,12 +6,14 @@ import {Transquery} from './transquery/transquery';
 import {AccountSettings} from '../settings/accountSettings/accountSettings';
 import {VatSettings} from '../settings/vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
+import {AccountingReports} from './accountingreports/accountingreports';
 
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
+import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import {UniAccounting} from './accounting';
 import {AuthGuard} from '../../authGuard';
 
@@ -45,6 +47,11 @@ export const childRoutes = [
         component: VatReportView
     },
     {
+        path: 'accountingreports',
+        component: AccountingReports,
+        children: AccountintReportsRoutes
+	},
+	{
         path: 'bills',
         component: BillsView
     },

@@ -1,0 +1,11 @@
+<section class="application">
+    <h1>Balanse</h1>
+    <section class="period-setup">
+        Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
+    </section>
+
+    <drilldown-balance-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2"></drilldown-balance-report-part>
+
+</section>
+
+<account-details-report-modal></account-details-report-modal>

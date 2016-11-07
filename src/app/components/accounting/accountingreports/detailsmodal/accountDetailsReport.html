@@ -1,0 +1,23 @@
+<article class="modal-content" *ngIf="config && config.accountID">
+    <h1>Detaljer for konto {{config.accountNumber}} - {{config.accountName}}</h1>
+
+    <distribution-period-report-part [accountIDs]="accountIDs"
+                                     [accountYear1]="periodFilter1.year - 1"
+                                     [accountYear2]="periodFilter1.year"
+                                     [showHeader]="false"
+                                     [doTurnAmounts]="doTurnDistributionAmounts"
+                                     [includeIncomingBalance]="includeIncomingBalanceInDistributionReport"
+                                     [dimensionType]="config.dimensionType"
+                                     [dimensionId]="config.dimensionId"></distribution-period-report-part>
+
+    <section class="dimension-result">
+        <h2>Transaksjoner i perioden {{periodFilter1.name}}</h2> <button class="toggle-period-button" (click)="switchPeriods()">Vis tall for {{periodFilter2.name}}</button>
+
+        <uni-table
+            [resource]="transactionsLookupFunction"
+            [config]="uniTableConfigTransactions"
+            (rowSelected)="showDocuments($event.rowModel)"></uni-table>
+    </section>
+</article>
+
+<image-modal></image-modal>

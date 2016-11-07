@@ -23,6 +23,15 @@ export class StatisticsService extends BizHttp<string> {
         return this.GetAllByUrlSearchParams(params).map(response => response.json());
     }
 
+    public GetAll(filter: string) {
+        return this.http
+            .usingRootDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL + '?' + filter)
+            .send({})
+            .map(resp => resp.json());
+    }
+
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {

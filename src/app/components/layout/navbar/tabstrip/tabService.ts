@@ -30,6 +30,7 @@ export enum UniModules {
     VatReport       = 305,
     Bills           = 311,
     Payments        = 306,
+    AccountingReports = 307,
 
     Employees       = 400,
     Wagetypes       = 401,

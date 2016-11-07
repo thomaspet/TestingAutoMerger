@@ -1,0 +1,10 @@
+<button (click)="togglePicker()">{{periodFilter.name}}</button>
+<div *ngIf="pickerAreaVisible" class="picker-area">
+    År:
+    <input [(ngModel)]="periodFilterData.year" />
+    Fra periode:
+    <input [(ngModel)]="periodFilterData.fromPeriodNo" />
+    Til periode:
+    <input [(ngModel)]="periodFilterData.toPeriodNo" />
+    <button (click)="update()">Oppdater</button>
+</div>

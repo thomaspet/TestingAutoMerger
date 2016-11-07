@@ -94,6 +94,7 @@ export class HamburgerMenu {
                     {componentName: 'Regninger', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
                     {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices', hidden: true},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
+                    {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery', moduleID: UniModules.Transquery},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails},
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},

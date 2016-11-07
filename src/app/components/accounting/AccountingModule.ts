@@ -37,6 +37,17 @@ import {SupplierInvoiceList} from './journalentry/supplierinvoices/supplierinvoi
 import {SupplierInvoiceDetail} from './journalentry/supplierinvoices/supplierinvoicedetail';
 import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
+import {ResultReport} from './accountingreports/resultreport/resultreport';
+import {DimensionResultReport} from './accountingreports/dimensionreport/dimensionresultreport';
+import {AccountingReports} from './accountingreports/accountingreports';
+import {BalanceReport} from './accountingreports/balancereport/balancereport';
+import {AccountDetailsReportModal} from './accountingreports/detailsmodal/accountDetailsReportModal';
+import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDetailsReport';
+import {PeriodPicker} from './accountingreports/periodFilter/periodpicker';
+import {DrilldownResultReportPart} from './accountingreports/reportparts/drilldownResultReportPart';
+import {DistributionPeriodReportPart} from './accountingreports/reportparts/distributionPeriodReportPart';
+import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dimensionsOverviewReportPart';
+import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {SettingsModule} from '../settings/settingsModule';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
@@ -108,12 +119,26 @@ import {TimetrackingModule} from '../timetracking/timetrackingmodule';
         TransqueryList,
         TransqueryDetails,
         ImageModal,
-        ImageModalContent
+        ImageModalContent,
+
+        // accounting reports
+        AccountingReports,
+        ResultReport,
+        BalanceReport,
+        PeriodPicker,
+        AccountDetailsReportModal,
+        AccountDetailsReport,
+        DistributionPeriodReportPart,
+        DrilldownResultReportPart,
+        DimensionsOverviewReportPart,
+        DimensionResultReport,
+        DrilldownBalanceReportPart
     ],
     entryComponents: [
         HistoricVatReportTable,
         CreateCorrectedVatReportForm,
-        ImageModalContent
+        ImageModalContent,
+        AccountDetailsReport
     ],
     providers: [
     ],
@@ -144,7 +169,20 @@ import {TimetrackingModule} from '../timetracking/timetrackingmodule';
         // transquery
         Transquery,
         TransqueryList,
-        TransqueryDetails
+        TransqueryDetails,
+
+        // accounting reports
+        AccountingReports,
+        ResultReport,
+        BalanceReport,
+        PeriodPicker,
+        AccountDetailsReportModal,
+        AccountDetailsReport,
+        DistributionPeriodReportPart,
+        DrilldownResultReportPart,
+        DimensionsOverviewReportPart,
+        DimensionResultReport,
+        DrilldownBalanceReportPart
     ]
 })
 export class AccountingModule {

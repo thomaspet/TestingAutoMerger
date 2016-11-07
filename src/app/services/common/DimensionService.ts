@@ -1,5 +1,11 @@
 import {Dimensions} from '../../unientities';
 
+export enum DimensionTypes {
+    Project = 1,
+    Department = 2,
+    Region = 3,
+    Responsible = 4
+}
 
 export function createGuid(): string {
     function S4() {
@@ -38,7 +44,27 @@ export class Dimension extends Dimensions {
             dim[p1] = value;
         }
     }
+}
 
+export class DimensionService {
+    public static getEntityNameFromDimensionType(dimensionType: number) {
+        let entityName = '';
+        if (dimensionType.toString() === DimensionTypes.Project.toString()) {
+            entityName = 'Project';
+        } else if (dimensionType.toString() === DimensionTypes.Department.toString()) {
+            entityName = 'Department';
+        }
 
+        return entityName;
+    }
 
+    public static getEntityDisplayNameFromDimensionType(dimensionType: number) {
+        let displayName = '';
+        if (dimensionType.toString() === DimensionTypes.Project.toString()) {
+            displayName = 'Prosjekt';
+        } else if (dimensionType.toString() === DimensionTypes.Department.toString()) {
+            displayName = 'Avdeling';
+        }
+        return displayName;
+    }
 }

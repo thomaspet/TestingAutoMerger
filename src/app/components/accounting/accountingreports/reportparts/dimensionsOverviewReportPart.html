@@ -1,0 +1,9 @@
+<section class="dimension-result" *ngIf="dimensionType">
+    <h2>Resultat per {{dimensionDisplayName.toLowerCase()}} {{periodFilter1.name}}</h2> <button class="toggle-period-button" (click)="switchMainPeriod()">Vis tall for {{periodFilter2.name}}</button>
+
+    <uni-table
+        [resource]="dimensionDataList"
+        [config]="uniTableConfigDimension"
+        (rowSelected)="selectDimension($event.rowModel)"></uni-table>
+
+</section>

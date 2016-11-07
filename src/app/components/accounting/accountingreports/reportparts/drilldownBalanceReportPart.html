@@ -1,0 +1,26 @@
+<table class="accounting-report-drilldown-table" *ngIf="periodFilter1 && periodFilter2">
+    <tr>
+        <th style="width: 40%" class="bottom" rowspan="2">Konto/kontogruppe</th>
+        <th style="width: 30%" class="center" colspan="3">{{periodFilter1.name}}</th>
+        <th style="width: 30%" class="center" colspan="3">{{periodFilter2.name}}</th>
+    </tr>
+    <tr>
+        <th style="width: 10%" class="amount">IB</th>
+        <th style="width: 10%" class="amount">Endring</th>
+        <th style="width: 10%" class="amount">UB</th>
+        <th style="width: 10%" class="amount">IB</th>
+        <th style="width: 10%" class="amount">Endring</th>
+        <th style="width: 10%" class="amount">UB</th>
+    </tr>
+    <tr *ngFor="let summaryData of flattenedTreeSummaryList" (click)="expandRow(summaryData)">
+        <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}">{{summaryData.number}}: {{summaryData.name}}</td>
+        <td class="amount">{{summaryData.amountIBPeriod1 | number:'1.2-2'}}</td>
+        <td class="amount">{{summaryData.amountChangePeriod1 | number:'1.2-2'}}</td>
+        <td class="amount">{{summaryData.amountOBPeriod1 | number:'1.2-2'}}</td>
+        <td class="amount">{{summaryData.amountIBPeriod2 | number:'1.2-2'}}</td>
+        <td class="amount">{{summaryData.amountChangePeriod2 | number:'1.2-2'}}</td>
+        <td class="amount">{{summaryData.amountOBPeriod2 | number:'1.2-2'}}</td>
+    </tr>
+</table>
+
+<account-details-report-modal></account-details-report-modal>

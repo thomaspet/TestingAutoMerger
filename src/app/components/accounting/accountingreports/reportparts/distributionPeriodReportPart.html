@@ -1,0 +1,13 @@
+<section class="distribution-periods">
+    <h2 *ngIf="showHeader">Fordeling per periode for {{activeDistributionElement}}</h2>
+    <div class="distribution-periods-table">
+
+        <uni-table
+            [resource]="distributionPeriodData"
+            [config]="uniTableConfigDistributionPeriod"></uni-table>
+
+    </div>
+    <div class="distribution-periods-chart">
+        <canvas id="accountDetailsReportPeriodDistributionChart" height="420"></canvas>
+    </div>
+</section>

@@ -1,0 +1,131 @@
+@import 'periodPicker'
+
+accounting-reports
+
+    h1
+        margin-bottom: pxToRem(5)
+
+    button
+        @extend a:link
+        display: inline-block
+        background: 0 0
+        box-shadow: none
+        text-shadow: none
+        border: none
+        padding: 0
+        margin-left: .3rem
+        margin-right: .3rem
+        text-decoration: none
+
+    button:hover
+        background: 0 0
+
+    .amount
+        text-align: right !important
+
+    .percentage
+        text-align: right !important
+        color: $uni-color-scale5 !important
+        text-overflow: clip
+        width: 5%
+
+    .percentage::after
+        content: '%'
+
+    .period-setup
+        margin-bottom: pxToRem(10)
+
+    .dimension-summary
+        font-size: small
+
+    .dimension-result
+        margin-top: 2rem
+        clear: both
+
+        uni-table
+            font-size: small
+
+        h2
+            margin-top: 0
+            float: left
+            margin-right: pxToRem(20)
+
+        .toggle-period-button
+            margin-top: pxToRem(12)
+            font-size: smaller
+
+    .distribution-periods
+        clear: both
+        margin-top: 2rem
+        overflow: auto
+
+        h2
+            margin-top: 0
+
+        .distribution-periods-table
+            @include unigrid(8, 4, 2)
+            margin-left: pxToRem(0)
+            float: left;
+
+        .distribution-periods-chart
+            @include unigrid(8, 4, 2)
+            float: left;
+            height: pxToRem(450)
+
+        uni-table
+            font-size: small
+
+    .distribution-periods::after
+        clear: both
+
+    .accounting-report-drilldown-table
+        position: relative
+        border-color: transparent
+        cursor: pointer
+        border-collapse: collapse
+        width: 100%
+        font-size: smaller
+
+        td, th
+            padding: pxToRem(2) pxToRem(6)
+            border-left: pxToRem(1) solid $uni-color-scale9
+            height: calc(1.2rem + #{pxToRem(10)})
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+
+            &:first-of-type
+                border-left: none
+
+            &.noTruncation
+                text-overflow: clip
+
+        tr
+            border-bottom: pxToRem(1) solid $uni-color-scale9
+
+            &:nth-of-type(odd)
+                background: mix($uni-color-scale9, $uni-color-negative, 30%)
+
+            &:hover
+                background: mix($uni-color-C2A, $uni-color-negative, 15%)
+
+        th
+            background: $uni-color-negative
+            border-bottom: pxToRem(1) solid $uni-color-scale8
+            margin-bottom: pxToRem(-1)
+            color: $uni-color-positive
+            font-weight: 600
+            text-align: left
+
+            a:link
+                color: $uni-color-positive
+
+        .bottom
+            vertical-align: bottom
+
+        .center
+            text-align: center
+
+accounting-details-report
+    .modal-content
+        width: 90vw !important

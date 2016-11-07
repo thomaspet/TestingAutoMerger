@@ -1,0 +1,45 @@
+period-picker
+    position: relative;
+
+    button
+        @extend a:link
+        display: inline-block
+        background: 0 0
+        box-shadow: none
+        text-shadow: none
+        border: none
+        padding: 0
+        margin-left: .3rem
+        margin-right: .3rem
+        text-decoration: none
+
+    .picker-area
+        display: block
+        position: absolute
+        width: 12rem
+        color: $uni-color-positive
+        padding: 1rem
+        background: $uni-color-negative
+        border: pxToRem(1) solid $uni-color-scale8
+        box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+        border-radius: pxToRem(5)
+        z-index: 9999
+        left: pxToRem(-50)
+
+        button
+            float: right
+            margin-top: pxToRem(20)
+
+        &:before
+            $size: .5rem
+            $color: $uni-color-negative
+            content: ''
+            display: block
+            position: absolute
+            height: 0
+            width: 0
+            top: -#{$size}
+            right: calc(50% - (#{$size} / 2))
+            border-bottom: $size solid $color
+            border-left: $size solid transparent
+            border-right: $size solid transparent

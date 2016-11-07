@@ -1,0 +1,18 @@
+<table class="accounting-report-drilldown-table" *ngIf="periodFilter1 && periodFilter2">
+    <tr>
+        <th style="width: 50%">Konto/kontogruppe</th>
+        <th style="width: 20%" class="amount">{{periodFilter1.name}}</th>
+        <th style="width: 5%" class="percentage"></th>
+        <th style="width: 20%" class="amount">{{periodFilter2.name}}</th>
+        <th style="width: 5%" class="percentage"></th>
+    </tr>
+    <tr *ngFor="let summaryData of flattenedTreeSummaryList" (click)="rowClicked(summaryData)">
+        <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}">{{summaryData.number}}: {{summaryData.name}}</td>
+        <td class="amount">{{summaryData.amountPeriod1 | number:'1.2-2'}}</td>
+        <td class="percentage">{{summaryData.percentagePeriod1}}</td>
+        <td class="amount">{{summaryData.amountPeriod2 | number:'1.2-2'}}</td>
+        <td class="percentage">{{summaryData.percentagePeriod2}}</td>
+    </tr>
+</table>
+
+<account-details-report-modal></account-details-report-modal>

@@ -1,0 +1,22 @@
+<section class="application">
+    <h1>{{pageTitle}}</h1>
+
+    <section class="period-setup">
+        Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
+    </section>
+
+    <drilldown-result-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [dimensionType]="dimensionType" [dimensionId]="filterDimensionID"></drilldown-result-report-part>
+
+    <distribution-period-report-part [accountIDs]="distributionPeriodAccountIDs"
+                                     [accountYear1]="periodFilter1.year - 1"
+                                     [accountYear2]="periodFilter1.year"
+                                     [doTurnAmounts]="true"
+                                     [showHeader]="true"
+                                     [activeDistributionElement]="activeDistributionElement"
+                                     [includeIncomingBalance]="false"
+                                     [dimensionType]="dimensionType"
+                                     [dimensionId]="filterDimensionID">
+    </distribution-period-report-part>
+</section>
+
+<account-details-report-modal></account-details-report-modal>
