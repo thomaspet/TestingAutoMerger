@@ -163,8 +163,8 @@ export class UniDateInput {
 
     private createTabListener() {
         const keyDownEvent = Observable.fromEvent(this.inputElement.nativeElement, 'keydown');
-        const tabEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB);
-        tabEvent.subscribe((event: KeyboardEvent) => {
+        const tabAndEnterEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB || event.keyCode === KeyCodes.ENTER);
+        tabAndEnterEvent.subscribe((event: KeyboardEvent) => {
             event.preventDefault();
             event.stopPropagation();
             if (event.shiftKey) {

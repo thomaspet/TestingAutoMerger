@@ -2,7 +2,7 @@ import {
     Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, SimpleChange, ElementRef
 } from '@angular/core';
 import {FormGroup, FormBuilder} from '@angular/forms';
-import {FieldLayout} from '../../app/unientities';
+import {FieldLayout, FieldType} from '../../app/unientities';
 import {UniFieldLayout, KeyCodes} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
@@ -398,8 +398,8 @@ export class UniForm {
             .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB && !event.shiftKey);
 
         const tabAndEnterEvent = Observable.merge(enterEvent, tabEvent);
-
-        tabAndEnterEvent.subscribe((event: KeyboardEvent) => {
+        const avoidEventOnDates = tabAndEnterEvent.filter((event) => this.lastFocusedComponent.field.FieldType !== FieldType.DATEPICKER);
+        avoidEventOnDates.subscribe((event: KeyboardEvent) => {
             event.preventDefault();
             event.stopPropagation();
             const field: UniField = this.findNextElementFormLastFocusedComponent();

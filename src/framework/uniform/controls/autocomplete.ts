@@ -1,4 +1,14 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, Renderer} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    ViewChild,
+    ElementRef,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy,
+    Renderer
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 
@@ -26,7 +36,8 @@ export class UniAutocompleteConfig {
         return _.assign(new UniAutocompleteConfig(), obj);
     }
 
-    constructor() { }
+    constructor() {
+    }
 }
 
 @Component({
@@ -49,7 +60,7 @@ export class UniAutocompleteConfig {
 
             <button #toggleBtn class="uni-autocomplete-searchBtn"
                     type="button"
-                    (click)="toggle()"
+                    (click)="toggleAndSearch(control.value)"
                     (keydown.esc)="onKeyDown($event)"
                     tabIndex="-1">
                 Søk
@@ -76,7 +87,7 @@ export class UniAutocompleteConfig {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniAutocompleteInput {
-    @ViewChild('list')  private list: ElementRef;
+    @ViewChild('list') private list: ElementRef;
     @ViewChild('query') private inputElement: ElementRef;
 
     @Input()
@@ -242,7 +253,7 @@ export class UniAutocompleteInput {
         }
 
         let selectedItem;
-        if  (this.control.value.length === 0) {
+        if (this.control.value.length === 0) {
             selectedItem = null;
             this.lastValue = null;
         } else if (this.control.value.length && this.selectedIndex > -1) {
@@ -283,13 +294,27 @@ export class UniAutocompleteInput {
         this.cd.markForCheck();
     }
 
+    private toggleAndSearch(input) {
+        if (!this.isExpanded) {
+            let value = this.control.dirty? input : '';
+            this.search(value).toPromise().then((items: any[]) => {
+                this.selectedIndex = -1;
+                this.lookupResults = items;
+                this.open();
+            });
+        } else {
+            this.close();
+        }
+
+    }
+
     private onKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
             case KeyCodes.TAB:
             case KeyCodes.ENTER:
                 this.confirmSelection();
                 this.close();
-            break;
+                break;
             case KeyCodes.ESC:
                 this.isExpanded = false;
                 this.selectedIndex = -1;
@@ -298,21 +323,22 @@ export class UniAutocompleteInput {
                 this.inputElement.nativeElement.focus();
                 try {
                     this.inputElement.nativeElement.select();
-                } catch (e) {}
-            break;
+                } catch (e) {
+                }
+                break;
             case KeyCodes.SPACE:
                 if (!this.isExpanded && (!this.control.value || !this.control.value.length)) {
                     event.preventDefault();
                     this.toggle();
                 }
-            break;
+                break;
             case KeyCodes.ARROW_UP:
                 event.preventDefault();
                 if (this.selectedIndex > 0) {
                     this.selectedIndex--;
                     this.scrollToListItem();
                 }
-            break;
+                break;
             case KeyCodes.ARROW_DOWN:
                 event.preventDefault();
                 if (event.altKey && !this.isExpanded) {
@@ -324,10 +350,10 @@ export class UniAutocompleteInput {
                     this.selectedIndex++;
                     this.scrollToListItem();
                 }
-            break;
+                break;
             case KeyCodes.F4:
                 this.toggle();
-            break;
+                break;
         }
     }
 
