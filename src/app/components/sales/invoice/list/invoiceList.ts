@@ -129,27 +129,13 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Slett',
             action: (rowModel) => {
-                alert('Delete action - Under construction');
-
-                // TODO
-                // this.customerInvoiceService.Remove(rowModel.ID, rowModel)
-                //    .subscribe(() => {
-                //        alert('Successful')
-                //    },
-                //    (err) => {
-                //        console.log('An error occurred: ', err);
-                //        this.log(err);
-                //    }
-                // );
+                this.customerInvoiceService.Remove(rowModel.ID, null).subscribe((res) => {
+                    this.table.removeRow(rowModel['_originalIndex']);
+                });
             },
             disabled: (rowModel) => {
-                return true;
+                return rowModel.StatusCode !== StatusCodeCustomerInvoice.Draft;
             }
-        });
-
-        contextMenuItems.push({
-            label: '-------------',
-            action: () => { }
         });
 
         // Type er FAKTURA
@@ -221,11 +207,6 @@ export class InvoiceList implements OnInit {
                     return true;
                 }
             }
-        });
-
-        contextMenuItems.push({
-            label: '-------------',
-            action: () => { }
         });
 
         contextMenuItems.push({

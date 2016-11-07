@@ -369,7 +369,7 @@ export class InvoiceDetails {
         this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteInvoice(done),
-            disabled: true
+            disabled: status !== StatusCodeCustomerInvoice.Draft
         });
 
         // Set main save action
@@ -522,8 +522,14 @@ export class InvoiceDetails {
     }
 
     private deleteInvoice(done) {
-        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
-        done('Slett faktura avbrutt');
+        this.customerInvoiceService.Remove(this.invoice.ID, null).subscribe(
+            (res) => {
+                this.router.navigateByUrl('/sales/invoices');
+            },
+            (err) => {
+                done('Noe gikk galt under sletting');
+            }
+        );
     }
 
     private log(err) {
