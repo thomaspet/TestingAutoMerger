@@ -98,7 +98,7 @@ export class AddressService extends BizHttp<Address> {
         entity.ShippingCountryCode = a.CountryCode;
     }
 
-    private invoiceToAddress(entity: any): Address {
+    public invoiceToAddress(entity: any): Address {
         var a = new Address();
         a.AddressLine1 = entity.InvoiceAddressLine1;
         a.AddressLine2 = entity.InvoiceAddressLine2;
@@ -111,7 +111,7 @@ export class AddressService extends BizHttp<Address> {
         return a;
     }
 
-    private shippingToAddress(entity: any): Address {
+    public shippingToAddress(entity: any): Address {
         var a = new Address();
         a.AddressLine1 = entity.ShippingAddressLine1;
         a.AddressLine2 = entity.ShippingAddressLine2;

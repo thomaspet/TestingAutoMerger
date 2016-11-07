@@ -1,18 +1,17 @@
-﻿import {Component, ViewChild} from "@angular/core";
+﻿import {Component, ViewChild} from '@angular/core';
 import {UserService} from '../../../services/services';
 import {UniForm} from '../../../../framework/uniform';
-import {FieldType} from '../../../unientities';
-import {AuthService} from '../../../../framework/core/authService';
+import {FieldType, User} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
-    selector: "user-settings",
-    templateUrl: "app/components/settings/userSettings/userSettings.html",
+    selector: 'user-settings',
+    templateUrl: 'app/components/settings/userSettings/userSettings.html',
 })
 
 export class UserSettings {
     @ViewChild(UniForm) public form: UniForm;
-    private user: any;
+    private user: User;
 
     public config: any = {};
     public fields: any[] = [];
@@ -26,8 +25,7 @@ export class UserSettings {
         }
     ];
 
-    constructor(private userService: UserService,
-                private authService: AuthService) {       
+    constructor(private userService: UserService) {
     }
 
     public ngOnInit() {
@@ -36,11 +34,7 @@ export class UserSettings {
 
     private getDataAndSetupForm() {
         this.getFormLayout();
-
-        let jwt = this.authService.jwtDecoded;     
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
+        this.userService.getCurrentUser().subscribe(user => this.user = user);
     }
 
     public saveSettings(complete) {
@@ -50,7 +44,7 @@ export class UserSettings {
                 (response) => {
                     complete('Innstillinger lagret');
                 },
-                (error) => {                    
+                (error) => {
                     complete('Feil oppsto ved lagring');
                     alert('Feil oppsto ved lagring:' + JSON.stringify(error.json()));
                 }
@@ -79,7 +73,7 @@ export class UserSettings {
                 LineBreak: null,
                 Combo: null,
                 Sectionheader: '',
-                hasLineBreak: false,                     
+                hasLineBreak: false,
                 Validations: []
             },
             {
@@ -101,7 +95,7 @@ export class UserSettings {
                 LineBreak: null,
                 Combo: null,
                 Sectionheader: '',
-                hasLineBreak: false,                     
+                hasLineBreak: false,
                 Validations: []
             },
             {
@@ -123,7 +117,7 @@ export class UserSettings {
                 LineBreak: null,
                 Combo: null,
                 Sectionheader: '',
-                hasLineBreak: false,                     
+                hasLineBreak: false,
                 Validations: []
             }
         ]

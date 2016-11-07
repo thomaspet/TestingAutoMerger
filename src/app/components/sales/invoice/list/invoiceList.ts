@@ -48,6 +48,7 @@ export class InvoiceList implements OnInit {
     }
 
     public createInvoice() {
+        // this.router.navigateByUrl('/sales/invoices/0');
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(

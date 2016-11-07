@@ -12,8 +12,6 @@ import {routes as SalesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerList} from './customer/list/customerList';
-import {InvoiceItemList} from './invoice/details/invoiceItemList';
-import {InvoiceDetails} from './invoice/details/invoiceDetails';
 import {ReportsModule} from '../reports/reportsModule';
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
@@ -31,6 +29,12 @@ import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniSales} from './sales';
+
+import {InvoiceDetails} from './invoice/details/invoice';
+import {InvoiceItems} from './invoice/details/invoiceitems';
+import {InvoiceDetailsForm} from './invoice/details/tabContent/detailsForm';
+import {InvoiceDeliveryForm} from './invoice/details/tabContent/deliveryForm';
+import {CustomerCard} from './invoice/details/customerCard';
 
 @NgModule({
     imports: [
@@ -62,8 +66,13 @@ import {UniSales} from './sales';
         CustomerDetails,
         CustomerList,
         InvoiceList,
-        InvoiceItemList,
         InvoiceDetails,
+        InvoiceItems,
+        // Invoice tab-views
+        InvoiceDetailsForm,
+        InvoiceDeliveryForm,
+        CustomerCard,
+
         OrderItemList,
         OrderDetails,
         OrderList,
@@ -90,7 +99,6 @@ import {UniSales} from './sales';
         CustomerDetails,
         CustomerList,
         InvoiceList,
-        InvoiceItemList,
         InvoiceDetails,
         OrderItemList,
         OrderDetails,

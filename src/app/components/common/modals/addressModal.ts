@@ -358,7 +358,11 @@ export class AddressModal {
         };
     }
 
-    public openModal(address: Address, disableQuestion: boolean = false) {
+    public openModal(address: Address, disableQuestion: boolean = false, title?: string) {
+        if (title) {
+            this.modalConfig.title = title;
+        }
+
         if (!address.Country || address.Country === '') {
             address.Country = 'Norge';
             address.CountryCode = 'NO';

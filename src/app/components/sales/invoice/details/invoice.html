@@ -1,0 +1,35 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
+<!-- Tabstrip -->
+<section class="horizontal_nav">
+    <ul>
+        <li *ngFor="let tab of tabs; let idx = index">
+            <a (click)="activeTabIndex = idx" [ngClass]="{'router-link-active': activeTabIndex === idx}">
+                {{tab}}
+            </a>
+        </li>
+    </ul>
+</section>
+
+<section class="application">
+    <invoice-customer-card [(invoice)]="invoice"></invoice-customer-card>
+    <section class="formTab">
+        <invoice-details-form  [hidden]="activeTabIndex !== 0" [(invoice)]="invoice"></invoice-details-form>
+        <invoice-delivery-form [hidden]="activeTabIndex !== 1" [(invoice)]="invoice"></invoice-delivery-form>
+    </section>
+
+    <!-- Invoice items and summary -->
+    <uni-invoice-items *ngIf="invoice && departments && projects"
+                       [(invoice)]="invoice"
+                       (invoiceChange)="recalcDebouncer.next($event)"
+                       [projects]="projects"
+                       [departments]="departments">
+    </uni-invoice-items>
+
+    <uni-summary [configs]="summaryFields"></uni-summary>
+</section>
+
+<uni-save [actions]="saveActions"></uni-save>
+
+<register-payment-modal></register-payment-modal>
+<report-preview-modal></report-preview-modal>

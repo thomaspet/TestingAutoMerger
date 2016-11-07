@@ -1,7 +1,0 @@
-<span *ngIf="invoice && invoiceItemTable">
-    <uni-table [resource]="items"
-               [config]="invoiceItemTable"
-               (rowChanged)="rowChanged($event)"
-               (rowDeleted)="onRowDelete($event.rowModel)">
-    </uni-table>
-</span>

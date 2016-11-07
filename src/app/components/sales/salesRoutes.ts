@@ -11,8 +11,8 @@ import {SupplierDetails} from './supplier/details/supplierDetails';
 import {QuoteList} from './quote/list/quoteList';
 import {QuoteDetails} from './quote/details/quoteDetails';
 
-import {InvoiceList} from './invoice/list/invoiceList'; 
-import {InvoiceDetails} from './invoice/details/invoiceDetails';
+import {InvoiceList} from './invoice/list/invoiceList';
+import {InvoiceDetails} from './invoice/details/invoice';
 
 import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
@@ -24,7 +24,7 @@ export const childRoutes = [
         component: Customer,
         children: CustomerRoutes
     },
-    
+
     {
         path: 'suppliers',
         component: SupplierList
@@ -51,7 +51,6 @@ export const childRoutes = [
         path: 'invoices/:id',
         component: InvoiceDetails
     },
-
     {
         path: 'orders',
         component: OrderList

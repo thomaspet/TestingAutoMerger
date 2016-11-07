@@ -1,3 +1,67 @@
+uni-invoice
+    >.application
+        display: flex
+        flex-flow: row wrap
+
+invoice-customer-card
+    order: 1
+    display: inline-block
+    width: 18rem
+
+    .customerInfo
+        box-sizing: border-box
+        width: 100%
+        min-height: pxToRem(107)
+        padding: .3rem .8rem
+        margin-top: 2.2rem
+        border-radius: pxToRem(5)
+        border: 1px dashed $uni-color-scale8
+        font-size: .9rem
+        position: relative
+        cursor: pointer
+
+        .edit-btn
+            min-height: 0
+            height: 0.8rem
+            width: 0.8rem
+            position: absolute
+            top: pxToRem(5)
+            right: pxToRem(5)
+            cursor: pointer
+
+            background-size: auto .8rem
+            background-image: unicon-edit($uni-color-scale5)
+            &:hover
+                background-image: unicon-edit($uni-color-C2A)
+
+
+        span.emailInfo
+            position: absolute
+            right: pxToRem(5)
+
+section.formTab
+    order: 2
+    display: inline-block
+    width: calc(100% - 20rem)
+    float: right
+    margin-left: 1rem
+
+invoice-details-form
+    uni-form
+        display: inline-block
+        width: calc(100% - 20rem)
+
+    label.comment-textarea
+        display: block
+        float: right
+        width: 18rem
+
+uni-invoice-items
+    order: 3
+    display: block
+    margin-top: 2rem
+
+
 .invoice-items-summary section
     background-color: $uni-color-scale9
     height: pxToRem(70)
@@ -13,6 +77,10 @@
 
 .invoice-items-summary
     padding-bottom: pxToRem(150)
+
+uni-summary
+    order: 4
+    width: 100%
 
 invoice-details
     display: flex
@@ -61,6 +129,15 @@ invoice-details
 
         uni-image
             width: 80%
+
+    uni-form
+        width: 75%
+        display: block
+        float: left
+
+    uni-attachments
+        width: 25%
+        float: right
 
     uni-widget-poster
         /* temporary hide widget - we don't have anything useful to show here */
