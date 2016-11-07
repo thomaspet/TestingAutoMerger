@@ -52,7 +52,6 @@ import {SettingsModule} from '../settings/settingsModule';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
 import {SalesModule} from '../sales/salesModule';
-import {ImageModal, ImageModalContent} from './transquery/details/ImageModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe} from './bill/detail/journal/simple';
@@ -118,8 +117,6 @@ import {TimetrackingModule} from '../timetracking/timetrackingmodule';
         Transquery,
         TransqueryList,
         TransqueryDetails,
-        ImageModal,
-        ImageModalContent,
 
         // accounting reports
         AccountingReports,
@@ -137,7 +134,6 @@ import {TimetrackingModule} from '../timetracking/timetrackingmodule';
     entryComponents: [
         HistoricVatReportTable,
         CreateCorrectedVatReportForm,
-        ImageModalContent,
         AccountDetailsReport
     ],
     providers: [

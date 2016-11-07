@@ -19,8 +19,6 @@
                   (changeEvent)="change($event)"
                   (readyEvent)="ready($event)">
         </uni-form>
-        <address-modal question="Lagre på kundekort?"></address-modal>
-
     <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
         <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
 
@@ -49,6 +47,7 @@
 
 <report-preview-modal></report-preview-modal>
 <order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
+<address-modal question="Lagre på kundekort?"></address-modal>
 
 <footer class="full-footer">
     <section class="application" *ngIf="actions">

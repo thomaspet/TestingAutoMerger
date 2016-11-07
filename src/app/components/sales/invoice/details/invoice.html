@@ -16,6 +16,7 @@
     <section class="formTab">
         <invoice-details-form  [hidden]="activeTabIndex !== 0" [(invoice)]="invoice"></invoice-details-form>
         <invoice-delivery-form [hidden]="activeTabIndex !== 1" [(invoice)]="invoice"></invoice-delivery-form>
+        <uni-attachments  [hidden]="activeTabIndex !== 2" [entity]="'CustomerInvoice'" [entityID]="invoice?.ID"></uni-attachments>
     </section>
 
     <!-- Invoice items and summary -->

@@ -6,8 +6,8 @@ import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
 import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodReportPart';
 import {Account, JournalEntryLine} from '../../../../unientities';
-import {ImageModal} from '../../transquery/details/ImageModal';
-import {DimensionService} from '../../../../services//common/DimensionService';
+import {ImageModal} from '../../../common/modals/ImageModal';
+import {DimensionService} from '../../../../services/common/DimensionService';
 
 declare const moment;
 

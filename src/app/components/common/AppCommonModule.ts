@@ -33,6 +33,8 @@ import {DepartmentList} from './dimensions/department/list/departmentList';
 import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
+import {ImageModal, ImageModalContent} from './modals/ImageModal';
+import {UniAttachments} from './attacments/uniAttachements';
 
 @NgModule({
     imports: [
@@ -72,7 +74,10 @@ import {UniSummary} from './summary/summary';
         UniStatusTrack.StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
-        UniSummary
+        UniSummary,
+        ImageModal,
+        ImageModalContent,
+        UniAttachments
 
     ],
     entryComponents: [
@@ -81,8 +86,8 @@ import {UniSummary} from './summary/summary';
         EmailForm,
         PhoneForm,
         RegisterPaymentForm,
-        AltinnAuthenticationDataModalContent
-
+        AltinnAuthenticationDataModalContent,
+        ImageModalContent
     ],
     exports: [
         UniDimensions,
@@ -111,7 +116,10 @@ import {UniSummary} from './summary/summary';
         UniStatusTrack.StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
-        UniSummary
+        UniSummary,
+        ImageModal,
+        ImageModalContent,
+        UniAttachments
     ]
 })
 export class AppCommonModule {

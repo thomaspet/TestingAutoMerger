@@ -70,6 +70,9 @@ export class UniImage {
     @Input()
     public uploadConfig: IUploadConfig;
 
+    @Input()
+    public showFileID: number;
+
     private baseUrl: string = AppConfig.BASE_URL_FILES;
 
     private token: any;
@@ -101,22 +104,40 @@ export class UniImage {
         this.thumbnails = [];
 
         if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-            this.http.asGET()
-                .usingBusinessDomain()
-                .withEndPoint(`files/${this.entity}/${this.entityID}`)
-                .send()
-                .subscribe((res) => {
-                    this.files = res.json();
-                    if (this.files.length) {
-                        this.currentFileIndex = 0;
-                        this.currentPage = 1;
-                        this.loadImage();
+            this.refreshFiles()
+        } else if (changes['showFileID'] && this.files && this.files.length) {
+            this.currentFileIndex = this.getChosenFileIndex();
+            this.loadImage();
+            if (!this.singleImage) {
+                this.loadThumbnails();
+            }
+        }
+    }
 
-                        if (!this.singleImage) {
-                            this.loadThumbnails();
-                        }
+    public refreshFiles() {
+        this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${this.entity}/${this.entityID}`)
+            .send()
+            .subscribe((res) => {
+                this.files = res.json();
+                if (this.files.length) {
+                    this.currentPage = 1;
+                    this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
+                    this.loadImage();
+                    if (!this.singleImage) {
+                        this.loadThumbnails();
                     }
-                });
+                }
+            });
+    }
+
+    private getChosenFileIndex() {
+        const chosenFileIndex = this.files.findIndex(file => file.ID === this.showFileID);
+        if (chosenFileIndex > 0) {
+            return chosenFileIndex;
+        } else {
+            return 0;
         }
     }
 
@@ -187,16 +208,16 @@ export class UniImage {
     }
 
     private generateImageUrl(file: File, width: number): string {
-        let url = `${this.baseUrl}/image/?key=${this.activeCompany.Key}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
+        let url = `${this.baseUrl}/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
         return encodeURI(url);
     }
 
-    private uploadFileChange(event) {
+    public uploadFileChange(event) {
         const source = event.srcElement || event.target;
 
         if (!this.entity || !this.isDefined(this.entityID)) {
             throw new Error(`Tried to upload a picture with either entity (${this.entity})`
-                 + `or entityID (${this.entityID}) being null`);
+                 + ` or entityID (${this.entityID}) being null`);
         }
 
         if (source.files && source.files.length) {
@@ -219,7 +240,7 @@ export class UniImage {
         }
     }
 
-    public uploadFile(file) {
+    private uploadFile(file) {
         let data = new FormData();
         data.append('Token', this.token);
         data.append('CompanyKey', this.activeCompany.Key);

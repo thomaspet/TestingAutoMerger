@@ -8,7 +8,7 @@ import {ComponentCreator} from '../core/dynamic/UniComponentCreator';
 
 @Component({
     selector: 'uni-modal',
-    template:`
+    template: `
         <dialog class='uniModal' [attr.open]='isOpen'>
             <button (click)='close()' class='closeBtn'></button>
             <div #modalContainer></div>
@@ -26,14 +26,18 @@ export class UniModal implements AfterViewInit {
     private isOpen: boolean = false;
 
     public component: Promise<any>;
+    private componentResolver: (component: any) => void;
+    private componentIsResolved: boolean = false;
     private factory: ComponentFactory<any>;
 
     constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
         document.addEventListener('keyup', (e: any) => {
-            if(e.keyCode === 27) {
+            if (e.keyCode === 27) {
                 this.isOpen = false;
             }
         });
+
+        this.component = new Promise(resolve => this.componentResolver = resolve);
     }
 
     public ngAfterViewInit() {
@@ -53,11 +57,12 @@ export class UniModal implements AfterViewInit {
                 isOpen: config.isOpen || false
             }
         });
-        this.component = new Promise(resolve => resolve(modal.instance));
+        this.componentResolver(modal.instance);
+        this.componentIsResolved = true;
     }
 
     public open() {
-        if (!this.component) {
+        if (!this.componentIsResolved) {
             this.createContent();
         }
 

@@ -10,7 +10,7 @@ import {JournalEntryLine} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {StatisticsService} from '../../../../services/common/StatisticsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ImageModal} from './ImageModal';
+import {ImageModal} from '../../../common/modals/ImageModal';
 
 @Component({
     selector: 'transquery-details',
