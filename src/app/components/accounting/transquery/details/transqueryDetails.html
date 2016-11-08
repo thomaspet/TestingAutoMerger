@@ -4,7 +4,6 @@
             [resource]="lookupFunction"
             [config]="uniTableConfig"
             (filtersChange)="onFiltersChange($event.filter)"
-            (rowSelected)="rowSelected($event.rowModel)"
     ></uni-table>
 
     <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">

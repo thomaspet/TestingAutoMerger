@@ -12,6 +12,8 @@ import {StatisticsService} from '../../../../services/common/StatisticsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
 
+const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+
 @Component({
     selector: 'transquery-details',
     templateUrl: 'app/components/accounting/transquery/details/transqueryDetails.html',
@@ -44,14 +46,21 @@ export class TransqueryDetails implements OnInit {
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
+        const filters = ['isnull(FileEntityLink.EntityType,\'JournalEntryLine\') eq \'JournalEntryLine\''];
+
+        if (urlParams.get('filter')) {
+            filters.push(urlParams.get('filter'));
+        }
 
         if (this.configuredFilter) {
-            urlParams.set('filter', this.configuredFilter);
+            filters.push(this.configuredFilter);
         }
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear');
+        urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear,count(FileEntityLink.ID) as Attachments');
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
+        urlParams.set('join', 'JournalEntryLine.ID eq FileEntityLink.EntityID');
+        urlParams.set('filter', filters.join(' and '));
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -145,10 +154,6 @@ export class TransqueryDetails implements OnInit {
         return filter;
     }
 
-    public rowSelected(journalEntryLine: JournalEntryLine) {
-        this.imageModal.open(JournalEntryLine.EntityType, journalEntryLine.ID);
-    }
-
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
 
         let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
@@ -227,7 +232,11 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
                 new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; })
+                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
+                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
+                    .setTemplate(line => line.Attachments ? PAPERCLIP : '')
+                    .setWidth('40px')
+                    .setOnCellClick(line => this.imageModal.open(JournalEntryLine.EntityType, line.ID))
             ]);
     }
 }
