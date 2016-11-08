@@ -247,24 +247,16 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
         this.focusPositionTop = 0;
 
-        // User just tabbed through the field
-        if (this.selectedIndex === -1 && this.control.value === this.initialDisplayValue) {
-            return;
-        }
-
-        let selectedItem;
-        if (this.control.value.length === 0) {
-            selectedItem = null;
-            this.lastValue = null;
-        } else if (this.control.value.length && this.selectedIndex > -1) {
-            selectedItem = this.lookupResults[this.selectedIndex];
-            this.lastValue = selectedItem;
+        if (this.selectedIndex < 0) {
+            if (this.control.value === '') { // allow empty string as value
+                this.lastValue = null;
+            }
         } else {
-            selectedItem = this.lastValue;
+            this.lastValue = this.lookupResults[this.selectedIndex];
         }
 
-        this.value = selectedItem ? _.get(selectedItem, this.field.Options.valueProperty) : null;
-        this.initialDisplayValue = selectedItem ? this.template(selectedItem) : '';
+        this.value = this.lastValue ? _.get(this.lastValue, this.field.Options.valueProperty) : null;
+        this.initialDisplayValue = this.lastValue ? this.template(this.lastValue) : '';
         this.control.setValue(this.initialDisplayValue, {emitEvent: false});
         _.set(this.model, this.field.Property, this.value);
         if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
