@@ -2,7 +2,7 @@ import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} 
 import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
 import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/unitoast/toastservice';
-import {safeDec, trimLength} from '../../../../timetracking/utils/utils';
+import {safeDec, safeInt, trimLength} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
 import {checkGuid} from '../../../../../services/common/dimensionservice';
 import {FinancialYearService} from '../../../../../services/services';
@@ -14,7 +14,7 @@ import {FinancialYearService} from '../../../../../services/services';
 })
 export class BillSimpleJournalEntryView {
     @Input() public set supplierinvoice(value: SupplierInvoice ) {
-        this.current = value;
+        this.current = value;        
         this.initFromInvoice(this.current);
         this.calcRemainder();
     }
@@ -50,6 +50,9 @@ export class BillSimpleJournalEntryView {
     private initFromInvoice(invoice: SupplierInvoice) {
         this.hasMultipleEntries = false;
         this.analyzeEntries(invoice);        
+        if (this.editable) {
+            this.editable.closeEditor();
+        }
     }
 
     private clear() {
@@ -86,12 +89,8 @@ export class BillSimpleJournalEntryView {
         if (total) {
             this.costItems.forEach( x => {
                 var value = safeDec(x.Amount);
-                if (value > 10000) {
-                    debugger;
-                    console.log('test');
-                } 
                 if (x.VatType && x.VatType.VatPercent) {
-                    sumVat += parseFloat((value * x.VatType.VatPercent / 100).toFixed(2));
+                    sumVat += parseFloat(((value * x.VatType.VatPercent) / (100 + x.VatType.VatPercent)).toFixed(2));
                 }
                 sumItems += value;
             });  
@@ -142,12 +141,6 @@ export class BillSimpleJournalEntryView {
             }
         }
 
-        // Remainder ?
-        var remainder = this.calcRemainder();
-        if (remainder) {
-            this.costItems[this.costItems.length - 1].Amount = remainder;
-        }
-
     }    
 
     private initTableConfig() {
@@ -169,7 +162,8 @@ export class BillSimpleJournalEntryView {
                         render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name,12)}`)
                     }
                 ),
-                new Column('Amount'), // , '', ColumnType.Decimal, { route: '', colToSave: 'sum' }),
+                new Column('Description'),
+                new Column('Amount'), 
                 new Column('delete', '', ColumnType.Action)
             ],
             events: {
@@ -179,6 +173,11 @@ export class BillSimpleJournalEntryView {
                 onStartEdit: (info: IStartEdit) => {
                     if (this.isReadOnly) {
                         info.cancel = true;
+                    } else {
+                        if (info.columnDefinition.name === 'Description') {
+                            info.value = this.costItems[info.row].Description; 
+                        }
+                        this.calcRemainder();
                     }
                 },
                 onTypeSearch: details => {
@@ -197,23 +196,33 @@ export class BillSimpleJournalEntryView {
                             row.AccountID = rowAbove.AccountID;
                             row.VatType = rowAbove.VatType;
                             row.VatTypeID = rowAbove.VatTypeID;
+                            this.checkRowSum(row);
                             break; 
                         case 'VatTypeID':
                             row.VatType = rowAbove.VatType;
                             row.VatTypeID = rowAbove.VatTypeID;
+                            break;
+                        case 'Description':
+                            row.Description = rowAbove.Description;
                             break;
                         case 'Amount':
                             row.Amount = rowAbove.Amount;
                             break; 
                     }
                     details.copyAbove = false;
-                    this.raiseUpdateEvent(details.position.row);
+                    this.raiseUpdateFromCostIndex(details.position.row);
                     if (details.position.row >= this.costItems.length - 1) {
                         this.addEmptyRowAtBottom();
                     } 
                 }
             }
         };
+    }
+
+    private checkRowSum(row: JournalEntryLineDraft) {
+        if (!(row.Amount && this.sumRemainder)) {
+            row.Amount = this.sumRemainder;
+        }        
     }
 
     private createGrossValueData(details: ITypeSearch) {
@@ -227,27 +236,31 @@ export class BillSimpleJournalEntryView {
         }
     }
 
-    private raiseUpdateEvent(costIndex: number, cargo?: any) {
+    private raiseUpdateFromCostIndex(costIndex: number, cargo?: any) {
         var line = this.costItems[costIndex];
         this.calcRemainder();
         if (!line) { return; }
         var actualRowIndex = line['_rowIndex'];
-        if (actualRowIndex >= 0 ) {
-            this.valueChange.emit({ rowIndex: actualRowIndex, item: line, details: cargo });
-        }        
+        this.raiseUpdateEvent(actualRowIndex, line, cargo);        
     }
 
+    private raiseUpdateEvent(actualRowIndex: number, item: any, cargo: any) {
+        if (actualRowIndex >= 0 ) {
+            this.valueChange.emit({ rowIndex: actualRowIndex, item: item, details: cargo });
+        }        
+    }
 
     public onRowActionClicked(rowIndex: number, item: any) {
         this.editable.closeEditor();
         var line = this.costItems[rowIndex];
         var actualRowIndex = line['_rowIndex'];
         this.costItems.splice(rowIndex, 1);
-        if (actualRowIndex) {
+        if (actualRowIndex >= 0 && (actualRowIndex !== undefined)) {
             line.Deleted = true;
-            this.raiseUpdateEvent(rowIndex, { action: 'deleted' });
+            this.raiseUpdateEvent(rowIndex, line, { action: 'deleted' });
         }
         this.ensureWeHaveSingleEntry();
+        this.calcRemainder();
     }    
 
     private updateChange(change: IChangeEvent) {
@@ -281,6 +294,9 @@ export class BillSimpleJournalEntryView {
                     line.AccountID = change.lookupValue.ID;
                     line.VatTypeID = change.lookupValue.VatTypeID;
                     line.VatType = change.lookupValue.VatType;
+                    this.checkRowSum(line);
+                } else {
+                    this.toast.addToast('no lookupvalue: ' + change.value, ToastType.warn, 4);
                 }
                 break;
             case 'VatTypeID':
@@ -290,14 +306,20 @@ export class BillSimpleJournalEntryView {
                     line.VatPercent = change.lookupValue.VatPercent;
                 }
                 break;
+            case 'Description':
+                line.Description = change.value;
+                break;                
             case 'Amount':
-                debugger;
                 if (typeof(change.value) === 'object') {
                     line.Amount = change.value.sum;
                 } else {
                     line.Amount = safeDec(change.value);
                 }                                
                 change.reloadAfterEdit = true;
+                if (change.row > 0 && (!this.sumRemainder) ) {
+                    this.calcRemainder();
+                    this.autoBalanceFirstRow();
+                }
                 break;
         }
 
@@ -307,7 +329,15 @@ export class BillSimpleJournalEntryView {
             this.addEmptyRowAtBottom();
         }
 
-        this.raiseUpdateEvent(change.row, change);
+        this.raiseUpdateFromCostIndex(change.row, change);
+    }
+
+    private autoBalanceFirstRow() {
+        if (this.sumRemainder) {
+            var sum = this.costItems[0].Amount || 0;
+            this.costItems[0].Amount = sum + (this.sumRemainder || 0);
+            this.calcRemainder();
+        }
     }
 
     private asyncValidationFailed(event: IChangeEvent) {
@@ -367,7 +397,7 @@ export class AccountPipe implements PipeTransform {
         var acc: Account = value;
 
         if (acc && acc.AccountNumber) {
-            return acc.AccountNumber + ' - ' + trimLength(acc.AccountName, 18);
+            return acc.AccountNumber + ' - ' + trimLength(acc.AccountName, 13);
         }
     }
 }
@@ -381,6 +411,18 @@ export class VatCodePipe implements PipeTransform {
         var code: VatType = value;
         if (code && code.ID) {
             return code.VatCode + ' - ' + code.VatPercent + '%';
+        }
+    }
+}
+
+@Pipe({
+  name: 'trimtext'
+})
+export class TrimTextPipe implements PipeTransform {
+
+    public transform(value: any, format?: string) {
+        if (value) {
+            return trimLength(value, format ? safeInt(format) : 10 );
         }
     }
 }

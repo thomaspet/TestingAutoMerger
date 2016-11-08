@@ -15,6 +15,7 @@ export interface IStartEdit {
     row: number;
     cancel: boolean;
     columnDefinition: ICol;
+    value: string;
 }
 
 export interface IPos {

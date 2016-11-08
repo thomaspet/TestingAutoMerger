@@ -90,7 +90,9 @@ export class BillView {
     ];
 
 
-    public actions: IUniSaveAction[] = [
+    public actions: IUniSaveAction[];
+
+    private rootActions: IUniSaveAction[] = [
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
             { label: lang.tool_delete, action: (done) => this.delete(done), main: false, disabled: true }
         ];
@@ -103,7 +105,7 @@ export class BillView {
         private cache: UniCacheService,
         private vatTypeService: VatTypeService,
         private supplierService: SupplierService) {
-
+            this.actions = this.rootActions;
     }
 
     public ngOnInit() {
@@ -166,7 +168,12 @@ export class BillView {
 
     public onFormReady(event) {
         this.createNewSupplierButton();
-        // this.busy = false;
+    }    
+
+    public onSaveDraftForImage() {
+        this.save((msg) => {            
+            this.toast.addToast('Add image now!', ToastType.good, 3);
+        });
     }    
 
     public onFormChange(model: SupplierInvoice) {
@@ -217,7 +224,67 @@ export class BillView {
 
     private flagActionBar(index: actionBar, enable = true) {
         this.actions[index].disabled = !enable;
+    }
+
+    private loadActionsFromEntity() {
+        var it: any = this.current;
+        // var index = 0;
+        if (it && it._links) {
+            var list: IUniSaveAction[] = [];
+            this.rootActions.forEach( x => list.push(x) );
+            this.addActions(it._links.actions, list);
+            this.addActions(it._links.transitions, list, true);
+            this.actions = list;
+        }
     }    
+
+    private mapActionLabel(key: string): string {
+        
+        var items = { 
+            'smartbooking': 'Foreslå kontering',
+            'payInvoice': 'Registrere betaling',
+            'journal': 'Bokfør',
+            'sendForPayment': 'Send til betaling',
+            'pay': 'Betal',
+            'assign': 'Tildel',
+            'cancelApprovement': 'Kanseler godkjenning',
+            'reAssign': 'Tildel på nytt',
+            'accept': 'Godkjenn'
+        };
+
+        var label = items[key];
+        if (!label) {
+            return key;
+        }
+        return label;
+
+    }
+
+    private addActions(linkNode: any, list: any[], mainFirst = false) {
+        var ix = 0, setAsMain = false;
+        if (!linkNode) { return; }
+        for (var key in linkNode) {
+            if (linkNode.hasOwnProperty(key)) {
+                ix++;
+                setAsMain = mainFirst ? ix <= 1 : false;
+                if (setAsMain) {
+                    list.forEach( x => x.main = false);
+                }
+
+                let itemKey = key;
+                let label = this.mapActionLabel(itemKey);
+                list.push({ 
+                    label: label, 
+                    action: (done) => {
+                        this.toast.addToast(itemKey + ' todo...', ToastType.good, 3);
+                        done('not yet: ' + itemKey);
+                    }, 
+                    main: setAsMain, 
+                    disabled: false  
+                });
+            }
+        }
+    }
 
     private fetchInvoice(id: number | string) {
         this.busy = true;
@@ -227,6 +294,7 @@ export class BillView {
             this.setupToolbar();
             this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
             this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
+            this.loadActionsFromEntity();
         });              
     }
 
@@ -257,11 +325,6 @@ export class BillView {
         });        
     }
 
-    public onSaveDraftForImage() {
-        this.save((msg) => {
-            this.toast.addToast('Add image now!', ToastType.good, 3);
-        });
-    }
 
     public save(done) {
         this.preSave();
@@ -293,6 +356,14 @@ export class BillView {
     }
 
     private preSave() {
+
+        // Ensure dates are set        
+        if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
+            this.current.JournalEntry.DraftLines.forEach( x => {
+                x.FinancialDate = x.FinancialDate || this.current.DeliveryDate || this.current.InvoiceDate;
+            });     
+        }
+
         // Auto-set "paymentinformation" from invoicenumber (if kid not set): 
         if ((!this.current.PaymentID) && (!this.current.PaymentInformation)) {
             if (this.current.InvoiceNumber) {
@@ -385,7 +456,7 @@ export class BillView {
             } else {
                 this.toast.addToast('Autocomplete element not found', ToastType.warn, 2);
             }
-            // shortcut (F3) ?
+            // Create keyboard-shortcut (F3) 
             el = frm.elementRef.nativeElement.getElementsByTagName('input');
             if (el && el.length > 0) {
                 el[0].addEventListener('keydown', (event) => {
@@ -397,6 +468,7 @@ export class BillView {
                 });
             }
         }
+
     }
 
 }

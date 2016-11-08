@@ -10,7 +10,8 @@ export class Lookupservice {
     constructor(private http: UniHttp) {}
 
     public getSingle<T>(route: string, id: any, expand = ''): Observable<T> {
-        return this.GET(route + '/' + id + (expand ? '?expand=' + expand : ''));
+        var pfx = typeof(id) === 'string' ? (id.indexOf('?') >= 0 ? '&' : '?') : '?';
+        return this.GET(route + '/' + id + (expand ? pfx + 'expand=' + expand : ''));
     }
 
     public query<T>(route: string, searchString: string, matchCols: string, expand?: string, select?: string, filter?: string, useModel?: string): Observable<T> {

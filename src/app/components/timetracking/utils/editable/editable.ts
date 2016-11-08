@@ -130,18 +130,22 @@ export class Editable implements AfterViewInit, OnDestroy {
             return;
         }
 
+        var txt = el.text();
+
         if (this.config && this.config.events && this.config.events.onStartEdit) {
-            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col }; 
+            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt }; 
             this.raiseEvent('onStartEdit', startDetails);
             if (startDetails.cancel) {
                 return;
+            }
+            if (startDetails.value !== txt) {
+                txt = startDetails.value;
             }
         }
 
         this.current.active = el;
         this.focusCell(el);
 
-        var txt = el.text();
         this.createEditorIfMissing();
         var showButton = col ? !!col.lookup : false;
         this.current.editor.startEdit(txt, el, this.getCellPosition(el), showButton);
