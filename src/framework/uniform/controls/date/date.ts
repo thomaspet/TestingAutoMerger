@@ -20,15 +20,16 @@ declare var _;
                 [placeholder]="field?.Placeholder || ''"
             />
             <button type="button"
-                    class="uni-datepicker-calendarBtn"
-                    (click)="calendarOpen = !calendarOpen"
-                    [disabled]="field?.ReadOnly"
-                    (focus)="focus()"
+                tabindex="-1"
+                class="uni-datepicker-calendarBtn"
+                (click)="calendarOpen = !calendarOpen"
+                [disabled]="field?.ReadOnly"
+                (focus)="focus()"
             >Kalender</button>
 
             <uni-calendar [attr.aria-expanded]="calendarOpen"
                           [date]="selectedDate"
-                          (dateChange)="dateSelected($event)">
+                          (dateChange)="selectAndMove($event)">
             </uni-calendar>
         </section>
     `
@@ -76,7 +77,6 @@ export class UniDateInput {
 
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
-        this.createTabListener();
         this.createOpenCloseListeners();
     }
 
@@ -157,24 +157,12 @@ export class UniDateInput {
         this.selectedDate = date;
         this.control.setValue(date ? moment(date).format('L') : '');
         _.set(this.model, this.field.Property, date);
-        this.setFocusOnNextField();
         this.changeEvent.emit(this.model);
     }
 
-    private createTabListener() {
-        const keyDownEvent = Observable.fromEvent(this.inputElement.nativeElement, 'keydown');
-        const tabAndEnterEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB || event.keyCode === KeyCodes.ENTER);
-        tabAndEnterEvent.subscribe((event: KeyboardEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.shiftKey) {
-                this.setFocusOnPrevField();
-                this.close();
-            } else {
-                this.setFocusOnNextField();
-                this.close();
-            }
-        });
+    private selectAndMove(date) {
+        this.dateSelected(date);
+        this.setFocusOnNextField();
     }
 
     private setFocusOnNextField() {
@@ -186,23 +174,11 @@ export class UniDateInput {
             }
             const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
             if (input) {
-                input.focus();
-                input.select();
-            }
-        }
-    }
+                setTimeout(() => {
+                    input.focus();
+                    input.select();
+                });
 
-    private setFocusOnPrevField() {
-        const uniFieldParent = this.findAncestor(this.inputElement.nativeElement, 'uni-field');
-        let nextUniField = uniFieldParent.previousElementSibling;
-        if (nextUniField) {
-            if (nextUniField.tagName === 'UNI-LINEBREAK') {
-                nextUniField = nextUniField.previousElementSibling;
-            }
-            const input = <HTMLInputElement>nextUniField.querySelector('input,textarea,select,button');
-            if (input) {
-                input.focus();
-                input.select();
             }
         }
     }

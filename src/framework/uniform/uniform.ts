@@ -402,21 +402,25 @@ export class UniForm {
             .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB && !event.shiftKey);
 
         const tabAndEnterEvent = Observable.merge(enterEvent, tabEvent);
-        const avoidEventOnDates = tabAndEnterEvent.filter((event) => this.lastFocusedComponent.field.FieldType !== FieldType.DATEPICKER);
-        avoidEventOnDates.subscribe((event: KeyboardEvent) => {
+        tabAndEnterEvent.subscribe((event: KeyboardEvent) => {
+            const field: UniField = this.findNextElementFormLastFocusedComponent();
+            if (!field) {
+                return; // give control to the browser
+            }
             event.preventDefault();
             event.stopPropagation();
-            const field: UniField = this.findNextElementFormLastFocusedComponent();
-            this.lastFocusedComponent = field;
             if (field.field.Section > 0) {
                 const section = this.section(field.field.Section);
                 if (!section.isOpen) {
                     section.toggle();
+                    // wait for section to open;
+                    setTimeout(() => {
+                        field.focus();
+                    }, 200);
+                    return;
                 }
             }
-            setTimeout(() => {
-                field.focus();
-            }, 200);
+            field.focus();
         });
     }
 
@@ -425,24 +429,18 @@ export class UniForm {
             this.lastFocusedComponent = this.field(this.fields[0].Property);
         }
 
-        let property: string = this.lastFocusedComponent.field.Property;
-        let index: number = 0;
-        let located: boolean = false;
-        for (let i = 0; i < this.fields.length && !located; i++) {
-            if (this.fields[i].Property === property) {
-                index = i;
-                located = true;
-            }
+        let index = this.fields.indexOf(this.lastFocusedComponent.field);
+        if (index < 0) {
+            return; // not found
         }
-        if (!located || index + 1 >= this.fields.length) {
-            return this.lastFocusedComponent;
-        } else {
-            // Jump Hidden elements since they are not displayed
-            while (this.fields[index + 1].Hidden) {
-                index++;
-            }
-            return this.field(this.fields[index + 1].Property);
+        while (this.fields[index + 1] && this.fields[index + 1].Hidden) {
+            index++;
         }
+        if (index >= this.fields.length - 1) {
+            return; // there isn't a next element
+        }
+        return this.field(this.fields[index + 1].Property);
+
     }
 
     private addSectionEvents() {
