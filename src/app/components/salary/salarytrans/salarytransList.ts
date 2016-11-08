@@ -3,7 +3,7 @@ import { Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewCh
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement } from '../../../unientities';
+import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement, GetRateFrom } from '../../../unientities';
 import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService } from '../../../services/services';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { ControlModal } from '../payrollrun/controlModal';
@@ -420,18 +420,17 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         rowModel['FromDate'] = this.fixTimezone(this.payrollRun.FromDate);
         rowModel['ToDate'] = this.fixTimezone(this.payrollRun.ToDate);
         rowModel['_BasePayment'] = wagetype.Base_Payment;
+
         if (!rowModel.Amount) {
             rowModel['Amount'] = 1;
         }
 
-        if (!rowModel.Rate || wagetype.Rate) {
-            rowModel['Rate'] = wagetype.Rate;
-        }
-
         let employment = this.employee.Employments.find(emp => emp.Standard === true);
         if (employment) {
-            rowModel['EmploymentID'] = employment.ID;
+            rowModel['EmploymentID'] = employment.ID ? employment.ID : 0;
         }
+
+        this.getRate(rowModel);
 
         let supplements: SalaryTransactionSupplement[] = [];
 
@@ -454,16 +453,26 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             });
             rowModel['Supplements'] = supplements;
         }
-
-        this.calcItem(rowModel);
     }
 
-    private mapEmploymentToTrans(rowModel) {
+    private getRate(rowModel: SalaryTransaction) {
+        this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']).subscribe(rate => {
+            rowModel['Rate'] = rate;
+            this.calcItem(rowModel);
+            this.table.updateRow(rowModel['_originalIndex'], rowModel);
+            this.updateSalaryChanged(rowModel);
+        });
+    }
+
+    private mapEmploymentToTrans(rowModel: SalaryTransaction) {
         let employment = rowModel['_Employment'];
         if (!employment) {
             return;
         }
         rowModel['EmploymentID'] = employment.ID;
+        if (rowModel.Wagetype && rowModel.EmploymentID && (rowModel.Wagetype.GetRateFrom === GetRateFrom.HourlyPayEmployee || rowModel.Wagetype.GetRateFrom === GetRateFrom.MonthlyPayEmployee)) {
+            this.getRate(rowModel);
+        }
     }
 
     private calcItem(rowModel) {
@@ -562,10 +571,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         if (row.Wagetype || row.Text || row['_Employment'] || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
             row['EmployeeID'] = this.employeeID;
             row['PayrollRunID'] = this.payrollRun.ID;
-            row['_createguid'] = this.salarytransService.getNewGuid();
-
             this.updateSalaryChanged(row);
-
         }
 
         this.saveactions[0].disabled = false;
@@ -574,6 +580,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
     private updateSalaryChanged(row) {
         let updated: boolean = false;
+
+        if (!row['ID']) {
+            row['_createguid'] = this.salarytransService.getNewGuid();
+        }
+
         if (this.salarytransChanged.length > 0) {
             for (var i = 0; i < this.salarytransChanged.length; i++) {
                 var salaryItem = this.salarytransChanged[i];
