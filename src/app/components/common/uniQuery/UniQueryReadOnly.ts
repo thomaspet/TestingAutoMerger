@@ -84,9 +84,10 @@ export class UniQueryReadOnly implements OnChanges {
 
                         this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
                             let f: UniTableColumn = new UniTableColumn();
-                            f.alias = field.Alias;
                             f.field = field.Field;
                             f.header = field.Header;
+                            f.type = field.FieldType;
+                            f.alias = field.Alias;
                             f.path = field.Path;
                             f.sumFunction = field.SumFunction;
                             f.width = field.Width;
@@ -120,8 +121,6 @@ export class UniQueryReadOnly implements OnChanges {
             this.queryDefinition.UniQueryFilters = [];
         }
     }
-
-
 
     private setupTableConfig() {
 
@@ -162,7 +161,7 @@ export class UniQueryReadOnly implements OnChanges {
                 selectableColName = `${field.sumFunction}(${selectableColName})`;
             }
 
-            let col = new UniTableColumn(selectableColName, field.header);
+            let col = new UniTableColumn(selectableColName, field.header, field.type);
             col.alias = aliasColName;
             col.path = field.path;
             col.width = field.width;

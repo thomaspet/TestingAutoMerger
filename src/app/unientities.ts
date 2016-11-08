@@ -2788,6 +2788,7 @@ export class UniQueryField {
     public Header: string;
     public ID: number;
     public Index: number;
+    public FieldType: number;
     public Path: string;
     public StatusCode: number;
     public SumFunction: string;

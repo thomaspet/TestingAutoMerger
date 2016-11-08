@@ -144,6 +144,7 @@ export class UniQueryDetails {
                        f.sumFunction = field.SumFunction;
                        f.width = field.Width;
                        f.index = field.Index;
+                       f.type = field.FieldType;
 
                        this.fields.push(f);
                     });
@@ -258,12 +259,12 @@ export class UniQueryDetails {
             // keep this for debugging for now
             console.log('setupTableConfig, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
 
-            let col = new UniTableColumn(selectableColName, field.header);
+            let col = new UniTableColumn(selectableColName, field.header, field.type || UniTableColumnType.Text);
             col.alias = aliasColName;
             col.path = field.path;
             col.width = field.width;
             col.sumFunction = field.sumFunction;
-
+            col.type = field.type;
             columns.push(col);
 
             if (field.path && field.path !== '') {
@@ -541,6 +542,7 @@ export class UniQueryDetails {
                 f.SumFunction = field.sumFunction;
                 f.Width = field.width;
                 f.Index = field.index;
+                f.FieldType = field.type;
 
                 definition.UniQueryFields.push(f);
             });
@@ -649,7 +651,7 @@ export class UniQueryDetails {
     }
 
     private addOrRemoveField(model, fieldname, field, path) {
-
+        console.log('model,', model, 'field', field);
         if (!this.editMode) {
             alert('Du kan ikke legge til eller fjerne felter uten å først velge "Endre uttrekk" i knappen nederst i skjermbildet');
             return;
@@ -681,9 +683,18 @@ eller du må velge ${model.Name} som hovedmodell ved å kun hente felter som lig
 
         field.Selected = true;
 
-        let newCol = new UniTableColumn();
-        newCol.field = field.Publicname;
-        newCol.header = field.Publicname;
+        let colType: UniTableColumnType;
+        if (field.Type.toString().startsWith('System.Int32')) {
+            colType = UniTableColumnType.Number;
+        } else if (field.Type.toString().startsWith('System.Decimal')) {
+            colType = UniTableColumnType.Money;
+        } else if (field.Type.toString().startsWith('System.DateTime')) {
+            colType = UniTableColumnType.Date;
+        } else {
+            colType = UniTableColumnType.Text;
+        }
+
+        let newCol = new UniTableColumn(field.Publicname, field.Publicname, colType);
         newCol.path = path;
 
         this.fields.push(newCol);
