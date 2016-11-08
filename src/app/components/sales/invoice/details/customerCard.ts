@@ -18,9 +18,11 @@ declare const _;
                        [readonly]="readonly"
                        [attr.aria-readonly]="readonly"
                        (keydown)="onKeydown($event)"
+                       (blur)="onBlur()"
                        role="combobox"
                        autocomplete="false"
                        aria-autocomplete="inline"
+                       autofocus
                 />
 
                 <button class="uni-autocomplete-searchBtn"
@@ -113,6 +115,18 @@ export class CustomerCard {
             this.control.setValue(this.initialDisplayValue, {emitEvent: false});
             this.readonly = this.invoice.StatusCode && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         }
+    }
+
+    public focus() {
+        this.searchInput.nativeElement.focus();
+    }
+
+    public onBlur() {
+        setTimeout(() => {
+            if (this.expanded) {
+                this.expanded = false;
+            }
+        }, 200);
     }
 
     public openAddressModal() {

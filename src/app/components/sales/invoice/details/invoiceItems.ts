@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerInvoice, CustomerInvoiceItem, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
@@ -14,6 +14,8 @@ import {CustomerInvoice, CustomerInvoiceItem, VatType, StatusCodeCustomerInvoice
     `
 })
 export class InvoiceItems {
+    @ViewChild(UniTable) private table: UniTable;
+
     @Input() public invoice: CustomerInvoice;
     @Input() public projects: any[];
     @Input() public departments: any[];
@@ -37,6 +39,10 @@ export class InvoiceItems {
         if (changes['invoice']) {
             this.tableData = this.invoice.Items.filter(item => !item.Deleted);
         }
+    }
+
+    public focusFirstRow() {
+        this.table.focusRow(0);
     }
 
     private initDataAndTable() {
@@ -76,7 +82,8 @@ export class InvoiceItems {
                 lookupFunction: (searchValue) => {
                     const query = searchValue.toLowerCase();
                     let filtered = this.vatTypes.filter((vatType) => {
-                        return vatType.Name.toLowerCase().indexOf(query) > -1
+                        return vatType.VatCode.toLowerCase().startsWith(query)
+                               || vatType.Name.toLowerCase().indexOf(query) > -1
                                || vatType.VatPercent.toString() === query;
                     });
 

@@ -155,6 +155,10 @@ export class UniForm {
     }
 
     public focusFirstElement() {
+        if (this.config && !this.config.autofocus) {
+            return;
+        }
+
         if (!this.fields || this.fields.length <= 0) {
             return;
         }

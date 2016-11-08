@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
@@ -15,6 +15,8 @@ import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
+import {CustomerCard} from './customerCard';
+import {InvoiceItems} from './invoiceItems';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -42,6 +44,12 @@ export class InvoiceDetails {
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
 
+    @ViewChild(CustomerCard)
+    private customerCard: CustomerCard;
+
+    @ViewChild(InvoiceItems)
+    private invoiceItems: InvoiceItems;
+
     @Input()
     public invoiceID: any;
 
@@ -55,8 +63,6 @@ export class InvoiceDetails {
 
     private tabs: string[] = [];
     private activeTabIndex: number = 0;
-    private invoiceButtonText: string = 'Fakturer';
-    private creditButtonText: string = 'Krediter faktura';
     private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
@@ -135,6 +141,19 @@ export class InvoiceDetails {
             }
 
         });
+    }
+
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+        if (key === 34) {
+            // Page down
+            this.invoiceItems.focusFirstRow();
+        } else if (key === 33) {
+            // Page up
+            console.log(this.customerCard, this.customerCard.focus);
+            this.customerCard.focus();
+        }
     }
 
     private getStatustrackConfig() {

@@ -8,7 +8,7 @@ declare const _;
     template: `
         <uni-form [fields]="fields"
                   [model]="invoice"
-                  [config]="{}"
+                  [config]="formConfig"
                   (readyEvent)="onFormReady($event)"
                   (changeEvent)="onFormChange($event)">
         </uni-form>
@@ -29,6 +29,7 @@ export class InvoiceDetailsForm {
 
     private fields: any[];
     private readonly: boolean;
+    public formConfig: any = {autofocus: false};
 
     constructor() {
         this.initFormFields();
