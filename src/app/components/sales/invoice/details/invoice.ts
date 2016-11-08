@@ -14,6 +14,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
+import {StatusCode} from '../../salesHelper/salesEnums';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -63,7 +64,6 @@ export class InvoiceDetails {
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department', 'InvoiceReference'];
-
 
     constructor(private customerInvoiceService: CustomerInvoiceService,
                 private customerInvoiceItemService: CustomerInvoiceItemService,
@@ -122,6 +122,9 @@ export class InvoiceDetails {
                     this.userService.getCurrentUser()
                 ).subscribe((res) => {
                     let invoice = res[0];
+                    invoice.InvoiceDate = new Date();
+                    invoice.DeliveryDate = new Date();
+                    invoice.PaymentDueDate = null; // calculated in refreshInvoice()
                     invoice.OurReference = res[1].DisplayName;
                     this.refreshInvoice(invoice);
                 });
@@ -136,7 +139,10 @@ export class InvoiceDetails {
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let activeStatus = this.invoice.StatusCode;
+        let activeStatus = 0;
+        if (this.invoice) {
+            activeStatus = this.invoice.StatusCode || 1;
+        }
 
         this.customerInvoiceService.statusTypes.forEach((s, i) => {
             let _state: UniStatusTrack.States;
@@ -157,58 +163,21 @@ export class InvoiceDetails {
         return statustrack;
     }
 
-    private refreshInvoice(invoice) {
+    private refreshInvoice(invoice: CustomerInvoiceExt) {
+        if (!invoice.PaymentDueDate) {
+            let dueDate = new Date(invoice.InvoiceDate);
+            if (dueDate) {
+                dueDate.setDate(dueDate.getDate() + invoice.CreditDays);
+                invoice.PaymentDueDate = dueDate;
+            }
+        }
+
         this.invoice = invoice;
         this.addressService.setAddresses(this.invoice);
         this.recalcDebouncer.next(invoice);
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
-
-        if (this.invoice.PaymentDueDate === null) {
-            let dueDate = new Date(this.invoice.InvoiceDate);
-            if (dueDate) {
-                dueDate.setDate(dueDate.getDate() + this.invoice.CreditDays);
-                this.invoice.PaymentDueDate = dueDate;
-            }
-        }
-    }
-
-    private newInvoice() {
-        // copy paste from old invoice component
-        this.customerInvoiceService.newCustomerInvoice().then((invoice)  => {
-            this.customerInvoiceService.Post(invoice).subscribe((res) => {
-                this.router.navigateByUrl('/sales/invoices/' + res.ID);
-            });
-        });
-    }
-
-    public nextInvoice() {
-        this.customerInvoiceService.next(this.invoice.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                    }
-                },
-                (err) => {
-                    console.log('Error getting next invoice: ', err);
-                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
-                }
-            );
-    }
-
-    public previousInvoice() {
-        this.customerInvoiceService.previous(this.invoice.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                    }
-                },
-                (err) => {
-                    console.log('Error getting previous invoice: ', err);
-                    this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
-                }
-            );
     }
 
     private updateTabTitle() {
@@ -220,7 +189,6 @@ export class InvoiceDetails {
         }
         this.tabService.addTab({ url: '/sales/invoices/' + this.invoice.ID, name: tabTitle, active: true, moduleID: UniModules.Invoices });
     }
-
 
     private updateToolbar() {
         let invoiceText = '';
@@ -242,7 +210,7 @@ export class InvoiceDetails {
             navigation: {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
-                add: () => this.newInvoice.bind(this) //this.router.navigateByUrl('/sales/invoices/0')
+                add: () => this.router.navigateByUrl('/sales/invoices/0')
             }
         };
 
@@ -254,6 +222,234 @@ export class InvoiceDetails {
         }
 
         this.toolbarconfig = toolbarconfig;
+    }
+
+    // Save actions
+    private updateSaveActions() {
+        this.saveActions = [];
+
+        const payActionDisabled = this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced
+            && this.invoice.StatusCode !== StatusCodeCustomerInvoice.PartlyPaid;
+
+        const status = this.invoice.StatusCode;
+
+        this.saveActions.push({
+            label: 'Lagre som kladd',
+            action: done => this.saveAsDraft(done),
+            disabled: status && status !== StatusCodeCustomerInvoice.Draft
+        });
+
+        this.saveActions.push({
+            label: 'Krediter faktura',
+            action: (done) => this.creditInvoice(done),
+            disabled: status === StatusCodeCustomerInvoice.Draft
+        });
+
+        this.saveActions.push({
+            label: 'Fakturer',
+            action: done => this.saveAndInvoice(done),
+            disabled: (this.invoice.TaxExclusiveAmount > 0) ||
+                (this.itemsSummaryData && this.itemsSummaryData.SumTotalIncVat > 0)
+        });
+
+        this.saveActions.push({
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false
+        });
+
+        this.saveActions.push({
+            label: 'Registrer betaling',
+            action: (done) => this.payInvoice(done),
+            disabled: payActionDisabled
+        });
+
+        this.saveActions.push({
+            label: 'Slett',
+            action: (done) => this.deleteInvoice(done),
+            disabled: status !== StatusCodeCustomerInvoice.Draft
+        });
+
+        // Set main save action
+        if (!status || status === StatusCodeCustomerInvoice.Draft) {
+            this.saveActions[2].main = true; // transition
+        } else {
+            if (payActionDisabled) {
+                this.saveActions[1].main = true; // credit
+            } else {
+                this.saveActions[4].main = true; // register payment
+            }
+        }
+    }
+
+    private saveInvoice(refreshOnSuccess?: boolean): Observable<CustomerInvoiceExt> {
+        this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+
+        // Prep new orderlines for complex put
+        this.invoice.Items.forEach(item => {
+            if (item.Dimensions && item.Dimensions.ID === 0) {
+                item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
+            }
+        });
+
+        if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
+            const message = 'En eller flere varelinjer mangler produkt';
+            this.toastService.addToast(message, ToastType.bad, 10);
+            return Observable.throw('message');
+        }
+
+        return (this.invoice.ID > 0)
+            ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
+            : this.customerInvoiceService.Post(this.invoice);
+    }
+
+    private saveAndInvoice(done: any) {
+        const isDraft = this.invoice.ID >= 1;
+
+        this.saveInvoice().subscribe(
+            (invoice) => {
+                if (!isDraft) {
+                    done('Faktura fakturert');
+                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                    return;
+                }
+
+                this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
+                    (res) => {
+                        done('Faktura fakturert');
+                        this.customerInvoiceService.Get(res.ID, this.expandOptions).subscribe((refreshed) => {
+                            this.refreshInvoice(refreshed);
+                        });
+                    }
+                );
+            },
+            (err) => {
+                done('Noe gikk galt under fakturering');
+                this.log(err);
+            }
+        );
+    }
+
+    private saveAsDraft(done) {
+        const requiresPageRefresh = !this.invoice.ID;
+        if (!this.invoice.StatusCode) {
+            this.invoice.StatusCode = StatusCode.Draft; // TODO: replace with enum from salesEnums.ts!
+        }
+
+        this.saveInvoice().subscribe(
+            (invoice) => {
+                if (requiresPageRefresh) {
+                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                } else {
+                    this.customerInvoiceService.Get(invoice.ID).subscribe(res => this.refreshInvoice(res));
+                }
+                done('Lagring fullført');
+            },
+            (err) => {
+                done('Noe gikk galt under lagring');
+                this.log(err);
+            }
+        );
+    }
+
+    private saveAndPrint(done) {
+        if (!this.invoice.ID && !this.invoice.StatusCode) {
+            this.invoice.StatusCode = StatusCode.Draft;
+        }
+
+        this.saveInvoice().subscribe(
+            (invoice) => {
+                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                    this.previewModal.openWithId(report, invoice.ID);
+                    done('Lagring fullført');
+                });
+            },
+            (err) => done('Noe gikk galt under lagring')
+        );
+    }
+
+    private creditInvoice(done) {
+        this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID).subscribe(
+            (data) => {
+                done('Kreditering fullført');
+                this.router.navigateByUrl('/sales/invoices/' + data.ID);
+            },
+            (err) => {
+                done('Feil ved kreditering');
+                this.log(err);
+            }
+        );
+    }
+
+    private payInvoice(done) {
+        const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
+
+        // Set up subscription to listen canceled modal
+        if (this.registerPaymentModal.canceled.observers.length === 0) {
+            this.registerPaymentModal.canceled.subscribe(() => {
+                done();
+            });
+        }
+
+        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
+        if (this.registerPaymentModal.changed.observers.length === 0) {
+            this.registerPaymentModal.changed.subscribe((modalData: any) => {
+                this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
+                    done('Betaling registrert');
+                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
+                        this.refreshInvoice(invoice);
+                    });
+                }, (err) => {
+                    done('Feilet ved registrering av betaling');
+                    this.log(err);
+                });
+            });
+        }
+
+        const invoiceData = {
+            Amount: this.invoice.RestAmount,
+            PaymentDate: new Date()
+        };
+
+        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
+    }
+
+    private deleteInvoice(done) {
+        this.customerInvoiceService.Remove(this.invoice.ID, null).subscribe(
+            (res) => {
+                this.router.navigateByUrl('/sales/invoices');
+            },
+            (err) => {
+                done('Noe gikk galt under sletting');
+            }
+        );
+    }
+
+    public nextInvoice() {
+        this.customerInvoiceService.next(this.invoice.ID)
+            .subscribe((data) => {
+                    if (data) {
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    }
+                },
+                (err) => {
+                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
+                }
+            );
+    }
+
+    public previousInvoice() {
+        this.customerInvoiceService.previous(this.invoice.ID)
+            .subscribe((data) => {
+                    if (data) {
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    }
+                },
+                (err) => {
+                    this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
+                }
+            );
     }
 
     // Summary
@@ -311,223 +507,7 @@ export class InvoiceDetails {
                 ];
             },
             (err) => {
-                console.log('Error when recalculating items:', err);
                 this.log(err);
-            }
-        );
-    }
-
-
-    // Save actions
-    private updateSaveActions() {
-        this.saveActions = [];
-
-        // Logic copy-pasted from old invoice component. Needs testing
-        const canRunTransition = (this.invoice.TaxExclusiveAmount > 0) ||
-            (this.itemsSummaryData && this.itemsSummaryData.SumTotalIncVat > 0);
-
-        const status = this.invoice.StatusCode;
-
-        this.saveActions.push({
-            label: 'Lagre',
-            action: (done) => {
-                this.saveInvoice().subscribe(
-                    (invoice) => {
-                        this.refreshInvoice(invoice);
-                        done('Lagring fullført');
-                    },
-                    (err) => done('Noe gikk galt under lagring')
-                );
-            },
-            disabled: status && status !== StatusCodeCustomerInvoice.Draft
-        });
-
-        this.saveActions.push({
-            label: this.creditButtonText,
-            action: (done) => this.creditInvoice(done),
-            disabled: status === StatusCodeCustomerInvoice.Draft
-        });
-
-        this.saveActions.push({
-            label: this.invoiceButtonText, // Fakturer eller Krediter
-            action: (done) => this.saveInvoiceTransition(done, 'invoice', this.getInvoiceDoneText()),
-            disabled: !canRunTransition
-        });
-
-        this.saveActions.push({
-            label: 'Lagre og skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: false
-        });
-
-        this.saveActions.push({
-            label: 'Registrer betaling',
-            action: (done) => this.payInvoice(done),
-            disabled: this.isPayActionDisabled()
-        });
-
-        this.saveActions.push({
-            label: 'Slett',
-            action: (done) => this.deleteInvoice(done),
-            disabled: status !== StatusCodeCustomerInvoice.Draft
-        });
-
-        // Set main save action
-        if (canRunTransition && status !== StatusCodeCustomerInvoice.Invoiced) {
-            this.saveActions[2].main = true;
-        } else if (!this.isPayActionDisabled()) {
-            this.saveActions[4].main = true;
-        } else if (status !== StatusCodeCustomerInvoice.Draft) {
-            this.saveActions[1].main = true;
-        } else {
-            this.saveActions[0].main = true;
-        }
-
-    }
-
-    private isPayActionDisabled() {
-        return this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced
-            && this.invoice.StatusCode !== StatusCodeCustomerInvoice.PartlyPaid;
-    }
-
-    private getInvoiceDoneText() {
-        if (this.invoice.InvoiceType === 1) {
-            return 'Kreditnota kreditert';
-        }
-        return 'Faktura fakturert';
-    }
-
-    private saveInvoiceTransition(done: any, transition: string, doneText: string) {
-        if (transition === 'invoice' && !this.invoice.DeliveryDate) {
-            this.invoice.DeliveryDate = moment();
-        }
-
-        this.saveInvoice().subscribe(
-            (invoice) => {
-                this.refreshInvoice(invoice);
-                this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(
-                    (res) => {
-                        done(doneText);
-                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice1) => {
-                            this.refreshInvoice(invoice1);
-                        });
-                    },
-                    (err) => {
-                        done('Noe gikk galt under fakturering');
-                        this.log(err);
-                    }
-                );
-            },
-            (err) => {
-                done('Noe gikk galt under lagring');
-            }
-        );
-    }
-
-    private saveInvoice(): Observable<CustomerInvoiceExt> {
-        // Transform addresses to flat
-        // REVISIT: Are these needed in the new implementation?
-        this.addressService.addressToInvoice(this.invoice, this.invoice._InvoiceAddress);
-        this.addressService.addressToShipping(this.invoice, this.invoice._ShippingAddress);
-
-        this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-
-        // Prep new orderlines for complex put
-        this.invoice.Items.forEach(item => {
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
-            }
-        });
-
-        if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-            const message = 'En eller flere varelinjer mangler produkt';
-            this.toastService.addToast(message, ToastType.bad, 10);
-            return Observable.throw('message');
-        }
-
-        // return this.customerInvoiceService.Put(this.invoice.ID, this.invoice);
-        return Observable.create((observer) => {
-           this.customerInvoiceService.Put(this.invoice.ID, this.invoice).subscribe(
-               (res) => {
-                   this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
-                       observer.next(invoice);
-                       observer.complete();
-                   });
-                },
-               (err) => {
-                   observer.error(err);
-                   observer.complete();
-               }
-           );
-        });
-    }
-
-    private saveAndPrint(done) {
-        this.saveInvoice().subscribe(
-            (invoice) => {
-                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
-                    this.previewModal.openWithId(report, invoice.ID);
-                    done('Lagring fullført');
-                });
-            },
-            (err) => done('Noe gikk galt under lagring')
-        );
-    }
-
-    private creditInvoice(done) {
-        this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID)
-            .subscribe((data) => {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating credit note: ', err);
-                    done('Feil ved kreditering');
-                    this.log(err);
-                });
-    }
-
-    private payInvoice(done) {
-        const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
-
-        // Set up subscription to listen canceled modal
-        if (this.registerPaymentModal.canceled.observers.length === 0) {
-            this.registerPaymentModal.canceled.subscribe(() => {
-                done();
-            });
-        }
-
-        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
-        if (this.registerPaymentModal.changed.observers.length === 0) {
-            this.registerPaymentModal.changed.subscribe((modalData: any) => {
-                this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
-                    done('Betaling registrert');
-                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
-                        this.refreshInvoice(invoice);
-                    });
-                }, (err) => {
-                    console.log('Error registering payment: ', err);
-                    done('Feilet ved registrering av betaling');
-                    this.log(err);
-                });
-            });
-        }
-
-        const invoiceData = {
-            Amount: this.invoice.RestAmount,
-            PaymentDate: new Date()
-        };
-
-        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
-    }
-
-    private deleteInvoice(done) {
-        this.customerInvoiceService.Remove(this.invoice.ID, null).subscribe(
-            (res) => {
-                this.router.navigateByUrl('/sales/invoices');
-            },
-            (err) => {
-                done('Noe gikk galt under sletting');
             }
         );
     }

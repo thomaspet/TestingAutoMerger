@@ -166,7 +166,6 @@ export class CustomerCard {
 
         this.invoice.Customer = customer;
         this.invoiceChange.next(_.cloneDeep(this.invoice));
-        // this.searchInput.nativeElement.focus();
     }
 
     public performLookup(query: string) {

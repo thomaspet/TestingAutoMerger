@@ -48,19 +48,20 @@ export class InvoiceList implements OnInit {
     }
 
     public createInvoice() {
-        // this.router.navigateByUrl('/sales/invoices/0');
-        this.customerInvoiceService.newCustomerInvoice().then(invoice => {
-            this.customerInvoiceService.Post(invoice)
-                .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating invoice: ', err);
-                    this.log(err);
-                }
-                );
-        });
+        this.router.navigateByUrl('/sales/invoices/0');
+        // this.customerInvoiceService.newCustomerInvoice().then(invoice => {
+        //     this.customerInvoiceService.Post(invoice)
+        //         .subscribe(
+        //         (data) => {
+        //             console.log(invoice);
+        //             this.router.navigateByUrl('/sales/invoices/' + data.ID);
+        //         },
+        //         (err) => {
+        //             console.log('Error creating invoice: ', err);
+        //             this.log(err);
+        //         }
+        //         );
+        // });
     }
 
     public onRegisteredPayment(modalData: any) {
