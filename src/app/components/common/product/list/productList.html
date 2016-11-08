@@ -1,4 +1,5 @@
+<uni-toolbar [config]="{title: 'Produkter', omitFinalCrumb: true}"></uni-toolbar>
 <section class="application">
-    <h2>Produkt</h2><button (click)="createProduct()" class="new-button">Nytt produkt</button>
+    <button (click)="createProduct()" class="new-button">Nytt produkt</button>
     <uni-table [resource]="lookupFunction" [config]="productTable" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>

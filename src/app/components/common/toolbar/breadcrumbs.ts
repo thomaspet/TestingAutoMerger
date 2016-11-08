@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {HamburgerMenu} from '../../layout/navbar/hamburgerMenu/hamburgerMenu';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
@@ -12,6 +12,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
     `
 })
 export class UniBreadcrumbs {
+    @Input() public omitFinalCrumb: boolean;
     private moduleID: UniModules; // The moduleID, as per the TabService
     private crumbs: any[] = []; // Our breadcrumbs array
 
@@ -25,9 +26,9 @@ export class UniBreadcrumbs {
         let components = HamburgerMenu.getAvailableComponents();
         // The object for the parent app, from the hamburger.
         let parentApp = HamburgerMenu.getParentApp(this.moduleID);
-        if (!parentApp) { 
+        if (!parentApp) {
             console.log('UniBreadcrumbs missing moduleID');
-            return; 
+            return;
         }
 
         // Some apps don't have a specific parent, like the dashboard
@@ -39,17 +40,19 @@ export class UniBreadcrumbs {
             });
         }
 
-        // Find the correct component, and add it to the crumbs.
-        parentApp.componentList.find((component) => {
-            if (component.moduleID !== this.moduleID) {
-                return false;
-            } else {
-                this.crumbs.push({
-                    title: component.componentName,
-                    url: '/#' + component.componentUrl
-                });
-                return true;
-            }
-        });
+        if (!this.omitFinalCrumb) {
+            // Find the correct component, and add it to the crumbs.
+            parentApp.componentList.find((component) => {
+                if (component.moduleID !== this.moduleID) {
+                    return false;
+                } else {
+                    this.crumbs.push({
+                        title: component.componentName,
+                        url: '/#' + component.componentUrl
+                    });
+                    return true;
+                }
+            });
+        }
     }
 }

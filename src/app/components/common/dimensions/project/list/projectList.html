@@ -1,4 +1,5 @@
+<uni-toolbar [config]="{title: 'Prosjekter', omitFinalCrumb: true}"></uni-toolbar>
 <section class="application">
-    <h2>Prosjekter</h2><button class="new-button" (click)="createNew()">Nytt prosjekt</button>
+    <button class="new-button" (click)="createNew()">Nytt prosjekt</button>
     <uni-table [resource]="lookupFunction" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>

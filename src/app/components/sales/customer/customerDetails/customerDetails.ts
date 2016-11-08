@@ -1,3 +1,4 @@
+import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
@@ -43,6 +44,15 @@ export class CustomerDetails {
     public emptyAddress: Address;
     public reportLinks: IReference[];
     public showReportWithID: number;
+
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Kunde',
+        navigation: {
+            prev: this.previousCustomer.bind(this),
+            next: this.nextCustomer.bind(this),
+            add: this.addCustomer.bind(this)
+        }
+    };
 
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
 
@@ -135,6 +145,10 @@ export class CustomerDetails {
     private setTabTitle() {
         let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Kunde (kladd)';
         this.tabService.addTab({ url: '/sales/customer/' + this.customer.ID, name: tabTitle, active: true, moduleID: UniModules.Customers });
+
+        this.toolbarconfig.title = this.customer.ID ? this.customer.Info.Name : 'Ny kunde';
+        this.toolbarconfig.subheads = this.customer.ID ? [{title: 'Kundenr. ' + this.customer.ID}] : [];
+
     }
 
     public showReport(id: number) {

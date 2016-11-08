@@ -69,8 +69,8 @@ export class HamburgerMenu {
                     {componentName: 'Legg til bruker', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true},
-                    {componentName: 'Oversikt over uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.Reports},
-                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.UniQuery}
+                    {componentName: 'Oversikt over uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},
+                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.Reports}
                 ]
             },
             {
@@ -130,8 +130,8 @@ export class HamburgerMenu {
                 componentListName: 'Dimensjoner',
                 componentListHeader: 'Dimensjoner',
                 componentList: [
-                    {componentName: 'Prosjekt', componentUrl: '/dimensions/project'},
-                    {componentName: 'Avdeling', componentUrl: '/dimensions/department'}
+                    {componentName: 'Prosjekt', componentUrl: '/dimensions/project', moduleID: UniModules.Projects},
+                    {componentName: 'Avdeling', componentUrl: '/dimensions/department', moduleID: UniModules.Departments}
                 ]
             }
         ];

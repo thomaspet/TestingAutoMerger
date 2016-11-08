@@ -3,7 +3,7 @@ import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {ProjectService} from '../../../../../services/common/ProjectService';
-import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'project-dimensions-list',
@@ -18,7 +18,7 @@ export class ProjectList {
         private router: Router,
         private projectService: ProjectService,
         private tabService: TabService) {
-        this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/project', active: true, moduleID: 22 });
+        this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/project', active: true, moduleID: UniModules.Projects });
         this.setupTable();
     }
 

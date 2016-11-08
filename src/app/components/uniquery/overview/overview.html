@@ -1,5 +1,5 @@
-<section class="query_overview_page">
-    <h1>Oversikt over uttrekk</h1>
+<uni-toolbar [config]="{title: 'Oversikt over uttrekk', omitFinalCrumb: true}"></uni-toolbar>
+<section class="query_overview_page application">
     <button (click)="newQuery()" class="good">Nytt uttrekk</button>
     <section class="query_categories_container">
         <article class="query_group_card" *ngFor="let queryCategory of queryCategories">

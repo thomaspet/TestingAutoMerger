@@ -21,25 +21,25 @@ quote-details
     align-items: stretch
     flex-wrap: wrap
 
-    // Adds a pseudo elem to represent the left gutter
-    &:before
-        content: ''
-        display: block
-        flex-grow: 0
-        height: pxToRem(1)
+    // // Adds a pseudo elem to represent the left gutter
+    // &:before
+    //     content: ''
+    //     display: block
+    //     flex-grow: 0
+    //     height: pxToRem(1)
 
-        // The gutter is 1/2 a unigrid-column...
-        @each $size in map-keys($unigrid-columns)
-            @include media($size)
-                &
-                    width: (unigrid-colWidth($size) / 2)
+    //     // The gutter is 1/2 a unigrid-column...
+    //     @each $size in map-keys($unigrid-columns)
+    //         @include media($size)
+    //             &
+    //                 width: (unigrid-colWidth($size) / 2)
 
-        // ...except on huge viewports, where it's a whole one
-        @include media(huge)
-            &
-                width: unigrid-colWidth(huge)
+    //     // ...except on huge viewports, where it's a whole one
+    //     @include media(huge)
+    //         &
+    //             width: unigrid-colWidth(huge)
 
-        // ...and on mobile where it is gone
+    //     // ...and on mobile where it is gone
 
     // Our main interface is 9cols, half or the whole pw
     .quote-detail

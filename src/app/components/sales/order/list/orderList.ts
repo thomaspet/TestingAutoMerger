@@ -1,3 +1,4 @@
+import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
@@ -22,7 +23,10 @@ export class OrderList {
 
     private orderTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Ordre',
+        omitFinalCrumb: true
+    };
 
     constructor(private router: Router,
                 private customerOrderService: CustomerOrderService,

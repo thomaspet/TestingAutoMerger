@@ -1,4 +1,5 @@
+<uni-toolbar [config]="{title: 'Avdelinger', omitFinalCrumb: true}"></uni-toolbar>
 <section class="application">
-    <h2>Avdelinger</h2><button class="new-button" (click)="createNew()">Ny avdeling</button>
+    <button class="new-button" (click)="createNew()">Ny avdeling</button>
     <uni-table [resource]="lookupFunction" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>

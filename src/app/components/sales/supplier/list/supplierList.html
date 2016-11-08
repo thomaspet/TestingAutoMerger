@@ -1,4 +1,5 @@
+<uni-toolbar [config]="{title: 'Leverandører', omitFinalCrumb: true}"></uni-toolbar>
 <section class="application">
-    <h2>Leverandører</h2><button class="new-button" (click)="createSupplier()">Ny leverandør</button>    
+    <button class="new-button" (click)="createSupplier()">Ny leverandør</button>
     <uni-table [resource]="lookupFunction" [config]="supplierTable" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>

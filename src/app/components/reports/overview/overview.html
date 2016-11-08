@@ -1,5 +1,5 @@
-<div class="report_overview_page">
-    <h1>Rapportoversikt</h1>
+<uni-toolbar [config]="{title: 'Rapportoversikt', omitFinalCrumb: true}"></uni-toolbar>
+<div class="report_overview_page application">
     <figure class="report_group_card" *ngFor="let reportCategory of reportCategories">
         <h2>{{ reportCategory.name }}</h2>
         <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">

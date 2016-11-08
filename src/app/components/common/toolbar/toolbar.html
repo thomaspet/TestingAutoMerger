@@ -1,4 +1,4 @@
-<uni-breadcrumbs *ngIf="!config?.hideBreadcrumbs"></uni-breadcrumbs>
+<uni-breadcrumbs *ngIf="!config?.hideBreadcrumbs" [omitFinalCrumb]="config?.omitFinalCrumb"></uni-breadcrumbs>
 
 <uni-statustrack *ngIf="config?.statustrack"
     [config]="config.statustrack"

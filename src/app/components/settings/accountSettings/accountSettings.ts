@@ -1,10 +1,9 @@
-﻿import {Component, ViewChild} from '@angular/core';
-
+﻿import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import {Component, ViewChild} from '@angular/core';
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-
 import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
@@ -18,6 +17,11 @@ export class AccountSettings {
     public account: Account;
 
     private hasChanges: boolean = false;
+
+    public toolbarconfig: IToolbarConfig = {
+        title: 'Kontoplan',
+        omitFinalCrumb: true
+    };
 
     public saveactions: IUniSaveAction[] = [
         {

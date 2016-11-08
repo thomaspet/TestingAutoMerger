@@ -1,3 +1,4 @@
+import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
@@ -18,6 +19,11 @@ export class CustomerList {
 
     private customerTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Kunder',
+        omitFinalCrumb: true
+    };
 
     constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService, private tabService: TabService) {
         this.tabService.addTab({ name: 'Kunder', url: '/sales/customer', moduleID: UniModules.Customers, active: true });

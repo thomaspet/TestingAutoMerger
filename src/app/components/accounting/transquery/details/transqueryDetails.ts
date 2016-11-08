@@ -1,3 +1,4 @@
+import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
@@ -22,12 +23,15 @@ export class TransqueryDetails implements OnInit {
     private configuredFilter: string;
     private allowManualSearch: boolean = true;
 
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Ny bilagsforespørsel'
+    };
 
     @ViewChild(ImageModal)
     private imageModal: ImageModal;
 
     constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService, private statisticsService: StatisticsService, private toastService: ToastService) {
-        this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
+        this.tabService.addTab({ 'name': 'Forespørsel bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
 
     public ngOnInit() {
@@ -53,8 +57,7 @@ export class TransqueryDetails implements OnInit {
     }
 
     public onFiltersChange(filter: string) {
-
-        var f = this.configuredFilter || filter;
+        let f = this.configuredFilter || filter;
         if (f) {
             f = f.split('Dimensions.').join('');
             var urlParams = new URLSearchParams();

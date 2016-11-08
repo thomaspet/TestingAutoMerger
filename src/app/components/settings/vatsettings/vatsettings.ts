@@ -1,3 +1,4 @@
+import { IToolbarConfig } from './../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {VatTypeList} from './vattypelist/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
@@ -14,12 +15,17 @@ export class VatSettings {
     @ViewChild(VatTypeList) private vatTypeList: VatTypeList;
     @ViewChild(VatTypeDetails) private vatTypeDetails: VatTypeDetails;
 
+
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: UniModules.Vatsettings, active: true })
+        this.tabService.addTab({ name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: UniModules.Vatsettings, active: true });
     }
 
     private vatType: VatType;
     private hasChanges: boolean = false;
+    private toolbarconfig: IToolbarConfig = {
+        title: 'MVA-innstillinger',
+        omitFinalCrumb: true
+    };
 
     private saveactions: IUniSaveAction[] = [
         {

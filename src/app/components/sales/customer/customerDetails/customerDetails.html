@@ -1,20 +1,6 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
 <header class="customer_poster">
-
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="customer?.ID">{{customer.Info.Name}}</h1>
-            <p *ngIf="customer?.ID">Kundenr. {{customer.CustomerNumber}}</p>
-            <h1 *ngIf="!customer?.ID">Ny kunde</h1>
-            <p *ngIf="!customer?.ID">&nbsp;</p>
-        </section>
-
-        <nav class="poster_toolbar_tools">
-            <a (click)="previousCustomer()" class="previous">Forrige</a>
-            <a (click)="nextCustomer()" class="next">Neste</a>
-            <a (click)="addCustomer()" class="new">Ny kunde</a>
-        </nav>
-    </article>
-
     <section class="poster_overview">
         <section class="application">
             <uni-widget-poster [model]="customer" *ngIf="customer?.ID">
@@ -59,7 +45,7 @@
 
 <footer class="full-footer" *ngIf='!showReportWithID'>
     <section class="application">
-        <uni-save [actions]="saveactions"></uni-save> 
+        <uni-save [actions]="saveactions"></uni-save>
     </section>
 </footer>
 

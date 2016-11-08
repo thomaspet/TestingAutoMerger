@@ -1,10 +1,10 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
-    <h1>MVA innstillinger</h1>
     <section class="splitview">
-        <nav class="splitview_list">    
+        <nav class="splitview_list">
             <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
         </nav>
-        <main class="splitview_detail">    
+        <main class="splitview_detail">
             <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)" (change)="changeEvent($event)"></vattype-details>
         </main>
     </section>

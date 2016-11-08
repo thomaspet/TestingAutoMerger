@@ -1,7 +1,5 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
-    <h1 *ngIf="account">Kontoforespørsel {{account.AccountNumber}} - {{account.AccountName}}</h1>
-    <h1 *ngIf="!account">Kontoforespørsel</h1>
-    
     <uni-form [config]="config"
               [fields]="fields"
               [model]="searchParams">

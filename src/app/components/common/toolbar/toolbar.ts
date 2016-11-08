@@ -18,6 +18,7 @@ export interface IToolbarConfig {
     };
     contextmenu?: IContextMenuItem[];
     hideBreadcrumbs?: boolean;
+    omitFinalCrumb?: boolean;
 }
 
 @Component({

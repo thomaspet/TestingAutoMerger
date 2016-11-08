@@ -1,10 +1,10 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class="application">
-    <h2>Ordre</h2><button class="new-button" (click)="createOrder()">Ny ordre</button>
-    <uni-table 
-               [resource]="lookupFunction" 
-               [config]="orderTable" 
+    <button class="new-button" (click)="createOrder()">Ny ordre</button>
+    <uni-table
+               [resource]="lookupFunction"
+               [config]="orderTable"
                (rowSelected)="onRowSelected($event)">
 
     </uni-table>

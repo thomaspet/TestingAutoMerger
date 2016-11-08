@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 import {DepartmentService} from '../../../../../services/common/DepartmentService';
 
 @Component({
@@ -18,7 +18,7 @@ export class DepartmentList {
         private router: Router,
         private departmentService: DepartmentService,
         private tabService: TabService) {
-        this.tabService.addTab({ name: 'Avdelinger', url: '/dimensions/department', active: true, moduleID: 23 });
+        this.tabService.addTab({ name: 'Avdelinger', url: '/dimensions/department', active: true, moduleID: UniModules.Departments });
         this.setupTable();
     }
 

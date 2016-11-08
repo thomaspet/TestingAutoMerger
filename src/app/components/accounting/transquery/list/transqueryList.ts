@@ -1,4 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
+import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
 import {UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from '../../../../../framework/uniform';
 import {Router} from '@angular/router';
@@ -25,6 +26,9 @@ export class TransqueryList {
     private account: any;
     private periods$: Observable<any>;
     private isIncomingBalance: boolean;
+    public toolbarconfig: IToolbarConfig = {
+        title: 'Ny kontoforespørsel'
+    };
 
     constructor(private router: Router,
                 private accountService: AccountService,
@@ -51,6 +55,9 @@ export class TransqueryList {
             this.periods$.subscribe((data) => {
                this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null;
             });
+            this.toolbarconfig.title = account.AccountNumber + ' – ' + account.AccountName;
+        } else {
+            this.toolbarconfig.title = 'Ny kontoforespørsel';
         }
     }
 
