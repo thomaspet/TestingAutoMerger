@@ -40,6 +40,7 @@ export class AMeldingView implements OnInit {
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
     private toolbarConfig: IToolbarConfig;
+    private periodStatus: string;
 
     constructor(
         private _tabService: TabService,
@@ -161,6 +162,7 @@ export class AMeldingView implements OnInit {
             }
             this.updateToolbar();
             this.updateSaveActions();
+            this.setStatusForPeriod();
         });
     }
 
@@ -268,10 +270,30 @@ export class AMeldingView implements OnInit {
                 } else {
                     this.updateToolbar();
                     this.updateSaveActions();
+                    this.setStatusForPeriod();
                 }
             }, error => {
                 this.onError(error);
             });
+    }
+
+    private setStatusForPeriod() {
+        let ameldingerReplaced: any[] = [];
+        let periodStatus: string = 'Venter på tilbakemelding';
+        
+        this.aMeldingerInPeriod.forEach(ameld => {
+            if (ameld.replacesID > 0) {
+                ameldingerReplaced.push(ameld.replacesID);
+            }
+        });
+
+        this.aMeldingerInPeriod.forEach(amelding => {
+            if ((amelding.altinnStatus && amelding.altinnStatus !== 'avvist') && (ameldingerReplaced.indexOf(amelding.ID) < 0)) {
+                periodStatus = amelding.altinnStatus;
+            }
+        });
+        
+        this.periodStatus = periodStatus;
     }
 
     private checkForSaveDone() {
