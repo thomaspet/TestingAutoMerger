@@ -248,8 +248,8 @@ export class InvoiceDetails {
         this.saveActions.push({
             label: 'Fakturer',
             action: done => this.saveAndInvoice(done),
-            disabled: (this.invoice.TaxExclusiveAmount > 0) ||
-                (this.itemsSummaryData && this.itemsSummaryData.SumTotalIncVat > 0)
+            disabled: (!this.invoice.TaxExclusiveAmount) &&
+                (!this.itemsSummaryData || !this.itemsSummaryData.SumTotalIncVat)
         });
 
         this.saveActions.push({
