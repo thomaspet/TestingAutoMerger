@@ -1,10 +1,10 @@
-import {Component, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {WageTypeService, SalaryTransactionService, UniCacheService} from '../../../../services/services';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
-import {Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement} from '../../../../unientities';
-import {UniView} from '../../../../../framework/core/uniView';
-import {Observable} from 'rxjs/Observable';
+import { Component, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { WageTypeService, SalaryTransactionService, UniCacheService } from '../../../../services/services';
+import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
+import { Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement } from '../../../../unientities';
+import { UniView } from '../../../../../framework/core/uniView';
+import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
 
 declare var _;
@@ -26,10 +26,10 @@ export class RecurringPost extends UniView {
     @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     constructor(public router: Router,
-                private wagetypeService: WageTypeService,
-                private salarytransService: SalaryTransactionService,
-                cacheService: UniCacheService,
-                route: ActivatedRoute) {
+        private wagetypeService: WageTypeService,
+        private salarytransService: SalaryTransactionService,
+        cacheService: UniCacheService,
+        route: ActivatedRoute) {
 
         super(router.url, cacheService);
 
@@ -151,7 +151,7 @@ export class RecurringPost extends UniView {
                         let jobName = (employment.JobName || '').toLowerCase();
                         let jobCode = (employment.JobCode || '').toLowerCase();
                         return (jobName.indexOf(searchValue.toLowerCase()) > -1)
-                                || jobCode.startsWith(searchValue.toLowerCase());
+                            || jobCode.startsWith(searchValue.toLowerCase());
                     });
                 },
                 itemTemplate: (selectedItem) => {
@@ -178,7 +178,6 @@ export class RecurringPost extends UniView {
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
-                row['_isDirty'] = true;
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
                     this.mapWagetypeToRecurrinpost(row);
@@ -187,51 +186,61 @@ export class RecurringPost extends UniView {
                 if (event.field === '_Employment') {
                     const employment = row['_Employment'];
                     row['EmploymentID'] = (employment) ? employment.ID : null;
+                    this.getRate(row);
                 }
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
                 }
 
-                if  (event.field === 'recurringPostValidFrom' && row['recurringPostValidFrom']) {
+                if (event.field === 'recurringPostValidFrom' && row['recurringPostValidFrom']) {
                     row['recurringPostValidFrom'] = this.fixTimezone(row['recurringPostValidFrom']);
                 }
 
-                if  (event.field === 'recurringPostValidTo' && row['recurringPostValidTo']) {
+                if (event.field === 'recurringPostValidTo' && row['recurringPostValidTo']) {
                     row['recurringPostValidTo'] = this.fixTimezone(row['recurringPostValidTo']);
                 }
 
-                // Update local array and cache
-                this.recurringPosts[row['_originalIndex']] = row;
-                super.updateState('recurringPosts', this.recurringPosts, true);
+                this.updateAndCacheSalaryTransactionRow(row);
 
                 return row;
             });
     }
 
+    private updateAndCacheSalaryTransactionRow(row) {
+        row['_isDirty'] = true;
+        this.uniTable.updateRow(row['_originalIndex'], row);
+        super.updateState('recurringPosts', this.recurringPosts, true);
+    }
+
     private mapWagetypeToRecurrinpost(rowModel) {
+        if (!rowModel['EmploymentID']) {
+            let employment = this.employments.find(emp => emp.Standard === true);
+            if (employment) {
+                rowModel['EmploymentID'] = employment.ID;
+            }
+        }
+
         let wagetype = rowModel['_Wagetype'];
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
+        rowModel['WageTypeID'] = wagetype.ID;
         rowModel['Amount'] = 1;
         rowModel['Rate'] = wagetype.Rate;
 
-        let employment = this.employments.find(emp => emp.Standard === true);
-        if (employment) {
-            rowModel['EmploymentID'] = employment.ID;
-        }
+        this.getRate(rowModel);
 
         let supplements: SalaryTransactionSupplement[] = [];
 
         if (rowModel['Supplements']) {
-                rowModel['Supplements']
-                    .filter(x => x.ID)
-                    .forEach((supplement: SalaryTransactionSupplement) => {
-                        supplement.Deleted = true;
-                        supplements.push(supplement);
-                    });
-            }
+            rowModel['Supplements']
+                .filter(x => x.ID)
+                .forEach((supplement: SalaryTransactionSupplement) => {
+                    supplement.Deleted = true;
+                    supplements.push(supplement);
+                });
+        }
 
         if (wagetype.SupplementaryInformations) {
 
@@ -243,8 +252,14 @@ export class RecurringPost extends UniView {
             });
             rowModel['Supplements'] = supplements;
         }
+    }
 
-        this.calcItem(rowModel);
+    private getRate(rowModel: SalaryTransaction) {
+        this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']).subscribe(rate => {
+            rowModel['Rate'] = rate;
+            this.calcItem(rowModel);
+            this.updateAndCacheSalaryTransactionRow(rowModel);
+        });
     }
 
     private calcItem(rowModel) {
@@ -252,7 +267,7 @@ export class RecurringPost extends UniView {
         let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round(( ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
+        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
     }
 
@@ -260,16 +275,13 @@ export class RecurringPost extends UniView {
         this.supplementModal.openModal(row);
     }
 
-    public updateSingleSalaryTransaction(trans: SalaryTransaction) {
+    public updateSupplementsOnTransaction(trans: SalaryTransaction) {
         if (trans) {
             let row: SalaryTransaction = this.recurringPosts.find(x => x.ID === trans.ID && !x.Deleted);
             if (row) {
                 row.Supplements = trans.Supplements;
-                row['_isDirty'] = true;
-                this.uniTable.updateRow(row['_originalIndex'], row);
-                super.updateState('recurringPosts', this.recurringPosts, true);
+                this.updateAndCacheSalaryTransactionRow(row);
             }
         }
     }
-
 }

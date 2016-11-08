@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Employee, Employment, EmployeeLeave, SalaryTransaction, SubEntity, SalaryTransactionSupplement} from '../../../unientities';
+import { Employee, Employment, EmployeeLeave, SalaryTransaction, SubEntity, SalaryTransactionSupplement } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService, SubEntityService } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
@@ -428,8 +428,9 @@ export class EmployeeDetails extends UniView {
             let saveCount = 0;
             let hasErrors = false;
 
-            recurringPosts.forEach((post, index) => {
-                if (post['_isDirty'] || post.Deleted) {
+            recurringPosts
+                .filter(post => post['_isDirty'] || post.Deleted)
+                .forEach((post, index) => {
                     changeCount++;
 
                     post.IsRecurringPost = true;
@@ -473,8 +474,7 @@ export class EmployeeDetails extends UniView {
                             this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                         }
                         );
-                }
-            });
+                });
         });
     }
 
