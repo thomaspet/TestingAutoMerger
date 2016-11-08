@@ -1,15 +1,3 @@
-<p *ngIf="validationResult && validationResult.Messages.length > 0">
-    <strong class="journalEntry_validation validation error"
-            *ngFor="let message of validationResult.Messages"
-            [ngClass]="{
-            simplemode: journalEntryMode === 'SIMPLE',
-            promode: journalEntryMode != 'SIMPLE',
-            runassubcomponent: runAsSubComponent
-        }">
-        {{message.Message}}
-    </strong>
-</p>
-
 <section class="modeswitcher">
     <button *ngIf="journalEntryMode == 'PROFESSIONAL'" (click)="setJournalEntryMode('SIMPLE')">Vis forenklet registrering...</button>
     <button *ngIf="journalEntryMode == 'SIMPLE'" (click)="setJournalEntryMode('PROFESSIONAL')">Vis proff registrering...</button>
@@ -43,6 +31,18 @@
     <dd>Kr {{itemsSummaryData.OutgoingVat | number:'1.2-2'}}</dd>
 
 </dl>
+
+<p *ngIf="validationResult && validationResult.Messages.length > 0">
+    <strong class="journalEntry_validation validation error"
+            *ngFor="let message of validationResult.Messages"
+            [ngClass]="{
+            simplemode: journalEntryMode === 'SIMPLE',
+            promode: journalEntryMode != 'SIMPLE',
+            runassubcomponent: runAsSubComponent
+        }">
+        {{message.Message}}
+    </strong>
+</p>
 
 <journal-entry-simple [supplierInvoice]="supplierInvoice"
                       [journalEntryID]="journalEntryID"

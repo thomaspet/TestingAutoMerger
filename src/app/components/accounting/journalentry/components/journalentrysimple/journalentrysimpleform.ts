@@ -271,10 +271,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.form.field('DebitAccountID').focus();
     }
 
-    private onLeaveSameOrNew() {
-        this.form.field('FinancialDate').focus();
-    }
-
     private setFocusAfterFinancialDate() {
         if (this.mode === JournalEntryMode.Payment) {
             this.form.field('InvoiceNumber').focus();
@@ -344,12 +340,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 500,
-            index: this.journalalternativesindex,
-            events: {
-                enter: (event) => {
-                    this.onLeaveSameOrNew();
-                }
-            }
+            index: this.journalalternativesindex
         };
 
         var finanicalDate = new UniFieldLayout();
@@ -361,15 +352,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         finanicalDate.Property = 'FinancialDate';
         finanicalDate.ReadOnly = false;
         finanicalDate.Options = {
-            events: {
-                tab: (event) => {
-                    this.setFocusAfterFinancialDate();
-                },
-                enter: (event) => {
-                    this.setFocusAfterFinancialDate();
-                }
-            }
-        }
+        };
 
         var invoiceNumber = new UniFieldLayout();
         invoiceNumber.FieldSet = 0;
@@ -382,8 +365,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         invoiceNumber.Hidden = this.mode !== JournalEntryMode.Payment;
         invoiceNumber.Options = {
             events: {
-                blur: () => this.onLeaveInvoiceNumber(),
-                enter: () => this.form.field('DebitAccountID').focus()
+                blur: () => this.onLeaveInvoiceNumber()
             }
         };
 
@@ -441,12 +423,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             displayProperty: 'VatCode',
             valueProperty: 'ID',
             template: (vattype: VatType) => vattype ? `${vattype.VatCode}: ${vattype.VatPercent}% – ${vattype.Name}` : '',
-            debounceTime: 100,
-            events: {
-                enter: (event) => {
-                        this.form.field('CreditAccountID').focus();
-                }
-            }
+            debounceTime: 100
         };
 
         var creditAccount = new UniFieldLayout();
@@ -503,12 +480,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             displayProperty: 'VatCode',
             valueProperty: 'ID',
             template: (vattype: VatType) => vattype ? `${vattype.VatCode}: ${vattype.VatPercent}% – ${vattype.Name}` : '',
-            debounceTime: 100,
-            events: {
-                enter: (event) => {
-                    this.form.field('Amount').focus();
-                }
-            }
+            debounceTime: 100
         };
 
         var amount = new UniFieldLayout();
@@ -520,11 +492,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         amount.Property = 'Amount';
         amount.ReadOnly = false;
         amount.Options = {
-            events: {
-                enter: (event) => {
-                    this.form.field('Description').focus();
-                }
-            }
         };
 
         var department = new UniFieldLayout();
@@ -573,16 +540,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         description.ReadOnly = false;
         description.Classes = 'large-field';
         description.Options = {
-            events: {
-                enter: (event) => {
-                    if (!this.isEditMode) {
-                        this.form.field('AddButton').focus();
-                    } else {
-                        this.form.field('UpdateButton').focus();
-                    }
-                }
-            }
-        }
+        };
 
         var addButton = new UniFieldLayout();
         addButton.FieldSet = 0;

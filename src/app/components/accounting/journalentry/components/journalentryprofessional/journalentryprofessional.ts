@@ -63,8 +63,8 @@ export class JournalEntryProfessional implements OnInit {
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
-            this.vatTypeService.GetAll(null),
-            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
+            this.vatTypeService.GetAll('orderby=VatCode'),
+            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber', ['VatType']),
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
         ).subscribe(
             (data) => {
@@ -116,6 +116,26 @@ export class JournalEntryProfessional implements OnInit {
             // because we need the updated alternatives to reuse the same method
             this.setupSameNewAlternatives();
         });
+    }
+
+    private calculateNetAmount(rowModel) {
+        if (rowModel.DebitAccount && rowModel.DebitVatType) {
+            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, rowModel.Amount, null);
+            rowModel.NetAmount = calc.amountNet;
+        } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
+            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, rowModel.Amount, null);
+            rowModel.NetAmount = calc.amountNet;
+        }
+    }
+
+    private calculateGrossAmount(rowModel) {
+        if (rowModel.DebitAccount && rowModel.DebitVatType) {
+            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, null, rowModel.NetAmount);
+            rowModel.Amount = calc.amountGross;
+        } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
+            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
+            rowModel.Amount = calc.amountGross;
+        }
     }
 
     private setDebitAccountProperties(rowModel) {
@@ -203,11 +223,10 @@ export class JournalEntryProfessional implements OnInit {
     private setupUniTable() {
 
         let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('6%')
-            .setSkipOnEnterKeyNavigation(true)
             .setEditorOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0)]);
+                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0 || (searchValue === '+' && alternative.ID === this.SAME_OR_NEW_NEW))]);
                 },
                 itemTemplate: (item) => {
                     return item ? item.Name : '';
@@ -246,7 +265,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]);
+                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
                 }
             });
 
@@ -257,16 +276,16 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.DebitVatType) {
                     let vatType = rowModel.DebitVatType;
-                    return vatType.VatCode + ': ' + vatType.VatPercent + '%';
+                    return `${vatType.VatCode}: ${vatType.VatPercent}%`;
                 }
                 return '';
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.VatCode + ': ' + item.Name + ' - ' + item.VatPercent + '%');
+                    return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue)]);
+                    return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
                 }
             });
 
@@ -285,7 +304,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]);
+                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
                 }
             });
 
@@ -295,20 +314,21 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.CreditVatType) {
                     let vatType = rowModel.CreditVatType;
-                    return vatType.VatCode + ': ' + vatType.VatPercent + '%';
+                    return `${vatType.VatCode}: ${vatType.VatPercent}%`;
                 }
                 return '';
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.VatCode + ': ' + item.Name + ' - ' + item.VatPercent + '%');
+                    return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue)]);
+                   return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
                 }
             });
 
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number).setWidth('7%');
+        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Number).setWidth('7%').setSkipOnEnterKeyNavigation(true);
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth('8%')
@@ -367,7 +387,7 @@ export class JournalEntryProfessional implements OnInit {
         if (this.mode === JournalEntryMode.Supplier) {
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
 
-            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, amountCol,
+            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol];
         } else if (this.mode === JournalEntryMode.Payment) {
             debitAccountCol.setSkipOnEnterKeyNavigation(true);
@@ -382,7 +402,7 @@ export class JournalEntryProfessional implements OnInit {
                  descriptionCol];
         } else {
 
-            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol,
+            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol];
         }
 
@@ -405,14 +425,22 @@ export class JournalEntryProfessional implements OnInit {
                     this.setJournalEntryNumberProperties(newRow);
                 }
 
-                if (event.field === 'DebitAccount') {
+                if (event.field === 'Amount') {
+                    this.calculateNetAmount(newRow);
+                } else if (event.field === 'NetAmount') {
+                    this.calculateGrossAmount(newRow);
+                } else if (event.field === 'DebitAccount') {
                     this.setDebitAccountProperties(newRow);
+                    this.calculateNetAmount(newRow);
                 } else if (event.field === 'CreditAccount') {
                     this.setCreditAccountProperties(newRow);
+                    this.calculateNetAmount(newRow);
                 } else if (event.field === 'DebitVatType') {
                     this.setDebitVatTypeProperties(newRow);
+                    this.calculateNetAmount(newRow);
                 } else if (event.field === 'CreditVatType') {
                     this.setCreditVatTypeProperties(newRow);
+                    this.calculateNetAmount(newRow);
                 } else if (event.field === 'Dimensions.Department') {
                     this.setDepartmentProperties(newRow);
                 } else if (event.field === 'Dimensions.Project') {
@@ -427,6 +455,7 @@ export class JournalEntryProfessional implements OnInit {
 
         setTimeout(() => {
             this.setupSameNewAlternatives();
+            this.table.focusRow(0);
         });
 
     }

@@ -31,7 +31,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private journalEntryMode: string;
 
-    private itemsSummaryData: JournalEntrySimpleCalculationSummary;
+    private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
+
     public validationResult: any;
 
     private saveactions: IUniSaveAction[] = [
@@ -141,11 +142,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private setupSubscriptions() {
         setTimeout(() => {
             if (this.journalEntryProfessional) {
-                this.journalEntryProfessional.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
+                this.journalEntryProfessional.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
             }
 
             if (this.journalEntrySimple) {
-                this.journalEntrySimple.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
+                this.journalEntrySimple.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
             }
         });
     }
@@ -171,18 +172,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private calculateItemSums(data: JournalEntryData[]) {
+        this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data);
+
+        /*
+        KE 08.11.2016: Switch to running the summaries locally.
         this.journalEntryService.calculateJournalEntrySummary(data)
-            .subscribe((data) => {
-                this.itemsSummaryData = data;
+            .subscribe((sumdata) => {
+                this.itemsSummaryData = sumdata;
             },
             (err) => {
                 console.log('Error when recalculating journal entry summary:', err);
-
             }
-            );
+        );
+        */
     }
 
     private validateJournalEntryData(data: JournalEntryData[]) {
+        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data);
+
+        /*
+        KE 08.11.2016: Switch to running the validations locally. The serverside validation is executed when posting anyway
         this.journalEntryService.validateJournalEntryData(data)
             .subscribe(
             result => {
@@ -191,6 +200,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             err => {
                 console.log('error int validateJournalEntryData:', err);
             });
+        */
     }
 
     private postJournalEntryData(completeCallback) {

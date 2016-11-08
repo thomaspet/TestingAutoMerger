@@ -4,8 +4,17 @@ import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {JournalEntry} from '../../unientities';
+import {JournalEntry, ValidationResult, ValidationMessage} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
+
+
+class JournalEntryLineCalculation {
+    amountGross: number;
+    amountNet: number;
+    outgoingVatAmount: number;
+    incomingVatAmount: number;
+}
 
 declare var moment;
 
@@ -86,6 +95,46 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>): ValidationResult {
+        let result: ValidationResult = new ValidationResult();
+        result.Messages = [];
+
+        let sortedJournalEntries = journalDataEntries.sort((a, b) => a.JournalEntryNo > b.JournalEntryNo ? 1 : 0);
+
+        let lastJournalEntryNo: string = '';
+        let currentSumDebit: number = 0;
+        let currentSumCredit: number = 0;
+
+        sortedJournalEntries.forEach(entry => {
+            if (lastJournalEntryNo !== entry.JournalEntryNo) {
+                if (currentSumDebit !== currentSumCredit * -1) {
+                    let message = new ValidationMessage();
+                    message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
+                    result.Messages.push(message);
+                }
+
+                lastJournalEntryNo = entry.JournalEntryNo;
+                currentSumCredit = 0;
+                currentSumDebit = 0;
+            }
+
+            if (entry.DebitAccount) {
+                currentSumCredit += entry.Amount;
+            }
+            if (entry.CreditAccount) {
+                currentSumCredit -= entry.Amount;
+            }
+        });
+
+        if (currentSumDebit !== currentSumCredit * -1) {
+            let message = new ValidationMessage();
+            message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
+            result.Messages.push(message);
+        }
+
+        return result;
+    }
+
     public validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
             .asPOST()
@@ -113,6 +162,116 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send()
             .map(response => response.json());
     }
+
+    public calculateJournalEntrySummaryLocal(journalDataEntries: Array<JournalEntryData>): JournalEntrySimpleCalculationSummary {
+        let sum: JournalEntrySimpleCalculationSummary = {
+            IncomingVat: 0,
+            OutgoingVat: 0,
+            SumCredit: 0,
+            SumCreditNet: 0,
+            SumDebet: 0,
+            SumDebetNet: 0,
+            Differance: 0
+        };
+
+        if (journalDataEntries) {
+            journalDataEntries.forEach(entry => {
+                let debitData = this.calculateJournalEntryData(entry.DebitAccount, entry.DebitVatType, entry.Amount, null);
+                let creditData =  this.calculateJournalEntryData(entry.CreditAccount, entry.CreditVatType, entry.Amount * -1, null);
+
+                sum.SumDebet += debitData.amountNet;
+                sum.SumCredit += creditData.amountNet;
+
+                let incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
+                sum.IncomingVat += incomingVat;
+                let outgoingVat = debitData.outgoingVatAmount + creditData.outgoingVatAmount;
+                sum.OutgoingVat += outgoingVat;
+
+                if (incomingVat > 0) {
+                    sum.SumDebet += incomingVat;
+                } else {
+                    sum.SumCredit += incomingVat;
+                }
+
+                if (outgoingVat > 0) {
+                    sum.SumDebet += outgoingVat;
+                } else {
+                    sum.SumCredit += outgoingVat;
+                }
+            });
+        }
+
+        sum.SumCredit = sum.SumCredit * -1;
+        sum.OutgoingVat = sum.OutgoingVat * -1;
+        sum.Differance = sum.SumDebet - sum.SumCredit;
+
+        return sum;
+    }
+
+    public calculateJournalEntryData(account: Account, vattype: VatType, grossAmount: number, netAmount: number): JournalEntryLineCalculation {
+        let res: JournalEntryLineCalculation = {
+            amountGross: 0,
+            amountNet: 0,
+            incomingVatAmount: 0,
+            outgoingVatAmount: 0
+        };
+
+        if (!grossAmount && !netAmount) {
+            return res;
+        }
+
+        if (account) {
+            if (vattype) {
+                if (grossAmount) {
+                    res.amountGross = grossAmount;
+
+                    res.amountNet = vattype.ReversedTaxDutyVat ?
+                        vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                            res.amountGross
+                            : res.amountGross * (1 + (vattype.VatPercent / 100))
+                        : res.amountGross / (1 + (vattype.VatPercent / 100));
+                } else if (netAmount) {
+                    res.amountNet = netAmount;
+
+                    res.amountGross = vattype.ReversedTaxDutyVat ?
+                        vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                            res.amountNet
+                            : res.amountNet / (1 + (vattype.VatPercent / 100))
+                        : res.amountNet * (1 + (vattype.VatPercent / 100));
+                }
+
+                let taxBasisAmount = vattype.ReversedTaxDutyVat ? res.amountGross : res.amountGross / (1 + (vattype.VatPercent / 100));
+
+                if (vattype.ReversedTaxDutyVat) {
+                    if (vattype.OutgoingAccountID) {
+                        res.outgoingVatAmount += -1 * (taxBasisAmount * vattype.VatPercent / 100);
+                    } else if (vattype.IncomingAccountID) {
+                        res.incomingVatAmount += -1 * (taxBasisAmount * vattype.VatPercent / 100);
+                    }
+                }
+
+                if (!(vattype.ReversedTaxDutyVat && !vattype.IncomingAccountID)) {
+                    if (vattype.IncomingAccountID) {
+                        res.incomingVatAmount += (taxBasisAmount * vattype.VatPercent) / 100;
+                    } else if (vattype.OutgoingAccountID) {
+                        res.outgoingVatAmount += (taxBasisAmount * vattype.VatPercent) / 100;
+                    }
+                }
+
+            } else {
+                if (grossAmount) {
+                    res.amountGross = grossAmount;
+                    res.amountNet = grossAmount;
+                } else if (netAmount) {
+                    res.amountGross = netAmount;
+                    res.amountNet = netAmount;
+                }
+            }
+        }
+
+        return res;
+    }
+
 
     public calculateJournalEntrySummary(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
