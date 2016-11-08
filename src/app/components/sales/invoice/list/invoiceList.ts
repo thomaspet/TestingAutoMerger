@@ -6,19 +6,16 @@ import {CustomerInvoiceService, ReportDefinitionService} from '../../../../servi
 import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
-import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ISummaryConfig} from '../../../common/summary/summary';
 
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html'
 })
 export class InvoiceList implements OnInit {
-    private invoiceTable: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
-
     @ViewChild(RegisterPaymentModal)
     private registerPaymentModal: RegisterPaymentModal;
 
@@ -26,16 +23,24 @@ export class InvoiceList implements OnInit {
 
     @ViewChild(UniTable) private table: UniTable;
 
-    private summaryData: InvoiceSummary;
+    private invoiceTable: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
+
+    private summaryConfig: ISummaryConfig[];
 
     constructor(private uniHttpService: UniHttp,
-        private router: Router,
-        private customerInvoiceService: CustomerInvoiceService,
-        private reportDefinitionService: ReportDefinitionService,
-        private tabService: TabService) {
+                private router: Router,
+                private customerInvoiceService: CustomerInvoiceService,
+                private reportDefinitionService: ReportDefinitionService,
+                private tabService: TabService) {
 
         this.setupInvoiceTable();
         this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+        this.summaryConfig = [
+            {title: 'Totalsum', value: '0'},
+            {title: 'Restsum', value: '0'},
+            {title: 'Sum krediter', value: '0'},
+        ];
     }
 
     private log(err) {
@@ -49,23 +54,9 @@ export class InvoiceList implements OnInit {
 
     public createInvoice() {
         this.router.navigateByUrl('/sales/invoices/0');
-        // this.customerInvoiceService.newCustomerInvoice().then(invoice => {
-        //     this.customerInvoiceService.Post(invoice)
-        //         .subscribe(
-        //         (data) => {
-        //             console.log(invoice);
-        //             this.router.navigateByUrl('/sales/invoices/' + data.ID);
-        //         },
-        //         (err) => {
-        //             console.log('Error creating invoice: ', err);
-        //             this.log(err);
-        //         }
-        //         );
-        // });
     }
 
     public onRegisteredPayment(modalData: any) {
-
         this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             // TODO: Decide what to do here. Popup message or navigate to journalentry ??
             // this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
@@ -292,14 +283,13 @@ export class InvoiceList implements OnInit {
     }
 
     public onFiltersChange(filter: string) {
-        this.customerInvoiceService
-            .getInvoiceSummary(filter)
+        this.customerInvoiceService.getInvoiceSummary(filter)
             .subscribe((summary) => {
-                this.summaryData = summary;
-            },
-            (err) => {
-                console.log('Error retrieving summarydata:', err);
-                this.summaryData = null;
+                this.summaryConfig = [
+                    {title: 'Totalsum', value: summary.SumTotalAmount},
+                    {title: 'Restsum', value: summary.SumRestAmount},
+                    {title: 'Sum kreditert', value: summary.SumCreditedAmount},
+                ];
             });
     }
 }

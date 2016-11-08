@@ -2,20 +2,13 @@
 
 <section class="application">
     <h2>Faktura</h2><button class="new-button" (click)="createInvoice()">Ny faktura</button>
-    <uni-table 
-        [resource]="lookupFunction" 
-        [config]="invoiceTable" 
+    <uni-table
+        [resource]="lookupFunction"
+        [config]="invoiceTable"
         (rowSelected)="onRowSelected($event.rowModel)"
         (filtersChange)="onFiltersChange($event.filter)">
     </uni-table>
-    <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">
-        <dt>Totalsum</dt>
-        <dd>Kr. {{summaryData.SumTotalAmount}}</dd>
-        <dt>Restsum</dt>
-        <dd>Kr. {{summaryData.SumRestAmount}}</dd>
-        <dt>Sum kreditert</dt>
-        <dd>Kr. {{summaryData.SumCreditedAmount}}</dd>        
-    </dl>
+    <uni-summary [configs]="summaryConfig"></uni-summary>
 </section>
 <register-payment-modal (changed)="onRegisteredPayment($event)"></register-payment-modal>
 <report-preview-modal></report-preview-modal>
