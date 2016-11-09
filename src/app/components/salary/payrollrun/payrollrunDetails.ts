@@ -13,6 +13,7 @@ import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
 declare var _;
 
@@ -40,7 +41,13 @@ export class PayrollrunDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
 
-    constructor(private route: ActivatedRoute, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
+    constructor(
+        private route: ActivatedRoute, 
+        private payrollrunService: PayrollrunService, 
+        private router: Router, private tabSer: TabService, 
+        private _rootRouteParamsService: RootRouteParamsService,
+        private _toastService: ToastService
+    ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
             this._rootRouteParamsService.params = params;
@@ -333,14 +340,17 @@ export class PayrollrunDetails {
         this.fields = _.cloneDeep(this.fields);
 
         if (!this.payrollrun.Description) {
-            setTimeout(() => {
-                if (!this.uniform.section(1).isOpen) {
-                    this.uniform.section(1).toggle();
-                }
-            }, 100);
+            this.uniform.section(1).toggle();
         }
-
     }
+
+    public toggle(section) {
+        if (section.isOpen && section.sectionId === 1 && this.payrollrun.Description === '') {
+            this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
+            this.uniform.field('Description').focus();
+        }
+    }
+
 
     public salarytransReady(value) {
         if (this.payrollrun) {
