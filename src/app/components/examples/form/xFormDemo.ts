@@ -221,6 +221,7 @@ export class XFormDemo {
             checkboxgroupTest.ReadOnly = false;
             checkboxgroupTest.Placeholder = 'Select';
             checkboxgroupTest.Options = {
+                multivalue: false,
                 source: [
                     { id: 1, name: 'Jorge' },
                     { id: 2, name: 'Frank' },

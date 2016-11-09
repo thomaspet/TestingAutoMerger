@@ -82,6 +82,7 @@ export class UniCheckboxgroupInput {
             } else if (typeof this.field.Options.source === 'string') {
                 // TODO: manage lookup url;
             }
+            this.selectedItems = _.get(this.model,this.field.Property) || [];
         }
     }
     
@@ -93,19 +94,48 @@ export class UniCheckboxgroupInput {
     }
     
     public checkIt(item) {
-        var itemValue = _.get(item, this.field.Options.valueProperty);
-        if (this.isChecked(item)) {
-            _.set(this.model, this.field.Property, null);
-            this.changeEvent.emit(this.model);
-            return;
+        const itemValue = _.get(item, this.field.Options.valueProperty);
+        if (!this.isChecked(item)) {
+            if (this.field.Options.multivalue !== false) {
+                const exists = this.selectedItems.indexOf(itemValue) >= 0;
+                if (exists) {
+                    _.set(this.model, this.field.Property, this.selectedItems);
+                    this.changeEvent.emit(this.model);
+                } else {
+                    this.selectedItems.push(itemValue);
+                    _.set(this.model, this.field.Property, this.selectedItems);
+                    this.changeEvent.emit(this.model);
+                }
+            } else {
+                _.set(this.model, this.field.Property, itemValue);
+                this.changeEvent.emit(this.model);
+            }
+        } else {
+            if (this.field.Options.multivalue !== false) {
+                const index = this.selectedItems.indexOf(itemValue);
+                const exists = index >= 0;
+                if (exists) {
+                    this.selectedItems.splice(index, 1);
+                    _.set(this.model, this.field.Property, this.selectedItems);
+                    this.changeEvent.emit(this.model);
+                } else {
+                    _.set(this.model, this.field.Property, this.selectedItems);
+                    this.changeEvent.emit(this.model);
+                }
+            } else {
+                _.set(this.model, this.field.Property, null);
+                this.changeEvent.emit(this.model);
+            }
         }
-        _.set(this.model, this.field.Property, itemValue);
-        this.changeEvent.emit(this.model);
     }
     
     public isChecked(item) {
-        var itemValue = _.get(item, this.field.Options.valueProperty);
-        var modelValue = _.get(this.model, this.field.Property);
-        return itemValue === modelValue; 
+        const itemValue = _.get(item, this.field.Options.valueProperty);
+        if (this.field.Options.multivalue !== false) {
+            return this.selectedItems.indexOf(itemValue) >= 0;
+        } else {
+            const modelValue = _.get(this.model, this.field.Property);
+            return itemValue === modelValue;
+        }
     }
 }
