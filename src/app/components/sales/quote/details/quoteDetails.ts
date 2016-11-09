@@ -1,14 +1,13 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import {Observable} from 'rxjs/Rx';
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
-import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {ProjectService, DepartmentService, AddressService, ReportDefinitionService, UserService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
+import {FieldType, CustomerQuote, Customer, User} from '../../../../unientities';
 import {Address, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
@@ -19,7 +18,11 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import { ISummaryConfig } from '../../../common/summary/summary';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {AuthService} from '../../../../../framework/core/authService';
+import {ISummaryConfig} from '../../../common/summary/summary';
 
 declare const _;
 declare const moment;
@@ -42,6 +45,7 @@ export class QuoteDetails {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     public config: any = {};
     public fields: any[] = [];
@@ -64,34 +68,64 @@ export class QuoteDetails {
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
+    private user: User;
     public summary: ISummaryConfig[] = [];
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Customer', 'Customer.Info', 'Customer.Info.DefaultEmail', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
-    constructor(
-        private customerService: CustomerService,
-        private customerQuoteService: CustomerQuoteService,
-        private customerQuoteItemService: CustomerQuoteItemService,
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private addressService: AddressService,
-        private businessRelationService: BusinessRelationService,
-        private reportDefinitionService: ReportDefinitionService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
+    constructor(private customerService: CustomerService,
+                private customerQuoteService: CustomerQuoteService,
+                private customerQuoteItemService: CustomerQuoteItemService,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService,
+                private addressService: AddressService,
+                private businessRelationService: BusinessRelationService,
+                private reportDefinitionService: ReportDefinitionService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
+                private authService: AuthService,
+                private userService: UserService,
 
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService) { }
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService) {
 
-    public ngOnInit() {
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
             this.setSums();
             this.setup();
         });
+
+        this.contextMenuItems = [
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerQuote';
+                    sendemail.EntityID = this.quote.ID;
+                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                    sendemail.EmailAddress = this.quote.Customer.Info.DefaultEmail ? this.quote.Customer.Info.DefaultEmail.EmailAddress : '';
+                    sendemail.CopyAddress = this.user.Email;
+                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd') +
+                                        '\n\nMed vennlig hilsen\n' +
+                                        this.companySettings.CompanyName + '\n' +
+                                        this.user.DisplayName + '\n' +
+                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((sendemail) => {
+                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', sendemail);
+                        });
+                    }
+                },
+                disabled: () => !this.quote.ID
+            }
+        ];
     }
     private log(err) {
         this.toastService.addToast(err._body, ToastType.bad);
@@ -200,12 +234,17 @@ export class QuoteDetails {
     private setup() {
         this.deletedItems = [];
 
-        this.companySettingsService.Get(1)
+        this.companySettingsService.Get(1, ['DefaultEmail'])
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
+
+        let jwt = this.authService.jwtDecoded;
+        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
+            this.user = users[0];
+        });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -375,7 +414,8 @@ export class QuoteDetails {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
                 add: this.addQuote.bind(this)
-            }
+            },
+            contextmenu: this.contextMenuItems
         };
     }
 

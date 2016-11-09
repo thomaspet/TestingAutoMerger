@@ -142,7 +142,7 @@ export class EmailModal {
         };
     }
 
-    public openModal(email: Email) {  
+    public openModal(email: Email) {
         this.modalConfig.model = email;    
         this.modal.open();
     }

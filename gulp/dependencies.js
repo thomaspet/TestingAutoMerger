@@ -23,6 +23,9 @@ gulp.task('dependencies', function() {
 
             // File saver
             './node_modules/file-saver/filesaver.min.js',
+
+            // Base64
+            './node_modules/base64-js/base64js.min.js'
         ], {
             base: './node_modules'
         })

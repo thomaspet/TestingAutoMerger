@@ -6,7 +6,7 @@ import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, B
 import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, Address} from '../../../../unientities';
+import {CustomerInvoice, Address, User} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -17,9 +17,13 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {CustomerCard} from './customerCard';
 import {InvoiceItems} from './invoiceItems';
-
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {AuthService} from '../../../../../framework/core/authService';
+import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 
 declare const _;
 declare const moment;
@@ -50,6 +54,9 @@ export class InvoiceDetails {
     @ViewChild(InvoiceItems)
     private invoiceItems: InvoiceItems;
 
+    @ViewChild(SendEmailModal)
+    private sendEmailModal: SendEmailModal;
+
     @Input()
     public invoiceID: any;
 
@@ -66,6 +73,8 @@ export class InvoiceDetails {
     private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
+    private user: User;
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
@@ -81,6 +90,7 @@ export class InvoiceDetails {
                 private companySettingsService: CompanySettingsService,
                 private userService: UserService,
                 private toastService: ToastService,
+                private authService: AuthService,
 
                 private router: Router,
                 private route: ActivatedRoute,
@@ -107,15 +117,46 @@ export class InvoiceDetails {
             }
         });
 
+        // contextMenu
+        this.contextMenuItems = [
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerInvoice';
+                    sendemail.EntityID = this.invoice.ID;
+                    sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+                    sendemail.EmailAddress = this.invoice.Customer.Info.DefaultEmail ? this.invoice.Customer.Info.DefaultEmail.EmailAddress : '';
+                    sendemail.CopyAddress = this.user.Email;
+                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd') +
+                                        '\n\nMed vennlig hilsen\n' +
+                                        this.companySettings.CompanyName + '\n' +
+                                        this.user.DisplayName + '\n' +
+                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                        });
+                    }
+                },
+                disabled: () => !this.invoice.ID
+            }
+        ];
+
         // Get data for subentities once
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
-            this.companySettingsService.Get(1)
+            this.companySettingsService.Get(1, ['DefaultEmail']),
+            this.userService.Get(`?filter=GlobalIdentity eq '${this.authService.jwtDecoded.nameid}'`)
         ).subscribe((response) => {
             this.departments = response[0];
             this.projects = response[1];
             this.companySettings = response[2];
+            this.user = response[3][0];
         });
 
         // Subscribe to route param changes and update invoice data
@@ -201,7 +242,7 @@ export class InvoiceDetails {
 
     private updateTabTitle() {
         var tabTitle;
-        if (this.invoice.InvoiceType === 1) {
+        if (this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
             tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
         } else {
             tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
@@ -212,7 +253,7 @@ export class InvoiceDetails {
     private updateToolbar() {
         let invoiceText = '';
         if (this.invoice.InvoiceNumber) {
-            const prefix = this.invoice.InvoiceType === 0 ? 'Fakturanr.' : 'Kreditnota.';
+            const prefix = this.invoice.InvoiceType === InvoiceTypes.Invoice ? 'Fakturanr.' : 'Kreditnota.';
             invoiceText = `${prefix} ${this.invoice.InvoiceNumber}`;
         }
 
@@ -230,10 +271,11 @@ export class InvoiceDetails {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
                 add: () => this.router.navigateByUrl('/sales/invoices/0')
-            }
+            },
+            contextmenu: this.contextMenuItems
         };
 
-        if (this.invoice.InvoiceType === 1 && this.invoice.InvoiceReference) {
+        if (this.invoice.InvoiceType === InvoiceTypes.CreditNote && this.invoice.InvoiceReference) {
             toolbarconfig.subheads.push({
                 title: `Kreditering av faktura nr. ${this.invoice.InvoiceReference.InvoiceNumber}`,
                 link: `#/sales/invoices/${this.invoice.InvoiceReference.ID}`
@@ -446,26 +488,27 @@ export class InvoiceDetails {
     }
 
     public nextInvoice() {
-        this.customerInvoiceService.next(this.invoice.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                    }
-                },
-                (err) => {
-                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
+        this.customerInvoiceService.getNextID(this.invoice.ID)
+            .subscribe((invoiceID) => {
+                if (invoiceID) {
+                    this.router.navigateByUrl('/sales/invoices/' + invoiceID);
                 }
-            );
+            },
+            (err) => {
+                console.log('Error getting next invoice: ', err);
+                this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
+            });
     }
 
     public previousInvoice() {
-        this.customerInvoiceService.previous(this.invoice.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+        this.customerInvoiceService.getPreviousID(this.invoice.ID)
+            .subscribe((invoiceID) => {
+                    if (invoiceID) {
+                        this.router.navigateByUrl('/sales/invoices/' + invoiceID);
                     }
                 },
                 (err) => {
+                    console.log('Error getting previous invoice: ', err);
                     this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
                 }
             );

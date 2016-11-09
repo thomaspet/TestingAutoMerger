@@ -1,4 +1,4 @@
-import {Http} from '@angular/http';
+import {Http, RequestMethod} from '@angular/http';
 import {Injectable, Inject} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
@@ -7,7 +7,9 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
-import {ReportDefinitionDataSourceService} from '../services';
+import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
+import {ReportDefinitionDataSourceService, EmailService} from '../services';
+import {SendEmail} from '../../models/sendEmail';
 import {AuthService} from '../../../framework/core/authService';
 
 export class ReportParameter extends ReportDefinitionParameter {
@@ -30,11 +32,15 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private target: any;
     private baseHttp: Http;
     private format: string;
+    private sendemail: SendEmail;
+    private emailtoast: number;
 
     constructor(
         private uniHttp: UniHttp,
         private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
         private reportGenerator: StimulsoftReportWrapper,
+        private emailService: EmailService,
+        private toastService: ToastService,
         private authService: AuthService) {
 
         super(uniHttp);
@@ -65,6 +71,22 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.generateReport();
     }
 
+    public generateReportSendEmail(name: string, sendemail: SendEmail) {
+        if (sendemail.EmailAddress.indexOf('@') <= 0) {
+            this.toastService.addToast('Sending av epost feilet', ToastType.bad, 3, 'Grunnet manglende epostadresse');
+        } else {
+            this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
+
+            this.getReportByName(name).subscribe((report) => {
+                report.parameters = [{Name: 'Id', value: sendemail.EntityID}];
+
+                this.format = sendemail.Format;
+                this.report = <Report>report;
+                this.sendemail = sendemail;
+                this.generateReport();
+            });
+        }
+    }
 
     private generateReport() {
         // Add logo url to report
@@ -100,7 +122,8 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         let observableBatch = [];
 
         for (const ds of this.report.dataSources) {
-            let url: string = ds.DataSourceUrl;   
+            let url: string = ds.DataSourceUrl;
+
             observableBatch.push(
                 this.http
                 .asGET()
@@ -127,10 +150,28 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
         // console.log('DATA: ', JSON.stringify(dataSources));
 
-        if (this.format === 'html') {
-            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
-        } else if (this.format === 'pdf') {
-            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, true);
+        if (!this.sendemail) {
+            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, true, this.format);
+        } else {
+            var attachment = this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, false, this.format);
+
+            let body = {
+                ToAddresses: [this.sendemail.EmailAddress],
+                CopyAddress: this.sendemail.SendCopy ? this.sendemail.CopyAddress : '',
+                Subject: this.sendemail.Subject,
+                Message: this.sendemail.Message,
+                Attachments: [{
+                    Attachment: attachment,
+                    FileName: this.sendemail.Subject + '.' + this.format
+                }],
+                EntityType: this.sendemail.EntityType,
+                EntityID: this.sendemail.EntityID
+            };
+
+            this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
+                this.toastService.removeToast(this.emailtoast);
+                this.toastService.addToast('Epost sendt', ToastType.good, 3);
+            });
         }
     }
 

@@ -2,6 +2,7 @@
 import {Injectable} from '@angular/core';
 
 declare var Stimulsoft;
+declare var base64js;
 
 @Injectable()
 export class StimulsoftReportWrapper {
@@ -49,29 +50,76 @@ export class StimulsoftReportWrapper {
         }
     }
 
-    public printReport(template: string, reportData: Object, parameters: Array<any>, showPreview: boolean) {
+    public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string) {
 
         if (template && reportData) {
             const report = this.generateReport(template, reportData, parameters);
+            var mimetype: string;
 
             if (report) {
-                const settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
-                // Create an PDF service instance.
-                const service = new Stimulsoft.Report.Export.StiPdfExportService();
+                var settings, service;
 
-                // Create a MemoryStream object.
-                const stream = new Stimulsoft.System.IO.MemoryStream();
-                // Export PDF using MemoryStream.
-                service.exportTo(report, stream, settings);
+                switch (format) {
+                    case 'html':
+                        mimetype = 'text/html';
+                        settings = new Stimulsoft.Report.Export.StiHtmlExportSettings();
+                        service = new Stimulsoft.Report.Export.StiHtmlExportService();
+                        settings.htmlType = Stimulsoft.Report.StiHtmlType.Html5;
+                        break;
+                    case 'doc':
+                        mimetype = 'application/doc';
+                        settings = new Stimulsoft.Report.Export.StiWord2007ExportSettings();
+                        service = new Stimulsoft.Report.Export.StiWord2007ExportService();
+                        break;
+                    case 'xls':
+                        mimetype = 'application/xls';
+                        settings = new Stimulsoft.Report.Export.StiExcel2007ExportSettings();
+                        service = new Stimulsoft.Report.Export.StiExcel2007ExportService();
+                        break;
+                    case 'jpg':
+                        mimetype = 'image/jpeg';
+                        settings = new Stimulsoft.Report.Export.StiJpegExportSettings();
+                        service = new Stimulsoft.Report.Export.StiJpegExportService();
+                        break;
+                    case 'png':
+                        mimetype = 'image/png';
+                        settings = new Stimulsoft.Report.Export.StiPngExportSettings();
+                        service = new Stimulsoft.Report.Export.StiPngExportService();
+                        break;
+                    default:
+                        mimetype = 'application/pdf';
+                        settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
+                        service = new Stimulsoft.Report.Export.StiPdfExportService();
+                        break;
+                }
 
-                // Get PDF data from MemoryStream object
-                const data = stream.toArray();
-                // Get report file name
-                const fileName = (report.reportAlias === null || report.reportAlias.length == 0)  ? report.reportName : report.reportAlias;
-                // Save data to file
+                const fileName = (report.reportAlias === null || report.reportAlias.length === 0)  ? report.reportName : report.reportAlias;
                 const obj: any = Object;
+                var data: any;
 
-                obj.saveAs(data, fileName + '.pdf', 'application/pdf');
+                // Export
+                if (format === 'html') {
+                    const textWriter = new Stimulsoft.System.IO.TextWriter();
+                    const htmlTextWriter = new Stimulsoft.Report.Export.StiHtmlTextWriter(textWriter);
+                    service.exportTo(report, htmlTextWriter, settings);
+                    data = textWriter.getStringBuilder().toString();
+                } else {
+                    const stream = new Stimulsoft.System.IO.MemoryStream();
+                    service.exportTo(report, stream, settings);
+                    data = stream.toArray();
+                }
+
+                // Save or return
+                if (saveReport) {
+                    obj.saveAs(data, fileName + '.' + format, mimetype);
+                } else {
+                    switch (format) {
+                        case 'html':
+                            return btoa(data);
+                        default:
+                            return base64js.fromByteArray(data);
+                    }
+                }
             }
         }
     }
@@ -93,7 +141,7 @@ export class StimulsoftReportWrapper {
                     reportParam.valueObject = parameters[i].value;
                 }
             }
-        }        
+        }
 
         const dataSet = new Stimulsoft.System.Data.DataSet('Data');
         dataSet.readJson(reportData);

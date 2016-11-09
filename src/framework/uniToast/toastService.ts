@@ -19,14 +19,16 @@ export class ToastService {
     private nextId: number = 0;
     private toasts: IToast[] = [];
     
-    public addToast(title: string, type?: ToastType, durationInSeconds?: number, message?: string) {
+    public addToast(title: string, type?: ToastType, durationInSeconds?: number, message?: string): number {
+        let id = this.nextId++;
         this.toasts.push({
-            id: this.nextId++,
+            id: id,
             type: type || ToastType.bad,
             title: title,
             message: message || '',
             duration: durationInSeconds || 0,
         });
+        return id;
     }
 
     public removeToast(id) {

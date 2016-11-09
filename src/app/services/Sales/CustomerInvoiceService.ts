@@ -32,16 +32,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         this.DefaultOrderBy = null;
         this.defaultExpand = ['Customer'];
     }    
-            
-    public next(currentID: number): Observable<CustomerInvoice>
-    {
-        return super.GetAction(currentID, 'next');
-    }
-    
-    public previous(currentID: number): Observable<CustomerInvoice>
-    {
-        return super.GetAction(currentID, 'previous');
-    }
   
     public newCustomerInvoice(): Promise<CustomerInvoice>
     {       

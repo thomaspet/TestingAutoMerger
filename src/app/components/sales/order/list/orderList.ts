@@ -3,12 +3,15 @@ import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-
-import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
-import {CustomerOrder} from '../../../../unientities';
-
+import {CustomerOrderService, ReportDefinitionService, UserService} from '../../../../services/services';
+import {CustomerOrder, CompanySettings, User} from '../../../../unientities';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {AuthService} from '../../../../../framework/core/authService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 declare var jQuery;
 
@@ -20,9 +23,13 @@ export class OrderList {
 
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private orderTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+    private companySettings: CompanySettings;
+    private user: User;
+
     private toolbarconfig: IToolbarConfig = {
         title: 'Ordre',
         omitFinalCrumb: true
@@ -31,7 +38,11 @@ export class OrderList {
     constructor(private router: Router,
                 private customerOrderService: CustomerOrderService,
                 private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private authService: AuthService,
+                private userService: UserService,
+                private toastService: ToastService,
+                private companySettingsService: CompanySettingsService) {
 
         this.tabService.addTab({ name: 'Ordre', url: '/sales/orders', moduleID: UniModules.Orders, active: true });
         this.setupOrderTable();
@@ -57,9 +68,21 @@ export class OrderList {
     }
 
     private setupOrderTable() {
+        this.companySettingsService.Get(1, ['DefaultEmail'])
+            .subscribe(settings => this.companySettings = settings,
+                err => {
+                    console.log('Error retrieving company settings data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                });
+
+        let jwt = this.authService.jwtDecoded;
+        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
+            this.user = users[0];
+        });
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
-            params.set('expand', 'Customer, Items');
+            params.set('expand', 'Customer,Items,Customer.Info,Customer.Info.DefaultEmail');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'OrderDate desc');
@@ -87,13 +110,13 @@ export class OrderList {
 
         // TODO?
         // contextMenuItems.push({
-        //    label: 'Overf�r til faktura',
+        //    label: 'Overfør til faktura',
         //    action: (order: CustomerOrder) => {
 
         //        //TODO?
         //        //this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
         //        //    console.log('== order ACTION OK ==');
-        //        //    alert('Overf�rt til Faktura OK');
+        //        //    alert('Overført til Faktura OK');
         //        //    //this.table.refreshTableData();
         //        //    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
         //        //}, (err) => {
@@ -141,6 +164,32 @@ export class OrderList {
                 return false;
             }
         });
+
+        contextMenuItems.push(            {
+                label: 'Send på epost',
+                action: (order: CustomerOrder) => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerOrder';
+                    sendemail.EntityID = order.ID;
+                    sendemail.Subject = 'Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
+                    sendemail.EmailAddress = order.Customer.Info.DefaultEmail ? order.Customer.Info.DefaultEmail.EmailAddress : '';
+                    sendemail.CopyAddress = this.user.Email;
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd') +
+                                        '\n\nMed vennlig hilsen\n' +
+                                        this.companySettings.CompanyName + '\n' +
+                                        this.user.DisplayName + '\n' +
+                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                        });
+                    }
+                }
+            }
+        );
 
         // Define columns to use in the table
         var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');

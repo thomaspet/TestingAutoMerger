@@ -2,13 +2,18 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
-import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
+import {CustomerInvoiceService, ReportDefinitionService, UserService} from '../../../../services/services';
+import {StatusCodeCustomerInvoice, CustomerInvoice, CompanySettings, User} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {AuthService} from '../../../../../framework/core/authService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 
 @Component({
@@ -16,23 +21,26 @@ import {ISummaryConfig} from '../../../common/summary/summary';
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html'
 })
 export class InvoiceList implements OnInit {
-    @ViewChild(RegisterPaymentModal)
-    private registerPaymentModal: RegisterPaymentModal;
-
+    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
-
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-
     private summaryConfig: ISummaryConfig[];
+    private user: User;
+    private companySettings: CompanySettings;
 
     constructor(private uniHttpService: UniHttp,
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
                 private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private authService: AuthService,
+                private userService: UserService,
+                private toastService: ToastService,
+                private companySettingsService: CompanySettingsService) {
 
         this.setupInvoiceTable();
         this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -69,9 +77,21 @@ export class InvoiceList implements OnInit {
     }
 
     private setupInvoiceTable() {
+        this.companySettingsService.Get(1, ['DefaultEmail'])
+            .subscribe(settings => this.companySettings = settings,
+                err => {
+                    console.log('Error retrieving company settings data: ', err);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                });
+
+        let jwt = this.authService.jwtDecoded;
+        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
+            this.user = users[0];
+        });
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer, InvoiceReference');
+            urlParams.set('expand', 'Customer,Customer.Info,Customer.Info.DefaultEmail,InvoiceReference');
 
             if (urlParams.get('orderby') === null) {
                 urlParams.set('orderby', 'PaymentDueDate');
@@ -89,7 +109,7 @@ export class InvoiceList implements OnInit {
             }
         });
 
-        // TODO Forel�pig kun tilgjengelig for type Faktura, ikke for Kreditnota
+        // TODO Foreløpig kun tilgjengelig for type Faktura, ikke for Kreditnota
         contextMenuItems.push({
             label: 'Krediter',
             action: (rowModel) => {
@@ -204,13 +224,36 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
-                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, invoice.ID);
-                        // report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
-                        // this.reportDefinitionService.generateReportPdf(report);
                     }
                 });
+            }
+        });
+
+        contextMenuItems.push({
+            label: 'Send på epost',
+            action: (invoice: CustomerInvoice) => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerInvoice';
+                sendemail.EntityID = invoice.ID;
+                sendemail.Subject = 'Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
+                sendemail.EmailAddress = invoice.Customer.Info.DefaultEmail ? invoice.Customer.Info.DefaultEmail.EmailAddress : '';
+                sendemail.CopyAddress = this.user.Email;
+                sendemail.Message = 'Vedlagt finner du Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd') +
+                                    '\n\nMed vennlig hilsen\n' +
+                                    this.companySettings.CompanyName + '\n' +
+                                    this.user.DisplayName + '\n' +
+                                    (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+
+                this.sendEmailModal.openModal(sendemail);
+
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                    this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                    });
+                }
             }
         });
 

@@ -1,15 +1,14 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
-import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
+import {Observable} from 'rxjs/Rx';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService, UserService} from '../../../../services/services';
 import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {Address, CustomerOrderItem, Customer, FieldType} from '../../../../unientities';
-import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
+import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings, User} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -18,6 +17,10 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {AuthService} from '../../../../../framework/core/authService';
 
 declare const _;
 
@@ -41,6 +44,7 @@ export class OrderDetails {
     @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     public config: any = {};
     public fields: any[] = [];
@@ -63,10 +67,12 @@ export class OrderDetails {
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Info.DefaultEmail', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
+    private user: User;
 
     constructor(private customerService: CustomerService,
                 private customerOrderService: CustomerOrderService,
@@ -78,15 +84,44 @@ export class OrderDetails {
                 private businessRelationService: BusinessRelationService,
                 private companySettingsService: CompanySettingsService,
                 private toastService: ToastService,
-
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private authService: AuthService,
+                private userService: UserService) {
 
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
             this.setup();
         });
+
+        this.contextMenuItems = [
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerOrder';
+                    sendemail.EntityID = this.order.ID;
+                    sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                    sendemail.EmailAddress = this.order.Customer.Info.DefaultEmail ? this.order.Customer.Info.DefaultEmail.EmailAddress : '';
+                    sendemail.CopyAddress = this.user.Email;
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd') +
+                                        '\n\nMed vennlig hilsen\n' +
+                                        this.companySettings.CompanyName + '\n' +
+                                        this.user.DisplayName + '\n' +
+                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                        });
+                    }
+                },
+                disabled: () => !this.order.ID
+            }
+        ];
     }
 
     private log(err) {
@@ -198,12 +233,17 @@ export class OrderDetails {
     private setup() {
         this.deletedItems = [];
 
-        this.companySettingsService.Get(1)
+        this.companySettingsService.Get(1, ['DefaultEmail'])
             .subscribe(settings => this.companySettings = settings,
                 err => {
                     console.log('Error retrieving company settings data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
                 });
+
+        let jwt = this.authService.jwtDecoded;
+        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
+            this.user = users[0];
+        });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -360,7 +400,8 @@ export class OrderDetails {
                 prev: this.previousOrder.bind(this),
                 next: this.nextOrder.bind(this),
                 add: this.addOrder.bind(this)
-            }
+            },
+            contextmenu: this.contextMenuItems
         };
     }
 
