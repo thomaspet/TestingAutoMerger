@@ -10,6 +10,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from '../../../../../framework/uniform';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {checkGuid} from '../../../../services/common/dimensionservice';
+import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 
 declare const moment;
 
@@ -39,7 +40,7 @@ const lang = {
 
     col_supplier: 'Leverandør',
     col_invoice: 'Fakturanr.',
-    col_total: 'Sum inkl.mva',
+    col_total: 'Fakturabeløp',
     col_date: 'Fakturadato',
     col_due: 'Forfallsdato',
     col_kid: 'KID',
@@ -57,6 +58,9 @@ const lang = {
     btn_new_supplier: 'Ny',
 
     journaled_ok: 'Bokføring fullført',
+    payment_ok: 'Betaling registrert',
+    ask_register_payment: 'Registrere betaling for faktura ',
+    ready_for_payment: 'Status endret til "Klar for betaling"',
 
     err_missing_journalEntries: 'Kontering mangler!',
     err_diff: 'Differanse i posteringer!',
@@ -65,14 +69,18 @@ const lang = {
 
 const workflowLabels = { 
     'smartbooking': 'Foreslå kontering',
-    'payInvoice': 'Registrere betaling',
     'journal': 'Bokfør',
-    'sendForPayment': 'Send til betaling',
+
+    'payInvoice': 'Registrere betaling',
+    'sendForPayment': 'Registrere betaling',
     'pay': 'Betal',
+
     'assign': 'Tildel',
     'cancelApprovement': 'Kanseler godkjenning',
     'reAssign': 'Tildel på nytt',
-    'accept': 'Godkjenn'
+    'accept': 'Godkjenn',
+
+    'finish': 'Avslutt'
 };
 
 enum actionBar {
@@ -99,11 +107,12 @@ export class BillView {
     public current: SupplierInvoice;
     private currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
+    public hasUnsavedChanges: boolean = false;
     
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
+    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
 
-    // private listOfSuppliers: Array<any> = [];
     private tabLabel: string;    
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true},
@@ -112,7 +121,6 @@ export class BillView {
         { label: lang.tab_items, name: 'items' },
         { label: lang.tab_history, name: 'history' }
     ];
-
 
     public actions: IUniSaveAction[];
 
@@ -238,7 +246,9 @@ export class BillView {
         this.tabService.currentActiveTab.name = this.tabLabel;
         this.setupToolbar();
         this.flagUnsavedChanged(true);
+        this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
+        this.hasUnsavedChanges = false;
         this.busy = false;
     }
 
@@ -246,8 +256,9 @@ export class BillView {
         this.flagActionBar(actionBar.save, !reset);
         if (!reset) {
             this.actions.forEach( x => x.main = false );
-            this.actions[actionBar.save].main = true;
+            this.actions[actionBar.save].main = true;            
         }
+        this.hasUnsavedChanges = !reset;
     }
 
     private flagActionBar(index: actionBar, enable = true) {
@@ -259,10 +270,16 @@ export class BillView {
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach( x => list.push(x) );
-            this.addActions(it._links.actions, list);
+            // this.addActions(it._links.actions, list);
             this.addActions(it._links.transitions, list, true, ['journal', 'pay']);
             this.actions = list;
+        } else {
+            this.initDefaultActions();
         }
+    }
+
+    private initDefaultActions() {
+        this.actions = this.rootActions;
     }
 
     private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[]) {
@@ -315,7 +332,32 @@ export class BillView {
                 }).catch((err: ILocalValidation) => {
                     this.busy = false;
                     done(err.errorMessage);
+                    this.toast.addToast(err.errorMessage, ToastType.bad, 15);
                 });
+                return true;
+
+            case 'smartbooking':
+                this.supplierInvoiceService.Action(this.current.ID, key).subscribe( (result) => {
+                    this.toast.addToast(JSON.stringify(result), ToastType.good);
+                    done('ok');
+                }, (err) => {
+                    var msg = this.showHttpError(err);
+                    done(msg);
+                });
+                return true;
+
+            case 'sendForPayment':
+                this.supplierInvoiceService.PostAction(this.current.ID, key).subscribe( () => {
+                    this.registerPayment( done );
+                }, (err) => {
+                    var msg = this.showHttpError(err);
+                    done(msg);
+                });
+                return true;                
+
+            case 'pay':
+            case 'payInvoice':
+                this.registerPayment(done);
                 return true;
         }
         return false;
@@ -368,15 +410,21 @@ export class BillView {
 
     }
 
-    private fetchInvoice(id: number | string, flagBusy: boolean) {
+    private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
-            if (flagBusy) { this.busy = false; }
-            this.current = result;
-            this.setupToolbar();
-            this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
-            this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
-            this.loadActionsFromEntity();
+        return new Promise( (resolve, reject) => {
+            this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
+                if (flagBusy) { this.busy = false; }
+                this.current = result;
+                this.setupToolbar();
+                this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
+                this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.loadActionsFromEntity();
+                resolve('');
+            }, (err) => {
+                var msg = this.showHttpError(err);
+                reject(msg);
+            });
         });              
     }
 
@@ -418,10 +466,16 @@ export class BillView {
                 obs = this.supplierInvoiceService.Post(this.current);
             }
             obs.subscribe((result) => {
-                if (done) { done(lang.save_success); }                
-                this.fetchInvoice(result.ID, (!!done) );
                 this.currentSupplierID = this.current.ID;
-                resolve({ success: true});
+                this.fetchInvoice(result.ID, (!!done) )
+                    .then(() => {
+                        resolve({ success: true}); 
+                        if (done) { done(lang.save_success); }                
+                    })
+                    .catch((msg) => {
+                        reject( { success: false, errorMessage: msg });
+                        if (done) { done(msg); }
+                    });                
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
@@ -484,7 +538,7 @@ export class BillView {
                 var supplierId = safeInt(this.current.Supplier.SupplierNumber);
                 var item: JournalEntryLineDraft;
                 let items = this.current.JournalEntry.DraftLines;
-                item = items.find( x => x.Account.AccountNumber === this.current.Supplier.SupplierNumber ); 
+                item = items.find( x => x.Account ? x.Account.AccountNumber === this.current.Supplier.SupplierNumber : false ); 
                 if (!item) {
                     item = new JournalEntryLineDraft();
                     checkGuid(item); 
@@ -504,6 +558,36 @@ export class BillView {
             reject({ success: false, errorMessage: lang.err_missing_journalEntries});
         });
     }
+
+    private registerPayment(done) {
+        const title = lang.ask_register_payment + this.current.InvoiceNumber;
+
+
+        // /51?action=sendForPayment
+
+        if (this.registerPaymentModal.changed.observers.length === 0) {
+            this.registerPaymentModal.changed.subscribe((modalData: any) => {
+                this.busy = true;
+                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                    this.fetchInvoice(this.current.ID, true);
+                    this.toast.addToast(lang.payment_ok, ToastType.good, 10);
+                    this.busy = false;
+                }, (error) => {
+                    this.showHttpError(error);
+                    this.busy = false;
+                });
+            });
+        }
+
+        const invoiceData = {
+            Amount: this.current.RestAmount,
+            PaymentDate: new Date()
+        };
+
+        this.registerPaymentModal.openModal(this.current.ID, title, invoiceData);
+
+        done('');
+    }    
 
 
     private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
@@ -576,12 +660,16 @@ export class BillView {
     private setupToolbar() {
         var doc: SupplierInvoice = this.current;
         var stConfig = this.getStatustrackConfig();
+        var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info ? `${doc.Supplier.Info.Name}` : lang.headliner_new, 
             subheads: [
                 {title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : ''},
                 {title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : ''},
-                {title: doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? `(${lang.headliner_journal} ${doc.JournalEntry.JournalEntryNumber})` : `(${lang.headliner_journal_not})` }
+                {
+                    title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
+                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined 
+                }
             ],
             statustrack: stConfig
         };        

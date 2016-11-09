@@ -25,6 +25,7 @@ export class BillSimpleJournalEntryView {
     public current: SupplierInvoice;
     public costItems: Array<JournalEntryLineDraft> = [];
     public tableConfig: ITableConfig;
+    public journalEntryNumber: string;
 
     public sumVat: number = 0;
     public sumRemainder: number = 0;
@@ -49,7 +50,8 @@ export class BillSimpleJournalEntryView {
 
     private initFromInvoice(invoice: SupplierInvoice) {
         this.hasMultipleEntries = false;
-        this.analyzeEntries(invoice);        
+        this.analyzeEntries(invoice);
+        this.journalEntryNumber = invoice && invoice.JournalEntry ? invoice.JournalEntry.JournalEntryNumber : undefined;
         if (this.editable) {
             this.editable.closeEditor();
         }
@@ -167,9 +169,11 @@ export class BillSimpleJournalEntryView {
                 new Column('delete', '', ColumnType.Action)
             ],
             events: {
+
                 onChange: (event: IChangeEvent) => {
                     return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
                 }, 
+
                 onStartEdit: (info: IStartEdit) => {
                     if (this.isReadOnly) {
                         info.cancel = true;
@@ -180,6 +184,7 @@ export class BillSimpleJournalEntryView {
                         this.calcRemainder();
                     }
                 },
+
                 onTypeSearch: details => {
                     if (details.columnDefinition.name === 'Amount') {
                         this.createGrossValueData(details);
@@ -187,7 +192,9 @@ export class BillSimpleJournalEntryView {
                         this.lookup.onTypeSearch(details);
                     }
                 },
+
                 onCopyCell: (details: ICopyEventDetails) => {
+                    if (details.position.row <= 0) { return; }
                     var row = this.costItems[details.position.row];
                     var rowAbove = this.costItems[details.position.row - 1];
                     switch (details.columnDefinition.name) {
