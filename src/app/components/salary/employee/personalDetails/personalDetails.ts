@@ -84,11 +84,9 @@ export class PersonalDetails extends UniView {
                         2: { isOpen: true }
                     }
                 };
-                this.municipalService.GetAll(null).subscribe((municipalities: Municipal[]) => {
-                    this.fields = layout.Fields;
-                    this.municipalities = municipalities;
-                    this.extendFormConfig();
-                });
+
+                this.fields = layout.Fields;
+                this.extendFormConfig();
 
             }
             , (error: any) => {
@@ -226,15 +224,20 @@ export class PersonalDetails extends UniView {
 
         let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
 
-        municipality.Options = {
-            source: this.municipalities,
-            valueProperty: 'MunicipalityNo',
-            displayProperty: 'MunicipalityNo',
-            debounceTime: 200,
-            template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
-        };
+        this.municipalService.GetAll('').subscribe(items => {
+            municipality.Options = {
+                source: items, // this.municipalService,
+                search: (query: string) => this.municipalService.GetAll(`filter=startswith(MunicipalityNo, '${query}') or contains(MunicipalityName, '${query}')&top=50`),
+                valueProperty: 'MunicipalityNo',
+                displayProperty: 'MunicipalityNo',
+                debounceTime: 200,
+                template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
+            };
+            this.fields = _.cloneDeep(this.fields);
+        });
 
-        this.fields = _.cloneDeep(this.fields);
+
+
     }
 
     private findByProperty(fields, name) {
