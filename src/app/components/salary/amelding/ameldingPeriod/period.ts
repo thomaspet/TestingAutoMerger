@@ -1,8 +1,6 @@
-
-import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
-import {SalaryTransactionService} from '../../../../services/services';
-import {AmeldingData} from '../../../../unientities';
+import { Component, Input } from '@angular/core';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
+import { AmeldingData } from '../../../../unientities';
 import { ISummaryConfig } from '../../../common/summary/summary';
 
 declare var moment;
@@ -16,7 +14,6 @@ export class AmeldingPeriodSummaryView {
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
     private sumForskuddstrekk: number;
-    private systemData: any[] = [];
     private systemTableConfig: UniTableConfig;
 
     private forfallsdato: string = '';
@@ -28,46 +25,41 @@ export class AmeldingPeriodSummaryView {
     private systemPeriodSums: ISummaryConfig[] = [];
     private ameldingPeriodSums: ISummaryConfig[] = [];
 
-    @Input() private currentPeriod: number;
+    @Input() private systemData: any[] = [];
     @Input() private currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
 
-    constructor(private _salarytransService: SalaryTransactionService) {
+    constructor() {
         this.setupSystemTableConfig();
         this.setupAmeldingTableConfig();
     }
 
     public ngOnChanges() {
 
-        if (this.currentPeriod) {
-            this._salarytransService.getSumsInPeriod(this.currentPeriod, this.currentPeriod, 2016)
-                .subscribe((response) => {
-                    this.systemData = response;
+        if (this.systemData) {
+            this.sumGrunnlagAga = 0;
+            this.sumCalculatedAga = 0;
+            this.sumForskuddstrekk = 0;
 
-                    this.sumGrunnlagAga = 0;
-                    this.sumCalculatedAga = 0;
-                    this.sumForskuddstrekk = 0;
+            this.systemData.forEach(dataElement => {
+                dataElement._type = 'Grunnlag';
+                this.sumGrunnlagAga += dataElement.Sums.baseAGA;
+                this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
+                this.sumForskuddstrekk += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+            });
 
-                    this.systemData.forEach(dataElement => {
-                        dataElement._type = 'Grunnlag';
-                        this.sumGrunnlagAga += dataElement.Sums.baseAGA;
-                        this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
-                        this.sumForskuddstrekk += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
-                    });
-
-                    this.systemPeriodSums = [
-                        {
-                            title: 'Grunnlag aga',
-                            value: this.sumGrunnlagAga.toString()
-                        }, {
-                            title: 'Sum aga',
-                            value: this.sumCalculatedAga.toString()
-                        }, {
-                            title: 'Sum forskuddstrekk',
-                            value: this.sumForskuddstrekk.toString()
-                        }];
-
-                });
+            this.systemPeriodSums = [
+                {
+                    title: 'Grunnlag aga',
+                    value: this.sumGrunnlagAga.toString()
+                }, {
+                    title: 'Sum aga',
+                    value: this.sumCalculatedAga.toString()
+                }, {
+                    title: 'Sum forskuddstrekk',
+                    value: this.sumForskuddstrekk.toString()
+                }
+            ];
         }
 
         if (this.currentAMelding) {

@@ -1,9 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
-import {AMeldingService} from '../../../services/Salary/AMelding/AMeldingService';
-import {PayrollrunService} from '../../../services/Salary/Payrollrun/PayrollrunService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {SalaryTransactionService, PayrollrunService, AMeldingService} from '../../../services/services';
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -24,6 +23,7 @@ export class AMeldingView implements OnInit {
     private busy: boolean = true;
     private currentPeriod: number;
     private currentMonth: string;
+    private currentSumsInPeriod: any[] = [];
     private currentAMelding: AmeldingData;
     private currentSumUp: any;
     private aMeldingerInPeriod: AmeldingData[];
@@ -32,7 +32,12 @@ export class AMeldingView implements OnInit {
     private clarifiedDate: string = '';
     private submittedDate: string = '';
     private feedbackObtained: boolean = false;
-    private totalAga: number = 0;
+    
+    private totalAGAAmelding: number = 0;
+    private totalAGASystem: number = 0;
+    private totalFtrekkAmelding: number = 0;
+    private totalFtrekkSystem: number = 0;
+
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
@@ -46,7 +51,8 @@ export class AMeldingView implements OnInit {
         private _tabService: TabService,
         private _ameldingService: AMeldingService,
         private _toastService: ToastService,
-        private _payrollService: PayrollrunService
+        private _payrollService: PayrollrunService,
+        private _salarytransService: SalaryTransactionService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -74,6 +80,7 @@ export class AMeldingView implements OnInit {
         this._payrollService.getLatestSettledPeriod(1, 2016)
             .subscribe((period) => {
                 this.currentPeriod = period;
+                this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
                 this.getAMeldingForPeriod();
             });
@@ -83,6 +90,7 @@ export class AMeldingView implements OnInit {
         if (this.currentPeriod !== 1) {
             if (this.currentPeriod > 1) {
                 this.currentPeriod -= 1;
+                this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
             this.clearAMelding();
@@ -94,6 +102,7 @@ export class AMeldingView implements OnInit {
         if (this.currentPeriod !== 12) {
             if (this.currentPeriod < 12) {
                 this.currentPeriod += 1;
+                this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
             this.clearAMelding();
@@ -163,6 +172,21 @@ export class AMeldingView implements OnInit {
             this.updateToolbar();
             this.updateSaveActions();
             this.setStatusForPeriod();
+        });
+    }
+
+    private getSumsInPeriod() {
+        this._salarytransService.getSumsInPeriod(this.currentPeriod, this.currentPeriod, 2016)
+        .subscribe((response) => {
+            this.currentSumsInPeriod = response;
+
+            this.totalAGASystem = 0;
+            this.totalFtrekkSystem = 0;
+
+            this.currentSumsInPeriod.forEach(dataElement => {
+                this.totalAGASystem += dataElement.Sums.calculatedAGA;
+                this.totalFtrekkSystem += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+            });
         });
     }
 
@@ -251,12 +275,12 @@ export class AMeldingView implements OnInit {
             .subscribe((response) => {
                 this.currentSumUp = response;
                 this.legalEntityNo = response.LegalEntityNo;
-
-                if (this.currentSumUp.entities) {
-                    this.currentSumUp.entities.forEach(virksomhet => {
-                        virksomhet.collapsed = true;
-                        this.totalAga += virksomhet.sums.aga;
-                    });
+                
+                if (this.currentSumUp.hasOwnProperty('totals')) {
+                    if (this.currentSumUp.totals !== null) {
+                        this.totalAGAAmelding = this.currentSumUp.totals.sumAGA ? this.currentSumUp.totals.sumAGA : 0;
+                        this.totalFtrekkAmelding = this.currentSumUp.totals.sumTax ? this.currentSumUp.totals.sumTax : 0;
+                    }
                 }
             });
     }

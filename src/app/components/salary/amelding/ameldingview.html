@@ -17,12 +17,19 @@
             <article class="poster_widget tablewidget">
                 <table>
                     <tr>
+                        <td></td>
+                        <td>Fra lønnsystem</td>
+                        <td>Fra tilbakemelding</td>
+                    </tr>
+                    <tr>
                         <th class="datacolumn">Sum forskuddstrekk</th>
-                        <td>{{totalForskuddstrekk}}</td>
+                        <td class="currency">{{totalFtrekkSystem | unicurrency:2}}</td>
+                        <td class="currency">{{totalFtrekkAmelding | unicurrency:2}}</td>
                     </tr>
                     <tr>
                         <th class="datacolumn">Sum aga</th>
-                        <td>{{totalAga}}</td>
+                        <td class="currency">{{totalAGASystem | unicurrency:2}}</td>
+                        <td class="currency">{{totalAGAAmelding | unicurrency:2}}</td>
                     </tr>
                 </table>
             </article>
@@ -76,7 +83,7 @@
     <amelding-summary-view *ngIf="showView == ''" [currentSumUp]="currentSumUp" [currentAMelding]="currentAMelding"></amelding-summary-view>
     <amelding-aga-view *ngIf="showView == 'aga'" [currentSumUp]="currentSumUp"></amelding-aga-view>
     <amelding-receipt-view *ngIf="showView == 'receipt'" [currentAMelding]="currentAMelding" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-receipt-view>
-    <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [currentPeriod]="currentPeriod" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-periodsummary-view>
+    <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [systemData]="currentSumsInPeriod" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-periodsummary-view>
     <!--<amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>-->
 
     <footer class="full-footer">
