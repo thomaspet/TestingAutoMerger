@@ -179,8 +179,20 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 let debitData = this.calculateJournalEntryData(entry.DebitAccount, entry.DebitVatType, entry.Amount, null);
                 let creditData =  this.calculateJournalEntryData(entry.CreditAccount, entry.CreditVatType, entry.Amount * -1, null);
 
-                sum.SumDebet += debitData.amountNet;
-                sum.SumCredit += creditData.amountNet;
+                // normally a user will use the debit field for positive amounts and credit field for negative amounts.
+                // however if they use the debit field and a negative amount, that is the same as using the credit field
+                // and a positive amount. Therefore we add the sum to the correct sum (this will also be done automatically
+                // in the API, because there we have no concept of debit/credit, just +/-)
+                if (debitData.amountNet > 0) {
+                    sum.SumDebet += debitData.amountNet;
+                } else {
+                    sum.SumCredit += debitData.amountNet;
+                }
+                if (creditData.amountNet < 0) {
+                    sum.SumCredit += creditData.amountNet;
+                } else {
+                    sum.SumDebet += creditData.amountNet;
+                }
 
                 let incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
                 sum.IncomingVat += incomingVat;

@@ -119,22 +119,30 @@ export class JournalEntryProfessional implements OnInit {
     }
 
     private calculateNetAmount(rowModel) {
-        if (rowModel.DebitAccount && rowModel.DebitVatType) {
-            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, rowModel.Amount, null);
-            rowModel.NetAmount = calc.amountNet;
-        } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
-            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, rowModel.Amount, null);
-            rowModel.NetAmount = calc.amountNet;
+        if (rowModel.Amount && rowModel.Amount !== 0) {
+            if (rowModel.DebitAccount && rowModel.DebitVatType) {
+                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, rowModel.Amount, null);
+                rowModel.NetAmount = calc.amountNet;
+            } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
+                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, rowModel.Amount, null);
+                rowModel.NetAmount = calc.amountNet;
+            } else {
+                rowModel.NetAmount = rowModel.Amount;
+            }
         }
     }
 
     private calculateGrossAmount(rowModel) {
-        if (rowModel.DebitAccount && rowModel.DebitVatType) {
-            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, null, rowModel.NetAmount);
-            rowModel.Amount = calc.amountGross;
-        } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
-            let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
-            rowModel.Amount = calc.amountGross;
+        if (rowModel.NetAmount && rowModel.NetAmount !== 0) {
+            if (rowModel.DebitAccount && rowModel.DebitVatType) {
+                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, null, rowModel.NetAmount);
+                rowModel.Amount = calc.amountGross;
+            } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
+                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
+                rowModel.Amount = calc.amountGross;
+            } else {
+                rowModel.NetAmount = rowModel.Amount;
+            }
         }
     }
 
@@ -151,7 +159,7 @@ export class JournalEntryProfessional implements OnInit {
 
     private setCreditAccountProperties(rowModel) {
         let account = rowModel.CreditAccount;
-        if (account != null) {
+        if (account) {
             rowModel.CreditAccountID = account.ID;
             rowModel.CreditVatType = account.VatType;
             rowModel.CreditVatTypeID = account.VatTypeID;
@@ -545,6 +553,11 @@ export class JournalEntryProfessional implements OnInit {
 
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
+
+                setTimeout(() => {
+                    this.setupSameNewAlternatives();
+                    this.table.focusRow(0);
+                });
 
                 this.dataChanged.emit(this.journalEntryLines);
             },
