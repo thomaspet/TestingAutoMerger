@@ -251,6 +251,7 @@ export class BillSimpleJournalEntryView {
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
+        if (this.isReadOnly) { return; }
         this.editable.closeEditor();
         var line = this.costItems[rowIndex];
         var actualRowIndex = line['_rowIndex'];

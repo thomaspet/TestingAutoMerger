@@ -9,6 +9,7 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from '../../../../../framework/uniform';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
+import {checkGuid} from '../../../../services/common/dimensionservice';
 
 declare const moment;
 
@@ -53,14 +54,37 @@ const lang = {
     delete_error: 'Feil ved sletting',
     delete_success: 'Sletting ok',
 
-    btn_new_supplier: 'Ny'
+    btn_new_supplier: 'Ny',
+
+    journaled_ok: 'Bokføring fullført',
+
+    err_missing_journalEntries: 'Kontering mangler!',
+    err_diff: 'Differanse i posteringer!',
+    err_supplieraccount_not_found: 'Fant ikke leverandørkonto!'
 };
 
+const workflowLabels = { 
+    'smartbooking': 'Foreslå kontering',
+    'payInvoice': 'Registrere betaling',
+    'journal': 'Bokfør',
+    'sendForPayment': 'Send til betaling',
+    'pay': 'Betal',
+    'assign': 'Tildel',
+    'cancelApprovement': 'Kanseler godkjenning',
+    'reAssign': 'Tildel på nytt',
+    'accept': 'Godkjenn'
+};
 
 enum actionBar {
     save = 0,
     delete = 1
 };
+
+
+interface ILocalValidation {
+    success: boolean;
+    errorMessage?: string;
+}
 
 @Component({
     selector: 'uni-bill',
@@ -119,7 +143,7 @@ export class BillView {
             if (safeInt(id) > 0) {
                 this.tabLabel = lang.title_with_id + id;
                 this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
-                this.fetchInvoice(id);
+                this.fetchInvoice(id, true);
             } else {
                 this.newInvoice();
             }
@@ -220,6 +244,10 @@ export class BillView {
 
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
+        if (!reset) {
+            this.actions.forEach( x => x.main = false );
+            this.actions[actionBar.save].main = true;
+        }
     }
 
     private flagActionBar(index: actionBar, enable = true) {
@@ -228,56 +256,47 @@ export class BillView {
 
     private loadActionsFromEntity() {
         var it: any = this.current;
-        // var index = 0;
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach( x => list.push(x) );
             this.addActions(it._links.actions, list);
-            this.addActions(it._links.transitions, list, true);
+            this.addActions(it._links.transitions, list, true, ['journal', 'pay']);
             this.actions = list;
         }
-    }    
-
-    private mapActionLabel(key: string): string {
-        
-        var items = { 
-            'smartbooking': 'Foreslå kontering',
-            'payInvoice': 'Registrere betaling',
-            'journal': 'Bokfør',
-            'sendForPayment': 'Send til betaling',
-            'pay': 'Betal',
-            'assign': 'Tildel',
-            'cancelApprovement': 'Kanseler godkjenning',
-            'reAssign': 'Tildel på nytt',
-            'accept': 'Godkjenn'
-        };
-
-        var label = items[key];
-        if (!label) {
-            return key;
-        }
-        return label;
-
     }
 
-    private addActions(linkNode: any, list: any[], mainFirst = false) {
+    private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[]) {
         var ix = 0, setAsMain = false;
+        var ixFound = -1;
         if (!linkNode) { return; }
+
         for (var key in linkNode) {
             if (linkNode.hasOwnProperty(key)) {
+                
                 ix++;
                 setAsMain = mainFirst ? ix <= 1 : false;
-                if (setAsMain) {
-                    list.forEach( x => x.main = false);
+                // prioritized main?
+                if (priorities) {
+                    let ixPri = priorities.findIndex(x => x === key );
+                    if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
+                        ixFound = ixPri;
+                        setAsMain = true;
+                    }                     
                 }
+                // reset main?
+                if (setAsMain) { list.forEach( x => x.main = false); }
 
                 let itemKey = key;
                 let label = this.mapActionLabel(itemKey);
+                let href = linkNode[key].href;
+
                 list.push({ 
                     label: label, 
                     action: (done) => {
-                        this.toast.addToast(itemKey + ' todo...', ToastType.good, 3);
-                        done('not yet: ' + itemKey);
+                        if (!this.handleAction(itemKey, label, href, done)) {
+                            this.toast.addToast(itemKey + ' todo...', ToastType.warn, 3);
+                            done('Action not ready yet: ' + itemKey);
+                        }
                     }, 
                     main: setAsMain, 
                     disabled: false  
@@ -286,10 +305,73 @@ export class BillView {
         }
     }
 
-    private fetchInvoice(id: number | string) {
-        this.busy = true;
+    private handleAction(key: string, label: string, href: string, done: any): boolean {
+        switch (key) {
+            case 'journal':
+                this.busy = true;
+                this.tryJournal(href).then((status: ILocalValidation) => {
+                    this.busy = false;
+                    done(lang.save_success);
+                }).catch((err: ILocalValidation) => {
+                    this.busy = false;
+                    done(err.errorMessage);
+                });
+                return true;
+        }
+        return false;
+    }
+
+    private tryJournal(url: string): Promise<ILocalValidation> {
+
+        return new Promise( (resolve, reject) => {
+
+            this.UpdateSuppliersJournalEntry().then( result => {
+
+                var validation = this.hasValidDraftLines(true);
+                if (!validation.success) {
+                    reject(validation);
+                    return;
+                }
+
+                this.supplierInvoiceService.journal(this.current.ID).subscribe( x => {
+                    this.fetchInvoice(this.current.ID, false);
+                    resolve(result);
+                    this.toast.addToast(lang.journaled_ok, ToastType.good, 6);
+
+                }, (err) => {
+                    var msg = this.showHttpError(err);
+                    reject(msg);
+                });
+            
+            }).catch((err: ILocalValidation) => {
+                reject( err );
+            });
+            
+        });
+    }
+
+    private showHttpError(error: any): string {
+        var msg = error.statusText;
+        if (error._body) {
+            msg = error._body;
+        }             
+        this.showErrMsg(msg, true);
+        return msg;
+    }
+
+    private mapActionLabel(key: string): string {        
+        var label = workflowLabels[key];
+        if (!label) {
+            return key;
+        }
+        return label;
+
+    }
+
+    private fetchInvoice(id: number | string, flagBusy: boolean) {
+        if (flagBusy) { this.busy = true; }
         this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
-            this.busy = false;
+            if (flagBusy) { this.busy = false; }
             this.current = result;
             this.setupToolbar();
             this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
@@ -326,7 +408,7 @@ export class BillView {
     }
 
 
-    public save(done) {
+    public save(done?): Promise<ILocalValidation> {
         this.preSave();
         return new Promise((resolve, reject) => {
             var obs: any;
@@ -336,11 +418,10 @@ export class BillView {
                 obs = this.supplierInvoiceService.Post(this.current);
             }
             obs.subscribe((result) => {
-                done(lang.save_success);
-                // this.current = result;
-                this.busy = true;
-                this.fetchInvoice(result.ID);
+                if (done) { done(lang.save_success); }                
+                this.fetchInvoice(result.ID, (!!done) );
                 this.currentSupplierID = this.current.ID;
+                resolve({ success: true});
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
@@ -349,18 +430,24 @@ export class BillView {
                 } else {
                     this.toast.addToast(lang.save_error, ToastType.bad, 7);
                 }
-                done(lang.save_error + ': ' + msg);
-                reject(msg);
+                if (done) { done(lang.save_error + ': ' + msg); }
+                reject({ success: false, errorMessage: msg});
             });
         });
     }
 
-    private preSave() {
+    private preSave(): boolean {
+
+        var changesMade = false;
 
         // Ensure dates are set        
         if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
             this.current.JournalEntry.DraftLines.forEach( x => {
+                let orig = x.FinancialDate;
                 x.FinancialDate = x.FinancialDate || this.current.DeliveryDate || this.current.InvoiceDate;
+                if (x.FinancialDate !== orig) {
+                    changesMade = true;
+                }
             });     
         }
 
@@ -368,8 +455,80 @@ export class BillView {
         if ((!this.current.PaymentID) && (!this.current.PaymentInformation)) {
             if (this.current.InvoiceNumber) {
                 this.current.PaymentInformation = lang.headliner_invoice + this.current.InvoiceNumber;
+                changesMade = true;
             }
         }
+
+        return changesMade;
+    }
+
+    private UpdateSuppliersJournalEntry(): Promise<ILocalValidation> {
+
+        return new Promise((resolve, reject) => {
+
+            var completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
+                if (item.Amount !== this.current.TaxInclusiveAmount * -1) {
+                    item.FinancialDate = item.FinancialDate || this.current.DeliveryDate || this.current.InvoiceDate;
+                    item.Amount = this.current.TaxInclusiveAmount * -1;
+                    item.Description = item.Description || (lang.headliner_invoice + ' ' + this.current.InvoiceNumber);
+                    if (addToList) {
+                         this.current.JournalEntry.DraftLines.push(item);                         
+                    }
+                    this.save().then(x => resolve(x)).catch( x => reject(x));
+                } else {
+                    resolve({ success: true });
+                }
+            };
+
+            if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
+                var supplierId = safeInt(this.current.Supplier.SupplierNumber);
+                var item: JournalEntryLineDraft;
+                let items = this.current.JournalEntry.DraftLines;
+                item = items.find( x => x.Account.AccountNumber === this.current.Supplier.SupplierNumber ); 
+                if (!item) {
+                    item = new JournalEntryLineDraft();
+                    checkGuid(item); 
+                    this.supplierInvoiceService.getStatQuery(`?model=account&select=ID as AccountID&filter=AccountNumber eq ${supplierId}`).subscribe( result => {
+                        item.AccountID = result[0].AccountID;                         
+                        completeAccount(item, true);
+                        return;
+                    }, (err) => {
+                        reject({ success: false, errorMessage: lang.err_supplieraccount_not_found});
+                    });
+                    return;
+                }             
+                completeAccount(item);
+                return;
+            }
+
+            reject({ success: false, errorMessage: lang.err_missing_journalEntries});
+        });
+    }
+
+
+    private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
+        var msg: string;
+        if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
+            let items = this.current.JournalEntry.DraftLines;
+            var sum = 0, maxSum = 0, minSum = 0, itemSum = 0;
+            items.forEach( x => {
+                itemSum = x.Amount || 0;
+                maxSum = itemSum > maxSum ? itemSum : maxSum;
+                minSum = itemSum < minSum ? itemSum : minSum;
+                sum += x.Amount;
+            });
+            if (sum === 0 && (maxSum || minSum)) {
+                return { success: true };
+            }
+            if (sum !== 0) {
+                msg = lang.err_diff;
+            }
+        }
+        msg = msg || lang.err_missing_journalEntries;
+        if (showErrMsg) {
+            this.toast.addToast(msg, ToastType.bad);
+        }
+        return { success: false, errorMessage: msg };
     }
 
     public onTabClick(tab: ITab) {
