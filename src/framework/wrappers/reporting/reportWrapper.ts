@@ -26,7 +26,7 @@ export class StimulsoftReportWrapper {
         });
     }
 
-    public showReport(template: string, reportData: Object, parameters: Array<any>, caller : any)
+    public showReport(template: string, reportData: Object, parameters: Array<any>, caller: any)
     {
         if (template && reportData && caller)
         {
@@ -51,7 +51,6 @@ export class StimulsoftReportWrapper {
     }
 
     public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string) {
-
         if (template && reportData) {
             const report = this.generateReport(template, reportData, parameters);
             var mimetype: string;

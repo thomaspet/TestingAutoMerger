@@ -60,6 +60,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.format = 'html';
         this.report = <Report>report;
         this.target = target;
+        this.sendemail = null;
 
         this.generateReport();
     }
@@ -67,6 +68,8 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     public generateReportPdf(report: ReportDefinition) {
         this.format = 'pdf';
         this.report = <Report>report;
+        this.target = null;
+        this.sendemail = null;
 
         this.generateReport();
     }
@@ -82,6 +85,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
                 this.format = sendemail.Format;
                 this.report = <Report>report;
+                this.target = null;
                 this.sendemail = sendemail;
                 this.generateReport();
             });
@@ -150,10 +154,10 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
         // console.log('DATA: ', JSON.stringify(dataSources));
 
-        if (!this.sendemail) {
-            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, true, this.format);
+        if (this.target) {
+            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
         } else {
-            var attachment = this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, false, this.format);
+            var attachment = this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format);
 
             let body = {
                 ToAddresses: [this.sendemail.EmailAddress],
