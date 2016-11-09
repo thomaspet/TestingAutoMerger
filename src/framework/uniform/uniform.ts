@@ -397,9 +397,11 @@ export class UniForm {
     private addNavigationEvents() {
         const target = this.elementRef.nativeElement;
         const enterEvent = Observable.fromEvent(target, 'keyup')
-            .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER);
+            .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER)
+            .filter((event: KeyboardEvent) => !this.hasEvent('enter'));
         const tabEvent = Observable.fromEvent(target, 'keydown')
-            .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB && !event.shiftKey);
+            .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB && !event.shiftKey)
+            .filter((event: KeyboardEvent) => !this.hasEvent('tab'));
 
         const tabAndEnterEvent = Observable.merge(enterEvent, tabEvent);
         tabAndEnterEvent.subscribe((event: KeyboardEvent) => {
@@ -422,6 +424,19 @@ export class UniForm {
             }
             field.focus();
         });
+    }
+
+    private hasEvent(event: string) {
+        if (!this.lastFocusedComponent.field.Options) {
+            return false;
+        }
+        const options = this.lastFocusedComponent.field.Options;
+        if (options.events) {
+            if (options.event[event]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private findNextElementFormLastFocusedComponent() {

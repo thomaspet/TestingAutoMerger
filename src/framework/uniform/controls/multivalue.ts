@@ -141,17 +141,8 @@ export class UniMultivalueInput {
         const keyDownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
         const tabEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB);
         const enterEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER);
-        tabEvent.subscribe((event: KeyboardEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.shiftKey) {
-                this.setFocusOnPrevField();
-            } else {
-                this.setFocusOnNextField();
-            }
-            this.close();
-        });
-        enterEvent.subscribe((event: KeyboardEvent) => {
+        const tabAndEnterEvents = Observable.merge(tabEvent, enterEvent);
+        tabAndEnterEvents.subscribe((event: KeyboardEvent) => {
             this.close();
         });
     }
