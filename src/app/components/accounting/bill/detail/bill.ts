@@ -2,7 +2,7 @@ import {ViewChild, Component} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
-import {ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
@@ -56,6 +56,7 @@ const lang = {
     delete_success: 'Sletting ok',
 
     btn_new_supplier: 'Ny',
+    add_image_now: 'Trykk på "pluss" knappen for å legge til nytt dokument',
 
     journaled_ok: 'Bokføring fullført',
     payment_ok: 'Betaling registrert',
@@ -136,7 +137,8 @@ export class BillView {
         private route: ActivatedRoute,
         private cache: UniCacheService,
         private vatTypeService: VatTypeService,
-        private supplierService: SupplierService) {
+        private supplierService: SupplierService,
+        private router: Router) {
             this.actions = this.rootActions;
     }
 
@@ -204,7 +206,7 @@ export class BillView {
 
     public onSaveDraftForImage() {
         this.save((msg) => {            
-            this.toast.addToast('Add image now!', ToastType.good, 3);
+            this.toast.addToast(lang.add_image_now, ToastType.good, 3);
         });
     }    
 
@@ -271,7 +273,7 @@ export class BillView {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach( x => list.push(x) );
             // this.addActions(it._links.actions, list);
-            this.addActions(it._links.transitions, list, true, ['journal', 'pay']);
+            this.addActions(it._links.transitions, list, true, ['journal', 'pay'], ['finish']);
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -282,42 +284,45 @@ export class BillView {
         this.actions = this.rootActions;
     }
 
-    private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[]) {
-        var ix = 0, setAsMain = false;
+    private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[], filters?: string[]) {
+        var ix = 0, setAsMain = false, isFiltered = false, key: string;
         var ixFound = -1;
         if (!linkNode) { return; }
 
-        for (var key in linkNode) {
+        for (key in linkNode) {
             if (linkNode.hasOwnProperty(key)) {
                 
-                ix++;
-                setAsMain = mainFirst ? ix <= 1 : false;
-                // prioritized main?
-                if (priorities) {
-                    let ixPri = priorities.findIndex(x => x === key );
-                    if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
-                        ixFound = ixPri;
-                        setAsMain = true;
-                    }                     
+                isFiltered = filters ? (filters.findIndex( x => x === key ) >= 0) : false;
+                if (!isFiltered) {
+                    ix++;
+                    setAsMain = mainFirst ? ix <= 1 : false;
+                    // prioritized main?
+                    if (priorities) {
+                        let ixPri = priorities.findIndex(x => x === key );
+                        if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
+                            ixFound = ixPri;
+                            setAsMain = true;
+                        }                     
+                    }
+                    // reset main?
+                    if (setAsMain) { list.forEach( x => x.main = false); }
+
+                    let itemKey = key;
+                    let label = this.mapActionLabel(itemKey);
+                    let href = linkNode[key].href;
+
+                    list.push({ 
+                        label: label, 
+                        action: (done) => {
+                            if (!this.handleAction(itemKey, label, href, done)) {
+                                this.toast.addToast(itemKey + ' todo...', ToastType.warn, 3);
+                                done('Action not ready yet: ' + itemKey);
+                            }
+                        }, 
+                        main: setAsMain, 
+                        disabled: false  
+                    });
                 }
-                // reset main?
-                if (setAsMain) { list.forEach( x => x.main = false); }
-
-                let itemKey = key;
-                let label = this.mapActionLabel(itemKey);
-                let href = linkNode[key].href;
-
-                list.push({ 
-                    label: label, 
-                    action: (done) => {
-                        if (!this.handleAction(itemKey, label, href, done)) {
-                            this.toast.addToast(itemKey + ' todo...', ToastType.warn, 3);
-                            done('Action not ready yet: ' + itemKey);
-                        }
-                    }, 
-                    main: setAsMain, 
-                    disabled: false  
-                });
             }
         }
     }
@@ -418,6 +423,7 @@ export class BillView {
                 this.current = result;
                 this.setupToolbar();
                 this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
+                // this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
                 resolve('');
@@ -671,8 +677,48 @@ export class BillView {
                     link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined 
                 }
             ],
-            statustrack: stConfig
+            statustrack: stConfig,
+            navigation: {
+                prev: () => this.navigateTo('prev'),
+                next: () => this.navigateTo('next'),
+                add: () => this.router.navigateByUrl('/accounting/bill/0')
+            },
         };        
+    }
+
+    private navigateTo(direction = 'next') {
+        this.busy = true;
+        this.navigate(direction).then(() => this.busy = false, () => this.busy = false);
+    }
+
+    private navigate(direction = 'next'): Promise<any> {
+
+        var params = '?model=supplierinvoice';
+        var resultFld = 'minid';
+        var id = this.current.ID;
+
+        if (direction === 'next') {
+            params += '&select=min(id)&filter=deleted eq \'false\'' + (id ? ' and id gt ' + id : '');
+        } else {
+            params += '&select=max(id)&filter=deleted eq \'false\'' + (id ? ' and id lt ' + id : '');
+            resultFld = 'maxid';
+        }
+
+        return new Promise((resolve, reject) => {
+            this.supplierInvoiceService.getStatQuery(params).subscribe((items) => {
+                if (items && items.length > 0) {
+                    var key = items[0][resultFld];
+                    if (key) {
+                        this.fetchInvoice(key, false);
+                        resolve(true);
+                        return;
+                    }
+                }
+                reject(0); // not found
+            }, (err) => {
+                reject(-1); // error
+            });
+        });
     }
 
     private showErrMsg(msg: string, lookForMsg = false): string {

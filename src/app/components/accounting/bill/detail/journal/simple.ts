@@ -152,9 +152,9 @@ export class BillSimpleJournalEntryView {
                     { 
                         route: 'accounts', 
                         select: 'AccountNumber,AccountName,ID', visualKey: 'AccountNumber', 
-                        blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999',
+                        blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999 and setornull(visible)',
                         model: 'account',
-                        expand: 'VatType' 
+                        expand: 'VatType', filter: 'setornull(visible)' 
                     }),
                 new Column('VatTypeID', '', ColumnType.Integer, 
                     {
