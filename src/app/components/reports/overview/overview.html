@@ -11,7 +11,7 @@
                 </a>
             </div>
             <!-- Reports -->
-            <div *ngIf="report.Category" [ngSwitch]="report.Id">
+            <div *ngIf="report.Category" [ngSwitch]="report.ID">
                 <a *ngSwitchCase="12"
                         (click)="showBalanceListModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
