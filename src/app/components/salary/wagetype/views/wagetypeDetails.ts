@@ -33,47 +33,49 @@ export class WagetypeDetail extends UniView {
     private showBenefitAndDescriptionAsReadonly: boolean = true;
 
     private currentPackage: string;
+    private rateIsReadOnly: boolean;
+    private basePayment: boolean;
     public config: any = {};
     public fields: any[] = [];
 
     @ViewChild(UniForm) public uniform: UniForm;
 
-    private specialTaxAndContributionsRule: {ID: SpecialTaxAndContributionsRule, Name: string}[] = [
-        {ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt'},
-        {ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbar'},
-        {ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene'},
-        {ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn'},
-        {ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk'},
-        {ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister'}
+    private specialTaxAndContributionsRule: { ID: SpecialTaxAndContributionsRule, Name: string }[] = [
+        { ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt' },
+        { ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbar' },
+        { ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene' },
+        { ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn' },
+        { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk' },
+        { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister' }
     ];
 
-    private getRateFrom: {ID: GetRateFrom, Name: string}[] = [
-        {ID: GetRateFrom.WageType, Name: 'Lønnsart'},
-        {ID: GetRateFrom.MonthlyPayEmployee, Name: 'Månedslønn ansatt'},
-        {ID: GetRateFrom.HourlyPayEmployee, Name: 'Timelønn ansatt'},
-        {ID: GetRateFrom.FreeRateEmployee, Name: 'Frisats ansatt'}
+    private getRateFrom: { ID: GetRateFrom, Name: string }[] = [
+        { ID: GetRateFrom.WageType, Name: 'Lønnsart' },
+        { ID: GetRateFrom.MonthlyPayEmployee, Name: 'Månedslønn ansatt' },
+        { ID: GetRateFrom.HourlyPayEmployee, Name: 'Timelønn ansatt' },
+        { ID: GetRateFrom.FreeRateEmployee, Name: 'Frisats ansatt' }
     ];
 
     private stdWageType: Array<any> = [
-        {ID: StdWageType.None, Name: 'Ingen'},
-        {ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk'},
-        {ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk'},
-        {ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk'},
-        {ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år'},
-        {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
+        { ID: StdWageType.None, Name: 'Ingen' },
+        { ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk' },
+        { ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk' },
+        { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
+        { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
+        { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
     ];
 
-    private specialAgaRule: {ID: SpecialAgaRule, Name: string}[] = [
-        {ID: SpecialAgaRule.Regular, Name: 'Vanlig'},
-        {ID: SpecialAgaRule.AgaRefund, Name: 'Aga refusjon'},
-        {ID: SpecialAgaRule.AgaPension, Name: 'Aga pensjon'}
+    private specialAgaRule: { ID: SpecialAgaRule, Name: string }[] = [
+        { ID: SpecialAgaRule.Regular, Name: 'Vanlig' },
+        { ID: SpecialAgaRule.AgaRefund, Name: 'Aga refusjon' },
+        { ID: SpecialAgaRule.AgaPension, Name: 'Aga pensjon' }
     ];
 
     private taxType: Array<any> = [
-        {ID: TaxType.Tax_None, Name: 'Ingen'},
-        {ID: TaxType.Tax_Table, Name: 'Tabelltrekk'},
-        {ID: TaxType.Tax_Percent, Name: 'Prosenttrekk'},
-        {ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk'}
+        { ID: TaxType.Tax_None, Name: 'Ingen' },
+        { ID: TaxType.Tax_Table, Name: 'Tabelltrekk' },
+        { ID: TaxType.Tax_Percent, Name: 'Prosenttrekk' },
+        { ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk' }
     ];
 
     constructor(
@@ -92,12 +94,14 @@ export class WagetypeDetail extends UniView {
                 if (wageType.ID !== this.wagetypeID) {
                     this.wageType = wageType;
                     this.wagetypeID = wageType.ID;
-                    
+
+                    this.rateIsReadOnly = this.wageType.GetRateFrom !== GetRateFrom.WageType;
+
                     this.incomeTypeDatasource = [];
                     this.benefitDatasource = [];
                     this.descriptionDatasource = [];
                     this.supplementPackages = [];
-                    
+
                     this.setup();
                 }
             });
@@ -115,7 +119,7 @@ export class WagetypeDetail extends UniView {
                 this.fields = layout.Fields;
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
-                
+
                 this.config = {
                     submitText: '',
                     sections: {
@@ -123,7 +127,7 @@ export class WagetypeDetail extends UniView {
                         '2': { isOpen: true }
                     }
                 };
-                
+
                 this.extendFields();
                 this.updateUniformFields();
                 this.checkAmeldingInfo();
@@ -135,6 +139,9 @@ export class WagetypeDetail extends UniView {
     }
 
     private extendFields() {
+        let rate: UniFieldLayout = this.findByProperty('Rate');
+        rate.ReadOnly = this.rateIsReadOnly;
+
         let wageTypeNumber: UniFieldLayout = this.findByProperty('WageTypeNumber');
         wageTypeNumber.ReadOnly = this.wageType.ID > 0;
 
@@ -152,6 +159,7 @@ export class WagetypeDetail extends UniView {
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
         accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
+        this.basePayment = this.wageType.Base_Payment;
 
         let specialAgaRule = this.findByProperty('SpecialAgaRule');
         specialAgaRule.Options = {
@@ -439,7 +447,7 @@ export class WagetypeDetail extends UniView {
                     break;
             }
         }
-        
+
         return incometypeChild;
     }
 
@@ -471,6 +479,11 @@ export class WagetypeDetail extends UniView {
             }
         });
         this.hidePackageDropdown = packs.length > 0 ? false : true;
+
+        if (packs.length > 0) {
+            packs.unshift({ uninavn: 'Ingen', additions: []});
+        }
+
         this.supplementPackages = packs;
         this.updateUniformFields();
     }
@@ -556,7 +569,7 @@ export class WagetypeDetail extends UniView {
     private showTilleggsPakker(model: any) {
         let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model._uninavn);
         this.showSupplementaryInformations = false;
-        
+
         let supInfo: Array<any> = [];
         selectedPackage.additions.forEach(addition => {
             supInfo.push(addition);
@@ -583,6 +596,19 @@ export class WagetypeDetail extends UniView {
             this.currentPackage = this.wageType['_uninavn'];
             this.showTilleggsPakker(model);
         }
+        let newRateIsReadOnly = this.wageType.GetRateFrom !== GetRateFrom.WageType;
+        if (this.rateIsReadOnly !== newRateIsReadOnly) {
+            this.rateIsReadOnly = newRateIsReadOnly;
+            let rate: UniFieldLayout = this.findByProperty('Rate');
+            rate.ReadOnly = this.rateIsReadOnly;
+        }
+
+        if (this.basePayment !== this.wageType.Base_Payment) {
+            this.basePayment = this.wageType.Base_Payment;
+            let accountNumberBalance: UniFieldLayout = this.findByProperty('AccountNumber_balance');
+            accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
+        }
+
         super.updateState('wagetype', model, true);
     }
 

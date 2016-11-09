@@ -11,7 +11,7 @@ import {
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 import {Observable} from 'rxjs/Observable';
-import {UniSelect} from "./select/select";
+import {UniSelect} from './select/select';
 
 declare var _; // jquery and lodash
 
@@ -110,8 +110,10 @@ export class UniSelectInput {
         if (this.field.Options.valueProperty) {
             value = _.get(item, this.field.Options.valueProperty);
         }
+        const valueIsDefined = value !== null && value !== undefined;
 
-        _.set(this.model, this.field.Property, value ? value : item);
+        _.set(this.model, this.field.Property, valueIsDefined ? value : item);
+
         this.changeEvent.emit(this.model);
     }
 }

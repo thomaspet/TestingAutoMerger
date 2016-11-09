@@ -73,7 +73,7 @@ export class WageTypeView extends UniView {
                 if (this.wageType.WageTypeNumber) {
                     this.tabService.addTab({
                         name: 'Lønnsartnr. ' + this.wageType.WageTypeNumber,
-                        url: this.url + this.wageType.WageTypeNumber,
+                        url: this.url + this.wageType.ID,
                         moduleID: UniModules.Wagetypes,
                         active: true
                     });
@@ -88,7 +88,7 @@ export class WageTypeView extends UniView {
 
                 this.checkDirty();
             });
-            if (this.wageType && this.wageType.WageTypeNumber === +params['id']) {
+            if (this.wageType && this.wageType.ID === +params['id']) {
                 super.updateState('wagetype', this.wageType, false);
             } else {
                 this.wageType = undefined;
