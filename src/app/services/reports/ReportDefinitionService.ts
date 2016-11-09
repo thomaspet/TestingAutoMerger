@@ -8,6 +8,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {ReportDefinitionDataSourceService} from '../services';
+import {AuthService} from '../../../framework/core/authService';
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
@@ -33,7 +34,8 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     constructor(
         private uniHttp: UniHttp,
         private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
-        private reportGenerator: StimulsoftReportWrapper) {
+        private reportGenerator: StimulsoftReportWrapper,
+        private authService: AuthService) {
 
         super(uniHttp);
         this.baseHttp = this.uniHttp.http;
@@ -42,7 +44,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.DefaultOrderBy = 'Category';
     }
 
-    public getReportByName(name: string) : Observable<any> {
+    public getReportByName(name: string): Observable<any> {
         return this.GetAll(`filter=Name eq '${name}'`).map((reports) => {
            return reports[0];
         });
@@ -65,6 +67,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
 
     private generateReport() {
+        // Add logo url to report
+        this.addLogoUrl();
+
         // get template
         this.baseHttp.get('/assets/ReportTemplates/' + this.report.TemplateLinkId)
             .map(res => res.text())
@@ -96,7 +101,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
         for (const ds of this.report.dataSources) {
             let url: string = ds.DataSourceUrl;   
-            console.log("IS SET ");   
             observableBatch.push(
                 this.http
                 .asGET()
@@ -140,7 +144,18 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         }
     }
 
+    private addLogoUrl() {
+        let logoKeyParam = new CustomReportDefinitionParameter();
+        logoKeyParam.Name = 'LogoUrl';
+        logoKeyParam.value = AppConfig.BASE_URL_FILES + '/image/?key=' + this.authService.getCompanyKey() + '&id=logo';
+        this.report.parameters.push(logoKeyParam);
+    }
+
     private onError(message: string) {
         alert(message);
     }
+}
+
+class CustomReportDefinitionParameter extends ReportDefinitionParameter {
+    public value: any;
 }

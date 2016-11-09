@@ -106,6 +106,13 @@ export class AuthService {
     }
 
     /**
+     * Returns the current active companykey string
+     */
+    public getCompanyKey(): string {
+        return this.getActiveCompany()['Key'];
+    }
+
+    /**
      * Returns a boolean indicating whether the user is authenticated or not
      * @returns {Boolean}
      */
