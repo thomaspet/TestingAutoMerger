@@ -26,6 +26,8 @@ export class Dashboard {
     public transactionList = [];
     public myTransactionList = [];
     public journalEntryList = [];
+    public inboxList = [];
+    public emptyInboxMessage = '';
     public user: any;
     public current: any = {};
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -87,7 +89,12 @@ export class Dashboard {
         this.getAssets().subscribe(
             (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data.Data)) },
             (error) => { console.log(error); }
-        )
+        );
+
+        this.getMail().subscribe(
+            (data) => { this.fixInboxItems(data.Data); },
+            (error) => { /*Error handling*/ }
+        );
     }
 
     public hideWelcome() {
@@ -97,6 +104,21 @@ export class Dashboard {
 
     public widgetListItemClicked(url) {
         this.router.navigateByUrl(url);
+    }
+
+    private fixInboxItems(data: any[] = []) {
+        if (data.length === 0) {
+            this.emptyInboxMessage = 'Ingen nye dokumenter';
+            return;
+        }
+        var mydate;
+        data.forEach((item) => {
+            mydate = moment.utc(item.FileCreatedAt).toDate();
+            item.time = moment(mydate).fromNow();
+            item.url = '/accounting/bill/0';
+        })
+
+        this.inboxList = data;
     }
 
     //For 12 month charts
@@ -168,20 +190,27 @@ export class Dashboard {
     }
 
     //  Constructs the data for the assets pie chart
-    private assetsChartData(data: any): IChartDataSet {
+    private assetsChartData(data: any = []): IChartDataSet {
         var myLabels = [];
         var myData = [];
         var myColors = [];
 
-        for (var i = 0; i < data.length; i++) {
-            myLabels.push(data[i].accountgroupName);
-            if (data[i].sumamount < 0) {
-                data[i].sumamount *= -1;
-                myLabels[i] = data[i].accountgroupName + ' (Negativt)';
+        if (data.length === 0) {
+            myLabels.push('Ingen eiendeler');
+            myData.push(1);
+            myColors.push(this.colors[0]);
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                myLabels.push(data[i].accountgroupName);
+                if (data[i].sumamount < 0) {
+                    data[i].sumamount *= -1;
+                    myLabels[i] = data[i].accountgroupName + ' (Negativt)';
+                }
+                myData.push(data[i].sumamount);
+                myColors.push(this.colors[i]);
             }
-            myData.push(data[i].sumamount);
-            myColors.push(this.colors[i]);
         }
+        
 
         return {
             label: '',
@@ -431,5 +460,14 @@ export class Dashboard {
             .withEndPoint('companysettings')
             .send()
             .map(response => response.json());
+    }
+
+    public getMail() {
+        return this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint("/api/statistics?skip=0&top=10&model=FileTag&select=FileTag.TagName as FileTagTagName,FileTag.ID as FileTagID,FileTag.Status as FileTagStatus,File.UpdatedBy as FileUpdatedBy,File.UpdatedAt as FileUpdatedAt,File.StorageReference as FileStorageReference,File.StatusCode as FileStatusCode,File.Size as FileSize,File.PermaLink as FilePermaLink,File.Pages as FilePages,File.OCRData as FileOCRData,File.Name as FileName,File.Md5 as FileMd5,File.ID as FileID,File.Description as FileDescription,File.Deleted as FileDeleted,File.CreatedBy as FileCreatedBy,File.CreatedAt as FileCreatedAt,File.ContentType as FileContentType&expand=File&orderby=File.ID desc&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'")
+            .send()
+            .map(response => response.json())
     }
 }
