@@ -71,10 +71,10 @@ export class QuoteDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     private user: User;
     public summary: ISummaryConfig[] = [];
-
+    private customerExpandOptions: string[] = ['Info', 'Info.DefaultEmail', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.DefaultEmail', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
+    ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     constructor(private customerService: CustomerService,
                 private customerQuoteService: CustomerQuoteService,
@@ -191,13 +191,20 @@ export class QuoteDetails {
     }
 
     private setupSubscriptions(event) {
-        this.form.field('CustomerID')
-            .changeEvent
-            .subscribe((data) => {
-                if (data) {
-                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
+        Observable.merge(
+            this.form.field('CustomerID')
+                .changeEvent
+                .map(uniField => uniField['CustomerID']),
+            this.route.params
+                .filter(params => !!params['customerID'])
+                .map(params => +params['customerID'])
+        )
+            .subscribe(customerID => {
+                if (customerID) {
+                    this.quote.CustomerID = customerID;
+                    this.customerService.Get(customerID, this.customerExpandOptions).subscribe((customer: Customer) => {
                         let keepEntityAddresses: boolean = true;
-                        if (this.quote.Customer && this.quote.CustomerID !== this.quote.Customer.ID) {
+                        if (this.quote.Customer && customerID !== this.quote.Customer.ID) {
                             keepEntityAddresses = false;
                         }
 

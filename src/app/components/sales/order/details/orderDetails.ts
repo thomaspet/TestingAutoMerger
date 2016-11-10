@@ -191,14 +191,20 @@ export class OrderDetails {
     }
 
     private setupSubscriptions(event) {
-        this.form.field('CustomerID')
-            .changeEvent
-            .subscribe((data) => {
-                if (data) {
-                    this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
-
+        Observable.merge(
+            this.form.field('CustomerID')
+                .changeEvent
+                .map(uniField => uniField['CustomerID']),
+            this.route.params
+                .filter(params => !!params['customerID'])
+                .map(params => +params['customerID'])
+        )
+            .subscribe(customerID => {
+                if (customerID) {
+                    this.customerService.Get(customerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
+                        this.order.CustomerID = customerID;
                         let keepEntityAddresses: boolean = true;
-                        if (this.order.Customer && this.order.CustomerID !== this.order.Customer.ID) {
+                        if (this.order.Customer && customerID !== this.order.Customer.ID) {
                             keepEntityAddresses = false;
                         }
 

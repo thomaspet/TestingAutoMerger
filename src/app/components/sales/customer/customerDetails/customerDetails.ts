@@ -54,7 +54,24 @@ export class CustomerDetails {
             prev: this.previousCustomer.bind(this),
             next: this.nextCustomer.bind(this),
             add: this.addCustomer.bind(this)
-        }
+        },
+        contextmenu: [
+            {
+                label: 'Ny ordre på denne kunden',
+                action: () => this.router.navigateByUrl(`/sales/orders/0;customerID=${this.customerID}`),
+                disabled: () => !this.customerID
+            },
+            {
+                label: 'Ny faktura på denne kunden',
+                action: () => this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.customerID}`),
+                disabled: () => !this.customerID
+            },
+            {
+                label: 'Nytt tilbud på denne kunden',
+                action: () => this.router.navigateByUrl(`/sales/quotes/0;customerID=${this.customerID}`),
+                disabled: () => !this.customerID
+            }
+        ]
     };
 
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
@@ -140,7 +157,7 @@ export class CustomerDetails {
 
     private setTabTitle() {
         let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Ny kunde';
-        this.tabService.addTab({ url: '/sales/customer/' + this.customer.ID, name: tabTitle, active: true, moduleID: UniModules.Customers });
+        this.tabService.addTab({ url: '/sales/customer/' + (this.customer.ID || 'new'), name: tabTitle, active: true, moduleID: UniModules.Customers });
 
         this.toolbarconfig.title = this.customer.ID ? this.customer.Info.Name : 'Ny kunde';
         this.toolbarconfig.subheads = this.customer.ID ? [{title: 'Kundenr. ' + this.customer.CustomerNumber}] : [];

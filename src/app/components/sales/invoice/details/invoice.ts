@@ -20,6 +20,7 @@ import {InvoiceItems} from './invoiceItems';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {IContextMenuItem} from 'unitable-ng2/main';
+import {CustomerService} from '../../../../services/Sales/CustomerService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
@@ -76,9 +77,10 @@ export class InvoiceDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     private user: User;
 
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department', 'InvoiceReference'];
+        'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     constructor(private customerInvoiceService: CustomerInvoiceService,
                 private customerInvoiceItemService: CustomerInvoiceItemService,
@@ -91,7 +93,7 @@ export class InvoiceDetails {
                 private userService: UserService,
                 private toastService: ToastService,
                 private authService: AuthService,
-
+                private customerService: CustomerService,
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService) {}
@@ -162,13 +164,17 @@ export class InvoiceDetails {
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
             this.invoiceID = +params['id'];
+            const customerID = +params['customerID'];
 
             if (this.invoiceID === 0) {
                 return Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
-                    this.userService.getCurrentUser()
+                    this.userService.getCurrentUser(),
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
-                    let invoice = res[0];
+                    let invoice = <CustomerInvoiceExt>res[0];
+                    invoice.Customer = res[2];
+                    invoice.CustomerID = customerID;
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
                     invoice.PaymentDueDate = null; // calculated in refreshInvoice()
