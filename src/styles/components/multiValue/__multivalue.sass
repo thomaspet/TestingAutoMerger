@@ -12,9 +12,10 @@
     border-top-right-radius: 0
     border-bottom-right-radius: 0
 
-    &[readonly],
-    &[disabled]
-      border-radius: pxToRem(3) 0 0 pxToRem(3)
+    &[readonly]:not([readonly=false]),
+    &[disabled]:not([disabled=false])
+      @extend input[disabled]
+      border-radius: pxToRem(3) 0 0 pxToRem(3) // To acct for the button
 
     &.-has-editor
       background: #fff

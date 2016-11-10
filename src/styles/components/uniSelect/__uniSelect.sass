@@ -9,6 +9,10 @@
     text-overflow: ellipsis
     overflow: hidden
 
+    &[readonly]:not([readonly=false]),
+    &[disabled]:not([disabled=false])
+        @extend input[disabled]
+
 .uniSelect_dropdown
     position: absolute
     width: 100%

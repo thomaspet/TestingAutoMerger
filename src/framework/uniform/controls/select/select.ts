@@ -39,6 +39,9 @@ export class UniSelect {
     private newButtonAction: Function;
 
     @Input()
+    private readonly: boolean;
+
+    @Input()
     private config: ISelectConfig;
 
     @Input()
@@ -238,6 +241,9 @@ export class UniSelect {
     }
 
     public open() {
+        if (this.readonly) {
+            return;
+        }
         this.expanded = true;
         this.cd.markForCheck();
     }

@@ -23,13 +23,13 @@ declare var _; // lodash
             <input type="text"
                     [(ngModel)]="currentValue"
                     [class.-has-editor]="field?.Options?.editor"
-                    [readonly]="field?.Options?.editor || field?.ReadOnly"
+                    [readonly]="field?.ReadOnly"
                     [placeholder]="field?.Placeholder || ''"
                     (keypress)="showDropdown($event)"
                     (focus)="focusHandler()"
             />
 
-            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1">Ny</button>
+            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1" [disabled]="field?.ReadOnly">Ny</button>
 
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
@@ -253,6 +253,9 @@ export class UniMultivalueInput {
     }
 
     private open() {
+        if (this.field.ReadOnly) {
+            return;
+        }
         this.listIsVisible = true;
         this.cd.markForCheck();
     }

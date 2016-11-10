@@ -23,6 +23,7 @@ declare var _; // jquery and lodash
             [config]="field?.Options"
             [items]="items"
             [value]="selectedItem"
+            [readonly]="field?.ReadOnly"
             [newButtonAction]="field?.Options?.newButtonAction"
             (valueChange)="onChange($event)"
             (readyEvent)="createFocusListener($event)">
