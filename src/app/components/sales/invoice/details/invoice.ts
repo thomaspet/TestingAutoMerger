@@ -420,7 +420,7 @@ export class InvoiceDetails {
 
         this.saveInvoice().subscribe(
             (invoice) => {
-                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     this.previewModal.openWithId(report, invoice.ID);
                     done('Lagring fullført');
                 });
