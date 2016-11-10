@@ -10,6 +10,7 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 import {routes as SalesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
+import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerList} from './customer/list/customerList';
 import {ReportsModule} from '../reports/reportsModule';
@@ -32,9 +33,10 @@ import {UniSales} from './sales';
 
 import {InvoiceDetails} from './invoice/details/invoice';
 import {InvoiceItems} from './invoice/details/invoiceitems';
-import {InvoiceDetailsForm} from './invoice/details/tabContent/detailsForm';
-import {InvoiceDeliveryForm} from './invoice/details/tabContent/deliveryForm';
-import {CustomerCard} from './invoice/details/customerCard';
+
+import {TofCustomerCard} from './common/customerCard';
+import {TofDetailsForm} from './common/detailsForm';
+import {TofDeliveryForm} from './common/deliveryForm';
 
 @NgModule({
     imports: [
@@ -63,15 +65,17 @@ import {CustomerCard} from './invoice/details/customerCard';
     declarations: [
         UniSales,
         Customer,
+        CustomerDetailsModal,
         CustomerDetails,
         CustomerList,
+
+        TofCustomerCard,
+        TofDetailsForm,
+        TofDeliveryForm,
+
         InvoiceList,
         InvoiceDetails,
         InvoiceItems,
-        // Invoice tab-views
-        InvoiceDetailsForm,
-        InvoiceDeliveryForm,
-        CustomerCard,
 
         OrderItemList,
         OrderDetails,
@@ -96,6 +100,7 @@ import {CustomerCard} from './invoice/details/customerCard';
     exports: [
         UniSales,
         Customer,
+        CustomerDetailsModal,
         CustomerDetails,
         CustomerList,
         InvoiceList,

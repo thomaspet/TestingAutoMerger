@@ -1,5 +1,5 @@
-import { IToolbarConfig } from './../../../common/toolbar/toolbar';
-import {Component, Input, ViewChild} from '@angular/core';
+import {IToolbarConfig} from './../../../common/toolbar/toolbar';
+import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -28,6 +28,8 @@ declare var _; // lodash
 })
 export class CustomerDetails {
     @Input() public customerID: any;
+    @Input() public modalMode: boolean;
+    @Output() public customerCreated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -87,8 +89,7 @@ export class CustomerDetails {
          }
     ];
 
-    constructor(
-                private uniQueryDefinitionService: UniQueryDefinitionService,
+    constructor(private uniQueryDefinitionService: UniQueryDefinitionService,
                 private departmentService: DepartmentService,
                 private projectService: ProjectService,
                 private customerService: CustomerService,
@@ -99,29 +100,26 @@ export class CustomerDetails {
                 private addressService: AddressService,
                 private businessRealtionService: BusinessRelationService,
                 private tabService: TabService,
-                private toastService: ToastService) {
-        this.route.params.subscribe(params => {
+                private toastService: ToastService) {}
+
+    public ngOnInit() {
+        this.route.params.subscribe((params) => {
             this.customerID = +params['id'];
             this.setup();
 
-            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
-                links => this.reportLinks = links,
-                err => console.log('Error loading customer:', err)
-            );
+            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
+                .subscribe(links => this.reportLinks = links);
         });
-
     }
 
     public ready() {
         if (this.customer.ID === 0) {
             this.form.field('Info.Name')
-                        .control
-                        .valueChanges
-                        .debounceTime(300)
-                        .distinctUntilChanged()
-                        .subscribe((data) => {
-                            this.searchText = data;
-                        });
+                .control
+                .valueChanges
+                .debounceTime(300)
+                .distinctUntilChanged()
+                .subscribe(data => this.searchText = data);
         }
     }
 
@@ -134,7 +132,6 @@ export class CustomerDetails {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
                     }
                 },
-                err => console.log('Error getting next customer: ', err)
             );
     }
 
@@ -147,7 +144,6 @@ export class CustomerDetails {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
                     }
                 },
-                err => console.log('Error getting previous customer: ', err)
             );
     }
 
@@ -156,6 +152,10 @@ export class CustomerDetails {
     }
 
     private setTabTitle() {
+        if (this.modalMode) {
+            return;
+        }
+
         let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Ny kunde';
         this.tabService.addTab({ url: '/sales/customer/' + (this.customer.ID || 'new'), name: tabTitle, active: true, moduleID: UniModules.Customers });
 
@@ -166,6 +166,11 @@ export class CustomerDetails {
 
     public showReport(id: number) {
         this.showReportWithID = id;
+    }
+
+    public reset() {
+        this.customerID = null;
+        this.setup();
     }
 
     public setup() {
@@ -203,7 +208,6 @@ export class CustomerDetails {
                 });
 
             }, (err) => {
-                console.log('Error retrieving data: ', err);
                 alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
             });
         } else {
@@ -220,7 +224,6 @@ export class CustomerDetails {
                     this.ready();
                 });
             }, (err) => {
-                console.log('Error retrieving data: ', err);
                 alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
             });
         }
@@ -495,7 +498,11 @@ export class CustomerDetails {
                 .subscribe(
                     (newCustomer) => {
                         completeEvent('Kunde lagret');
-                        this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
+                        if (this.modalMode) {
+                            this.customerCreated.next(newCustomer);
+                        } else {
+                            this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
+                        }
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');

@@ -110,8 +110,8 @@ export class UniSelectInput {
         if (this.field.Options.valueProperty) {
             value = _.get(item, this.field.Options.valueProperty);
         }
-        const valueIsDefined = value !== null && value !== undefined;
 
+        const valueIsDefined = (value !== null && value !== undefined);
         _.set(this.model, this.field.Property, valueIsDefined ? value : item);
 
         this.changeEvent.emit(this.model);

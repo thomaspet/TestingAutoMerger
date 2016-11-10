@@ -1,34 +1,36 @@
 import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {UniForm} from '../../../../../../framework/uniform';
-import {CustomerInvoice, FieldType, StatusCodeCustomerInvoice} from '../../../../../unientities';
+import {UniForm} from '../../../../framework/uniform';
+import {FieldType} from '../../../unientities';
 declare const _;
 
 @Component({
-    selector: 'invoice-details-form',
+    selector: 'tof-details-form',
     template: `
         <uni-form [fields]="fields"
-                  [model]="invoice"
+                  [model]="entity"
                   [config]="formConfig"
                   (readyEvent)="onFormReady($event)"
                   (changeEvent)="onFormChange($event)">
         </uni-form>
-        <label class="comment-textarea" *ngIf="invoice">Kommentar
-            <textarea ngDefaultControl [(ngModel)]="invoice.Comment" [disabled]="readonly"></textarea>
-        </label>
     `
 })
-export class InvoiceDetailsForm {
+export class TofDetailsForm {
     @ViewChild(UniForm)
     private form: UniForm;
 
     @Input()
-    public invoice: CustomerInvoice;
+    public readonly: boolean;
+
+    @Input()
+    public entityType: string;
+
+    @Input()
+    public entity: any;
 
     @Output()
-    public invoiceChange: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
+    public entityChange: EventEmitter<any> = new EventEmitter();
 
     private fields: any[];
-    private readonly: boolean;
     public formConfig: any = {autofocus: false};
 
     constructor() {
@@ -36,13 +38,13 @@ export class InvoiceDetailsForm {
     }
 
     public ngOnChanges(changes) {
-        if (changes['invoice'] && this.invoice) {
-            this.invoice = _.cloneDeep(this.invoice);
-            this.readonly = this.invoice.StatusCode && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-            if (this.readonly && this.form) {
-                this.form.readMode();
-            } else {
-                this.form.editMode();
+        if (changes['entity'] && this.entity) {
+            this.entity = _.cloneDeep(this.entity);
+
+            if (this.form && this.readonly) {
+                setTimeout(() => {
+                    this.form.readMode();
+                });
             }
         }
     }
@@ -54,14 +56,13 @@ export class InvoiceDetailsForm {
     }
 
     public onFormChange(model) {
-        this.invoiceChange.next(model);
+        this.entityChange.next(model);
     }
 
     private initFormFields() {
         this.fields = [
             {
-                // ComponentLayoutID: 3,
-                EntityType: 'CustomerInvoice',
+                EntityType: this.entityType,
                 Property: 'YourReference',
                 Placement: 1,
                 Hidden: false,
@@ -88,8 +89,7 @@ export class InvoiceDetailsForm {
                 CustomFields: null
             },
             {
-                // ComponentLayoutID: 3,
-                EntityType: 'CustomerInvoice',
+                EntityType: this.entityType,
                 Property: 'OurReference',
                 Placement: 1,
                 Hidden: false,
@@ -116,8 +116,7 @@ export class InvoiceDetailsForm {
                 CustomFields: null
             },
             {
-                // ComponentLayoutID: 3,
-                EntityType: 'CustomerInvoice',
+                EntityType: this.entityType,
                 Property: 'Requisition',
                 Placement: 1,
                 Hidden: false,
@@ -130,7 +129,7 @@ export class InvoiceDetailsForm {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                LineBreak: true,
+                LineBreak: null,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -143,8 +142,7 @@ export class InvoiceDetailsForm {
                 CustomFields: null
             },
             {
-                // ComponentLayoutID: 3,
-                EntityType: 'CustomerInvoice',
+                EntityType: this.entityType,
                 Property: 'InvoiceDate',
                 Placement: 2,
                 Hidden: false,
@@ -171,8 +169,7 @@ export class InvoiceDetailsForm {
                 CustomFields: null
             },
             {
-                // ComponentLayoutID: 3,
-                EntityType: 'CustomerInvoice',
+                EntityType: this.entityType,
                 Property: 'PaymentDueDate',
                 Placement: 2,
                 Hidden: false,
@@ -198,33 +195,33 @@ export class InvoiceDetailsForm {
                 UpdatedBy: null,
                 CustomFields: null
             },
-            // {
-            //     // ComponentLayoutID: 3,
-            //     EntityType: 'CustomerInvoice',
-            //     Property: 'Comment',
-            //     Placement: 1,
-            //     Hidden: false,
-            //     FieldType: FieldType.TEXTAREA,
-            //     ReadOnly: false,
-            //     LookupField: false,
-            //     Label: 'Kommentar',
-            //     Description: '',
-            //     HelpText: '',
-            //     FieldSet: 0,
-            //     Section: 0,
-            //     Placeholder: null,
-            //     LineBreak: null,
-            //     Combo: null,
-            //     Legend: '',
-            //     StatusCode: 0,
-            //     ID: 7,
-            //     Deleted: false,
-            //     CreatedAt: null,
-            //     UpdatedAt: null,
-            //     CreatedBy: null,
-            //     UpdatedBy: null,
-            //     CustomFields: null
-            // },
+            {
+                // ComponentLayoutID: 3,
+                EntityType: this.entityType,
+                Property: 'Comment',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.TEXTAREA,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Kommentar',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 7,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null
+            },
         ];
     }
 }

@@ -15,7 +15,6 @@ import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {CustomerCard} from './customerCard';
 import {InvoiceItems} from './invoiceItems';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -25,6 +24,8 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
+
+import {TofCustomerCard} from '../../common/customerCard';
 
 declare const _;
 declare const moment;
@@ -49,8 +50,8 @@ export class InvoiceDetails {
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
 
-    @ViewChild(CustomerCard)
-    private customerCard: CustomerCard;
+    @ViewChild(TofCustomerCard)
+    private customerCard: TofCustomerCard;
 
     @ViewChild(InvoiceItems)
     private invoiceItems: InvoiceItems;
@@ -64,6 +65,7 @@ export class InvoiceDetails {
     private invoice: CustomerInvoiceExt;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
+    private readonly: boolean;
 
     private companySettings: any;
     private departments: any[] = [];
@@ -198,7 +200,6 @@ export class InvoiceDetails {
             this.invoiceItems.focusFirstRow();
         } else if (key === 33) {
             // Page up
-            console.log(this.customerCard, this.customerCard.focus);
             this.customerCard.focus();
         }
     }
@@ -210,7 +211,16 @@ export class InvoiceDetails {
             activeStatus = this.invoice.StatusCode || 1;
         }
 
-        this.customerInvoiceService.statusTypes.forEach((s, i) => {
+        let statuses = [...this.customerInvoiceService.statusTypes];
+        const spliceIndex = (activeStatus === StatusCodeCustomerInvoice.PartlyPaid)
+            ? statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.Paid)
+            : statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.PartlyPaid);
+
+        if (spliceIndex >= 0) {
+            statuses.splice(spliceIndex, 1);
+        }
+
+        statuses.forEach((s, i) => {
             let _state: UniStatusTrack.States;
 
             if (s.Code > activeStatus) {
@@ -226,6 +236,7 @@ export class InvoiceDetails {
                 state: _state
             };
         });
+
         return statustrack;
     }
 
@@ -238,12 +249,17 @@ export class InvoiceDetails {
             }
         }
 
-        this.invoice = invoice;
+        this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+        this.invoice = _.cloneDeep(invoice);
         this.addressService.setAddresses(this.invoice);
         this.recalcDebouncer.next(invoice);
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
+    }
+
+    private onCustomerChange() {
+        this.invoice = _.cloneDeep(this.invoice);
     }
 
     private updateTabTitle() {
@@ -408,7 +424,8 @@ export class InvoiceDetails {
                 if (requiresPageRefresh) {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
-                    this.customerInvoiceService.Get(invoice.ID).subscribe(res => this.refreshInvoice(res));
+                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
+                        .subscribe(res => this.refreshInvoice(res));
                 }
                 done('Lagring fullført');
             },

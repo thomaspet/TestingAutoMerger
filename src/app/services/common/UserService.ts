@@ -17,9 +17,10 @@ export class UserService extends BizHttp<User> {
     }
 
     public getCurrentUser(): Observable<User> {
-        const token = this.authService.getTokenDecoded();
-        return this.GetAll('').map((users: User[]) => {
-            return users.find(user => user.GlobalIdentity === token.nameid);
-        });
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('users?action=current-session')
+            .send()
+            .map(response => response.json());
     }
 }

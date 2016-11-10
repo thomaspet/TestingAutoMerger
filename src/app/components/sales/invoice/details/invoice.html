@@ -12,12 +12,24 @@
 </section>
 
 <section class="application">
-    <invoice-customer-card [(invoice)]="invoice"></invoice-customer-card>
-    <section class="formTab">
-        <invoice-details-form  [hidden]="activeTabIndex !== 0" [(invoice)]="invoice"></invoice-details-form>
-        <invoice-delivery-form [hidden]="activeTabIndex !== 1" [(invoice)]="invoice"></invoice-delivery-form>
-        <uni-attachments  [hidden]="activeTabIndex !== 2" [entity]="'CustomerInvoice'" [entityID]="invoice?.ID"></uni-attachments>
-    </section>
+    <article class="invoice-head">
+        <tof-customer-card [entity]="invoice"
+                           [readonly]="readonly"
+                           (entityChange)="onCustomerChange()"></tof-customer-card>
+
+        <tof-details-form *ngIf="activeTabIndex === 0"
+                          [(entity)]="invoice"
+                          [entityType]="'CustomerInvoice'"
+                          [readonly]="readonly">
+        </tof-details-form>
+
+        <tof-delivery-form *ngIf="activeTabIndex === 1"
+                           [(entity)]="invoice"
+                           [entityType]="'CustomerInvoice'"
+                           [readonly]="readonly">
+        </tof-delivery-form>
+		<uni-attachments  *ngIf="activeTabIndex === 2" [entity]="'CustomerInvoice'" [entityID]="invoice?.ID"></uni-attachments>
+    </article>
 
     <!-- Invoice items and summary -->
     <uni-invoice-items *ngIf="invoice && departments && projects"
@@ -26,7 +38,6 @@
                        [projects]="projects"
                        [departments]="departments">
     </uni-invoice-items>
-
     <uni-summary [configs]="summaryFields"></uni-summary>
 </section>
 
