@@ -148,9 +148,13 @@ export class UniNumericInput {
             this.unFormatControlValue();
 
             if (this.control.valid) {
-                _.set(this.model, this.field.Property, this.getParsedValue());
-                this.changeEvent.emit(this.model);
-                this.lastControlValue = this.control.value;
+                const value = _.get(this.model, this.field.Property);
+                const parsedValue = this.getParsedValue();
+                if (value !== parsedValue) {
+                    _.set(this.model, this.field.Property, parsedValue);
+                    this.changeEvent.emit(this.model);
+                    this.lastControlValue = this.control.value;
+                }
             }
         }
 
