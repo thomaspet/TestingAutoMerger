@@ -112,6 +112,9 @@ export class XFormDemo {
                 displayProperty: 'name',
                 valueProperty: 'id',
                 debounceTime: 500,
+                editor: (value) => {
+                    alert('Editing value: ' + value);
+                }
             };
             
             var emailTest = new UniFieldLayout();
