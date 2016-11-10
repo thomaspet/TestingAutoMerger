@@ -103,13 +103,15 @@ export class CustomerDetails {
                 private toastService: ToastService) {}
 
     public ngOnInit() {
-        this.route.params.subscribe((params) => {
-            this.customerID = +params['id'];
-            this.setup();
+        if (!this.modalMode) {
+            this.route.params.subscribe((params) => {
+                this.customerID = +params['id'];
+                this.setup();
 
-            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
-                .subscribe(links => this.reportLinks = links);
-        });
+                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
+                    .subscribe(links => this.reportLinks = links);
+            });
+        }
     }
 
     public ready() {
