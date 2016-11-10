@@ -24,7 +24,7 @@ export class AMeldingView implements OnInit {
     private currentPeriod: number;
     private currentMonth: string;
     private currentSumsInPeriod: any[] = [];
-    private currentAMelding: AmeldingData;
+    private currentAMelding: any;
     private currentSumUp: any;
     private aMeldingerInPeriod: AmeldingData[];
     private contextMenuItems: IContextMenuItem[] = [];
@@ -33,9 +33,9 @@ export class AMeldingView implements OnInit {
     private submittedDate: string = '';
     private feedbackObtained: boolean = false;
     
-    private totalAGAAmelding: number = 0;
+    private totalAGAFeedback: number = 0;
     private totalAGASystem: number = 0;
-    private totalFtrekkAmelding: number = 0;
+    private totalFtrekkFeedback: number = 0;
     private totalFtrekkSystem: number = 0;
 
     private legalEntityNo: string;
@@ -157,6 +157,7 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAMeldingWithFeedback(amelding.ID)
         .subscribe((ameldingAndFeedback) => {
             this.currentAMelding =  ameldingAndFeedback;
+            this.getFeedbackAgaAndFtrekk();
             this.getSumUpForAmelding();
             this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
             if (this.currentAMelding.sent) {
@@ -180,6 +181,9 @@ export class AMeldingView implements OnInit {
         .subscribe((response) => {
             this.currentSumsInPeriod = response;
 
+            this.totalAGAFeedback = 0;
+            this.totalFtrekkFeedback = 0;
+            
             this.totalAGASystem = 0;
             this.totalFtrekkSystem = 0;
 
@@ -272,17 +276,42 @@ export class AMeldingView implements OnInit {
 
     private getSumUpForAmelding() {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
-            .subscribe((response) => {
-                this.currentSumUp = response;
-                this.legalEntityNo = response.LegalEntityNo;
-                
-                if (this.currentSumUp.hasOwnProperty('totals')) {
-                    if (this.currentSumUp.totals !== null) {
-                        this.totalAGAAmelding = this.currentSumUp.totals.sumAGA ? this.currentSumUp.totals.sumAGA : 0;
-                        this.totalFtrekkAmelding = this.currentSumUp.totals.sumTax ? this.currentSumUp.totals.sumTax : 0;
+        .subscribe((response) => {
+            this.currentSumUp = response;
+            this.legalEntityNo = response.LegalEntityNo;
+        });
+    }
+
+    private getFeedbackAgaAndFtrekk() {
+        if (this.currentAMelding.hasOwnProperty('feedBack')) {
+            if (this.currentAMelding.feedBack !== null) {
+                let alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+                if (alleMottak instanceof Array) {
+                    alleMottak.forEach(mottak => {
+                        const pr = mottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop());
+                        if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                            this.checkMottattPeriode(mottak);
+                        }
+                    });
+                } else {
+                    const pr = alleMottak.kalendermaaned;
+                    const period = parseInt(pr.split('-').pop());
+                    if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                        this.checkMottattPeriode(alleMottak);
                     }
                 }
-            });
+            }
+        }
+    }
+
+    private checkMottattPeriode(mottak) {
+        if (mottak.hasOwnProperty('mottattPeriode')) {
+            if (mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+                this.totalAGAFeedback = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+                this.totalFtrekkFeedback = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+            }
+        }
     }
 
     private getAMeldingForPeriod() {
