@@ -52,7 +52,8 @@ export class CompanySettingsComponent implements OnInit {
     private accountVisibilityGroups: AccountVisibilityGroup[] = [];
     private bankAccountChanged: any;
 
-    private showImageSection: boolean = false; // used in template
+    public showImageSection: boolean = false; // used in template
+    public showDivSection: boolean = false; // used in template
     private imageUploadOptions: IUploadConfig;
 
     private addressChanged: any;
@@ -61,6 +62,7 @@ export class CompanySettingsComponent implements OnInit {
     public emptyPhone: Phone;
     public emptyEmail: Email;
     public emptyAddress: Address;
+    public invoceEmail: string;
 
     private showExternalSearch: boolean = false;
     private searchText: string = '';
@@ -476,6 +478,10 @@ export class CompanySettingsComponent implements OnInit {
                 });
             })
         };
+    }
+
+    public generateInvoiceEmail() {
+
     }
 
     private getFormLayout() {
@@ -953,7 +959,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'SalaryBankAccount',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.MULTIVALUE,
+                FieldType: BUTTON,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Lønnskonto',

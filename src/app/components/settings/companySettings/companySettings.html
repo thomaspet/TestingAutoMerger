@@ -11,8 +11,6 @@
             [model]="company">
     </uni-form>
 
-    <bankaccount-modal></bankaccount-modal>
-
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
         <div class="collapsable-content">
@@ -22,6 +20,18 @@
                     [uploadConfig]="imageUploadOptions"
                     [singleImage]="true"
             ></uni-image>
+        </div>
+    </article>
+
+    <article class="company-div collapsable" [ngClass]="{'-is-open': showDivSection}">
+        <h4 (click)="showDivSection = !showDivSection">Diverse</h4>
+        <div class="collapsable-content">
+            <label>
+                <span>Faktura e-mail</span>
+                <input type="text" disabled [ngModel]="invoiceEmail">
+            </label>
+            <br />
+            <button type="button" (click)="generateInvoiceEmail()">Generer ny faktura e-post adresse</button>
         </div>
     </article>
 </article>
@@ -37,5 +47,6 @@
 <email-modal></email-modal>
 <phone-modal></phone-modal>
 <address-modal></address-modal>
+<bankaccount-modal></bankaccount-modal>
 
 <uni-save [actions]="saveactions"></uni-save>

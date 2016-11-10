@@ -265,12 +265,18 @@ export class QuoteDetails {
                         : this.customerQuoteService.newCustomerQuote()
                 ),
                 this.customerService.GetAll(null, ['Info']),
-                this.addressService.GetNewEntity(null, 'address')
+                this.addressService.GetNewEntity(null, 'address'),
+                this.quoteID ? Observable.of(null) : this.userService.getCurrentUser()
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.quote = response[2];
                 this.customers = response[3];
                 this.emptyAddress = response[4];
+                const currentUser = response[5];
+
+                if (!this.quoteID) {
+                    this.quote.OurReference = currentUser.DisplayName;
+                }
 
                 // Add a blank item in the dropdown controls
                 this.dropdownData[0].unshift(null);
