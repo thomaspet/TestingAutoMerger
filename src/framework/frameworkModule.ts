@@ -24,7 +24,9 @@ import {CONTROLS} from './uniform/controls/index';
 import {ShowError} from './uniform/showError';
 import {UniCalendar} from './uniform/controls/date/calendar';
 import {UniLineBreak} from './uniform/unilinebreak';
+import {UniConfirmModal, UniConfirmContent} from './modals/confirm';
 import {Logger} from './core/logger';
+
 
 
 @NgModule({
@@ -37,6 +39,8 @@ import {Logger} from './core/logger';
     ],
     declarations: [
         UniModal,
+        UniConfirmModal,
+        UniConfirmContent,
         UniDocumentList,
         UniDocumentUploader,
         UniSave,
@@ -55,6 +59,9 @@ import {Logger} from './core/logger';
         UniLineBreak,
         CONTROLS
     ],
+    entryComponents: [
+        UniConfirmContent
+    ],
     providers: [
         ImageUploader,
         ToastService,
@@ -68,6 +75,8 @@ import {Logger} from './core/logger';
 
         // Components
         UniModal,
+        UniConfirmModal,
+        UniConfirmContent,
         UniDocumentList,
         UniDocumentUploader,
         UniSave,
