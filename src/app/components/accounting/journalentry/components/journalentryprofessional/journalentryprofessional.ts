@@ -335,8 +335,8 @@ export class JournalEntryProfessional implements OnInit {
                 }
             });
 
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number).setWidth('7%');
-        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Number).setWidth('7%').setSkipOnEnterKeyNavigation(true);
+        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('7%');
+        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('7%').setSkipOnEnterKeyNavigation(true);
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth('8%')
