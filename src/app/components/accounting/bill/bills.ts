@@ -16,9 +16,11 @@ interface IFilter {
     isSelected?: boolean;
     count?: number;
     total?: number;
-    filter: string;
+    filter?: string;
     showStatus?: boolean;
     showJournalID?: boolean;
+    route?: string;
+    onDataReady?: (data) => void;
 }
 
 @Component({
@@ -35,11 +37,12 @@ export class BillsView {
     private defaultPath: string;
 
     public filters: Array<IFilter> = [
-        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: true},
+        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true},
+        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false},
         { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102' },
         { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103' },
         { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq 30104', showJournalID: true },
-        { label: 'Betales', name: 'ToPayment', filter: 'statuscode eq 30105', showJournalID: true },
+        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq 30105', showJournalID: true },
         { label: 'Betalt', name: 'Paid', filter: 'statuscode eq 30107 or statuscode eq 30106', showStatus: true, showJournalID: true },
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true }
     ];
@@ -50,7 +53,7 @@ export class BillsView {
     }
 
     public ngOnInit() {
-        this.refreshList(this.currentFilter, true);
+        this.refreshList(this.currentFilter, true);        
     }
 
     private refreshList(filter?: IFilter, refreshTotals: boolean = false) {
@@ -60,29 +63,53 @@ export class BillsView {
             params.set('filter', filter.filter);
         }
         this.currentFilter = filter;
-        this.supplierInvoiceService.getInvoiceList(params).subscribe((result) => {
-            this.listOfInvoices = result;
-            this.tableConfig = this.createTableConfig(filter);
-            this.busy = false;
-            if (filter.total !== undefined ) { 
-                this.totals.grandTotal = filter.total;
+        var obs = obs = this.supplierInvoiceService.getInvoiceList(params);
+        if (filter.route) {
+            obs = this.supplierInvoiceService.fetch(filter.route);
+        }
+        obs.subscribe((result) => {
+            if (filter.onDataReady) {
+                filter.onDataReady(result);
+            } else {
+                this.listOfInvoices = result;
+                this.tableConfig = this.createTableConfig(filter);
+                this.totals.grandTotal = filter.total || this.totals.grandTotal;
             }
+            this.busy = false;
         });
         if (refreshTotals) {
             this.refreshTotals();
         }
     }
 
+    private onInboxDataReady(data: Array<any>) {
+        this.listOfInvoices = data;
+        var filter = this.filters.find( x => x.name === 'Inbox');
+        if (filter) {
+            filter.count = data ? data.length : 0;
+            filter.total = 0;
+        }
+        if (this.totals) { this.totals.grandTotal = 0; }
+        var cols = [
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('4rem').setFilterOperator('startswith'),
+            new UniTableColumn('Name', 'Filnavn').setWidth('15rem').setFilterOperator('startswith'),
+            new UniTableColumn('Description', 'Tekst').setFilterOperator('contains'),
+            new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number).setWidth('6rem').setFilterOperator('startswith'),
+        ];
+        var cfg = new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true);
+        this.tableConfig = cfg;                
+    }
+
     private refreshTotals() {
         this.supplierInvoiceService.getInvoiceListGroupedTotals().subscribe((result: Array<IStatTotal>) => {
-            this.filters.forEach(x => { x.count = 0; x.total = 0; } );
+            this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } } );
             var count = 0;
             var total = 0;
             result.forEach(x => {
                 count += x.countid;
                 total += x.sumTaxInclusiveAmount;
                 var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
-                var ix = this.filters.findIndex( y => y.filter.indexOf(statusCode) > 0);
+                var ix = this.filters.findIndex( y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
                 if (ix >= 0) {
                     this.filters[ix].count += x.countid;
                     this.filters[ix].total += x.sumTaxInclusiveAmount;
@@ -136,9 +163,12 @@ export class BillsView {
 
     public onRowSelected(event) {
         var item = event.rowModel;
-        if (item && item.ID) {
-            this.router.navigateByUrl('/accounting/bill/' + item.ID);
-            // this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + item.ID);
+        if (item) {
+            if (this.currentFilter.name === 'Inbox') {
+                this.router.navigateByUrl('/accounting/bill/0?fileid=' + item.ID);
+            } else {
+                this.router.navigateByUrl('/accounting/bill/' + item.ID);
+            }
         }
     } 
 

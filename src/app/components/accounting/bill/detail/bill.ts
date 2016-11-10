@@ -11,6 +11,7 @@ import {UniForm} from '../../../../../framework/uniform';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {checkGuid} from '../../../../services/common/dimensionservice';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {Location} from '@angular/common';
 
 declare const moment;
 
@@ -34,7 +35,7 @@ const lang = {
 
     headliner_new: 'Ny regning',
     headliner_invoice: 'Fakturanr.',
-    headliner_supplier: 'Leverandørnr.',
+    headliner_supplier: 'Lev.nr.',
     headliner_journal: 'Bilagsnr.',
     headliner_journal_not: 'ikke bokført',
 
@@ -73,15 +74,18 @@ const workflowLabels = {
     'journal': 'Bokfør',
 
     'payInvoice': 'Registrere betaling',
-    'sendForPayment': 'Registrere betaling',
-    'pay': 'Betal',
+    'sendForPayment': 'Til betalingsliste',
+    'pay': 'Registrere betaling',
 
     'assign': 'Tildel',
-    'cancelApprovement': 'Kanseler godkjenning',
+    'cancelApprovement': 'Tilbakestill',
     'reAssign': 'Tildel på nytt',
-    'accept': 'Godkjenn',
+    'approve': 'Godkjenn',
+    'rejectInvoice': 'Avvis faktura',
+    'rejectAssignment': 'Avvis tildeling',
+    'restore': 'Gjenopprett',
 
-    'finish': 'Avslutt'
+    'finish': 'Arkiver'
 };
 
 enum actionBar {
@@ -109,7 +113,12 @@ export class BillView {
     private currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    
+    public currentFileID: number = 0;
+    public hasStartupFileID: boolean = false;
+
+    private supplierIsReadOnly: boolean = false;
+    private defaultPath: string;    
+
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
@@ -138,7 +147,8 @@ export class BillView {
         private cache: UniCacheService,
         private vatTypeService: VatTypeService,
         private supplierService: SupplierService,
-        private router: Router) {
+        private router: Router, 
+        private location: Location) {
             this.actions = this.rootActions;
     }
 
@@ -155,7 +165,8 @@ export class BillView {
                 this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
                 this.fetchInvoice(id, true);
             } else {
-                this.newInvoice();
+                this.newInvoice(true);
+                this.checkPath();
             }
         });
         
@@ -219,7 +230,6 @@ export class BillView {
     }
 
     public onSupplierModalChanged(supplier: Supplier) {
-        // debugger;
         if (supplier && supplier.ID) {
             this.fetchNewSupplier(supplier.ID, true);
             this.flagUnsavedChanged();
@@ -240,18 +250,22 @@ export class BillView {
         });
     }
 
-    private newInvoice() {
+    private newInvoice(isInitial: boolean) {
         this.tabLabel = lang.title_new;
         this.currentSupplierID = 0;
         this.current = new SupplierInvoice();
-        this.current.StatusCode = StatusCodeSupplierInvoice.Draft;
+        this.current.StatusCode = 0; // StatusCodeSupplierInvoice.Draft;
         this.tabService.currentActiveTab.name = this.tabLabel;
         this.setupToolbar();
         this.flagUnsavedChanged(true);
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
+        this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
+        this.currentFileID = 0;
         this.busy = false;
+        if (!isInitial) { this.hasStartupFileID = false; }
+        try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) {}
     }
 
     private flagUnsavedChanged(reset = false) {
@@ -272,8 +286,8 @@ export class BillView {
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach( x => list.push(x) );
-            // this.addActions(it._links.actions, list);
-            this.addActions(it._links.transitions, list, true, ['journal', 'pay'], ['finish']);
+            let filter = (it.StatusCode === 30105 ? ['journal'] : undefined);
+            this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -351,21 +365,28 @@ export class BillView {
                 });
                 return true;
 
-            case 'sendForPayment':
-                this.supplierInvoiceService.PostAction(this.current.ID, key).subscribe( () => {
-                    this.registerPayment( done );
-                }, (err) => {
-                    var msg = this.showHttpError(err);
-                    done(msg);
-                });
-                return true;                
-
             case 'pay':
             case 'payInvoice':
                 this.registerPayment(done);
                 return true;
+
+            default:
+                return this.RunActionOnCurrent(key, done);
         }
-        return false;
+    }
+
+    private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string ): boolean {
+        this.busy = true;
+        this.supplierInvoiceService.PostAction(this.current.ID, action).subscribe( () => {
+            this.busy = false;
+            this.fetchInvoice(this.current.ID, true);
+            if (done) { done(successMsg); }
+        }, (err) => {
+            this.busy = false;
+            var msg = this.showHttpError(err);
+            done(msg);            
+        });        
+        return true;
     }
 
     private tryJournal(url: string): Promise<ILocalValidation> {
@@ -426,12 +447,52 @@ export class BillView {
                 // this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
+                this.checkLockStatus();
                 resolve('');
             }, (err) => {
                 var msg = this.showHttpError(err);
                 reject(msg);
             });
         });              
+    }
+
+    private checkLockStatus() {
+
+        this.supplierIsReadOnly = true;
+
+        if (this.current && this.current.StatusCode) {
+            switch (safeInt(this.current.StatusCode)) {
+                case StatusCodeSupplierInvoice.Payed:
+                case StatusCodeSupplierInvoice.PartlyPayed:
+                case 90001: // rejected
+                case 40001: // archived
+                    this.uniForm.readMode();
+                    return;
+
+                case StatusCodeSupplierInvoice.ToPayment:
+                    this.uniForm.readMode();
+                    this.uniForm.field('BankAccount').editMode();
+                    this.uniForm.field('PaymentID').editMode();
+                    return;
+
+                case StatusCodeSupplierInvoice.Journaled:
+                    this.uniForm.readMode();
+                    this.uniForm.field('PaymentDueDate').editMode();
+                    this.uniForm.field('BankAccount').editMode();
+                    this.uniForm.field('PaymentID').editMode();
+                    return;               
+
+                case StatusCodeSupplierInvoice.ForApproval:
+                    this.uniForm.readMode();
+                    this.supplierIsReadOnly = false;
+                    this.uniForm.field('PaymentID').editMode();
+                    this.uniForm.field('PaymentDueDate').editMode();
+                    return;     
+            }
+        } 
+
+        this.uniForm.editMode();
+        this.supplierIsReadOnly = false;
     }
 
     public delete(done) {
@@ -445,7 +506,7 @@ export class BillView {
             }
             obs.subscribe((result) => {
                 done(lang.delete_success);
-                this.newInvoice();
+                this.newInvoice(false);
                 resolve();
             }, (error) => {
                 var msg = error.statusText;
@@ -465,6 +526,19 @@ export class BillView {
     public save(done?): Promise<ILocalValidation> {
         this.preSave();
         return new Promise((resolve, reject) => {
+            
+            var reload = () => {
+                this.fetchInvoice(this.currentSupplierID, (!!done) )
+                .then(() => {
+                    resolve({ success: true}); 
+                    if (done) { done(lang.save_success); }                
+                })
+                .catch((msg) => {
+                    reject( { success: false, errorMessage: msg });
+                    if (done) { done(msg); }
+                });                
+            };
+
             var obs: any;
             if (this.current.ID) {
                 obs = this.supplierInvoiceService.Put(this.current.ID, this.current);                
@@ -472,16 +546,18 @@ export class BillView {
                 obs = this.supplierInvoiceService.Post(this.current);
             }
             obs.subscribe((result) => {
-                this.currentSupplierID = this.current.ID;
-                this.fetchInvoice(result.ID, (!!done) )
-                    .then(() => {
-                        resolve({ success: true}); 
-                        if (done) { done(lang.save_success); }                
-                    })
-                    .catch((msg) => {
-                        reject( { success: false, errorMessage: msg });
-                        if (done) { done(msg); }
-                    });                
+                this.currentSupplierID = result.ID;
+                // Post-file-linking?
+                if (this.hasStartupFileID && this.currentFileID) {
+                    this.linkFile(this.currentSupplierID, this.currentFileID, 'SupplierInvoice', 40001).then( () => {
+                        //  this.flagFileAsUsed(this.currentFileID, 40001);
+                        this.hasStartupFileID = false;
+                        this.currentFileID = 0;
+                        reload(); 
+                    });
+                } else {
+                    reload();
+                }                
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
@@ -567,9 +643,6 @@ export class BillView {
 
     private registerPayment(done) {
         const title = lang.ask_register_payment + this.current.InvoiceNumber;
-
-
-        // /51?action=sendForPayment
 
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
@@ -668,7 +741,7 @@ export class BillView {
         var stConfig = this.getStatustrackConfig();
         var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info ? `${doc.Supplier.Info.Name}` : lang.headliner_new, 
+            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new, 
             subheads: [
                 {title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : ''},
                 {title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : ''},
@@ -721,6 +794,44 @@ export class BillView {
         });
     }
 
+    private loadFromFileID(fileID: number | string) {
+        this.hasStartupFileID = true;
+        this.linkFile(fileID, fileID, 'file').then( (result) => {
+            this.currentFileID = <number>fileID;
+        }).catch((err) => {
+            // self-link to file already exists.. ignore..
+            this.currentFileID = <number>fileID;
+        });        
+    }
+
+    private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
+        var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
+        if (flagFileStatus === 0 || flagFileStatus) {
+            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe();    
+        }
+        return this.supplierInvoiceService.send(route).toPromise();
+    }
+
+    private checkPath() {
+        this.defaultPath = this.location.path(true);
+        var ix = this.defaultPath.indexOf('?');
+        if (ix > 0) {
+            var params = this.defaultPath.substr(ix + 1).split('&');
+            if (params && params.length > 0) {
+                params.forEach(element => {
+                    var parts = element.split('=');
+                    if (parts.length > 1) {
+                        if (parts[0] === 'fileid') {
+                            this.loadFromFileID(parts[1]);
+                        }
+                    }
+                });
+            }
+            this.defaultPath = this.defaultPath.substr(0, ix);
+        } 
+    }
+
+
     private showErrMsg(msg: string, lookForMsg = false): string {
         var txt = msg;
         if (lookForMsg) {
@@ -742,7 +853,9 @@ export class BillView {
                 sibling.className = 'good tiny';
                 sibling.innerHTML = lang.btn_new_supplier;
                 sibling.addEventListener('click', () => {
-                    this.supplierDetailsModal.open();
+                    if (!this.supplierIsReadOnly) {
+                        this.supplierDetailsModal.open();
+                    }
                 });
                 var dropDown = btn.nextSibling;
                 btn.parentElement.insertBefore(sibling, dropDown);
@@ -753,7 +866,7 @@ export class BillView {
             el = frm.elementRef.nativeElement.getElementsByTagName('input');
             if (el && el.length > 0) {
                 el[0].addEventListener('keydown', (event) => {
-                    if (event.which === 114) {
+                    if (event.which === 114 && (!this.supplierIsReadOnly)) {
                         this.supplierDetailsModal.open();
                         event.preventDefault();
                         event.stopPropagation();

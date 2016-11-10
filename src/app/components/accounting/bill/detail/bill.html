@@ -35,10 +35,13 @@
         </aside>
 
         <div [hidden]="!tabs[1].isSelected">
-            <div *ngIf="!current?.ID" class="application">
+            <div *ngIf="!hasStartupFileID && !current?.ID" class="application">
                 <button class="good" (click)="onSaveDraftForImage($event)">Start med dokument/bilde</button>
             </div>
             <uni-image *ngIf="current?.ID" [entity]="'SupplierInvoice'" [entityID]="current?.ID"></uni-image>
+            
+            <uni-image *ngIf="currentFileID" [entity]="'file'" [entityID]="currentFileID"></uni-image>
+
         </div>
 
         <div [hidden]="!tabs[2].isSelected">
