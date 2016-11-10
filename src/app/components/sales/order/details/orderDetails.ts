@@ -180,21 +180,8 @@ export class OrderDetails {
     }
 
     public addOrder() {
-        this.customerOrderService.newCustomerOrder().then(order => {
-            this.customerOrderService.Post(order)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/orders/' + data.ID);
-                    },
-                    (err) => {
-                        console.log('Error creating order: ', err);
-                        this.log(err);
-                    }
-                );
-        });
+        this.router.navigateByUrl('/sales/orders/0');
     }
-
-    public change(value: CustomerOrder) { }
 
     public ready(event) {
         this.setupSubscriptions(null);
@@ -251,7 +238,11 @@ export class OrderDetails {
             Observable.forkJoin(
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
-                this.customerOrderService.Get(this.orderID, this.expandOptions),
+                (
+                    this.orderID > 0 ?
+                        this.customerOrderService.Get(this.orderID, this.expandOptions)
+                        : this.customerOrderService.newCustomerOrder()
+                ),
                 this.customerService.GetAll(null, ['Info']),
                 this.addressService.GetNewEntity(null, 'address')
             ).subscribe(response => {
@@ -277,7 +268,11 @@ export class OrderDetails {
                 this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
             });
         } else {
-            this.customerOrderService.Get(this.orderID, this.expandOptions)
+            const source = this.orderID > 0 ?
+                this.customerOrderService.Get(this.orderID, this.expandOptions)
+                : Observable.fromPromise(this.customerOrderService.newCustomerOrder());
+
+            source
                 .subscribe((order) => {
                     this.order = order;
                     this.addressService.setAddresses(this.order);
@@ -460,7 +455,8 @@ export class OrderDetails {
         return true;
     }
     private IsSaveDisabled() {
-        if (this.order.StatusCode === StatusCodeCustomerOrder.Draft ||
+        if (!this.order.StatusCode ||
+            this.order.StatusCode === StatusCodeCustomerOrder.Draft ||
             this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
             this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
             return false;
@@ -604,29 +600,49 @@ export class OrderDetails {
             return;
         }
 
-        this.customerOrderService.Put(this.order.ID, this.order)
-            .subscribe(
-                (orderSaved) => {
-                    this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
-                        this.order = orderGet;
-                        this.addressService.setAddresses(this.order);
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
+        if (this.orderID > 0) {
+            this.customerOrderService.Put(this.order.ID, this.order)
+                .subscribe(
+                    (orderSaved) => {
+                        this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
+                            this.order = orderGet;
+                            this.addressService.setAddresses(this.order);
+                            this.updateSaveActions();
+                            this.updateToolbar();
+                            this.setTabTitle();
 
+                            if (next) {
+                                next(this.order);
+                            } else {
+                                done('Ordre lagret');
+                            }
+                        });
+                    },
+                    (err) => {
+                        console.log('Feil oppsto ved lagring', err);
+                        done('Feil oppsto ved lagring');
+                        this.log(err);
+                    }
+                );
+        } else {
+            this.customerOrderService.Post(this.order)
+                .subscribe(
+                    (orderSaved) => {
                         if (next) {
                             next(this.order);
                         } else {
                             done('Ordre lagret');
                         }
-                    });
-                },
-                (err) => {
-                    console.log('Feil oppsto ved lagring', err);
-                    done('Feil oppsto ved lagring');
-                    this.log(err);
-                }
-            );
+
+                        this.router.navigateByUrl('/sales/orders/' + orderSaved.ID);
+                    },
+                    (err) => {
+                        console.log('Feil oppsto ved lagring', err);
+                        done('Feil oppsto ved lagring');
+                        this.log(err);
+                    }
+                );
+        }
     }
 
     private saveAndPrint(done) {

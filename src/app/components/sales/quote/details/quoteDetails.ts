@@ -186,8 +186,6 @@ export class QuoteDetails {
         this.router.navigateByUrl('/sales/quotes/0');
     }
 
-    public change(value: CustomerQuote) { }
-
     public ready(event) {
         this.setupSubscriptions(null);
     }
@@ -659,27 +657,20 @@ export class QuoteDetails {
             this.customerQuoteService.Post(this.quote)
                 .subscribe(
                 (quoteSaved) => {
-                    this.customerQuoteService.Get(quoteSaved.ID, this.expandOptions).subscribe(newQuote => {
-                        this.quote = newQuote;
-                        this.addressService.setAddresses(this.quote);
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
-                        this.ready(null);
+                    if (next) {
+                        next(quoteSaved);
+                    } else {
+                        done('Tilbud lagret');
+                    }
 
-                        if (next) {
-                            next(this.quote);
-                        } else {
-                            done('Tilbud lagret');
-                        }
-                    });
+                    this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
                 },
                 (err) => {
                     console.log('Feil oppsto ved lagring', err);
                     this.log(err);
                     done('Lagring feilet');
                 }
-                );
+            );
         }
     }
 

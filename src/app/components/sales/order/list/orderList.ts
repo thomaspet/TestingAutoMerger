@@ -53,18 +53,7 @@ export class OrderList {
     }
 
     public createOrder() {
-        this.customerOrderService.newCustomerOrder().then(order => {
-            this.customerOrderService.Post(order)
-                .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/orders/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating order: ', err);
-                    this.log(err);
-                }
-                );
-        });
+        this.router.navigateByUrl('/sales/orders/0');
     }
 
     private setupOrderTable() {

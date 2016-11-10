@@ -16,7 +16,6 @@
                   [config]="config"
                   [fields]="fields"
                   [model]="order"
-                  (changeEvent)="change($event)"
                   (readyEvent)="ready($event)">
         </uni-form>
     <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
