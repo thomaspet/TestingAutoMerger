@@ -130,7 +130,7 @@ export class OrderDetails {
     }
 
     private log(err) {
-        this.toastService.addToast(err._body, ToastType.bad);
+        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
     }
 
     private getStatustrackConfig() {
@@ -235,7 +235,7 @@ export class OrderDetails {
             .subscribe(settings => this.companySettings = settings,
                 err => {
                     console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                 });
 
         let jwt = this.authService.jwtDecoded;
@@ -275,8 +275,7 @@ export class OrderDetails {
 
                 this.formIsInitialized = true;
             }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
             });
         } else {
             const source = this.orderID > 0 ?
@@ -291,7 +290,7 @@ export class OrderDetails {
                     this.updateToolbar();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                    this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                 });
         }
     }

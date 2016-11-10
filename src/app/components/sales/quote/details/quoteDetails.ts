@@ -130,7 +130,7 @@ export class QuoteDetails {
         ];
     }
     private log(err) {
-        this.toastService.addToast(err._body, ToastType.bad);
+        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
     }
 
     private getStatustrackConfig() {
@@ -583,23 +583,15 @@ export class QuoteDetails {
 
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
         this.saveQuote(done, (quote) => {
-            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
-                console.log('== TRANSITION OK ' + transition + ' ==');
-                done(doneText);
-
-                this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
-                    this.quote = data;
-                    this.addressService.setAddresses(this.quote);
-                    this.updateSaveActions();
-                    this.updateToolbar();
-                    this.setTabTitle();
-                    this.ready(null);
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition)
+                .subscribe((transitionData: any) => {
+                    done(doneText);
+                    this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                }, (err) => {
+                    console.log('Feil oppstod ved ' + transition + ' transition', err);
+                    done('Feilet');
+                    this.log(err);
                 });
-            }, (err) => {
-                console.log('Feil oppstod ved ' + transition + ' transition', err);
-                done('Feilet');
-                this.log(err);
-            });
         });
     }
 
