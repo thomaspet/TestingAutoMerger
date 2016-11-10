@@ -209,6 +209,7 @@ export class RecurringPost extends UniView {
 
     private updateAndCacheSalaryTransactionRow(row) {
         row['_isDirty'] = true;
+        this.recurringPosts[row['_originalIndex']] = row;
         this.uniTable.updateRow(row['_originalIndex'], row);
         super.updateState('recurringPosts', this.recurringPosts, true);
     }
