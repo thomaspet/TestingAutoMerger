@@ -11,26 +11,7 @@
                             *ngIf="journalEntryMode == 'PROFESSIONAL'">
 </journal-entry-professional>
 
-<dl class="summary journalEntry_summary"
-    *ngIf="itemsSummaryData"
-    [attr.aria-busy]="busy">
-
-    <dt>Sum debet</dt>
-    <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
-
-    <dt>Sum kredit</dt>
-    <dd>Kr {{itemsSummaryData.SumCredit | number:'1.2-2'}}</dd>
-
-    <dt>Differanse</dt>
-    <dd>Kr {{itemsSummaryData.Differance | number:'1.2-2'}}</dd>
-
-    <dt>Inng.mva</dt>
-    <dd>Kr {{itemsSummaryData.IncomingVat | number:'1.2-2'}}</dd>
-
-    <dt>Utg.mva</dt>
-    <dd>Kr {{itemsSummaryData.OutgoingVat | number:'1.2-2'}}</dd>
-
-</dl>
+<uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
 
 <p *ngIf="validationResult && validationResult.Messages.length > 0">
     <strong class="journalEntry_validation validation error"

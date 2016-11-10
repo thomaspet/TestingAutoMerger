@@ -6,6 +6,8 @@ import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
 import {IUniSaveAction} from '../../../../../framework/save/save';
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
 
 export enum JournalEntryMode {
     Manual,
@@ -34,6 +36,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
 
     public validationResult: any;
+    public summary: ISummaryConfig[] = [];
 
     private saveactions: IUniSaveAction[] = [
         {
@@ -44,7 +47,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     ];
 
-    constructor(private journalEntryService: JournalEntryService) {
+    constructor(private journalEntryService: JournalEntryService,
+                private numberFormat: NumberFormat) {
     }
 
     public ngOnInit() {
@@ -66,6 +70,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 });
         }
 
+        this.setSums();
         this.setupSubscriptions();
     }
 
@@ -173,6 +178,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private calculateItemSums(data: JournalEntryData[]) {
         this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data);
+        this.setSums();
 
         /*
         KE 08.11.2016: Switch to running the summaries locally.
@@ -235,5 +241,24 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private useProMode() {
         this.journalEntryMode = 'PROFFESIONAL';
         this.setupSubscriptions();
+    }
+
+    private setSums() {
+        this.summary = [{
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDebet || 0) : null,
+                title: 'Sum debet',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumCredit || 0) : null,
+                title: 'Sum kreditt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.Differance || 0) : null,
+                title: 'Differanse',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.IncomingVat || 0) : null,
+                title: 'Inng.mva',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.OutgoingVat || 0) : null,
+                title: 'Utg.mva',
+            }];
     }
 }

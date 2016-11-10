@@ -24,6 +24,7 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
 
 import {TofCustomerCard} from '../../common/customerCard';
 
@@ -96,6 +97,7 @@ export class InvoiceDetails {
                 private toastService: ToastService,
                 private authService: AuthService,
                 private customerService: CustomerService,
+                private numberFormat: NumberFormat,
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService) {}
@@ -105,13 +107,13 @@ export class InvoiceDetails {
         this.activeTabIndex = 0;
 
         this.summaryFields = [
-            {title: 'Avgiftsfritt', value: '0'},
-            {title: 'Avgiftsgrunnlag', value: '0'},
-            {title: 'Sum rabatt', value: '0'},
-            {title: 'Nettosum', value: '0'},
-            {title: 'Mva', value: '0'},
-            {title: 'Øreavrunding', value: '0'},
-            {title: 'Totalsum', value: '0'},
+            {title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0)},
+            {title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0)},
+            {title: 'Sum rabatt', value: this.numberFormat.asMoney(0)},
+            {title: 'Nettosum', value: this.numberFormat.asMoney(0)},
+            {title: 'Mva', value: this.numberFormat.asMoney(0)},
+            {title: 'Øreavrunding', value: this.numberFormat.asMoney(0)},
+            {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
         ];
 
         // Subscribe and debounce recalc on table changes
@@ -563,31 +565,31 @@ export class InvoiceDetails {
                 this.summaryFields = [
                     {
                         title: 'Avgiftsfritt',
-                        value: this.itemsSummaryData.SumNoVatBasis.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
                     },
                     {
                         title: 'Avgiftsgrunnlag',
-                        value: this.itemsSummaryData.SumVatBasis.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
                     },
                     {
                         title: 'Sum rabatt',
-                        value: this.itemsSummaryData.SumDiscount.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
                     },
                     {
                         title: 'Nettosum',
-                        value: this.itemsSummaryData.SumTotalExVat.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
                     },
                     {
                         title: 'Mva',
-                        value: this.itemsSummaryData.SumVat.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
                     },
                     {
                         title: 'Øreavrunding',
-                        value: this.itemsSummaryData.DecimalRounding.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
                     },
                     {
                         title: 'Totalsum',
-                        value: this.itemsSummaryData.SumTotalIncVat.toString() || '0',
+                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
                     },
                 ];
             },

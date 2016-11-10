@@ -23,6 +23,7 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
 import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
 
 declare const _;
 declare const moment;
@@ -88,6 +89,7 @@ export class QuoteDetails {
                 private toastService: ToastService,
                 private authService: AuthService,
                 private userService: UserService,
+                private numberFormat: NumberFormat,
 
                 private router: Router,
                 private route: ActivatedRoute,
@@ -683,25 +685,25 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [{
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumNoVatBasis.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
                 title: 'Avgiftsfritt',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumVatBasis.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
                 title: 'Avgiftsgrunnlag',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumDiscount.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
                 title: 'Sum rabatt',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
                 title: 'Nettosum',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumVat.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
                 title: 'Mva',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.DecimalRounding.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
                 title: 'Øreavrunding',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalIncVat.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
                 title: 'Totalsum',
             }];
     }
