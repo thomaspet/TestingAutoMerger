@@ -2890,6 +2890,7 @@ export class UniQueryDefinition {
     public ID: number;
     public IsShared: boolean;
     public MainModelName: string;
+    public Category: string;
     public ModuleID: number;
     public Name: string;
     public SortIndex: number;

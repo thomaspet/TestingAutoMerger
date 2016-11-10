@@ -91,11 +91,15 @@ export class Overview {
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
             this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null)
         ).subscribe(response => {
-            let reports = response[0].concat(response[1]);
+            response[0].forEach(x => x.IsReport = true);
+            response[1].forEach(x => x.IsQuery = true);
+            let reportAndQueries = response[0].concat(response[1]);
+
             this.reportCategories = new Array<ReportCategory>();
 
-            for (const report of reports) {
-                if (report.Visible || !report.Category) {
+            for (const report of reportAndQueries) {
+                // array contains both reports and uniqueries, display visible reports and all uniqueries (for now)
+                if (report.Visible || report.IsQuery) {
                     let reportName = report.Category || report.MainModelName;
                     let reportCategory: ReportCategory = this.reportCategories.find(category => category.name === reportName);
 
@@ -108,6 +112,7 @@ export class Overview {
 
                         this.reportCategories.push(reportCategory);
                     }
+
                     reportCategory.reports.push(report);
                 }
             }

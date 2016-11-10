@@ -4,14 +4,14 @@
         <h2>{{ reportCategory.name }}</h2>
         <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">
             <!-- Uni Query -->
-            <div *ngIf="!report.Category">
+            <div *ngIf="report.IsQuery">
                 <a (click)="showUniQuery(report)">
                     <h4 class="report_name">{{report.Name}} <small>(uttrekk)</small></h4>
                     <p>{{report.Description}}</p>
                 </a>
             </div>
             <!-- Reports -->
-            <div *ngIf="report.Category" [ngSwitch]="report.ID">
+            <div *ngIf="report.IsReport" [ngSwitch]="report.ID">
                 <a *ngSwitchCase="12"
                         (click)="showBalanceListModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
