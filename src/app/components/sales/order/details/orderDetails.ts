@@ -21,6 +21,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
+import {ISummaryConfig} from '../../../common/summary/summary';
 
 declare const _;
 
@@ -73,6 +74,7 @@ export class OrderDetails {
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     private user: User;
+    public summary: ISummaryConfig[] = [];
 
     constructor(private customerService: CustomerService,
                 private customerOrderService: CustomerOrderService,
@@ -92,6 +94,7 @@ export class OrderDetails {
 
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
+            this.setSums();
             this.setup();
         });
 
@@ -495,6 +498,7 @@ export class OrderDetails {
                         this.itemsSummaryData = data;
                         this.updateSaveActions();
                         this.updateToolbar();
+                        this.setSums();
                     },
                     (err) => {
                         console.log('Error when recalculating items:', err);
@@ -643,6 +647,31 @@ export class OrderDetails {
                     }
                 );
         }
+    }
+
+    private setSums() {
+        this.summary = [{
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumNoVatBasis.toString() : null,
+                title: 'Avgiftsfritt',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumVatBasis.toString() : null,
+                title: 'Avgiftsgrunnlag',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumDiscount.toString() : null,
+                title: 'Sum rabatt',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat.toString() : null,
+                title: 'Nettosum',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumVat.toString() : null,
+                title: 'Mva',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.DecimalRounding.toString() : null,
+                title: 'Øreavrunding',
+            }, {
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalIncVat.toString() : null,
+                title: 'Totalsum',
+            }];
     }
 
     private saveAndPrint(done) {

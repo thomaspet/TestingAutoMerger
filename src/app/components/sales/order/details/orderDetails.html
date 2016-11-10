@@ -18,25 +18,9 @@
                   [model]="order"
                   (readyEvent)="ready($event)">
         </uni-form>
-    <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
+        <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
         <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
-
-        <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
-            <dt>Avgiftsfritt</dt>
-            <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>
-            <dt>Avgiftsgrunnlag</dt>
-            <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>
-            <dt>Sum rabatt</dt>
-            <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>
-            <dt>Nettosum</dt>
-            <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>
-            <dt>Mva</dt>
-            <dd>Kr. {{itemsSummaryData.SumVat}}</dd>
-            <dt>Øreavrunding</dt>
-            <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>
-            <dt>Totalsum</dt>
-            <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
-        </dl>
+        <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>
 

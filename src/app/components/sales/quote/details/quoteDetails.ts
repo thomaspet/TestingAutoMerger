@@ -676,8 +676,8 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [{
-            value: this.itemsSummaryData ? this.itemsSummaryData.SumNoVatBasis.toString() : null,
-            title: 'Avgiftsfritt',
+                value: this.itemsSummaryData ? this.itemsSummaryData.SumNoVatBasis.toString() : null,
+                title: 'Avgiftsfritt',
             }, {
                 value: this.itemsSummaryData ? this.itemsSummaryData.SumVatBasis.toString() : null,
                 title: 'Avgiftsgrunnlag',
