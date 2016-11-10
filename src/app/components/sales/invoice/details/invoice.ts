@@ -269,7 +269,12 @@ export class InvoiceDetails {
         if (this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
             tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
         } else {
-            tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+            if (this.invoice.InvoiceNumber) {
+                tabTitle = 'Fakturanr. ' + this.invoice.InvoiceNumber;
+            } else {
+                tabTitle = (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft)
+                    ? 'Faktura (kladd)' : 'Ny faktura';
+            }
         }
         this.tabService.addTab({ url: '/sales/invoices/' + this.invoice.ID, name: tabTitle, active: true, moduleID: UniModules.Invoices });
     }
@@ -331,8 +336,8 @@ export class InvoiceDetails {
         });
 
         this.saveActions.push({
-            label: 'Fakturer',
-            action: done => this.saveAndInvoice(done),
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
+            action: done => this.transition(done),
             disabled: (!this.invoice.TaxExclusiveAmount) &&
                 (!this.itemsSummaryData || !this.itemsSummaryData.SumTotalIncVat)
         });
@@ -388,23 +393,31 @@ export class InvoiceDetails {
             : this.customerInvoiceService.Post(this.invoice);
     }
 
-    private saveAndInvoice(done: any) {
+    private transition(done: any) {
         const isDraft = this.invoice.ID >= 1;
+
+        const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
+        const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
+        const errText =  isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
         this.saveInvoice().subscribe(
             (invoice) => {
                 if (!isDraft) {
-                    done('Faktura fakturert');
+                    done(doneText);
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                     return;
                 }
 
                 this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                     (res) => {
-                        done('Faktura fakturert');
-                        this.customerInvoiceService.Get(res.ID, this.expandOptions).subscribe((refreshed) => {
+                        done(doneText);
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
                             this.refreshInvoice(refreshed);
                         });
+                    },
+                    (err) => {
+                        done(errText);
+                        this.log(err);
                     }
                 );
             },
