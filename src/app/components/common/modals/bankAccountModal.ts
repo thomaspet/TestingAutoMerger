@@ -27,6 +27,7 @@ declare var _;
 })
 export class BankAccountForm {
     @ViewChild(UniForm) public form: UniForm;
+
     private config: any = {};
     private fields: any[] = [];
     private formConfig: any = {};
@@ -72,7 +73,9 @@ export class BankAccountForm {
 
                 this.config.model = _.cloneDeep(this.config.model);
                 this.busy = false;
-                this.form.field('AccountID').focus();
+                if (this.form.field('AccountID')) {
+                    this.form.field('AccountID').focus();
+                }
                 this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
             }, (error) => {
                 this.busy = false;
@@ -88,12 +91,6 @@ export class BankAccountForm {
         accountNumber.Options = {
             mask: '0000 00 00000',
             events: {
-                tab: (event) => {
-                    this.form.field('AccountID').focus();
-                },
-                shift_tab: (event) => {
-                    this.form.field('AccountNumber').focus();
-                }
             }
         };
 
@@ -113,6 +110,7 @@ export class BankAccountForm {
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
+
         this.fields = [
             {
                 EntityType: 'BankAccount',
@@ -125,6 +123,7 @@ export class BankAccountForm {
                 Property: 'IBAN',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
+                LineBreak: !this.config.accountVisible,
                 Label: 'IBAN'
             },
             {
@@ -133,7 +132,8 @@ export class BankAccountForm {
                 FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Hovedbokskonto',
                 Classes: 'large-field',
-                LineBreak: true
+                LineBreak: true,
+                Hidden: !this.config.accountVisible
             },
             // Bank section
             {
@@ -259,8 +259,9 @@ export class BankAccountModal {
         };
     }
 
-    public openModal(bankaccount: BankAccount) {
+    public openModal(bankaccount: BankAccount, accountVisible: boolean = true) {
         this.modalConfig.model = bankaccount;
+        this.modalConfig.accountVisible = accountVisible;
         this.modal.open();
     }
 }

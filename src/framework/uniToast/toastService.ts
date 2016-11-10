@@ -18,7 +18,7 @@ export interface IToast {
 export class ToastService {
     private nextId: number = 0;
     private toasts: IToast[] = [];
-    
+
     public addToast(title: string, type?: ToastType, durationInSeconds?: number, message?: string): number {
         let id = this.nextId++;
         this.toasts.push({
@@ -37,4 +37,20 @@ export class ToastService {
         });
     }
 
+    public parseErrorMessageFromError(err): string {
+        let message = '';
+
+        if (err && err._body) {
+            let errContent = JSON.parse(err._body);
+            if (errContent && errContent.Messages && errContent.Messages.length > 0) {
+                errContent.Messages.forEach(msg => {
+                    message += msg.Message + '.\n';
+                });
+            }
+        } else if (err && err._body) {
+            message = JSON.stringify(err._body);
+        }
+
+        return message;
+    }
 }

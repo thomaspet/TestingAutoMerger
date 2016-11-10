@@ -1,41 +1,52 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
 <header class="supplier_poster" *ngIf="supplier">
-    
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="supplier && supplier.ID > 0">{{supplier.Info.Name}}</h1>
-            <p *ngIf="supplier && supplier.ID > 0">Leverandørnr. {{supplier.SupplierNumber}}</p>
-            <h1 *ngIf="supplierID == 0">Ny leverandør</h1>
-            <p *ngIf="supplierID == 0">&nbsp;</p>
-        </section>
-            
-        <nav class="poster_toolbar_tools" *ngIf="!modalMode">
-            <a (click)="previousSupplier()" class="previous">Forrige</a>
-            <a (click)="nextSupplier()" class="next">Neste</a>
-            <a (click)="addSupplier()" class="new">Ny leverandør</a>
-        </nav>         
-    </article>
-    
     <!-- Widget poster -->
-    <section class="poster_overview">    
-        <section class="application">     
+    <section class="poster_overview">
+        <section class="application">
             <uni-widget-poster [model]="supplier" *ngIf="supplier && supplier.ID > 0">
             </uni-widget-poster>
         </section>
         <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="supplier && supplier.ID == 0"></external-search>
     </section>
+
+    <div class="horizontal_nav" *ngIf="supplier?.ID">
+        <ul>
+            <li>
+                <a
+                        [class]="showReportWithID ? '' : 'router-link-active'"
+                        (click)="showReport(null)"
+                >Detaljer</a>
+            </li>
+            <li *ngFor="let link of reportLinks">
+                <a
+                        [class]="showReportWithID == link.id ? 'router-link-active' : ''"
+                        (click)="showReport(link.id)"
+                >{{link.name}}</a>
+            </li>
+        </ul>
+    </div>
 </header>
 
-<section class="supplier-details application">
-    <uni-form *ngIf='supplier'
+<section class="supplier-details application" *ngIf='supplier'>
+    <uni-form *ngIf="!showReportWithID"
               [config]="config"
               [fields]="fields"
-              [model]="supplier"
-              (changeEvent)="change($event)">
+              [model]="supplier">
     </uni-form>
-    
-    <email-modal></email-modal>
-    <phone-modal></phone-modal>
-    <address-modal></address-modal>
+    <uni-query-read-only
+            *ngFor="let link of reportLinks"
+            [hidden]="showReportWithID != link.id"
+            [ngClass]="{'hidden': showReportWithID != link.id}"
+            [queryDefinitionID]="link.id"
+            [externalID]="supplier.ID">
+    </uni-query-read-only>
+
 </section>
 
 <uni-save [actions]="saveactions" [class.uni_save_modal_mode]="modalMode"></uni-save>
+
+<email-modal></email-modal>
+<phone-modal></phone-modal>
+<address-modal></address-modal>
+<bankaccount-modal></bankaccount-modal>

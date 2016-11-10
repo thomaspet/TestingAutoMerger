@@ -31,8 +31,7 @@
     <uni-form *ngIf="!showReportWithID"
               [config]="config"
               [fields]="fields"
-              [model]="customer"
-              (changeEvent)="change($event)">
+              [model]="customer">
     </uni-form>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
