@@ -57,17 +57,17 @@ export class CustomerDetails {
         },
         contextmenu: [
             {
-                label: 'Ny ordre på denne kunden',
+                label: 'Ny ordre',
                 action: () => this.router.navigateByUrl(`/sales/orders/0;customerID=${this.customerID}`),
                 disabled: () => !this.customerID
             },
             {
-                label: 'Ny faktura på denne kunden',
+                label: 'Ny faktura',
                 action: () => this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.customerID}`),
                 disabled: () => !this.customerID
             },
             {
-                label: 'Nytt tilbud på denne kunden',
+                label: 'Nytt tilbud',
                 action: () => this.router.navigateByUrl(`/sales/quotes/0;customerID=${this.customerID}`),
                 disabled: () => !this.customerID
             }
