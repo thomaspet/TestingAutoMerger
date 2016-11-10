@@ -64,27 +64,33 @@ export class PayrollrunDetails {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-
-                    if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
-                        this.busy = true;
-                        this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
-                            if (response) {
-                                this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
-                                    this.payrollrunService.refreshPayrun(payrollRun);
-                                }, error => {
+                    if (this.payrollrun.StatusCode < 1) {
+                        this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
+                    } else {
+                        if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+                            this.busy = true;
+                            this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
+                                if (response) {
+                                    this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
+                                        this.payrollrunService.refreshPayrun(payrollRun);
+                                    }, error => {
+                                        this.busy = false;
+                                        this.log(error);
+                                    });
+                                } else {
+                                    alert('fikk ikke nullstilt lønnsavregning');
                                     this.busy = false;
-                                    this.log(error);
-                                });
-                            } else {
-                                alert('fikk ikke nullstilt lønnsavregning');
+                                }
+                            }, error => {
                                 this.busy = false;
-                            }
-                        }, error => {
-                            this.busy = false;
-                            this.log(error);
-                        });
+                                this.log(error);
+                            });
+                        }
                     }
 
+                },
+                disabled: (rowModel) => {
+                    return this.payrollrun.StatusCode < 1;
                 }
             }
         ];

@@ -65,7 +65,7 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
 
     private tableConfig() {
 
-        var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', UniTableColumnType.Number).setWidth('5rem');
+        var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', UniTableColumnType.Number).setWidth('3rem');
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
         var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
             .setCls('icon-column')
@@ -99,7 +99,7 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
             .setColumns([
                 employeenumberCol,
                 nameCol,
-                subEntityCol,
+                // subEntityCol,
                 lockedCol
             ]);
         

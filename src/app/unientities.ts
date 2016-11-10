@@ -488,6 +488,7 @@ export class Company {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public FileFlowEmail: string;
     public ID: number;
     public IsTest: boolean;
     public Key: string;
@@ -1244,8 +1245,8 @@ export class ReportDefinition {
     public TemplateLinkId: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomFields: any;
     public Visible: boolean;
+    public CustomFields: any;
 }
 
 
@@ -1618,6 +1619,7 @@ export class Supplier {
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public CreditDays: number;
     public DefaultBankAccountID: number;
     public Deleted: boolean;
     public DimensionsID: number;
@@ -1762,6 +1764,7 @@ export class AGACalculation {
     public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
+    public agaPension: Array<AGAPension>;
     public foreignerWithPercent: Array<ForeignerWithPercent>;
     public foreignerWithAmount: Array<ForeignerWithAmount>;
     public payrollRun: Array<PayrollRun>;
@@ -1802,9 +1805,34 @@ export class AGATax {
     public Deleted: boolean;
     public ID: number;
     public StatusCode: number;
+    public SubEntityID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public zone: number;
+    public subEntity: SubEntity;
+    public CustomFields: any;
+}
+
+
+export class AGAPension {
+    public static RelativeUrl = '';
+    public static EntityType = 'AGAPension';
+
+    public agaBase: number;
+    public AGACalculationID: number;
+    public agaRate: number;
+    public AGARateID: number;
+    public beregningsKode: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public SubEntityID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public zone: number;
+    public subEntity: SubEntity;
     public CustomFields: any;
 }
 
@@ -1823,9 +1851,11 @@ export class AGADraw {
     public Deleted: boolean;
     public ID: number;
     public StatusCode: number;
+    public SubEntityID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public zone: number;
+    public subEntity: SubEntity;
     public CustomFields: any;
 }
 
@@ -1842,8 +1872,30 @@ export class ForeignerWithPercent {
     public Deleted: boolean;
     public ID: number;
     public StatusCode: number;
+    public SubEntityID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public subEntity: SubEntity;
+    public CustomFields: any;
+}
+
+
+export class DrawForeignerWithPercent {
+    public static RelativeUrl = '';
+    public static EntityType = 'DrawForeignerWithPercent';
+
+    public agaBase: number;
+    public AGACalculationID: number;
+    public agaRate: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public SubEntityID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public subEntity: SubEntity;
     public CustomFields: any;
 }
 
@@ -1860,8 +1912,10 @@ export class ForeignerWithAmount {
     public ID: number;
     public persons: number;
     public StatusCode: number;
+    public SubEntityID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public subEntity: SubEntity;
     public CustomFields: any;
 }
 
@@ -2150,6 +2204,7 @@ export class PayrollRun {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public transactions: Array<SalaryTransaction>;
+    public agacalculation: Array<AGACalculation>;
     public CustomFields: any;
 }
 
@@ -2358,6 +2413,26 @@ export class BankAccountSalary {
     public ID: number;
     public LandCode: string;
     public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class EmailLog {
+    public static RelativeUrl = 'emails';
+    public static EntityType = 'EmailLog';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public From: string;
+    public ID: number;
+    public StatusCode: number;
+    public Subject: string;
+    public To: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -2785,10 +2860,10 @@ export class UniQueryField {
     public CreatedBy: string;
     public Deleted: boolean;
     public Field: string;
+    public FieldType: number;
     public Header: string;
     public ID: number;
     public Index: number;
-    public FieldType: number;
     public Path: string;
     public StatusCode: number;
     public SumFunction: string;
@@ -2804,6 +2879,7 @@ export class UniQueryDefinition {
     public static RelativeUrl = 'uniquerydefinitions';
     public static EntityType = 'UniQueryDefinition';
 
+    public Category: string;
     public ClickParam: string;
     public ClickUrl: string;
     public Code: string;
@@ -2816,6 +2892,7 @@ export class UniQueryDefinition {
     public MainModelName: string;
     public ModuleID: number;
     public Name: string;
+    public SortIndex: number;
     public StatusCode: number;
     public SystemGeneratedQuery: boolean;
     public UpdatedAt: Date;
@@ -2901,12 +2978,33 @@ export class File {
     public ID: number;
     public Md5: string;
     public Name: string;
+    public OCRData: string;
     public Pages: number;
     public PermaLink: string;
+    public Size: string;
     public StatusCode: number;
     public StorageReference: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public FileTags: Array<FileTag>;
+    public CustomFields: any;
+}
+
+
+export class FileTag {
+    public static RelativeUrl = 'filetags';
+    public static EntityType = 'FileTag';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FileID: number;
+    public ID: number;
+    public Status: number;
+    public TagName: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public File: File;
     public CustomFields: any;
 }
 
@@ -3589,6 +3687,7 @@ export class Account {
     public SubAccountNumberSeriesID: number;
     public SupplierID: number;
     public SystemAccount: boolean;
+    public TopLevelAccountGroupID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UseDeductivePercent: boolean;
@@ -3597,6 +3696,7 @@ export class Account {
     public Visible: boolean;
     public Currency: Currency;
     public AccountGroup: AccountGroup;
+    public TopLevelAccountGroup: AccountGroup;
     public VatType: VatType;
     public MainAccount: Account;
     public Customer: Customer;
@@ -3720,6 +3820,7 @@ export class Currency {
     public UpdatedBy: string;
     public CustomFields: any;
 }
+
 
 export class FinancialYear {
     public static RelativeUrl = 'financialyears';
@@ -4218,6 +4319,23 @@ export class AltinnAuthRequest {
     public PreferredLogin: string;
     public UserID: string;
     public UserPassword: string;
+}
+
+
+export class SendEmail {
+    public CopyAddress: string;
+    public EntityID: number;
+    public EntityType: string;
+    public FromAddress: string;
+    public Message: string;
+    public Subject: string;
+    public Attachments: Array<SendEmailAttachment>;
+}
+
+
+export class SendEmailAttachment {
+    public Attachment: string;
+    public FileName: string;
 }
 
 
