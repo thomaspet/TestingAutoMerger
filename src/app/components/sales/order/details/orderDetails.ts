@@ -647,7 +647,7 @@ export class OrderDetails {
 
     private saveAndPrint(done) {
         this.saveOrder(done, (order) => {
-            this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+            this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, order.ID);
                     done('Utskrift startet');

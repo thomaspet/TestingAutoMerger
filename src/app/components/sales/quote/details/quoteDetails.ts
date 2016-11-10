@@ -118,8 +118,8 @@ export class QuoteDetails {
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((sendemail) => {
-                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', sendemail);
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
                         });
                     }
                 },
@@ -701,7 +701,7 @@ export class QuoteDetails {
 
     private saveAndPrint(done) {
         this.saveQuote(done, (quote) => {
-            this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
+            this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, quote.ID);
                     done('Utskrift');
