@@ -140,6 +140,7 @@ export class AMeldingView implements OnInit {
             this.updateAMeldingerInPeriod(response);
             this.setAMelding(response);
             this.checkForSaveDone();
+            this._toastService.addToast('A-melding generert', ToastType.good, 4);
         },
         (err) => {
             this.saveStatus.completeCount++;
@@ -148,8 +149,12 @@ export class AMeldingView implements OnInit {
     }
 
     public aMeldingTypeChange(newType: number) {
-        this.saveStatus.numberOfRequests++;
-        this.createAMelding(newType);
+        if (newType !== 999) {
+            this.saveStatus.numberOfRequests++;
+            this.createAMelding(newType);
+        } else {
+            this.saveComponent.manualSaveComplete('Generering av A-melding avbrutt');
+        }
     }
 
     public setAMelding(amelding: AmeldingData) {
