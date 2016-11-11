@@ -1,6 +1,7 @@
 .navbar_tabs
     margin: 0
     white-space: nowrap
+    display: flex
 
     & + button.small
         position: fixed
@@ -29,11 +30,16 @@
         padding: .5rem .7rem
         margin: 0
         text-align: center
-        max-width: 200px
+        max-width: pxToRem(200)
+        padding-right: 2.2rem
         border-left: .1rem solid transparentize($navbarTextColor, .8)
         border-right: .1rem solid transparentize(contrasting($navbarTextColor), .8)
         white-space: nowrap
         display: inline-block
+        overflow: hidden
+        text-overflow: ellipsis
+        position: relative
+        flex-shrink: 1
 
         &.router-tab-active,
         &.router-tab-active:hover,
@@ -58,14 +64,15 @@
 
         &:before
             content: ''
+            display: none
 
         .close
             display: inline-block
             height: .75rem
             width: .75rem
-            margin-left: .7rem
-            top: .1rem
-            position: relative
+            right: .7rem
+            top: calc(50% - .37rem)
+            position: absolute
             border-radius: pxToRem(3)
             border: pxToRem(1) solid transparent
             background-image: unicon-close($uni-color-negative)
