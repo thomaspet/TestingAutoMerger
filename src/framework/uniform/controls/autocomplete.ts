@@ -52,7 +52,6 @@ export class UniAutocompleteConfig {
                 [placeholder]="field?.Placeholder || ''"
                 (keydown)="onKeyDown($event)"
                 (focus)="focusHandler()"
-                (blur)="close()"
                 role="combobox"
                 autocomplete="false"
                 aria-autocomplete="inline"
@@ -160,7 +159,11 @@ export class UniAutocompleteInput {
         } 
         
         searchStream.subscribe((items: any[]) => {
-            this.selectedIndex = -1;
+            if (this.control.value === '') {
+                this.selectedIndex = -1;
+            } else {
+                this.selectedIndex = 0;
+            }
             this.lookupResults = items || [];
             this.isExpanded = true;
             this.cd.markForCheck();
@@ -303,6 +306,7 @@ export class UniAutocompleteInput {
                 this.selectedIndex = -1;
                 this.lookupResults = items;
                 this.open();
+                this.focus();
             });
         } else {
             this.close();
@@ -374,6 +378,9 @@ export class UniAutocompleteInput {
     private scrollToListItem() {
         const list = this.list.nativeElement;
         const currItem = list.children[this.selectedIndex];
+        if (!currItem) {
+            return;
+        }
         const bottom = list.scrollTop + list.offsetHeight - currItem.offsetHeight;
 
         if (currItem.offsetTop <= list.scrollTop) {

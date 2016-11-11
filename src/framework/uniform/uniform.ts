@@ -432,7 +432,7 @@ export class UniForm {
         }
         const options = this.lastFocusedComponent.field.Options;
         if (options.events) {
-            if (options.event[event]) {
+            if (options.events[event]) {
                 return true;
             }
         }
