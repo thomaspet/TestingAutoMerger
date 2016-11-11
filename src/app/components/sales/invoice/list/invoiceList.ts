@@ -221,7 +221,7 @@ export class InvoiceList implements OnInit {
                 let sendemail = new SendEmail();
                 sendemail.EntityType = 'CustomerInvoice';
                 sendemail.EntityID = invoice.ID;
-                sendemail.CustomerID = invoice.Customer.ID;
+                sendemail.CustomerID = invoice.CustomerID;
                 sendemail.Subject = 'Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
                 sendemail.Message = 'Vedlagt finner du Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
 

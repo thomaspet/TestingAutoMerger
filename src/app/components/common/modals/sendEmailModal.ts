@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {Email, FieldType} from '../../../unientities';
+import {Email, FieldType, CompanySettings, User, Customer} from '../../../unientities';
 import {EmailService, CustomerService, UserService} from '../../../services/services';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -156,14 +156,15 @@ export class SendEmailModal {
         Observable.forkJoin(
             this.companySettingsService.Get(1, ['DefaultEmail']),
             this.userService.getCurrentUser(),
-            this.customerService.Get(sendemail.CustomerID, ['Info', 'Info.DefaultEmail'])
-        ).subscribe((response) => {
-            let companySettings = response[0];
-            let user = response[1];
-            let customer = response[2];
+            sendemail.CustomerID ? this.customerService.Get(sendemail.CustomerID, ['Info', 'Info.DefaultEmail']) : Observable.of(null)  
+        )
+        .subscribe((response) => {
+            let companySettings: CompanySettings = response[0];
+            var user = response[1];
+            var customer = response[2];
 
-            // Create template
-            if (!sendemail.EmailAddress) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
+            // Adding default
+            if (!sendemail.EmailAddress && customer) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
             if (!sendemail.CopyAddress) { sendemail.CopyAddress = user.Email };
             sendemail.Message += '\n\nMed vennlig hilsen\n' +
                                  companySettings.CompanyName + '\n' +
@@ -172,6 +173,6 @@ export class SendEmailModal {
 
             this.modalConfig.model = sendemail;    
             this.modal.open();
-        });
+        });    
     }
 }

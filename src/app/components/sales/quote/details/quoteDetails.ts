@@ -106,7 +106,7 @@ export class QuoteDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerQuote';
                     sendemail.EntityID = this.quote.ID;
-                    sendemail.CustomerID = this.quote.Customer.ID;
+                    sendemail.CustomerID = this.quote.CustomerID;
                     sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
   

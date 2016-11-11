@@ -127,7 +127,7 @@ export class InvoiceDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerInvoice';
                     sendemail.EntityID = this.invoice.ID;
-                    sendemail.CustomerID = this.invoice.Customer.ID;
+                    sendemail.CustomerID = this.invoice.CustomerID;
                     sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
                     this.sendEmailModal.openModal(sendemail);
