@@ -170,10 +170,12 @@ export class InvoiceDetails {
                     invoice.PaymentDueDate = null; // calculated in refreshInvoice()
                     invoice.OurReference = res[1].DisplayName;
                     this.refreshInvoice(invoice);
+                    this.recalcItemSums(invoice);
                 });
             } else {
-                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((res) => {
-                    this.refreshInvoice(res);
+                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
+                    this.refreshInvoice(invoice);
+                    this.recalcItemSums(invoice);
                 });
             }
 
