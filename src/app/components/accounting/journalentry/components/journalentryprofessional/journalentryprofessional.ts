@@ -564,16 +564,7 @@ export class JournalEntryProfessional implements OnInit {
             err => {
                 completeCallback('Lagring feilet');
 
-                let message = '';
-                if (err._body && err._body.Messages && err._body.Messages.length > 0) {
-                    err._body.Messages.forEach(msg => {
-                        message += msg + '<br />';
-                    });
-                } else {
-                    message = JSON.stringify(err._body);
-                }
-
-                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, message);
+                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, this.toastService.parseErrorMessageFromError(err));
                 console.log('error in postJournalEntryData: ', err);
             });
 

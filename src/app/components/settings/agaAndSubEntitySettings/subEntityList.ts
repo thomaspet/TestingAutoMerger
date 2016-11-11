@@ -97,7 +97,9 @@ export class SubEntityList implements OnInit {
             this.allSubEntities = response;
             if (!update && this.allSubEntities) {
                 this.currentSubEntity = this.allSubEntities[0];
-                this.table.focusRow(0);
+                if (this.allSubEntities.length) {
+                    this.table.focusRow(0);
+                }
             }
         });
     }

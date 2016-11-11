@@ -1,6 +1,11 @@
-import {UniComponentLoader} from '../core/componentLoader';
 import {Component, Input, ViewChild} from '@angular/core';
 import {UniModal} from './modal';
+
+export enum ConfirmActions {
+    ACCEPT,
+    REJECT,
+    CANCEL
+};
 
 export interface IModalAction {
     text: string;
@@ -10,10 +15,11 @@ export interface IModalAction {
 export interface IUniConfirmModalConfig {
     title?: string;
     message?: string;
-    hasCancel?: boolean;
+    wariningMessage?: string;
     actions?: {
         accept?: IModalAction,
-        reject?: IModalAction
+        reject?: IModalAction,
+        cancel?: IModalAction
     };
 }
 
@@ -23,6 +29,9 @@ export interface IUniConfirmModalConfig {
         <article class='modal-content'>
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             {{config.message}}
+            <p class="warn" *ngIf="config.warningMessage">
+                {{config.warningMessage}}
+            </p>
             <footer>
                 <button *ngIf="config?.actions?.accept" (click)="runMethod('accept')" class="good">
                     {{config?.actions?.accept?.text}}
@@ -30,8 +39,8 @@ export interface IUniConfirmModalConfig {
                 <button *ngIf="config?.actions?.reject" (click)="runMethod('reject')" class="bad">
                     {{config?.actions?.reject?.text}}
                 </button>
-                <button *ngIf="config?.hasCancel" (click)="modal.close()">
-                    Avbryt
+                <button *ngIf="config?.actions?.cancel" (click)="runMethod('cancel')">
+                    {{config?.actions?.cancel?.text}}
                 </button>
             </footer>
         </article>
@@ -39,7 +48,7 @@ export interface IUniConfirmModalConfig {
 })
 export class UniConfirmContent {
     @Input('config')
-    config: IUniConfirmModalConfig;
+    public config: IUniConfirmModalConfig;
 
     public runMethod(action) {
         this.config.actions[action].method();
@@ -55,7 +64,7 @@ export class UniConfirmModal {
     public type: any = UniConfirmContent;
 
     @ViewChild(UniModal)
-    modal: UniModal;
+    public modal: UniModal;
 
     @Input()
     public config: any;
@@ -70,5 +79,34 @@ export class UniConfirmModal {
 
     public content() {
         this.modal.getContent();
+    }
+
+    public confirm(title: string, message: string, hasCancel: boolean, titles: string[]): Promise<number> {
+        return new Promise((resolve, reject) => {
+            let config: IUniConfirmModalConfig = {
+                title: title,
+                message: message,
+                wariningMessage: titles[3],
+                actions: {
+                    accept: {
+                        text: titles[0],
+                        method: () => { this.close(); resolve(ConfirmActions.ACCEPT); }
+                    },
+                    reject: {
+                        text: titles[1],
+                        method: () => { this.close(); resolve(ConfirmActions.REJECT); }
+                    }
+                }
+            };
+            if (hasCancel) {
+                config.actions.cancel = {
+                    text : titles[2],
+                    method: () => { this.close(); resolve(ConfirmActions.CANCEL); }
+                };
+
+            }
+            this.config = config;
+            this.open();
+        });
     }
 }

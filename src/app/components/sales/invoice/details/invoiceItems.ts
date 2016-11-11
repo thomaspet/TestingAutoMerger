@@ -3,6 +3,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerInvoice, CustomerInvoiceItem, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-invoice-items',
@@ -95,21 +96,50 @@ export class InvoiceItems {
         const discountCol = new UniTableColumn('Discount', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 
-        const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Select)
+        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
+                    let project = rowModel.Dimensions.Project;
+                    return project.ProjectNumber + ': ' + project.Name;
+                }
+
+                return '';
+            })
             .setDisplayField('Dimensions.Project.Name')
             .setEditorOptions({
-                itemTemplate: item => `${item.ProjectNumber}: ${item.Name}`,
-                resource: this.projects.filter(x => !!x)
-            })
-            .setVisible(false);
+                itemTemplate: (item) => {
+                    return (item.ProjectNumber + ': ' + item.Name);
+                },
+                searchPlaceholder: 'Velg prosjekt',
+                lookupFunction: (searchValue) => {
+                    return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) ||
+                                                                              project.Name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)]);
+                }
+            });
 
-        const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Select)
+        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
+                    let dep = rowModel.Dimensions.Department;
+                    return dep.DepartmentNumber + ': ' + dep.Name;
+                }
+
+                return '';
+            })
             .setDisplayField('Dimensions.Department.Name')
             .setEditorOptions({
-                itemTemplate: item => `${item.DepartmentNumber}: ${item.Name}`,
-                resource: this.departments.filter(x => !!x)
-            })
-            .setVisible(false);
+                itemTemplate: (item) => {
+                    return (item.DepartmentNumber + ': ' + item.Name);
+                },
+                searchPlaceholder: 'Velg avdeling',
+                lookupFunction: (searchValue) => {
+                    return Observable.from([this.departments.filter((department) => department.DepartmentNumber.toString().startsWith(searchValue) ||
+                                                                                    department.Name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)]);
+                }
+            });
+
 
         const sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Money, false)
             .setVisible(false);

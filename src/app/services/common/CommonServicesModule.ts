@@ -21,6 +21,7 @@ import {UniMenuAim} from './UniMenuAim';
 import {NumberFormat} from './NumberFormatService';
 import {StatusService} from './StatusService';
 import {SettingsService} from './settingsservice';
+import {CompanyService} from './CompanyService';
 
 @NgModule({
     providers: [
@@ -45,7 +46,8 @@ import {SettingsService} from './settingsservice';
         UniMenuAim,
         NumberFormat,
         StatusService,
-        SettingsService
+        SettingsService,
+        CompanyService
     ]
 })
 export class CommonServicesModule {

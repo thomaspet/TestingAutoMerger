@@ -52,7 +52,7 @@ unitable-editor span.hidden
     display: none
 
 
-.table-button
+button.table-button,
     background: none
     border: none
     padding: 0
@@ -60,5 +60,10 @@ unitable-editor span.hidden
     box-shadow: none
     line-height: 0
     margin: 0
+    text-shadow: none
+    color: $uni-color-action
 
-
+    &:hover,
+    &:focus
+        @extend button.table-button
+        text-decoration: underline

@@ -24,6 +24,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 
 declare const _;
 declare const moment;
@@ -90,10 +91,10 @@ export class QuoteDetails {
                 private authService: AuthService,
                 private userService: UserService,
                 private numberFormat: NumberFormat,
-
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper) {
 
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
@@ -279,8 +280,6 @@ export class QuoteDetails {
                 }
 
                 // Add a blank item in the dropdown controls
-                this.dropdownData[0].unshift(null);
-                this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
                 this.addressService.setAddresses(this.quote);
@@ -420,7 +419,8 @@ export class QuoteDetails {
             title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
             subheads: [
                 { title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : '' },
-                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' }
+                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' },
+                { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -540,30 +540,10 @@ export class QuoteDetails {
         }
 
         this.recalcTimeout = setTimeout(() => {
-
-            quoteItems.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
-            this.customerQuoteService.calculateQuoteSummary(quoteItems)
-                .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.updateSaveActions();
-                    this.updateToolbar();
-                    this.setSums();
-                },
-                (err) => {
-                    console.log('Error when recalculating items:', err);
-                    this.log(err);
-                });
-        }, 2000);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+            this.updateToolbar();
+            this.setSums();
+        }, 500);
     }
 
     private deleteItem(item: CustomerQuoteItem) {

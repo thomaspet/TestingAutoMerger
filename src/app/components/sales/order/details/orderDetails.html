@@ -19,7 +19,7 @@
                   (readyEvent)="ready($event)">
         </uni-form>
         <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
-        <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+        <uni-summary *ngIf="order" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>
 

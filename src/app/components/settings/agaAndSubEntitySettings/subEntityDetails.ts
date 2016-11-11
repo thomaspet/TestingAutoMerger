@@ -1,8 +1,8 @@
-import {Component, Input, ViewChild, OnChanges, EventEmitter} from '@angular/core';
-import {SubEntityService, StaticRegisterService, AgaZoneService, MunicipalService} from '../../../services/services';
-import {SubEntity, AGAZone, PostalCode, Municipal, AGASector} from '../../../unientities';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {Observable} from 'rxjs/Observable';
+import { Component, Input, ViewChild, OnChanges, EventEmitter } from '@angular/core';
+import { SubEntityService, StaticRegisterService, AgaZoneService, MunicipalService } from '../../../services/services';
+import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
+import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { Observable } from 'rxjs/Observable';
 
 declare var _; // lodash
 @Component({
@@ -13,7 +13,6 @@ export class SubEntityDetails implements OnChanges {
     @Input() private currentSubEntity: SubEntity;
     private municipalities: Municipal[];
     @ViewChild(UniForm) private form: UniForm;
-    private model: SubEntity = null;
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
     private postalCodes: PostalCode[] = [];
@@ -29,7 +28,7 @@ export class SubEntityDetails implements OnChanges {
         private _agaZoneService: AgaZoneService,
         private _municipalityService: MunicipalService
     ) {
-        
+
     }
 
     public ngAfterViewInit() {
@@ -50,11 +49,9 @@ export class SubEntityDetails implements OnChanges {
     }
 
     public ngOnChanges() {
-        this.model = this.currentSubEntity;
         if (this.formReady) {
             this.updateFields();
         }
-        this.model = _.cloneDeep(this.model);
     }
 
     private createForm() {
@@ -112,11 +109,11 @@ export class SubEntityDetails implements OnChanges {
     }
 
     private updatePostalCodes() {
-        if (this.model) {
-            if (this.postalCodes && this.model.BusinessRelationInfo && this.model.BusinessRelationInfo.InvoiceAddress) {
-                let postalCode = this.postalCodes.find(x => x.Code === this.model.BusinessRelationInfo.InvoiceAddress.PostalCode);
-                this.model.BusinessRelationInfo.InvoiceAddress.City = postalCode ? postalCode.City : '';
-                this.model = _.cloneDeep(this.model);
+        if (this.currentSubEntity) {
+            if (this.postalCodes && this.currentSubEntity.BusinessRelationInfo && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress) {
+                let postalCode = this.postalCodes.find(x => x.Code === this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode);
+                this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City = postalCode ? postalCode.City : '';
+                this.currentSubEntity = _.cloneDeep(this.currentSubEntity);
             }
         }
     }
@@ -138,11 +135,19 @@ export class SubEntityDetails implements OnChanges {
     }
 
     public saveSubentities() {
-        if (!this.model.BusinessRelationID && this.model.BusinessRelationInfo) {
-            this.model.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
+
+        if (this.currentSubEntity.BusinessRelationInfo) {
+            if (!this.currentSubEntity.BusinessRelationID) {
+                this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
+            }
+            if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress && !this.currentSubEntity.BusinessRelationInfo.InvoiceAddressID) {
+                this.currentSubEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService.getNewGuid();
+            }
         }
-        return this.currentSubEntity.ID ?
-            this._subEntityService.Put(this.model.ID, this.model) :
-            this._subEntityService.Post(this.model);
+        let saveObservable = this.currentSubEntity.ID ?
+            this._subEntityService.Put(this.currentSubEntity.ID, this.currentSubEntity) :
+            this._subEntityService.Post(this.currentSubEntity);
+
+        return saveObservable.map(x => this.currentSubEntity = x);
     }
 }
