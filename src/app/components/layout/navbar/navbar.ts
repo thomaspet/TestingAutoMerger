@@ -10,10 +10,7 @@ import {routes} from '../../../routes';
                 <uni-hamburger-menu></uni-hamburger-menu>
                 <uni-tabstrip></uni-tabstrip>
                 <uni-navbar-search></uni-navbar-search>
-                <div class="navbar_userinfo">
-                    <uni-user-dropdown></uni-user-dropdown>
-                    <uni-company-dropdown></uni-company-dropdown>
-                </div>
+                <uni-company-dropdown></uni-company-dropdown>
             </div>
         </section>
     `

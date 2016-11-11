@@ -1,3 +1,4 @@
+import {AppPipesModule} from './../../pipes/AppPipesModule';
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -9,10 +10,9 @@ import {RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
 import {NavbarSearch} from './navbar/search/search';
 import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
-import {UniUserDropdown} from './navbar/userinfo/userDropdown/userDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
-import {TabService} from "./navbar/tabstrip/tabService";
+import {TabService} from './navbar/tabstrip/tabService';
 
 
 @NgModule({
@@ -22,7 +22,8 @@ import {TabService} from "./navbar/tabstrip/tabService";
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
-        UniFrameworkModule
+        UniFrameworkModule,
+        AppPipesModule
     ],
     declarations: [
         UniTabs,
@@ -31,8 +32,7 @@ import {TabService} from "./navbar/tabstrip/tabService";
         RemoveHidden,
         NavbarSearch,
         UniTabStrip,
-        UniCompanyDropdown,
-        UniUserDropdown
+        UniCompanyDropdown
     ],
     providers: [
         TabService
@@ -44,8 +44,7 @@ import {TabService} from "./navbar/tabstrip/tabService";
         RemoveHidden,
         NavbarSearch,
         UniTabStrip,
-        UniCompanyDropdown,
-        UniUserDropdown
+        UniCompanyDropdown
     ]
 })
 export class LayoutModule {}

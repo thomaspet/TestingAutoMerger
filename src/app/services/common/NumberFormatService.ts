@@ -34,7 +34,7 @@ export class NumberFormat {
 
     public asOrgNo(value: number) {
         let _value: string = value + '';
-        return _value.substr(0, 3) + HAIRSPACE + _value.substr(3, 3) + HAIRSPACE + _value.substr(6);
+        return _value.substr(0, 3) + THINSPACE + _value.substr(3, 3) + THINSPACE + _value.substr(6);
     }
 
     private formatter(value: number, options: INumberOptions) {

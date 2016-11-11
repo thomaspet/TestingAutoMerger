@@ -4,7 +4,7 @@ $navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color
 @import 'hamburger'
 @import 'tabs'
 @import 'search'
-@import 'userinfo'
+@import 'company'
 
 %navbarText
     color: $navbarTextColor
@@ -26,15 +26,12 @@ $navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color
     flex-wrap: wrap
 
 // Layout
-uni-hamburger-menu,
-uniHamburgerMenu
+uni-hamburger-menu
     flex-grow: 0
 
 uni-tabstrip,
-uniTabstrip,
 uni-navbar-search,
-uniNavbarSearch,
-.navbar_userinfo
+uni-company-dropdown
     flex-grow: 1
 
 @include media(large, max-width)
@@ -45,7 +42,7 @@ uniNavbarSearch,
         order: 2
         width: calc(100% - 13rem)
 
-    .navbar_userinfo
+    uni-company-dropdown
         order: 3
         width: 8rem
 
