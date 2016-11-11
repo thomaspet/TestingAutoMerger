@@ -129,7 +129,6 @@ export class AccountReportFilterModal {
             model: null,
             report: new Object(),
 
-
             actions: [
                 {
                     text: 'Ok',

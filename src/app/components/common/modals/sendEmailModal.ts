@@ -14,7 +14,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
            <h1 *ngIf="config.title">{{config.title}}</h1>
            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
            <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
+                <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
                 </button>                
             </footer>
@@ -121,14 +121,6 @@ export class SendEmailModal {
             title: 'Send på epost',
             actions: [
                 {
-                    text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                },
-                {
                     text: 'Send epost',
                     class: 'good',
                     method: () => {          
@@ -138,6 +130,14 @@ export class SendEmailModal {
                             this.modal.close();
                             this.Changed.emit(this.modalConfig.model);
                         }
+                        return false;
+                    }
+                },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        this.modal.close();
+                        this.Canceled.emit(true);
                         return false;
                     }
                 }
