@@ -13,7 +13,7 @@ import {checkGuid} from '../../../../services/common/dimensionservice';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
-import {UniConfirmModal, IUniConfirmModalConfig} from '../../../../../framework/modals/confirm';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 declare const moment;
 
@@ -149,13 +149,6 @@ export class BillView {
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
             { label: lang.tool_delete, action: (done) => this.delete(done), main: false, disabled: true }
         ];
-
-    private confirmModalConfig: IUniConfirmModalConfig = {
-        title: 'title',
-        message: 'message',
-        hasCancel: true,
-        actions: undefined
-    };
 
     constructor(
         private tabService: TabService, 
@@ -300,27 +293,6 @@ export class BillView {
 
     }
 
-    private confirm(msg: string, title: string, hasCancel = false,  ): Promise<ILocalValidation> {
-        return new Promise( (resolve, reject) => {
-            var dlg = this.confirmModal;
-            var cfg = this.confirmModalConfig;
-            cfg.title = title;
-            cfg.message = msg;
-            cfg.hasCancel = hasCancel;
-            cfg.actions = {
-                accept: { 
-                    text: lang.btn_yes,
-                    method: () => { dlg.close();  resolve(); }
-                },
-                reject: {
-                    text: lang.btn_no,
-                    method: () => { dlg.close(); reject(false); }
-                }
-            };
-            dlg.open();
-        });
-    }
-
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
         if (!reset) {
@@ -397,17 +369,26 @@ export class BillView {
     private handleAction(key: string, label: string, href: string, done: any): boolean {
         switch (key) {
             case 'journal':
-                this.confirm(lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '? ' + lang.warning_action_not_reversable, lang.ask_journal_title + this.current.Supplier.Info.Name).then( () => {
-                    this.busy = true;
-                    this.tryJournal(href).then((status: ILocalValidation) => {
-                        this.busy = false;
-                        done(lang.save_success);
-                    }).catch((err: ILocalValidation) => {
-                        this.busy = false;
-                        done(err.errorMessage);
-                        this.toast.addToast(err.errorMessage, ToastType.bad, 15);
-                    });
-                }).catch(x => done());
+                this.confirmModal.confirm(
+                    lang.ask_journal_title + this.current.Supplier.Info.Name,
+                    lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?', 
+                    false, 
+                    ['', '', '', lang.warning_action_not_reversable]).then( (result: ConfirmActions) => {
+                    
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.busy = true;
+                        this.tryJournal(href).then((status: ILocalValidation) => {
+                            this.busy = false;
+                            done(lang.save_success);
+                        }).catch((err: ILocalValidation) => {
+                            this.busy = false;
+                            done(err.errorMessage);
+                            this.toast.addToast(err.errorMessage, ToastType.bad, 15);
+                        });
+                    } else {
+                        done();
+                    }
+                });
                 return true;
 
             case 'smartbooking':
