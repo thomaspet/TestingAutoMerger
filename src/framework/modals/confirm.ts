@@ -15,7 +15,7 @@ export interface IModalAction {
 export interface IUniConfirmModalConfig {
     title?: string;
     message?: string;
-    wariningMessage?: string;
+    warningMessage?: string;
     actions?: {
         accept?: IModalAction,
         reject?: IModalAction,
@@ -29,10 +29,8 @@ export interface IUniConfirmModalConfig {
         <article class='modal-content'>
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             {{config.message}}
-            <p class="warn" *ngIf="config.warningMessage">
-                {{config.warningMessage}}
-            </p>
-            <footer>
+            <p class="warn" *ngIf="config.warningMessage">{{config.warningMessage}}</p>
+            <footer>                
                 <button *ngIf="config?.actions?.accept" (click)="runMethod('accept')" class="good">
                     {{config?.actions?.accept?.text}}
                 </button>
@@ -48,7 +46,7 @@ export interface IUniConfirmModalConfig {
 })
 export class UniConfirmContent {
     @Input('config')
-    public config: IUniConfirmModalConfig;
+    public config: IUniConfirmModalConfig;     
 
     public runMethod(action) {
         this.config.actions[action].method();
@@ -69,6 +67,10 @@ export class UniConfirmModal {
     @Input()
     public config: any;
 
+    constructor() {
+        this.initDefaultConfig();
+    }
+
     public open() {
         this.modal.open();
     }
@@ -78,36 +80,50 @@ export class UniConfirmModal {
     }
 
     public content() {
-        return this.modal.getContent();
+        this.modal.getContent();
     }
 
-    public confirm(title: string, message: string, hasCancel: boolean, titles: string[]): Promise<number> {
-        return new Promise((resolve, reject) => {
-            let config: IUniConfirmModalConfig = {
-                title: title,
-                message: message,
-                wariningMessage: titles[3],
-                actions: {
-                    accept: {
-                        text: titles[0],
-                        method: () => { this.close(); resolve(ConfirmActions.ACCEPT); }
-                    },
-                    reject: {
-                        text: titles[1],
-                        method: () => { this.close(); resolve(ConfirmActions.REJECT); }
-                    }
+    private initDefaultConfig() {
+        this.config = { 
+            title: 'Confirm',
+            message: 'Please confirm',
+            warningMessage: '',
+            actions: {
+                accept: {
+                    text: 'Yes',
+                    method: () => { this.close(); }
+                },
+                reject: {
+                    text: 'No',
+                    method: () => { this.close(); }
                 }
+            }
+        };
+    }
+
+    public confirm(message: string, title?: string, hasCancel = false, titles?: { accept?: string, reject?: string, cancel?: string, warning?: string }): Promise<number> {
+        return new Promise((resolve, reject) => {
+
+            var cfg = this.config;
+            cfg.title = title || 'Vennligst bekreft';
+            cfg.message = message;
+            cfg.warningMessage = titles && titles.warning ? titles.warning : undefined;
+            
+            cfg.actions.accept = {
+                text: (titles && titles.accept ? titles.accept : '') || 'Ja',
+                method: () => { this.close(); resolve(ConfirmActions.ACCEPT); }
+            };
+            cfg.actions.reject = {
+                text: titles && titles.reject ? titles.reject : '' || 'Nei',
+                method: () => { this.close(); resolve(ConfirmActions.REJECT); }
             };
             if (hasCancel) {
-                config.actions.cancel = {
-                    text : titles[2],
+                cfg.actions.cancel = {
+                    text: titles && titles.cancel ? titles.cancel : '' || 'Avbryt',
                     method: () => { this.close(); resolve(ConfirmActions.CANCEL); }
                 };
 
             }
-            this.content().then((x) => {
-                x.config = config;
-            });
             this.open();
         });
     }

@@ -57,8 +57,11 @@ export class BillSimpleJournalEntryView {
         }
     }
 
-    private clear() {
+    public clear() {
         this.isReadOnly = false;
+        this.sumRemainder = 0;
+        this.sumVat = 0;
+        this.journalEntryNumber = '';
         this.costItems.length = 0; 
         this.ensureWeHaveSingleEntry();
     }

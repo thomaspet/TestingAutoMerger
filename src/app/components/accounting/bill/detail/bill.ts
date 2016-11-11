@@ -12,6 +12,8 @@ import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDeta
 import {checkGuid} from '../../../../services/common/dimensionservice';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
+import {BillSimpleJournalEntryView} from './journal/simple';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 declare const moment;
 
@@ -24,6 +26,9 @@ interface ITab {
 }
 
 const lang = {
+    btn_yes: 'Ja',
+    btn_no: 'Nei',
+
     tab_invoice: 'Faktura',
     tab_document: 'Dokument',
     tab_journal: 'Bilagslinjer',
@@ -66,7 +71,12 @@ const lang = {
 
     err_missing_journalEntries: 'Kontering mangler!',
     err_diff: 'Differanse i posteringer!',
-    err_supplieraccount_not_found: 'Fant ikke leverandørkonto!'
+    err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
+
+    ask_archive: 'Arkivere faktura ',
+    ask_journal_msg: 'Bokføre regning med beløp ',
+    ask_journal_title: 'Bokføre regning fra ',
+    warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.'
 };
 
 const workflowLabels = { 
@@ -122,6 +132,8 @@ export class BillView {
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
+    @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private tabLabel: string;    
     public tabs: Array<ITab> = [
@@ -161,8 +173,7 @@ export class BillView {
         this.route.params.subscribe( (params: any) => {
             var id = params.id;
             if (safeInt(id) > 0) {
-                this.tabLabel = lang.title_with_id + id;
-                this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
+                this.updateTabInfo(id);                
                 this.fetchInvoice(id, true);
             } else {
                 this.newInvoice(true);
@@ -170,6 +181,16 @@ export class BillView {
             }
         });
         
+    }
+
+    private updateTabInfo(id?: number | string, label?: string) {
+        id = id || (this.current ? this.current.ID : 0);
+        this.tabLabel = label || lang.title_with_id + id;
+        var url = '/accounting/bill/' + id;
+        this.tabService.addTab({ name: this.tabLabel, url: url, moduleID: UniModules.Bills, active: true });
+        if (this.location.path(false) !== url) {
+            this.location.go(url);
+        }
     }
 
     private renderCombo(data: { SupplierNumber: number, InfoName: string }) {
@@ -254,18 +275,23 @@ export class BillView {
         this.tabLabel = lang.title_new;
         this.currentSupplierID = 0;
         this.current = new SupplierInvoice();
-        this.current.StatusCode = 0; // StatusCodeSupplierInvoice.Draft;
+        this.current.StatusCode = 0;
+        this.simpleJournalentry.clear();
         this.tabService.currentActiveTab.name = this.tabLabel;
         this.setupToolbar();
         this.flagUnsavedChanged(true);
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
-        this.hasUnsavedChanges = false;
+        this.hasUnsavedChanges = false;        
         this.currentFileID = 0;
         this.busy = false;
-        if (!isInitial) { this.hasStartupFileID = false; }
+        if (!isInitial) { 
+            this.hasStartupFileID = false;
+            this.uniForm.field('SupplierID').control.setValue(0);
+        }
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) {}
+
     }
 
     private flagUnsavedChanged(reset = false) {
@@ -344,14 +370,24 @@ export class BillView {
     private handleAction(key: string, label: string, href: string, done: any): boolean {
         switch (key) {
             case 'journal':
-                this.busy = true;
-                this.tryJournal(href).then((status: ILocalValidation) => {
-                    this.busy = false;
-                    done(lang.save_success);
-                }).catch((err: ILocalValidation) => {
-                    this.busy = false;
-                    done(err.errorMessage);
-                    this.toast.addToast(err.errorMessage, ToastType.bad, 15);
+                this.confirmModal.confirm(                    
+                    lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?',
+                    lang.ask_journal_title + this.current.Supplier.Info.Name, false, 
+                    { warning: lang.warning_action_not_reversable }).then( (result: ConfirmActions) => {
+                    
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.busy = true;
+                        this.tryJournal(href).then((status: ILocalValidation) => {
+                            this.busy = false;
+                            done(lang.save_success);
+                        }).catch((err: ILocalValidation) => {
+                            this.busy = false;
+                            done(err.errorMessage);
+                            this.toast.addToast(err.errorMessage, ToastType.bad, 15);
+                        });
+                    } else {
+                        done();
+                    }
                 });
                 return true;
 
@@ -368,6 +404,15 @@ export class BillView {
             case 'pay':
             case 'payInvoice':
                 this.registerPayment(done);
+                return true;
+
+            case 'finish':
+                this.confirmModal.confirm(lang.ask_archive + this.current.InvoiceNumber, 'Arkivere', false, { warning: lang.warning_action_not_reversable })
+                .then( (result: ConfirmActions) => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        return this.RunActionOnCurrent(key, done);
+                    } else { done(); }
+                });
                 return true;
 
             default:
@@ -410,6 +455,7 @@ export class BillView {
                     var msg = this.showHttpError(err);
                     reject(msg);
                 });
+
             
             }).catch((err: ILocalValidation) => {
                 reject( err );
@@ -443,8 +489,7 @@ export class BillView {
                 if (flagBusy) { this.busy = false; }
                 this.current = result;
                 this.setupToolbar();
-                this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
-                // this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
+                this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
                 this.checkLockStatus();
@@ -754,7 +799,10 @@ export class BillView {
             navigation: {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
-                add: () => this.router.navigateByUrl('/accounting/bill/0')
+                add: () => {
+                    this.newInvoice(false); 
+                    this.router.navigateByUrl('/accounting/bill/0'); 
+                }
             },
         };        
     }
