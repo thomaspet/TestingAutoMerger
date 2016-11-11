@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/SupplierinvoiceService';
+import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService} from '../../../../framework/unitoast/toastservice';
 import {URLSearchParams} from '@angular/http';
 import {Location} from '@angular/common';
@@ -35,6 +36,7 @@ export class BillsView {
     public totals: { grandTotal: number } = { grandTotal: 0 };
     public currentFilter: IFilter;
     private defaultPath: string;
+    private viewSettings: ViewSettings;
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true},
@@ -47,9 +49,18 @@ export class BillsView {
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true }
     ];
 
-    constructor(private tabService: TabService, private supplierInvoiceService: SupplierInvoiceService, private toast: ToastService, private location: Location, private route: ActivatedRoute, private router: Router) {
-        tabService.addTab({ name: 'Regninger', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
-        this.checkPath();
+    constructor(
+        private tabService: TabService, 
+        private supplierInvoiceService: SupplierInvoiceService, 
+        private toast: ToastService, 
+        private location: Location, 
+        private route: ActivatedRoute, 
+        private router: Router,
+        settingsService: SettingsService) {
+            
+            this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
+            tabService.addTab({ name: 'Regninger', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });        
+            this.checkPath();
     }
 
     public ngOnInit() {
@@ -181,6 +192,7 @@ export class BillsView {
         this.refreshList(filter);
         filter.isSelected = true;
         this.location.replaceState(this.defaultPath + '?filter=' + filter.name);
+        this.viewSettings.setProp('defaultFilter', filter.name );
     }
 
     private checkPath() {
@@ -202,8 +214,21 @@ export class BillsView {
             }
             this.defaultPath = this.defaultPath.substr(0, ix);
         } 
+
+        // Default-filter?
         if (this.currentFilter === undefined) {
-            this.currentFilter = this.filters.find(x => x.isSelected);
+            var name = this.viewSettings.getProp('defaultFilter', 'Inbox' );
+            this.filters.forEach( x => {
+                if (x.name === name) {
+                    this.currentFilter = x;
+                    x.isSelected = true;
+                } else {
+                    x.isSelected = false;
+                } 
+            });
+            if (!this.currentFilter) {
+                this.currentFilter = this.filters[0];
+            }
         }
     }
 
