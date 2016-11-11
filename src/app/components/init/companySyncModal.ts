@@ -42,7 +42,7 @@ export class CompanySyncModal {
                         .map(response => response.json());
                 },
                 busy: false,
-                finished: false                
+                finished: false
             },
             {
                 label: 'Synkroniserer valuta',
@@ -62,6 +62,18 @@ export class CompanySyncModal {
                     return this.http.asPUT()
                         .usingBusinessDomain()
                         .withEndPoint('vattypes?action=synchronize')
+                        .send()
+                        .map(response => response.json());
+                },
+                busy: false,
+                finished: false
+            },
+            {
+                label: 'Oppretter regnskapsår med perioder',
+                request: () => {
+                    return this.http.asGET()
+                        .usingBusinessDomain()
+                        .withEndPoint('journalentries?action=get-or-create-financial-year')
                         .send()
                         .map(response => response.json());
                 },
@@ -88,7 +100,7 @@ export class CompanySyncModal {
             });
     }
 
-    private runActions(actions: ISyncAction[]) {        
+    private runActions(actions: ISyncAction[]) {
         actions.forEach((action) => {
             action.busy = true;
             action.request().subscribe(
@@ -99,7 +111,7 @@ export class CompanySyncModal {
                     this.onActionCompleted(action);
                 });
         });
-    } 
+    }
 
     private onActionCompleted(action: ISyncAction) {
         action.busy = false;
