@@ -106,7 +106,7 @@ export class OrderDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerOrder';
                     sendemail.EntityID = this.order.ID;
-                    sendemail.CustomerID = this.order.Customer.ID;
+                    sendemail.CustomerID = this.order.CustomerID;
                     sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
                          
