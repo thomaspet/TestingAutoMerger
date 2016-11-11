@@ -73,6 +73,7 @@ const lang = {
     err_diff: 'Differanse i posteringer!',
     err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
 
+    ask_archive: 'Arkivere faktura ',
     ask_journal_msg: 'Bokføre regning med beløp ',
     ask_journal_title: 'Bokføre regning fra ',
     warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.'
@@ -372,7 +373,7 @@ export class BillView {
                 this.confirmModal.confirm(                    
                     lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?',
                     lang.ask_journal_title + this.current.Supplier.Info.Name, false, 
-                    ['', '', '', lang.warning_action_not_reversable]).then( (result: ConfirmActions) => {
+                    { warning: lang.warning_action_not_reversable }).then( (result: ConfirmActions) => {
                     
                     if (result === ConfirmActions.ACCEPT) {
                         this.busy = true;
@@ -406,7 +407,8 @@ export class BillView {
                 return true;
 
             case 'finish':
-                this.confirmModal.confirm('Arkivere aktuell faktura?').then( (result: ConfirmActions) => {
+                this.confirmModal.confirm(lang.ask_archive + this.current.InvoiceNumber, 'Arkivere', false, { warning: lang.warning_action_not_reversable })
+                .then( (result: ConfirmActions) => {
                     if (result === ConfirmActions.ACCEPT) {
                         return this.RunActionOnCurrent(key, done);
                     } else { done(); }

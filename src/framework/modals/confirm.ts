@@ -101,25 +101,25 @@ export class UniConfirmModal {
         };
     }
 
-    public confirm(message: string, title?: string, hasCancel = false, titles?: string[]): Promise<number> {
+    public confirm(message: string, title?: string, hasCancel = false, titles?: { accept?: string, reject?: string, cancel?: string, warning?: string }): Promise<number> {
         return new Promise((resolve, reject) => {
 
             var cfg = this.config;
             cfg.title = title || 'Vennligst bekreft';
             cfg.message = message;
-            cfg.warningMessage = titles && titles.length >= 2 ? titles[3] : undefined;
+            cfg.warningMessage = titles && titles.warning ? titles.warning : undefined;
             
             cfg.actions.accept = {
-                text: (titles && titles.length > 0 ? titles[0] : '') || 'Ja',
+                text: (titles && titles.accept ? titles.accept : '') || 'Ja',
                 method: () => { this.close(); resolve(ConfirmActions.ACCEPT); }
             };
             cfg.actions.reject = {
-                text: titles && (titles.length > 1 ? titles[1] : '') || 'Nei',
+                text: titles && titles.reject ? titles.reject : '' || 'Nei',
                 method: () => { this.close(); resolve(ConfirmActions.REJECT); }
             };
             if (hasCancel) {
                 cfg.actions.cancel = {
-                    text: (titles && titles.length > 2 ? titles[2] : '') || 'Avbryt',
+                    text: titles && titles.cancel ? titles.cancel : '' || 'Avbryt',
                     method: () => { this.close(); resolve(ConfirmActions.CANCEL); }
                 };
 
