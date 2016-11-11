@@ -369,10 +369,9 @@ export class BillView {
     private handleAction(key: string, label: string, href: string, done: any): boolean {
         switch (key) {
             case 'journal':
-                this.confirmModal.confirm(
-                    lang.ask_journal_title + this.current.Supplier.Info.Name,
-                    lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?', 
-                    false, 
+                this.confirmModal.confirm(                    
+                    lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?',
+                    lang.ask_journal_title + this.current.Supplier.Info.Name, false, 
                     ['', '', '', lang.warning_action_not_reversable]).then( (result: ConfirmActions) => {
                     
                     if (result === ConfirmActions.ACCEPT) {
@@ -404,6 +403,14 @@ export class BillView {
             case 'pay':
             case 'payInvoice':
                 this.registerPayment(done);
+                return true;
+
+            case 'finish':
+                this.confirmModal.confirm('Arkivere aktuell faktura?').then( (result: ConfirmActions) => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        return this.RunActionOnCurrent(key, done);
+                    } else { done(); }
+                });
                 return true;
 
             default:

@@ -101,11 +101,11 @@ export class UniConfirmModal {
         };
     }
 
-    public confirm(title: string, message: string, hasCancel: boolean, titles: string[]): Promise<number> {
+    public confirm(message: string, title?: string, hasCancel = false, titles?: string[]): Promise<number> {
         return new Promise((resolve, reject) => {
 
             var cfg = this.config;
-            cfg.title = title;
+            cfg.title = title || 'Vennligst bekreft';
             cfg.message = message;
             cfg.warningMessage = titles && titles.length >= 2 ? titles[3] : undefined;
             
