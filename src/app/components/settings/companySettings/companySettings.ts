@@ -959,7 +959,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'SalaryBankAccount',
                 Placement: 1,
                 Hidden: false,
-                FieldType: BUTTON,
+                FieldType: FieldType.MULTIVALUE,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Lønnskonto',
