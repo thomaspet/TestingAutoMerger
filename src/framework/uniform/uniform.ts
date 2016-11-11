@@ -427,6 +427,9 @@ export class UniForm {
     }
 
     private hasEvent(event: string) {
+        if (!this.lastFocusedComponent) {
+            this.lastFocusedComponent = this.field(this.fields[0].Property);
+        }
         if (!this.lastFocusedComponent.field.Options) {
             return false;
         }

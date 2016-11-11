@@ -241,7 +241,7 @@ export class PersonalDetails extends UniView {
     }
 
     private updateInfoFromSSN() {
-        if (this.employee.SocialSecurityNumber.length === 11) {
+        if (this.employee.SocialSecurityNumber && this.employee.SocialSecurityNumber.length === 11) {
 
             let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);
