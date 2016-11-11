@@ -52,7 +52,6 @@ export class UniAutocompleteConfig {
                 [placeholder]="field?.Placeholder || ''"
                 (keydown)="onKeyDown($event)"
                 (focus)="focusHandler()"
-                (blur)="close()"
                 role="combobox"
                 autocomplete="false"
                 aria-autocomplete="inline"
@@ -368,7 +367,13 @@ export class UniAutocompleteInput {
     }
 
     private openEditor(event) {
-        this.field.Options.editor(this.control.value);
+        this.field.Options.editor(this.control.value, this)
+            .then(() => this.close())
+            .catch(() => this.confirmSelection());
+    }
+
+    public refresh() {
+        this.cd.markForCheck();
     }
 
     private scrollToListItem() {

@@ -112,8 +112,11 @@ export class XFormDemo {
                 displayProperty: 'name',
                 valueProperty: 'id',
                 debounceTime: 500,
-                editor: (value) => {
-                    alert('Editing value: ' + value);
+                editor: (value, cmp) => {
+                    const result = confirm('Editing value: ' + value);
+                    return new Promise((resolve, reject) => {
+                        return result ? resolve(result) : reject(result);
+                    });
                 }
             };
             
