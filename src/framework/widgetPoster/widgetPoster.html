@@ -20,13 +20,85 @@
 
 </article>
 
-<section class="poster_tease">
+<section class="poster_tease" *ngIf="model.employee">
+
+    <article class="poster_tease_widget_2">
+
+        <div class="widget_avatar"></div>
+        <h2 class="widget_headline">{{ defaultEmailAddress }}</h2>
+        <h2 class="widget_subhead">Tlf: {{ defaultPhoneNumber }}</h2>
+
+    </article>
+
+    <article class="poster_tease_widget_2">
+        <!--<canvas class="widget_graph" id="widgetGraph0"></canvas>-->
+        <h1 class="widget_fixed_pay_headline">FASTLØNN</h1>
+        <h4 class="widget_fixed_pay_subhead">utbetalt hittil i år</h4>
+        <h2 class="widget_fixes_pay_number">345 542,92</h2>
+    </article>
+
+    <article class="poster_tease_widget_2">
+        <!--<h1 class="widget_randomNumber" role="presentation">{{randomNumber}}</h1>-->
+        <section class="widget_triple_notifier" [ngClass]="{'widget_notifier_error' : !datachecks.hasTaxCard, 'widget_notifier_success' :  datachecks.hasTaxCard}">
+            <h3>SKATTEKORT {{ okOrMissing(datachecks.hasTaxCard) }}</h3>
+        </section>
+        <section class="widget_triple_notifier" [ngClass]="{'widget_notifier_error' : !datachecks.hasSSN, 'widget_notifier_success' :  datachecks.hasSSN}">
+            <h3>PERSONNUMMER {{ okOrMissing(datachecks.hasSSN) }}</h3>
+        </section>
+        <section class="widget_triple_notifier" [ngClass]="{'widget_notifier_error' : !datachecks.hasAccountNumber, 'widget_notifier_success' :  datachecks.hasAccountNumber}">
+            <h3>KONTONUMMER {{ okOrMissing(datachecks.hasAccountNumber) }}</h3>
+        </section>
+    </article>
+
+    <article class="poster_tease_widget_2">
+
+        <h1 class="employment_percent">{{ defaultEmployment.workPercent }} %</h1>
+        <h4 class="employment_title">{{ defaultEmployment.jobName }} </h4>
+        <h4 class="employment_active">AKTIV</h4>
+        <h6 class="employment_number_of_active" *ngIf="defaultEmployment.numberOfActives > 1">+ {{ defaultEmployment.numberOfActives - 1 }} aktive...</h6>
+
+    </article>
+
+</section>
+
+<section class="poster_tease" *ngIf="model.settings">
+
+    <article class="poster_tease_widget_2">
+
+        <uni-image [entity]="'companysettings'"
+                   [entityID]="1"
+                   [singleImage]="true"
+                   [readonly]="true"
+                   style="margin-top: 20px;"></uni-image>
+
+    </article>
+
+    <article class="poster_tease_widget_2">
+        <h2 class="settings_orgnnumber_text">ORG.NUMMER</h2>
+        <h2 class="settings_orgnumber_number">{{ defaultSettings.orgNumber }}</h2>
+        <h4 class="settings_businesses">4 virksomheter</h4>
+    </article>
+
+    <article class="poster_tease_widget_2">
+        <div class="widget_avatar"></div>
+        <h2 class="widget_subhead"> Jørgen Kristiansen</h2>
+    </article>
+
+    <article class="poster_tease_widget_2">
+
+        <h2>25</h2>
+        <h2>AKTIVE BRUKERE</h2>
+    </article>
+
+</section>
+
+<section class="poster_tease" *ngIf="!model.employee && !model.settings">
 
     <article class="poster_tease_widget">
 
         <div class="widget_avatar"></div>
-        <h1 class="widget_headline"></h1>
-        <h2 class="widget_subhead"></h2>
+        <h1 class="widget_headline">unipilot@unimicro.no</h1>
+        <h2 class="widget_subhead">Tlf: +47 99 52 92 51</h2>
 
     </article>
 
@@ -40,11 +112,12 @@
 
     <article class="poster_tease_widget">
 
-        <button type="button" 
-            class="poster_explain" 
-            (click)="posterExplain = !posterExplain">
-            Hva er dette?</button>
-        
+        <button type="button"
+                class="poster_explain"
+                (click)="posterExplain = !posterExplain">
+            Hva er dette?
+        </button>
+
         <div class="widget_checkmark"></div>
     </article>
 

@@ -27,12 +27,14 @@ export class EmployeeDetails extends UniView {
 
     private employeeID: number;
     private employee: Employee;
+    private posterEmployee: any = {};
     private employments: Employment[];
     private recurringPosts: SalaryTransaction[];
     private employeeLeave: EmployeeLeave[];
     private subEntities: SubEntity[];
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
+    private datachecks: any;
 
     constructor(
         private route: ActivatedRoute,
@@ -74,7 +76,10 @@ export class EmployeeDetails extends UniView {
 
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
+                this.datachecks = this.boolChecks(employee);
                 this.employee = employee;
+                this.posterEmployee.employee = employee;
+                this.posterEmployee.employments = this.employments;
                 this.toolbarConfig = {
                     title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
                     subheads: [{
@@ -91,6 +96,7 @@ export class EmployeeDetails extends UniView {
 
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments;
+                this.posterEmployee.employments = employments;
                 this.checkDirty();
             });
 
@@ -177,6 +183,15 @@ export class EmployeeDetails extends UniView {
         }
     }
 
+    //Dummy check to see is user has Tax Card(i donno), social security number and account number
+    private boolChecks(employee: Employee) {
+        return {
+            hasTaxCard: false,
+            hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== "",
+            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== ""
+        }
+    }
+
     public nextEmployee() {
         if (!super.canDeactivate()) {
             return;
@@ -225,6 +240,7 @@ export class EmployeeDetails extends UniView {
 
     private getEmployments() {
         this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID).subscribe((employments) => {
+            this.posterEmployee.employments = employments;
             super.updateState('employments', employments, false);
         });
     }

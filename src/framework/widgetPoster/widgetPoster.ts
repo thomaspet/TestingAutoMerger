@@ -7,27 +7,111 @@ declare var Chart;
 })
 export class WidgetPoster {
     @Input() public model: any;
+    @Input() public datachecks: any;
 
     private rngIteration: number = 0;
     public randomNumber: string = '42%';
     private cdr: any;
+    private defaultEmailAddress: string;
+    private defaultPhoneNumber: string;
+    private defaultEmployment: any = {};
+    private defaultSettings: any = {}
 
     constructor(cdr: ChangeDetectorRef) {
         this.cdr = cdr;
     }
 
     public ngAfterViewInit() {
-        let chartElem = document.getElementById('widgetGraph0');
-        this.lineChartGenerator(chartElem);
-        this.randomNumberGenerator();
+        if (!this.model.employee && !this.model.settings) {
+            let chartElem = document.getElementById('widgetGraph0');
+            this.lineChartGenerator(chartElem);
+            this.randomNumberGenerator();
+        }
+    }
+
+    public ngOnChanges(changes: any) {
+        if (this.model.employee) {
+            this.setDefaults();
+        } else if (this.model.settings) {
+            this.setSettingsDefaults();
+        }
+    }
+
+    private okOrMissing(has: boolean): string {
+        if (has) {
+            return 'OK'
+        } else {
+            return 'MANGLER';
+        }
+    }
+
+    //Dummy function for EMPLOYEE ONLY
+    private setDefaults() {
+        if (this.model.employee.BusinessRelationInfo.Emails && this.model.employee.BusinessRelationInfo.Emails[0]) {
+            this.defaultEmailAddress = this.model.employee.BusinessRelationInfo.Emails[0].EmailAddress;
+        } else {
+            this.defaultEmailAddress = 'Epostaddresse mangler'
+        }
+
+        if (this.model.employee.BusinessRelationInfo.Phones && this.model.employee.BusinessRelationInfo.Phones[0]) {
+            this.defaultPhoneNumber = this.model.employee.BusinessRelationInfo.Phones[0].Number;
+        } else {
+            this.defaultPhoneNumber = 'Telefonnummer';
+        }
+
+        if (this.model.employments && this.model.employments.length > 0) {
+            var standarIndex = 0;
+            var actives = 0;
+            for (var i = 0; i < this.model.employments.length; i++) {
+                if (this.model.employments[i].Standard) {
+                    actives++;
+                }
+            }
+
+            //this.defaultEmployment.workPercent = this.model.employments[standarIndex].WorkPercent
+            this.defaultEmployment.jobName = this.model.employments[standarIndex].JobName;
+            this.defaultEmployment.numberOfActives = actives;
+
+            if (!this.defaultEmployment.workPercent) {
+
+                this.defaultEmployment.workPercent = 0;
+                //Counts up to workpercent (Recounts every time something is changed)
+                var interval = setInterval(() => {
+                    this.defaultEmployment.workPercent++;
+                    if (this.defaultEmployment.workPercent === this.model.employments[standarIndex].WorkPercent) {
+                        clearInterval(interval);
+                    }
+                }, 10);
+            }
+        }
+    }
+
+    private setSettingsDefaults() {
+        //Settings data fetching??
+        var settings = localStorage.getItem('companySettings');
+        settings = JSON.parse(settings);
+
+        this.defaultSettings.orgNumber = this.formatOrgnumber(settings.OrganizationNumber, 3).join(' ');
+    }
+
+    private formatOrgnumber(str, n) {
+        var ret = [];
+        var i;
+        var len;
+
+        for (i = 0, len = str.length; i < len; i += n) {
+            ret.push(str.substr(i, n))
+        }
+
+        return ret
     }
 
     private randomNumberGenerator() {
-        
+
         let iterations = 50;
 
         if (this.rngIteration < iterations) {
-            
+
             this.rngIteration++;
             let rando = Math.floor((Math.random() * 94) + 5);
             this.randomNumber = rando.toString() + '%';
@@ -59,7 +143,7 @@ export class WidgetPoster {
             },
             options: {
                 maintainAspectRatio: false,
-                scaleShowLabels : false,
+                scaleShowLabels: false,
                 tooltips: {
                     enabled: false
                 },
@@ -78,7 +162,7 @@ export class WidgetPoster {
         });
     }
 
-    public labelGenerator(numberOfDataPoints){
+    public labelGenerator(numberOfDataPoints) {
         let _data = [];
         for (var index = 0; index < numberOfDataPoints; index++) {
             _data.push('');
