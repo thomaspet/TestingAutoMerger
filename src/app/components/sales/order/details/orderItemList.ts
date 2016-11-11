@@ -80,9 +80,9 @@ export class OrderItemList {
         let itemTextCol = new UniTableColumn('ItemText', 'Tekst');
         let unitCol = new UniTableColumn('Unit', 'Enhet');
         let numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
-        let exVatCol = new UniTableColumn('PriceExVat', 'Pris eks mva', UniTableColumnType.Number);
+        let exVatCol = new UniTableColumn('PriceExVat', 'Pris eks mva', UniTableColumnType.Money);
         let discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Number);
-        let discountCol = new UniTableColumn('Discount', 'Rabatt', UniTableColumnType.Number, false);
+        let discountCol = new UniTableColumn('Discount', 'Rabatt', UniTableColumnType.Money, false);
 
         let vatTypeCol = new UniTableColumn('VatType', 'MVA %', UniTableColumnType.Lookup)
             .setTemplate((rowModel) => {
@@ -103,7 +103,7 @@ export class OrderItemList {
                 }
             });
 
-        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Select)
+        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
                     let project = rowModel.Dimensions.Project;
@@ -117,11 +117,14 @@ export class OrderItemList {
                 itemTemplate: (item) => {
                     return (item.ProjectNumber + ': ' + item.Name);
                 },
-                resource: this.projects.filter(x => x !== null),
-                searchPlaceholder: 'Velg prosjekt'
+                searchPlaceholder: 'Velg prosjekt',
+                lookupFunction: (searchValue) => {
+                    return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) ||
+                                                                              project.Name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)]);
+                }
             });
 
-        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Select)
+        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
                     let dep = rowModel.Dimensions.Department;
@@ -135,13 +138,16 @@ export class OrderItemList {
                 itemTemplate: (item) => {
                     return (item.DepartmentNumber + ': ' + item.Name);
                 },
-                resource: this.departments.filter(x => x !== null),
-                searchPlaceholder: 'Velg avdeling'
+                searchPlaceholder: 'Velg avdeling',
+                lookupFunction: (searchValue) => {
+                    return Observable.from([this.departments.filter((department) => department.DepartmentNumber.toString().startsWith(searchValue) ||
+                                                                                    department.Name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)]);
+                }
             });
 
-        let sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Number, false);
-        let sumVatCol = new UniTableColumn('SumVat', 'Mva', UniTableColumnType.Number, false);
-        let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Number, false);
+        let sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Money, false);
+        let sumVatCol = new UniTableColumn('SumVat', 'Mva', UniTableColumnType.Money, false);
+        let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Money, false);
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number, false)
             .setWidth('10%')

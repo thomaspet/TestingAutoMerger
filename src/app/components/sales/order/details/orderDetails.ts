@@ -92,7 +92,8 @@ export class OrderDetails {
                 private tabService: TabService,
                 private authService: AuthService,
                 private userService: UserService,
-                private numberFormat: NumberFormat) {
+                private numberFormat: NumberFormat,
+                private tradeItemHelper: TradeItemHelper) {
 
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
@@ -269,8 +270,6 @@ export class OrderDetails {
                 }
 
                 // Add a blank item in the dropdown controls
-                this.dropdownData[0].unshift(null);
-                this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
                 this.addressService.setAddresses(this.order);
@@ -494,30 +493,10 @@ export class OrderDetails {
         }
 
         this.recalcTimeout = setTimeout(() => {
-
-            orderItems.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
-            this.customerOrderService.calculateOrderSummary(orderItems)
-                .subscribe((data) => {
-                        this.itemsSummaryData = data;
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setSums();
-                    },
-                    (err) => {
-                        console.log('Error when recalculating items:', err);
-                        this.log(err);
-                    });
-        }, 2000);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems);
+            this.updateToolbar();
+            this.setSums();
+        }, 500);
     }
 
     private deleteItem(item: CustomerOrderItem) {

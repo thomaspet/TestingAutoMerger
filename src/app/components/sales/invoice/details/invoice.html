@@ -38,7 +38,7 @@
                        [projects]="projects"
                        [departments]="departments">
     </uni-invoice-items>
-    <uni-summary [configs]="summaryFields"></uni-summary>
+    <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
 </section>
 
 <uni-save [actions]="saveActions"></uni-save>

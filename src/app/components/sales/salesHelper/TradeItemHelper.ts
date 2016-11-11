@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {GuidService} from '../../../services/services';
 import {Project, Department} from '../../../unientities';
+import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 
 @Injectable()
 export class TradeItemHelper  {
@@ -179,4 +180,42 @@ export class TradeItemHelper  {
         rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
     }
 
+    public calculateTradeItemSummaryLocal(items: Array<any>): TradeHeaderCalculationSummary {
+        let sum: TradeHeaderCalculationSummary = new TradeHeaderCalculationSummary();
+        sum.SumTotalExVat = 0;
+        sum.SumTotalIncVat = 0;
+        sum.SumVat = 0;
+        sum.SumVatBasis = 0;
+        sum.SumNoVatBasis = 0;
+        sum.SumDiscount = 0;
+        sum.DecimalRounding = 0;
+
+        items.forEach((x) => {
+                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
+                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
+                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
+                x.Discount = x.Discount ? x.Discount : 0;
+                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
+                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
+                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
+                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
+            });
+
+        if (items) {
+            items.forEach((item) => {
+                sum.SumDiscount += item.Discount;
+                sum.SumTotalExVat += item.SumTotalExVat;
+                sum.SumTotalIncVat += item.SumTotalIncVat;
+                sum.SumVat += item.SumVat;
+                sum.SumVatBasis += item.SumVat !== 0 ? item.SumTotalExVat : 0;
+                sum.SumNoVatBasis += item.SumVat === 0 ? item.SumTotalExVat : 0;
+            });
+
+            let roundedAmount = Math.round(sum.SumTotalIncVat);
+            sum.DecimalRounding = sum.SumTotalIncVat - roundedAmount;
+            sum.SumTotalIncVat = roundedAmount;
+        }
+
+        return sum;
+    }
 }

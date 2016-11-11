@@ -100,7 +100,8 @@ export class InvoiceDetails {
                 private numberFormat: NumberFormat,
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {}
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper) {}
 
     public ngOnInit() {
         this.tabs = ['Detaljer', 'Levering', 'Dokumenter'];
@@ -117,7 +118,7 @@ export class InvoiceDetails {
         ];
 
         // Subscribe and debounce recalc on table changes
-        this.recalcDebouncer.debounceTime(1500).subscribe((invoice) => {
+        this.recalcDebouncer.debounceTime(500).subscribe((invoice) => {
             if (invoice.Items.length) {
                 this.recalcItemSums(invoice);
             }
@@ -558,58 +559,40 @@ export class InvoiceDetails {
             return;
         }
 
-        invoice.Items.forEach((x) => {
-            x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-            x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-            x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-            x.Discount = x.Discount ? x.Discount : 0;
-            x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-            x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-            x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-            x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-        });
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoice.Items);
+        this.updateSaveActions();
+        this.updateToolbar();
 
-        this.customerInvoiceService.calculateInvoiceSummary(invoice.Items)
-            .subscribe((data) => {
-                this.itemsSummaryData = data || {};
-                this.updateSaveActions();
-                this.updateToolbar();
-
-                this.summaryFields = [
-                    {
-                        title: 'Avgiftsfritt',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
-                    },
-                    {
-                        title: 'Avgiftsgrunnlag',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
-                    },
-                    {
-                        title: 'Sum rabatt',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
-                    },
-                    {
-                        title: 'Nettosum',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
-                    },
-                    {
-                        title: 'Mva',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
-                    },
-                    {
-                        title: 'Øreavrunding',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
-                    },
-                    {
-                        title: 'Totalsum',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
-                    },
-                ];
+        this.summaryFields = [
+            {
+                title: 'Avgiftsfritt',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
             },
-            (err) => {
-                this.log(err);
-            }
-        );
+            {
+                title: 'Avgiftsgrunnlag',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
+            },
+            {
+                title: 'Sum rabatt',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
+            },
+            {
+                title: 'Nettosum',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
+            },
+            {
+                title: 'Mva',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
+            },
+            {
+                title: 'Øreavrunding',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
+            },
+            {
+                title: 'Totalsum',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
+            },
+        ];
     }
 
     private log(err) {
