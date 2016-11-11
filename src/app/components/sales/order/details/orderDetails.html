@@ -19,12 +19,11 @@
                   (readyEvent)="ready($event)">
         </uni-form>
         <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
-        <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
         <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>
 
-<article class="order-details-document">
+<article class="application">
     <uni-image [entity]="'order'" [entityID]="order?.ID"></uni-image>
 </article>
 
