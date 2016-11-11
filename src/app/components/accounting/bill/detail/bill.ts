@@ -76,7 +76,10 @@ const lang = {
     ask_archive: 'Arkivere faktura ',
     ask_journal_msg: 'Bokføre regning med beløp ',
     ask_journal_title: 'Bokføre regning fra ',
-    warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.'
+    warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
+
+    ask_delete: 'Vil du virkelig slette faktura ',
+    delete_canceled: 'Sletting avbrutt'
 };
 
 const workflowLabels = { 
@@ -148,7 +151,7 @@ export class BillView {
 
     private rootActions: IUniSaveAction[] = [
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-            { label: lang.tool_delete, action: (done) => this.delete(done), main: false, disabled: true }
+            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true }
         ];
 
     constructor(
@@ -540,31 +543,40 @@ export class BillView {
         this.supplierIsReadOnly = false;
     }
 
-    public delete(done) {
-        return new Promise((resolve, reject) => {
-            var obs: any;
-            if (this.current.ID) {
-                obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);                
+    private getSupplierName(): string {
+        return this.current && this.current.Supplier && this.current.Supplier.Info ? this.current.Supplier.Info.Name : '';
+    }
+
+    public tryDelete(done) {
+        this.confirmModal.confirm(lang.ask_delete + (this.current.InvoiceNumber  || '') + '?', this.getSupplierName()).then( x => {
+            if (x === ConfirmActions.ACCEPT) {
+                return this.delete(done); 
             } else {
-                reject();
-                done(lang.delete_nothing_todo);
+                done(lang.delete_canceled);
             }
-            obs.subscribe((result) => {
-                done(lang.delete_success);
-                this.newInvoice(false);
-                resolve();
-            }, (error) => {
-                var msg = error.statusText;
-                if (error._body) {
-                    msg = error._body;
-                    this.showErrMsg(msg, true);
-                } else {
-                    this.toast.addToast(lang.save_error, ToastType.bad, 7);
-                }
-                done(lang.delete_error + ': ' + msg);
-                reject(msg);
-            });
-        });        
+        });
+    }
+
+    public delete(done) {
+        var obs: any;
+        if (this.current.ID) {
+            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);                
+        } else {
+            done(lang.delete_nothing_todo);
+        }
+        obs.subscribe((result) => {
+            done(lang.delete_success);
+            this.newInvoice(false);
+        }, (error) => {
+            var msg = error.statusText;
+            if (error._body) {
+                msg = error._body;
+                this.showErrMsg(msg, true);
+            } else {
+                this.toast.addToast(lang.save_error, ToastType.bad, 7);
+            }
+            done(lang.delete_error + ': ' + msg);
+        });
     }
 
 

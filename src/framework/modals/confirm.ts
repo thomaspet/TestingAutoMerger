@@ -55,7 +55,7 @@ export class UniConfirmContent {
 
 @Component({
     selector: 'uni-confirm-modal',
-    template: `<uni-modal [type]="type" [config]="config"></uni-modal>`
+    template: `<uni-modal [type]="type" [config]="config" (close)="onClose()" ></uni-modal>`
 })
 export class UniConfirmModal {
 
@@ -82,6 +82,8 @@ export class UniConfirmModal {
     public content() {
         this.modal.getContent();
     }
+
+    private onClose: () => void = () => {};
 
     private initDefaultConfig() {
         this.config = { 
@@ -111,19 +113,22 @@ export class UniConfirmModal {
             
             cfg.actions.accept = {
                 text: (titles && titles.accept ? titles.accept : '') || 'Ja',
-                method: () => { this.close(); resolve(ConfirmActions.ACCEPT); }
+                method: () => { resolve(ConfirmActions.ACCEPT); this.close(); }
             };
             cfg.actions.reject = {
                 text: titles && titles.reject ? titles.reject : '' || 'Nei',
-                method: () => { this.close(); resolve(ConfirmActions.REJECT); }
+                method: () => { resolve(ConfirmActions.REJECT); this.close(); }
             };
             if (hasCancel) {
                 cfg.actions.cancel = {
                     text: titles && titles.cancel ? titles.cancel : '' || 'Avbryt',
-                    method: () => { this.close(); resolve(ConfirmActions.CANCEL); }
+                    method: () => { resolve(ConfirmActions.CANCEL); this.close(); }
                 };
 
             }
+            this.onClose = () => {
+                resolve(ConfirmActions.REJECT);
+            };
             this.open();
         });
     }
