@@ -25,6 +25,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {AuthService} from '../../../../../framework/core/authService';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 
 import {TofCustomerCard} from '../../common/customerCard';
 
@@ -295,6 +296,7 @@ export class InvoiceDetails {
             subheads: [
                 {title: invoiceText},
                 {title: netSumText},
+                {title: GetPrintStatusText(this.invoice.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
