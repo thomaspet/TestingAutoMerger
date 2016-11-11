@@ -78,7 +78,38 @@ export class UniConfirmModal {
     }
 
     public content() {
-        this.modal.getContent();
+        return this.modal.getContent();
+    }
+
+    public confirm(title: string, message: string, hasCancel: boolean, titles: string[]): Promise<number> {
+        return new Promise((resolve, reject) => {
+            let config: IUniConfirmModalConfig = {
+                title: title,
+                message: message,
+                wariningMessage: titles[3],
+                actions: {
+                    accept: {
+                        text: titles[0],
+                        method: () => { this.close(); resolve(ConfirmActions.ACCEPT); }
+                    },
+                    reject: {
+                        text: titles[1],
+                        method: () => { this.close(); resolve(ConfirmActions.REJECT); }
+                    }
+                }
+            };
+            if (hasCancel) {
+                config.actions.cancel = {
+                    text : titles[2],
+                    method: () => { this.close(); resolve(ConfirmActions.CANCEL); }
+                };
+
+            }
+            this.content().then((x) => {
+                x.config = config;
+            });
+            this.open();
+        });
     }
 
     public confirm(title: string, message: string, hasCancel: boolean, titles: string[]): Promise<number> {
