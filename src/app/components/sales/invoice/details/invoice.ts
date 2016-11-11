@@ -4,9 +4,8 @@ import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, BusinessRelationService, UserService} from '../../../../services/services';
 import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, Address, User} from '../../../../unientities';
+import {CustomerInvoice, Address} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -22,7 +21,6 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {CustomerService} from '../../../../services/Sales/CustomerService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -69,7 +67,6 @@ export class InvoiceDetails {
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
 
-    private companySettings: any;
     private departments: any[] = [];
     private projects: any[] = [];
 
@@ -79,7 +76,6 @@ export class InvoiceDetails {
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    private user: User;
 
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
@@ -93,10 +89,8 @@ export class InvoiceDetails {
                 private addressService: AddressService,
                 private reportDefinitionService: ReportDefinitionService,
                 private businessRelationService: BusinessRelationService,
-                private companySettingsService: CompanySettingsService,
                 private userService: UserService,
                 private toastService: ToastService,
-                private authService: AuthService,
                 private customerService: CustomerService,
                 private numberFormat: NumberFormat,
                 private router: Router,
@@ -133,15 +127,9 @@ export class InvoiceDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerInvoice';
                     sendemail.EntityID = this.invoice.ID;
+                    sendemail.CustomerID = this.invoice.Customer.ID;
                     sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-                    sendemail.EmailAddress = this.invoice.Customer.Info.DefaultEmail ? this.invoice.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -158,13 +146,9 @@ export class InvoiceDetails {
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
-            this.companySettingsService.Get(1, ['DefaultEmail']),
-            this.userService.Get(`?filter=GlobalIdentity eq '${this.authService.jwtDecoded.nameid}'`)
         ).subscribe((response) => {
             this.departments = response[0];
             this.projects = response[1];
-            this.companySettings = response[2];
-            this.user = response[3][0];
         });
 
         // Subscribe to route param changes and update invoice data

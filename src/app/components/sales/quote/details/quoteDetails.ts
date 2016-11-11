@@ -21,7 +21,6 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -71,9 +70,8 @@ export class QuoteDetails {
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    private user: User;
     public summary: ISummaryConfig[] = [];
-    private customerExpandOptions: string[] = ['Info', 'Info.DefaultEmail', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
@@ -88,7 +86,6 @@ export class QuoteDetails {
                 private reportDefinitionService: ReportDefinitionService,
                 private companySettingsService: CompanySettingsService,
                 private toastService: ToastService,
-                private authService: AuthService,
                 private userService: UserService,
                 private numberFormat: NumberFormat,
                 private router: Router,
@@ -109,15 +106,10 @@ export class QuoteDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerQuote';
                     sendemail.EntityID = this.quote.ID;
+                    sendemail.CustomerID = this.quote.Customer.ID;
                     sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                    sendemail.EmailAddress = this.quote.Customer.Info.DefaultEmail ? this.quote.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+  
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -242,17 +234,12 @@ export class QuoteDetails {
     private setup() {
         this.deletedItems = [];
 
-        this.companySettingsService.Get(1, ['DefaultEmail'])
+        this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;

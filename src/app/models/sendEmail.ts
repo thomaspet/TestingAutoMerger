@@ -7,7 +7,8 @@ export class SendEmail {
     public SendCopy: boolean;
     public EntityType: string;
     public EntityID: number;
-    
+    public CustomerID: number;
+
     public SendEmail() {
         this.EmailAddress = '';
         this.CopyAddress = '';
@@ -17,5 +18,6 @@ export class SendEmail {
         this.SendCopy = false;
         this.EntityType = '';
         this.EntityID = 0;
+        this.CustomerID = 0;
     }
 }

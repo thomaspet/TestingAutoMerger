@@ -3,15 +3,13 @@ import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-import {CustomerOrderService, ReportDefinitionService, UserService} from '../../../../services/services';
+import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
 import {CustomerOrder, CompanySettings, User} from '../../../../unientities';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 declare var jQuery;
 
@@ -27,8 +25,6 @@ export class OrderList {
 
     private orderTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    private companySettings: CompanySettings;
-    private user: User;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Ordre',
@@ -39,10 +35,7 @@ export class OrderList {
                 private customerOrderService: CustomerOrderService,
                 private reportDefinitionService: ReportDefinitionService,
                 private tabService: TabService,
-                private authService: AuthService,
-                private userService: UserService,
-                private toastService: ToastService,
-                private companySettingsService: CompanySettingsService) {
+                private toastService: ToastService) {
 
         this.tabService.addTab({ name: 'Ordre', url: '/sales/orders', moduleID: UniModules.Orders, active: true });
         this.setupOrderTable();
@@ -57,21 +50,10 @@ export class OrderList {
     }
 
     private setupOrderTable() {
-        this.companySettingsService.Get(1, ['DefaultEmail'])
-            .subscribe(settings => this.companySettings = settings,
-                err => {
-                    console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-                });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
-            params.set('expand', 'Customer,Items,Customer.Info,Customer.Info.DefaultEmail');
+            params.set('expand', 'Customer,Items');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'OrderDate desc');
@@ -154,21 +136,16 @@ export class OrderList {
             }
         });
 
-        contextMenuItems.push(            {
+        contextMenuItems.push({
                 label: 'Send på epost',
                 action: (order: CustomerOrder) => {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerOrder';
                     sendemail.EntityID = order.ID;
+                    sendemail.CustomerID = order.Customer.ID;
                     sendemail.Subject = 'Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
-                    sendemail.EmailAddress = order.Customer.Info.DefaultEmail ? order.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
+         
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {

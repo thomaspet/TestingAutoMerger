@@ -2,9 +2,11 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {Email, FieldType} from '../../../unientities';
-import {EmailService} from '../../../services/services';
+import {EmailService, CustomerService, UserService} from '../../../services/services';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
+import {Observable} from 'rxjs/Rx';
 
 // Reusable email form
 @Component({
@@ -112,7 +114,10 @@ export class SendEmailModal {
     private type: Type<any> = SendEmailForm;
 
     constructor(private emailService: EmailService,
-                private toastService: ToastService) {
+                private toastService: ToastService,
+                private customerService: CustomerService,
+                private userService: UserService,
+                private companySettingsService: CompanySettingsService) {
     }
     
     public ngOnInit() {    
@@ -147,7 +152,26 @@ export class SendEmailModal {
 
     public openModal(sendemail: SendEmail) {  
         sendemail.Format = sendemail.Format || 'pdf';
-        this.modalConfig.model = sendemail;    
-        this.modal.open();
+
+        Observable.forkJoin(
+            this.companySettingsService.Get(1, ['DefaultEmail']),
+            this.userService.getCurrentUser(),
+            this.customerService.Get(sendemail.CustomerID, ['Info', 'Info.DefaultEmail'])
+        ).subscribe((response) => {
+            let companySettings = response[0];
+            let user = response[1];
+            let customer = response[2];
+
+            // Create template
+            if (!sendemail.EmailAddress) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
+            if (!sendemail.CopyAddress) { sendemail.CopyAddress = user.Email };
+            sendemail.Message += '\n\nMed vennlig hilsen\n' +
+                                 companySettings.CompanyName + '\n' +
+                                 user.DisplayName + '\n' +
+                                 (companySettings.DefaultEmail ? companySettings.DefaultEmail.EmailAddress : '');
+
+            this.modalConfig.model = sendemail;    
+            this.modal.open();
+        });
     }
 }

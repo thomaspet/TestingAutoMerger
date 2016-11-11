@@ -8,7 +8,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {Address, CustomerOrderItem, Customer, FieldType} from '../../../../unientities';
-import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings, User} from '../../../../unientities';
+import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -20,7 +20,6 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -70,12 +69,11 @@ export class OrderDetails {
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Info.DefaultEmail', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    private user: User;
     public summary: ISummaryConfig[] = [];
 
     constructor(private customerService: CustomerService,
@@ -91,7 +89,6 @@ export class OrderDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private authService: AuthService,
                 private userService: UserService,
                 private numberFormat: NumberFormat,
                 private tradeItemHelper: TradeItemHelper) {
@@ -109,15 +106,10 @@ export class OrderDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerOrder';
                     sendemail.EntityID = this.order.ID;
+                    sendemail.CustomerID = this.order.Customer.ID;
                     sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                    sendemail.EmailAddress = this.order.Customer.Info.DefaultEmail ? this.order.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                         
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -233,17 +225,12 @@ export class OrderDetails {
     private setup() {
         this.deletedItems = [];
 
-        this.companySettingsService.Get(1, ['DefaultEmail'])
+        this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
                 err => {
                     console.log('Error retrieving company settings data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                 });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
