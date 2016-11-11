@@ -61,7 +61,7 @@ export class UniCalendar {
         let days = [];
 
         for (let i = 1; i <= daysInMonth; i++) {
-            days.push({day: i, month: date.month()});
+            days.push({day: i, month: date.month(), year: date.year()});
         }
 
         // If first day is not monday, add days from previous month until we fill the week
@@ -86,6 +86,7 @@ export class UniCalendar {
     }
 
     private dateSelected(date) {
+        this.selectedDate.year(date.year);
         this.selectedDate.month(date.month);
         this.selectedDate.date(date.day);
         this.calendarDate = this.selectedDate.clone();
