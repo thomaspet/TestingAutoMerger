@@ -44,16 +44,19 @@
 
         </div>
 
+        <!--
         <div [hidden]="!tabs[2].isSelected">
             <h3>Bilagslinjer</h3>
         </div>    
 
         <div [hidden]="!tabs[3].isSelected">
             <h3>Varelinjer</h3>
-        </div>    
+        </div>
+        -->    
 
         <div [hidden]="!tabs[4].isSelected">
-            <h3>Historikk</h3>
+            <uni-bill-history [isActive]="tabs[4].isSelected" [supplierID]="this.current?.SupplierID" [parentID]="this.current?.ID" >                
+            </uni-bill-history>
         </div>
 
     </section>

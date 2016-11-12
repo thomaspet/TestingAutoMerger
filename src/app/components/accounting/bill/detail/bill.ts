@@ -123,7 +123,7 @@ export class BillView {
     public formConfig: any = {};
     public fields: any[] = [];
     public current: SupplierInvoice;
-    private currentSupplierID: number = 0;
+    public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
     public currentFileID: number = 0;
@@ -142,9 +142,10 @@ export class BillView {
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true},
         { label: lang.tab_document, name: 'docs', isSelected: true},
-        { label: lang.tab_journal, name: 'journal' },
-        { label: lang.tab_items, name: 'items' },
+        { label: lang.tab_journal, name: 'journal', isHidden: true },
+        { label: lang.tab_items, name: 'items', isHidden: true },
         { label: lang.tab_history, name: 'history' }
+
     ];
 
     public actions: IUniSaveAction[];
