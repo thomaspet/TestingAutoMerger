@@ -22,9 +22,9 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article (click)="onClick()" (clickOutside)="offClick()">
-            <picture #imageContainer *ngIf="imgUrl.length">
+            <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading}">
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-                <img [attr.src]="imgUrl" alt="">
+                <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()">
             </picture>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
@@ -73,6 +73,8 @@ export class UniImage {
     @Input()
     public showFileID: number;
 
+    public imageIsLoading: boolean = true;
+
     private baseUrl: string = AppConfig.BASE_URL_FILES;
 
     private token: any;
@@ -91,7 +93,7 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
 
-    constructor(private ngHttp: Http, private http: UniHttp, private imageUploader: ImageUploader, authService: AuthService) {
+    constructor(private ngHttp: Http, private http: UniHttp, authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.token;
@@ -99,12 +101,16 @@ export class UniImage {
         });
     }
 
+    public finishedLoadingImage() {
+        this.imageIsLoading = false;
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
         this.imgUrl = this.imgUrl2x = '';
         this.thumbnails = [];
 
         if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-            this.refreshFiles()
+            this.refreshFiles();
         } else if (changes['showFileID'] && this.files && this.files.length) {
             this.currentFileIndex = this.getChosenFileIndex();
             this.loadImage();
@@ -203,6 +209,9 @@ export class UniImage {
         }
 
         let size = this.size || UniImageSize.medium;
+
+        this.imageIsLoading = true;
+
         this.imgUrl2x = this.generateImageUrl(file, size * 2);
         this.imgUrl = this.generateImageUrl(file, size);
     }
