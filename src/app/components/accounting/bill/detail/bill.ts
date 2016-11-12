@@ -172,6 +172,10 @@ export class BillView {
         this.initFromRoute();    
     }
 
+    public canDeactivate() {
+        return this.checkSave();
+    }    
+
     private initFromRoute() {
         this.route.params.subscribe( (params: any) => {
             var id = params.id;
@@ -357,10 +361,7 @@ export class BillView {
                     list.push({ 
                         label: label, 
                         action: (done) => {
-                            if (!this.handleAction(itemKey, label, href, done)) {
-                                this.toast.addToast(itemKey + ' todo...', ToastType.warn, 3);
-                                done('Action not ready yet: ' + itemKey);
-                            }
+                            this.handleAction(itemKey, label, href, done);
                         }, 
                         main: setAsMain, 
                         disabled: false  
@@ -370,7 +371,18 @@ export class BillView {
         }
     }
 
-    private handleAction(key: string, label: string, href: string, done: any): boolean {
+    private handleAction(key: string, label: string, href: string, done: any) {
+        this.checkSave().then( x => {
+            if (x) {
+                this.handleActionAfterCheckSave(key, label, href, done);
+            } else {
+                done();
+            }
+        });
+    }
+
+    private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
+
         switch (key) {
             case 'journal':
                 this.confirmModal.confirm(                    
@@ -382,6 +394,7 @@ export class BillView {
                         this.busy = true;
                         this.tryJournal(href).then((status: ILocalValidation) => {
                             this.busy = false;
+                            this.hasUnsavedChanges = false;
                             done(lang.save_success);
                         }).catch((err: ILocalValidation) => {
                             this.busy = false;
@@ -604,6 +617,7 @@ export class BillView {
             }
             obs.subscribe((result) => {
                 this.currentSupplierID = result.ID;
+                this.hasUnsavedChanges = false;
                 // Post-file-linking?
                 if (this.hasStartupFileID && this.currentFileID) {
                     this.linkFile(this.currentSupplierID, this.currentFileID, 'SupplierInvoice', 40001).then( () => {
@@ -763,6 +777,32 @@ export class BillView {
         } 
         */       
     }
+
+    private checkSave(): Promise<boolean> {
+
+        if (!this.hasUnsavedChanges) { return Promise.resolve(true); }
+
+        return new Promise((resolve, reject) => {
+            this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Advarsel', true).then( x => {
+                if (x === ConfirmActions.ACCEPT) {
+                    this.busy = true;
+                    this.save().then( () => {
+                        resolve(true);
+                        this.busy = false;
+                    }).catch( err => {
+                        resolve(false);
+                        this.busy = false;
+                    });
+                } else if (x === ConfirmActions.REJECT ) {
+                    resolve(true); // no!, ignore saving
+                } else {
+                    resolve(false); // cancel, stop action
+                    this.updateTabInfo();
+                }
+            });
+        });
+
+    }    
 
     public onEntryChange(details: { rowIndex: number, item: JournalEntryLineDraft, extra: any }) {
         this.flagUnsavedChanged();

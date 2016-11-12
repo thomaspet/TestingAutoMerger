@@ -230,7 +230,7 @@ export class BillSimpleJournalEntryView {
     }
 
     private checkRowSum(row: JournalEntryLineDraft) {
-        if (!(row.Amount && this.sumRemainder)) {
+        if ((!row.Amount) && (this.sumRemainder)) {
             row.Amount = this.sumRemainder;
         }        
     }
