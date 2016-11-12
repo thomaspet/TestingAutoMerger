@@ -18,6 +18,7 @@ export class InvoiceItems {
     @ViewChild(UniTable) private table: UniTable;
 
     @Input() public invoice: CustomerInvoice;
+    @Input() public readonly: boolean;
     @Input() public projects: any[];
     @Input() public departments: any[];
 
@@ -39,6 +40,10 @@ export class InvoiceItems {
     public ngOnChanges(changes) {
         if (changes['invoice']) {
             this.tableData = this.invoice.Items.filter(item => !item.Deleted);
+        }
+
+        if (changes['readonly'] && this.table) {
+            this.initTableConfig();
         }
     }
 
@@ -150,8 +155,7 @@ export class InvoiceItems {
         const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum', UniTableColumnType.Money, false);
 
         // Table config
-        const editable = !this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft;
-        this.tableConfig = new UniTableConfig(editable)
+        this.tableConfig = new UniTableConfig(!this.readonly)
             .setColumns([
                 productCol, itemTextCol, numItemsCol, unitCol,
                 exVatCol, vatTypeCol, discountPercentCol, discountCol,
@@ -159,7 +163,7 @@ export class InvoiceItems {
             ])
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.invoice))
-            .setDeleteButton(editable)
+            .setDeleteButton(!this.readonly)
             .setChangeCallback((event) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(event);
                 let index = this.getLocalIndex(updatedRow);

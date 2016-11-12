@@ -35,6 +35,7 @@
     <uni-invoice-items *ngIf="invoice && departments && projects"
                        [(invoice)]="invoice"
                        (invoiceChange)="recalcDebouncer.next($event)"
+                       [readonly]="readonly"
                        [projects]="projects"
                        [departments]="departments">
     </uni-invoice-items>

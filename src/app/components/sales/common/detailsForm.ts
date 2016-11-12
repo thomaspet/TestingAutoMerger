@@ -40,12 +40,16 @@ export class TofDetailsForm {
     public ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
             this.entity = _.cloneDeep(this.entity);
+        }
 
-            if (this.form && this.readonly) {
-                setTimeout(() => {
+        if (changes['readonly'] && this.form) {
+            setTimeout(() => {
+                if (this.readonly) {
                     this.form.readMode();
-                });
-            }
+                } else {
+                    this.form.editMode();
+                }
+            });
         }
     }
 
