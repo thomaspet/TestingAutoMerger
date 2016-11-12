@@ -35,7 +35,7 @@ export interface IUploadConfig {
             <ul class="uni-thumbnail-list">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
                     <img [attr.src]="thumbnail"
-                        [attr.alt]="files[idx]?.Description"
+                        [attr.alt]="shorten(files[idx]?.Description, 20)"
                         (click)="thumbnailClicked(idx)">
                 </li>
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
@@ -219,6 +219,14 @@ export class UniImage {
     private generateImageUrl(file: File, width: number): string {
         let url = `${this.baseUrl}/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
         return encodeURI(url);
+    }
+
+    public shorten(str: string, length: number): string {
+        if (str && str.length > length) {
+            return str.substr(0, length - 3) + '...';
+        } else {
+            return str;
+        }
     }
 
     public uploadFileChange(event) {
