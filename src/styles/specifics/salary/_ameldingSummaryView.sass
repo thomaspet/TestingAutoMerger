@@ -1,19 +1,100 @@
-.amelding_summaryview
-    &:before
+@keyframes open-down
+    0%
+        transform: scaleX(-100%)
+    100%
+        transform scaleX(100%)
+
+.amelding_summary_overview
+    @include unigrid(4)
+    float: left
+
+    dt, dd
         display: inline-block
-        padding-left: 1rem
+        line-height: 2rem
+
+    dt
+        min-width: 7rem
         font-weight: 600
-        background: unicon-chevron-right($uni-color-scale5) left center no-repeat
-        background-size: .4rem
+
+    dd
+        width: calc(100% - 8rem)
+        margin-left: 0
+
+.amelding_summary_sections
+    @include unigrid(12)
+    @include clearfix
+    float: right
+    list-style: none
+
+.amelding_summary_section
+    border: pxToRem(1) solid $uni-color-scale9
+    border-radius: pxToRem(5)
+    margin-bottom: 1rem
+
+    &:last-of-type
+        margin-bottom: 5.5rem
+
+    &[aria-expanded]:not([aria-expanded=false])
+        border-color: $uni-color-scale8
+
+.amelding_summary_section_header,
+.amelding_summary_section_details
+    padding: 1rem
+
+.amelding_summary_section_header
+    width: calc(100% - 2rem)
+    display: flex
+    justify-content: space-between
+    align-items: center
+    padding-bottom: .2rem
+    cursor: pointer
+
+    h2
+        margin: 0
+        flex-grow: 1
+        padding-left: 1rem
+
+    strong
+        display: block
+        color: $uni-color-scale4
+        line-height: 1rem
+        font-size: 1rem
+
+    &:before
+        flex-grow: 0
         content: ''
-        height: 1rem
-        width: 1rem
+        display: block
+        width: .75rem
+        height: .75rem
+        margin-bottom: 1rem
+        background: unicon-chevron-right($uni-color-scale6) center center no-repeat
+        background-size: contain
+        transition: all 300ms ease
 
-    &.-is-expanded:before
-        background: unicon-chevron-down($uni-color-scale5) left center no-repeat
-        background-size: .7rem
+    .amelding_summary_section[aria-expanded]:not([aria-expanded=false]) &
+        background-color: mix($uni-color-negative, #fff, 50%)
+        border-bottom: pxToRem(1) solid $uni-color-scale9
 
-    h4
+        &:before
+            transform: rotate(90deg)
+
+.amelding_summary_section_overview
+    margin: 0
+    line-height: 1rem
+    color: $uni-color-scale4
+
+    dt
         display: inline-block
-        margin: .5rem 0
-        cursor: pointer
+        margin-bottom: 1rem
+
+    dd
+        display: inline
+        margin-left: 0
+        font-weight: 600
+
+        &:after
+            content: '\a'
+            white-space: pre
+
+.amelding_summary_section_details
+    animation: 500ms ease-in open-down

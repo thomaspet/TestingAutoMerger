@@ -1,4 +1,4 @@
-import { NumberFormat } from './../services/common/NumberFormatService';
+import {NumberFormat} from './../services/common/NumberFormatService';
 import {Pipe, PipeTransform} from '@angular/core';
 
 declare const moment;
@@ -20,6 +20,8 @@ export class UniNumberFormatPipe implements PipeTransform {
                 return this.numberFormat.asMoney(value);
             case 'orgno':
                 return this.numberFormat.asOrgNo(value);
+            case 'bankacct':
+                return this.numberFormat.asBankAcct(value);
             default:
                 return this.numberFormat.asNumber(value);
         }
