@@ -80,6 +80,7 @@ const lang = {
 
     ask_delete: 'Vil du virkelig slette faktura ',
     delete_canceled: 'Sletting avbrutt'
+
 };
 
 const workflowLabels = { 
@@ -424,7 +425,7 @@ export class BillView {
                 return true;
 
             case 'finish':
-                this.confirmModal.confirm(lang.ask_archive + this.current.InvoiceNumber, 'Arkivere', false, { warning: lang.warning_action_not_reversable })
+                this.confirmModal.confirm(lang.ask_archive + this.current.InvoiceNumber, lang.ask_archive, false, { warning: lang.warning_action_not_reversable })
                 .then( (result: ConfirmActions) => {
                     if (result === ConfirmActions.ACCEPT) {
                         return this.RunActionOnCurrent(key, done);
@@ -501,6 +502,7 @@ export class BillView {
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
+        this.currentFileID = 0;
         return new Promise( (resolve, reject) => {
             this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
