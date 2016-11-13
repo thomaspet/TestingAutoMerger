@@ -14,7 +14,8 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-import {IOcrServiceResult, IOcrValuables} from './ocr';
+import {IOcrServiceResult, OcrValuables} from './ocr';
+import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 
 declare const moment;
 
@@ -25,83 +26,6 @@ interface ITab {
     count?: number;
     isHidden?: boolean;
 }
-
-const lang = {
-    btn_yes: 'Ja',
-    btn_no: 'Nei',
-
-    tab_invoice: 'Faktura',
-    tab_document: 'Dokument',
-    tab_journal: 'Bilagslinjer',
-    tab_items: 'Varelinjer',
-    tab_history: 'Historikk',
-
-    title_new: 'Regning (ny)',
-    title_with_id: 'Regning #',
-
-    headliner_new: 'Ny regning',
-    headliner_invoice: 'Fakturanr.',
-    headliner_supplier: 'Lev.nr.',
-    headliner_journal: 'Bilagsnr.',
-    headliner_journal_not: 'ikke bokført',
-
-    col_supplier: 'Leverandør',
-    col_invoice: 'Fakturanr.',
-    col_total: 'Fakturabeløp',
-    col_date: 'Fakturadato',
-    col_due: 'Forfallsdato',
-    col_kid: 'KID',
-    col_bank: 'Bankkonto',
-
-    tool_save: 'Lagre endringer',
-    tool_delete: 'Slett',
-    save_error: 'Feil ved lagring',    
-    save_success: 'Lagret ok',
-
-    delete_nothing_todo: 'Ingenting å slette',
-    delete_error: 'Feil ved sletting',
-    delete_success: 'Sletting ok',
-
-    btn_new_supplier: 'Ny',
-    add_image_now: 'Trykk på "pluss" knappen for å legge til nytt dokument',
-
-    journaled_ok: 'Bokføring fullført',
-    payment_ok: 'Betaling registrert',
-    ask_register_payment: 'Registrere betaling for faktura ',
-    ready_for_payment: 'Status endret til "Klar for betaling"',
-
-    err_missing_journalEntries: 'Kontering mangler!',
-    err_diff: 'Differanse i posteringer!',
-    err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
-
-    ask_archive: 'Arkivere faktura ',
-    ask_journal_msg: 'Bokføre regning med beløp ',
-    ask_journal_title: 'Bokføre regning fra ',
-    warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
-
-    ask_delete: 'Vil du virkelig slette faktura ',
-    delete_canceled: 'Sletting avbrutt'
-
-};
-
-const workflowLabels = { 
-    'smartbooking': 'Foreslå kontering',
-    'journal': 'Bokfør',
-
-    'payInvoice': 'Registrere betaling',
-    'sendForPayment': 'Til betalingsliste',
-    'pay': 'Registrere betaling',
-
-    'assign': 'Tildel',
-    'cancelApprovement': 'Tilbakestill',
-    'reAssign': 'Tildel på nytt',
-    'approve': 'Godkjenn',
-    'rejectInvoice': 'Avvis faktura',
-    'rejectAssignment': 'Avvis tildeling',
-    'restore': 'Gjenopprett',
-
-    'finish': 'Arkiver'
-};
 
 enum actionBar {
     save = 0,
@@ -131,6 +55,7 @@ export class BillView {
     public currentFileID: number = 0;
     public hasStartupFileID: boolean = false;
 
+    private files: Array<any>;
     private supplierIsReadOnly: boolean = false;
     private defaultPath: string;    
 
@@ -154,7 +79,8 @@ export class BillView {
 
     private rootActions: IUniSaveAction[] = [
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true }
+            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
+            { label: lang.ocr, action: (done) => this.runOcr(this.files), main: false, disabled: false }
         ];
 
     constructor(
@@ -247,32 +173,58 @@ export class BillView {
     }    
 
     public onFileListReady(files: Array<any>) {
+        this.files = files;
         if (files && files.length) {
-            this.toast.addToast('Running ocr scan', ToastType.warn, 2);
-            this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
-                if (result && result.OcrInvoiceReport) {
-                    var doc: IOcrValuables = {
-                        Orgno: result.OcrInvoiceReport.Orgno.Value ? result.OcrInvoiceReport.Orgno.Value.value : '',
-                        Kid: result.OcrInvoiceReport.Kid.Value ? result.OcrInvoiceReport.Kid.Value.value : '',
-                        BankAccount: result.OcrInvoiceReport.BankAccount.Value ? result.OcrInvoiceReport.BankAccount.Value.value : '',
-                        InvoiceDate: result.OcrInvoiceReport.InvoiceDate.Value ? result.OcrInvoiceReport.InvoiceDate.Value.value : '',
-                        DueDate: result.OcrInvoiceReport.DueDate.Value ? result.OcrInvoiceReport.DueDate.Value.value : '',
-                        Amount: result.OcrInvoiceReport.Amount.Value ? result.OcrInvoiceReport.Amount.Value.value : '',
-                        InvoiceNumber: result.OcrInvoiceReport.InvoiceNumber.Value ? result.OcrInvoiceReport.InvoiceNumber.Value.value : '',
-                        SupplierID: result.OcrInvoiceReport.SupplierID
-                    };                
-                    this.handleOcrResult(doc, result);
-                } else {
-                    this.toast.addToast('OCR', ToastType.warn, 10, JSON.stringify(result));
-                }
-            }, (err) => {
-                this.showHttpError(err);
-            });
+            if (this.shouldRunOcr()) {
+                this.runOcr(files);
+            }
         }
     }
 
-    private handleOcrResult(doc: IOcrValuables, result: IOcrServiceResult) {
-        this.toast.addToast('ocr result', ToastType.good, undefined, JSON.stringify(doc));
+    private shouldRunOcr() {
+        return (this.current && this.current.SupplierID) ? false : true;
+    }
+
+    private runOcr(files: Array<any>) {
+        if (this.files && this.files.length > 0) {
+            this.toast.addToast('Running ocr scan', ToastType.warn, 2);
+            this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
+                this.handleOcrResult( new OcrValuables(result) );
+            }, (err) => {
+                this.showHttpError(err);
+            });        
+        }
+    }
+
+    private handleOcrResult(ocr: OcrValuables) {
+        // this.toast.addToast('Legger inn OCR-tolk-verdier', ToastType.good, 2, JSON.stringify(ocr.Orgno));
+        this.toFormValues(ocr, 'Orgno', 'SupplierID', 'Kid', 'PaymentID', 'DueDate', 'PaymentDueDate', 'PaymentID', 'Amount', 'TaxInclusiveAmount');
+    }
+
+    private toFormValues(obj: any, ...fldMap: string[]) {
+        var count = 0;
+        var blob = '';
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                let value = obj[key];
+                if (value) {
+                    let dst = key;
+                    let ixMap = fldMap.findIndex( x => x === key);
+                    if (ixMap >= 0) {
+                        dst = fldMap[ixMap + 1];
+                    }
+                    try {
+                        this.uniForm.field(dst).control.setValue(value);
+                        blob += (count > 0 ? ', ' : '') + (`${dst} = ${value}`);
+                        this.flagUnsavedChanged();
+                        count++;
+                    } catch (err) { }                
+                }
+            }
+        }
+        if (count > 0) {
+            this.toast.addToast('OCR: ' + count, ToastType.good, 7, blob);
+        }
     }
 
     public onSaveDraftForImage() {
@@ -324,6 +276,7 @@ export class BillView {
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;        
         this.currentFileID = 0;
+        this.files = undefined;
         this.busy = false;
         if (!isInitial) { 
             this.hasStartupFileID = false;
@@ -533,6 +486,7 @@ export class BillView {
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
         this.currentFileID = 0;
+        this.files = undefined;
         return new Promise( (resolve, reject) => {
             this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
