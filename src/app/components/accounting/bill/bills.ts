@@ -39,11 +39,15 @@ export class BillsView {
     public listOfInvoices: Array<any> = [];
     public busy: boolean = true;
     public totals: { grandTotal: number } = { grandTotal: 0 };
+    public searchTotals: { grandTotal: number, count: number } = { grandTotal: 0, count: 0 };
     public currentFilter: IFilter;
     private preSearchFilter: IFilter;
     private defaultPath: string;
     private viewSettings: ViewSettings;
+
     private hasQueriedInboxCount: boolean = false;
+    private startupWithSearchText: string;
+    private hasQueriedTotals: boolean = false;
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true},
@@ -71,23 +75,33 @@ export class BillsView {
     }
 
     public ngOnInit() {
-        this.refreshList(this.currentFilter, true);        
+
+        if (this.startupWithSearchText) {
+            this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
+        } else {
+            this.refreshList(this.currentFilter, true);
+        }        
 
         this.searchControl.valueChanges
             .debounceTime(300)
             .subscribe((value: string) => {
                 var v = this.filterInput(value);
-                var allFilter = this.filters.find( x => x.name === 'All');
-                if (v) {
-                    var sFilter = this.createFilters(v, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber');
-                    if (this.currentFilter.name !== allFilter.name ) { this.preSearchFilter = this.currentFilter; }
-                    this.onFilterClick(allFilter, sFilter);
-                } else {
-                    if (this.preSearchFilter) {
-                        this.onFilterClick(this.preSearchFilter);
-                    }
-                }
+                this.startupWithSearchText = v;
+                this.refreshWihtSearchText(v);
         });        
+    }
+
+    private refreshWihtSearchText(value: string) {
+        var allFilter = this.filters.find( x => x.name === 'All');
+        if (value) {
+            var sFilter = this.createFilters(value, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber', 'ID');
+            if (this.currentFilter.name !== allFilter.name ) { this.preSearchFilter = this.currentFilter; }
+            this.onFilterClick(allFilter, sFilter);
+        } else {
+            if (this.preSearchFilter) {
+                this.onFilterClick(this.preSearchFilter);
+            }
+        }
     }
 
     private createFilters(value: string, ...args: any[]): string {
@@ -121,6 +135,7 @@ export class BillsView {
                 filter.onDataReady(result);
             } else {
                 this.listOfInvoices = result;
+                this.makeSearchTotals();
                 this.tableConfig = this.createTableConfig(filter);
                 this.totals.grandTotal = filter.total || this.totals.grandTotal;
             }
@@ -128,8 +143,22 @@ export class BillsView {
 
             this.QueryInboxTotals();
         });
-        if (refreshTotals) {
+        if (refreshTotals) {            
             this.refreshTotals();
+        }
+    }
+
+    private makeSearchTotals() {
+        var sum = 0;
+        if (this.listOfInvoices && this.listOfInvoices.length > 0) {
+            this.listOfInvoices.forEach( x => {
+                sum += x.TaxInclusiveAmount || 0;
+            });
+            this.searchTotals.grandTotal = sum;
+            this.searchTotals.count = this.listOfInvoices.length;
+        } else {
+            this.searchTotals.grandTotal = 0;
+            this.searchTotals.count = 0;
         }
     }
 
@@ -171,6 +200,7 @@ export class BillsView {
 
     private refreshTotals() {
         this.supplierInvoiceService.getInvoiceListGroupedTotals().subscribe((result: Array<IStatTotal>) => {
+            this.hasQueriedTotals = true;
             this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } } );
             var count = 0;
             var total = 0;
@@ -281,10 +311,14 @@ export class BillsView {
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {
         this.filters.forEach(f => f.isSelected = false);
-        this.refreshList(filter, undefined, searchFilter);
-        filter.isSelected = true;
-        this.location.replaceState(this.defaultPath + '?filter=' + filter.name);
-        this.viewSettings.setProp('defaultFilter', filter.name );
+        this.refreshList(filter, !this.hasQueriedTotals , searchFilter);
+        filter.isSelected = true;        
+        if (searchFilter) {
+            this.location.replaceState(this.defaultPath + '?search=' + this.startupWithSearchText);
+        } else {
+            this.location.replaceState(this.defaultPath + '?filter=' + filter.name);
+            this.viewSettings.setProp('defaultFilter', filter.name );
+        }
     }
 
     private checkPath() {
@@ -300,6 +334,9 @@ export class BillsView {
                             this.currentFilter = this.filters.find(x => x.name === parts[1]);
                             this.filters.forEach(x => x.isSelected = false);
                             this.currentFilter.isSelected = true;
+                        }
+                        if (parts[0] === 'search') {
+                            this.startupWithSearchText = parts[1];
                         }
                     }
                 });

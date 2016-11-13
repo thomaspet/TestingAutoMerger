@@ -39,9 +39,12 @@
             <div *ngIf="!hasStartupFileID && !current?.ID" class="application">
                 <button class="good" (click)="onSaveDraftForImage($event)">Start med dokument/bilde</button>
             </div>
-            <uni-image *ngIf="current?.ID" [entity]="'SupplierInvoice'" [entityID]="current?.ID"></uni-image>
+            <uni-image *ngIf="current?.ID" [entity]="'SupplierInvoice'" [entityID]="current?.ID"
+                (fileListReady)="onFileListReady($event)" ></uni-image> 
             
-            <uni-image *ngIf="currentFileID" [readonly]="true" [singleImage]="true" [entity]="'file'" [entityID]="currentFileID"></uni-image>
+            <uni-image *ngIf="currentFileID" [readonly]="true" [singleImage]="true" 
+                [entity]="'file'" [entityID]="currentFileID"
+                (fileListReady)="onFileListReady($event)" ></uni-image>
 
         </div>
 

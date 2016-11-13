@@ -14,6 +14,7 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {IOcrServiceResult, IOcrValuables} from './ocr';
 
 declare const moment;
 
@@ -244,6 +245,35 @@ export class BillView {
     public onFormReady(event) {
         this.createNewSupplierButton();
     }    
+
+    public onFileListReady(files: Array<any>) {
+        if (files && files.length) {
+            this.toast.addToast('Running ocr scan', ToastType.warn, 2);
+            this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
+                if (result && result.OcrInvoiceReport) {
+                    var doc: IOcrValuables = {
+                        Orgno: result.OcrInvoiceReport.Orgno.Value ? result.OcrInvoiceReport.Orgno.Value.value : '',
+                        Kid: result.OcrInvoiceReport.Kid.Value ? result.OcrInvoiceReport.Kid.Value.value : '',
+                        BankAccount: result.OcrInvoiceReport.BankAccount.Value ? result.OcrInvoiceReport.BankAccount.Value.value : '',
+                        InvoiceDate: result.OcrInvoiceReport.InvoiceDate.Value ? result.OcrInvoiceReport.InvoiceDate.Value.value : '',
+                        DueDate: result.OcrInvoiceReport.DueDate.Value ? result.OcrInvoiceReport.DueDate.Value.value : '',
+                        Amount: result.OcrInvoiceReport.Amount.Value ? result.OcrInvoiceReport.Amount.Value.value : '',
+                        InvoiceNumber: result.OcrInvoiceReport.InvoiceNumber.Value ? result.OcrInvoiceReport.InvoiceNumber.Value.value : '',
+                        SupplierID: result.OcrInvoiceReport.SupplierID
+                    };                
+                    this.handleOcrResult(doc, result);
+                } else {
+                    this.toast.addToast('OCR', ToastType.warn, 10, JSON.stringify(result));
+                }
+            }, (err) => {
+                this.showHttpError(err);
+            });
+        }
+    }
+
+    private handleOcrResult(doc: IOcrValuables, result: IOcrServiceResult) {
+        this.toast.addToast('ocr result', ToastType.good, undefined, JSON.stringify(doc));
+    }
 
     public onSaveDraftForImage() {
         this.save((msg) => {            

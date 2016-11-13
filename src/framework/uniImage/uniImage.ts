@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, SimpleChanges, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
@@ -73,6 +73,12 @@ export class UniImage {
     @Input()
     public showFileID: number;
 
+    @Output()
+    public fileListReady: EventEmitter<File[]> = new EventEmitter<File[]>();
+
+    @Output()
+    public imageLoaded: EventEmitter<File> = new EventEmitter<File>();
+
     public imageIsLoading: boolean = true;
 
     private baseUrl: string = AppConfig.BASE_URL_FILES;
@@ -103,6 +109,9 @@ export class UniImage {
 
     public finishedLoadingImage() {
         this.imageIsLoading = false;
+        if (this.files && this.currentFileIndex) {
+            this.imageLoaded.emit(this.files[this.currentFileIndex]);
+        }
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -127,6 +136,7 @@ export class UniImage {
             .send()
             .subscribe((res) => {
                 this.files = res.json();
+                this.fileListReady.emit(this.files);
                 if (this.files.length) {
                     this.currentPage = 1;
                     this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
@@ -271,6 +281,7 @@ export class UniImage {
             .subscribe((res) => {
                 this.uploading = false;
                 this.files.push(res);
+                this.fileListReady.emit(this.files);
                 this.currentFileIndex = this.files.length - 1;
                 this.loadImage();
                 if (!this.singleImage) {
