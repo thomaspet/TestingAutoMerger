@@ -101,9 +101,11 @@ export class UniSelectInput {
 
     private createFocusListener(component: UniSelect) {
         const self = this;
-        Observable.fromEvent(component.valueInput.nativeElement, 'focus').subscribe(() => {
-            self.focusEvent.emit(self);
-        });
+        if (component.valueInput) {
+            Observable.fromEvent(component.valueInput.nativeElement, 'focus').subscribe(() => {
+                self.focusEvent.emit(self);
+            });
+        }
     }
 
     private onChange(item) {

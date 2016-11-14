@@ -48,9 +48,7 @@ export class AddressForm implements OnChanges {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['config.disableQuestion'] != null) {
-            this.setupForm();
-        }
+        this.setupForm();
     }
 
     private setupForm() {
@@ -97,7 +95,11 @@ export class AddressForm implements OnChanges {
                         this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
                             .subscribe((postalCodes: Array<PostalCode>) => {
                                 if (postalCodes.length > 0) {
+                                    address.PostalCode = postalCodes[0].Code;
                                     address.City = postalCodes[0].City;
+                                    this.config.model = _.cloneDeep(address);
+                                } else {
+                                    address.City = '';
                                     this.config.model = _.cloneDeep(address);
                                 }
                             });
