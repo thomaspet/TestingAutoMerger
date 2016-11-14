@@ -65,7 +65,8 @@ export class TimeEntry {
             new Column('WorkTypeID', 'Timeart', ColumnType.Integer, { route: 'worktypes' }),
             new Column('LunchInMinutes', 'Lunsj', ColumnType.Integer),
             new Column('Description'),
-            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, { route: 'projects'}),
+            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, 
+                { route: 'projects', select: 'ProjectNumber,Name', visualKey: 'ProjectNumber' }),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer,
                 { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'}),
             new Column('Actions', '', ColumnType.Action)

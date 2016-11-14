@@ -1,11 +1,12 @@
 <section class="supplierinvoice-listview">
 
     <header class="application">
-        <table class='timeentry_toolbar'><tr>
+        <table class='toolbar'><tr>
         <td>
+            <input type="search" placeholder="Søk" [formControl]="searchControl" >
             <button class="good" (click)="onAddNew()">Ny regning</button>
         </td>
-        <td><input type="search" placeholder="Søk" [formControl]="searchControl" ></td>
+        <td></td>
         </tr></table>
     </header>
 
