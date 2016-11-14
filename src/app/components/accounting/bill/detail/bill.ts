@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
-import {safeInt, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+import {safeInt, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -14,7 +14,8 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-import {IOcrServiceResult, IOcrValuables} from './ocr';
+import {IOcrServiceResult, OcrValuables} from './ocr';
+import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 
 declare const moment;
 
@@ -25,83 +26,6 @@ interface ITab {
     count?: number;
     isHidden?: boolean;
 }
-
-const lang = {
-    btn_yes: 'Ja',
-    btn_no: 'Nei',
-
-    tab_invoice: 'Faktura',
-    tab_document: 'Dokument',
-    tab_journal: 'Bilagslinjer',
-    tab_items: 'Varelinjer',
-    tab_history: 'Historikk',
-
-    title_new: 'Regning (ny)',
-    title_with_id: 'Regning #',
-
-    headliner_new: 'Ny regning',
-    headliner_invoice: 'Fakturanr.',
-    headliner_supplier: 'Lev.nr.',
-    headliner_journal: 'Bilagsnr.',
-    headliner_journal_not: 'ikke bokført',
-
-    col_supplier: 'Leverandør',
-    col_invoice: 'Fakturanr.',
-    col_total: 'Fakturabeløp',
-    col_date: 'Fakturadato',
-    col_due: 'Forfallsdato',
-    col_kid: 'KID',
-    col_bank: 'Bankkonto',
-
-    tool_save: 'Lagre endringer',
-    tool_delete: 'Slett',
-    save_error: 'Feil ved lagring',    
-    save_success: 'Lagret ok',
-
-    delete_nothing_todo: 'Ingenting å slette',
-    delete_error: 'Feil ved sletting',
-    delete_success: 'Sletting ok',
-
-    btn_new_supplier: 'Ny',
-    add_image_now: 'Trykk på "pluss" knappen for å legge til nytt dokument',
-
-    journaled_ok: 'Bokføring fullført',
-    payment_ok: 'Betaling registrert',
-    ask_register_payment: 'Registrere betaling for faktura ',
-    ready_for_payment: 'Status endret til "Klar for betaling"',
-
-    err_missing_journalEntries: 'Kontering mangler!',
-    err_diff: 'Differanse i posteringer!',
-    err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
-
-    ask_archive: 'Arkivere faktura ',
-    ask_journal_msg: 'Bokføre regning med beløp ',
-    ask_journal_title: 'Bokføre regning fra ',
-    warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
-
-    ask_delete: 'Vil du virkelig slette faktura ',
-    delete_canceled: 'Sletting avbrutt'
-
-};
-
-const workflowLabels = { 
-    'smartbooking': 'Foreslå kontering',
-    'journal': 'Bokfør',
-
-    'payInvoice': 'Registrere betaling',
-    'sendForPayment': 'Til betalingsliste',
-    'pay': 'Registrere betaling',
-
-    'assign': 'Tildel',
-    'cancelApprovement': 'Tilbakestill',
-    'reAssign': 'Tildel på nytt',
-    'approve': 'Godkjenn',
-    'rejectInvoice': 'Avvis faktura',
-    'rejectAssignment': 'Avvis tildeling',
-    'restore': 'Gjenopprett',
-
-    'finish': 'Arkiver'
-};
 
 enum actionBar {
     save = 0,
@@ -131,6 +55,7 @@ export class BillView {
     public currentFileID: number = 0;
     public hasStartupFileID: boolean = false;
 
+    private files: Array<any>;
     private supplierIsReadOnly: boolean = false;
     private defaultPath: string;    
 
@@ -154,7 +79,8 @@ export class BillView {
 
     private rootActions: IUniSaveAction[] = [
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true }
+            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
+            { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false }
         ];
 
     constructor(
@@ -244,40 +170,155 @@ export class BillView {
 
     public onFormReady(event) {
         this.createNewSupplierButton();
-    }    
+    }
+
+
+    /// ============================= 
+
+    ///     FILES AND OCR    
+
+    /// ============================= 
 
     public onFileListReady(files: Array<any>) {
+        this.files = files;
         if (files && files.length) {
-            this.toast.addToast('Running ocr scan', ToastType.warn, 2);
-            this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
-                if (result && result.OcrInvoiceReport) {
-                    var doc: IOcrValuables = {
-                        Orgno: result.OcrInvoiceReport.Orgno.Value ? result.OcrInvoiceReport.Orgno.Value.value : '',
-                        Kid: result.OcrInvoiceReport.Kid.Value ? result.OcrInvoiceReport.Kid.Value.value : '',
-                        BankAccount: result.OcrInvoiceReport.BankAccount.Value ? result.OcrInvoiceReport.BankAccount.Value.value : '',
-                        InvoiceDate: result.OcrInvoiceReport.InvoiceDate.Value ? result.OcrInvoiceReport.InvoiceDate.Value.value : '',
-                        DueDate: result.OcrInvoiceReport.DueDate.Value ? result.OcrInvoiceReport.DueDate.Value.value : '',
-                        Amount: result.OcrInvoiceReport.Amount.Value ? result.OcrInvoiceReport.Amount.Value.value : '',
-                        InvoiceNumber: result.OcrInvoiceReport.InvoiceNumber.Value ? result.OcrInvoiceReport.InvoiceNumber.Value.value : '',
-                        SupplierID: result.OcrInvoiceReport.SupplierID
-                    };                
-                    this.handleOcrResult(doc, result);
-                } else {
-                    this.toast.addToast('OCR', ToastType.warn, 10, JSON.stringify(result));
-                }
-            }, (err) => {
-                this.showHttpError(err);
-            });
+            if (!this.hasValidSupplier()) {
+                this.runOcr(files);
+            }
         }
     }
 
-    private handleOcrResult(doc: IOcrValuables, result: IOcrServiceResult) {
-        this.toast.addToast('ocr result', ToastType.good, undefined, JSON.stringify(doc));
+    private hasValidSupplier() {
+        return (this.current && this.current.SupplierID) ? true : false;
     }
 
+    private runOcr(files: Array<any>): Promise<boolean> {
+        return new Promise( (resolve, reject) => {
+            if (this.files && this.files.length > 0) {
+                this.userMsg(lang.ocr_running, null, null, true);
+                this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
+                    this.toast.clear();
+                    this.handleOcrResult( new OcrValuables(result) );
+                    resolve(true);
+                }, (err) => {
+                    this.toast.clear();
+                    this.showHttpError(err);
+                    resolve(false);
+                });        
+            }
+        });
+    }
+
+    private handleOcrResult(ocr: OcrValuables) {
+        if (ocr.Orgno) {
+            if (!this.hasValidSupplier()) {
+                var orgNo = filterInput(ocr.Orgno);
+                this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info']).subscribe( (result: Supplier[]) => {
+                    if (result && result.length > 0) {
+                        this.setSupplier(result[0]);                    
+                    } else {
+                        this.findSupplierViaPhonebook(orgNo, true);
+                    }
+                });
+            }
+        }
+        this.toFormValues(ocr);        
+    }
+
+    private toFormValues(obj: any) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                let value = obj[key];
+                if (value) {
+                    this.setFormValue(key, value);
+                }
+            }
+        }
+    }
+
+    private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
+        this.supplierInvoiceService.fetch('business-relations/?action=search-data-hotel&searchText=' + orgNo).subscribe( x => {
+            if (x.Data && x.Data.entries && x.Data.entries.length > 0) {
+                var item = x.Data.entries[0];
+                var title = `Ny leverandør '${item.navn}' ?`;
+                var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''} med Organisasjonsnr. ${item.orgnr}`;
+                this.toast.clear(); 
+                if (askUser) {
+                    this.confirmModal.confirm(msg, title, false, { warning: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)'}, ).then( (userChoice: ConfirmActions) => {
+                        if (userChoice === ConfirmActions.ACCEPT) {
+                            this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
+                        }
+                    });
+                } else {
+                    this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
+                }
+            }
+        });
+    }
+
+    private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
+        var sup = new Supplier();
+        sup.OrgNumber = orgNo;
+        if (bankAccount) {
+            sup.DefaultBankAccount = <any>{ AccountNumber: bankAccount };
+        }
+        sup.Info = <any>{ 
+            Name: name, 
+            ShippingAddress: {
+                AddressLine1: address || '',
+                City: city || '',
+                PostalCode: postalCode || '',
+                Country: 'NORGE',
+                CountryCode: 'NO'
+            }   
+        };
+        this.supplierService.Post(sup).subscribe( x => {
+            this.setSupplier(x);
+        }, (err) => {
+            this.showHttpError(err);
+        });
+        
+    }
+
+
+    private setFormValue(colName: string, value: any) {
+
+        var copyToForm = false;
+        var inputChange = false;
+
+        switch (colName) {
+            case 'PaymentID':
+            case 'BankAccount':
+            case 'TaxInclusiveAmount':
+            case 'InvoiceNumber':
+            case 'Amount':
+                copyToForm = true;
+                break;
+            
+            case 'InvoiceDate':                
+            case 'PaymentDueDate':
+                value = moment(value).format('L');
+                inputChange = true;
+                copyToForm = true;
+        }
+
+        if (copyToForm) {
+            this.current[colName] = value;        
+            var fld: any = this.uniForm.field(colName);
+            fld.control.setValue(value, { emitEvent: true });
+            if (inputChange) {
+                fld.Component.inputChange();
+            }
+            this.flagUnsavedChanged();
+        }
+    }
+
+    ///////////////////////
+
+
     public onSaveDraftForImage() {
-        this.save((msg) => {            
-            this.toast.addToast(lang.add_image_now, ToastType.good, 3);
+        this.save((msg) => {
+            this.userMsg(lang.add_image_now, lang.fyi, 3, true);            
         });
     }    
 
@@ -298,16 +339,20 @@ export class BillView {
 
     private fetchNewSupplier(id: number, updateCombo = false) {
         this.supplierService.Get(id, ['Info']).subscribe( (result: Supplier) => {
-            this.currentSupplierID = result.ID;
-            this.current.Supplier = result;
-            if (this.current.SupplierID !== id) {
-                this.current.SupplierID = id;
-            }
-            if (updateCombo) {
-                this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));                
-            }
-            this.setupToolbar();
+            this.setSupplier(result, updateCombo);
         });
+    }
+
+    private setSupplier(result: Supplier, updateCombo = true) {
+        this.currentSupplierID = result.ID;
+        this.current.Supplier = result;
+        if (this.current.SupplierID !== result.ID) {
+            this.current.SupplierID = result.ID;
+        }
+        if (updateCombo) {
+            this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));                
+        }
+        this.setupToolbar();
     }
 
     private newInvoice(isInitial: boolean) {
@@ -324,6 +369,7 @@ export class BillView {
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;        
         this.currentFileID = 0;
+        this.files = undefined;
         this.busy = false;
         if (!isInitial) { 
             this.hasStartupFileID = false;
@@ -431,7 +477,7 @@ export class BillView {
                         }).catch((err: ILocalValidation) => {
                             this.busy = false;
                             done(err.errorMessage);
-                            this.toast.addToast(err.errorMessage, ToastType.bad, 15);
+                            this.userMsg(err.errorMessage, lang.warning, 10);
                         });
                     } else {
                         done();
@@ -441,7 +487,7 @@ export class BillView {
 
             case 'smartbooking':
                 this.supplierInvoiceService.Action(this.current.ID, key).subscribe( (result) => {
-                    this.toast.addToast(JSON.stringify(result), ToastType.good);
+                    this.userMsg(JSON.stringify(result));
                     done('ok');
                 }, (err) => {
                     var msg = this.showHttpError(err);
@@ -497,7 +543,7 @@ export class BillView {
                 this.supplierInvoiceService.journal(this.current.ID).subscribe( x => {
                     this.fetchInvoice(this.current.ID, false);
                     resolve(result);
-                    this.toast.addToast(lang.journaled_ok, ToastType.good, 6);
+                    this.userMsg(lang.journaled_ok, null, 6, true);
 
                 }, (err) => {
                     var msg = this.showHttpError(err);
@@ -533,9 +579,11 @@ export class BillView {
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
         this.currentFileID = 0;
+        this.files = undefined;
         return new Promise( (resolve, reject) => {
             this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
+                if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current = result;
                 this.setupToolbar();
                 this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
@@ -619,7 +667,7 @@ export class BillView {
                 msg = error._body;
                 this.showErrMsg(msg, true);
             } else {
-                this.toast.addToast(lang.save_error, ToastType.bad, 7);
+                this.userMsg(lang.save_error);
             }
             done(lang.delete_error + ': ' + msg);
         });
@@ -668,7 +716,7 @@ export class BillView {
                     msg = error._body;
                     this.showErrMsg(msg, true);
                 } else {
-                    this.toast.addToast(lang.save_error, ToastType.bad, 7);
+                    this.userMsg(lang.save_error);
                 }
                 if (done) { done(lang.save_error + ': ' + msg); }
                 reject({ success: false, errorMessage: msg});
@@ -753,7 +801,7 @@ export class BillView {
                 this.busy = true;
                 this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
                     this.fetchInvoice(this.current.ID, true);
-                    this.toast.addToast(lang.payment_ok, ToastType.good, 10);
+                    this.userMsg(lang.payment_ok, null, null, true);
                     this.busy = false;
                 }, (error) => {
                     this.showHttpError(error);
@@ -793,7 +841,7 @@ export class BillView {
         }
         msg = msg || lang.err_missing_journalEntries;
         if (showErrMsg) {
-            this.toast.addToast(msg, ToastType.bad);
+            this.userMsg(msg);
         }
         return { success: false, errorMessage: msg };
     }
@@ -972,7 +1020,7 @@ export class BillView {
                 txt = msg.substr(msg.indexOf('"Message":') + 12, 80) + '..';
             }
         }
-        this.toast.addToast(txt, ToastType.bad, 7);
+        this.userMsg(msg, lang.warning, 7);
         return txt;
     }
 
@@ -992,8 +1040,6 @@ export class BillView {
                 });
                 var dropDown = btn.nextSibling;
                 btn.parentElement.insertBefore(sibling, dropDown);
-            } else {
-                this.toast.addToast('Autocomplete element not found', ToastType.warn, 2);
             }
             // Create keyboard-shortcut (F3) 
             el = frm.elementRef.nativeElement.getElementsByTagName('input');
@@ -1010,4 +1056,8 @@ export class BillView {
 
     }
 
+
+    private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
+        this.toast.addToast(title || (isGood ? lang.fyi : lang.warning), isGood ? ToastType.good : ToastType.bad, delay, msg);
+    }
 }

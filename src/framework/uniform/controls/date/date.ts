@@ -147,7 +147,7 @@ export class UniDateInput {
         this.field.ReadOnly = false;
     }
 
-    private inputChange() {
+    public inputChange() {
         const value = this.control.value;
         let date;
 
