@@ -96,7 +96,10 @@ export class InvoiceDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper) {}
+                private tradeItemHelper: TradeItemHelper) {
+                    // set default tab title, this is done to set the correct current module to make the breadcrumb correct
+                    this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+                }
 
     public ngOnInit() {
         this.tabs = ['Detaljer', 'Levering', 'Dokumenter'];

@@ -88,7 +88,7 @@ export class TradeItemHelper  {
     public mapProjectToItem(rowModel) {
         let project: Project = rowModel['Dimensions.Project'];
 
-        if (project === null) {
+        if (!project) {
             if (!rowModel.Dimensions) {
                 rowModel.Dimensions = {ID: 0};
             }
@@ -108,7 +108,7 @@ export class TradeItemHelper  {
     public mapDepartmentToItem(rowModel) {
         let dep: Department = rowModel['Dimensions.Department'];
 
-        if (dep === null) {
+        if (!dep) {
             if (!rowModel.Dimensions) {
                 rowModel.Dimensions = {ID: 0};
             }
@@ -128,7 +128,7 @@ export class TradeItemHelper  {
     public mapVatTypeToQuoteItem(rowModel) {
         let vatType = rowModel['VatType'];
 
-        if (vatType === null) {
+        if (!vatType) {
             rowModel.VatTypeID = null;
         } else {
             rowModel.VatTypeID = vatType.ID;
@@ -137,7 +137,7 @@ export class TradeItemHelper  {
 
     public mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
-        if (product === null) {
+        if (!product) {
             return;
         }
 

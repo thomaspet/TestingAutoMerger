@@ -109,7 +109,7 @@ export class QuoteDetails {
                     sendemail.CustomerID = this.quote.CustomerID;
                     sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-  
+
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -291,6 +291,7 @@ export class QuoteDetails {
                 this.addressService.setAddresses(this.quote);
                 this.setTabTitle();
                 this.updateToolbar();
+                this.updateSaveActions();
             }, (err) => {
                 console.log('Error retrieving data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
@@ -559,7 +560,11 @@ export class QuoteDetails {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition)
                 .subscribe((transitionData: any) => {
                     done(doneText);
-                    this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                    if (transition === 'toOrder') {
+                        this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                    } else {
+                        this.setup();
+                    }
                 }, (err) => {
                     console.log('Feil oppstod ved ' + transition + ' transition', err);
                     done('Feilet');
