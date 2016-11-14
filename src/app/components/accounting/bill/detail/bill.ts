@@ -158,11 +158,8 @@ export class BillView {
         var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
         sumCol.Options = {
             events: {
-                enter: () => {
-                    this.simpleJournalentry.focus();                    
-                },
-                tab: () => {
-                    this.simpleJournalentry.focus();                    
+                enter: () => {                      
+                    this.focusJournalEntries(); 
                 }
             },
             decimalLength: 2
@@ -181,6 +178,10 @@ export class BillView {
         this.fields = list;
     }
 
+    private focusJournalEntries() {
+        // todo: ask Jorge how to fetch new value from the damned "TaxInclusiveAmount" ?
+        this.simpleJournalentry.focus();        
+    }
 
     public onFormReady(event) {
         this.createNewSupplierButton();
@@ -195,6 +196,7 @@ export class BillView {
 
     public onFileListReady(files: Array<any>) {
         this.files = files;
+        debugger;
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
                 this.runOcr(files);
@@ -207,6 +209,7 @@ export class BillView {
     }
 
     private runOcr(files: Array<any>): Promise<boolean> {
+        debugger;
         return new Promise( (resolve, reject) => {
             if (this.files && this.files.length > 0) {
                 this.userMsg(lang.ocr_running, null, null, true);
@@ -384,7 +387,8 @@ export class BillView {
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach( x => list.push(x) );
-            let filter = (it.StatusCode === 30105 ? ['journal'] : undefined);
+            var hasBilag = (!!(this.current.JournalEntry && this.current.JournalEntry.JournalEntryNumber));
+            let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             this.actions = list;
         } else {

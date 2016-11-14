@@ -1,11 +1,12 @@
-<section class="application supplierinvoice-listview">
+<section class="supplierinvoice-listview">
 
-    <header>
-        <table class='timeentry_toolbar'><tr>
+    <header class="application">
+        <table class='toolbar'><tr>
         <td>
+            <input type="search" placeholder="Søk" [formControl]="searchControl" >
             <button class="good" (click)="onAddNew()">Ny regning</button>
         </td>
-        <td><input type="search" placeholder="Søk" [formControl]="searchControl" ></td>
+        <td></td>
         </tr></table>
     </header>
 
@@ -17,7 +18,7 @@
         </ul>
     </aside>
 
-    <article [attr.aria-busy]="busy" >
+    <article  class="application no-topmargin" [attr.aria-busy]="busy" >
 
         <uni-table [resource]="listOfInvoices"
             [config]="tableConfig"

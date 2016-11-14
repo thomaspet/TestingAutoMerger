@@ -95,7 +95,7 @@
                             <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
                             <td>{{item.LunchInMinutes}}</td>
                             <td>{{item.Description}}</td>
-                            <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
+                            <td>{{item.Dimensions ? (item.Dimensions.Project ? (item.Dimensions.Project.ProjectNumber + ' - ' + item.Dimensions.Project.Name) : item.Dimensions.ProjectID) : ''}}</td>
                             <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
                             <td class='timeSheet_actions'><button (click)="onRowActionClicked(i, item)"></button></td>
                         </tr>
