@@ -48,7 +48,7 @@ export class QuoteDetails {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
-    public config: any = {};
+    public config: any = {autofocus: true};
     public fields: any[] = [];
 
     private quote: CustomerQuoteExt;

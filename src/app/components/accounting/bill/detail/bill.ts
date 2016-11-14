@@ -46,7 +46,7 @@ export class BillView {
 
     public busy: boolean = true;
     public toolbarConfig: any;
-    public formConfig: any = {};
+    public formConfig: any = {autofocus: true};
     public fields: any[] = [];
     public current: SupplierInvoice;
     public currentSupplierID: number = 0;

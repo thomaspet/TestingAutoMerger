@@ -32,7 +32,7 @@ export class SupplierDetails implements OnInit {
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
 
     private supplierID: number;
-    private config: any = {};
+    private config: any = {autofocus: true};
     private fields: any[] = [];
     private addressChanged: any;
     private phoneChanged: any;
