@@ -66,6 +66,7 @@ export class App {
                 }
             });
 
-        this.staticRegisterService.checkForStaticRegisterUpdate();
+        // KE: For now, don't load static registers - these are slow because of to much data in local storage
+        // this.staticRegisterService.checkForStaticRegisterUpdate();
     }
 }
