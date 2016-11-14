@@ -2,25 +2,22 @@
     <dt>A-melding ID</dt>
     <dd>{{currentAMelding.replacesID > 0 ? currentAMelding.ID + ' (Erstatter ID ' + currentAMelding.replacesID + ')' : currentAMelding.ID}}</dd>
 
-    <dt>Klargjort den</dt>
+    <dt>Klargjort</dt>
     <dd>{{createdDate}}</dd>
 
-    <dt>{{sentDate ? 'Innsendt den' : ''}}</dt>
+    <dt>Innsendt</dt>
     <dd>{{sentDate ? sentDate : 'Ikke innsendt'}}</dd>
 
-    <!-- <dt>Status</dt>
-    <dd>{{statusText}}</dd> Trying w/o this for now... -->
+    <dt>Status</dt>
+    <dd>{{statusText}}</dd>
 </dl>
 
 
 <ul class="amelding_summary_sections" *ngIf="currentSumUp">
 
-    <li *ngFor="let virksomhet of currentSumUp.entities; let index = index"
-        class="amelding_summary_section"
-        [attr.aria-expanded]="virksomhet.expanded">
+    <li *ngFor="let virksomhet of currentSumUp.entities; let index = index" class="amelding_summary_section" [attr.aria-expanded]="virksomhet.expanded">
 
-        <header class="amelding_summary_section_header"
-            (click)="virksomhet.expanded = !virksomhet.expanded">
+        <header class="amelding_summary_section_header" (click)="virksomhet.expanded = !virksomhet.expanded">
 
             <h2><strong>{{virksomhet.orgNumber | uninumberformat:'orgno'}}</strong> {{virksomhet.name}}</h2>
 

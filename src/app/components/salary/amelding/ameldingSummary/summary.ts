@@ -28,7 +28,11 @@ export class AmeldingSummaryView {
             if (this.currentSumUp.status === null) {
                 this.currentSumUp.status = 0;
             }
-            this.statusText = this.statuses[this.currentSumUp.status];
+            if (this.currentSumUp.status === 3) {
+                this.statusText = this.currentSumUp._sumupStatusText;
+            } else {
+                this.statusText = this.statuses[this.currentSumUp.status];
+            }
         }
         if (this.currentAMelding) {
             this.createdDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');

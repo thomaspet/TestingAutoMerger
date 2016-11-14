@@ -46,6 +46,7 @@ export class AMeldingView implements OnInit {
     public showView: string = '';
     private toolbarConfig: IToolbarConfig;
     private periodStatus: string;
+    private alleAvvikStatuser: any[] = [];
 
     constructor(
         private _tabService: TabService,
@@ -162,7 +163,7 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAMeldingWithFeedback(amelding.ID)
         .subscribe((ameldingAndFeedback) => {
             this.currentAMelding =  ameldingAndFeedback;
-            this.getFeedbackAgaAndFtrekk();
+            this.getDataFromFeedback(this.currentAMelding, 0);
             this.getSumUpForAmelding();
             this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
             if (this.currentAMelding.sent) {
@@ -283,52 +284,113 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
+            let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
+            if (statusTextObject) {
+                this.currentSumUp._sumupStatusText = statusTextObject.statusText;
+            } else {
+                this.currentSumUp._sumupStatusText = 'Status altinn';
+            }
             this.legalEntityNo = response.LegalEntityNo;
         });
     }
 
-    private getFeedbackAgaAndFtrekk() {
-        if (this.currentAMelding.hasOwnProperty('feedBack')) {
-            if (this.currentAMelding.feedBack !== null) {
-                let alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+    private getDataFromFeedback(amelding, typeData): any {
+        let mottakObject: any;
+        if (amelding.hasOwnProperty('feedBack')) {
+            if (amelding.feedBack !== null) {
+                let alleMottak = amelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
                     alleMottak.forEach(mottak => {
                         const pr = mottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
-                        if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                            this.checkMottattPeriode(mottak);
+                        if ((period === amelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                            mottakObject = this.checkMottattPeriode(mottak, typeData);
                         }
                     });
                 } else {
                     const pr = alleMottak.kalendermaaned;
                     const period = parseInt(pr.split('-').pop());
-                    if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                        this.checkMottattPeriode(alleMottak);
+                    if ((period === amelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                        mottakObject = this.checkMottattPeriode(alleMottak, typeData);
                     }
                 }
             }
         }
+        return mottakObject;
     }
 
-    private checkMottattPeriode(mottak) {
+    private checkMottattPeriode(mottak, typeData): any {
+        let anyObject: any = {};
         if (mottak.hasOwnProperty('mottattPeriode')) {
-            if (mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
-                this.totalAGAFeedback = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
-                this.totalFtrekkFeedback = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+            switch (typeData) {
+                case 0:
+                    this.getTotalAGAAndFtrekk(mottak.mottattPeriode);
+                    break;
+                case 1:
+                    anyObject = {statusText: this.findAndSetStatusFromFeedback(mottak.mottattPeriode)};
+                    break;
+
+                default:
+                    break;
             }
+        } else {
+            anyObject = {statusText: 'Avvist'};
         }
+
+        return anyObject;
+    }
+
+    private getTotalAGAAndFtrekk(mottattPeriode) {
+        if (mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+            this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+            this.totalFtrekkFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+        }
+    }
+
+    private findAndSetStatusFromFeedback(mottattPeriode): string {
+        let statusText = '';
+        let statusSet: boolean = false;
+
+        this.getAvvikRec(mottattPeriode);
+
+        this.alleAvvikStatuser.forEach(avvik => {
+            if (!statusSet) {
+                switch (avvik.alvorlighetsgrad) {
+                    case 'oeyeblikkelig':
+                        statusText = 'Mottatt med øyeblikkelig';
+                        statusSet = true;
+                        break;
+                    case 'retningslinje':
+                        statusText = 'Mottatt med retningslinje';
+                        break;
+                    case 'avvisning':
+                        statusText = 'Avvisning';
+
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        });
+
+        if (statusText === '') {
+            statusText = 'Mottatt';
+        }
+
+        return statusText;
     }
 
     private getAMeldingForPeriod() {
         this.spinner(this._ameldingService.getAMeldingForPeriod(this.currentPeriod))
             .subscribe((ameldinger: AmeldingData[]) => {
                 this.aMeldingerInPeriod = ameldinger;
+                this.periodStatus = 'Venter på tilbakemelding';
                 if (this.aMeldingerInPeriod.length > 0) {
                     this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                 } else {
                     this.updateToolbar();
                     this.updateSaveActions();
-                    this.setStatusForPeriod();
                 }
             }, error => {
                 this.onError(error);
@@ -336,22 +398,42 @@ export class AMeldingView implements OnInit {
     }
 
     private setStatusForPeriod() {
-        let ameldingerReplaced: any[] = [];
-        let periodStatus: string = 'Venter på tilbakemelding';
-
-        this.aMeldingerInPeriod.forEach(ameld => {
-            if (ameld.replacesID > 0) {
-                ameldingerReplaced.push(ameld.replacesID);
+        // Only the last (highest ID) amelding for the period can set this status
+        if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
+            if (this.currentAMelding.altinnStatus !== 'avvist') {
+                let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
+                if (statusTextObject) {
+                    this.periodStatus = statusTextObject.statusText;
+                }
+            } else {
+                this.periodStatus = 'Avvist';
             }
-        });
+        }
+    }
 
-        this.aMeldingerInPeriod.forEach(amelding => {
-            if ((amelding.altinnStatus && amelding.altinnStatus !== 'avvist') && (ameldingerReplaced.indexOf(amelding.ID) < 0)) {
-                periodStatus = amelding.altinnStatus;
+    private getAvvikRec(obj) {
+        for (var propname in obj) {
+            if (propname === 'avvik') {
+                if (obj[propname] instanceof Array) {
+                    obj[propname].forEach(avvik => {
+                        if (obj.hasOwnProperty('alvorlighetsgrad')) {
+                            avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
+                        }
+                        this.alleAvvikStatuser.push(avvik);
+                    });
+                } else {
+                    let avvik = obj[propname];
+                    if (obj.hasOwnProperty('alvorlighetsgrad')) {
+                        avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
+                    }
+                    this.alleAvvikStatuser.push(avvik);
+                }
+            } else {
+                if (typeof obj[propname] === 'object' && obj[propname] !== null) {
+                    this.getAvvikRec(obj[propname]);
+                }
             }
-        });
-
-        this.periodStatus = periodStatus;
+        }
     }
 
     private checkForSaveDone() {
