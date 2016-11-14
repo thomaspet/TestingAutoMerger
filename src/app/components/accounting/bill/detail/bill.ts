@@ -29,7 +29,8 @@ interface ITab {
 
 enum actionBar {
     save = 0,
-    delete = 1
+    delete = 1,
+    ocr = 2
 };
 
 
@@ -574,6 +575,7 @@ export class BillView {
                 this.setupToolbar();
                 this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.ocr, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
                 this.checkLockStatus();
                 resolve('');
