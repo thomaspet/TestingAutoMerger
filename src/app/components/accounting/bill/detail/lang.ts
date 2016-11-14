@@ -57,10 +57,12 @@ export const billViewLanguage = {
 
     ocr: 'Kjør OCR-tolk',
     ocr_running: 'Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..',
+    org_not_found: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)',
+    create_supplier: 'Opprette ny leverandør',
+    org_number: 'Organisasjonsnr.',
 
     warning: 'Advarsel',
-
-    fyi: 'Til informasjon'
+    fyi: 'Til informasjon',
 
 };
 

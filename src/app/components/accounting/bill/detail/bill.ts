@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
-import {safeInt, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+import {safeInt, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -163,7 +163,8 @@ export class BillView {
                 tab: () => {
                     this.simpleJournalentry.focus();                    
                 }
-            }
+            },
+            decimalLength: 2
         };        
 
         var list = [
@@ -234,29 +235,23 @@ export class BillView {
                 });
             }
         }
-        this.toFormValues(ocr);        
-    }
-
-    private toFormValues(obj: any) {
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                let value = obj[key];
-                if (value) {
-                    this.setFormValue(key, value);
-                }
-            }
-        }
+        this.setFormValue('PaymentID', ocr.PaymentID);
+        this.setFormValue('BankAccount', ocr.BankAccount);
+        this.setFormValue('InvoiceNumber', ocr.InvoiceNumber);
+        this.setFormValue('InvoiceDate', moment(ocr.InvoiceDate).format('L'), true);
+        this.setFormValue('PaymentDueDate', moment(ocr.PaymentDueDate).format('L'), true);
+        this.setFormValue('TaxInclusiveAmount', safeDec(ocr.TaxInclusiveAmount).toFixed(2));
     }
 
     private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
         this.supplierInvoiceService.fetch('business-relations/?action=search-data-hotel&searchText=' + orgNo).subscribe( x => {
             if (x.Data && x.Data.entries && x.Data.entries.length > 0) {
                 var item = x.Data.entries[0];
-                var title = `Ny leverandør '${item.navn}' ?`;
-                var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''} med Organisasjonsnr. ${item.orgnr}`;
+                var title = `${lang.create_supplier} '${item.navn}' ?`;
+                var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
                 this.toast.clear(); 
                 if (askUser) {
-                    this.confirmModal.confirm(msg, title, false, { warning: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)'}, ).then( (userChoice: ConfirmActions) => {
+                    this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found}, ).then( (userChoice: ConfirmActions) => {
                         if (userChoice === ConfirmActions.ACCEPT) {
                             this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
                         }
@@ -293,36 +288,15 @@ export class BillView {
     }
 
 
-    private setFormValue(colName: string, value: any) {
-
-        var copyToForm = false;
-        var inputChange = false;
-
-        switch (colName) {
-            case 'PaymentID':
-            case 'BankAccount':
-            case 'TaxInclusiveAmount':
-            case 'InvoiceNumber':
-            case 'Amount':
-                copyToForm = true;
-                break;
-            
-            case 'InvoiceDate':                
-            case 'PaymentDueDate':
-                value = moment(value).format('L');
-                inputChange = true;
-                copyToForm = true;
+    private setFormValue(colName: string, value: any, callInputChange = false) {
+        this.current[colName] = value;        
+        var fld: any = this.uniForm.field(colName);
+        fld.control.setValue(value, { emitEvent: true });
+        if (callInputChange) {
+            debugger;
+            fld.Component.inputChange();
         }
-
-        if (copyToForm) {
-            this.current[colName] = value;        
-            var fld: any = this.uniForm.field(colName);
-            fld.control.setValue(value, { emitEvent: true });
-            if (inputChange) {
-                fld.Component.inputChange();
-            }
-            this.flagUnsavedChanged();
-        }
+        this.flagUnsavedChanged();
     }
 
     ///////////////////////
@@ -1067,7 +1041,6 @@ export class BillView {
         }
 
     }
-
 
     private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
         this.toast.addToast(title || (isGood ? lang.fyi : lang.warning), isGood ? ToastType.good : ToastType.bad, delay, msg);
