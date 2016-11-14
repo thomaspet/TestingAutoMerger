@@ -141,6 +141,7 @@ export class TradeItemHelper  {
             return;
         }
 
+        rowModel.AccountID = product.AccountID;
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
@@ -148,6 +149,10 @@ export class TradeItemHelper  {
         rowModel.VatType = product.VatType;
         rowModel.PriceExVat = product.PriceExVat;
         rowModel.PriceIncVat = product.PriceIncVat;
+
+        if (!rowModel.VatTypeID && product.Account) {
+            rowModel.VatTypeID = product.Account.VatTypeID;
+        }
 
         if (!rowModel.Dimensions.ProjectID) {
             if (product.Dimensions && product.Dimensions.ProjectID) {

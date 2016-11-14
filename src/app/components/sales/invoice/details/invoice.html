@@ -34,7 +34,7 @@
     <!-- Invoice items and summary -->
     <uni-invoice-items *ngIf="invoice"
                        [(invoice)]="invoice"
-                       (invoiceChange)="recalcDebouncer.next($event)"
+                       (invoiceChange)="invoiceItemsChange($event)"
                        [readonly]="readonly">
     </uni-invoice-items>
     <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>

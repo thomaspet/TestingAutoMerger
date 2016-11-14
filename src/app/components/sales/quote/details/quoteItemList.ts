@@ -50,7 +50,7 @@ export class QuoteItemList implements OnInit{
 
             Observable.forkJoin(
                 this.productService.GetAll(null, ['VatType', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']),
-                this.vatTypeService.GetAll(null)
+                this.vatTypeService.GetAll('filter=OutputVat eq true')
             ).subscribe(
                 (data) => {
                     this.products = data[0];
@@ -72,8 +72,11 @@ export class QuoteItemList implements OnInit{
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.PartName + ' - ' + selectedItem.Name);
                 },
-                lookupFunction: (searchValue: string) => {
-                    return Observable.from([this.products.filter((product: Product) => product.PartName.toLowerCase().indexOf(searchValue.toLowerCase()) > -1 || product.Name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)]);
+                lookupFunction: (query: string) => {
+                    return this.productService.GetAll(
+                        `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
+                        ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
+                    );
                 }
             });
 

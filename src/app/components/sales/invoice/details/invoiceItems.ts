@@ -53,7 +53,7 @@ export class InvoiceItems {
     }
 
     private initDataAndTable() {
-        this.vatTypeService.GetAll(null).subscribe((vattypes) => {
+        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe((vattypes) => {
             this.vatTypes = vattypes;
             this.initTableConfig();
         });
@@ -68,7 +68,7 @@ export class InvoiceItems {
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
-                        ['VatType', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
+                        ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
                     );
                 }
             });
@@ -163,14 +163,20 @@ export class InvoiceItems {
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.invoice))
             .setDeleteButton(!this.readonly)
-            .setChangeCallback((event) => {
-                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(event);
+            .setChangeCallback((rowModel) => {
+                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel);
+
+                if (updatedRow.VatTypeID && !updatedRow.VatType) {
+                    updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
+                }
                 let index = this.getLocalIndex(updatedRow);
+
                 if (index >= 0) {
                     this.invoice.Items[index] = updatedRow;
                 } else {
                     this.invoice.Items.push(updatedRow);
                 }
+
                 this.invoiceChange.next(this.invoice);
                 return updatedRow;
             });

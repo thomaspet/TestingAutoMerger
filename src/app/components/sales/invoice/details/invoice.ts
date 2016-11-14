@@ -193,6 +193,11 @@ export class InvoiceDetails {
         }
     }
 
+    public invoiceItemsChange(invoice) {
+        this.invoice = _.cloneDeep(invoice);
+        this.recalcDebouncer.next(invoice);
+    }
+
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = 0;
@@ -365,10 +370,18 @@ export class InvoiceDetails {
 
         // Prep new orderlines for complex put
         this.invoice.Items.forEach(item => {
+            if (item.ID && item['_createguid']) {
+                delete item['_createguid'];
+            }
+
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
             }
         });
+
+        if (!this.invoice.DeliveryDate) {
+            this.invoice.DeliveryDate = this.invoice.InvoiceDate || new Date();
+        }
 
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
             const message = 'En eller flere varelinjer mangler produkt';
