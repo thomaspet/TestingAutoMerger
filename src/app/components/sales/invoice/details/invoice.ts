@@ -5,7 +5,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, BusinessRelationService, UserService} from '../../../../services/services';
 import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, Address} from '../../../../unientities';
+import {CustomerInvoice, Address, Customer} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -96,7 +96,10 @@ export class InvoiceDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper) {}
+                private tradeItemHelper: TradeItemHelper) {
+                    // set default tab title, this is done to set the correct current module to make the breadcrumb correct
+                    this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+                }
 
     public ngOnInit() {
         this.tabs = ['Detaljer', 'Levering', 'Dokumenter'];
@@ -163,8 +166,12 @@ export class InvoiceDetails {
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoiceExt>res[0];
-                    invoice.Customer = res[2];
-                    invoice.CustomerID = customerID;
+                    const customer = <Customer>res[2];
+                    if (customer) {
+                        invoice.Customer = customer;
+                        invoice.CustomerID = customer.ID;
+                        invoice.CustomerName = customer.Info.Name;
+                    }
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
                     invoice.PaymentDueDate = null; // calculated in refreshInvoice()

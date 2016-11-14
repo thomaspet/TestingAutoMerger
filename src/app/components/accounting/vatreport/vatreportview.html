@@ -19,7 +19,7 @@
         </article>
 
         <article class="vatreport_poster_widget two-up">
-            <table class="vatreport_poster_figures">
+            <table class="vatreport_poster_figures" *ngIf="vatReportSummary?.length > 0">
                 <tr *ngIf="vatReportSummary?.length > 0">
                     <td></td>
                     <th>Grunnlag</th>

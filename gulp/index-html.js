@@ -9,7 +9,7 @@ var raygunProd = '';
 
 function getRaygunPilot(){
     return '<script type="text/javascript">'
-    + 'rg4js("apiKey", "uvVREnGX03tX9YrFQ9KMjQ==");'
+    + 'rg4js("apiKey", "2iYzARArU22aNutdEnvtWw==");'
     + 'rg4js("enableCrashReporting", true);'
     + "rg4js('setVersion', '" + getGitRevision() + "');"
     + '</script>';

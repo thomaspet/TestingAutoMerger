@@ -20,10 +20,12 @@ export class SelectAmeldingTypeModalContent {
     public loadContent() {
         this.createFormConfig();
         this.ameldingModel.type = 1;
+        this.ameldingModel.typeChanged = false;
     }
 
     public change(value) {
         this.ameldingModel.type = value.type - 1;
+        this.ameldingModel.typeChanged = true;
     }
 
     private createFormConfig() {
@@ -77,7 +79,11 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
                     class: 'good',
                     method: () => {
                         this.modal.getContent().then((component) => {
-                            this.ameldType = component.ameldingModel.type;
+                            if (component.ameldingModel.typeChanged) {
+                                this.ameldType = component.ameldingModel.type;
+                            } else {
+                                this.ameldType = component.ameldingModel.type - 1;
+                            }
                             this.ameldTypeChange.emit(this.ameldType);
                             this.modal.close();
                         });

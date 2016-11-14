@@ -38,6 +38,10 @@ export class NumberFormat {
     }
 
     public asBankAcct(value: number) {
+        if (value.toString().length !== 11) {
+            return value.toString();
+        }
+
         let _value: string = value + '';
         return _value.substr(0, 4) + '.' + _value.substr(4, 2) + '.' + _value.substr(6)
     }

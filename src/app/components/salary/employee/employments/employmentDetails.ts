@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter, ViewChild, OnChanges } from '@angular/core';
-import { EmploymentService, StaticRegisterService, AccountService } from '../../../../services/services';
+import { EmploymentService, AccountService, StatisticsService } from '../../../../services/services';
 import { STYRKCode, Employment, Account, SubEntity } from '../../../../unientities';
 import { UniForm } from '../../../../../framework/uniform';
 import { UniFieldLayout } from '../../../../../framework/uniform/index';
 import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
+import { Observable } from 'rxjs/Observable';
 
 declare var _; // lodash
 
@@ -33,23 +34,20 @@ export class EmploymentDetails implements OnChanges {
     @Output()
     private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
-    private styrks: STYRKCode[];
     private config: any = {};
     private fields: UniFieldLayout[] = [];
     private formReady: boolean;
 
     constructor(
         private employeeService: EmployeeService,
-        private statReg: StaticRegisterService,
         private employmentService: EmploymentService,
-        private accountService: AccountService) {
+        private accountService: AccountService,
+        private statisticsService: StatisticsService
+        ) {
     }
 
     public ngOnChanges() {
         if (!this.formReady && this.subEntities) {
-            if (!this.styrks) {
-                this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-            }
             this.buildForm();
         }
     }
@@ -66,11 +64,12 @@ export class EmploymentDetails implements OnChanges {
             this.fields = layout.Fields;
             let jobCodeField = this.fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
-                source: this.styrks,
+                getDefaultData: () =>  Observable.of([ this.employment ? {styrk: this.employment.JobCode, tittel: this.employment.JobName} : {styrk: '', tittel: ''}]),
                 template: (obj) => obj ? `${obj.styrk} - ${obj.tittel}` : '',
+                search: (query: string) => this.statisticsService.GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or startswith(tittel,'${query}')`).map(x => x.Data),
                 displayProperty: 'styrk',
                 valueProperty: 'styrk',
-                debounceTime: 500,
+                debounceTime: 200,
                 events: {
                     select: (model: Employment) => {
                         this.updateTitle(model.JobCode);
@@ -98,10 +97,18 @@ export class EmploymentDetails implements OnChanges {
 
     private updateTitle(styrk) {
         if (styrk) {
-            let styrkObj = this.styrks.find(x => x.styrk === styrk);
-            this.employment.JobName = styrkObj.tittel;
-            this.employment = _.cloneDeep(this.employment);
-            this.form.field('WorkPercent').focus();
+            this.statisticsService.GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
+                .map(x => x.Data)
+                .subscribe(styrkObjArray => {
+                    if (styrkObjArray && styrkObjArray.length > 0) {
+                        this.employment.JobName = styrkObjArray[0].tittel;
+                        this.employment = _.cloneDeep(this.employment);
+
+                        setTimeout(() => {
+                            this.form.field('WorkPercent').focus();
+                        }, 50);
+                    }
+                });
         }
     }
 

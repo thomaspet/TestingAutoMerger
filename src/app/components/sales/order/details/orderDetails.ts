@@ -93,6 +93,8 @@ export class OrderDetails {
                 private numberFormat: NumberFormat,
                 private tradeItemHelper: TradeItemHelper) {
 
+        this.tabService.addTab({ url: '/sales/orders/', name: 'Ordre', active: true, moduleID: UniModules.Orders });
+
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
             this.setSums();
@@ -281,6 +283,7 @@ export class OrderDetails {
                     this.addressService.setAddresses(this.order);
                     this.setTabTitle();
                     this.updateToolbar();
+                    this.updateSaveActions();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
