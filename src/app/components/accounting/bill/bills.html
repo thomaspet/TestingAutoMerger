@@ -1,6 +1,6 @@
-<section class="application supplierinvoice-listview">
+<section class="supplierinvoice-listview">
 
-    <header>
+    <header class="application">
         <table class='timeentry_toolbar'><tr>
         <td>
             <button class="good" (click)="onAddNew()">Ny regning</button>
@@ -17,7 +17,7 @@
         </ul>
     </aside>
 
-    <article [attr.aria-busy]="busy" >
+    <article  class="application no-topmargin" [attr.aria-busy]="busy" >
 
         <uni-table [resource]="listOfInvoices"
             [config]="tableConfig"
