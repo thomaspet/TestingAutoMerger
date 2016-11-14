@@ -66,6 +66,12 @@ export class BillSimpleJournalEntryView {
         this.ensureWeHaveSingleEntry();
     }
 
+    public focus() {
+        if (this.editable) {
+            this.editable.editRow(0);
+        }
+    }
+
     private ensureWeHaveSingleEntry() {
         if (this.costItems.length === 0) {
             this.addEmptyRowAtBottom();

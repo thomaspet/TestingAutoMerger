@@ -154,6 +154,18 @@ export class BillView {
             valueProperty: 'ID'
         };
 
+        var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
+        sumCol.Options = {
+            events: {
+                enter: () => {
+                    this.simpleJournalentry.focus();                    
+                },
+                tab: () => {
+                    this.simpleJournalentry.focus();                    
+                }
+            }
+        };        
+
         var list = [
             supIdCol,
             createFormField('InvoiceDate', lang.col_date, ControlTypes.DateInput, FieldSize.Double),
@@ -161,7 +173,7 @@ export class BillView {
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             createFormField('BankAccount', lang.col_bank, ControlTypes.TextInput, FieldSize.Double),
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
-            createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double) 
+            sumCol 
         ];
 
         this.fields = list;
