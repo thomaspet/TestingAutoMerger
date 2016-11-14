@@ -272,6 +272,13 @@ export class EmployeeDetails extends UniView {
 
                 if (!this.employeeID) {
                     super.updateState('employee', this.employee, false);
+                    
+                    if (done) {
+                        done('Lagring fullført');
+                    } else {
+                        this.saveComponent.manualSaveComplete('Lagring fullført');
+                    }
+
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute);
                     return;
