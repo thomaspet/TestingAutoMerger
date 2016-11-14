@@ -1,9 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
+import {ProductService, VatTypeService, CustomerInvoiceItemService, ProjectService, DepartmentService} from '../../../../services/services';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerInvoice, CustomerInvoiceItem, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {CustomerInvoice, CustomerInvoiceItem, VatType} from '../../../../unientities';
 
 @Component({
     selector: 'uni-invoice-items',
@@ -32,7 +31,9 @@ export class InvoiceItems {
     constructor(private customerInvoiceItemService: CustomerInvoiceItemService,
                 private productService: ProductService,
                 private vatTypeService: VatTypeService,
-                private tradeItemHelper: TradeItemHelper) {
+                private tradeItemHelper: TradeItemHelper,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService) {
         this.invoiceChange = new EventEmitter<CustomerInvoice>();
         this.initDataAndTable();
     }
@@ -117,9 +118,8 @@ export class InvoiceItems {
                     return (item.ProjectNumber + ': ' + item.Name);
                 },
                 searchPlaceholder: 'Velg prosjekt',
-                lookupFunction: (searchValue) => {
-                    return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) ||
-                                                                              project.Name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)]);
+                lookupFunction: (query) => {
+                    return this.projectService.GetAll(`filter=startswith(ProjectNumber,'${query}') or contains(Name,'${query}')&top=30`);
                 }
             });
 
@@ -139,9 +139,8 @@ export class InvoiceItems {
                     return (item.DepartmentNumber + ': ' + item.Name);
                 },
                 searchPlaceholder: 'Velg avdeling',
-                lookupFunction: (searchValue) => {
-                    return Observable.from([this.departments.filter((department) => department.DepartmentNumber.toString().startsWith(searchValue) ||
-                                                                                    department.Name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)]);
+                lookupFunction: (query) => {
+                    return this.departmentService.GetAll(`filter=startswith(DepartmentNumber,'${query}') or contains(Name,'${query}')&top=30`);
                 }
             });
 
