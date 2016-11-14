@@ -119,7 +119,7 @@ export class PersonalDetails extends UniView {
                 this.employee.BankAccounts[0].Active = true;
             }
         }
-        setTimeout(()=>{
+        setTimeout(() => {
             this.updateInfoFromSSN();
         })
         this.employee = _.cloneDeep(employee);
@@ -131,7 +131,7 @@ export class PersonalDetails extends UniView {
         subEntityField.Options.source = this.subEntities;
 
         let multiValuePhone: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultPhone');
-
+        let phoneModalSubscription;
         multiValuePhone.Options = {
             entity: Phone,
             listProperty: 'BusinessRelationInfo.Phones',
@@ -145,10 +145,11 @@ export class PersonalDetails extends UniView {
                 }
 
                 this.phoneModal.openModal(value);
-
-                this.phoneModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
-                });
+                if (!phoneModalSubscription) {
+                    phoneModalSubscription = this.phoneModal.Changed.subscribe(modalval => {
+                        resolve(modalval);
+                    });
+                }
             }),
             display: (phone: Phone) => {
                 let displayVal = '';
@@ -161,6 +162,7 @@ export class PersonalDetails extends UniView {
 
         let multiValueEmail: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultEmail');
 
+        let emailModalSubscription;
         multiValueEmail.Options = {
             entity: Email,
             listProperty: 'BusinessRelationInfo.Emails',
@@ -175,14 +177,17 @@ export class PersonalDetails extends UniView {
 
                 this.emailModal.openModal(value);
 
-                this.emailModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
-                });
+                if (!emailModalSubscription) {
+                    emailModalSubscription = this.emailModal.Changed.subscribe(modalval => {
+                        resolve(modalval);
+                    });
+                }
             })
         };
 
         let multiValueAddress: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress');
 
+        let addressModalSubscription;
         multiValueAddress.Options = {
             entity: Address,
             listProperty: 'BusinessRelationInfo.Addresses',
@@ -197,10 +202,12 @@ export class PersonalDetails extends UniView {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(modalval => {
+                if (!addressModalSubscription) {
+                    addressModalSubscription = this.addressModal.Changed.subscribe(modalval => {
+                        resolve(modalval);
+                    });
+                }
 
-                    resolve(modalval);
-                });
             }),
             display: (address: Address) => {
 
