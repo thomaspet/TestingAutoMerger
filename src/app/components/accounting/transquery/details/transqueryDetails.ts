@@ -65,7 +65,7 @@ export class TransqueryDetails implements OnInit {
         urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear,JournalEntryID as JournalEntryID,count(FileEntityLink.ID) as Attachments');
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and '));
+        urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -213,7 +213,7 @@ export class TransqueryDetails implements OnInit {
                                 ${line.AccountAccountNumber}
                             </a>`;
                     })
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('startswith'),
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
                     .setTemplate(line => line.AccountAccountName),
@@ -260,6 +260,7 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
+                    .setFilterable(false)
                     .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
             ]);
     }

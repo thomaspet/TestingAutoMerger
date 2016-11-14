@@ -53,7 +53,7 @@ export class GenericDetailview {
     public ID: number;
     public current: any;
     public fields: Array<any>;
-    public config: any = {};
+    public config: any = {autofocus: true};
 
     public actions: IUniSaveAction[] = [
         { label: labels.action_save, action: (done) => this.save(done), main: true, disabled: false },

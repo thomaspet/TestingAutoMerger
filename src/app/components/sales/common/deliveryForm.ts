@@ -11,7 +11,7 @@ declare const _;
         <section class="shippingAddress">
             <uni-form [fields]="[multivalueField]"
                       [model]="entity"
-                      [config]="{}"
+                      [config]="{autofocus: true}"
                       (readyEvent)="onLeftFormReady($event)"
                       (changeEvent)="onLeftFormChange($event)">
             </uni-form>

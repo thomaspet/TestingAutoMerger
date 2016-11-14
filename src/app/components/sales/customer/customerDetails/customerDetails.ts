@@ -35,7 +35,7 @@ export class CustomerDetails {
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
 
-    private config: any = {};
+    private config: any = {autofocus: true};
     private fields: any[] = [];
     private addressChanged: any;
     private emailChanged: any;

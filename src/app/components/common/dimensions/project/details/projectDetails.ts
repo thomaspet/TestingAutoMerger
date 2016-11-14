@@ -12,7 +12,7 @@ import {ToastService, ToastType} from '../../../../../../framework/uniToast/toas
     templateUrl: 'app/components/common/dimensions/project/details/projectDetails.html'
 })
 export class ProjectDetails implements OnInit {
-    public config: any = {};
+    public config: any = {autofocus: true};
     public fields: UniFieldLayout[] = [];
     private project: Project;
 

@@ -37,7 +37,14 @@ export class WagetypeDetail extends UniView {
     private currentPackage: string;
     private rateIsReadOnly: boolean;
     private basePayment: boolean;
-    public config: any = {};
+    public config: any = {
+        autofocus: true,
+        submitText: '',
+        sections: {
+            '1': { isOpen: true },
+            '2': { isOpen: true }
+        }
+    };
     public fields: any[] = [];
 
     @ViewChild(UniForm) public uniform: UniForm;
@@ -137,14 +144,6 @@ export class WagetypeDetail extends UniView {
                 this.fields = layout.Fields;
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
-
-                this.config = {
-                    submitText: '',
-                    sections: {
-                        '1': { isOpen: true },
-                        '2': { isOpen: true }
-                    }
-                };
 
                 this.extendFields();
                 this.updateUniformFields();

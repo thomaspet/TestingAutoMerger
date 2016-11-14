@@ -23,7 +23,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(UniTable) public unitable: UniTable;
 
-    public config: any = {};
+    public config: any = {autofocus: true};
     private fields: any[] = [];
     private accounts: Account[];
     private vatcodegroups: VatCodeGroup[];
