@@ -170,7 +170,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -198,7 +198,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: true,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -226,7 +226,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -236,7 +236,8 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Classes: 'postal'
             },
             {
                 ComponentLayoutID: 1,
@@ -254,7 +255,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: true,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -264,7 +265,8 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Classes: 'postal'
             },
             {
                 ComponentLayoutID: 1,
@@ -282,7 +284,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: true,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
