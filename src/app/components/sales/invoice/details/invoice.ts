@@ -2,8 +2,6 @@ import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, BusinessRelationService, UserService} from '../../../../services/services';
-import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {CustomerInvoice, Address, Customer} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
@@ -24,6 +22,14 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {
+    CustomerInvoiceService,
+    CustomerInvoiceItemService,
+    BusinessRelationService,
+    UserService,
+    AddressService,
+    ReportDefinitionService
+} from '../../../../services/services';
 
 import {TofCustomerCard} from '../../common/customerCard';
 
@@ -67,9 +73,6 @@ export class InvoiceDetails {
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
 
-    private departments: any[] = [];
-    private projects: any[] = [];
-
     private tabs: string[] = [];
     private activeTabIndex: number = 0;
     private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
@@ -84,8 +87,6 @@ export class InvoiceDetails {
 
     constructor(private customerInvoiceService: CustomerInvoiceService,
                 private customerInvoiceItemService: CustomerInvoiceItemService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
                 private addressService: AddressService,
                 private reportDefinitionService: ReportDefinitionService,
                 private businessRelationService: BusinessRelationService,
@@ -144,15 +145,6 @@ export class InvoiceDetails {
                 disabled: () => !this.invoice.ID
             }
         ];
-
-        // Get data for subentities once
-        Observable.forkJoin(
-            this.departmentService.GetAll(null),
-            this.projectService.GetAll(null),
-        ).subscribe((response) => {
-            this.departments = response[0];
-            this.projects = response[1];
-        });
 
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
@@ -255,7 +247,7 @@ export class InvoiceDetails {
         this.updateSaveActions();
     }
 
-    private onCustomerChange() {
+    public onCustomerChange() {
         this.invoice = _.cloneDeep(this.invoice);
     }
 

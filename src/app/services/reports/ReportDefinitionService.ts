@@ -41,9 +41,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         private reportGenerator: StimulsoftReportWrapper,
         private emailService: EmailService,
         private toastService: ToastService,
-        private authService: AuthService) {
+        authService: AuthService) {
 
-        super(uniHttp);
+        super(uniHttp, authService);
         this.baseHttp = this.uniHttp.http;
         this.relativeURL = ReportDefinition.RelativeUrl;
         this.entityType = ReportDefinition.EntityType;

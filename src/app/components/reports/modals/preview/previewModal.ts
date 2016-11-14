@@ -7,7 +7,6 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 
 import {ReportDefinitionService, Report, ReportParameter, UserService} from '../../../../services/services';
-import {AuthService} from '../../../../../framework/core/authService';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
@@ -18,7 +17,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 export class ReportPreviewModalType {
     @Input('config')
     private config;
-    
+
     constructor() {
     }
 }
@@ -35,33 +34,27 @@ export class PreviewModal {
     private modal: UniModal;
     @ViewChild(SendEmailModal)
     private sendEmailModal: SendEmailModal;
-    
+
     public modalConfig: any = {};
     public type: Type<any> = ReportPreviewModalType;
-    
+
     private reportDefinition: ReportDefinition;
     private companySettings: CompanySettings;
     private user: User;
 
     constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http,
-                private authService: AuthService,
                 private userService: UserService,
                 private toastService: ToastService,
                 private companySettingsService: CompanySettingsService)
     {
 
-        this.companySettingsService.Get(1, ['DefaultEmail'])
-            .subscribe(settings => this.companySettings = settings,
-                err => {
-                    console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-                });
+        this.companySettingsService.getCached(1).subscribe(
+            settings => this.companySettings = settings,
+            err => this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad)
+        );
 
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
+        this.userService.getCurrentUser().subscribe(user => this.user = user);
 
         this.modalConfig = {
             title: 'Forhåndsvisning',
@@ -75,7 +68,7 @@ export class PreviewModal {
                         let sendemail = new SendEmail();
                         sendemail.Subject = this.reportDefinition.Name;
                         sendemail.EmailAddress = '';
-                        sendemail.Message = 'Vedlagt rapport' + 
+                        sendemail.Message = 'Vedlagt rapport' +
                                             '\n\nMed vennlig hilsen\n' +
                                             this.companySettings.CompanyName + '\n' +
                                             this.user.DisplayName + '\n' +
@@ -110,7 +103,7 @@ export class PreviewModal {
             ]
         };
     }
-    
+
     public openWithId(report: Report, id: number) {
         var idparam = new ReportParameter();
         idparam.Name = 'Id';

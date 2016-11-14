@@ -125,7 +125,7 @@ export class CompanySettingsComponent implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
-            this.companySettingsService.Get(1, this.defaultExpands),
+            this.companySettingsService.getCached(1),
             this.municipalService.GetAll(null),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
@@ -146,6 +146,7 @@ export class CompanySettingsComponent implements OnInit {
                 // get accountvisibilitygroups that are not specific for a companytype
                 this.accountVisibilityGroups = dataset[11].filter(x => x.CompanyTypes.length === 0);
 
+                console.log(dataset[6]);
                 // do this after getting emptyPhone/email/address
                 this.company = this.setupCompanySettingsData(dataset[6]);
 
@@ -255,7 +256,7 @@ export class CompanySettingsComponent implements OnInit {
             .Put(this.company.ID, this.company)
             .subscribe(
             (response) => {
-                this.companySettingsService.Get(1, this.defaultExpands).subscribe(company => {
+                this.companySettingsService.getCached(1).subscribe(company => {
                     this.company = this.setupCompanySettingsData(company);
                     this.showExternalSearch = this.company.OrganizationNumber === '-';
 
