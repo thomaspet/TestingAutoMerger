@@ -1,12 +1,14 @@
 import {Injectable} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
-import {RequestMethod} from '@angular/http';
+import {URLSearchParams, RequestMethod} from '@angular/http';
 import {UniHttp} from './http';
+import {AuthService} from '../authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/concatMap';
 
 @Injectable()
 export class BizHttp<T> {
+    protected cachedEntity: T;
+    protected cachedEntities: T[];
 
     protected BaseURL: string;
     protected LogAll: boolean;
@@ -17,9 +19,51 @@ export class BizHttp<T> {
     protected relativeURL: string;
     protected entityType: string;
 
-    constructor(protected http: UniHttp) {
+    constructor(protected http: UniHttp, protected authService?: AuthService) {
         this.BaseURL = http.getBaseUrl();
         this.LogAll = true;
+
+        if (this.authService) {
+            this.authService.authentication$.subscribe((authChange) => {
+                this.cachedEntity = undefined;
+                this.cachedEntities = undefined;
+            });
+        }
+    }
+
+    public invalidateCache(): void {
+        this.cachedEntity = undefined;
+        this.cachedEntities = undefined;
+    }
+
+    public getCached(id): Observable<T> {
+        if (!this.authService) {
+            return Observable.throw('Cache disabled. You need to pass AuthService to BizHttp constructor (from your service of choice)');
+        }
+
+        if (this.cachedEntity && (<any> this.cachedEntity).ID === id) {
+            return Observable.of(this.cachedEntity);
+        } else {
+            return this.Get(id).switchMap((res) => {
+                this.cachedEntity = res;
+                return Observable.of(res);
+            });
+        }
+    }
+
+    public getAllCached(): Observable<T[]> {
+        if (!this.authService) {
+            return Observable.throw('Cache disabled. You need to pass AuthService to BizHttp constructor (from your service of choice)');
+        }
+
+        if (this.cachedEntities) {
+            return Observable.of(this.cachedEntities);
+        } else {
+            return this.GetAll(null).switchMap((res) => {
+                this.cachedEntities = res;
+                return Observable.of(res);
+            });
+        }
     }
 
     public Get<T>(ID: number|string, expand?: string[]): Observable<any> {
@@ -92,6 +136,7 @@ export class BizHttp<T> {
     }
 
     public Post<T>(entity: T): Observable<any> {
+        this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .asPOST()
@@ -102,6 +147,7 @@ export class BizHttp<T> {
     }
 
     public Put<T>(ID: number, entity: T): Observable<any> {
+        this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .asPUT()
