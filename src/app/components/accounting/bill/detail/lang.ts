@@ -55,7 +55,12 @@ export const billViewLanguage = {
     ask_delete: 'Vil du virkelig slette faktura ',
     delete_canceled: 'Sletting avbrutt',
 
-    ocr: 'Kjør OCR-tolk'
+    ocr: 'Kjør OCR-tolk',
+    ocr_running: 'Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..',
+
+    warning: 'Advarsel',
+
+    fyi: 'Til informasjon'
 
 };
 

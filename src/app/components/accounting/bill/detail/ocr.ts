@@ -2,7 +2,8 @@ export interface IOcrValue {
     Candidates: Array<any>;
     Value: {
         value: string,
-        text: string
+        text: string,
+        DateValue: Date
     };
 }
 
@@ -42,27 +43,33 @@ export interface IOcrValuables {
 export class OcrValuables {
 
     public Orgno: string = '';
-    public Kid: string = '';
+    public PaymentID: string = '';
     public BankAccount: string = '';
-    public InvoiceDate: string = '';
-    public DueDate: string = '';
-    public Amount: string = '';
+    public InvoiceDate: string | Date = '';
+    public PaymentDueDate: string | Date = '';
+    public TaxInclusiveAmount: string = '';
     public InvoiceNumber: string = '';
+    public Amount: number = 0;
     public SupplierID: number = 0;    
 
-    public report: IOcrServiceResult;
+    private _report: IOcrServiceResult;
+
+    public getReport(): IOcrServiceResult {
+        return this._report;
+    }
 
     constructor(result: IOcrServiceResult) {
-        this.report = result;
+        this._report = result;
         if (result && result.OcrInvoiceReport) {
             let rep = result.OcrInvoiceReport;
             this.Orgno = rep.Orgno.Value ? rep.Orgno.Value.value : '';
-            this.Kid = rep.Kid.Value ? rep.Kid.Value.value : '';
+            this.PaymentID = rep.Kid.Value ? rep.Kid.Value.value : '';
             this.BankAccount =  rep.BankAccount.Value ? rep.BankAccount.Value.value : '';
-            this.InvoiceDate =  rep.InvoiceDate.Value ? rep.InvoiceDate.Value.value : '';
-            this.DueDate =  rep.DueDate.Value ? rep.DueDate.Value.value : '';
-            this.Amount =  rep.Amount.Value ? rep.Amount.Value.value : '';
+            this.InvoiceDate =  rep.InvoiceDate.Value ? rep.InvoiceDate.Value.DateValue : '';
+            this.PaymentDueDate =  rep.DueDate.Value ? rep.DueDate.Value.DateValue : '';
+            this.TaxInclusiveAmount =  rep.Amount.Value ? rep.Amount.Value.value : '';
             this.InvoiceNumber =  rep.InvoiceNumber.Value ? rep.InvoiceNumber.Value.value : '';
+            this.Amount = rep.Amount ? (+rep.Amount || 0) : 0;
             this.SupplierID =  rep.SupplierID;
         }        
     }
