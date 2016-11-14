@@ -1,4 +1,5 @@
 import {Component, Input, ChangeDetectorRef} from '@angular/core';
+import {UniHttp} from '../core/http/http';
 import {UserService} from '../../app/services/common/UserService';
 declare var Chart;
 
@@ -15,11 +16,14 @@ export class WidgetPoster {
     private cdr: any;
     private defaultEmailAddress: string;
     private defaultPhoneNumber: string;
+    private netPaidThisYear: number = 0;
     private defaultEmployment: any = {};
     private defaultSettings: any = {}
     private currentUser: any = {};
+    private numberOfBusinesses: number = 0;
+    private numberOfActiveUsers: number = 0;
 
-    constructor(cdr: ChangeDetectorRef, private userService: UserService) {
+    constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp) {
         this.cdr = cdr;
     }
 
@@ -58,7 +62,7 @@ export class WidgetPoster {
         if (this.model.employee.BusinessRelationInfo.Phones && this.model.employee.BusinessRelationInfo.Phones[0]) {
             this.defaultPhoneNumber = this.model.employee.BusinessRelationInfo.Phones[0].Number;
         } else {
-            this.defaultPhoneNumber = 'Telefonnummer';
+            this.defaultPhoneNumber = 'Mangler';
         }
 
         if (this.model.employments && this.model.employments.length > 0) {
@@ -76,16 +80,32 @@ export class WidgetPoster {
 
             if (!this.defaultEmployment.workPercent) {
 
-                this.defaultEmployment.workPercent = 0;
+                this.defaultEmployment.workPercent = this.model.employments[standarIndex].WorkPercent;
                 //Counts up to workpercent (Recounts every time something is changed)
-                var interval = setInterval(() => {
-                    this.defaultEmployment.workPercent++;
-                    if (this.defaultEmployment.workPercent === this.model.employments[standarIndex].WorkPercent) {
-                        clearInterval(interval);
-                    }
-                }, 10);
             }
         }
+        /*OBS!! HARD CODED YEAR*/
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('/salarytrans?action=yearly-sums&year=2016&empID=' + this.model.employee.ID)
+            .send()
+            .map(response => response.json())
+            .subscribe((data) => {
+                if (data.netPayment) {
+                    this.netPaidThisYear = 0;
+                    var add = Math.floor(data.netPayment / 80);
+                    var interval = setInterval(() => {
+                        this.netPaidThisYear += add;
+                        if (this.netPaidThisYear >= data.netPayment) {
+                            clearInterval(interval);
+                            this.netPaidThisYear = data.netPayment;
+                        }
+                    }, 10);
+                } else {
+                    this.netPaidThisYear = data.netPayment;
+                }
+            })
     }
 
     private setSettingsDefaults() {
@@ -98,6 +118,29 @@ export class WidgetPoster {
         this.userService.getCurrentUser().subscribe((data) => {
             this.currentUser = data;
         })
+
+        /*  THESE SHOULD NOT BE HERE.. SHOULD BE REMOVED
+            GETS THE NUMBER OF SUBENTITIES AND NUMBER OF ACTIVE USERS   */
+        this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=SubEntity&filter=deleted eq 0 and SuperiorOrganizationID gt 0')
+            .send()
+            .map(response => response.json())
+            .subscribe((data) => {
+                this.numberOfBusinesses = data.Data[0].countid;
+            });
+
+        this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=User&filter=StatusCode eq 110001')
+            .send()
+            .map(response => response.json())
+            .subscribe((data) => {
+                this.numberOfActiveUsers = data.Data[0].countid;
+                $('.active_users_number').css('font-size', '4rem');
+            })
         
     }
 

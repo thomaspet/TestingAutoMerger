@@ -188,7 +188,7 @@ export class EmployeeDetails extends UniView {
         return {
             hasTaxCard: false,
             hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== "",
-            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== ""
+            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== "" && employee.BankAccounts[0].AccountNumber !== null
         }
     }
 

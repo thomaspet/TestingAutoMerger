@@ -34,7 +34,7 @@
         <!--<canvas class="widget_graph" id="widgetGraph0"></canvas>-->
         <h1 class="widget_fixed_pay_headline">FASTLØNN</h1>
         <h4 class="widget_fixed_pay_subhead">utbetalt hittil i år</h4>
-        <h2 class="widget_fixes_pay_number">345 542,92</h2>
+        <h2 class="widget_fixes_pay_number">{{ netPaidThisYear }}</h2>
     </article>
 
     <article class="poster_tease_widget_2">
@@ -49,13 +49,19 @@
             <h3>KONTONUMMER {{ okOrMissing(datachecks.hasAccountNumber) }}</h3>
         </section>
     </article>
-
-    <article class="poster_tease_widget_2">
+    
+    <article class="poster_tease_widget_2" *ngIf="defaultEmployment.workPercent">
 
         <h1 class="employment_percent">{{ defaultEmployment.workPercent }} %</h1>
         <h4 class="employment_title">{{ defaultEmployment.jobName }} </h4>
         <h4 class="employment_active">AKTIV</h4>
         <h6 class="employment_number_of_active" *ngIf="defaultEmployment.numberOfActives > 1">+ {{ defaultEmployment.numberOfActives - 1 }} aktive...</h6>
+
+    </article>
+
+    <article class="poster_tease_widget_2" *ngIf="!defaultEmployment.workPercent">
+
+        <h4 class="active_error">INGEN AKTIVE STILLINGER</h4>
 
     </article>
 
@@ -76,7 +82,7 @@
     <article class="poster_tease_widget_2">
         <h2 class="settings_orgnnumber_text">ORG.NUMMER</h2>
         <h2 class="settings_orgnumber_number">{{ defaultSettings.orgNumber }}</h2>
-        <h4 class="settings_businesses">4 virksomheter</h4>
+        <h4 class="settings_businesses">{{ numberOfBusinesses }} virksomheter</h4>
     </article>
 
     <article class="poster_tease_widget_2">
@@ -86,7 +92,7 @@
 
     <article class="poster_tease_widget_2">
 
-        <h2 class="active_users_number">25</h2>
+        <h2 class="active_users_number">{{ numberOfActiveUsers }}</h2>
         <h2 class="settings_orgnnumber_text">AKTIVE BRUKERE</h2>
     </article>
 

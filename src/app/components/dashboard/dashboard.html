@@ -77,9 +77,9 @@
     <!--INBOX CHART-->
     <figure class="dashboard_chart_card">
         <h2 title="Gå til innboks" (click)="widgetListItemClicked('/accounting/bills?filter=Inbox')" style="cursor:pointer">Innboks</h2>
-        <ul class="dashboard_list recent" *ngIf="inboxList">
-            <li *ngFor="let item of inboxList; let i = index" class="dashboard_lists">
-                <strong> <a (click)="widgetListItemClicked(item.url)" title="{{ item.FileDescription }}"> {{ item.FileName }} </a></strong>
+        <ul class="dashboard_list recent" *ngIf="inboxList" style="list-style: none">
+            <li *ngFor="let item of inboxList; let i = index" class="dashboard_lists" style="height: 25px;">
+                <a class="inbox_list_item" (click)="widgetListItemClicked(item.url)" title="{{ item.FileDescription }}"> {{ item.FileName }} </a>
                 <time class="time_float">{{item.time}}</time>
             </li>
         </ul>
