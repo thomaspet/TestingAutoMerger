@@ -39,14 +39,22 @@
 
 .amelding_poster_figures
     width: 100%
+    border: pxToRem(1) $uni-color-scale9 solid
+    padding: 1rem
 
     tr
         height: 2rem
 
+        &:first-of-type th
+            text-align: right
+
+    .datacolumn
+        max-width: 6rem
+
     th
         font-weight: normal
         text-align: left
-        font-size: 1rem
+        font-size: 1.1rem
 
     td
         text-align: right
@@ -60,7 +68,8 @@
         display: block
         list-style: none
         text-align: center
-        padding: .5rem 1rem
+        padding: .2rem 1rem
+        font-size: 1rem
 
         &:not(:last-of-type)
             margin-bottom: .5rem

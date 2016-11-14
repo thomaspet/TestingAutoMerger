@@ -17,17 +17,17 @@
             <table class="amelding_poster_figures">
                 <tr>
                     <td></td>
-                    <th>Fra lønnsystem</th>
-                    <th>Fra tilbakemelding</th>
+                    <th>Sum forskuddstrekk</th>
+                    <th>Sum arbeidsgiveravgift</th>
                 </tr>
                 <tr>
-                    <th class="datacolumn">Sum forskuddstrekk</th>
+                    <th class="datacolumn">Fra lønnsystem</th>
                     <td class="currency">{{totalFtrekkSystem | unicurrency:2}}</td>
-                    <td class="currency">{{totalFtrekkFeedback | unicurrency:2}}</td>
+                    <td class="currency">{{totalAGASystem | unicurrency:2}}</td>
                 </tr>
                 <tr>
-                    <th class="datacolumn">Sum arbeidsgiveravgift</th>
-                    <td class="currency">{{totalAGASystem | unicurrency:2}}</td>
+                    <th class="datacolumn">Fra tilbakemelding</th>
+                    <td class="currency">{{totalFtrekkFeedback | unicurrency:2}}</td>
                     <td class="currency">{{totalAGAFeedback | unicurrency:2}}</td>
                 </tr>
             </table>
