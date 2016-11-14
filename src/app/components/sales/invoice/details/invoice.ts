@@ -163,10 +163,12 @@ export class InvoiceDetails {
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoiceExt>res[0];
-                    const customer = <Customer>res[2]
-                    invoice.Customer = customer;
-                    invoice.CustomerID = customer.ID;
-                    invoice.CustomerName = customer.Info.Name;
+                    const customer = <Customer>res[2];
+                    if (customer) {
+                        invoice.Customer = customer;
+                        invoice.CustomerID = customer.ID;
+                        invoice.CustomerName = customer.Info.Name;
+                    }
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
                     invoice.PaymentDueDate = null; // calculated in refreshInvoice()
