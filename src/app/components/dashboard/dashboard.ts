@@ -106,7 +106,7 @@ export class Dashboard {
         data.forEach((item) => {
             mydate = moment.utc(item.FileCreatedAt).toDate();
             item.time = moment(mydate).fromNow();
-            item.url = '/accounting/bill/0';
+            item.url = '/accounting/bill/0?fileid=' + item.FileID;
         })
 
         this.inboxList = data;
