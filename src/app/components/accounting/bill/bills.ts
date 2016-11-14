@@ -1,7 +1,7 @@
 import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/SupplierinvoiceService';
 import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
@@ -33,6 +33,7 @@ interface IFilter {
 export class BillsView {
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(UniTable) private unitable: UniTable;
     private searchControl: FormControl = new FormControl('');
 
     public tableConfig: UniTableConfig;
@@ -61,16 +62,16 @@ export class BillsView {
     ];
 
     constructor(
-        private tabService: TabService, 
-        private supplierInvoiceService: SupplierInvoiceService, 
-        private toast: ToastService, 
-        private location: Location, 
-        private route: ActivatedRoute, 
+        private tabService: TabService,
+        private supplierInvoiceService: SupplierInvoiceService,
+        private toast: ToastService,
+        private location: Location,
+        private route: ActivatedRoute,
         private router: Router,
         settingsService: SettingsService) {
-            
+
             this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
-            tabService.addTab({ name: 'Regninger', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });        
+            tabService.addTab({ name: 'Regninger', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
             this.checkPath();
     }
 
@@ -80,7 +81,7 @@ export class BillsView {
             this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
         } else {
             this.refreshList(this.currentFilter, true);
-        }        
+        }
 
         this.searchControl.valueChanges
             .debounceTime(300)
@@ -88,7 +89,7 @@ export class BillsView {
                 var v = this.filterInput(value);
                 this.startupWithSearchText = v;
                 this.refreshWihtSearchText(v);
-        });        
+        });
     }
 
     private refreshWihtSearchText(value: string) {
@@ -143,7 +144,7 @@ export class BillsView {
 
             this.QueryInboxTotals();
         });
-        if (refreshTotals) {            
+        if (refreshTotals) {
             this.refreshTotals();
         }
     }
@@ -173,11 +174,11 @@ export class BillsView {
             if (filter && data && data.length > 0) {
                 filter.count = data[0].countid;
             }
-        });        
+        });
     }
 
     private getInboxFilter(): IFilter {
-        return this.filters.find( x => x.name === 'Inbox');        
+        return this.filters.find( x => x.name === 'Inbox');
     }
 
     private onInboxDataReady(data: Array<any>) {
@@ -198,7 +199,7 @@ export class BillsView {
             new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number).setWidth('6rem').setFilterOperator('startswith'),
         ];
         var cfg = new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true).setDeleteButton(true);
-        this.tableConfig = cfg;                
+        this.tableConfig = cfg;
     }
 
     private refreshTotals() {
@@ -215,13 +216,13 @@ export class BillsView {
                 if (ix >= 0) {
                     this.filters[ix].count += x.countid;
                     this.filters[ix].total += x.sumTaxInclusiveAmount;
-                } 
+                }
             });
             let ixAll = this.filters.findIndex(x => x.name === 'All');
             this.filters[ixAll].count = count;
             this.filters[ixAll].total = total;
             this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
-        });     
+        });
     }
 
     private createTableConfig(filter: IFilter): UniTableConfig {
@@ -233,7 +234,7 @@ export class BillsView {
             }).setWidth('8%'),
             new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text).setFilterOperator('startswith').setWidth('15em'),
-            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.Date).setWidth('10%')            
+            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.Date).setWidth('10%')
                 .setFilterOperator('eq')
                 .setConditionalCls(item =>
                     moment(item.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok'
@@ -246,7 +247,7 @@ export class BillsView {
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setWidth('8%').setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
                 .setTemplate(item => {
-                    var key = item.JournalEntryJournalEntryNumber; 
+                    var key = item.JournalEntryJournalEntryNumber;
                     if (key) { return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`; }
                 }),
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('7em')
@@ -272,7 +273,7 @@ export class BillsView {
                 this.router.navigateByUrl('/accounting/bill/' + item.ID);
             }
         }
-    } 
+    }
 
     /*
     private deleteFileTags(fileId: number): Promise<boolean> {
@@ -286,6 +287,13 @@ export class BillsView {
     }
     */
 
+    private onPageChange(page) {
+        console.log('active page is now ' + page);
+
+        //for å skifte page:
+        //this.unitable.goToPage(1);
+    }
+
     public onRowDeleted(row) {
         if (this.currentFilter.name === 'Inbox') {
             var fileId = row.ID;
@@ -295,10 +303,10 @@ export class BillsView {
                     if (x === ConfirmActions.ACCEPT) {
                         this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe( (result) => {
                             this.toast.addToast('Filen er slettet', ToastType.good, 2);
-                        }, (err) => {                            
+                        }, (err) => {
                             var msg = (err._body ? JSON.parse(err._body).Message : err.statusText) || err.statusText;
                             this.toast.addToast(msg, ToastType.bad, 5);
-                            this.refreshList(this.currentFilter);                            
+                            this.refreshList(this.currentFilter);
                         });
                     } else {
                         this.refreshList(this.currentFilter);
@@ -306,7 +314,7 @@ export class BillsView {
                 });
             }
         }
-    }    
+    }
 
     public onAddNew() {
         this.router.navigateByUrl('/accounting/bill/0');
@@ -315,7 +323,7 @@ export class BillsView {
     public onFilterClick(filter: IFilter, searchFilter?: string) {
         this.filters.forEach(f => f.isSelected = false);
         this.refreshList(filter, !this.hasQueriedTotals , searchFilter);
-        filter.isSelected = true;        
+        filter.isSelected = true;
         if (searchFilter) {
             this.location.replaceState(this.defaultPath + '?search=' + this.startupWithSearchText);
         } else {
@@ -345,7 +353,7 @@ export class BillsView {
                 });
             }
             this.defaultPath = this.defaultPath.substr(0, ix);
-        } 
+        }
 
         // Default-filter?
         if (this.currentFilter === undefined) {
@@ -356,7 +364,7 @@ export class BillsView {
                     x.isSelected = true;
                 } else {
                     x.isSelected = false;
-                } 
+                }
             });
             if (!this.currentFilter) {
                 this.currentFilter = this.filters[0];
