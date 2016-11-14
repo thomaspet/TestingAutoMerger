@@ -72,7 +72,7 @@ export class AccountDetailsReport {
         const filters = [];
 
         if (urlParams.get('filter')) {
-            filters.push(urlParams.get('filter'));
+            filters.push('(' + urlParams.get('filter') + ')');
         }
 
         filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
@@ -89,7 +89,7 @@ export class AccountDetailsReport {
         urlParams.set('select', 'ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate,Description as Description,VatType.VatCode,Amount as Amount,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,count(FileEntityLink.ID) as Attachments,JournalEntryID as JournalEntryID');
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and '));
+        urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -132,9 +132,10 @@ export class AccountDetailsReport {
                     .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
                 new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
-                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
+                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
+                    .setFilterable(false)
                     .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
             ]);
     }
