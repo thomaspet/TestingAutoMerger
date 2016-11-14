@@ -53,7 +53,7 @@ import {Observable} from 'rxjs/Observable';
                         [value]="activeYear"
                         (valueChange)="yearSelected($event)">
                     </uni-select>
-                    <span class="navbar_company_activeYear" *ngIf="financialYears?.length <= 1">{{activeYear?.Year}}</span>
+                    <span class="navbar_company_activeYear" *ngIf="financialYears?.length <= 1">{{activeYear?.Year || ''}}</span>
                 </p>
 
                 <p>
@@ -142,7 +142,7 @@ export class UniCompanyDropdown {
 
     private setActiveYear() {
         if (this.company !== null && this.financialYears !== null && this.financialYears.length > 0) {
-            if (this.localStorageYear === null || this.localStorageYear.Year === undefined) {
+            if (!this.localStorageYear || !this.localStorageYear.Year) {
                 this.activeYear = this.financialYears.find((y) => y ? y.Year === this.company.CurrentAccountingYear : null);
             } else {
                 this.activeYear = this.financialYears.find((y) => y ? y.Year === this.localStorageYear.Year : null);
@@ -155,7 +155,7 @@ export class UniCompanyDropdown {
 
     private setYearInNavBarTitle() {
         // Show the year in nav bar title if active year is not the current accounting year for the company
-        if (this.activeYear === null || this.activeYear.Year === undefined || this.activeYear.Year === this.company.CurrentAccountingYear) {
+        if (!this.activeYear || !this.activeYear.Year || this.activeYear.Year === this.company.CurrentAccountingYear) {
             this.activeYearHdr = '';
         } else {
             let enspace = '\u2002';
