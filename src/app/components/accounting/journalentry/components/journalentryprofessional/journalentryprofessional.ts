@@ -343,16 +343,16 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
                     let project = rowModel.Dimensions.Project;
-                    return project.ID + ' - ' + project.Name;
+                    return project.ProjectNumber + ' - ' + project.Name;
                 }
                 return '';
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.ID + ' - ' + item.Name);
+                    return (item.ProjectNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.projects.filter((project) => project.ID == searchValue || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.projects.filter((project) => project.ProjectNumber == searchValue || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
@@ -361,16 +361,16 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Department && rowModel.Dimensions.Department.Name) {
                     let dep = rowModel.Dimensions.Department;
-                    return dep.ID + ' - ' + dep.Name;
+                    return dep.DepartmentNumber + ' - ' + dep.Name;
                 }
                 return '';
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.ID + ' - ' + item.Name);
+                    return (item.DepartmentNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.departments.filter((dep) => dep.ID == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.departments.filter((dep) => dep.DepartmentNumber == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
