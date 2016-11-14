@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageTypeService, SalaryTransactionService, UniCacheService } from '../../../../services/services';
+import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService } from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
-import { Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement } from '../../../../unientities';
+import { Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement, Account } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
@@ -25,11 +25,13 @@ export class RecurringPost extends UniView {
     @ViewChild(UniTable) private uniTable: UniTable;
     @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
-    constructor(public router: Router,
+    constructor(
+        public router: Router,
         private wagetypeService: WageTypeService,
         private salarytransService: SalaryTransactionService,
         cacheService: UniCacheService,
-        route: ActivatedRoute) {
+        route: ActivatedRoute,
+        private _accountService: AccountService) {
 
         super(router.url, cacheService);
 
@@ -164,6 +166,33 @@ export class RecurringPost extends UniView {
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
         const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money);
+        const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
+            .setTemplate((dataItem: SalaryTransaction) => {
+
+                const wagetype: WageType = dataItem['_Wagetype'] || dataItem.Wagetype || this.wagetypes.find(x => x.ID === dataItem.WageTypeID);
+
+                if (!wagetype) {
+                    return;
+                }
+                if (wagetype.Base_Payment) {
+                    return 'Ja';
+                } else {
+                    return 'Nei';
+                }
+            });
+        
+        const accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
+            .setTemplate((dataItem) => {
+                return dataItem['Account'] || '';
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem: Account) => {
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                },
+                lookupFunction: (searchValue) => {
+                    return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
+                }
+            });
 
         this.tableConfig = new UniTableConfig()
             .setDeleteButton(true)
@@ -173,14 +202,14 @@ export class RecurringPost extends UniView {
                 }
             }])
             .setColumns([
-                wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol,
-                amountCol, rateCol, sumCol
+                wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol,
+                amountCol, rateCol, sumCol, payoutCol
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
-                    this.mapWagetypeToRecurrinpost(row);
+                    this.mapWagetypeToRecurringpost(row);
                 }
 
                 if (event.field === '_Employment') {
@@ -201,6 +230,10 @@ export class RecurringPost extends UniView {
                     row['recurringPostValidTo'] = this.fixTimezone(row['recurringPostValidTo']);
                 }
 
+                if (event.field === '_Account') {
+                    this.mapAccountToTrans(row);
+                }
+
                 this.updateAndCacheSalaryTransactionRow(row);
 
                 return row;
@@ -214,7 +247,7 @@ export class RecurringPost extends UniView {
         super.updateState('recurringPosts', this.recurringPosts, true);
     }
 
-    private mapWagetypeToRecurrinpost(rowModel) {
+    private mapWagetypeToRecurringpost(rowModel) {
         if (!rowModel['EmploymentID']) {
             let employment = this.employments.find(emp => emp.Standard === true);
             if (employment) {
@@ -253,6 +286,15 @@ export class RecurringPost extends UniView {
             });
             rowModel['Supplements'] = supplements;
         }
+    }
+
+    private mapAccountToTrans(rowModel: SalaryTransaction) {
+        let account: Account = rowModel['_Account'];
+        if (!account) {
+            return;
+        }
+
+        rowModel.Account = account.AccountNumber;
     }
 
     private getRate(rowModel: SalaryTransaction) {
