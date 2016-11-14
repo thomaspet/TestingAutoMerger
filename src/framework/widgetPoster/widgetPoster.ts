@@ -1,4 +1,5 @@
 import {Component, Input, ChangeDetectorRef} from '@angular/core';
+import {UserService} from '../../app/services/common/UserService';
 declare var Chart;
 
 @Component({
@@ -16,8 +17,9 @@ export class WidgetPoster {
     private defaultPhoneNumber: string;
     private defaultEmployment: any = {};
     private defaultSettings: any = {}
+    private currentUser: any = {};
 
-    constructor(cdr: ChangeDetectorRef) {
+    constructor(cdr: ChangeDetectorRef, private userService: UserService) {
         this.cdr = cdr;
     }
 
@@ -88,18 +90,22 @@ export class WidgetPoster {
 
     private setSettingsDefaults() {
         //Settings data fetching??
-        var settings = localStorage.getItem('companySettings');
+        var settings: any = localStorage.getItem('companySettings');
         settings = JSON.parse(settings);
 
         this.defaultSettings.orgNumber = this.formatOrgnumber(settings.OrganizationNumber, 3).join(' ');
+
+        this.userService.getCurrentUser().subscribe((data) => {
+            this.currentUser = data;
+        })
+        
     }
 
     private formatOrgnumber(str, n) {
         var ret = [];
-        var i;
         var len;
 
-        for (i = 0, len = str.length; i < len; i += n) {
+        for (var i = 0, len = str.length; i < len; i += n) {
             ret.push(str.substr(i, n))
         }
 
