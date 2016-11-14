@@ -75,6 +75,17 @@ dialog.uniModal
         footer
             float: right
 
+    .modal-ameldingtype-content
+        @extend .modal-content
+        width: 25rem
+
+        uni-field
+            min-width: 15rem
+
+    .modal-postingsummary-content
+        @extend .modal-content
+        width: 40rem
+
 dialog.uniModal[open=false],
 dialog.uniModal[open=false]:before
     visibility: hidden

@@ -8,7 +8,11 @@
 
     <section *ngIf="showReceipt">
         <p>Bilaget er bokført i ditt regnskap</p>
-        <p>Bilagsnummer {{journalNumber}}</p>
+        <p>
+            <a href="#/accounting/transquery/details;journalEntryNumber={{journalNumber}}">
+                Bilagsnummer: {{journalNumber}}
+            </a>
+        </p>
         <p>Dato {{journalDate}}</p>
     </section>
 
