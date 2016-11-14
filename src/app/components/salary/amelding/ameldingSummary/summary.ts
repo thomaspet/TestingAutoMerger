@@ -18,11 +18,11 @@ export class AmeldingSummaryView {
     private statusText: string;
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
 
-    constructor() {        
+    constructor() {
         this.setupEmployees();
         this.setupTransactions();
     }
-    
+
     public ngOnChanges() {
         if (this.currentSumUp) {
             if (this.currentSumUp.status === null) {
@@ -36,10 +36,6 @@ export class AmeldingSummaryView {
                 this.sentDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
             }
         }
-    }
-
-    public toggleCollapsed(index: number) {
-        this.currentSumUp.entities[index].collapsed = !this.currentSumUp.entities[index].collapsed;
     }
 
     private setupEmployees() {

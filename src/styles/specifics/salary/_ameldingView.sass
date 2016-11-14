@@ -1,65 +1,95 @@
-amelding-view
-    .poster_widgets
+.amelding_poster
+    box-sizing: border-box
+    width: 100%
+    padding: 0 6.5%
+    background: lighten($uni-color-scale9, 5%)
+    display: flex
+    justify-content: space-between
+    align-items: stretch
+    font-size: 1.2rem
+    color: $uni-color-scale3
 
-        dl
-            padding: 1rem 0
-        dt
-            @extend strong
-        dd
-            margin: 0 0 .5rem 0
+.amelding_poster_widget
+    flex-grow: 1
+    padding: 1rem
+    margin: 0
+    display: flex
+    align-items: center
+    justify-content: center
 
-        .tablewidget
-            @include unigrid(8)
+    &.two-up
+        flex-grow: 2
 
-    table
-        margin-top: 1rem
+    &:not(:last-of-type)
+        border-right: pxToRem(1) solid $uni-color-negative
 
-        .datacolumn
-            padding-left: 1.5rem
-            text-align: left
+    & > *
+        margin: 0
 
-        .currency
+.amelding_poster_details
+    text-align: center
+
+    dd
+        color: $uni-color-action
+        margin-left: 0
+
+    dd:not(:last-of-type)
+        margin: 0 0 1rem 0
+        font-size: 1.5rem
+
+.amelding_poster_figures
+    width: 100%
+    padding: 1rem
+    border: pxToRem(1) $uni-color-scale9 solid
+
+    tr
+        height: 2rem
+
+        &:first-of-type th
             text-align: right
 
+    .datacolumn
+        max-width: 6rem
 
-    .statuslist
+    th
+        font-weight: normal
+        text-align: left
+        font-size: 1.1rem
+
+    td
+        text-align: right
+        font-size: 1.5rem
+        color: $uni-color-Good
+
+.amelding_poster_events
+    li
+        width: 100%
+        border-radius: pxToRem(3)
+        display: block
         list-style: none
-        padding: 2rem
+        text-align: center
+        padding: .2rem 1rem
+        font-size: 1rem
 
-        li
-            padding: 0 0 0 2rem
-            //line-height: 1rem
-            position: relative
+        &:not(:last-of-type)
+            margin-bottom: .5rem
 
-            &:before,
-            &:after
-                box-sizing: border-box
-                display: block
-                content: ''
-                position: absolute
-                top: .4rem
-                left: 0
-                height: 1rem
-                width: 1rem
+        &.success
+            color: $uni-color-Good
+            border: pxToRem(2) solid $uni-color-Good
 
-            &:before
-                border: pxToRem(1) solid #acacac
-                border-radius: pxToRem(3)
-                background: linear-gradient(to bottom, #d7d7d7 0, lighten(#d7d7d7, 50%) 100%)
+        // &.warn
+        //     color: $uni-color-Bad
+        //     border: pxToRem(2) solid $uni-color-Bad
 
-            &.warn:before
-                background: unicon-warning($uni-color-Warn) center center no-repeat
-                background-size: contain
-                border: none
+        &.warn
+            background: $uni-color-Bad
+            color: white
+            border: pxToRem(2) solid $uni-color-Bad
 
-            &.success:before
-                background: linear-gradient(to top, #0aa801 0, lighten(#0aa801, 10%) 100%)
+        time
+            font-size: 1rem
+            display: inline-block
+            margin-left: 1rem
+            opacity: .75
 
-            &.success:after
-                transform: rotate(45deg)
-                border-bottom: pxToRem(2) solid white
-                border-right: pxToRem(2) solid white
-                height: .7rem
-                width: .3rem
-                left: .4rem
-                top: .5rem

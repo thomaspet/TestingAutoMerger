@@ -8,7 +8,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {Address, CustomerOrderItem, Customer, FieldType} from '../../../../unientities';
-import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings, User} from '../../../../unientities';
+import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -20,9 +20,9 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 
 declare const _;
 
@@ -69,12 +69,11 @@ export class OrderDetails {
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Info.DefaultEmail', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    private user: User;
     public summary: ISummaryConfig[] = [];
 
     constructor(private customerService: CustomerService,
@@ -90,9 +89,11 @@ export class OrderDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private authService: AuthService,
                 private userService: UserService,
-                private numberFormat: NumberFormat) {
+                private numberFormat: NumberFormat,
+                private tradeItemHelper: TradeItemHelper) {
+
+        this.tabService.addTab({ url: '/sales/orders/', name: 'Ordre', active: true, moduleID: UniModules.Orders });
 
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
@@ -107,15 +108,10 @@ export class OrderDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerOrder';
                     sendemail.EntityID = this.order.ID;
+                    sendemail.CustomerID = this.order.CustomerID;
                     sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                    sendemail.EmailAddress = this.order.Customer.Info.DefaultEmail ? this.order.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                         
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -231,17 +227,12 @@ export class OrderDetails {
     private setup() {
         this.deletedItems = [];
 
-        this.companySettingsService.Get(1, ['DefaultEmail'])
+        this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
                 err => {
                     console.log('Error retrieving company settings data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                 });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -269,8 +260,6 @@ export class OrderDetails {
                 }
 
                 // Add a blank item in the dropdown controls
-                this.dropdownData[0].unshift(null);
-                this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
                 this.addressService.setAddresses(this.order);
@@ -294,6 +283,7 @@ export class OrderDetails {
                     this.addressService.setAddresses(this.order);
                     this.setTabTitle();
                     this.updateToolbar();
+                    this.updateSaveActions();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
                     this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
@@ -404,7 +394,8 @@ export class OrderDetails {
             title: this.order.Customer ? (this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name) : this.order.CustomerName,
             subheads: [
                 {title: this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber + '.' : ''},
-                {title: !this.itemsSummaryData ? 'Netto kr ' + this.order.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'}
+                {title: !this.itemsSummaryData ? 'Netto kr ' + this.order.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'},
+                {title: GetPrintStatusText(this.order.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -494,30 +485,10 @@ export class OrderDetails {
         }
 
         this.recalcTimeout = setTimeout(() => {
-
-            orderItems.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
-            this.customerOrderService.calculateOrderSummary(orderItems)
-                .subscribe((data) => {
-                        this.itemsSummaryData = data;
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setSums();
-                    },
-                    (err) => {
-                        console.log('Error when recalculating items:', err);
-                        this.log(err);
-                    });
-        }, 2000);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems);
+            this.updateToolbar();
+            this.setSums();
+        }, 500);
     }
 
     private deleteItem(item: CustomerOrderItem) {

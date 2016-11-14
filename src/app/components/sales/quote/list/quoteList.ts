@@ -4,16 +4,14 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMe
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
-import {CustomerQuoteService, ReportDefinitionService, UserService} from '../../../../services/services';
-import {CustomerQuote, CompanySettings, User} from '../../../../unientities';
+import {CustomerQuoteService, ReportDefinitionService} from '../../../../services/services';
+import {CustomerQuote} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 @Component({
     selector: 'quote-list',
@@ -26,8 +24,6 @@ export class QuoteList {
 
     private quoteTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    private companySettings: CompanySettings;
-    private user: User;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Tilbud',
@@ -38,10 +34,7 @@ export class QuoteList {
         private customerQuoteService: CustomerQuoteService,
         private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService,
-        private authService: AuthService,
-        private userService: UserService,
-        private toastService: ToastService,
-        private companySettingsService: CompanySettingsService) {
+        private toastService: ToastService) {
 
         this.tabService.addTab({ name: 'Tilbud', url: '/sales/quotes', active: true, moduleID: UniModules.Quotes });
         this.setupQuoteTable();
@@ -56,21 +49,10 @@ export class QuoteList {
     }
 
     private setupQuoteTable() {
-        this.companySettingsService.Get(1, ['DefaultEmail'])
-            .subscribe(settings => this.companySettings = settings,
-                err => {
-                    console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-                });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer,Customer.Info,Customer.Info.DefaultEmail');
+            urlParams.set('expand', 'Customer');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'QuoteDate desc');
@@ -172,15 +154,10 @@ export class QuoteList {
                 let sendemail = new SendEmail();
                 sendemail.EntityType = 'CustomerQuote';
                 sendemail.EntityID = quote.ID;
+                sendemail.CustomerID = quote.CustomerID;
                 sendemail.Subject = 'Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd');
-                sendemail.EmailAddress = quote.Customer.Info.DefaultEmail ? quote.Customer.Info.DefaultEmail.EmailAddress : '';
-                sendemail.CopyAddress = this.user.Email;
-                sendemail.Message = 'Vedlagt finner du Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd') +
-                                    '\n\nMed vennlig hilsen\n' +
-                                    this.companySettings.CompanyName + '\n' +
-                                    this.user.DisplayName + '\n' +
-                                    (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd');
+            
                 this.sendEmailModal.openModal(sendemail);
 
                 if (this.sendEmailModal.Changed.observers.length === 0) {

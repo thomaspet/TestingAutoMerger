@@ -21,9 +21,9 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 
 declare const _;
 declare const moment;
@@ -70,9 +70,8 @@ export class QuoteDetails {
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    private user: User;
     public summary: ISummaryConfig[] = [];
-    private customerExpandOptions: string[] = ['Info', 'Info.DefaultEmail', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
@@ -87,13 +86,12 @@ export class QuoteDetails {
                 private reportDefinitionService: ReportDefinitionService,
                 private companySettingsService: CompanySettingsService,
                 private toastService: ToastService,
-                private authService: AuthService,
                 private userService: UserService,
                 private numberFormat: NumberFormat,
-
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper) {
 
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
@@ -108,14 +106,9 @@ export class QuoteDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerQuote';
                     sendemail.EntityID = this.quote.ID;
+                    sendemail.CustomerID = this.quote.CustomerID;
                     sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                    sendemail.EmailAddress = this.quote.Customer.Info.DefaultEmail ? this.quote.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
 
                     this.sendEmailModal.openModal(sendemail);
 
@@ -241,17 +234,12 @@ export class QuoteDetails {
     private setup() {
         this.deletedItems = [];
 
-        this.companySettingsService.Get(1, ['DefaultEmail'])
+        this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -279,8 +267,6 @@ export class QuoteDetails {
                 }
 
                 // Add a blank item in the dropdown controls
-                this.dropdownData[0].unshift(null);
-                this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
                 this.addressService.setAddresses(this.quote);
@@ -305,6 +291,7 @@ export class QuoteDetails {
                 this.addressService.setAddresses(this.quote);
                 this.setTabTitle();
                 this.updateToolbar();
+                this.updateSaveActions();
             }, (err) => {
                 console.log('Error retrieving data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
@@ -420,7 +407,8 @@ export class QuoteDetails {
             title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
             subheads: [
                 { title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : '' },
-                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' }
+                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' },
+                { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -540,30 +528,10 @@ export class QuoteDetails {
         }
 
         this.recalcTimeout = setTimeout(() => {
-
-            quoteItems.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
-            this.customerQuoteService.calculateQuoteSummary(quoteItems)
-                .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.updateSaveActions();
-                    this.updateToolbar();
-                    this.setSums();
-                },
-                (err) => {
-                    console.log('Error when recalculating items:', err);
-                    this.log(err);
-                });
-        }, 2000);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+            this.updateToolbar();
+            this.setSums();
+        }, 500);
     }
 
     private deleteItem(item: CustomerQuoteItem) {
@@ -592,7 +560,11 @@ export class QuoteDetails {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition)
                 .subscribe((transitionData: any) => {
                     done(doneText);
-                    this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                    if (transition === 'toOrder') {
+                        this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                    } else {
+                        this.setup();
+                    }
                 }, (err) => {
                     console.log('Feil oppstod ved ' + transition + ' transition', err);
                     done('Feilet');

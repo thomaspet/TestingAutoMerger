@@ -41,7 +41,7 @@ export class UniCalendar {
     private dateChange: EventEmitter<Date> = new EventEmitter<Date>();
 
     private weekdays: string[];
-    private selectedDate: moment.Moment;
+    public selectedDate: moment.Moment;
     private calendarDate: moment.Moment;
     private calendarWeeks: any[] = [];
 
@@ -93,14 +93,53 @@ export class UniCalendar {
         this.dateChange.emit(this.selectedDate.toDate());
     }
 
-    private prevMonth() {
+    public prevMonth() {
         this.calendarDate.subtract(1, 'month');
         this.generateCalendarPage(this.calendarDate);
     }
 
-    private nextMonth() {
+    public nextMonth() {
         this.calendarDate.add(1, 'month');
         this.generateCalendarPage(this.calendarDate);
     }
 
+    public prevDay() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.subtract(1, 'd');
+        const prevMonth = this.selectedDate.month();
+        if (month !== prevMonth) {
+            this.prevMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
+
+    public nextDay() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.add(1, 'd');
+        const nextMonth = this.selectedDate.month();
+        if (month !== nextMonth) {
+            this.nextMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
+
+    public prevWeek() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.subtract(7, 'd');
+        const prevMonth = this.selectedDate.month();
+        if (month !== prevMonth) {
+            this.prevMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
+
+    public nextWeek() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.add(7, 'd');
+        const nextMonth = this.selectedDate.month();
+        if (month !== nextMonth) {
+            this.nextMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
 }

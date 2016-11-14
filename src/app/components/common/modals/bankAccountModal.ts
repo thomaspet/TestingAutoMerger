@@ -234,14 +234,6 @@ export class BankAccountModal {
             title: 'Bankkonto',
             actions: [
                 {
-                    text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                },
-                {
                     text: 'Lagre bankkonto',
                     class: 'good',
                     method: () => {
@@ -252,6 +244,14 @@ export class BankAccountModal {
                         }
 
                         this.Changed.emit(this.modalConfig.model);
+                        return false;
+                    }
+                },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        this.modal.close();
+                        this.Canceled.emit(true);
                         return false;
                     }
                 }

@@ -1,22 +1,20 @@
-import {Component, Input, ViewChild, OnChanges, EventEmitter} from '@angular/core';
-import {SubEntityService, StaticRegisterService, AgaZoneService, MunicipalService} from '../../../services/services';
-import {SubEntity, AGAZone, PostalCode, Municipal, AGASector} from '../../../unientities';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {Observable} from 'rxjs/Observable';
+import { Component, Input, ViewChild, EventEmitter } from '@angular/core';
+import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService } from '../../../services/services';
+import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
+import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { Observable } from 'rxjs/Observable';
 
 declare var _; // lodash
 @Component({
     selector: 'sub-entity-details',
     templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityDetails.html'
 })
-export class SubEntityDetails implements OnChanges {
+export class SubEntityDetails {
     @Input() private currentSubEntity: SubEntity;
     private municipalities: Municipal[];
     @ViewChild(UniForm) private form: UniForm;
-    private model: SubEntity = null;
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
-    private postalCodes: PostalCode[] = [];
     public fields: UniFieldLayout[] = [];
     public config: any = {};
     public busy: boolean;
@@ -25,16 +23,16 @@ export class SubEntityDetails implements OnChanges {
 
     constructor(
         private _subEntityService: SubEntityService,
-        private _statReg: StaticRegisterService,
         private _agaZoneService: AgaZoneService,
-        private _municipalityService: MunicipalService
+        private _municipalityService: MunicipalService,
+        private _statisticsService: StatisticsService
     ) {
-        
+
     }
 
     public ngAfterViewInit() {
         this.busy = true;
-        this.postalCodes = this._statReg.getStaticRegisterDataset('postalcodes');
+
         Observable.forkJoin(
             this._agaZoneService.GetAll(''),
             this._agaZoneService.getAgaRules(),
@@ -47,14 +45,6 @@ export class SubEntityDetails implements OnChanges {
             this.createForm();
             this.busy = false;
         });
-    }
-
-    public ngOnChanges() {
-        this.model = this.currentSubEntity;
-        if (this.formReady) {
-            this.updateFields();
-        }
-        this.model = _.cloneDeep(this.model);
     }
 
     private createForm() {
@@ -80,11 +70,17 @@ export class SubEntityDetails implements OnChanges {
             };
 
             postalCode.Options = {
-                source: this.postalCodes,
+                getDefaultData: () => this.getDefaultPostalCodeData(),
+                search: (text: string) => this._statisticsService.GetAll(`filter=startswith(Code,'${text}') or contains(City,'${text}')&top=50&orderby=Code&model=PostalCode&select=Code as Code,City as City`).map(x => x.Data),
                 valueProperty: 'Code',
                 displayProperty: 'Code',
                 debounceTime: 200,
-                template: (obj: PostalCode) => obj ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}` : ''
+                template: (obj: PostalCode) => obj ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}` : '',
+                events: {
+                    select: (model: SubEntity) => {
+                        this.updateCity();
+                    }
+                }
             };
 
             municipality.Options = {
@@ -111,26 +107,32 @@ export class SubEntityDetails implements OnChanges {
         return field;
     }
 
-    private updatePostalCodes() {
-        if (this.model) {
-            if (this.postalCodes && this.model.BusinessRelationInfo && this.model.BusinessRelationInfo.InvoiceAddress) {
-                let postalCode = this.postalCodes.find(x => x.Code === this.model.BusinessRelationInfo.InvoiceAddress.PostalCode);
-                this.model.BusinessRelationInfo.InvoiceAddress.City = postalCode ? postalCode.City : '';
-                this.model = _.cloneDeep(this.model);
+    private getDefaultPostalCodeData() {
+        if (this.currentSubEntity && this.currentSubEntity.BusinessRelationInfo && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress) {
+            return Observable.of([{Code: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode, City: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City }]);
+        } else {
+            return Observable.of([]);
+        }
+    }
+
+    private updateCity() {
+        if (this.currentSubEntity && this.currentSubEntity.BusinessRelationInfo && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress) {
+            if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode) {
+                let code = this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode;
+                this._statisticsService.GetAll(`filter=Code eq '${code}'&top=1&orderby=Code&model=PostalCode&select=Code as Code,City as City`)
+                    .map(x => x.Data)
+                    .subscribe(postalCodeArr => {
+                        if (postalCodeArr && postalCodeArr.length > 0) {
+                            this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City = postalCodeArr[0].City;
+                            this.currentSubEntity = _.cloneDeep(this.currentSubEntity);
+                        }
+                    });
             }
         }
     }
 
-    private updateFields() {
-        this.updatePostalCodes();
-    }
-
     public ready(event) {
         this.formReady = true;
-        this.updateFields();
-        this.form.field('BusinessRelationInfo.InvoiceAddress.PostalCode').changeEvent.subscribe((value) => {
-            this.updatePostalCodes();
-        });
 
         this.form.field('MunicipalityNo').changeEvent.subscribe((value) => {
             this.refreshList.emit(true);
@@ -138,11 +140,19 @@ export class SubEntityDetails implements OnChanges {
     }
 
     public saveSubentities() {
-        if (!this.model.BusinessRelationID && this.model.BusinessRelationInfo) {
-            this.model.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
+
+        if (this.currentSubEntity.BusinessRelationInfo) {
+            if (!this.currentSubEntity.BusinessRelationID) {
+                this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
+            }
+            if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress && !this.currentSubEntity.BusinessRelationInfo.InvoiceAddressID) {
+                this.currentSubEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService.getNewGuid();
+            }
         }
-        return this.currentSubEntity.ID ?
-            this._subEntityService.Put(this.model.ID, this.model) :
-            this._subEntityService.Post(this.model);
+        let saveObservable = this.currentSubEntity.ID ?
+            this._subEntityService.Put(this.currentSubEntity.ID, this.currentSubEntity) :
+            this._subEntityService.Post(this.currentSubEntity);
+
+        return saveObservable.map(x => this.currentSubEntity = x);
     }
 }

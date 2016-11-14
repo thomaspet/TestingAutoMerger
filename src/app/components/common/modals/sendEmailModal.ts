@@ -1,10 +1,12 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {Email, FieldType} from '../../../unientities';
-import {EmailService} from '../../../services/services';
+import {Email, FieldType, CompanySettings, User, Customer} from '../../../unientities';
+import {EmailService, CustomerService, UserService} from '../../../services/services';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
+import {Observable} from 'rxjs/Rx';
 
 // Reusable email form
 @Component({
@@ -14,7 +16,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
            <h1 *ngIf="config.title">{{config.title}}</h1>
            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
            <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
+                <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
                 </button>                
             </footer>
@@ -112,7 +114,10 @@ export class SendEmailModal {
     private type: Type<any> = SendEmailForm;
 
     constructor(private emailService: EmailService,
-                private toastService: ToastService) {
+                private toastService: ToastService,
+                private customerService: CustomerService,
+                private userService: UserService,
+                private companySettingsService: CompanySettingsService) {
     }
     
     public ngOnInit() {    
@@ -120,14 +125,6 @@ export class SendEmailModal {
             model: this.email,            
             title: 'Send på epost',
             actions: [
-                {
-                    text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                },
                 {
                     text: 'Send epost',
                     class: 'good',
@@ -140,6 +137,14 @@ export class SendEmailModal {
                         }
                         return false;
                     }
+                },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        this.modal.close();
+                        this.Canceled.emit(true);
+                        return false;
+                    }
                 }
             ]
         };
@@ -147,7 +152,27 @@ export class SendEmailModal {
 
     public openModal(sendemail: SendEmail) {  
         sendemail.Format = sendemail.Format || 'pdf';
-        this.modalConfig.model = sendemail;    
-        this.modal.open();
+
+        Observable.forkJoin(
+            this.companySettingsService.Get(1, ['DefaultEmail']),
+            this.userService.getCurrentUser(),
+            sendemail.CustomerID ? this.customerService.Get(sendemail.CustomerID, ['Info', 'Info.DefaultEmail']) : Observable.of(null)  
+        )
+        .subscribe((response) => {
+            let companySettings: CompanySettings = response[0];
+            var user = response[1];
+            var customer = response[2];
+
+            // Adding default
+            if (!sendemail.EmailAddress && customer) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
+            if (!sendemail.CopyAddress) { sendemail.CopyAddress = user.Email };
+            sendemail.Message += '\n\nMed vennlig hilsen\n' +
+                                 companySettings.CompanyName + '\n' +
+                                 user.DisplayName + '\n' +
+                                 (companySettings.DefaultEmail ? companySettings.DefaultEmail.EmailAddress : '');
+
+            this.modalConfig.model = sendemail;    
+            this.modal.open();
+        });    
     }
 }

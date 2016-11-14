@@ -24,15 +24,12 @@ export class PersonalDetails extends UniView {
         'BusinessRelationInfo.Phones',
         'BankAccounts',
     ];
-
     public config: any = {};
     public fields: any[] = [];
     private subEntities: SubEntity[];
     private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
-
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -99,10 +96,6 @@ export class PersonalDetails extends UniView {
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
         this.uniform.field('BusinessRelationInfo.Name').focus();
-        this.uniform.field('SocialSecurityNumber').changeEvent.subscribe(() => {
-            this.updateInfoFromSSN();
-        });
-
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
@@ -126,7 +119,9 @@ export class PersonalDetails extends UniView {
                 this.employee.BankAccounts[0].Active = true;
             }
         }
-
+        setTimeout(()=>{
+            this.updateInfoFromSSN();
+        })
         this.employee = _.cloneDeep(employee);
         super.updateState('employee', employee, true);
     }
@@ -246,7 +241,7 @@ export class PersonalDetails extends UniView {
     }
 
     private updateInfoFromSSN() {
-        if (this.employee.SocialSecurityNumber.length === 11) {
+        if (this.employee.SocialSecurityNumber && this.employee.SocialSecurityNumber.length === 11) {
 
             let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);

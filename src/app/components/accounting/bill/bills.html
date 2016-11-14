@@ -5,7 +5,7 @@
         <td>
             <button class="good" (click)="onAddNew()">Ny regning</button>
         </td>
-        <td>Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}</td>
+        <td><input type="search" placeholder="Søk" [formControl]="searchControl" ></td>
         </tr></table>
     </header>    
 
@@ -21,13 +21,16 @@
         
         <uni-table [resource]="listOfInvoices"
             [config]="tableConfig"
-            (rowSelected)="onRowSelected($event)">
+            (rowSelected)="onRowSelected($event)"
+            (rowDeleted)="onRowDeleted($event.rowModel)">
         </uni-table>
 
         <div class="right total">
-            Totalsum {{totals.grandTotal | unicurrency:0 }}
+            Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
         </div>
 
     </article>
+
+    <uni-confirm-modal></uni-confirm-modal>
 
 </section>

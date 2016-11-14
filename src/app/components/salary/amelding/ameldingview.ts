@@ -32,7 +32,7 @@ export class AMeldingView implements OnInit {
     private clarifiedDate: string = '';
     private submittedDate: string = '';
     private feedbackObtained: boolean = false;
-    
+
     private totalAGAFeedback: number = 0;
     private totalAGASystem: number = 0;
     private totalFtrekkFeedback: number = 0;
@@ -188,7 +188,7 @@ export class AMeldingView implements OnInit {
 
             this.totalAGAFeedback = 0;
             this.totalFtrekkFeedback = 0;
-            
+
             this.totalAGASystem = 0;
             this.totalFtrekkSystem = 0;
 
@@ -231,7 +231,7 @@ export class AMeldingView implements OnInit {
                 _state = UniStatusTrack.States.Completed;
             } else if (amldStatus.Code === activeStatus) {
 
-                if (this.currentAMelding === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]) {
+                if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                     _state = UniStatusTrack.States.Active;
                 } else {
                     // If we're not on the last of the A-meldings in the period, we'll assume the data is obsolete.
@@ -338,7 +338,7 @@ export class AMeldingView implements OnInit {
     private setStatusForPeriod() {
         let ameldingerReplaced: any[] = [];
         let periodStatus: string = 'Venter på tilbakemelding';
-        
+
         this.aMeldingerInPeriod.forEach(ameld => {
             if (ameld.replacesID > 0) {
                 ameldingerReplaced.push(ameld.replacesID);
@@ -350,7 +350,7 @@ export class AMeldingView implements OnInit {
                 periodStatus = amelding.altinnStatus;
             }
         });
-        
+
         this.periodStatus = periodStatus;
     }
 

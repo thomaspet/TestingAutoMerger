@@ -62,7 +62,7 @@ export class OrderToInvoiceTable {
             <order-to-invoice-table [order]="config.model"> </order-to-invoice-table>
 
             <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
+                <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
                 </button>
             </footer>
@@ -99,17 +99,6 @@ export class OrderToInvoiceModal {
 
             actions: [
                 {
-                    text: 'Avbryt',
-                    method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
-                            self.canceled.emit(true);
-                        });
-
-                        return false;
-                    }
-                },
-                {
                     text: 'Overfør til faktura',
                     class: 'good',
                     method: () => {
@@ -119,6 +108,17 @@ export class OrderToInvoiceModal {
                             self.changed.emit(self.modalConfig.model.Items);
                             return false;
                         });
+                    }
+                },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        self.modal.getContent().then(() => {
+                            self.modal.close();
+                            self.canceled.emit(true);
+                        });
+
+                        return false;
                     }
                 }
             ]

@@ -219,7 +219,9 @@ export class UniAutocompleteInput {
             return Observable.of([]);
         }
 
-        if (Array.isArray(this.source)) {
+        if (this.options.getDefaultData) {
+            return this.options.getDefaultData();
+        } else if (Array.isArray(this.source)) {
             return Observable.of([(<any[]> this.source).find((item) => {
                 return _.get(item, this.field.Options.valueProperty) === value;
             })]);

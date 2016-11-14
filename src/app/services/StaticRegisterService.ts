@@ -5,11 +5,11 @@ import {Injectable} from '@angular/core';
 
 @Injectable()
 export class StaticRegisterService extends BizHttp<StaticRegister> {
-    
+
     constructor(http: UniHttp) {
         super(http);
     }
-    
+
     public checkForStaticRegisterUpdate() {
         this.http.asGET()
         .usingBusinessDomain()
@@ -24,9 +24,9 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
                 }
             });
         });
-         
+
     }
-    
+
     public postStaticRegisterDataset(entity) {
         this.http.asGET()
         .usingBusinessDomain()
@@ -36,11 +36,11 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .subscribe((response) => {
             localStorage.setItem(entity.Registry + 'Data', JSON.stringify(response));
             localStorage.setItem(entity.Registry + 'Stamp', entity.stamp);
-        }); 
+        });
     }
-    
+
     public getStaticRegisterDataset(registry: string) {
         return JSON.parse(localStorage.getItem(registry + 'Data'));
     }
-    
+
 }
