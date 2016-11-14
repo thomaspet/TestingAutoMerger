@@ -1,0 +1,12 @@
+<article [attr.aria-busy]="busy" >
+    
+    <uni-table [resource]="listOfInvoices"
+        [config]="tableConfig"
+        (rowSelected)="onRowSelected($event)">
+    </uni-table>
+
+    <div class="right total">
+        Totalsum {{totals.grandTotal | unicurrency:0 }}
+    </div>
+
+</article>

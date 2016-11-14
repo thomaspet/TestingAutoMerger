@@ -1,13 +1,14 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {CustomerInvoice, Customer, StatusCodeCustomerInvoice} from '../../../../unientities';
-import {AddressModal} from '../../../common/modals/modals';
-import {AddressService, CustomerService} from '../../../../services/services';
+import {Customer} from '../../../unientities';
+import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
+import {AddressModal} from '../../common/modals/modals';
+import {AddressService, CustomerService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
 declare const _;
 
 @Component({
-    selector: 'invoice-customer-card',
+    selector: 'tof-customer-card',
     template: `
         <label>
             <span>Kunde</span>
@@ -52,40 +53,53 @@ declare const _;
             </section>
         </label>
 
-        <section *ngIf="invoice" class="customerInfo" (click)="openAddressModal()">
+        <section *ngIf="entity?.Customer" class="addressCard"
+                 [attr.aria-readonly]="readonly"
+                 (click)="openAddressModal()">
             <span class="edit-btn" (click)="openAddressModal()"></span>
-            <strong>{{invoice.Customer?.Info?.Name}}</strong>
-            <br><span *ngIf="invoice.InvoiceAddressLine1">
-                {{invoice.InvoiceAddressLine1}}
+            <strong>{{entity.Customer?.Info?.Name}}</strong>
+            <br><span *ngIf="entity.InvoiceAddressLine1">
+                {{entity.InvoiceAddressLine1}}
             </span>
-            <br><span *ngIf="invoice.InvoicePostalCode || invoice.InvoiceCity">
-                {{invoice.InvoicePostalCode}} {{InvoiceCity}}
+            <br><span *ngIf="entity.InvoicePostalCode || entity.InvoiceCity">
+                {{entity.InvoicePostalCode}} {{entity.InvoiceCity}}
             </span>
-            <br><span *ngIf="invoice.InvoiceCountry">
-                {{invoice.InvoiceCountry}}
+            <br><span *ngIf="entity.InvoiceCountry">
+                {{entity.InvoiceCountry}}
             </span>
-            <span class="emailInfo" *ngIf="invoice.Customer?.Info?.Emails">
-                {{invoice?.Customer?.Info?.Emails[0]?.EmailAddress}}
+            <span class="emailInfo" *ngIf="entity.Customer?.Info?.Emails">
+                {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
             </span>
         </section>
+        <a *ngIf="!readonly" class="new-customer" (click)="customerDetailsModal.open()">
+            Ny kunde
+        </a>
+
+        <customer-details-modal (newCustomer)="newCustomerFromModal($event)"></customer-details-modal>
         <address-modal></address-modal>
     `
 })
-export class CustomerCard {
+export class TofCustomerCard {
     @ViewChild(AddressModal)
     private addressModal: AddressModal;
 
     @ViewChild('searchInput')
     private searchInput: ElementRef;
 
+    @ViewChild(CustomerDetailsModal)
+    public customerDetailsModal: CustomerDetailsModal;
+
     @ViewChild('list')
     private list: ElementRef;
 
     @Input()
-    private invoice: CustomerInvoice;
+    private readonly: boolean;
+
+    @Input()
+    private entity: any;
 
     @Output()
-    private invoiceChange: EventEmitter<CustomerInvoice>;
+    private entityChange: EventEmitter<any> = new EventEmitter();
 
     private control: FormControl = new FormControl();
     private initialDisplayValue: string;
@@ -93,27 +107,26 @@ export class CustomerCard {
     private selectedIndex: number = -1;
     private expanded: boolean;
     private lookupResults: Customer[] = [];
-    private readonly: boolean;
     private busy: boolean;
 
     constructor(private addressService: AddressService,
                 private customerService: CustomerService) {
-        this.invoiceChange = new EventEmitter<CustomerInvoice>();
-        this.control.valueChanges
-            .switchMap((input) => {
-                this.busy = true;
-                return Observable.of(input);
-            })
-            .debounceTime(200)
-            .subscribe(value => this.performLookup(value));
+    }
+
+    public ngOnInit() {
+        this.control.valueChanges.switchMap((input) => {
+            this.busy = true;
+            return Observable.of(input);
+        })
+        .debounceTime(200)
+        .subscribe(value => this.performLookup(value));
     }
 
     public ngOnChanges(changes) {
-        if (changes['invoice'] && this.invoice) {
-            const customer: any = this.invoice.Customer || {Info: {}};
+        if (changes['entity'] && this.entity) {
+            const customer: any = this.entity.Customer || {Info: {}};
             this.initialDisplayValue = customer.Info.Name || '';
             this.control.setValue(this.initialDisplayValue, {emitEvent: false});
-            this.readonly = this.invoice.StatusCode && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         }
     }
 
@@ -129,14 +142,31 @@ export class CustomerCard {
         }, 200);
     }
 
+    public newCustomerFromModal(customer: Customer) {
+        if (!customer) {
+            return;
+        }
+
+        const info: any = customer.Info || {};
+        this.addressService.addressToShipping(this.entity, info.ShippingAddress);
+        this.addressService.addressToInvoice(this.entity, info.InvoiceAddress);
+
+        this.control.setValue(info.Name, {emitEvent: false});
+        this.entity.CustomerID = customer.ID;
+        this.entity.CustomerName = info.Name;
+        this.entity.Customer = customer;
+
+        this.entityChange.next(_.cloneDeep(this.entity));
+    }
+
     public openAddressModal() {
         if (this.readonly) {
             return;
         }
-        let address = this.addressService.invoiceToAddress(this.invoice);
+        let address = this.addressService.invoiceToAddress(this.entity);
         this.addressModal.openModal(address, false, 'Fakuraadresse');
         this.addressModal.Changed.subscribe((modalValue) => {
-            this.addressService.addressToInvoice(this.invoice, modalValue);
+            this.addressService.addressToInvoice(this.entity, modalValue);
         });
     }
 
@@ -154,7 +184,7 @@ export class CustomerCard {
         }
 
         let customer: Customer;
-        if (this.control.value.length || this.selectedIndex > -1) {
+        if (this.control.value || this.selectedIndex > -1) {
             const index = (this.selectedIndex > -1) ? this.selectedIndex : 0;
             customer = this.lookupResults[index];
         } else {
@@ -167,19 +197,33 @@ export class CustomerCard {
 
         if (customer) {
             this.control.setValue(customer.Info.Name, {emitEvent: false});
-            this.invoice.CustomerID = customer.ID;
-            this.invoice.CustomerName = customer.Info.Name;
+            this.entity.CustomerID = customer.ID;
+            this.entity.CustomerName = customer.Info.Name;
 
             const addresses = customer.Info.Addresses || [];
-            this.addressService.addressToInvoice(this.invoice, addresses[0]);
+            this.mapAddresses(customer, addresses);
+            // this.addressService.addressToInvoice(this.entity, addresses[0]);
         } else {
             this.control.setValue('', {emitEvent: false});
-            this.invoice.CustomerID = null;
-            this.invoice.CustomerName = null;
+            this.entity.CustomerID = null;
+            this.entity.CustomerName = null;
         }
 
-        this.invoice.Customer = customer;
-        this.invoiceChange.next(_.cloneDeep(this.invoice));
+        this.entity.Customer = customer;
+        this.entityChange.next(_.cloneDeep(this.entity));
+    }
+
+    private mapAddresses(customer, addresses) {
+        const info = customer.Info || {};
+        if (info.InvoiceAddressID) {
+            let invoiceAddress = addresses.find(addr => addr.ID === info.InvoiceAddressID);
+            this.addressService.addressToInvoice(this.entity, invoiceAddress);
+        }
+
+        if (info.ShippingAddressID) {
+            let shippingAddress = addresses.find(addr => addr.ID === info.ShippingAddressID);
+            this.addressService.addressToShipping(this.entity, shippingAddress);
+        }
     }
 
     public performLookup(query: string) {

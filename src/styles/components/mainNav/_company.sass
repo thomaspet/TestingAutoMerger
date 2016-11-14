@@ -1,0 +1,155 @@
+uni-company-dropdown
+    text-align: right
+
+.navbar_company
+    @extend %navbarText
+    display: inline-block
+    position: relative
+    padding: 0
+    user-select: none
+
+    &:hover,
+    &:focus
+        background: darken($navbarBackground, 10%)
+
+.navbar_company_title
+    @extend %clickable
+    display: inline-block
+    padding: .5rem 2.2rem 0 1rem
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    max-width: 15rem
+    position: relative
+
+    &:after
+        display: inline-block
+        height: .6rem
+        width: .6rem
+        content: ''
+        position: absolute
+        top: 1.1rem
+        right: 1rem
+        background-image: unicon-chevron-down($navbarTextColor)
+        background-size: contain
+        background-repeat: no-repeat
+
+.navbar_company_title_year
+    opacity: .75
+
+.navbar_company_dropdown
+    position: absolute
+    display: none
+    list-style: none
+    right: 0
+    top: 1rem
+    color: $uni-color-positive
+    margin: 1.5rem 0
+    background: #fff
+    border: pxToRem(1) solid $uni-color-scale8
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+    border-radius: 0 0 pxToRem(3) pxToRem(3)
+    text-align: left
+    min-width: 15rem
+    max-width: 20rem
+    z-index: 9999
+    padding: .5rem 1rem
+
+
+    &[aria-expanded=true]
+        display: block
+
+    h2
+        font-weight: 400
+        font-size: 1.2rem
+        line-height: 1.5rem
+        width: 100%
+        overflow: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
+        margin: .5rem 0 0
+
+    dl
+        @include clearfix
+        background: $uni-color-negative
+        border: pxToRem(1) solid $uni-color-scale9
+        border-width: pxToRem(1) 0
+        width: 100%
+        margin-left: -1rem
+        padding: 1rem
+
+    dt, dd
+        font-style: normal
+        line-height: 1.5rem
+
+    dt
+        display: inline-block
+        float: left
+        clear: both
+        font-weight: 400
+
+    dd
+        float: right
+        margin: 0 0 0 .5rem
+        font-weight: 400
+
+.navbar_company_select
+    .uniSelect
+        margin-bottom: .5rem
+
+    .uniSelect > .uniSelect_input[role=combobox][readonly],
+    .uniSelect_dropdown
+        width: calc(100% + 1rem)
+        margin-left: -.5rem
+
+    .uniSelect > .uniSelect_input[role=combobox][readonly]
+        margin-top: .3rem
+        font-size: 1.1rem
+        font-weight: 400
+        height: 1.7rem
+        color: $uni-color-scale3
+        background-color: transparent
+        border-style: dotted
+        border-color: $uni-color-scale9
+        border-right-color: $uni-color-scale9
+
+        &:hover,
+        &:focus
+            border-style: solid
+            border-color: $uni-color-C2A
+
+.navbar_company_activeYear,
+.navbar_company_taxyearselect
+    float: right
+
+.navbar_company_taxyearselect
+    .uniSelect,
+    .uniSelect_dropdown,
+    .uniSelect_dropdown ul.uniSelect_dropdown_list
+        min-width: 6.2rem
+        width: 6.2rem
+
+
+button.navbar_company_logout
+    &,
+    &:focus,
+    &:hover
+    background: none
+    box-shadow: none
+    text-shadow: none
+    margin: 0
+    padding: 0
+    color: $uni-color-Bad
+    float: right
+
+    &:focus,
+    &:hover
+        text-decoration: underline
+
+@include media(large, max-width)
+    .navbar_company_title
+        overflow: hidden
+        text-indent: -999rem
+        width: 1rem
+        height: 1rem
+        font-size: 0

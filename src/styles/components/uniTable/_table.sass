@@ -92,6 +92,34 @@ uni-table
     table:not(.editable-table) tr
         cursor: pointer
 
+th:last-of-type
+    position: relative
+
+    unitable-column-menu
+        position: absolute
+        width: 100%
+        height: 100%
+        top: 0
+        left: 0
+
+        .column-menu-toggle
+            float: none
+            height: 100%
+            width: 100%
+            margin: 0
+            border: none
+            padding: 0
+
+uni-table
+    input[type=checkbox]
+        clip: auto
+        height: auto
+        margin: auto
+        overflow: visible
+        position: static
+        width: auto
+        height: 100%
+
 unitable-editor
     .autocomplete_input,
     input[type=email],

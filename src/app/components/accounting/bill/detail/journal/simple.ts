@@ -2,7 +2,7 @@ import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} 
 import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
 import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/unitoast/toastservice';
-import {safeDec, safeInt, trimLength} from '../../../../timetracking/utils/utils';
+import {safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
 import {checkGuid} from '../../../../../services/common/dimensionservice';
 import {FinancialYearService} from '../../../../../services/services';
@@ -25,6 +25,7 @@ export class BillSimpleJournalEntryView {
     public current: SupplierInvoice;
     public costItems: Array<JournalEntryLineDraft> = [];
     public tableConfig: ITableConfig;
+    public journalEntryNumber: string;
 
     public sumVat: number = 0;
     public sumRemainder: number = 0;
@@ -49,14 +50,18 @@ export class BillSimpleJournalEntryView {
 
     private initFromInvoice(invoice: SupplierInvoice) {
         this.hasMultipleEntries = false;
-        this.analyzeEntries(invoice);        
+        this.analyzeEntries(invoice);
+        this.journalEntryNumber = invoice && invoice.JournalEntry ? invoice.JournalEntry.JournalEntryNumber : undefined;
         if (this.editable) {
             this.editable.closeEditor();
         }
     }
 
-    private clear() {
+    public clear() {
         this.isReadOnly = false;
+        this.sumRemainder = 0;
+        this.sumVat = 0;
+        this.journalEntryNumber = '';
         this.costItems.length = 0; 
         this.ensureWeHaveSingleEntry();
     }
@@ -150,9 +155,9 @@ export class BillSimpleJournalEntryView {
                     { 
                         route: 'accounts', 
                         select: 'AccountNumber,AccountName,ID', visualKey: 'AccountNumber', 
-                        blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999',
+                        blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999 and setornull(visible)',
                         model: 'account',
-                        expand: 'VatType' 
+                        expand: 'VatType', filter: 'setornull(visible)' 
                     }),
                 new Column('VatTypeID', '', ColumnType.Integer, 
                     {
@@ -167,9 +172,11 @@ export class BillSimpleJournalEntryView {
                 new Column('delete', '', ColumnType.Action)
             ],
             events: {
+
                 onChange: (event: IChangeEvent) => {
                     return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
                 }, 
+
                 onStartEdit: (info: IStartEdit) => {
                     if (this.isReadOnly) {
                         info.cancel = true;
@@ -180,6 +187,7 @@ export class BillSimpleJournalEntryView {
                         this.calcRemainder();
                     }
                 },
+
                 onTypeSearch: details => {
                     if (details.columnDefinition.name === 'Amount') {
                         this.createGrossValueData(details);
@@ -187,7 +195,9 @@ export class BillSimpleJournalEntryView {
                         this.lookup.onTypeSearch(details);
                     }
                 },
+
                 onCopyCell: (details: ICopyEventDetails) => {
+                    if (details.position.row <= 0) { return; }
                     var row = this.costItems[details.position.row];
                     var rowAbove = this.costItems[details.position.row - 1];
                     switch (details.columnDefinition.name) {
@@ -196,7 +206,7 @@ export class BillSimpleJournalEntryView {
                             row.AccountID = rowAbove.AccountID;
                             row.VatType = rowAbove.VatType;
                             row.VatTypeID = rowAbove.VatTypeID;
-                            this.checkRowSum(row);
+                            this.checkRowSum(row, details.position.row);
                             break; 
                         case 'VatTypeID':
                             row.VatType = rowAbove.VatType;
@@ -219,10 +229,13 @@ export class BillSimpleJournalEntryView {
         };
     }
 
-    private checkRowSum(row: JournalEntryLineDraft) {
-        if (!(row.Amount && this.sumRemainder)) {
+    private checkRowSum(row: JournalEntryLineDraft, rowIndex: number) {
+        if ((!row.Amount) && (this.sumRemainder)) {
             row.Amount = this.sumRemainder;
-        }        
+        }
+        if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
+            row.Description = capitalizeSentence(this.current.Supplier.Info.Name, 2);            
+        }
     }
 
     private createGrossValueData(details: ITypeSearch) {
@@ -251,6 +264,7 @@ export class BillSimpleJournalEntryView {
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
+        if (this.isReadOnly) { return; }
         this.editable.closeEditor();
         var line = this.costItems[rowIndex];
         var actualRowIndex = line['_rowIndex'];
@@ -294,7 +308,7 @@ export class BillSimpleJournalEntryView {
                     line.AccountID = change.lookupValue.ID;
                     line.VatTypeID = change.lookupValue.VatTypeID;
                     line.VatType = change.lookupValue.VatType;
-                    this.checkRowSum(line);
+                    this.checkRowSum(line, change.row);
                 } else {
                     this.toast.addToast('no lookupvalue: ' + change.value, ToastType.warn, 4);
                 }

@@ -1,14 +1,13 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import {Observable} from 'rxjs/Rx';
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
-import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {ProjectService, DepartmentService, AddressService, ReportDefinitionService, UserService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
+import {FieldType, CustomerQuote, Customer, User} from '../../../../unientities';
 import {Address, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
@@ -19,7 +18,12 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import { ISummaryConfig } from '../../../common/summary/summary';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 
 declare const _;
 declare const moment;
@@ -42,6 +46,7 @@ export class QuoteDetails {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     public config: any = {};
     public fields: any[] = [];
@@ -64,37 +69,61 @@ export class QuoteDetails {
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
-
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
+    ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    constructor(
-        private customerService: CustomerService,
-        private customerQuoteService: CustomerQuoteService,
-        private customerQuoteItemService: CustomerQuoteItemService,
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private addressService: AddressService,
-        private businessRelationService: BusinessRelationService,
-        private reportDefinitionService: ReportDefinitionService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
+    constructor(private customerService: CustomerService,
+                private customerQuoteService: CustomerQuoteService,
+                private customerQuoteItemService: CustomerQuoteItemService,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService,
+                private addressService: AddressService,
+                private businessRelationService: BusinessRelationService,
+                private reportDefinitionService: ReportDefinitionService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
+                private userService: UserService,
+                private numberFormat: NumberFormat,
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper) {
 
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService) { }
-
-    public ngOnInit() {
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
             this.setSums();
             this.setup();
         });
+
+        this.contextMenuItems = [
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerQuote';
+                    sendemail.EntityID = this.quote.ID;
+                    sendemail.CustomerID = this.quote.CustomerID;
+                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+  
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                        });
+                    }
+                },
+                disabled: () => !this.quote.ID
+            }
+        ];
     }
     private log(err) {
-        this.toastService.addToast(err._body, ToastType.bad);
+        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
     }
 
     private getStatustrackConfig() {
@@ -152,20 +181,25 @@ export class QuoteDetails {
         this.router.navigateByUrl('/sales/quotes/0');
     }
 
-    public change(value: CustomerQuote) { }
-
     public ready(event) {
         this.setupSubscriptions(null);
     }
 
     private setupSubscriptions(event) {
-        this.form.field('CustomerID')
-            .changeEvent
-            .subscribe((data) => {
-                if (data) {
-                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
+        Observable.merge(
+            this.form.field('CustomerID')
+                .changeEvent
+                .map(uniField => uniField['CustomerID']),
+            this.route.params
+                .filter(params => !!params['customerID'])
+                .map(params => +params['customerID'])
+        )
+            .subscribe(customerID => {
+                if (customerID) {
+                    this.quote.CustomerID = customerID;
+                    this.customerService.Get(customerID, this.customerExpandOptions).subscribe((customer: Customer) => {
                         let keepEntityAddresses: boolean = true;
-                        if (this.quote.Customer && this.quote.CustomerID !== this.quote.Customer.ID) {
+                        if (this.quote.Customer && customerID !== this.quote.Customer.ID) {
                             keepEntityAddresses = false;
                         }
 
@@ -219,16 +253,20 @@ export class QuoteDetails {
                         : this.customerQuoteService.newCustomerQuote()
                 ),
                 this.customerService.GetAll(null, ['Info']),
-                this.addressService.GetNewEntity(null, 'address')
+                this.addressService.GetNewEntity(null, 'address'),
+                this.quoteID ? Observable.of(null) : this.userService.getCurrentUser()
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.quote = response[2];
                 this.customers = response[3];
                 this.emptyAddress = response[4];
+                const currentUser = response[5];
+
+                if (!this.quoteID) {
+                    this.quote.OurReference = currentUser.DisplayName;
+                }
 
                 // Add a blank item in the dropdown controls
-                this.dropdownData[0].unshift(null);
-                this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
                 this.addressService.setAddresses(this.quote);
@@ -368,14 +406,16 @@ export class QuoteDetails {
             title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
             subheads: [
                 { title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : '' },
-                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' }
+                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' },
+                { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
                 add: this.addQuote.bind(this)
-            }
+            },
+            contextmenu: this.contextMenuItems
         };
     }
 
@@ -487,30 +527,10 @@ export class QuoteDetails {
         }
 
         this.recalcTimeout = setTimeout(() => {
-
-            quoteItems.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
-            this.customerQuoteService.calculateQuoteSummary(quoteItems)
-                .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.updateSaveActions();
-                    this.updateToolbar();
-                    this.setSums();
-                },
-                (err) => {
-                    console.log('Error when recalculating items:', err);
-                    this.log(err);
-                });
-        }, 2000);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+            this.updateToolbar();
+            this.setSums();
+        }, 500);
     }
 
     private deleteItem(item: CustomerQuoteItem) {
@@ -536,23 +556,15 @@ export class QuoteDetails {
 
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
         this.saveQuote(done, (quote) => {
-            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
-                console.log('== TRANSITION OK ' + transition + ' ==');
-                done(doneText);
-
-                this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
-                    this.quote = data;
-                    this.addressService.setAddresses(this.quote);
-                    this.updateSaveActions();
-                    this.updateToolbar();
-                    this.setTabTitle();
-                    this.ready(null);
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition)
+                .subscribe((transitionData: any) => {
+                    done(doneText);
+                    this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                }, (err) => {
+                    console.log('Feil oppstod ved ' + transition + ' transition', err);
+                    done('Feilet');
+                    this.log(err);
                 });
-            }, (err) => {
-                console.log('Feil oppstod ved ' + transition + ' transition', err);
-                done('Feilet');
-                this.log(err);
-            });
         });
     }
 
@@ -619,58 +631,51 @@ export class QuoteDetails {
             this.customerQuoteService.Post(this.quote)
                 .subscribe(
                 (quoteSaved) => {
-                    this.customerQuoteService.Get(quoteSaved.ID, this.expandOptions).subscribe(newQuote => {
-                        this.quote = newQuote;
-                        this.addressService.setAddresses(this.quote);
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
-                        this.ready(null);
+                    if (next) {
+                        next(quoteSaved);
+                    } else {
+                        done('Tilbud lagret');
+                    }
 
-                        if (next) {
-                            next(this.quote);
-                        } else {
-                            done('Tilbud lagret');
-                        }
-                    });
+                    this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
                 },
                 (err) => {
                     console.log('Feil oppsto ved lagring', err);
                     this.log(err);
                     done('Lagring feilet');
                 }
-                );
+            );
         }
     }
 
     private setSums() {
         this.summary = [{
-            value: this.itemsSummaryData ? this.itemsSummaryData.SumNoVatBasis.toString() : null,
-            title: 'Avgiftsfritt',
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
+                title: 'Avgiftsfritt',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumVatBasis.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
                 title: 'Avgiftsgrunnlag',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumDiscount.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
                 title: 'Sum rabatt',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
                 title: 'Nettosum',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumVat.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
                 title: 'Mva',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.DecimalRounding.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
                 title: 'Øreavrunding',
             }, {
-                value: this.itemsSummaryData ? this.itemsSummaryData.SumTotalIncVat.toString() : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
                 title: 'Totalsum',
             }];
     }
 
     private saveAndPrint(done) {
         this.saveQuote(done, (quote) => {
-            this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
+            this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, quote.ID);
                     done('Utskrift');

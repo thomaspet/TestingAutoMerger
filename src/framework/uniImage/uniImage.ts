@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, SimpleChanges, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
@@ -22,9 +22,9 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article (click)="onClick()" (clickOutside)="offClick()">
-            <picture #imageContainer *ngIf="imgUrl.length">
+            <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading}">
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-                <img [attr.src]="imgUrl" alt="">
+                <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()">
             </picture>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
@@ -35,7 +35,7 @@ export interface IUploadConfig {
             <ul class="uni-thumbnail-list">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
                     <img [attr.src]="thumbnail"
-                        [attr.alt]="files[idx]?.Description"
+                        [attr.alt]="shorten(files[idx]?.Description, 20)"
                         (click)="thumbnailClicked(idx)">
                 </li>
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
@@ -73,6 +73,14 @@ export class UniImage {
     @Input()
     public showFileID: number;
 
+    @Output()
+    public fileListReady: EventEmitter<File[]> = new EventEmitter<File[]>();
+
+    @Output()
+    public imageLoaded: EventEmitter<File> = new EventEmitter<File>();
+
+    public imageIsLoading: boolean = true;
+
     private baseUrl: string = AppConfig.BASE_URL_FILES;
 
     private token: any;
@@ -91,7 +99,7 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
 
-    constructor(private ngHttp: Http, private http: UniHttp, private imageUploader: ImageUploader, authService: AuthService) {
+    constructor(private ngHttp: Http, private http: UniHttp, authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.token;
@@ -99,12 +107,19 @@ export class UniImage {
         });
     }
 
+    public finishedLoadingImage() {
+        this.imageIsLoading = false;
+        if (this.files && this.currentFileIndex) {
+            this.imageLoaded.emit(this.files[this.currentFileIndex]);
+        }
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
         this.imgUrl = this.imgUrl2x = '';
         this.thumbnails = [];
 
         if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-            this.refreshFiles()
+            this.refreshFiles();
         } else if (changes['showFileID'] && this.files && this.files.length) {
             this.currentFileIndex = this.getChosenFileIndex();
             this.loadImage();
@@ -121,6 +136,7 @@ export class UniImage {
             .send()
             .subscribe((res) => {
                 this.files = res.json();
+                this.fileListReady.emit(this.files);
                 if (this.files.length) {
                     this.currentPage = 1;
                     this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
@@ -203,6 +219,9 @@ export class UniImage {
         }
 
         let size = this.size || UniImageSize.medium;
+
+        this.imageIsLoading = true;
+
         this.imgUrl2x = this.generateImageUrl(file, size * 2);
         this.imgUrl = this.generateImageUrl(file, size);
     }
@@ -210,6 +229,14 @@ export class UniImage {
     private generateImageUrl(file: File, width: number): string {
         let url = `${this.baseUrl}/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
         return encodeURI(url);
+    }
+
+    public shorten(str: string, length: number): string {
+        if (str && str.length > length) {
+            return str.substr(0, length - 3) + '...';
+        } else {
+            return str;
+        }
     }
 
     public uploadFileChange(event) {
@@ -254,6 +281,7 @@ export class UniImage {
             .subscribe((res) => {
                 this.uploading = false;
                 this.files.push(res);
+                this.fileListReady.emit(this.files);
                 this.currentFileIndex = this.files.length - 1;
                 this.loadImage();
                 if (!this.singleImage) {

@@ -140,12 +140,12 @@ export class BizHttp<T> {
             .map(response => response.json());
     }
 
-    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put): Observable<any> {
+    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put, parameters: string = null): Observable<any> {
         return this.http
             .usingBusinessDomain()
             .as(method)
             .withBody(entity)
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
+            .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send()
             .map(response => response.json());
     }

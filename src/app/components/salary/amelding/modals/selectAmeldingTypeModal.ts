@@ -19,6 +19,7 @@ export class SelectAmeldingTypeModalContent {
 
     public loadContent() {
         this.createFormConfig();
+        this.ameldingModel.type = 1;
     }
 
     public change(value) {
@@ -66,6 +67,7 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
             ameldType: 0,
             cancel: () => {
                 this.modal.getContent().then((component: SelectAmeldingTypeModalContent) => {
+                    this.ameldTypeChange.emit(999);
                     this.modal.close();
                 });
             },

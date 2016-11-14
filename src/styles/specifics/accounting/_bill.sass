@@ -14,7 +14,7 @@ supplier-invoice-table-minus
 
 .no-wrap
 	white-space: nowrap
-	display: inline-block
+	display: inline-block 
 
 .no-topmargin
 	margin-top: 0 !important
@@ -119,7 +119,9 @@ bill-simple-journalentry
 	th
 		text-align: left
 		font-weight: normal
-
+		text-overflow: ellipsis
+		overflow-x: hidden
+		white-space: nowrap
 	td
 		text-overflow: ellipsis
 		overflow-x: hidden
@@ -173,3 +175,19 @@ bill-simple-journalentry
 	td.warning
 		color: red
 		font-weight: bold
+
+.journalref
+	margin: 1rem
+	font-weight: bold
+
+
+.supplierinvoice-listview li a
+		white-space: nowrap
+
+@media all and (max-width: 800px)
+	uni-bill .horizontal_nav ul
+		justify-content: flex-start
+		
+	uni-bills .horizontal_nav ul
+		justify-content: flex-start
+			

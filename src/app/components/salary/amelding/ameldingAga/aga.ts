@@ -9,9 +9,14 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/m
 export class AmeldingAgaView {
     @Input() public currentSumUp: any;
     private agaTableConfig: UniTableConfig;
+    private showTable: boolean;
 
     constructor() {
         this.setupTableConfig();
+    }
+
+    public ngOnChanges() {
+        this.showTable = this.currentSumUp && this.currentSumUp.agadetails && (this.currentSumUp.agadetails.length > 0);
     }
 
     private setupTableConfig() {

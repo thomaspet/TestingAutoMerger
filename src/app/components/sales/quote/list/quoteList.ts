@@ -9,6 +9,9 @@ import {CustomerQuote} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'quote-list',
@@ -17,6 +20,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 export class QuoteList {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(UniTable) public table: UniTable;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private quoteTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -29,7 +33,8 @@ export class QuoteList {
     constructor(private router: Router,
         private customerQuoteService: CustomerQuoteService,
         private reportDefinitionService: ReportDefinitionService,
-        private tabService: TabService) {
+        private tabService: TabService,
+        private toastService: ToastService) {
 
         this.tabService.addTab({ name: 'Tilbud', url: '/sales/quotes', active: true, moduleID: UniModules.Quotes });
         this.setupQuoteTable();
@@ -41,23 +46,13 @@ export class QuoteList {
 
     public createQuote() {
         this.router.navigateByUrl('/sales/quotes/0');
-        //this.customerQuoteService.newCustomerQuote().then(quote => {
-        //    this.customerQuoteService.Post(quote)
-        //        .subscribe(
-        //        (data) => {
-        //            this.router.navigateByUrl('/sales/quotes/' + data.ID);
-        //        },
-        //        (err) => {
-        //            console.log('Error creating quote: ', err);
-        //            this.log(err);
-        //        }
-        //        );
-        //});
     }
 
     private setupQuoteTable() {
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
+            urlParams.set('expand', 'Customer');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'QuoteDate desc');
@@ -150,6 +145,26 @@ export class QuoteList {
             },
             disabled: (rowModel) => {
                 return false;
+            }
+        });
+
+        contextMenuItems.push({
+            label: 'Send på epost',
+            action: (quote: CustomerQuote) => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerQuote';
+                sendemail.EntityID = quote.ID;
+                sendemail.CustomerID = quote.CustomerID;
+                sendemail.Subject = 'Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd');
+            
+                this.sendEmailModal.openModal(sendemail);
+
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                    this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                    });
+                }
             }
         });
 

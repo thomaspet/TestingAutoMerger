@@ -11,6 +11,7 @@ var jsFiles = [
     require.resolve('lodash/lodash.min.js'),
     require.resolve('accounting/accounting.min.js'),
     require.resolve('../kendo/js/kendo.all.min.js'),
+    require.resolve('base64-js/base64js.min.js'),
 
     // file saver
     require.resolve('file-saver/FileSaver.min.js'),

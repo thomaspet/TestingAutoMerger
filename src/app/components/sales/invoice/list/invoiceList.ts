@@ -9,37 +9,40 @@ import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
 
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html'
 })
 export class InvoiceList implements OnInit {
-    @ViewChild(RegisterPaymentModal)
-    private registerPaymentModal: RegisterPaymentModal;
-
+    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
-
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-
     private summaryConfig: ISummaryConfig[];
 
     constructor(private uniHttpService: UniHttp,
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
                 private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private toastService: ToastService,
+                private numberFormat: NumberFormat) {
 
         this.setupInvoiceTable();
         this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
         this.summaryConfig = [
-            {title: 'Totalsum', value: '0'},
-            {title: 'Restsum', value: '0'},
-            {title: 'Sum krediter', value: '0'},
+            {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
+            {title: 'Restsum', value: this.numberFormat.asMoney(0)},
+            {title: 'Sum krediter', value: this.numberFormat.asMoney(0)},
         ];
     }
 
@@ -49,7 +52,6 @@ export class InvoiceList implements OnInit {
 
     public ngOnInit() {
         this.setupInvoiceTable();
-        this.onFiltersChange('');
     }
 
     public createInvoice() {
@@ -69,9 +71,10 @@ export class InvoiceList implements OnInit {
     }
 
     private setupInvoiceTable() {
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer, InvoiceReference');
+            urlParams.set('expand', 'Customer,InvoiceReference');
 
             if (urlParams.get('orderby') === null) {
                 urlParams.set('orderby', 'PaymentDueDate');
@@ -89,7 +92,7 @@ export class InvoiceList implements OnInit {
             }
         });
 
-        // TODO Forel�pig kun tilgjengelig for type Faktura, ikke for Kreditnota
+        // TODO Foreløpig kun tilgjengelig for type Faktura, ikke for Kreditnota
         contextMenuItems.push({
             label: 'Krediter',
             action: (rowModel) => {
@@ -204,13 +207,31 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
-                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, invoice.ID);
-                        // report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
-                        // this.reportDefinitionService.generateReportPdf(report);
                     }
                 });
+            }
+        });
+
+        contextMenuItems.push({
+            label: 'Send på epost',
+            action: (invoice: CustomerInvoice) => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerInvoice';
+                sendemail.EntityID = invoice.ID;
+                sendemail.CustomerID = invoice.CustomerID;
+                sendemail.Subject = 'Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                    this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                    });
+                }
             }
         });
 
@@ -286,9 +307,9 @@ export class InvoiceList implements OnInit {
         this.customerInvoiceService.getInvoiceSummary(filter)
             .subscribe((summary) => {
                 this.summaryConfig = [
-                    {title: 'Totalsum', value: summary.SumTotalAmount},
-                    {title: 'Restsum', value: summary.SumRestAmount},
-                    {title: 'Sum kreditert', value: summary.SumCreditedAmount},
+                    {title: 'Totalsum', value: this.numberFormat.asMoney(summary.SumTotalAmount)},
+                    {title: 'Restsum', value: this.numberFormat.asMoney(summary.SumRestAmount)},
+                    {title: 'Sum kreditert', value: this.numberFormat.asMoney(summary.SumCreditedAmount)},
                 ];
             });
     }

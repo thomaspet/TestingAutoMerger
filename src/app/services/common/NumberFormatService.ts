@@ -32,6 +32,20 @@ export class NumberFormat {
         return this.formatter(value, options);
     }
 
+    public asOrgNo(value: number) {
+        let _value: string = value + '';
+        return _value.substr(0, 3) + THINSPACE + _value.substr(3, 3) + THINSPACE + _value.substr(6);
+    }
+
+    public asBankAcct(value: number) {
+        if (value.toString().length !== 11) {
+            return value.toString();
+        }
+
+        let _value: string = value + '';
+        return _value.substr(0, 4) + '.' + _value.substr(4, 2) + '.' + _value.substr(6)
+    }
+
     private formatter(value: number, options: INumberOptions) {
         let stringValue = value.toString().replace(',', '.');
         stringValue = parseFloat(stringValue).toFixed(options.decimalLength);

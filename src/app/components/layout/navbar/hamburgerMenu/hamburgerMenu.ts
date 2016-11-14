@@ -69,8 +69,9 @@ export class HamburgerMenu {
                     {componentName: 'Legg til bruker', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true},
-                    {componentName: 'Oversikt over uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},
-                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.Reports}
+                    {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
+                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.Reports},
+                    {componentName: 'Oversikt over uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery}
                 ]
             },
             {
@@ -95,7 +96,8 @@ export class HamburgerMenu {
                     {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices', hidden: true},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
-                    {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery', moduleID: UniModules.Transquery},
+                    // KE: This is not really needed anymore - I'll just hide it for now, but the components should be removed when BA has approved new solution
+                    // {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery', moduleID: UniModules.Transquery},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails},
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},

@@ -32,6 +32,7 @@ import {ProjectDetails} from './dimensions/project/details/projectDetails';
 import {DepartmentList} from './dimensions/department/list/departmentList';
 import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
+import {SendEmailForm, SendEmailModal} from './modals/sendEmailModal';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
@@ -74,6 +75,8 @@ import {UniAttachments} from './attacments/uniAttachements';
         UniStatusTrack.StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
+        SendEmailForm,
+        SendEmailModal,
         UniSummary,
         ImageModal,
         ImageModalContent,
@@ -87,7 +90,10 @@ import {UniAttachments} from './attacments/uniAttachements';
         PhoneForm,
         RegisterPaymentForm,
         AltinnAuthenticationDataModalContent,
+        SendEmailForm,
+        SendEmailModal,
         ImageModalContent
+
     ],
     exports: [
         UniDimensions,
@@ -119,7 +125,10 @@ import {UniAttachments} from './attacments/uniAttachements';
         UniSummary,
         ImageModal,
         ImageModalContent,
-        UniAttachments
+        UniAttachments,
+        SendEmailForm,
+        SendEmailModal
+
     ]
 })
 export class AppCommonModule {

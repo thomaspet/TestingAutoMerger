@@ -81,6 +81,12 @@ export class UniAutocompleteConfig {
                     [attr.aria-selected]="selectedIndex === idx">
                     {{template(item)}}
                 </li>
+                <li class="poster_tags_addNew" *ngIf="field?.Options?.editor"
+                    (click)="openEditor()"
+                    (keydown.enter)="openEditor()"
+                    [attr.aria-selected]="selectedIndex === lookupResults.length"
+                >
+                    Opprett <strong> '{{control?.value}}'</strong>…</li>
             </ul>
         </div>
     `,
@@ -138,7 +144,7 @@ export class UniAutocompleteInput {
             this.control.setValue(this.initialDisplayValue, {emitEvent: false});
         });
 
-        this.control.valueChanges
+        var searchStream = this.control.valueChanges
             .debounceTime(this.options.debounceTime || 100)
             .filter((input: string) => {
                 return this.control.dirty;
@@ -147,14 +153,21 @@ export class UniAutocompleteInput {
                 this.isExpanded = false;
                 this.lookupResults = [];
                 return this.search(input);
-            })
-            .filter((items: any[]) => items.length > 0)
-            .subscribe((items: any[]) => {
-                this.selectedIndex = -1;
-                this.lookupResults = items;
-                this.isExpanded = true;
-                this.cd.markForCheck();
             });
+        if (this.field.Options && !this.field.Options.editor) {
+            searchStream = searchStream.filter(items => items.length > 0);
+        } 
+        
+        searchStream.subscribe((items: any[]) => {
+            if (this.control.value === '') {
+                this.selectedIndex = -1;
+            } else {
+                this.selectedIndex = 0;
+            }
+            this.lookupResults = items || [];
+            this.isExpanded = true;
+            this.cd.markForCheck();
+        });
     }
 
 
@@ -206,7 +219,9 @@ export class UniAutocompleteInput {
             return Observable.of([]);
         }
 
-        if (Array.isArray(this.source)) {
+        if (this.options.getDefaultData) {
+            return this.options.getDefaultData();
+        } else if (Array.isArray(this.source)) {
             return Observable.of([(<any[]> this.source).find((item) => {
                 return _.get(item, this.field.Options.valueProperty) === value;
             })]);
@@ -288,11 +303,12 @@ export class UniAutocompleteInput {
 
     private toggleAndSearch(input) {
         if (!this.isExpanded) {
-            let value = this.control.dirty? input : '';
+            let value = this.control.dirty ? input : '';
             this.search(value).toPromise().then((items: any[]) => {
                 this.selectedIndex = -1;
                 this.lookupResults = items;
                 this.open();
+                this.focus();
             });
         } else {
             this.close();
@@ -303,9 +319,16 @@ export class UniAutocompleteInput {
     private onKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
             case KeyCodes.TAB:
-            case KeyCodes.ENTER:
                 this.confirmSelection();
                 this.close();
+                break;
+            case KeyCodes.ENTER:
+                if (this.field.Options && this.field.Options.editor && this.selectedIndex === this.lookupResults.length) {
+                    this.openEditor(this.control.value);
+                } else {
+                    this.confirmSelection();
+                    this.close();
+                }
                 break;
             case KeyCodes.ESC:
                 this.isExpanded = false;
@@ -326,7 +349,7 @@ export class UniAutocompleteInput {
                 break;
             case KeyCodes.ARROW_UP:
                 event.preventDefault();
-                if (this.selectedIndex > 0) {
+                if (this.selectedIndex >= 0) {
                     this.selectedIndex--;
                     this.scrollToListItem();
                 }
@@ -338,7 +361,8 @@ export class UniAutocompleteInput {
                     return;
                 }
 
-                if (this.selectedIndex < (this.lookupResults.length - 1)) {
+                let limitDown = this.field.Options.editor ? this.lookupResults.length : this.lookupResults.length - 1;
+                if (this.selectedIndex < limitDown) {
                     this.selectedIndex++;
                     this.scrollToListItem();
                 }
@@ -349,9 +373,16 @@ export class UniAutocompleteInput {
         }
     }
 
+    private openEditor(event) {
+        this.field.Options.editor(this.control.value);
+    }
+
     private scrollToListItem() {
         const list = this.list.nativeElement;
         const currItem = list.children[this.selectedIndex];
+        if (!currItem) {
+            return;
+        }
         const bottom = list.scrollTop + list.offsetHeight - currItem.offsetHeight;
 
         if (currItem.offsetTop <= list.scrollTop) {

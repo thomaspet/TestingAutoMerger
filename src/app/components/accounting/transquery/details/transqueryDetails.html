@@ -3,26 +3,10 @@
     <uni-table
             [resource]="lookupFunction"
             [config]="uniTableConfig"
-            (filtersChange)="onFiltersChange($event.filter)"
-            (rowSelected)="rowSelected($event.rowModel)"
-    ></uni-table>
+            (filtersChange)="onFiltersChange($event.filter)">
+    </uni-table>
 
-    <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">
-        <dt>Sum debet</dt>
-        <dd>{{summaryData.SumDebit}}</dd>
-
-        <dt>Sum kreditt</dt>
-        <dd>{{summaryData.SumCredit}}</dd>
-
-        <dt>Sum reskontro</dt>
-        <dd>{{summaryData.SumLedger}}</dd>
-
-        <dt *ngIf="showTaxBasisAmount">Grunnlag MVA</dt>
-        <dd *ngIf="showTaxBasisAmount">{{summaryData.SumTaxBasisAmount}}</dd>
-
-        <dt>Saldo</dt>
-        <dd>{{summaryData.SumBalance}}</dd>
-    </dl>
+    <uni-summary [configs]="summary" *ngIf="summaryData" [attr.aria-busy]="busy"></uni-summary>
 </section>
 
 <image-modal></image-modal>

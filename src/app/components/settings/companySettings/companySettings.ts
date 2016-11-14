@@ -7,13 +7,19 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup} from '../../../unientities';
+import {
+    CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account,
+    BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
+} from '../../../unientities';
 import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, PhoneService, EmailService} from '../../../services/services';
 import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService, AddressService, AccountVisibilityGroupService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
 import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
+import {CompanyService} from '../../../services/common/CompanyService';
+import {AuthService} from '../../../../framework/core/authService';
+import {UniField} from '../../../../framework/uniform/unifield';
 
 declare const _;
 
@@ -41,6 +47,7 @@ export class CompanySettingsComponent implements OnInit {
     ];
 
     private company: CompanySettings;
+    public onlyCompanyModel: Company;
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
@@ -67,8 +74,10 @@ export class CompanySettingsComponent implements OnInit {
 
     public config: any = {};
     public fields: any[] = [];
+    public onlyCompanyConfig: any = {};
+    public onlyCompanyFields: any[] = this.generateOnlyCompanyFields();
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
             action: (event) => this.saveSettings(event),
@@ -77,7 +86,8 @@ export class CompanySettingsComponent implements OnInit {
         }
     ];
 
-    constructor(private companySettingsService: CompanySettingsService,
+    constructor(
+        private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
         private currencyService: CurrencyService,
         private accountGroupSetService: AccountGroupSetService,
@@ -91,11 +101,18 @@ export class CompanySettingsComponent implements OnInit {
         private phoneService: PhoneService,
         private emailService: EmailService,
         private toastService: ToastService,
-        private accountVisibilityGroupService: AccountVisibilityGroupService) {
+        private accountVisibilityGroupService: AccountVisibilityGroupService,
+        private companyService: CompanyService,
+        private authService: AuthService
+    ) {
     }
 
     public ngOnInit() {
         this.getDataAndSetupForm();
+        this.companyService.Get(this.authService.activeCompany.ID).subscribe(
+            company => this.onlyCompanyModel = company,
+            err => console.log('Error while getting company info:', err)
+        );
     }
 
     private getDataAndSetupForm() {
@@ -476,6 +493,37 @@ export class CompanySettingsComponent implements OnInit {
                 });
             })
         };
+    }
+
+    private generateInvoiceEmail() {
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
+            .subscribe(
+                company => this.onlyCompanyModel = company,
+                err => console.log('Error while getting company information:', err)
+            );
+    }
+
+    public generateOnlyCompanyFields(): UniField[] {
+        return [
+            <any>{
+                FieldType: FieldType.TEXT,
+                Label: 'Faktura e-mail',
+                Property: 'FileFlowEmail',
+                Placeholder: 'Trykk på knapp for å generere',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                ReadOnly: true
+            },
+            <any>{
+                FieldType: FieldType.COMBOBOX,
+                Label: 'Generer faktura epost adresse',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                Options: {
+                    click: () => this.generateInvoiceEmail()
+                }
+            }
+        ];
     }
 
     private getFormLayout() {

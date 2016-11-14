@@ -7,7 +7,7 @@ import {FieldType} from '../../../unientities';
 @Component({
     selector: 'register-payment-form',
     template: `
-        <article class='modal-content email-modal' *ngIf="config">
+        <article class='modal-content register-payment-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (changeEvent)="onSubmit($event)" (submitEvent)="onSubmit($event)"></uni-form>
             <footer>
@@ -125,14 +125,6 @@ export class RegisterPaymentModal {
             title: 'Registrer betaling',
             actions: [
                 {
-                    text: 'Avbryt',
-                    method: () => {
-                        self.modal.close();
-                        self.canceled.emit(true);
-                        return false;
-                    }
-                },
-                {
                     text: 'Registrer betaling',
                     class: 'good',
                     method: () => {
@@ -141,6 +133,14 @@ export class RegisterPaymentModal {
                            id: self.invoiceID,
                            invoice: self.modalConfig.model 
                         });
+                        return false;
+                    }
+                },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        self.modal.close();
+                        self.canceled.emit(true);
                         return false;
                     }
                 }

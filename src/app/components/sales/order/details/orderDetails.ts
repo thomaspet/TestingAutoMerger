@@ -1,8 +1,7 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
-import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
+import {Observable} from 'rxjs/Rx';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService, UserService} from '../../../../services/services';
 import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -18,6 +17,12 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 
 declare const _;
 
@@ -41,6 +46,7 @@ export class OrderDetails {
     @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     public config: any = {};
     public fields: any[] = [];
@@ -67,6 +73,8 @@ export class OrderDetails {
 
     private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
+    public summary: ISummaryConfig[] = [];
 
     constructor(private customerService: CustomerService,
                 private customerOrderService: CustomerOrderService,
@@ -78,19 +86,45 @@ export class OrderDetails {
                 private businessRelationService: BusinessRelationService,
                 private companySettingsService: CompanySettingsService,
                 private toastService: ToastService,
-
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private userService: UserService,
+                private numberFormat: NumberFormat,
+                private tradeItemHelper: TradeItemHelper) {
 
         this.route.params.subscribe(params => {
             this.orderID = +params['id'];
+            this.setSums();
             this.setup();
         });
+
+        this.contextMenuItems = [
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerOrder';
+                    sendemail.EntityID = this.order.ID;
+                    sendemail.CustomerID = this.order.CustomerID;
+                    sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                         
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                        });
+                    }
+                },
+                disabled: () => !this.order.ID
+            }
+        ];
     }
 
     private log(err) {
-        this.toastService.addToast(err._body, ToastType.bad);
+        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
     }
 
     private getStatustrackConfig() {
@@ -145,35 +179,28 @@ export class OrderDetails {
     }
 
     public addOrder() {
-        this.customerOrderService.newCustomerOrder().then(order => {
-            this.customerOrderService.Post(order)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/orders/' + data.ID);
-                    },
-                    (err) => {
-                        console.log('Error creating order: ', err);
-                        this.log(err);
-                    }
-                );
-        });
+        this.router.navigateByUrl('/sales/orders/0');
     }
-
-    public change(value: CustomerOrder) { }
 
     public ready(event) {
         this.setupSubscriptions(null);
     }
 
     private setupSubscriptions(event) {
-        this.form.field('CustomerID')
-            .changeEvent
-            .subscribe((data) => {
-                if (data) {
-                    this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
-
+        Observable.merge(
+            this.form.field('CustomerID')
+                .changeEvent
+                .map(uniField => uniField['CustomerID']),
+            this.route.params
+                .filter(params => !!params['customerID'])
+                .map(params => +params['customerID'])
+        )
+            .subscribe(customerID => {
+                if (customerID) {
+                    this.customerService.Get(customerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
+                        this.order.CustomerID = customerID;
                         let keepEntityAddresses: boolean = true;
-                        if (this.order.Customer && this.order.CustomerID !== this.order.Customer.ID) {
+                        if (this.order.Customer && customerID !== this.order.Customer.ID) {
                             keepEntityAddresses = false;
                         }
 
@@ -202,7 +229,7 @@ export class OrderDetails {
             .subscribe(settings => this.companySettings = settings,
                 err => {
                     console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                 });
 
         if (!this.formIsInitialized) {
@@ -211,18 +238,26 @@ export class OrderDetails {
             Observable.forkJoin(
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
-                this.customerOrderService.Get(this.orderID, this.expandOptions),
+                (
+                    this.orderID > 0 ?
+                        this.customerOrderService.Get(this.orderID, this.expandOptions)
+                        : this.customerOrderService.newCustomerOrder()
+                ),
                 this.customerService.GetAll(null, ['Info']),
-                this.addressService.GetNewEntity(null, 'address')
+                this.addressService.GetNewEntity(null, 'address'),
+                this.orderID ? Observable.of(null) : this.userService.getCurrentUser()
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.order = response[2];
                 this.customers = response[3];
                 this.emptyAddress = response[4];
+                const currentUser = response[5];
+
+                if (!this.orderID) {
+                    this.order.OurReference = currentUser.DisplayName;
+                }
 
                 // Add a blank item in the dropdown controls
-                this.dropdownData[0].unshift(null);
-                this.dropdownData[1].unshift(null);
                 this.customers.unshift(null);
 
                 this.addressService.setAddresses(this.order);
@@ -233,11 +268,14 @@ export class OrderDetails {
 
                 this.formIsInitialized = true;
             }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
             });
         } else {
-            this.customerOrderService.Get(this.orderID, this.expandOptions)
+            const source = this.orderID > 0 ?
+                this.customerOrderService.Get(this.orderID, this.expandOptions)
+                : Observable.fromPromise(this.customerOrderService.newCustomerOrder());
+
+            source
                 .subscribe((order) => {
                     this.order = order;
                     this.addressService.setAddresses(this.order);
@@ -245,7 +283,7 @@ export class OrderDetails {
                     this.updateToolbar();
                 } , (err) => {
                     console.log('Error retrieving data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
+                    this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                 });
         }
     }
@@ -353,14 +391,16 @@ export class OrderDetails {
             title: this.order.Customer ? (this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name) : this.order.CustomerName,
             subheads: [
                 {title: this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber + '.' : ''},
-                {title: !this.itemsSummaryData ? 'Netto kr ' + this.order.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'}
+                {title: !this.itemsSummaryData ? 'Netto kr ' + this.order.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'},
+                {title: GetPrintStatusText(this.order.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousOrder.bind(this),
                 next: this.nextOrder.bind(this),
                 add: this.addOrder.bind(this)
-            }
+            },
+            contextmenu: this.contextMenuItems
         };
     }
 
@@ -419,7 +459,8 @@ export class OrderDetails {
         return true;
     }
     private IsSaveDisabled() {
-        if (this.order.StatusCode === StatusCodeCustomerOrder.Draft ||
+        if (!this.order.StatusCode ||
+            this.order.StatusCode === StatusCodeCustomerOrder.Draft ||
             this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
             this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
             return false;
@@ -441,29 +482,10 @@ export class OrderDetails {
         }
 
         this.recalcTimeout = setTimeout(() => {
-
-            orderItems.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
-            this.customerOrderService.calculateOrderSummary(orderItems)
-                .subscribe((data) => {
-                        this.itemsSummaryData = data;
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                    },
-                    (err) => {
-                        console.log('Error when recalculating items:', err);
-                        this.log(err);
-                    });
-        }, 2000);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems);
+            this.updateToolbar();
+            this.setSums();
+        }, 500);
     }
 
     private deleteItem(item: CustomerOrderItem) {
@@ -563,34 +585,79 @@ export class OrderDetails {
             return;
         }
 
-        this.customerOrderService.Put(this.order.ID, this.order)
-            .subscribe(
-                (orderSaved) => {
-                    this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
-                        this.order = orderGet;
-                        this.addressService.setAddresses(this.order);
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
+        if (this.orderID > 0) {
+            this.customerOrderService.Put(this.order.ID, this.order)
+                .subscribe(
+                    (orderSaved) => {
+                        this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
+                            this.order = orderGet;
+                            this.addressService.setAddresses(this.order);
+                            this.updateSaveActions();
+                            this.updateToolbar();
+                            this.setTabTitle();
 
+                            if (next) {
+                                next(this.order);
+                            } else {
+                                done('Ordre lagret');
+                            }
+                        });
+                    },
+                    (err) => {
+                        console.log('Feil oppsto ved lagring', err);
+                        done('Feil oppsto ved lagring');
+                        this.log(err);
+                    }
+                );
+        } else {
+            this.customerOrderService.Post(this.order)
+                .subscribe(
+                    (orderSaved) => {
                         if (next) {
                             next(this.order);
                         } else {
                             done('Ordre lagret');
                         }
-                    });
-                },
-                (err) => {
-                    console.log('Feil oppsto ved lagring', err);
-                    done('Feil oppsto ved lagring');
-                    this.log(err);
-                }
-            );
+
+                        this.router.navigateByUrl('/sales/orders/' + orderSaved.ID);
+                    },
+                    (err) => {
+                        console.log('Feil oppsto ved lagring', err);
+                        done('Feil oppsto ved lagring');
+                        this.log(err);
+                    }
+                );
+        }
+    }
+
+    private setSums() {
+        this.summary = [{
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
+                title: 'Avgiftsfritt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
+                title: 'Avgiftsgrunnlag',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
+                title: 'Sum rabatt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
+                title: 'Nettosum',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
+                title: 'Mva',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
+                title: 'Øreavrunding',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
+                title: 'Totalsum',
+            }];
     }
 
     private saveAndPrint(done) {
         this.saveOrder(done, (order) => {
-            this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+            this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, order.ID);
                     done('Utskrift startet');

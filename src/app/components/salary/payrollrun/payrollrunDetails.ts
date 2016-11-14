@@ -13,6 +13,7 @@ import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
 declare var _;
 
@@ -40,7 +41,13 @@ export class PayrollrunDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
 
-    constructor(private route: ActivatedRoute, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
+    constructor(
+        private route: ActivatedRoute, 
+        private payrollrunService: PayrollrunService, 
+        private router: Router, private tabSer: TabService, 
+        private _rootRouteParamsService: RootRouteParamsService,
+        private _toastService: ToastService
+    ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
             this._rootRouteParamsService.params = params;
@@ -57,27 +64,33 @@ export class PayrollrunDetails {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-
-                    if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
-                        this.busy = true;
-                        this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
-                            if (response) {
-                                this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
-                                    this.payrollrunService.refreshPayrun(payrollRun);
-                                }, error => {
+                    if (this.payrollrun.StatusCode < 1) {
+                        this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
+                    } else {
+                        if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+                            this.busy = true;
+                            this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
+                                if (response) {
+                                    this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
+                                        this.payrollrunService.refreshPayrun(payrollRun);
+                                    }, error => {
+                                        this.busy = false;
+                                        this.log(error);
+                                    });
+                                } else {
+                                    alert('fikk ikke nullstilt lønnsavregning');
                                     this.busy = false;
-                                    this.log(error);
-                                });
-                            } else {
-                                alert('fikk ikke nullstilt lønnsavregning');
+                                }
+                            }, error => {
                                 this.busy = false;
-                            }
-                        }, error => {
-                            this.busy = false;
-                            this.log(error);
-                        });
+                                this.log(error);
+                            });
+                        }
                     }
 
+                },
+                disabled: (rowModel) => {
+                    return this.payrollrun.StatusCode < 1;
                 }
             }
         ];
@@ -333,14 +346,17 @@ export class PayrollrunDetails {
         this.fields = _.cloneDeep(this.fields);
 
         if (!this.payrollrun.Description) {
-            setTimeout(() => {
-                if (!this.uniform.section(1).isOpen) {
-                    this.uniform.section(1).toggle();
-                }
-            }, 100);
+            this.uniform.section(1).toggle();
         }
-
     }
+
+    public toggle(section) {
+        if (section.isOpen && section.sectionId === 1 && this.payrollrun.Description === '') {
+            this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
+            this.uniform.field('Description').focus();
+        }
+    }
+
 
     public salarytransReady(value) {
         if (this.payrollrun) {

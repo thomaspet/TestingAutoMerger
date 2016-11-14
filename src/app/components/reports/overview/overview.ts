@@ -13,8 +13,7 @@ import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportF
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import {Observable} from 'rxjs/Rx';
 
 class ReportCategory {
     public name: string;
@@ -45,7 +44,7 @@ export class Overview {
     private customerAccountModal: CustomerAccountReportFilterModal;
     @ViewChild(SupplierAccountReportFilterModal)
     private supplierAccountModal: SupplierAccountReportFilterModal;
-    
+
     public reportCategories: Array<ReportCategory>;
 
     constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService, private uniQueryDefinitionService: UniQueryDefinitionService, private router: Router) {
@@ -92,14 +91,18 @@ export class Overview {
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
             this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null)
         ).subscribe(response => {
-            let reports = response[0].concat(response[1]);           
+            response[0].forEach(x => x.IsReport = true);
+            response[1].forEach(x => x.IsQuery = true);
+            let reportAndQueries = response[0].concat(response[1]);
+
             this.reportCategories = new Array<ReportCategory>();
 
-            for (const report of reports) {
-                if (report.Visible || !report.Category) {
+            for (const report of reportAndQueries) {
+                // array contains both reports and uniqueries, display visible reports and all uniqueries (for now)
+                if (report.Visible || report.IsQuery) {
                     let reportName = report.Category || report.MainModelName;
                     let reportCategory: ReportCategory = this.reportCategories.find(category => category.name === reportName);
-               
+
                     if (typeof reportCategory === 'undefined') {
                         reportCategory = new ReportCategory();
 
@@ -109,6 +112,7 @@ export class Overview {
 
                         this.reportCategories.push(reportCategory);
                     }
+
                     reportCategory.reports.push(report);
                 }
             }

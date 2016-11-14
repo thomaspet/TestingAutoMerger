@@ -561,7 +561,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Property: 'MunicipalityNo',
                     Placement: 7,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Kommune',

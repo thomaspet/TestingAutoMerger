@@ -5,7 +5,7 @@
                 <th class="left accountname">Konto</th>
                 <th class="center vattype">Mva.</th>
                 <th>Tekst</th>            
-                <th class="right sumcol">Bruttosum</th>
+                <th class="right sumcol">Sum</th>
                 <th class="actions"></th>
             </tr>
         </thead>
@@ -19,7 +19,8 @@
             </tr>
         </tbody>
     </table>
-    <table class="compact-summary">
+
+    <table *ngIf="!journalEntryNumber" class="compact-summary">
         <tr>
             <td>Differanse</td>
             <td [class.warning]="sumRemainder">{{ sumRemainder | unicurrency}}</td>
@@ -27,4 +28,13 @@
             <td>{{ sumVat | unicurrency}}</td>
         </tr>
     </table>
+
+    <footer *ngIf="journalEntryNumber">
+        <table class="compact-summary">
+            <tr>
+                <td>Sum Mva: {{ sumVat | unicurrency}}</td>
+            </tr>
+        </table>
+    </footer>
+
 </div>

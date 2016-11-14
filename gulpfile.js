@@ -97,7 +97,7 @@ require('./gulp/app-config');
 var tasks = {
     prod: [
         'app-config-prod',
-        'index.html',
+        'index.html.prod',
         'apidoc.html',
         'angular2',
         'dependencies',
@@ -122,7 +122,7 @@ var tasks = {
     ],
     pilot: [
         'app-config-pilot',
-        'index.html.dev',
+        'index.html.pilot',
         'apidoc.html',
         'angular2',
         'dependencies',

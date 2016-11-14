@@ -20,7 +20,9 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Til betaling', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delvis betalt', isPrimary: false },
-        { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true }
+        { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true },
+        { Code: 40001, Text: 'Arkivert', isPrimary: false },
+        { Code: 90001, Text: 'Avvist', isPrimary: false }
     ];
 
     constructor(http: UniHttp) {
@@ -110,7 +112,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     public getInvoiceList(urlSearchParams: URLSearchParams): Observable<any> {
         var flds = this.selectBuilder('ID', 'StatusCode', 
-            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 
+            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate', 
             'InvoiceNumber', 'BankAccount', 'PaymentInformation', 'TaxInclusiveAmount',
             'PaymentID', 'JournalEntry.JournalEntryNumber',
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name', 
@@ -126,6 +128,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             if (filter) {
                 route += ` and ( ${filter} )`;
             }
+            let top = urlSearchParams.get('top');
+            if (top) {
+                route += '&top=' + top;
+            }
         }
 
         return this.http.asGET().usingStatisticsDomain()
@@ -139,6 +145,28 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .withEndPoint(route).send()
         .map(response => response.json().Data);
     }
+
+    public fetch(route: string, urlSearchParams?: URLSearchParams): Observable<any> {
+        return this.send(route, urlSearchParams, 'GET');
+    }
+
+    public send(route: string, urlSearchParams?: URLSearchParams, method = 'POST', body?: any): Observable<any> {
+        var ht = this.http.asPOST();
+        switch (method.toUpperCase()) {
+            case 'GET':
+                ht = this.http.asGET();
+                break;
+            case 'PUT':
+                ht = this.http.asPUT();
+                break;
+            case 'DELETE':
+                ht = this.http.asDELETE();
+                break;            
+        }
+        return ht.usingBusinessDomain()
+        .withEndPoint(route).send( body ? { body: body } : undefined, urlSearchParams)
+        .map(response => response.json());
+    }    
 
     private selectBuilder(...args: any[]): string {
         var select = '';

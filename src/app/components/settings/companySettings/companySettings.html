@@ -6,12 +6,16 @@
 <article *ngIf="company">
 
     <uni-form class="companySettings"
-            [config]="config"
-            [fields]="fields"
-            [model]="company">
+              [config]="config"
+              [fields]="fields"
+              [model]="company">
     </uni-form>
 
-    <bankaccount-modal></bankaccount-modal>
+    <uni-form class="company"
+              [config]="onlyCompanyConfig"
+              [fields]="onlyCompanyFields"
+              [model]="onlyCompanyModel">
+    </uni-form>
 
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
@@ -37,5 +41,6 @@
 <email-modal></email-modal>
 <phone-modal></phone-modal>
 <address-modal></address-modal>
+<bankaccount-modal></bankaccount-modal>
 
 <uni-save [actions]="saveactions"></uni-save>

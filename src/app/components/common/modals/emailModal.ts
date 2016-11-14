@@ -122,14 +122,6 @@ export class EmailModal {
             title: 'Epost',
             actions: [
                 {
-                    text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                },
-                {
                     text: 'Lagre epost',
                     class: 'good',
                     method: () => {               
@@ -137,12 +129,20 @@ export class EmailModal {
                         this.Changed.emit(this.modalConfig.model);
                         return false;
                     }
+                },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        this.modal.close();
+                        this.Canceled.emit(true);
+                        return false;
+                    }
                 }
             ]
         };
     }
 
-    public openModal(email: Email) {  
+    public openModal(email: Email) {
         this.modalConfig.model = email;    
         this.modal.open();
     }

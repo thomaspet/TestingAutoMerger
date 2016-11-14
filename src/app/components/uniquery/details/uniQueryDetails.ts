@@ -5,7 +5,7 @@ import {URLSearchParams} from '@angular/http';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
-import {StatisticsService, UniQueryDefinitionService} from '../../../services/services';
+import {StatisticsService, UniQueryDefinitionService, StatusService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {RelationNode} from './relationNode';
 import {SaveQueryDefinitionModal} from './saveQueryDefinitionModal';
@@ -60,12 +60,17 @@ export class UniQueryDetails {
                 private statisticsService: StatisticsService,
                 private uniQueryDefinitionService: UniQueryDefinitionService,
                 private toastService: ToastService,
-                private authService: AuthService) {
+                private authService: AuthService,
+                private statusService: StatusService) {
 
         this.route.params.subscribe(params => {
             this.queryDefinitionID = +params['id'];
             this.setupModelData();
-            this.loadQueryDefinition();
+
+            // a lot of queries depend on the status cache being ready, load before loading the query
+            this.statusService.loadStatusCache().then(x => {
+                this.loadQueryDefinition();
+            });
         });
 
         let token = this.authService.getTokenDecoded();
@@ -257,7 +262,7 @@ export class UniQueryDetails {
             }
 
             // keep this for debugging for now
-            console.log('setupTableConfig, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
+            // console.log('setupTableConfig, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
 
             let col = new UniTableColumn(selectableColName, field.header, field.type || UniTableColumnType.Text);
             col.alias = aliasColName;
@@ -265,6 +270,11 @@ export class UniQueryDetails {
             col.width = field.width;
             col.sumFunction = field.sumFunction;
             col.type = field.type;
+
+            if (selectableColName.toLowerCase().endsWith('statuscode')) {
+                col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
+            }
+
             columns.push(col);
 
             if (field.path && field.path !== '') {
@@ -311,7 +321,12 @@ export class UniQueryDetails {
                 }
             );
         } else {
-            this.filters = this.filters.filter(filter => filter.value !== ':externalid');
+            expressionFilterValues.push(
+                {
+                    expression: 'externalid',
+                    value: '1'
+                }
+            );
         }
 
         // Setup table
@@ -332,6 +347,11 @@ export class UniQueryDetails {
                 return tmp;
             })
             .setColumns(columns);
+    }
+
+    private statusCodeToText(statusCode: number): string {
+        let text: string = this.statusService.getStatusText(statusCode);
+        return text || (statusCode ? statusCode.toString() : '');
     }
 
     private exportReportToExcel(completeEvent) {
@@ -371,7 +391,7 @@ export class UniQueryDetails {
             }
 
             // keep this for debugging for now
-            console.log('exportReportToExcel, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
+            // console.log('exportReportToExcel, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
 
             if (field.path && field.path !== '') {
                 if (field.path.indexOf('(') === -1) {
@@ -651,7 +671,6 @@ export class UniQueryDetails {
     }
 
     private addOrRemoveField(model, fieldname, field, path) {
-        console.log('model,', model, 'field', field);
         if (!this.editMode) {
             alert('Du kan ikke legge til eller fjerne felter uten å først velge "Endre uttrekk" i knappen nederst i skjermbildet');
             return;

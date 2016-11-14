@@ -15,21 +15,20 @@
                   [config]="config"
                   [fields]="fields"
                   [model]="quote"
-                  (changeEvent)="change($event)"
                   (readyEvent)="ready($event)">
         </uni-form>
         <address-modal question="Lagre på kundekort?"></address-modal>
 
         <quote-item-list *ngIf="quote && dropdownData" [quote]="quote" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></quote-item-list>
-        <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
-        <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+        <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>
 
-<article class="quote-detail-document">
+<article class="application">
     <uni-image [entity]="'quote'" [entityID]="quote?.ID"></uni-image>
 </article>
 
+<send-email-modal></send-email-modal>
 <report-preview-modal></report-preview-modal>
 
 <footer class="full-footer">

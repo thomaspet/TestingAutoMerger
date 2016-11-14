@@ -56,6 +56,7 @@ import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {TimetrackingModule} from '../timetracking/timetrackingmodule';
+import {BillHistoryView} from './bill/detail/history/history';
 
 @NgModule({
     imports: [
@@ -99,7 +100,7 @@ import {TimetrackingModule} from '../timetracking/timetrackingmodule';
         SupplierInvoiceDetail,
         BillsView,
         BillView,
-        BillSimpleJournalEntryView,
+        BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
 
         // vatreport

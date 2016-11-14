@@ -5,6 +5,7 @@
     "filesaver": "github:DefinitelyTyped/DefinitelyTyped/FileSaver/FileSaver.d.ts#d21f1bd1fd079bbc18bc88ed71d2be7f5707e33a"
   },
   "globalDependencies": {
-    "filesaver": "github:DefinitelyTyped/DefinitelyTyped/FileSaver/FileSaver.d.ts#d21f1bd1fd079bbc18bc88ed71d2be7f5707e33a"
+    "filesaver": "github:DefinitelyTyped/DefinitelyTyped/FileSaver/FileSaver.d.ts#d21f1bd1fd079bbc18bc88ed71d2be7f5707e33a",
+    "base64-js": "github:DefinitelyTyped/DefinitelyTyped/base64-js/base64-js.d.ts#191bc9e02d72d02c6c95bbb6cf5ebd1474a49a51"
   }
 }

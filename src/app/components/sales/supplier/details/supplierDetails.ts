@@ -5,13 +5,16 @@ import 'rxjs/add/observable/forkJoin';
 
 import {DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from '../../../../services/services';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
-
-import {Supplier, Email, Phone, Address, FieldType} from '../../../../unientities';
+import {IReference} from '../../../../models/iReference';
+import {Supplier, Email, Phone, Address, FieldType, BankAccount} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
+import {BankAccountModal} from '../../../common/modals/modals';
+import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 
 declare var _; // lodash
 
@@ -26,6 +29,7 @@ export class SupplierDetails implements OnInit {
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
+    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
 
     private supplierID: number;
     private config: any = {};
@@ -33,6 +37,7 @@ export class SupplierDetails implements OnInit {
     private addressChanged: any;
     private phoneChanged: any;
     private emailChanged: any;
+    private bankAccountChanged: any;
 
     private dropdownData: any;
     private supplier: Supplier;
@@ -41,9 +46,11 @@ export class SupplierDetails implements OnInit {
     private emptyPhone: Phone;
     private emptyEmail: Email;
     private emptyAddress: Address;
-    private bankAccounts: any;
+    private emptyBankAccount: BankAccount;
+    public reportLinks: IReference[];
+    public showReportWithID: number;
 
-    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
+    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'DefaultBankAccount'];
 
     private formIsInitialized: boolean = false;
 
@@ -56,6 +63,15 @@ export class SupplierDetails implements OnInit {
         }
     ];
 
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Leverandør',
+        navigation: {
+            prev: this.previousSupplier.bind(this),
+            next: this.nextSupplier.bind(this),
+            add: this.addSupplier.bind(this)
+        }
+    };
+
     constructor(private departmentService: DepartmentService,
                 private projectService: ProjectService,
                 private supplierService: SupplierService,
@@ -66,7 +82,8 @@ export class SupplierDetails implements OnInit {
                 private addressService: AddressService,
                 private bankaccountService: BankAccountService,
                 private tabService: TabService,
-                private toastService: ToastService
+                private toastService: ToastService,
+                private uniQueryDefinitionService: UniQueryDefinitionService
     ) {}
 
     public ngOnInit() {
@@ -74,6 +91,11 @@ export class SupplierDetails implements OnInit {
             this.route.params.subscribe(params => {
                 this.supplierID = +params['id'];
                 this.setup();
+
+                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
+                    links => this.reportLinks = links,
+                    err => console.log('Error loading queries:', err)
+                );
             });
         }
     }
@@ -109,10 +131,6 @@ export class SupplierDetails implements OnInit {
         this.router.navigateByUrl('/sales/suppliers/0');
     }
 
-    private change(model) {
-
-    }
-
     public ready() {
         if (this.supplier.ID === 0) {
             this.form.field('Info.Name')
@@ -128,11 +146,19 @@ export class SupplierDetails implements OnInit {
 
     private setTabTitle() {
         if (this.modalMode) { return; }
-        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)';
+        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Ny leverandør';
         this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
+
+        this.toolbarconfig.title = this.supplier.ID ? this.supplier.Info.Name : 'Ny leverandør';
+        this.toolbarconfig.subheads = this.supplier.ID ? [{title: 'Leverandørnr. ' + this.supplier.SupplierNumber}] : [];
+    }
+
+    public showReport(id: number) {
+        this.showReportWithID = id;
     }
 
     private setup() {
+        this.showReportWithID = null;
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -147,15 +173,20 @@ export class SupplierDetails implements OnInit {
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
-                this.bankaccountService.GetAll(''),
-                this.addressService.GetNewEntity(null, 'Address')
+                this.addressService.GetNewEntity(null, 'Address'),
+                this.bankaccountService.GetNewEntity()
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
-                this.supplier = response[2];
+
+
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
-                this.bankAccounts = response[5];
                 this.emptyAddress = response[5];
+                this.emptyBankAccount = response[6];
+
+                let supplier = response[2];
+                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
+                this.supplier = supplier;
 
                 this.setTabTitle();
                 this.extendFormConfig();
@@ -178,7 +209,9 @@ export class SupplierDetails implements OnInit {
                         : this.supplierService.GetNewEntity(this.expandOptions)
                 )
             ).subscribe(response => {
-                this.supplier = response[0];
+                let supplier = response[0];
+                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
+                this.supplier = supplier;
                 this.setTabTitle();
 
                 setTimeout(() => {
@@ -383,6 +416,31 @@ export class SupplierDetails implements OnInit {
                 return this.addressService.displayAddress(address);
             }
         };
+
+        let defaultBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultBankAccount');
+        defaultBankAccount.Options = {
+            allowAddValue: false,
+            entity: 'BankAccount',
+            listProperty: 'BankAccounts',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            storeResultInProperty: 'DefaultBankAccountID',
+            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
+                if (!bankaccount) {
+                    bankaccount = new BankAccount();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                    bankaccount.BankAccountType = 'supplier';
+                    bankaccount.ID = 0;
+                }
+
+                this.bankAccountModal.openModal(bankaccount, false);
+
+                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
+                    this.bankAccountChanged.unsubscribe();
+                    resolve(bankaccount);
+                });
+            })
+        };
     }
 
     private saveSupplier(completeEvent: any) {
@@ -441,6 +499,18 @@ export class SupplierDetails implements OnInit {
             this.supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
 
+        if (this.supplier.DefaultBankAccount && (!this.supplier.DefaultBankAccount.AccountNumber || this.supplier.DefaultBankAccount.AccountNumber === '')) {
+            this.supplier.DefaultBankAccount = null;
+        }
+
+        if (this.supplier.DefaultBankAccount !== null && (!this.supplier.DefaultBankAccount.ID || this.supplier.DefaultBankAccount.ID === 0)) {
+            this.supplier.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
+        }
+
+        if (this.supplier.DefaultBankAccount) {
+            this.supplier.DefaultBankAccount.BankAccountType = 'supplier';
+        }
+
         if (this.supplierID > 0) {
             this.supplierService.Put(this.supplier.ID, this.supplier)
                 .subscribe(
@@ -448,13 +518,14 @@ export class SupplierDetails implements OnInit {
                         completeEvent('Leverandør lagret');
 
                         this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(supplier => {
+                            supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
                             this.supplier = supplier;
                             this.setTabTitle();
                         });
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        console.log('Feil oppsto ved lagring', err);
+                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                     }
                 );
         } else {
@@ -464,14 +535,13 @@ export class SupplierDetails implements OnInit {
                         if (!this.modalMode) {
                             this.router.navigateByUrl('/sales/suppliers/' + newSupplier.ID);
                             this.setTabTitle();
-                            this.supplier = newSupplier;
                         }
                         completeEvent('Ny leverandør lagret');
                         this.createdNewSupplier.emit(newSupplier);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        console.log('Feil oppsto ved lagring', err);
+                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                     }
                 );
         }
@@ -689,6 +759,75 @@ export class SupplierDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
+                    EntityType: 'Supplier',
+                    Property: 'DefaultBankAccount',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.MULTIVALUE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Bankkonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 1,
+                    Sectionheader: 'Konto & betingelser',
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: 'Konto & betingelser',
+                    StatusCode: 0,
+                    ID: 10,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null
+                },
+                {
+                    Url: 'customers',
+                    Validations: [
+
+                    ],
+                    LookupEntityType: null,
+                    ValueList: null,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: 'CreditDays',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    DisplayField: null,
+                    Width: null,
+                    Sectionheader: '',
+                    Alignment: 0,
+                    Label: 'Kredittdager',
+                    Description: null,
+                    HelpText: null,
+                    Placeholder: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Options: null,
+                    LineBreak: false,
+                    Combo: null,
+                    Legend: 'Betingelser',
+                    StatusCode: null,
+                    CustomValues: {
+
+                    },
+                    ID: 0,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null
+                },
+                {
+                    ComponentLayoutID: 3,
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
@@ -700,7 +839,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 2,
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -729,7 +868,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 2,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -737,35 +876,6 @@ export class SupplierDetails implements OnInit {
                     Legend: '',
                     StatusCode: 0,
                     ID: 9,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
-                    Property: 'DefaultBankAccountID',
-                    Placement: 4,
-                    Hidden: true, // false, // TODO: > 30.6
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Bankkonto',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0, //2, // TODO: > 30.6
-                    Sectionheader: 'Konto & bank',
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Konto & bank',
-                    StatusCode: 0,
-                    ID: 10,
                     Deleted: false,
                     CreatedAt: null,
                     UpdatedAt: null,

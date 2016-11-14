@@ -31,14 +31,16 @@ export class UniQueryOverview {
             this.queryCategories = new Array<UniQueryCategory>();
 
             for (const uniQuery of uniQueries) {
-                let queryCategory: UniQueryCategory = this.queryCategories.find(category => category.name === uniQuery.MainModelName);
+                let categoryName = uniQuery.Category || uniQuery.MainModelName;
+
+                let queryCategory: UniQueryCategory = this.queryCategories.find(category => category.name === categoryName);
 
                 if (typeof queryCategory === 'undefined') {
                     queryCategory = new UniQueryCategory();
 
-                    queryCategory.name = uniQuery.MainModelName;
+                    queryCategory.name = categoryName;
                     queryCategory.queries = new Array<UniQueryDefinition>();
-        
+
                     this.queryCategories.push(queryCategory);
                 }
                 queryCategory.queries.push(uniQuery);

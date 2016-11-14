@@ -23,13 +23,13 @@ declare var _; // lodash
             <input type="text"
                     [(ngModel)]="currentValue"
                     [class.-has-editor]="field?.Options?.editor"
-                    [readonly]="field?.Options?.editor || field?.ReadOnly"
+                    [readonly]="field?.ReadOnly"
                     [placeholder]="field?.Placeholder || ''"
                     (keypress)="showDropdown($event)"
                     (focus)="focusHandler()"
             />
 
-            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1">Ny</button>
+            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1" [disabled]="field?.ReadOnly">Ny</button>
 
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
@@ -141,17 +141,8 @@ export class UniMultivalueInput {
         const keyDownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
         const tabEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.TAB);
         const enterEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER);
-        tabEvent.subscribe((event: KeyboardEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.shiftKey) {
-                this.setFocusOnPrevField();
-            } else {
-                this.setFocusOnNextField();
-            }
-            this.close();
-        });
-        enterEvent.subscribe((event: KeyboardEvent) => {
+        const tabAndEnterEvents = Observable.merge(tabEvent, enterEvent);
+        tabAndEnterEvents.subscribe((event: KeyboardEvent) => {
             this.close();
         });
     }
@@ -262,6 +253,9 @@ export class UniMultivalueInput {
     }
 
     private open() {
+        if (this.field.ReadOnly) {
+            return;
+        }
         this.listIsVisible = true;
         this.cd.markForCheck();
     }

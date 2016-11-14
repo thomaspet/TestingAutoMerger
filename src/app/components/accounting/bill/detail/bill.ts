@@ -2,13 +2,19 @@ import {ViewChild, Component} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
-import {ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from '../../../../../framework/uniform';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
+import {checkGuid} from '../../../../services/common/dimensionservice';
+import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {Location} from '@angular/common';
+import {BillSimpleJournalEntryView} from './journal/simple';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {IOcrServiceResult, IOcrValuables} from './ocr';
 
 declare const moment;
 
@@ -21,6 +27,9 @@ interface ITab {
 }
 
 const lang = {
+    btn_yes: 'Ja',
+    btn_no: 'Nei',
+
     tab_invoice: 'Faktura',
     tab_document: 'Dokument',
     tab_journal: 'Bilagslinjer',
@@ -32,13 +41,13 @@ const lang = {
 
     headliner_new: 'Ny regning',
     headliner_invoice: 'Fakturanr.',
-    headliner_supplier: 'Leverandørnr.',
+    headliner_supplier: 'Lev.nr.',
     headliner_journal: 'Bilagsnr.',
     headliner_journal_not: 'ikke bokført',
 
     col_supplier: 'Leverandør',
     col_invoice: 'Fakturanr.',
-    col_total: 'Sum inkl.mva',
+    col_total: 'Fakturabeløp',
     col_date: 'Fakturadato',
     col_due: 'Forfallsdato',
     col_kid: 'KID',
@@ -53,14 +62,57 @@ const lang = {
     delete_error: 'Feil ved sletting',
     delete_success: 'Sletting ok',
 
-    btn_new_supplier: 'Ny'
+    btn_new_supplier: 'Ny',
+    add_image_now: 'Trykk på "pluss" knappen for å legge til nytt dokument',
+
+    journaled_ok: 'Bokføring fullført',
+    payment_ok: 'Betaling registrert',
+    ask_register_payment: 'Registrere betaling for faktura ',
+    ready_for_payment: 'Status endret til "Klar for betaling"',
+
+    err_missing_journalEntries: 'Kontering mangler!',
+    err_diff: 'Differanse i posteringer!',
+    err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
+
+    ask_archive: 'Arkivere faktura ',
+    ask_journal_msg: 'Bokføre regning med beløp ',
+    ask_journal_title: 'Bokføre regning fra ',
+    warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
+
+    ask_delete: 'Vil du virkelig slette faktura ',
+    delete_canceled: 'Sletting avbrutt'
+
 };
 
+const workflowLabels = { 
+    'smartbooking': 'Foreslå kontering',
+    'journal': 'Bokfør',
+
+    'payInvoice': 'Registrere betaling',
+    'sendForPayment': 'Til betalingsliste',
+    'pay': 'Registrere betaling',
+
+    'assign': 'Tildel',
+    'cancelApprovement': 'Tilbakestill',
+    'reAssign': 'Tildel på nytt',
+    'approve': 'Godkjenn',
+    'rejectInvoice': 'Avvis faktura',
+    'rejectAssignment': 'Avvis tildeling',
+    'restore': 'Gjenopprett',
+
+    'finish': 'Arkiver'
+};
 
 enum actionBar {
     save = 0,
     delete = 1
 };
+
+
+interface ILocalValidation {
+    success: boolean;
+    errorMessage?: string;
+}
 
 @Component({
     selector: 'uni-bill',
@@ -73,28 +125,36 @@ export class BillView {
     public formConfig: any = {};
     public fields: any[] = [];
     public current: SupplierInvoice;
-    private currentSupplierID: number = 0;
+    public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
-    
+    public hasUnsavedChanges: boolean = false;
+    public currentFileID: number = 0;
+    public hasStartupFileID: boolean = false;
+
+    private supplierIsReadOnly: boolean = false;
+    private defaultPath: string;    
+
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
+    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
+    @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
-    // private listOfSuppliers: Array<any> = [];
     private tabLabel: string;    
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true},
         { label: lang.tab_document, name: 'docs', isSelected: true},
-        { label: lang.tab_journal, name: 'journal' },
-        { label: lang.tab_items, name: 'items' },
+        { label: lang.tab_journal, name: 'journal', isHidden: true },
+        { label: lang.tab_items, name: 'items', isHidden: true },
         { label: lang.tab_history, name: 'history' }
-    ];
 
+    ];
 
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-            { label: lang.tool_delete, action: (done) => this.delete(done), main: false, disabled: true }
+            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true }
         ];
 
     constructor(
@@ -104,7 +164,9 @@ export class BillView {
         private route: ActivatedRoute,
         private cache: UniCacheService,
         private vatTypeService: VatTypeService,
-        private supplierService: SupplierService) {
+        private supplierService: SupplierService,
+        private router: Router, 
+        private location: Location) {
             this.actions = this.rootActions;
     }
 
@@ -113,18 +175,32 @@ export class BillView {
         this.initFromRoute();    
     }
 
+    public canDeactivate() {
+        return this.checkSave();
+    }    
+
     private initFromRoute() {
         this.route.params.subscribe( (params: any) => {
             var id = params.id;
             if (safeInt(id) > 0) {
-                this.tabLabel = lang.title_with_id + id;
-                this.tabService.addTab({ name: this.tabLabel, url: '/accounting/bill/' + id, moduleID: UniModules.Bills, active: true });
-                this.fetchInvoice(id);
+                this.updateTabInfo(id);                
+                this.fetchInvoice(id, true);
             } else {
-                this.newInvoice();
+                this.newInvoice(true);
+                this.checkPath();
             }
         });
         
+    }
+
+    private updateTabInfo(id?: number | string, label?: string) {
+        id = id || (this.current ? this.current.ID : 0);
+        this.tabLabel = label || lang.title_with_id + id;
+        var url = '/accounting/bill/' + id;
+        this.tabService.addTab({ name: this.tabLabel, url: url, moduleID: UniModules.Bills, active: true });
+        if (this.location.path(false) !== url) {
+            this.location.go(url);
+        }
     }
 
     private renderCombo(data: { SupplierNumber: number, InfoName: string }) {
@@ -170,9 +246,38 @@ export class BillView {
         this.createNewSupplierButton();
     }    
 
+    public onFileListReady(files: Array<any>) {
+        if (files && files.length) {
+            this.toast.addToast('Running ocr scan', ToastType.warn, 2);
+            this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
+                if (result && result.OcrInvoiceReport) {
+                    var doc: IOcrValuables = {
+                        Orgno: result.OcrInvoiceReport.Orgno.Value ? result.OcrInvoiceReport.Orgno.Value.value : '',
+                        Kid: result.OcrInvoiceReport.Kid.Value ? result.OcrInvoiceReport.Kid.Value.value : '',
+                        BankAccount: result.OcrInvoiceReport.BankAccount.Value ? result.OcrInvoiceReport.BankAccount.Value.value : '',
+                        InvoiceDate: result.OcrInvoiceReport.InvoiceDate.Value ? result.OcrInvoiceReport.InvoiceDate.Value.value : '',
+                        DueDate: result.OcrInvoiceReport.DueDate.Value ? result.OcrInvoiceReport.DueDate.Value.value : '',
+                        Amount: result.OcrInvoiceReport.Amount.Value ? result.OcrInvoiceReport.Amount.Value.value : '',
+                        InvoiceNumber: result.OcrInvoiceReport.InvoiceNumber.Value ? result.OcrInvoiceReport.InvoiceNumber.Value.value : '',
+                        SupplierID: result.OcrInvoiceReport.SupplierID
+                    };                
+                    this.handleOcrResult(doc, result);
+                } else {
+                    this.toast.addToast('OCR', ToastType.warn, 10, JSON.stringify(result));
+                }
+            }, (err) => {
+                this.showHttpError(err);
+            });
+        }
+    }
+
+    private handleOcrResult(doc: IOcrValuables, result: IOcrServiceResult) {
+        this.toast.addToast('ocr result', ToastType.good, undefined, JSON.stringify(doc));
+    }
+
     public onSaveDraftForImage() {
         this.save((msg) => {            
-            this.toast.addToast('Add image now!', ToastType.good, 3);
+            this.toast.addToast(lang.add_image_now, ToastType.good, 3);
         });
     }    
 
@@ -185,7 +290,6 @@ export class BillView {
     }
 
     public onSupplierModalChanged(supplier: Supplier) {
-        // debugger;
         if (supplier && supplier.ID) {
             this.fetchNewSupplier(supplier.ID, true);
             this.flagUnsavedChanged();
@@ -206,20 +310,36 @@ export class BillView {
         });
     }
 
-    private newInvoice() {
+    private newInvoice(isInitial: boolean) {
         this.tabLabel = lang.title_new;
         this.currentSupplierID = 0;
         this.current = new SupplierInvoice();
-        this.current.StatusCode = StatusCodeSupplierInvoice.Draft;
+        this.current.StatusCode = 0;
+        this.simpleJournalentry.clear();
         this.tabService.currentActiveTab.name = this.tabLabel;
         this.setupToolbar();
         this.flagUnsavedChanged(true);
+        this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
+        this.supplierIsReadOnly = false;
+        this.hasUnsavedChanges = false;        
+        this.currentFileID = 0;
         this.busy = false;
+        if (!isInitial) { 
+            this.hasStartupFileID = false;
+            this.uniForm.field('SupplierID').control.setValue(0);
+        }
+        try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) {}
+
     }
 
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
+        if (!reset) {
+            this.actions.forEach( x => x.main = false );
+            this.actions[actionBar.save].main = true;            
+        }
+        this.hasUnsavedChanges = !reset;
     }
 
     private flagActionBar(index: actionBar, enable = true) {
@@ -228,31 +348,181 @@ export class BillView {
 
     private loadActionsFromEntity() {
         var it: any = this.current;
-        // var index = 0;
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach( x => list.push(x) );
-            this.addActions(it._links.actions, list);
-            this.addActions(it._links.transitions, list, true);
+            let filter = (it.StatusCode === 30105 ? ['journal'] : undefined);
+            this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             this.actions = list;
+        } else {
+            this.initDefaultActions();
         }
-    }    
+    }
 
-    private mapActionLabel(key: string): string {
-        
-        var items = { 
-            'smartbooking': 'Foreslå kontering',
-            'payInvoice': 'Registrere betaling',
-            'journal': 'Bokfør',
-            'sendForPayment': 'Send til betaling',
-            'pay': 'Betal',
-            'assign': 'Tildel',
-            'cancelApprovement': 'Kanseler godkjenning',
-            'reAssign': 'Tildel på nytt',
-            'accept': 'Godkjenn'
-        };
+    private initDefaultActions() {
+        this.actions = this.rootActions;
+    }
 
-        var label = items[key];
+    private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[], filters?: string[]) {
+        var ix = 0, setAsMain = false, isFiltered = false, key: string;
+        var ixFound = -1;
+        if (!linkNode) { return; }
+
+        for (key in linkNode) {
+            if (linkNode.hasOwnProperty(key)) {
+                
+                isFiltered = filters ? (filters.findIndex( x => x === key ) >= 0) : false;
+                if (!isFiltered) {
+                    ix++;
+                    setAsMain = mainFirst ? ix <= 1 : false;
+                    // prioritized main?
+                    if (priorities) {
+                        let ixPri = priorities.findIndex(x => x === key );
+                        if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
+                            ixFound = ixPri;
+                            setAsMain = true;
+                        }                     
+                    }
+                    // reset main?
+                    if (setAsMain) { list.forEach( x => x.main = false); }
+
+                    let itemKey = key;
+                    let label = this.mapActionLabel(itemKey);
+                    let href = linkNode[key].href;
+
+                    list.push({ 
+                        label: label, 
+                        action: (done) => {
+                            this.handleAction(itemKey, label, href, done);
+                        }, 
+                        main: setAsMain, 
+                        disabled: false  
+                    });
+                }
+            }
+        }
+    }
+
+    private handleAction(key: string, label: string, href: string, done: any) {
+        this.checkSave().then( x => {
+            if (x) {
+                this.handleActionAfterCheckSave(key, label, href, done);
+            } else {
+                done();
+            }
+        });
+    }
+
+    private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
+
+        switch (key) {
+            case 'journal':
+                this.confirmModal.confirm(                    
+                    lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?',
+                    lang.ask_journal_title + this.current.Supplier.Info.Name, false, 
+                    { warning: lang.warning_action_not_reversable }).then( (result: ConfirmActions) => {
+                    
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.busy = true;
+                        this.tryJournal(href).then((status: ILocalValidation) => {
+                            this.busy = false;
+                            this.hasUnsavedChanges = false;
+                            done(lang.save_success);
+                        }).catch((err: ILocalValidation) => {
+                            this.busy = false;
+                            done(err.errorMessage);
+                            this.toast.addToast(err.errorMessage, ToastType.bad, 15);
+                        });
+                    } else {
+                        done();
+                    }
+                });
+                return true;
+
+            case 'smartbooking':
+                this.supplierInvoiceService.Action(this.current.ID, key).subscribe( (result) => {
+                    this.toast.addToast(JSON.stringify(result), ToastType.good);
+                    done('ok');
+                }, (err) => {
+                    var msg = this.showHttpError(err);
+                    done(msg);
+                });
+                return true;
+
+            case 'pay':
+            case 'payInvoice':
+                this.registerPayment(done);
+                return true;
+
+            case 'finish':
+                this.confirmModal.confirm(lang.ask_archive + this.current.InvoiceNumber, lang.ask_archive, false, { warning: lang.warning_action_not_reversable })
+                .then( (result: ConfirmActions) => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        return this.RunActionOnCurrent(key, done);
+                    } else { done(); }
+                });
+                return true;
+
+            default:
+                return this.RunActionOnCurrent(key, done);
+        }
+    }
+
+    private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string ): boolean {
+        this.busy = true;
+        this.supplierInvoiceService.PostAction(this.current.ID, action).subscribe( () => {
+            this.busy = false;
+            this.fetchInvoice(this.current.ID, true);
+            if (done) { done(successMsg); }
+        }, (err) => {
+            this.busy = false;
+            var msg = this.showHttpError(err);
+            done(msg);            
+        });        
+        return true;
+    }
+
+    private tryJournal(url: string): Promise<ILocalValidation> {
+
+        return new Promise( (resolve, reject) => {
+
+            this.UpdateSuppliersJournalEntry().then( result => {
+
+                var validation = this.hasValidDraftLines(true);
+                if (!validation.success) {
+                    reject(validation);
+                    return;
+                }
+
+                this.supplierInvoiceService.journal(this.current.ID).subscribe( x => {
+                    this.fetchInvoice(this.current.ID, false);
+                    resolve(result);
+                    this.toast.addToast(lang.journaled_ok, ToastType.good, 6);
+
+                }, (err) => {
+                    var msg = this.showHttpError(err);
+                    reject(msg);
+                });
+
+            
+            }).catch((err: ILocalValidation) => {
+                reject( err );
+            });
+            
+        });
+    }
+
+    private showHttpError(error: any): string {
+        var msg = error.statusText;
+        if (error._body) {
+            msg = error._body;
+        }             
+        this.showErrMsg(msg, true);
+        return msg;
+    }
+
+    private mapActionLabel(key: string): string {        
+        var label = workflowLabels[key];
         if (!label) {
             return key;
         }
@@ -260,75 +530,118 @@ export class BillView {
 
     }
 
-    private addActions(linkNode: any, list: any[], mainFirst = false) {
-        var ix = 0, setAsMain = false;
-        if (!linkNode) { return; }
-        for (var key in linkNode) {
-            if (linkNode.hasOwnProperty(key)) {
-                ix++;
-                setAsMain = mainFirst ? ix <= 1 : false;
-                if (setAsMain) {
-                    list.forEach( x => x.main = false);
-                }
-
-                let itemKey = key;
-                let label = this.mapActionLabel(itemKey);
-                list.push({ 
-                    label: label, 
-                    action: (done) => {
-                        this.toast.addToast(itemKey + ' todo...', ToastType.good, 3);
-                        done('not yet: ' + itemKey);
-                    }, 
-                    main: setAsMain, 
-                    disabled: false  
-                });
-            }
-        }
-    }
-
-    private fetchInvoice(id: number | string) {
-        this.busy = true;
-        this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
-            this.busy = false;
-            this.current = result;
-            this.setupToolbar();
-            this.tabService.currentActiveTab.name = trimLength(this.toolbarConfig.title, 12);
-            this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
-            this.loadActionsFromEntity();
+    private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
+        if (flagBusy) { this.busy = true; }
+        this.currentFileID = 0;
+        return new Promise( (resolve, reject) => {
+            this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
+                if (flagBusy) { this.busy = false; }
+                this.current = result;
+                this.setupToolbar();
+                this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
+                this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.loadActionsFromEntity();
+                this.checkLockStatus();
+                resolve('');
+            }, (err) => {
+                var msg = this.showHttpError(err);
+                reject(msg);
+            });
         });              
     }
 
-    public delete(done) {
-        return new Promise((resolve, reject) => {
-            var obs: any;
-            if (this.current.ID) {
-                obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);                
-            } else {
-                reject();
-                done(lang.delete_nothing_todo);
+    private checkLockStatus() {
+
+        this.supplierIsReadOnly = true;
+
+        if (this.current && this.current.StatusCode) {
+            switch (safeInt(this.current.StatusCode)) {
+                case StatusCodeSupplierInvoice.Payed:
+                case StatusCodeSupplierInvoice.PartlyPayed:
+                case 90001: // rejected
+                case 40001: // archived
+                    this.uniForm.readMode();
+                    return;
+
+                case StatusCodeSupplierInvoice.ToPayment:
+                    this.uniForm.readMode();
+                    this.uniForm.field('BankAccount').editMode();
+                    this.uniForm.field('PaymentID').editMode();
+                    return;
+
+                case StatusCodeSupplierInvoice.Journaled:
+                    this.uniForm.readMode();
+                    this.uniForm.field('PaymentDueDate').editMode();
+                    this.uniForm.field('BankAccount').editMode();
+                    this.uniForm.field('PaymentID').editMode();
+                    return;               
+
+                case StatusCodeSupplierInvoice.ForApproval:
+                    this.uniForm.readMode();
+                    this.supplierIsReadOnly = false;
+                    this.uniForm.field('PaymentID').editMode();
+                    this.uniForm.field('PaymentDueDate').editMode();
+                    return;     
             }
-            obs.subscribe((result) => {
-                done(lang.delete_success);
-                this.newInvoice();
-                resolve();
-            }, (error) => {
-                var msg = error.statusText;
-                if (error._body) {
-                    msg = error._body;
-                    this.showErrMsg(msg, true);
-                } else {
-                    this.toast.addToast(lang.save_error, ToastType.bad, 7);
-                }
-                done(lang.delete_error + ': ' + msg);
-                reject(msg);
-            });
-        });        
+        } 
+
+        this.uniForm.editMode();
+        this.supplierIsReadOnly = false;
+    }
+
+    private getSupplierName(): string {
+        return this.current && this.current.Supplier && this.current.Supplier.Info ? this.current.Supplier.Info.Name : '';
+    }
+
+    public tryDelete(done) {
+        this.confirmModal.confirm(lang.ask_delete + (this.current.InvoiceNumber  || '') + '?', this.getSupplierName()).then( x => {
+            if (x === ConfirmActions.ACCEPT) {
+                return this.delete(done); 
+            } else {
+                done(lang.delete_canceled);
+            }
+        });
+    }
+
+    public delete(done) {
+        var obs: any;
+        if (this.current.ID) {
+            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);                
+        } else {
+            done(lang.delete_nothing_todo);
+        }
+        obs.subscribe((result) => {
+            done(lang.delete_success);
+            this.newInvoice(false);
+        }, (error) => {
+            var msg = error.statusText;
+            if (error._body) {
+                msg = error._body;
+                this.showErrMsg(msg, true);
+            } else {
+                this.toast.addToast(lang.save_error, ToastType.bad, 7);
+            }
+            done(lang.delete_error + ': ' + msg);
+        });
     }
 
 
-    public save(done) {
+    public save(done?): Promise<ILocalValidation> {
         this.preSave();
         return new Promise((resolve, reject) => {
+            
+            var reload = () => {
+                this.fetchInvoice(this.currentSupplierID, (!!done) )
+                .then(() => {
+                    resolve({ success: true}); 
+                    if (done) { done(lang.save_success); }                
+                })
+                .catch((msg) => {
+                    reject( { success: false, errorMessage: msg });
+                    if (done) { done(msg); }
+                });                
+            };
+
             var obs: any;
             if (this.current.ID) {
                 obs = this.supplierInvoiceService.Put(this.current.ID, this.current);                
@@ -336,11 +649,19 @@ export class BillView {
                 obs = this.supplierInvoiceService.Post(this.current);
             }
             obs.subscribe((result) => {
-                done(lang.save_success);
-                // this.current = result;
-                this.busy = true;
-                this.fetchInvoice(result.ID);
-                this.currentSupplierID = this.current.ID;
+                this.currentSupplierID = result.ID;
+                this.hasUnsavedChanges = false;
+                // Post-file-linking?
+                if (this.hasStartupFileID && this.currentFileID) {
+                    this.linkFile(this.currentSupplierID, this.currentFileID, 'SupplierInvoice', 40001).then( () => {
+                        //  this.flagFileAsUsed(this.currentFileID, 40001);
+                        this.hasStartupFileID = false;
+                        this.currentFileID = 0;
+                        reload(); 
+                    });
+                } else {
+                    reload();
+                }                
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
@@ -349,18 +670,24 @@ export class BillView {
                 } else {
                     this.toast.addToast(lang.save_error, ToastType.bad, 7);
                 }
-                done(lang.save_error + ': ' + msg);
-                reject(msg);
+                if (done) { done(lang.save_error + ': ' + msg); }
+                reject({ success: false, errorMessage: msg});
             });
         });
     }
 
-    private preSave() {
+    private preSave(): boolean {
+
+        var changesMade = false;
 
         // Ensure dates are set        
         if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
             this.current.JournalEntry.DraftLines.forEach( x => {
+                let orig = x.FinancialDate;
                 x.FinancialDate = x.FinancialDate || this.current.DeliveryDate || this.current.InvoiceDate;
+                if (x.FinancialDate !== orig) {
+                    changesMade = true;
+                }
             });     
         }
 
@@ -368,8 +695,107 @@ export class BillView {
         if ((!this.current.PaymentID) && (!this.current.PaymentInformation)) {
             if (this.current.InvoiceNumber) {
                 this.current.PaymentInformation = lang.headliner_invoice + this.current.InvoiceNumber;
+                changesMade = true;
             }
         }
+
+        return changesMade;
+    }
+
+    private UpdateSuppliersJournalEntry(): Promise<ILocalValidation> {
+
+        return new Promise((resolve, reject) => {
+
+            var completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
+                if (item.Amount !== this.current.TaxInclusiveAmount * -1) {
+                    item.FinancialDate = item.FinancialDate || this.current.DeliveryDate || this.current.InvoiceDate;
+                    item.Amount = this.current.TaxInclusiveAmount * -1;
+                    item.Description = item.Description || (lang.headliner_invoice + ' ' + this.current.InvoiceNumber);
+                    if (addToList) {
+                         this.current.JournalEntry.DraftLines.push(item);                         
+                    }
+                    this.save().then(x => resolve(x)).catch( x => reject(x));
+                } else {
+                    resolve({ success: true });
+                }
+            };
+
+            if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
+                var supplierId = safeInt(this.current.Supplier.SupplierNumber);
+                var item: JournalEntryLineDraft;
+                let items = this.current.JournalEntry.DraftLines;
+                item = items.find( x => x.Account ? x.Account.AccountNumber === this.current.Supplier.SupplierNumber : false ); 
+                if (!item) {
+                    item = new JournalEntryLineDraft();
+                    checkGuid(item); 
+                    this.supplierInvoiceService.getStatQuery(`?model=account&select=ID as AccountID&filter=AccountNumber eq ${supplierId}`).subscribe( result => {
+                        item.AccountID = result[0].AccountID;                         
+                        completeAccount(item, true);
+                        return;
+                    }, (err) => {
+                        reject({ success: false, errorMessage: lang.err_supplieraccount_not_found});
+                    });
+                    return;
+                }             
+                completeAccount(item);
+                return;
+            }
+
+            reject({ success: false, errorMessage: lang.err_missing_journalEntries});
+        });
+    }
+
+    private registerPayment(done) {
+        const title = lang.ask_register_payment + this.current.InvoiceNumber;
+
+        if (this.registerPaymentModal.changed.observers.length === 0) {
+            this.registerPaymentModal.changed.subscribe((modalData: any) => {
+                this.busy = true;
+                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                    this.fetchInvoice(this.current.ID, true);
+                    this.toast.addToast(lang.payment_ok, ToastType.good, 10);
+                    this.busy = false;
+                }, (error) => {
+                    this.showHttpError(error);
+                    this.busy = false;
+                });
+            });
+        }
+
+        const invoiceData = {
+            Amount: this.current.RestAmount,
+            PaymentDate: new Date()
+        };
+
+        this.registerPaymentModal.openModal(this.current.ID, title, invoiceData);
+
+        done('');
+    }    
+
+
+    private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
+        var msg: string;
+        if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
+            let items = this.current.JournalEntry.DraftLines;
+            var sum = 0, maxSum = 0, minSum = 0, itemSum = 0;
+            items.forEach( x => {
+                itemSum = x.Amount || 0;
+                maxSum = itemSum > maxSum ? itemSum : maxSum;
+                minSum = itemSum < minSum ? itemSum : minSum;
+                sum += x.Amount;
+            });
+            if (sum === 0 && (maxSum || minSum)) {
+                return { success: true };
+            }
+            if (sum !== 0) {
+                msg = lang.err_diff;
+            }
+        }
+        msg = msg || lang.err_missing_journalEntries;
+        if (showErrMsg) {
+            this.toast.addToast(msg, ToastType.bad);
+        }
+        return { success: false, errorMessage: msg };
     }
 
     public onTabClick(tab: ITab) {
@@ -384,6 +810,32 @@ export class BillView {
         } 
         */       
     }
+
+    private checkSave(): Promise<boolean> {
+
+        if (!this.hasUnsavedChanges) { return Promise.resolve(true); }
+
+        return new Promise((resolve, reject) => {
+            this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Advarsel', true).then( x => {
+                if (x === ConfirmActions.ACCEPT) {
+                    this.busy = true;
+                    this.save().then( () => {
+                        resolve(true);
+                        this.busy = false;
+                    }).catch( err => {
+                        resolve(false);
+                        this.busy = false;
+                    });
+                } else if (x === ConfirmActions.REJECT ) {
+                    resolve(true); // no!, ignore saving
+                } else {
+                    resolve(false); // cancel, stop action
+                    this.updateTabInfo();
+                }
+            });
+        });
+
+    }    
 
     public onEntryChange(details: { rowIndex: number, item: JournalEntryLineDraft, extra: any }) {
         this.flagUnsavedChanged();
@@ -417,16 +869,101 @@ export class BillView {
     private setupToolbar() {
         var doc: SupplierInvoice = this.current;
         var stConfig = this.getStatustrackConfig();
+        var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info ? `${doc.Supplier.Info.Name}` : lang.headliner_new, 
+            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new, 
             subheads: [
                 {title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : ''},
                 {title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : ''},
-                {title: doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? `(${lang.headliner_journal} ${doc.JournalEntry.JournalEntryNumber})` : `(${lang.headliner_journal_not})` }
+                {
+                    title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
+                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined 
+                }
             ],
-            statustrack: stConfig
+            statustrack: stConfig,
+            navigation: {
+                prev: () => this.navigateTo('prev'),
+                next: () => this.navigateTo('next'),
+                add: () => {
+                    this.newInvoice(false); 
+                    this.router.navigateByUrl('/accounting/bill/0'); 
+                }
+            },
         };        
     }
+
+    private navigateTo(direction = 'next') {
+        this.busy = true;
+        this.navigate(direction).then(() => this.busy = false, () => this.busy = false);
+    }
+
+    private navigate(direction = 'next'): Promise<any> {
+
+        var params = '?model=supplierinvoice';
+        var resultFld = 'minid';
+        var id = this.current.ID;
+
+        if (direction === 'next') {
+            params += '&select=min(id)&filter=deleted eq \'false\'' + (id ? ' and id gt ' + id : '');
+        } else {
+            params += '&select=max(id)&filter=deleted eq \'false\'' + (id ? ' and id lt ' + id : '');
+            resultFld = 'maxid';
+        }
+
+        return new Promise((resolve, reject) => {
+            this.supplierInvoiceService.getStatQuery(params).subscribe((items) => {
+                if (items && items.length > 0) {
+                    var key = items[0][resultFld];
+                    if (key) {
+                        this.fetchInvoice(key, false);
+                        resolve(true);
+                        return;
+                    }
+                }
+                reject(0); // not found
+            }, (err) => {
+                reject(-1); // error
+            });
+        });
+    }
+
+    private loadFromFileID(fileID: number | string) {
+        this.hasStartupFileID = true;
+        this.linkFile(fileID, fileID, 'file').then( (result) => {
+            this.currentFileID = <number>fileID;
+        }).catch((err) => {
+            // self-link to file already exists.. ignore..
+            this.currentFileID = <number>fileID;
+        });        
+    }
+
+    private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
+        var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
+        if (flagFileStatus === 0 || flagFileStatus) {
+            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe();    
+        }
+        return this.supplierInvoiceService.send(route).toPromise();
+    }
+
+    private checkPath() {
+        this.defaultPath = this.location.path(true);
+        var ix = this.defaultPath.indexOf('?');
+        if (ix > 0) {
+            var params = this.defaultPath.substr(ix + 1).split('&');
+            if (params && params.length > 0) {
+                params.forEach(element => {
+                    var parts = element.split('=');
+                    if (parts.length > 1) {
+                        if (parts[0] === 'fileid') {
+                            this.loadFromFileID(parts[1]);
+                        }
+                    }
+                });
+            }
+            this.defaultPath = this.defaultPath.substr(0, ix);
+        } 
+    }
+
 
     private showErrMsg(msg: string, lookForMsg = false): string {
         var txt = msg;
@@ -449,7 +986,9 @@ export class BillView {
                 sibling.className = 'good tiny';
                 sibling.innerHTML = lang.btn_new_supplier;
                 sibling.addEventListener('click', () => {
-                    this.supplierDetailsModal.open();
+                    if (!this.supplierIsReadOnly) {
+                        this.supplierDetailsModal.open();
+                    }
                 });
                 var dropDown = btn.nextSibling;
                 btn.parentElement.insertBefore(sibling, dropDown);
@@ -460,7 +999,7 @@ export class BillView {
             el = frm.elementRef.nativeElement.getElementsByTagName('input');
             if (el && el.length > 0) {
                 el[0].addEventListener('keydown', (event) => {
-                    if (event.which === 114) {
+                    if (event.which === 114 && (!this.supplierIsReadOnly)) {
                         this.supplierDetailsModal.open();
                         event.preventDefault();
                         event.stopPropagation();

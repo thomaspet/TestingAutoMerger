@@ -1,8 +1,8 @@
 <article *ngIf="config" class="postingsummary" [attr.aria-busy]="busy">
     <h3>{{headerString}}</h3>
 
-    <section *ngIf="!showReceipt">        
-        <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>         
+    <section *ngIf="!showReceipt" class="unitableWidthAuto">
+        <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>
         <label>Kontrollsum totalt: </label> {{getAccountingSum() | number: '1.2-2' }}
     </section>
 

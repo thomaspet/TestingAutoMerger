@@ -1,5 +1,5 @@
 import {Component, ViewContainerRef, ComponentFactory, ElementRef} from '@angular/core';
-import {Input} from '@angular/core';
+import {Input, Output, EventEmitter} from '@angular/core';
 import {Type} from '@angular/core';
 import {AfterViewInit} from '@angular/core';
 import {ViewChild} from '@angular/core';
@@ -17,10 +17,9 @@ import {ComponentCreator} from '../core/dynamic/UniComponentCreator';
 })
 export class UniModal implements AfterViewInit {
 
+    @Output('close') public closeEvent: EventEmitter<any> = new EventEmitter();
     @Input('config') public config: any;
-
     @Input('type') public componentType: Type<any>;
-
     @ViewChild('modalContainer', {read: ViewContainerRef}) public container: ViewContainerRef;
 
     private isOpen: boolean = false;
@@ -34,6 +33,7 @@ export class UniModal implements AfterViewInit {
         document.addEventListener('keyup', (e: any) => {
             if (e.keyCode === 27) {
                 this.isOpen = false;
+                this.closeEvent.emit();
             }
         });
 
@@ -78,6 +78,7 @@ export class UniModal implements AfterViewInit {
 
     public close() {
         this.isOpen = false;
+        this.closeEvent.emit();
     }
 
     public getContent() {

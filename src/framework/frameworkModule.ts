@@ -24,6 +24,9 @@ import {CONTROLS} from './uniform/controls/index';
 import {ShowError} from './uniform/showError';
 import {UniCalendar} from './uniform/controls/date/calendar';
 import {UniLineBreak} from './uniform/unilinebreak';
+import {UniConfirmModal, UniConfirmContent} from './modals/confirm';
+import {Logger} from './core/logger';
+
 
 
 @NgModule({
@@ -36,6 +39,8 @@ import {UniLineBreak} from './uniform/unilinebreak';
     ],
     declarations: [
         UniModal,
+        UniConfirmModal,
+        UniConfirmContent,
         UniDocumentList,
         UniDocumentUploader,
         UniSave,
@@ -54,10 +59,14 @@ import {UniLineBreak} from './uniform/unilinebreak';
         UniLineBreak,
         CONTROLS
     ],
+    entryComponents: [
+        UniConfirmContent
+    ],
     providers: [
         ImageUploader,
         ToastService,
-        StimulsoftReportWrapper
+        StimulsoftReportWrapper,
+        Logger
     ],
     exports: [
         // Modules
@@ -66,6 +75,8 @@ import {UniLineBreak} from './uniform/unilinebreak';
 
         // Components
         UniModal,
+        UniConfirmModal,
+        UniConfirmContent,
         UniDocumentList,
         UniDocumentUploader,
         UniSave,

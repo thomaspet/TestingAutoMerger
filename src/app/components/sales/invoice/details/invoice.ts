@@ -4,9 +4,8 @@ import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, BusinessRelationService, UserService} from '../../../../services/services';
 import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, Address} from '../../../../unientities';
+import {CustomerInvoice, Address, Customer} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -15,11 +14,18 @@ import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {CustomerCard} from './customerCard';
 import {InvoiceItems} from './invoiceItems';
-
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {CustomerService} from '../../../../services/Sales/CustomerService';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
+
+import {TofCustomerCard} from '../../common/customerCard';
 
 declare const _;
 declare const moment;
@@ -44,11 +50,14 @@ export class InvoiceDetails {
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
 
-    @ViewChild(CustomerCard)
-    private customerCard: CustomerCard;
+    @ViewChild(TofCustomerCard)
+    private customerCard: TofCustomerCard;
 
     @ViewChild(InvoiceItems)
     private invoiceItems: InvoiceItems;
+
+    @ViewChild(SendEmailModal)
+    private sendEmailModal: SendEmailModal;
 
     @Input()
     public invoiceID: any;
@@ -56,8 +65,8 @@ export class InvoiceDetails {
     private invoice: CustomerInvoiceExt;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
+    private readonly: boolean;
 
-    private companySettings: any;
     private departments: any[] = [];
     private projects: any[] = [];
 
@@ -66,10 +75,12 @@ export class InvoiceDetails {
     private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
 
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department', 'InvoiceReference'];
+        'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     constructor(private customerInvoiceService: CustomerInvoiceService,
                 private customerInvoiceItemService: CustomerInvoiceItemService,
@@ -78,65 +89,95 @@ export class InvoiceDetails {
                 private addressService: AddressService,
                 private reportDefinitionService: ReportDefinitionService,
                 private businessRelationService: BusinessRelationService,
-                private companySettingsService: CompanySettingsService,
                 private userService: UserService,
                 private toastService: ToastService,
-
+                private customerService: CustomerService,
+                private numberFormat: NumberFormat,
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {}
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper) {}
 
     public ngOnInit() {
         this.tabs = ['Detaljer', 'Levering', 'Dokumenter'];
         this.activeTabIndex = 0;
 
         this.summaryFields = [
-            {title: 'Avgiftsfritt', value: '0'},
-            {title: 'Avgiftsgrunnlag', value: '0'},
-            {title: 'Sum rabatt', value: '0'},
-            {title: 'Nettosum', value: '0'},
-            {title: 'Mva', value: '0'},
-            {title: 'Øreavrunding', value: '0'},
-            {title: 'Totalsum', value: '0'},
+            {title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0)},
+            {title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0)},
+            {title: 'Sum rabatt', value: this.numberFormat.asMoney(0)},
+            {title: 'Nettosum', value: this.numberFormat.asMoney(0)},
+            {title: 'Mva', value: this.numberFormat.asMoney(0)},
+            {title: 'Øreavrunding', value: this.numberFormat.asMoney(0)},
+            {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
         ];
 
         // Subscribe and debounce recalc on table changes
-        this.recalcDebouncer.debounceTime(1500).subscribe((invoice) => {
+        this.recalcDebouncer.debounceTime(500).subscribe((invoice) => {
             if (invoice.Items.length) {
                 this.recalcItemSums(invoice);
             }
         });
 
+        // contextMenu
+        this.contextMenuItems = [
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerInvoice';
+                    sendemail.EntityID = this.invoice.ID;
+                    sendemail.CustomerID = this.invoice.CustomerID;
+                    sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                        });
+                    }
+                },
+                disabled: () => !this.invoice.ID
+            }
+        ];
+
         // Get data for subentities once
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
-            this.companySettingsService.Get(1)
         ).subscribe((response) => {
             this.departments = response[0];
             this.projects = response[1];
-            this.companySettings = response[2];
         });
 
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
             this.invoiceID = +params['id'];
+            const customerID = +params['customerID'];
 
             if (this.invoiceID === 0) {
                 return Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
-                    this.userService.getCurrentUser()
+                    this.userService.getCurrentUser(),
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
-                    let invoice = res[0];
+                    let invoice = <CustomerInvoiceExt>res[0];
+                    const customer = <Customer>res[2]
+                    invoice.Customer = customer;
+                    invoice.CustomerID = customer.ID;
+                    invoice.CustomerName = customer.Info.Name;
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
                     invoice.PaymentDueDate = null; // calculated in refreshInvoice()
                     invoice.OurReference = res[1].DisplayName;
                     this.refreshInvoice(invoice);
+                    this.recalcItemSums(invoice);
                 });
             } else {
-                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((res) => {
-                    this.refreshInvoice(res);
+                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
+                    this.refreshInvoice(invoice);
+                    this.recalcItemSums(invoice);
                 });
             }
 
@@ -151,7 +192,6 @@ export class InvoiceDetails {
             this.invoiceItems.focusFirstRow();
         } else if (key === 33) {
             // Page up
-            console.log(this.customerCard, this.customerCard.focus);
             this.customerCard.focus();
         }
     }
@@ -163,7 +203,16 @@ export class InvoiceDetails {
             activeStatus = this.invoice.StatusCode || 1;
         }
 
-        this.customerInvoiceService.statusTypes.forEach((s, i) => {
+        let statuses = [...this.customerInvoiceService.statusTypes];
+        const spliceIndex = (activeStatus === StatusCodeCustomerInvoice.PartlyPaid)
+            ? statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.Paid)
+            : statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.PartlyPaid);
+
+        if (spliceIndex >= 0) {
+            statuses.splice(spliceIndex, 1);
+        }
+
+        statuses.forEach((s, i) => {
             let _state: UniStatusTrack.States;
 
             if (s.Code > activeStatus) {
@@ -179,6 +228,7 @@ export class InvoiceDetails {
                 state: _state
             };
         });
+
         return statustrack;
     }
 
@@ -191,7 +241,8 @@ export class InvoiceDetails {
             }
         }
 
-        this.invoice = invoice;
+        this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+        this.invoice = _.cloneDeep(invoice);
         this.addressService.setAddresses(this.invoice);
         this.recalcDebouncer.next(invoice);
         this.updateTabTitle();
@@ -199,12 +250,21 @@ export class InvoiceDetails {
         this.updateSaveActions();
     }
 
+    private onCustomerChange() {
+        this.invoice = _.cloneDeep(this.invoice);
+    }
+
     private updateTabTitle() {
         var tabTitle;
-        if (this.invoice.InvoiceType === 1) {
+        if (this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
             tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
         } else {
-            tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+            if (this.invoice.InvoiceNumber) {
+                tabTitle = 'Fakturanr. ' + this.invoice.InvoiceNumber;
+            } else {
+                tabTitle = (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft)
+                    ? 'Faktura (kladd)' : 'Ny faktura';
+            }
         }
         this.tabService.addTab({ url: '/sales/invoices/' + this.invoice.ID, name: tabTitle, active: true, moduleID: UniModules.Invoices });
     }
@@ -212,7 +272,7 @@ export class InvoiceDetails {
     private updateToolbar() {
         let invoiceText = '';
         if (this.invoice.InvoiceNumber) {
-            const prefix = this.invoice.InvoiceType === 0 ? 'Fakturanr.' : 'Kreditnota.';
+            const prefix = this.invoice.InvoiceType === InvoiceTypes.Invoice ? 'Fakturanr.' : 'Kreditnota.';
             invoiceText = `${prefix} ${this.invoice.InvoiceNumber}`;
         }
 
@@ -224,16 +284,18 @@ export class InvoiceDetails {
             subheads: [
                 {title: invoiceText},
                 {title: netSumText},
+                {title: GetPrintStatusText(this.invoice.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
                 add: () => this.router.navigateByUrl('/sales/invoices/0')
-            }
+            },
+            contextmenu: this.contextMenuItems
         };
 
-        if (this.invoice.InvoiceType === 1 && this.invoice.InvoiceReference) {
+        if (this.invoice.InvoiceType === InvoiceTypes.CreditNote && this.invoice.InvoiceReference) {
             toolbarconfig.subheads.push({
                 title: `Kreditering av faktura nr. ${this.invoice.InvoiceReference.InvoiceNumber}`,
                 link: `#/sales/invoices/${this.invoice.InvoiceReference.ID}`
@@ -265,8 +327,8 @@ export class InvoiceDetails {
         });
 
         this.saveActions.push({
-            label: 'Fakturer',
-            action: done => this.saveAndInvoice(done),
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
+            action: done => this.transition(done),
             disabled: (!this.invoice.TaxExclusiveAmount) &&
                 (!this.itemsSummaryData || !this.itemsSummaryData.SumTotalIncVat)
         });
@@ -322,23 +384,31 @@ export class InvoiceDetails {
             : this.customerInvoiceService.Post(this.invoice);
     }
 
-    private saveAndInvoice(done: any) {
+    private transition(done: any) {
         const isDraft = this.invoice.ID >= 1;
+
+        const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
+        const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
+        const errText =  isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
         this.saveInvoice().subscribe(
             (invoice) => {
                 if (!isDraft) {
-                    done('Faktura fakturert');
+                    done(doneText);
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                     return;
                 }
 
                 this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                     (res) => {
-                        done('Faktura fakturert');
-                        this.customerInvoiceService.Get(res.ID, this.expandOptions).subscribe((refreshed) => {
+                        done(doneText);
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
                             this.refreshInvoice(refreshed);
                         });
+                    },
+                    (err) => {
+                        done(errText);
+                        this.log(err);
                     }
                 );
             },
@@ -360,7 +430,8 @@ export class InvoiceDetails {
                 if (requiresPageRefresh) {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
-                    this.customerInvoiceService.Get(invoice.ID).subscribe(res => this.refreshInvoice(res));
+                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
+                        .subscribe(res => this.refreshInvoice(res));
                 }
                 done('Lagring fullført');
             },
@@ -378,7 +449,7 @@ export class InvoiceDetails {
 
         this.saveInvoice().subscribe(
             (invoice) => {
-                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     this.previewModal.openWithId(report, invoice.ID);
                     done('Lagring fullført');
                 });
@@ -446,26 +517,27 @@ export class InvoiceDetails {
     }
 
     public nextInvoice() {
-        this.customerInvoiceService.next(this.invoice.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                    }
-                },
-                (err) => {
-                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
+        this.customerInvoiceService.getNextID(this.invoice.ID)
+            .subscribe((invoiceID) => {
+                if (invoiceID) {
+                    this.router.navigateByUrl('/sales/invoices/' + invoiceID);
                 }
-            );
+            },
+            (err) => {
+                console.log('Error getting next invoice: ', err);
+                this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
+            });
     }
 
     public previousInvoice() {
-        this.customerInvoiceService.previous(this.invoice.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+        this.customerInvoiceService.getPreviousID(this.invoice.ID)
+            .subscribe((invoiceID) => {
+                    if (invoiceID) {
+                        this.router.navigateByUrl('/sales/invoices/' + invoiceID);
                     }
                 },
                 (err) => {
+                    console.log('Error getting previous invoice: ', err);
                     this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
                 }
             );
@@ -477,58 +549,40 @@ export class InvoiceDetails {
             return;
         }
 
-        invoice.Items.forEach((x) => {
-            x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-            x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-            x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-            x.Discount = x.Discount ? x.Discount : 0;
-            x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-            x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-            x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-            x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-        });
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoice.Items);
+        this.updateSaveActions();
+        this.updateToolbar();
 
-        this.customerInvoiceService.calculateInvoiceSummary(invoice.Items)
-            .subscribe((data) => {
-                this.itemsSummaryData = data || {};
-                this.updateSaveActions();
-                this.updateToolbar();
-
-                this.summaryFields = [
-                    {
-                        title: 'Avgiftsfritt',
-                        value: this.itemsSummaryData.SumNoVatBasis.toString() || '0',
-                    },
-                    {
-                        title: 'Avgiftsgrunnlag',
-                        value: this.itemsSummaryData.SumVatBasis.toString() || '0',
-                    },
-                    {
-                        title: 'Sum rabatt',
-                        value: this.itemsSummaryData.SumDiscount.toString() || '0',
-                    },
-                    {
-                        title: 'Nettosum',
-                        value: this.itemsSummaryData.SumTotalExVat.toString() || '0',
-                    },
-                    {
-                        title: 'Mva',
-                        value: this.itemsSummaryData.SumVat.toString() || '0',
-                    },
-                    {
-                        title: 'Øreavrunding',
-                        value: this.itemsSummaryData.DecimalRounding.toString() || '0',
-                    },
-                    {
-                        title: 'Totalsum',
-                        value: this.itemsSummaryData.SumTotalIncVat.toString() || '0',
-                    },
-                ];
+        this.summaryFields = [
+            {
+                title: 'Avgiftsfritt',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
             },
-            (err) => {
-                this.log(err);
-            }
-        );
+            {
+                title: 'Avgiftsgrunnlag',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
+            },
+            {
+                title: 'Sum rabatt',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
+            },
+            {
+                title: 'Nettosum',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
+            },
+            {
+                title: 'Mva',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
+            },
+            {
+                title: 'Øreavrunding',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
+            },
+            {
+                title: 'Totalsum',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
+            },
+        ];
     }
 
     private log(err) {

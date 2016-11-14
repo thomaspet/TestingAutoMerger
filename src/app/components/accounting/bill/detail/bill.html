@@ -35,22 +35,32 @@
         </aside>
 
         <div [hidden]="!tabs[1].isSelected">
-            <div *ngIf="!current?.ID" class="application">
+
+            <div *ngIf="!hasStartupFileID && !current?.ID" class="application">
                 <button class="good" (click)="onSaveDraftForImage($event)">Start med dokument/bilde</button>
             </div>
-            <uni-image *ngIf="current?.ID" [entity]="'SupplierInvoice'" [entityID]="current?.ID"></uni-image>
+            <uni-image *ngIf="current?.ID" [entity]="'SupplierInvoice'" [entityID]="current?.ID"
+                (fileListReady)="onFileListReady($event)" ></uni-image> 
+            
+            <uni-image *ngIf="currentFileID" [readonly]="true" [singleImage]="true" 
+                [entity]="'file'" [entityID]="currentFileID"
+                (fileListReady)="onFileListReady($event)" ></uni-image>
+
         </div>
 
+        <!--
         <div [hidden]="!tabs[2].isSelected">
             <h3>Bilagslinjer</h3>
         </div>    
 
         <div [hidden]="!tabs[3].isSelected">
             <h3>Varelinjer</h3>
-        </div>    
+        </div>
+        -->    
 
         <div [hidden]="!tabs[4].isSelected">
-            <h3>Historikk</h3>
+            <uni-bill-history [isActive]="tabs[4].isSelected" [supplierID]="this.current?.SupplierID" [parentID]="this.current?.ID" >                
+            </uni-bill-history>
         </div>
 
     </section>
@@ -59,5 +69,9 @@
 
 <uni-save class="no-print" [actions]="actions"></uni-save>
 
+<register-payment-modal></register-payment-modal>
+
 <supplier-detail-modal (change)="onSupplierModalChanged($event)" ></supplier-detail-modal>
+
+<uni-confirm-modal></uni-confirm-modal> 
 

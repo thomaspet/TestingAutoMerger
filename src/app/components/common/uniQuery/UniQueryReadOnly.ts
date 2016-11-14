@@ -3,7 +3,7 @@ import {UniTable, UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilte
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {StatisticsService, UniQueryDefinitionService} from '../../../services/services';
+import {StatisticsService, UniQueryDefinitionService, StatusService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -36,7 +36,8 @@ export class UniQueryReadOnly implements OnChanges {
         private statisticsService: StatisticsService,
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private toastService: ToastService,
-        private authService: AuthService
+        private authService: AuthService,
+        private statusService: StatusService
     ) {
         let token = this.authService.getTokenDecoded();
         if (token) {
@@ -65,7 +66,9 @@ export class UniQueryReadOnly implements OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['hidden'] && changes['hidden'].currentValue === false) {
             if (!this.queryDefinition || this.queryDefinitionID !== this.queryDefinition.ID) {
-                this.loadQueryDefinition();
+                this.statusService.loadStatusCache().then(x => {
+                    this.loadQueryDefinition();
+                });
             }
         }
     }
@@ -167,6 +170,10 @@ export class UniQueryReadOnly implements OnChanges {
             col.width = field.width;
             col.sumFunction = field.sumFunction;
 
+            if (selectableColName.toLowerCase().endsWith('statuscode')) {
+                col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
+            }
+
             columns.push(col);
 
             if (field.path && field.path !== '') {
@@ -233,6 +240,11 @@ export class UniQueryReadOnly implements OnChanges {
                 return tmp;
             })
             .setColumns(columns);
+    }
+
+    private statusCodeToText(statusCode: number): string {
+        let text: string = this.statusService.getStatusText(statusCode);
+        return text || (statusCode ? statusCode.toString() : '');
     }
 
     private isFunction(field: string): boolean {

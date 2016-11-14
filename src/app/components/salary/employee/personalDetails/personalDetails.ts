@@ -24,15 +24,12 @@ export class PersonalDetails extends UniView {
         'BusinessRelationInfo.Phones',
         'BankAccounts',
     ];
-
     public config: any = {};
     public fields: any[] = [];
     private subEntities: SubEntity[];
     private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
-
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -84,11 +81,9 @@ export class PersonalDetails extends UniView {
                         2: { isOpen: true }
                     }
                 };
-                this.municipalService.GetAll(null).subscribe((municipalities: Municipal[]) => {
-                    this.fields = layout.Fields;
-                    this.municipalities = municipalities;
-                    this.extendFormConfig();
-                });
+
+                this.fields = layout.Fields;
+                this.extendFormConfig();
 
             }
             , (error: any) => {
@@ -101,10 +96,6 @@ export class PersonalDetails extends UniView {
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
         this.uniform.field('BusinessRelationInfo.Name').focus();
-        this.uniform.field('SocialSecurityNumber').changeEvent.subscribe(() => {
-            this.updateInfoFromSSN();
-        });
-
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
@@ -128,7 +119,9 @@ export class PersonalDetails extends UniView {
                 this.employee.BankAccounts[0].Active = true;
             }
         }
-
+        setTimeout(()=>{
+            this.updateInfoFromSSN();
+        })
         this.employee = _.cloneDeep(employee);
         super.updateState('employee', employee, true);
     }
@@ -226,15 +219,20 @@ export class PersonalDetails extends UniView {
 
         let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
 
-        municipality.Options = {
-            source: this.municipalities,
-            valueProperty: 'MunicipalityNo',
-            displayProperty: 'MunicipalityNo',
-            debounceTime: 200,
-            template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
-        };
+        this.municipalService.GetAll('').subscribe(items => {
+            municipality.Options = {
+                source: items, // this.municipalService,
+                search: (query: string) => this.municipalService.GetAll(`filter=startswith(MunicipalityNo, '${query}') or contains(MunicipalityName, '${query}')&top=50`),
+                valueProperty: 'MunicipalityNo',
+                displayProperty: 'MunicipalityNo',
+                debounceTime: 200,
+                template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
+            };
+            this.fields = _.cloneDeep(this.fields);
+        });
 
-        this.fields = _.cloneDeep(this.fields);
+
+
     }
 
     private findByProperty(fields, name) {
@@ -243,7 +241,7 @@ export class PersonalDetails extends UniView {
     }
 
     private updateInfoFromSSN() {
-        if (this.employee.SocialSecurityNumber.length === 11) {
+        if (this.employee.SocialSecurityNumber && this.employee.SocialSecurityNumber.length === 11) {
 
             let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);

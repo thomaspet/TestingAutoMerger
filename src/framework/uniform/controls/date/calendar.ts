@@ -41,7 +41,7 @@ export class UniCalendar {
     private dateChange: EventEmitter<Date> = new EventEmitter<Date>();
 
     private weekdays: string[];
-    private selectedDate: moment.Moment;
+    public selectedDate: moment.Moment;
     private calendarDate: moment.Moment;
     private calendarWeeks: any[] = [];
 
@@ -61,7 +61,7 @@ export class UniCalendar {
         let days = [];
 
         for (let i = 1; i <= daysInMonth; i++) {
-            days.push({day: i, month: date.month()});
+            days.push({day: i, month: date.month(), year: date.year()});
         }
 
         // If first day is not monday, add days from previous month until we fill the week
@@ -86,20 +86,60 @@ export class UniCalendar {
     }
 
     private dateSelected(date) {
+        this.selectedDate.year(date.year);
         this.selectedDate.month(date.month);
         this.selectedDate.date(date.day);
         this.calendarDate = this.selectedDate.clone();
         this.dateChange.emit(this.selectedDate.toDate());
     }
 
-    private prevMonth() {
+    public prevMonth() {
         this.calendarDate.subtract(1, 'month');
         this.generateCalendarPage(this.calendarDate);
     }
 
-    private nextMonth() {
+    public nextMonth() {
         this.calendarDate.add(1, 'month');
         this.generateCalendarPage(this.calendarDate);
     }
 
+    public prevDay() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.subtract(1, 'd');
+        const prevMonth = this.selectedDate.month();
+        if (month !== prevMonth) {
+            this.prevMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
+
+    public nextDay() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.add(1, 'd');
+        const nextMonth = this.selectedDate.month();
+        if (month !== nextMonth) {
+            this.nextMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
+
+    public prevWeek() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.subtract(7, 'd');
+        const prevMonth = this.selectedDate.month();
+        if (month !== prevMonth) {
+            this.prevMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
+
+    public nextWeek() {
+        const month = this.selectedDate.month();
+        this.selectedDate = this.selectedDate.add(7, 'd');
+        const nextMonth = this.selectedDate.month();
+        if (month !== nextMonth) {
+            this.nextMonth();
+        }
+        this.calendarDate = this.selectedDate.clone();
+    }
 }

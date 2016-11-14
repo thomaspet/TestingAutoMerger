@@ -3,12 +3,13 @@ import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-
 import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
-import {CustomerOrder} from '../../../../unientities';
-
+import {CustomerOrder, CompanySettings, User} from '../../../../unientities';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
+import {SendEmail} from '../../../../models/sendEmail';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 declare var jQuery;
 
@@ -20,9 +21,11 @@ export class OrderList {
 
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private orderTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+
     private toolbarconfig: IToolbarConfig = {
         title: 'Ordre',
         omitFinalCrumb: true
@@ -31,7 +34,8 @@ export class OrderList {
     constructor(private router: Router,
                 private customerOrderService: CustomerOrderService,
                 private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService) {
+                private tabService: TabService,
+                private toastService: ToastService) {
 
         this.tabService.addTab({ name: 'Ordre', url: '/sales/orders', moduleID: UniModules.Orders, active: true });
         this.setupOrderTable();
@@ -42,24 +46,14 @@ export class OrderList {
     }
 
     public createOrder() {
-        this.customerOrderService.newCustomerOrder().then(order => {
-            this.customerOrderService.Post(order)
-                .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/orders/' + data.ID);
-                },
-                (err) => {
-                    console.log('Error creating order: ', err);
-                    this.log(err);
-                }
-                );
-        });
+        this.router.navigateByUrl('/sales/orders/0');
     }
 
     private setupOrderTable() {
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
-            params.set('expand', 'Customer, Items');
+            params.set('expand', 'Customer,Items');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'OrderDate desc');
@@ -87,13 +81,13 @@ export class OrderList {
 
         // TODO?
         // contextMenuItems.push({
-        //    label: 'Overf�r til faktura',
+        //    label: 'Overfør til faktura',
         //    action: (order: CustomerOrder) => {
 
         //        //TODO?
         //        //this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
         //        //    console.log('== order ACTION OK ==');
-        //        //    alert('Overf�rt til Faktura OK');
+        //        //    alert('Overført til Faktura OK');
         //        //    //this.table.refreshTableData();
         //        //    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
         //        //}, (err) => {
@@ -141,6 +135,27 @@ export class OrderList {
                 return false;
             }
         });
+
+        contextMenuItems.push({
+                label: 'Send på epost',
+                action: (order: CustomerOrder) => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerOrder';
+                    sendemail.EntityID = order.ID;
+                    sendemail.CustomerID = order.CustomerID;
+                    sendemail.Subject = 'Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
+                    sendemail.Message = 'Vedlagt finner du Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
+         
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                        });
+                    }
+                }
+            }
+        );
 
         // Define columns to use in the table
         var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');

@@ -1,46 +1,54 @@
 <header class="poster">
     <uni-toolbar [config]="toolbarConfig" (statusSelectEvent)="setAmeldingFromEvent($event)"></uni-toolbar>
 
-    <section class="poster_overview">
-        <div class="poster_widgets">
-            <dl class="poster_widget">
-                <dt>Juridisk enhet</dt>
-                <dd>{{legalEntityNo}}</dd>
+    <section class="amelding_poster">
 
-                <dt>Måned</dt>
-                <dd>{{currentMonth}}</dd>
+        <article class="amelding_poster_widget">
+            <dl class="amelding_poster_details">
+                <dt>Juridisk enhet</dt>
+                <dd>{{legalEntityNo | uninumberformat:'orgno'}}</dd>
 
                 <dt>Status periode</dt>
                 <dd>{{periodStatus}}</dd>
             </dl>
+        </article>
 
-            <article class="poster_widget tablewidget">
-                <table>
-                    <tr>
-                        <th class="datacolumn">Sum forskuddstrekk</th>
-                        <td>{{totalForskuddstrekk}}</td>
-                    </tr>
-                    <tr>
-                        <th class="datacolumn">Sum aga</th>
-                        <td>{{totalAga}}</td>
-                    </tr>
-                </table>
-            </article>
+        <article class="amelding_poster_widget two-up">
+            <table class="amelding_poster_figures">
+                <tr>
+                    <td></td>
+                    <th>Fra lønnsystem</th>
+                    <th>Fra tilbakemelding</th>
+                </tr>
+                <tr>
+                    <th class="datacolumn">Sum forskuddstrekk</th>
+                    <td class="currency">{{totalFtrekkSystem | unicurrency:2}}</td>
+                    <td class="currency">{{totalFtrekkFeedback | unicurrency:2}}</td>
+                </tr>
+                <tr>
+                    <th class="datacolumn">Sum arbeidsgiveravgift</th>
+                    <td class="currency">{{totalAGASystem | unicurrency:2}}</td>
+                    <td class="currency">{{totalAGAFeedback | unicurrency:2}}</td>
+                </tr>
+            </table>
+        </article>
 
-            <article class="poster_widget">
-                <ul class="statuslist">
-                    <li [className]="clarifiedDate ? 'success' : 'warn'">
-                        {{clarifiedDate ? 'Generert - ' + clarifiedDate : 'Ikke generert'}}
-                    </li>
-                    <li [className]="submittedDate ? 'success' : 'warn'">
-                        {{submittedDate ? 'Innsendt - ' + submittedDate : 'Ikke innsendt'}}
-                    </li>
-                    <li [className]="feedbackObtained ? 'success' : 'warn'">
-                        {{feedbackObtained ? 'Tilbakemelding hentet' : 'Tilbakemelding ikke hentet'}}
-                    </li>
-                </ul>
-            </article>
-        </div>
+        <article class="amelding_poster_widget">
+            <ul class="amelding_poster_events">
+                <li [className]="clarifiedDate ? 'success' : 'warn'">
+                    {{clarifiedDate ? 'Generert' : 'Ikke generert'}}
+                    <time *ngIf="clarifiedDate">{{clarifiedDate}}</time>
+                </li>
+                <li [className]="submittedDate ? 'success' : 'warn'">
+                    {{submittedDate ? 'Innsendt' : 'Ikke innsendt'}}
+                    <time *ngIf="submittedDate">{{submittedDate}}</time>
+                </li>
+                <li [className]="feedbackObtained ? 'success' : 'warn'">
+                    {{feedbackObtained ? 'Tilbakemelding hentet' : 'Tilbakemelding ikke hentet'}}
+                </li>
+            </ul>
+        </article>
+
     </section>
 
     <div class="horizontal_nav">
@@ -76,7 +84,7 @@
     <amelding-summary-view *ngIf="showView == ''" [currentSumUp]="currentSumUp" [currentAMelding]="currentAMelding"></amelding-summary-view>
     <amelding-aga-view *ngIf="showView == 'aga'" [currentSumUp]="currentSumUp"></amelding-aga-view>
     <amelding-receipt-view *ngIf="showView == 'receipt'" [currentAMelding]="currentAMelding" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-receipt-view>
-    <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [currentPeriod]="currentPeriod" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-periodsummary-view>
+    <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [systemData]="currentSumsInPeriod" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-periodsummary-view>
     <!--<amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>-->
 
     <footer class="full-footer">
