@@ -46,27 +46,22 @@ export class Dashboard {
     public ngAfterViewInit() {
 
         this.getInvoicedData().subscribe(
-            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
-            error => console.log(error)
+            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount'))
         );
         this.getOrdreData().subscribe(
-            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
-            (error) => { console.log(error); }
+            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) }
         );
 
         this.getQuoteData().subscribe(
-            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) },
-            (error) => { console.log(error); }
+            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) }
         );
 
         this.getOperatingData().subscribe(
-            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) },
-            (error) => { console.log(error); }
+            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) }
         );
 
         this.getLastJournalEntry().subscribe(
-            (data) => { this.generateLastTenList(data, true); },
-            (error) => { console.log(error) }
+            (data) => { this.generateLastTenList(data, true); }
         );
 
         this.getMyUserInfo().subscribe(
@@ -74,26 +69,22 @@ export class Dashboard {
                 this.user = data;
                 this.getMyTransactions()
                     .subscribe(
-                    (data) => { this.generateLastTenList(data.Data, false, true) },
-                    (error) => { console.log(error) }
+                    (data) => { this.generateLastTenList(data.Data, false, true) }
                     )
             },
             error => console.log(error)
         );
 
         this.getTransactions().subscribe(
-            (data) => { this.generateLastTenList(data.Data, false) },
-            (error) => { console.log(error) }
+            (data) => { this.generateLastTenList(data.Data, false) }
         );
 
         this.getAssets().subscribe(
-            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data.Data)) },
-            (error) => { console.log(error); }
+            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data.Data)) }
         );
 
         this.getMail().subscribe(
-            (data) => { this.fixInboxItems(data.Data); },
-            (error) => { /*Error handling*/ }
+            (data) => { this.fixInboxItems(data.Data); }
         );
     }
 
@@ -161,7 +152,7 @@ export class Dashboard {
             for (var i = 0; i < data.length; i++) {
                 var mydate = moment.utc(data[i].RegisteredDate).toDate();
                 data[i].time = moment(mydate).fromNow();
-                data[i].url = '/accounting/transquery/detailsByJournalEntryNumber/' + data[i].JournalEntryNumber;
+                data[i].url = '/accounting/transquery/details;journalEntryNumber=' + data[i].JournalEntryNumber;
             }
             this.journalEntryList = data;
         } else {
