@@ -2,7 +2,8 @@ import {Component, Input} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {PayrollrunService} from '../../../../app/services/services';
-import moment from 'moment';
+
+declare var moment;
 
 @Component({
     selector: 'postingsummary-modal-content',
@@ -19,7 +20,10 @@ export class PostingsummaryModalContent {
     private journalDate: Date;
     private headerString: string = 'Konteringssammendrag';
     
-    constructor(private payrollService: PayrollrunService, private route: ActivatedRoute) {
+    constructor(
+        private payrollService: PayrollrunService, 
+        private route: ActivatedRoute
+    ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
         });
@@ -48,9 +52,8 @@ export class PostingsummaryModalContent {
     public showResponseReceipt(successResponse: any) {
         this.showReceipt = true;
         this.journalNumber = successResponse[0].JournalEntryNumber;
-        this.journalDate = successResponse[0].FinancialDate;
+        this.journalDate = moment(successResponse[0].FinancialDate).format('DD.MM.YYYY');
     }
-    
     
     public getAccountingSum(): number {
         var ret: number = 0;

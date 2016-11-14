@@ -46,10 +46,14 @@ uni-summary .unisummary
         order: 2
         flex-basis: 100%
 
-    &.-is-dirty
+uni-summary.-is-dirty
+    .unisummary
         color: $uni-color-scale7
         position: relative
         margin-bottom: 1.5rem
+
+        small
+            color: $uni-color-scale7
 
         &:before
             animation: fadedown 750ms ease-in

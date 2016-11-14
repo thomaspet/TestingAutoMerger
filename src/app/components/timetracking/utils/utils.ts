@@ -29,6 +29,10 @@ export enum FieldSize {
     Full = 3
 }
 
+export function filterInput(v) {
+    return v.replace(/[`~!@#$%^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+}
+
 export function safeInt(value: any) {
     if (value === undefined) { return 0; }
     var tmp = parseInt(value, 10);

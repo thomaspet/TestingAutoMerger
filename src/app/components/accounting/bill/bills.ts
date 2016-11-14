@@ -181,6 +181,9 @@ export class BillsView {
     }
 
     private onInboxDataReady(data: Array<any>) {
+        // remove non ID-fields since unitable crashes wihtout ID
+        for (var i = data.length - 1; i--; i >= 0) { if (data[i] === null) { data.splice(i, 1); this.toast.addToast('Fjerner null-item..', ToastType.warn, 1, 'Nullitem'); } }
+        // add list
         this.listOfInvoices = data;
         var filter = this.getInboxFilter();
         if (filter) {
