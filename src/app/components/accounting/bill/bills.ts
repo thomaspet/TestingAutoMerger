@@ -170,7 +170,7 @@ export class BillsView {
             return false;
         }
         this.hasQueriedInboxCount = true;
-        var route = '?model=filetag&select=count(id)&filter=tagname eq \'IncomingMail\' and status eq 0 and deleted eq 0';
+        var route = '?model=filetag&select=count(id)&filter=tagname eq \'IncomingMail\' and status eq 0 and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe( data => {
             var filter = this.getInboxFilter();
             if (filter && data && data.length > 0) {
