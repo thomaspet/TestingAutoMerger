@@ -196,7 +196,6 @@ export class BillView {
 
     public onFileListReady(files: Array<any>) {
         this.files = files;
-        debugger;
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
                 this.runOcr(files);
@@ -209,7 +208,6 @@ export class BillView {
     }
 
     private runOcr(files: Array<any>): Promise<boolean> {
-        debugger;
         return new Promise( (resolve, reject) => {
             if (this.files && this.files.length > 0) {
                 this.userMsg(lang.ocr_running, null, null, true);
@@ -297,7 +295,6 @@ export class BillView {
         var fld: any = this.uniForm.field(colName);
         fld.control.setValue(value, { emitEvent: true });
         if (callInputChange) {
-            debugger;
             fld.Component.inputChange();
         }
         this.flagUnsavedChanged();
