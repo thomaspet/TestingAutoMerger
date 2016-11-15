@@ -21,7 +21,8 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
             'BankAccounts.Account',
             'CompanyBankAccount',
             'TaxBankAccount',
-            'SalaryBankAccount'
+            'SalaryBankAccount',
+            'DefaultSalesAccount'
         ];
     }
 }
