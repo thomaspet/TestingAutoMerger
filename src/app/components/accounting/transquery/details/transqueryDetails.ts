@@ -66,6 +66,7 @@ export class TransqueryDetails implements OnInit {
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
+        urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }

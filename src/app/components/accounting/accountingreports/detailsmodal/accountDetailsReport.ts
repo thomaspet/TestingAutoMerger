@@ -90,6 +90,7 @@ export class AccountDetailsReport {
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
+        urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
