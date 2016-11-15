@@ -158,18 +158,15 @@ export class InvoiceDetails {
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoiceExt>res[0];
-                    const customer = <Customer>res[2];
-                    if (customer) {
-                        invoice.Customer = customer;
-                        invoice.CustomerID = customer.ID;
-                        invoice.CustomerName = customer.Info.Name;
-                    }
+                    invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
-                    invoice.PaymentDueDate = null; // calculated in refreshInvoice()
-                    invoice.OurReference = res[1].DisplayName;
+                    invoice.PaymentDueDate = null;
+                    if (res[2]) {
+                        invoice = this.mapCustomerToInvoice(res[2], invoice);
+                    }
+
                     this.refreshInvoice(invoice);
-                    this.recalcItemSums(invoice);
                 });
             } else {
                 this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
@@ -196,6 +193,30 @@ export class InvoiceDetails {
     public invoiceItemsChange(invoice) {
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice);
+    }
+
+    private mapCustomerToInvoice(customer: Customer, invoice: CustomerInvoiceExt): CustomerInvoiceExt {
+        invoice.Customer = customer;
+        invoice.CustomerID = customer.ID;
+        invoice.CustomerName = customer.Info.Name;
+
+        if (customer.Info) {
+            const addresses = customer.Info.Addresses || [];
+            if (customer.Info.InvoiceAddressID) {
+                this.addressService.addressToInvoice(
+                    invoice,
+                    addresses.find(addr => addr.ID === customer.Info.InvoiceAddressID)
+                );
+            }
+            if (customer.Info.ShippingAddressID) {
+                this.addressService.addressToShipping(
+                    invoice,
+                    addresses.find(addr => addr.ID === customer.Info.ShippingAddressID)
+                );
+            }
+        }
+
+        return invoice;
     }
 
     private getStatustrackConfig() {
