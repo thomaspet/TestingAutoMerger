@@ -297,15 +297,22 @@ export class InvoiceDetails {
         if (this.invoice.InvoiceNumber) {
             const prefix = this.invoice.InvoiceType === InvoiceTypes.Invoice ? 'Fakturanr.' : 'Kreditnota.';
             invoiceText = `${prefix} ${this.invoice.InvoiceNumber}`;
+        } else {
+            invoiceText = (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
+        }
+
+        let customerText = '';
+        if (this.invoice.Customer && this.invoice.Customer.Info) {
+            customerText = `${this.invoice.Customer.CustomerNumber} - ${this.invoice.Customer.Info.Name}`;
         }
 
         let netSumText = 'Netto kr ';
         netSumText += this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat : this.invoice.TaxInclusiveAmount;
 
         let toolbarconfig: IToolbarConfig = {
-            title: this.invoice.Customer ? (this.invoice.Customer.CustomerNumber + ' - ' + this.invoice.Customer.Info.Name) : this.invoice.CustomerName,
+            title: invoiceText,
             subheads: [
-                {title: invoiceText},
+                {title: customerText},
                 {title: netSumText},
                 {title: GetPrintStatusText(this.invoice.PrintStatus)}
             ],
