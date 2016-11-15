@@ -263,14 +263,21 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
                     let account = rowModel.DebitAccount;
-                    return !rowModel._isEmpty ? account.AccountNumber + ': ' + account.AccountName : '';
+                    return account.AccountNumber
+                        + ': '
+                        + account.AccountName
+                            .replace('Kundereskontro ', '')
+                            .replace('Leverandørreskontro ', '');
                 }
                 return '';
             })
             .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
+                        .replace('Kundereskontro ', '')
+                        .replace('Leverandørreskontro ', '')
+                    );
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
@@ -302,14 +309,21 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.CreditAccount) {
                     let account = rowModel.CreditAccount;
-                    return account.AccountNumber + ': ' + account.AccountName;
+                    return account.AccountNumber
+                        + ': '
+                        + account.AccountName
+                            .replace('Kundereskontro ', '')
+                            .replace('Leverandørreskontro ', '');
                 }
                 return '';
             })
             .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
+                            .replace('Kundereskontro ', '')
+                            .replace('Leverandørreskontro ', '')
+                    );
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
