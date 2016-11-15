@@ -14,6 +14,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import moment from 'moment';
 
 @Component({
     selector: 'invoice-list',
@@ -252,25 +253,37 @@ export class InvoiceList implements OnInit {
             .setWidth('8%').setFilterOperator('eq');
 
         var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
-            .setWidth('8%').setFilterOperator('eq');
+            .setWidth('8%').setFilterOperator('eq')
+            .setConditionalCls((item) => {
+                return (moment(item.PaymentDueDate).isBefore(moment()))
+                    ? 'date-good' : 'date-bad';
+            });
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.TaxInclusiveAmount >= 0)
+                    ? 'number-good' : 'number-bad';
+            })
             .setCls('column-align-right');
 
         var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
-            .setCls('column-align-right');
+            .setConditionalCls((item) => {
+                return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
+            });
 
         var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
-            .setCls('column-align-right');
+            .setConditionalCls((item) => {
+                return (+item.CreditedAmount >= 0) ? 'number-good' : 'number-bad';
+            });
 
         const invoiceReferencesCol = new UniTableColumn('InvoiceReference', 'FakturaRef', UniTableColumnType.Number)
             // .setFilterOperator('startswith')
