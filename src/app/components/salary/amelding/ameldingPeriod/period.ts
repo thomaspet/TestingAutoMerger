@@ -52,13 +52,13 @@ export class AmeldingPeriodSummaryView {
             this.systemPeriodSums = [
                 {
                     title: 'Grunnlag aga',
-                    value: this.numberFormat.asMoney(this.sumGrunnlagAga)
+                    value: this.numberFormat.asMoney(this.sumGrunnlagAga, {decimalLength: 0})
                 }, {
                     title: 'Sum aga',
-                    value: this.numberFormat.asMoney(this.sumCalculatedAga)
+                    value: this.numberFormat.asMoney(this.sumCalculatedAga, {decimalLength: 0})
                 }, {
                     title: 'Sum forskuddstrekk',
-                    value: this.numberFormat.asMoney(this.sumForskuddstrekk)
+                    value: this.numberFormat.asMoney(this.sumForskuddstrekk, {decimalLength: 0})
                 }
             ];
         }
@@ -97,10 +97,10 @@ export class AmeldingPeriodSummaryView {
                     value: this.forfallsdato
                 }, {
                     title: 'Sum aga',
-                    value: this.sumAmldAga ? this.sumAmldAga.toString() : null
+                    value: this.sumAmldAga ? this.numberFormat.asMoney(this.sumAmldAga, {decimalLength: 0}) : null
                 }, {
                     title: 'Sum forskuddstrekk',
-                    value: this.sumAmldFtrekk ? this.sumAmldFtrekk.toString() : null
+                    value: this.sumAmldFtrekk ? this.numberFormat.asMoney(this.sumAmldFtrekk, {decimalLength: 0}) : null
                 }];
             }
         }

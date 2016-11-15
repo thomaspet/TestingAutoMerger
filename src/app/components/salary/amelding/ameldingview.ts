@@ -11,6 +11,7 @@ import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthentic
 import {UniSave} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {NumberFormat} from '../../../services/common/NumberFormatService';
 
 declare var moment;
 
@@ -34,9 +35,13 @@ export class AMeldingView implements OnInit {
     private feedbackObtained: boolean = false;
 
     private totalAGAFeedback: number = 0;
+    private totalAGAFeedBackStr: string;
     private totalAGASystem: number = 0;
+    private totalAGASystemStr: string;
     private totalFtrekkFeedback: number = 0;
+    private totalFtrekkFeedbackStr: string;
     private totalFtrekkSystem: number = 0;
+    private totalFtrekkSystemStr: string;
 
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
@@ -53,7 +58,8 @@ export class AMeldingView implements OnInit {
         private _ameldingService: AMeldingService,
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
-        private _salarytransService: SalaryTransactionService
+        private _salarytransService: SalaryTransactionService,
+        private numberformat: NumberFormat
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -197,6 +203,9 @@ export class AMeldingView implements OnInit {
                 this.totalAGASystem += dataElement.Sums.calculatedAGA;
                 this.totalFtrekkSystem += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
             });
+
+            this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
+            this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
         });
     }
 
@@ -342,8 +351,12 @@ export class AMeldingView implements OnInit {
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
         if (mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+            
             this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+            this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
+
             this.totalFtrekkFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+            this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
         }
     }
 
