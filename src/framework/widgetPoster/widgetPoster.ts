@@ -22,6 +22,7 @@ export class WidgetPoster {
     private currentUser: any = {};
     private numberOfBusinesses: number = 0;
     private numberOfActiveUsers: number = 0;
+    private hasImage: boolean = true;
 
     constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp) {
         this.cdr = cdr;
@@ -139,9 +140,10 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfActiveUsers = data.Data[0].countid;
-                $('.active_users_number').css('font-size', '4rem');
             })
-        
+        setTimeout(() => {
+            this.hasImage = document.querySelectorAll('.poster_tease_widget_2 uni-image article picture').length !== 0;
+        },1200)
     }
 
     private formatOrgnumber(str, n) {

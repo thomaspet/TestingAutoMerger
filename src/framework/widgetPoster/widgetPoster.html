@@ -32,7 +32,7 @@
 
     <article class="poster_tease_widget_2">
         <!--<canvas class="widget_graph" id="widgetGraph0"></canvas>-->
-        <h1 class="widget_fixed_pay_headline">FASTLØNN</h1>
+        <h1 class="widget_fixed_pay_headline">NETTOLØNN</h1>
         <h4 class="widget_fixed_pay_subhead">utbetalt hittil i år</h4>
         <h2 class="widget_fixes_pay_number">{{ netPaidThisYear }}</h2>
     </article>
@@ -71,29 +71,33 @@
 
     <article class="poster_tease_widget_2">
 
-        <uni-image [entity]="'companysettings'"
-                   [entityID]="1"
-                   [singleImage]="true"
-                   [readonly]="true"
-                   style="margin-top: 20px;"></uni-image>
+        <uni-image 
+            [entity]="'companysettings'"
+            [entityID]="1"
+            [singleImage]="true"
+            [readonly]="true"
+            class="poster_margin_20"></uni-image>
+        
+        <img *ngIf="!hasImage" [ngClass]="{'logo_placeholder' : !hasImage}" src="http://celebrityhockeyclassics.com/wp-content/uploads/Logo-Placeholder.png"/>
 
     </article>
 
     <article class="poster_tease_widget_2">
         <h2 class="settings_orgnnumber_text">ORG.NUMMER</h2>
         <h2 class="settings_orgnumber_number">{{ defaultSettings.orgNumber }}</h2>
+        <h2 class="settings_orgnumber_number" *ngIf="!defaultSettings.orgNumber">- - -</h2>
         <h4 class="settings_businesses">{{ numberOfBusinesses }} virksomheter</h4>
     </article>
 
     <article class="poster_tease_widget_2">
-        <div class="widget_avatar"  style="margin-top: 20px; margin-bottom: 20px;"></div>
+        <div class="widget_avatar poster_margin_20"></div>
         <h2 class="widget_subhead settings_avatar_text"> {{ currentUser.DisplayName }}</h2>
     </article>
 
     <article class="poster_tease_widget_2">
 
         <h2 class="active_users_number">{{ numberOfActiveUsers }}</h2>
-        <h2 class="settings_orgnnumber_text">AKTIVE BRUKERE</h2>
+        <h2 class="active_users_text">AKTIVE BRUKERE</h2>
     </article>
 
 </section>
