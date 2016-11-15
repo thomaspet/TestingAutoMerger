@@ -27,7 +27,6 @@ export class UserService extends BizHttp<User> {
                 .send()
                 .switchMap((response) => {
                     this.currentUser = response.json();
-                    console.log(this.currentUser);
                     return Observable.of(this.currentUser);
                 });
         }
