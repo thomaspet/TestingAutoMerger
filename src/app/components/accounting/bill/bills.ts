@@ -1,7 +1,7 @@
 import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/SupplierinvoiceService';
 import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
@@ -23,7 +23,9 @@ interface IFilter {
     showStatus?: boolean;
     showJournalID?: boolean;
     route?: string;
-    onDataReady?: (data) => void;
+    onDataReady?: (data) => void;    
+    passiveCounter?: boolean;
+    hotCounter?: boolean;
 }
 
 @Component({
@@ -33,7 +35,7 @@ interface IFilter {
 export class BillsView {
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(UniTable) private unitable: UniTable;
+    // @ViewChild(UniTable) private unitable: UniTable;
     private searchControl: FormControl = new FormControl('');
 
     public tableConfig: UniTableConfig;
@@ -51,14 +53,14 @@ export class BillsView {
     private hasQueriedTotals: boolean = false;
 
     public filters: Array<IFilter> = [
-        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true},
-        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false},
-        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102' },
-        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103' },
-        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq 30104', showJournalID: true },
-        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq 30105', showJournalID: true },
-        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq 30107 or statuscode eq 30106', showStatus: true, showJournalID: true },
-        { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true }
+        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
+        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false, passiveCounter: true },
+        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102', passiveCounter: true },
+        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103', passiveCounter: true },
+        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq 30104', showJournalID: true, passiveCounter: true },
+        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq 30105', showJournalID: true, passiveCounter: true },
+        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq 30107 or statuscode eq 30106', showStatus: true, showJournalID: true, passiveCounter: true },
+        { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
     ];
 
     constructor(
@@ -168,7 +170,7 @@ export class BillsView {
             return false;
         }
         this.hasQueriedInboxCount = true;
-        var route = '?model=filetag&select=count(id)&filter=tagname eq \'IncomingMail\' and status eq 0';
+        var route = '?model=filetag&select=count(id)&filter=tagname eq \'IncomingMail\' and status eq 0 and deleted eq 0';
         this.supplierInvoiceService.getStatQuery(route).subscribe( data => {
             var filter = this.getInboxFilter();
             if (filter && data && data.length > 0) {
@@ -189,7 +191,6 @@ export class BillsView {
     }
 
     private onInboxDataReady(data: Array<any>) {
-        // remove 'null' items
         this.removeNullItems(data);
         this.listOfInvoices = data;
         var filter = this.getInboxFilter();
@@ -293,11 +294,10 @@ export class BillsView {
     }
     */
 
-    private onPageChange(page) {
-        console.log('active page is now ' + page);
-
-        //for å skifte page:
-        //this.unitable.goToPage(1);
+    public onPageChange(page) {
+        // console.log('active page is now ' + page);
+        // for å skifte page:
+        // this.unitable.goToPage(1);
     }
 
     public onRowDeleted(row) {

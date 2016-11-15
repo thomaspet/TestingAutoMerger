@@ -13,7 +13,7 @@
     <aside class="horizontal_nav no-print">
         <ul>
             <li *ngFor="let filter of filters">
-                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}&nbsp;<span *ngIf="filter.count" class="tab_counter">{{filter.count}}</span></a>
+                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}&nbsp;<span *ngIf="filter.count" [class.tab_counter_passive]="filter.passiveCounter" [class.tab_counter_hot]="filter.hotCounter" class="tab_counter">{{filter.count}}</span></a>
             </li>
         </ul>
     </aside>
