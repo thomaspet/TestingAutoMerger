@@ -1,6 +1,6 @@
-import {Component, Input, ChangeDetectorRef} from '@angular/core';
-import {UniHttp} from '../core/http/http';
-import {UserService} from '../../app/services/common/UserService';
+import { Component, Input, ChangeDetectorRef } from '@angular/core';
+import { UniHttp } from '../core/http/http';
+import { UserService, NumberFormat } from '../../app/services/services';
 declare var Chart;
 
 @Component({
@@ -16,7 +16,7 @@ export class WidgetPoster {
     private cdr: any;
     private defaultEmailAddress: string;
     private defaultPhoneNumber: string;
-    private netPaidThisYear: number = 0;
+    private netPaidThisYear: string | number = 0;
     private defaultEmployment: any = {};
     private defaultSettings: any = {}
     private currentUser: any = {};
@@ -24,7 +24,7 @@ export class WidgetPoster {
     private numberOfActiveUsers: number = 0;
     private hasImage: boolean = true;
 
-    constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp) {
+    constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp, private numberFormatter: NumberFormat) {
         this.cdr = cdr;
     }
 
@@ -46,7 +46,7 @@ export class WidgetPoster {
 
     private okOrMissing(has: boolean): string {
         if (has) {
-            return 'OK'
+            return 'OK';
         } else {
             return 'MANGLER';
         }
@@ -57,7 +57,7 @@ export class WidgetPoster {
         if (this.model.employee.BusinessRelationInfo.Emails && this.model.employee.BusinessRelationInfo.Emails[0]) {
             this.defaultEmailAddress = this.model.employee.BusinessRelationInfo.Emails[0].EmailAddress;
         } else {
-            this.defaultEmailAddress = 'Epostaddresse mangler'
+            this.defaultEmailAddress = 'Epostadresse mangler';
         }
 
         if (this.model.employee.BusinessRelationInfo.Phones && this.model.employee.BusinessRelationInfo.Phones[0]) {
@@ -98,16 +98,16 @@ export class WidgetPoster {
                         this.netPaidThisYear = 0;
                         var add = Math.floor(data.netPayment / 80);
                         var interval = setInterval(() => {
-                            this.netPaidThisYear += add;
+                            this.netPaidThisYear = +this.netPaidThisYear + add;
                             if (this.netPaidThisYear >= data.netPayment) {
                                 clearInterval(interval);
-                                this.netPaidThisYear = data.netPayment;
+                                this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
                             }
                         }, 10);
                     } else {
-                        this.netPaidThisYear = data.netPayment;
+                        this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
                     }
-                })
+                });
         }
     }
 
@@ -145,7 +145,7 @@ export class WidgetPoster {
             })
         setTimeout(() => {
             this.hasImage = document.querySelectorAll('.poster_tease_widget_2 uni-image article picture').length !== 0;
-        },1200)
+        }, 1200)
     }
 
     private formatOrgnumber(str, n) {

@@ -150,7 +150,7 @@ export class EmployeeDetails extends UniView {
                     this.getEmployee();
                 }
 
-                if (childRoute !== 'personal-details' && !this.employments) {
+                if (!this.employments) {
                     this.getEmployments();
                 }
 
@@ -183,12 +183,12 @@ export class EmployeeDetails extends UniView {
         }
     }
 
-    //Dummy check to see is user has Tax Card(i donno), social security number and account number
+    //Dummy check to see is user has Tax Card, social security number and account number
     private boolChecks(employee: Employee) {
         return {
-            hasTaxCard: false,
-            hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== "",
-            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== "" && employee.BankAccounts[0].AccountNumber !== null
+            hasTaxCard: employee.TaxPercentage || employee.TaxTable,
+            hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
+            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
         }
     }
 
