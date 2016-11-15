@@ -181,10 +181,16 @@ export class BillsView {
         return this.filters.find( x => x.name === 'Inbox');
     }
 
+    private removeNullItems(data: Array<any>) {
+        var n = data ? data.length : 0;
+        if (n > 0) {
+            for (var i = n - 1; i--; i >= 0) { if (data[i] === null) { data.splice(i, 1); console.log('Fjerner null-item pga.deleted file vs filetags i backend'); } }
+        }
+    }
+
     private onInboxDataReady(data: Array<any>) {
-        // remove non ID-fields since unitable crashes wihtout ID
-        for (var i = data.length - 1; i--; i >= 0) { if (data[i] === null) { data.splice(i, 1); console.log('Fjerner null-item pga.deleted file vs filetags i backend'); } }
-        // add list
+        // remove 'null' items
+        this.removeNullItems(data);
         this.listOfInvoices = data;
         var filter = this.getInboxFilter();
         if (filter) {
