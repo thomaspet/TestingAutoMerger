@@ -5,9 +5,31 @@
 .vatreport_poster_details
     @extend .amelding_poster_details
 .vatreport_poster_figures
-    @extend .amelding_poster_figures
-.vatreport_poster_events
+    width: 100%
+    padding: 1rem
+    border: pxToRem(1) $uni-color-scale9 solid
 
+    tr
+        height: 2rem
+
+        &:first-of-type th
+            text-align: right
+
+    .datacolumn
+        max-width: 6rem
+
+    th
+        font-weight: normal
+        text-align: left
+        font-size: 1.1rem
+
+    td
+        text-align: right
+        font-size: 1.1rem
+        color: $uni-color-Good
+        white-space: nowrap
+
+.vatreport_poster_events
     li
         width: 100%
         border-radius: pxToRem(3)
