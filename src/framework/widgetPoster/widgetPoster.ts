@@ -86,27 +86,29 @@ export class WidgetPoster {
             }
         }
         /*OBS!! HARD CODED YEAR*/
-        this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('/salarytrans?action=yearly-sums&year=2016&empID=' + this.model.employee.ID)
-            .send()
-            .map(response => response.json())
-            .subscribe((data) => {
-                if (data.netPayment) {
-                    this.netPaidThisYear = 0;
-                    var add = Math.floor(data.netPayment / 80);
-                    var interval = setInterval(() => {
-                        this.netPaidThisYear += add;
-                        if (this.netPaidThisYear >= data.netPayment) {
-                            clearInterval(interval);
-                            this.netPaidThisYear = data.netPayment;
-                        }
-                    }, 10);
-                } else {
-                    this.netPaidThisYear = data.netPayment;
-                }
-            })
+        if (this.model.employee.ID) {
+            this.http
+                .asGET()
+                .usingBusinessDomain()
+                .withEndPoint('/salarytrans?action=yearly-sums&year=2016&empID=' + this.model.employee.ID)
+                .send()
+                .map(response => response.json())
+                .subscribe((data) => {
+                    if (data.netPayment) {
+                        this.netPaidThisYear = 0;
+                        var add = Math.floor(data.netPayment / 80);
+                        var interval = setInterval(() => {
+                            this.netPaidThisYear += add;
+                            if (this.netPaidThisYear >= data.netPayment) {
+                                clearInterval(interval);
+                                this.netPaidThisYear = data.netPayment;
+                            }
+                        }, 10);
+                    } else {
+                        this.netPaidThisYear = data.netPayment;
+                    }
+                })
+        }
     }
 
     private setSettingsDefaults() {
