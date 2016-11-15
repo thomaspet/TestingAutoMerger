@@ -346,7 +346,7 @@ export class InvoiceDetails {
         this.saveActions.push({
             label: 'Krediter faktura',
             action: (done) => this.creditInvoice(done),
-            disabled: status === StatusCodeCustomerInvoice.Draft
+            disabled: !status || status === StatusCodeCustomerInvoice.Draft
         });
 
         this.saveActions.push({
