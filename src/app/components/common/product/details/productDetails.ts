@@ -23,7 +23,7 @@ export class ProductDetails {
     @Input() public productId: any;
     @ViewChild(UniForm) private form: UniForm;
 
-    private config: any = {};
+    private config: any = {autofocus: true};
     private fields: any[] = [];
     private product: Product;
 

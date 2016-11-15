@@ -1,4 +1,6 @@
-import {Component, Input, ChangeDetectorRef} from '@angular/core';
+import { Component, Input, ChangeDetectorRef } from '@angular/core';
+import { UniHttp } from '../core/http/http';
+import { UserService, NumberFormat } from '../../app/services/services';
 declare var Chart;
 
 @Component({
@@ -7,27 +9,162 @@ declare var Chart;
 })
 export class WidgetPoster {
     @Input() public model: any;
+    @Input() public datachecks: any;
 
     private rngIteration: number = 0;
     public randomNumber: string = '42%';
     private cdr: any;
+    private defaultEmailAddress: string;
+    private defaultPhoneNumber: string;
+    private netPaidThisYear: string | number = 0;
+    private defaultEmployment: any = {};
+    private defaultSettings: any = {}
+    private currentUser: any = {};
+    private numberOfBusinesses: number = 0;
+    private numberOfActiveUsers: number = 0;
+    private hasImage: boolean = true;
 
-    constructor(cdr: ChangeDetectorRef) {
+    constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp, private numberFormatter: NumberFormat) {
         this.cdr = cdr;
     }
 
     public ngAfterViewInit() {
-        let chartElem = document.getElementById('widgetGraph0');
-        this.lineChartGenerator(chartElem);
-        this.randomNumberGenerator();
+        if (!this.model.employee && !this.model.settings) {
+            let chartElem = document.getElementById('widgetGraph0');
+            this.lineChartGenerator(chartElem);
+            this.randomNumberGenerator();
+        }
+    }
+
+    public ngOnChanges(changes: any) {
+        if (this.model.employee) {
+            this.setDefaults();
+        } else if (this.model.settings) {
+            this.setSettingsDefaults();
+        }
+    }
+
+    private okOrMissing(has: boolean): string {
+        if (has) {
+            return 'OK';
+        } else {
+            return 'MANGLER';
+        }
+    }
+
+    //Dummy function for EMPLOYEE ONLY
+    private setDefaults() {
+        if (this.model.employee.BusinessRelationInfo.Emails && this.model.employee.BusinessRelationInfo.Emails[0]) {
+            this.defaultEmailAddress = this.model.employee.BusinessRelationInfo.Emails[0].EmailAddress;
+        } else {
+            this.defaultEmailAddress = 'Epostadresse mangler';
+        }
+
+        if (this.model.employee.BusinessRelationInfo.Phones && this.model.employee.BusinessRelationInfo.Phones[0]) {
+            this.defaultPhoneNumber = this.model.employee.BusinessRelationInfo.Phones[0].Number;
+        } else {
+            this.defaultPhoneNumber = 'Mangler';
+        }
+
+        if (this.model.employments && this.model.employments.length > 0) {
+            var standarIndex = 0;
+            var actives = 0;
+            for (var i = 0; i < this.model.employments.length; i++) {
+                if (this.model.employments[i].Standard) {
+                    actives++;
+                }
+            }
+
+            //this.defaultEmployment.workPercent = this.model.employments[standarIndex].WorkPercent
+            this.defaultEmployment.jobName = this.model.employments[standarIndex].JobName;
+            this.defaultEmployment.numberOfActives = actives;
+
+            if (!this.defaultEmployment.workPercent) {
+
+                this.defaultEmployment.workPercent = this.model.employments[standarIndex].WorkPercent;
+                //Counts up to workpercent (Recounts every time something is changed)
+            }
+        }
+        /*OBS!! HARD CODED YEAR*/
+        if (this.model.employee.ID) {
+            this.http
+                .asGET()
+                .usingBusinessDomain()
+                .withEndPoint('/salarytrans?action=yearly-sums&year=2016&empID=' + this.model.employee.ID)
+                .send()
+                .map(response => response.json())
+                .subscribe((data) => {
+                    if (data.netPayment) {
+                        this.netPaidThisYear = 0;
+                        var add = Math.floor(data.netPayment / 80);
+                        var interval = setInterval(() => {
+                            this.netPaidThisYear = +this.netPaidThisYear + add;
+                            if (this.netPaidThisYear >= data.netPayment) {
+                                clearInterval(interval);
+                                this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
+                            }
+                        }, 10);
+                    } else {
+                        this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
+                    }
+                });
+        }
+    }
+
+    private setSettingsDefaults() {
+        //Settings data fetching??
+        var settings: any = localStorage.getItem('companySettings');
+        settings = JSON.parse(settings);
+
+        this.defaultSettings.orgNumber = this.formatOrgnumber(settings.OrganizationNumber, 3).join(' ');
+
+        this.userService.getCurrentUser().subscribe((data) => {
+            this.currentUser = data;
+        })
+
+        /*  THESE SHOULD NOT BE HERE.. SHOULD BE REMOVED
+            GETS THE NUMBER OF SUBENTITIES AND NUMBER OF ACTIVE USERS   */
+        this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=SubEntity&filter=deleted eq 0 and SuperiorOrganizationID gt 0')
+            .send()
+            .map(response => response.json())
+            .subscribe((data) => {
+                this.numberOfBusinesses = data.Data[0].countid;
+            });
+
+        this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/statistics?model=User&filter=StatusCode eq 110001')
+            .send()
+            .map(response => response.json())
+            .subscribe((data) => {
+                this.numberOfActiveUsers = data.Data[0].countid;
+            })
+        setTimeout(() => {
+            this.hasImage = document.querySelectorAll('.poster_tease_widget_2 uni-image article picture').length !== 0;
+        }, 1200)
+    }
+
+    private formatOrgnumber(str, n) {
+        var ret = [];
+        var len;
+
+        for (var i = 0, len = str.length; i < len; i += n) {
+            ret.push(str.substr(i, n))
+        }
+
+        return ret
     }
 
     private randomNumberGenerator() {
-        
+
         let iterations = 50;
 
         if (this.rngIteration < iterations) {
-            
+
             this.rngIteration++;
             let rando = Math.floor((Math.random() * 94) + 5);
             this.randomNumber = rando.toString() + '%';
@@ -59,7 +196,7 @@ export class WidgetPoster {
             },
             options: {
                 maintainAspectRatio: false,
-                scaleShowLabels : false,
+                scaleShowLabels: false,
                 tooltips: {
                     enabled: false
                 },
@@ -78,7 +215,7 @@ export class WidgetPoster {
         });
     }
 
-    public labelGenerator(numberOfDataPoints){
+    public labelGenerator(numberOfDataPoints) {
         let _data = [];
         for (var index = 0; index < numberOfDataPoints; index++) {
             _data.push('');

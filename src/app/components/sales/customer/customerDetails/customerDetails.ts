@@ -35,7 +35,7 @@ export class CustomerDetails {
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
 
-    private config: any = {};
+    private config: any = {autofocus: true};
     private fields: any[] = [];
     private addressChanged: any;
     private emailChanged: any;
@@ -59,6 +59,11 @@ export class CustomerDetails {
         },
         contextmenu: [
             {
+                label: 'Nytt tilbud',
+                action: () => this.router.navigateByUrl(`/sales/quotes/0;customerID=${this.customerID}`),
+                disabled: () => !this.customerID
+            },
+            {
                 label: 'Ny ordre',
                 action: () => this.router.navigateByUrl(`/sales/orders/0;customerID=${this.customerID}`),
                 disabled: () => !this.customerID
@@ -66,11 +71,6 @@ export class CustomerDetails {
             {
                 label: 'Ny faktura',
                 action: () => this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.customerID}`),
-                disabled: () => !this.customerID
-            },
-            {
-                label: 'Nytt tilbud',
-                action: () => this.router.navigateByUrl(`/sales/quotes/0;customerID=${this.customerID}`),
                 disabled: () => !this.customerID
             }
         ]
@@ -133,7 +133,7 @@ export class CustomerDetails {
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
                     }
-                },
+                }
             );
     }
 
@@ -145,7 +145,7 @@ export class CustomerDetails {
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
                     }
-                },
+                }
             );
     }
 

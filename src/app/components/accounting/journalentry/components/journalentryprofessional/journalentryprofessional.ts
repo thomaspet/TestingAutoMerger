@@ -263,14 +263,21 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
                     let account = rowModel.DebitAccount;
-                    return !rowModel._isEmpty ? account.AccountNumber + ': ' + account.AccountName : '';
+                    return account.AccountNumber
+                        + ': '
+                        + account.AccountName
+                            .replace('Kundereskontro ', '')
+                            .replace('Leverandørreskontro ', '');
                 }
                 return '';
             })
             .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
+                        .replace('Kundereskontro ', '')
+                        .replace('Leverandørreskontro ', '')
+                    );
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
@@ -302,14 +309,21 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.CreditAccount) {
                     let account = rowModel.CreditAccount;
-                    return account.AccountNumber + ': ' + account.AccountName;
+                    return account.AccountNumber
+                        + ': '
+                        + account.AccountName
+                            .replace('Kundereskontro ', '')
+                            .replace('Leverandørreskontro ', '');
                 }
                 return '';
             })
             .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
+                            .replace('Kundereskontro ', '')
+                            .replace('Leverandørreskontro ', '')
+                    );
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
@@ -343,16 +357,16 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
                     let project = rowModel.Dimensions.Project;
-                    return project.ID + ' - ' + project.Name;
+                    return project.ProjectNumber + ' - ' + project.Name;
                 }
                 return '';
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.ID + ' - ' + item.Name);
+                    return (item.ProjectNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.projects.filter((project) => project.ID == searchValue || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.projects.filter((project) => project.ProjectNumber == searchValue || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
@@ -361,16 +375,16 @@ export class JournalEntryProfessional implements OnInit {
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Department && rowModel.Dimensions.Department.Name) {
                     let dep = rowModel.Dimensions.Department;
-                    return dep.ID + ' - ' + dep.Name;
+                    return dep.DepartmentNumber + ' - ' + dep.Name;
                 }
                 return '';
             })
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.ID + ' - ' + item.Name);
+                    return (item.DepartmentNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.departments.filter((dep) => dep.ID == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.departments.filter((dep) => dep.DepartmentNumber == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
@@ -564,16 +578,7 @@ export class JournalEntryProfessional implements OnInit {
             err => {
                 completeCallback('Lagring feilet');
 
-                let message = '';
-                if (err._body && err._body.Messages && err._body.Messages.length > 0) {
-                    err._body.Messages.forEach(msg => {
-                        message += msg + '<br />';
-                    });
-                } else {
-                    message = JSON.stringify(err._body);
-                }
-
-                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, message);
+                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, this.toastService.parseErrorMessageFromError(err));
                 console.log('error in postJournalEntryData: ', err);
             });
 

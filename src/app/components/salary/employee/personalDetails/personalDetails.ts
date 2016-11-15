@@ -24,15 +24,12 @@ export class PersonalDetails extends UniView {
         'BusinessRelationInfo.Phones',
         'BankAccounts',
     ];
-
     public config: any = {};
     public fields: any[] = [];
     private subEntities: SubEntity[];
     private municipalities: Municipal[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
-
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -99,10 +96,6 @@ export class PersonalDetails extends UniView {
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
         this.uniform.field('BusinessRelationInfo.Name').focus();
-        this.uniform.field('SocialSecurityNumber').changeEvent.subscribe(() => {
-            this.updateInfoFromSSN();
-        });
-
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
@@ -126,7 +119,9 @@ export class PersonalDetails extends UniView {
                 this.employee.BankAccounts[0].Active = true;
             }
         }
-
+        setTimeout(() => {
+            this.updateInfoFromSSN();
+        })
         this.employee = _.cloneDeep(employee);
         super.updateState('employee', employee, true);
     }
@@ -136,7 +131,7 @@ export class PersonalDetails extends UniView {
         subEntityField.Options.source = this.subEntities;
 
         let multiValuePhone: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultPhone');
-
+        let phoneModalSubscription;
         multiValuePhone.Options = {
             entity: Phone,
             listProperty: 'BusinessRelationInfo.Phones',
@@ -150,10 +145,11 @@ export class PersonalDetails extends UniView {
                 }
 
                 this.phoneModal.openModal(value);
-
-                this.phoneModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
-                });
+                if (!phoneModalSubscription) {
+                    phoneModalSubscription = this.phoneModal.Changed.subscribe(modalval => {
+                        resolve(modalval);
+                    });
+                }
             }),
             display: (phone: Phone) => {
                 let displayVal = '';
@@ -166,6 +162,7 @@ export class PersonalDetails extends UniView {
 
         let multiValueEmail: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultEmail');
 
+        let emailModalSubscription;
         multiValueEmail.Options = {
             entity: Email,
             listProperty: 'BusinessRelationInfo.Emails',
@@ -180,14 +177,17 @@ export class PersonalDetails extends UniView {
 
                 this.emailModal.openModal(value);
 
-                this.emailModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
-                });
+                if (!emailModalSubscription) {
+                    emailModalSubscription = this.emailModal.Changed.subscribe(modalval => {
+                        resolve(modalval);
+                    });
+                }
             })
         };
 
         let multiValueAddress: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress');
 
+        let addressModalSubscription;
         multiValueAddress.Options = {
             entity: Address,
             listProperty: 'BusinessRelationInfo.Addresses',
@@ -202,10 +202,12 @@ export class PersonalDetails extends UniView {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(modalval => {
+                if (!addressModalSubscription) {
+                    addressModalSubscription = this.addressModal.Changed.subscribe(modalval => {
+                        resolve(modalval);
+                    });
+                }
 
-                    resolve(modalval);
-                });
             }),
             display: (address: Address) => {
 
@@ -246,7 +248,7 @@ export class PersonalDetails extends UniView {
     }
 
     private updateInfoFromSSN() {
-        if (this.employee.SocialSecurityNumber.length === 11) {
+        if (this.employee.SocialSecurityNumber && this.employee.SocialSecurityNumber.length === 11) {
 
             let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);

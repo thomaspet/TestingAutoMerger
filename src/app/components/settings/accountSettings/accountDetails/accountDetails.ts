@@ -22,7 +22,7 @@ export class AccountDetails implements OnInit {
     private currencies: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
-    public config: any = {};
+    public config: any = {autofocus: true};
     public fields: any[] = this.getComponentLayout().Fields;
 
     constructor(private accountService: AccountService,

@@ -48,9 +48,7 @@ export class AddressForm implements OnChanges {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['config.disableQuestion'] != null) {
-            this.setupForm();
-        }
+        this.setupForm();
     }
 
     private setupForm() {
@@ -97,7 +95,11 @@ export class AddressForm implements OnChanges {
                         this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
                             .subscribe((postalCodes: Array<PostalCode>) => {
                                 if (postalCodes.length > 0) {
+                                    address.PostalCode = postalCodes[0].Code;
                                     address.City = postalCodes[0].City;
+                                    this.config.model = _.cloneDeep(address);
+                                } else {
+                                    address.City = '';
                                     this.config.model = _.cloneDeep(address);
                                 }
                             });
@@ -168,7 +170,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -196,7 +198,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: true,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -224,7 +226,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -234,7 +236,8 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Classes: 'postal'
             },
             {
                 ComponentLayoutID: 1,
@@ -252,7 +255,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: true,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -262,7 +265,8 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Classes: 'postal'
             },
             {
                 ComponentLayoutID: 1,
@@ -280,7 +284,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: true,
+                LineBreak: false,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -338,14 +342,6 @@ export class AddressModal {
 
             actions: [
                 {
-                    text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                },
-                {
                     text: 'Lagre adresse',
                     class: 'good',
                     method: () => {
@@ -354,6 +350,14 @@ export class AddressModal {
                         return false;
                     }
                 },
+                {
+                    text: 'Avbryt',
+                    method: () => {
+                        this.modal.close();
+                        this.Canceled.emit(true);
+                        return false;
+                    }
+                }
             ]
         };
     }

@@ -18,17 +18,21 @@ export class AmeldingSummaryView {
     private statusText: string;
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
 
-    constructor() {        
+    constructor() {
         this.setupEmployees();
         this.setupTransactions();
     }
-    
+
     public ngOnChanges() {
         if (this.currentSumUp) {
             if (this.currentSumUp.status === null) {
                 this.currentSumUp.status = 0;
             }
-            this.statusText = this.statuses[this.currentSumUp.status];
+            if (this.currentSumUp.status === 3) {
+                this.statusText = this.currentSumUp._sumupStatusText;
+            } else {
+                this.statusText = this.statuses[this.currentSumUp.status];
+            }
         }
         if (this.currentAMelding) {
             this.createdDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
@@ -36,10 +40,6 @@ export class AmeldingSummaryView {
                 this.sentDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
             }
         }
-    }
-
-    public toggleCollapsed(index: number) {
-        this.currentSumUp.entities[index].collapsed = !this.currentSumUp.entities[index].collapsed;
     }
 
     private setupEmployees() {

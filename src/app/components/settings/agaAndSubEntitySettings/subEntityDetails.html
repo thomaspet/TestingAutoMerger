@@ -1,3 +1,3 @@
-<section *ngIf="model" [attr.aria-busy]="busy">
-    <uni-form [config]="config" [fields]="fields" [model]="model" (readyEvent)="ready($event)"></uni-form>
+<section *ngIf="currentSubEntity" [attr.aria-busy]="busy">
+    <uni-form [config]="config" [fields]="fields" [model]="currentSubEntity" (readyEvent)="ready($event)"></uni-form>
 </section>

@@ -27,12 +27,14 @@ export class EmployeeDetails extends UniView {
 
     private employeeID: number;
     private employee: Employee;
+    private posterEmployee: any = {};
     private employments: Employment[];
     private recurringPosts: SalaryTransaction[];
     private employeeLeave: EmployeeLeave[];
     private subEntities: SubEntity[];
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
+    private datachecks: any;
 
     constructor(
         private route: ActivatedRoute,
@@ -74,7 +76,10 @@ export class EmployeeDetails extends UniView {
 
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
+                this.datachecks = this.boolChecks(employee);
                 this.employee = employee;
+                this.posterEmployee.employee = employee;
+                this.posterEmployee.employments = this.employments;
                 this.toolbarConfig = {
                     title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
                     subheads: [{
@@ -91,6 +96,7 @@ export class EmployeeDetails extends UniView {
 
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments;
+                this.posterEmployee.employments = employments;
                 this.checkDirty();
             });
 
@@ -144,7 +150,7 @@ export class EmployeeDetails extends UniView {
                     this.getEmployee();
                 }
 
-                if (childRoute !== 'personal-details' && !this.employments) {
+                if (!this.employments) {
                     this.getEmployments();
                 }
 
@@ -174,6 +180,15 @@ export class EmployeeDetails extends UniView {
     private checkDirty() {
         if (super.isDirty()) {
             this.saveActions[0].disabled = false;
+        }
+    }
+
+    //Dummy check to see is user has Tax Card, social security number and account number
+    private boolChecks(employee: Employee) {
+        return {
+            hasTaxCard: employee.TaxPercentage || employee.TaxTable,
+            hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
+            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
         }
     }
 
@@ -225,6 +240,7 @@ export class EmployeeDetails extends UniView {
 
     private getEmployments() {
         this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID).subscribe((employments) => {
+            this.posterEmployee.employments = employments;
             super.updateState('employments', employments, false);
         });
     }
@@ -272,6 +288,13 @@ export class EmployeeDetails extends UniView {
 
                 if (!this.employeeID) {
                     super.updateState('employee', this.employee, false);
+                    
+                    if (done) {
+                        done('Lagring fullført');
+                    } else {
+                        this.saveComponent.manualSaveComplete('Lagring fullført');
+                    }
+
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute);
                     return;

@@ -11,7 +11,7 @@ declare const _;
         <section class="shippingAddress">
             <uni-form [fields]="[multivalueField]"
                       [model]="entity"
-                      [config]="{}"
+                      [config]="{autofocus: true}"
                       (readyEvent)="onLeftFormReady($event)"
                       (changeEvent)="onLeftFormChange($event)">
             </uni-form>
@@ -76,22 +76,22 @@ export class TofDeliveryForm {
     public ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
             this.entity = _.cloneDeep(this.entity);
+        }
 
-
-            // REVISIT: hacky..
-            if (this.forms) {
-                if (this.forms.first && (this.readonly || !this.entity.Customer)) {
-                    setTimeout(() => {
+        if (changes['readonly'] && this.forms) {
+            setTimeout(() => {
+                if (this.readonly) {
+                    this.forms.first.readMode();
+                    this.forms.last.readMode();
+                } else {
+                    this.forms.last.editMode();
+                    if (this.entity.Customer) {
+                        this.forms.first.editMode();
+                    } else {
                         this.forms.first.readMode();
-                    });
+                    }
                 }
-
-                if (this.forms.last && this.readonly) {
-                    setTimeout(() => {
-                        this.forms.last.readMode();
-                    });
-                }
-            }
+            });
         }
     }
 

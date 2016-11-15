@@ -159,7 +159,11 @@ export class UniAutocompleteInput {
         } 
         
         searchStream.subscribe((items: any[]) => {
-            this.selectedIndex = -1;
+            if (this.control.value === '') {
+                this.selectedIndex = -1;
+            } else {
+                this.selectedIndex = 0;
+            }
             this.lookupResults = items || [];
             this.isExpanded = true;
             this.cd.markForCheck();
@@ -215,7 +219,9 @@ export class UniAutocompleteInput {
             return Observable.of([]);
         }
 
-        if (Array.isArray(this.source)) {
+        if (this.options.getDefaultData) {
+            return this.options.getDefaultData();
+        } else if (Array.isArray(this.source)) {
             return Observable.of([(<any[]> this.source).find((item) => {
                 return _.get(item, this.field.Options.valueProperty) === value;
             })]);
@@ -302,6 +308,7 @@ export class UniAutocompleteInput {
                 this.selectedIndex = -1;
                 this.lookupResults = items;
                 this.open();
+                this.focus();
             });
         } else {
             this.close();
@@ -379,6 +386,9 @@ export class UniAutocompleteInput {
     private scrollToListItem() {
         const list = this.list.nativeElement;
         const currItem = list.children[this.selectedIndex];
+        if (!currItem) {
+            return;
+        }
         const bottom = list.scrollTop + list.offsetHeight - currItem.offsetHeight;
 
         if (currItem.offsetTop <= list.scrollTop) {

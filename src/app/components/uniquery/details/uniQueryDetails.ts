@@ -671,7 +671,6 @@ export class UniQueryDetails {
     }
 
     private addOrRemoveField(model, fieldname, field, path) {
-        console.log('model,', model, 'field', field);
         if (!this.editMode) {
             alert('Du kan ikke legge til eller fjerne felter uten å først velge "Endre uttrekk" i knappen nederst i skjermbildet');
             return;

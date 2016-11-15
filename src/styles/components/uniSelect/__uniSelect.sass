@@ -9,9 +9,13 @@
     text-overflow: ellipsis
     overflow: hidden
 
-    &[readonly]:not([readonly=false]),
     &[disabled]:not([disabled=false])
         @extend input[disabled]
+
+
+.uniSelect input[type=text][readonly].uniSelect_input.uniSelect_input
+    background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
+    background-size: auto .5rem
 
 .uniSelect_dropdown
     position: absolute

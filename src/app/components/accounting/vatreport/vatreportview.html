@@ -1,83 +1,69 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <header class="poster">
-    <article class="poster_toolbar">
-        <section>
-            <span *ngFor="let c of vatReportsInPeriod; let i=index">
-                <span *ngIf="i > 0">,   </span>
 
-                <a (click)="ShowVatReport(c.ID)" href="javascript:void(0);">
-                    <span *ngIf="c.ID == currentVatReport.ID"> <b>{{c.Title}}</b> </span>
-                    <span *ngIf="c.ID != currentVatReport.ID"> {{c.Title}} </span>
-                </a>
-            </span>
-        </section>
-    </article>
 
-    <section class="poster_overview vatreportheader">
+<section class="vatreport_poster">
 
-        <div class="poster_widgets">
-            <dl class="poster_widget">
-                <dt>Org.nr</dt>
-                <dd>{{companySettings?.OrganizationNumber}}</dd>
-
-                <dt>Navn</dt>
+        <article class="vatreport_poster_widget">
+            <dl class="vatreport_poster_details">
+                <dt>Firmanavn</dt>
                 <dd>{{companySettings?.CompanyName}}</dd>
 
-                <dt>Kontonr. for tilbakebetaling</dt>
-                <dd>{{companySettings?.CompanyBankAccount?.AccountNumber}}</dd>
+                <dt>Juridisk enhet</dt>
+                <dd>{{companySettings?.OrganizationNumber | uninumberformat:'orgno'}}</dd>
+
+                <dt *ngIf="companySettings?.CompanyBankAccount?.AccountNumber">Kontonr. for tilbakebetaling</dt>
+                <dd *ngIf="companySettings?.CompanyBankAccount?.AccountNumber">{{companySettings?.CompanyBankAccount?.AccountNumber | uninumberformat:'bankacct'}}</dd>
             </dl>
+        </article>
 
-            <article class="poster_widget tablewidget">
-                <table>
-                    <tr>
-                        <!--<b *ngIf="vatReportSummary != null && vatReportSummary[0] != null && vatReportSummary[0].IsHistoricData == true">Historiske data (XML)</b>-->
-                        <b *ngIf="isHistoricData">Historiske data (XML)</b>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th class="datacolumn">Grunnlag</th>
-                        <th class="datacolumn">Avgift</th>
-                    </tr>
-                    <tr *ngFor="let summaryItem of vatReportSummary">
-                        <td>{{summaryItem.VatCodeGroupName}}</td>
-                        <td class="currency">
-                            <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
-                                {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
-                            </a>
-                            <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
-                        </td>
-                        <td class="currency">
-                            <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
-                                {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
-                            </a>
-                            <span *ngIf="summaryItem.HasTaxAmount && isHistoricData">{{summaryItem.SumVatAmount * -1 | unicurrency:2}}</span>
-                        </td>
-                    </tr>
-                </table>
-            </article>
+        <article class="vatreport_poster_widget two-up">
+            <table class="vatreport_poster_figures" *ngIf="vatReportSummary?.length > 0">
+                <tr *ngIf="vatReportSummary?.length > 0">
+                    <td></td>
+                    <th>Grunnlag</th>
+                    <th>Avgift</th>
+                </tr>
+                <tr *ngFor="let summaryItem of vatReportSummary">
+                    <th>{{summaryItem.VatCodeGroupName}}</th>
+                    <td class="currency">
+                        <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
+                        </a>
+                        <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
+                    </td>
+                    <td class="currency">
+                        <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
+                        </a>
+                        <span *ngIf="summaryItem.HasTaxAmount && isHistoricData">{{summaryItem.SumVatAmount * -1 | unicurrency:2}}</span>
+                    </td>
+                </tr>
 
-            <article class="poster_widget">
-                <ul class="statuslist">
-                    <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
-                        {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
-                    </li>
-                    <li [className]="isExecuted() ? 'success' : ''">
-                        {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
-                    </li>
-                    <li [className]="isSent() ? 'success' : ''">
-                        {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
-                    </li>
-                    <li [className]="isApproved() ? 'success' : ''">
-                        {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
-                    </li>
-                </ul>
-            </article>
+                <em *ngIf="isHistoricData">Historiske data (XML)</em>
+            </table>
+        </article>
 
-        </div>
-
+        <article class="vatreport_poster_widget">
+            <ul class="vatreport_poster_events">
+                <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
+                    {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
+                </li>
+                <li [className]="isExecuted() ? 'success' : 'incomplete'">
+                    {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
+                </li>
+                <li [className]="isSent() ? 'success' : 'incomplete'">
+                    {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
+                </li>
+                <li [className]="isApproved() ? 'success' : 'incomplete'">
+                    {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
+                </li>
+            </ul>
+        </article>
 
     </section>
+
     <div class="horizontal_nav">
         <ul>
             <li>

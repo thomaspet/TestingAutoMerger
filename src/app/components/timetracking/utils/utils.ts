@@ -29,6 +29,10 @@ export enum FieldSize {
     Full = 3
 }
 
+export function filterInput(v) {
+    return v.replace(/[`~!@#$%^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+}
+
 export function safeInt(value: any) {
     if (value === undefined) { return 0; }
     var tmp = parseInt(value, 10);
@@ -340,5 +344,18 @@ export function trimLength(value: string, maxLength: number, addEllipsis: boolea
 }
 
 export function capitalizeFirstLetter(value: string) {
-    return value.charAt(0).toUpperCase() + value.slice(1);
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+export function capitalizeSentence(value: string, limitWords = 5) {
+    if (!value) { return ''; };
+    var words = value.split(' ');
+    var output = [];
+    for (var i = 0; i < words.length; i++) {
+        output.push(capitalizeFirstLetter(words[i])); 
+        if (i >= limitWords - 1) {
+            break;
+        } 
+    }
+    return output.join(' ');    
 }

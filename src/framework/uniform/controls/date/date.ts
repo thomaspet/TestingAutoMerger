@@ -2,6 +2,7 @@ import {Component, Input, Output, ElementRef, ViewChild, EventEmitter, ChangeDet
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout, KeyCodes} from '../../interfaces';
 import {autocompleteDate} from '../../shared/autocompleteDate';
+import {UniCalendar} from './calendar';
 import moment from 'moment';
 import {Observable} from 'rxjs/Observable';
 declare var _;
@@ -37,6 +38,9 @@ declare var _;
 export class UniDateInput {
     @ViewChild('input')
     private inputElement: ElementRef;
+
+    @ViewChild(UniCalendar)
+    private calendar: UniCalendar;
 
     @Input()
     public field: UniFieldLayout;
@@ -78,6 +82,7 @@ export class UniDateInput {
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
         this.createOpenCloseListeners();
+        this.createCalendarEvents();
     }
 
     private createOpenCloseListeners() {
@@ -142,7 +147,7 @@ export class UniDateInput {
         this.field.ReadOnly = false;
     }
 
-    private inputChange() {
+    public inputChange() {
         const value = this.control.value;
         let date;
 
@@ -191,5 +196,35 @@ export class UniDateInput {
             }
             element = element.parentElement;
         }
+    }
+
+    private createCalendarEvents() {
+        const keyDownEvent = Observable.fromEvent(this.inputElement.nativeElement, 'keydown')
+        .filter(() => this.calendarOpen)
+        .filter((event: KeyboardEvent) => !event.altKey);
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.PAGEUP)
+        .subscribe(() => this.calendar.nextMonth());
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.PAGEDOWN)
+        .subscribe(() => this.calendar.prevMonth());
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_LEFT)
+        .subscribe(() => this.calendar.prevDay());
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_RIGHT)
+        .subscribe(() => this.calendar.nextDay());
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_UP)
+        .subscribe(() => this.calendar.prevWeek());
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_DOWN)
+        .subscribe(() => this.calendar.nextWeek());
+
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER)
+        .subscribe(() => {
+            this.dateSelected(this.calendar.selectedDate.toDate());
+            this.close();
+        });
     }
 }

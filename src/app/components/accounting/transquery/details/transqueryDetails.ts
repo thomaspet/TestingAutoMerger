@@ -6,11 +6,13 @@ import {TransqueryDetailsCalculationsSummary} from '../../../../models/accountin
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import {JournalEntryLine} from '../../../../unientities';
+import {JournalEntryLine, JournalEntry} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {StatisticsService} from '../../../../services/common/StatisticsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -24,15 +26,16 @@ export class TransqueryDetails implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private configuredFilter: string;
     private allowManualSearch: boolean = true;
+    public summary: ISummaryConfig[] = [];
 
     private toolbarconfig: IToolbarConfig = {
-        title: 'Ny bilagsforespørsel'
+        title: 'Forespørsel på bilag'
     };
 
     @ViewChild(ImageModal)
     private imageModal: ImageModal;
 
-    constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService, private statisticsService: StatisticsService, private toastService: ToastService) {
+    constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService, private statisticsService: StatisticsService, private toastService: ToastService, private numberFormat: NumberFormat) {
         this.tabService.addTab({ 'name': 'Forespørsel bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
 
@@ -46,10 +49,12 @@ export class TransqueryDetails implements OnInit {
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
-        const filters = ['isnull(FileEntityLink.EntityType,\'JournalEntryLine\') eq \'JournalEntryLine\''];
+        const filters = ['isnull(FileEntityLink.EntityType,\'JournalEntry\') eq \'JournalEntry\''];
 
         if (urlParams.get('filter')) {
-            filters.push(urlParams.get('filter'));
+            if (!filters.find(x => x === urlParams.get('filter').toString())) {
+                filters.push(urlParams.get('filter'));
+            }
         }
 
         if (this.configuredFilter) {
@@ -57,10 +62,11 @@ export class TransqueryDetails implements OnInit {
         }
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear,count(FileEntityLink.ID) as Attachments');
+        urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear,JournalEntryID as JournalEntryID,count(FileEntityLink.ID) as Attachments');
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
-        urlParams.set('join', 'JournalEntryLine.ID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and '));
+        urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
+        urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
+        urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -77,10 +83,29 @@ export class TransqueryDetails implements OnInit {
             this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
+                this.setSums();
             });
         } else {
             this.summaryData = null;
         }
+    }
+
+    private setSums() {
+        let sumItems = [{
+                value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumDebit || 0) : null,
+                title: 'Sum debet',
+            }, {
+                value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumCredit || 0) : null,
+                title: 'Sum kreditt',
+            }, {
+                value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumLedger || 0) : null,
+                title: 'Sum reskontro',
+            }, {
+                value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumBalance || 0) : null,
+                title: 'Saldo',
+            }];
+
+        this.summary = sumItems;
     }
 
     private generateUnitableFilters(routeParams: any): ITableFilter[] {
@@ -189,7 +214,7 @@ export class TransqueryDetails implements OnInit {
                                 ${line.AccountAccountNumber}
                             </a>`;
                     })
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('startswith'),
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
                     .setTemplate(line => line.AccountAccountName),
@@ -207,11 +232,11 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.VatTypeVatCode),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
+                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineAmount),
-                new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Number)
+                new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
@@ -220,7 +245,7 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.VatReportTerminPeriodNo ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear : '')
                     .setFilterable(false)
                     .setVisible(false),
-                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
+                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmount)
@@ -236,7 +261,8 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
-                    .setOnCellClick(line => this.imageModal.open(JournalEntryLine.EntityType, line.ID))
+                    .setFilterable(false)
+                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
             ]);
     }
 }

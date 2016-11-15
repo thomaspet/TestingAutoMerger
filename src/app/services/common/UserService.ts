@@ -7,20 +7,34 @@ import {Observable} from 'rxjs/Rx';
 
 @Injectable()
 export class UserService extends BizHttp<User> {
+    private currentUser: User;
 
-    constructor(http: UniHttp, private authService: AuthService) {
-        super(http);
-
+    constructor(http: UniHttp, authService: AuthService) {
+        super(http, authService);
         this.relativeURL = User.RelativeUrl;
         this.entityType = User.EntityType;
         this.DefaultOrderBy = null;
+        this.authService.authentication$.subscribe(change => this.currentUser = undefined);
     }
 
     public getCurrentUser(): Observable<User> {
-        return this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint('users?action=current-session')
-            .send()
-            .map(response => response.json());
+        if (this.currentUser) {
+            return Observable.of(this.currentUser);
+        } else {
+            return this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint('users?action=current-session')
+                .send()
+                .switchMap((response) => {
+                    this.currentUser = response.json();
+                    return Observable.of(this.currentUser);
+                });
+        }
+    }
+
+    // override bizhttp put with cache invalidation
+    public Put(id: number, entity: any): Observable<any> {
+        this.currentUser = undefined;
+        return super.Put(id, entity);
     }
 }

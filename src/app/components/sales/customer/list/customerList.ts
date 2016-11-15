@@ -47,6 +47,10 @@ export class CustomerList {
                 params = new URLSearchParams();
             }
 
+            if (!params.get('orderby')) {
+                params.set('orderby', 'ID DESC');
+            }
+
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
             return this.customerService.GetAllByUrlSearchParams(params);
@@ -64,7 +68,7 @@ export class CustomerList {
         // Setup table
         this.customerTable = new UniTableConfig(false, true, 25)
             .setSearchable(true)
+            .setColumnMenuVisible(true)
             .setColumns([numberCol, nameCol, orgNoCol, departmentCol, projectCol]);
-
     }
 }

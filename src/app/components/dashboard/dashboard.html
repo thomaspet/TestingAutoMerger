@@ -62,16 +62,28 @@
     </figure>
 
     <!--MY TRANSACTIONS LIST -->
-    <figure class="dashboard_chart_card" *ngIf="myTransactionList">
+    <!--<figure class="dashboard_chart_card" *ngIf="myTransactionList">
         <h2>Dine siste transaksjoner</h2>
         <ol class="dashboard_list recent">
             <li *ngFor="let myTrans of myTransactionList; let i = index;" class="dashboard_lists">
                 <strong>Du</strong>
-                endret <!--Should be dynamic-->
+                endret
                 <strong><a (click)="widgetListItemClicked(myTrans.url)">{{myTrans.module}} {{myTrans.AuditLogEntityID}}</a></strong>
                 <time class="time_float">{{myTrans.time}}</time>
             </li>
         </ol>
+    </figure>-->
+
+    <!--INBOX CHART-->
+    <figure class="dashboard_chart_card">
+        <h2 title="Gå til innboks" (click)="widgetListItemClicked('/accounting/bills?filter=Inbox')" style="cursor:pointer">Innboks</h2>
+        <ul class="dashboard_list recent" *ngIf="inboxList" style="list-style: none">
+            <li *ngFor="let item of inboxList; let i = index" class="dashboard_lists inbox_height">
+                <a class="inbox_list_item" (click)="widgetListItemClicked(item.url)" title="{{ item.FileDescription }}"> {{ item.FileName }} </a>
+                <time class="time_float">{{item.time}}</time>
+            </li>
+        </ul>
+        <h4 *ngIf="!inboxList.length">{{ emptyInboxMessage }}</h4>
     </figure>
 
     <!--OPERATING PROFIT/LOSS CHART-->

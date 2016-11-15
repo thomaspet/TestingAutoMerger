@@ -7,13 +7,19 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup} from '../../../unientities';
+import {
+    CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account,
+    BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
+} from '../../../unientities';
 import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, PhoneService, EmailService} from '../../../services/services';
 import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService, AddressService, AccountVisibilityGroupService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
 import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
+import {CompanyService} from '../../../services/common/CompanyService';
+import {AuthService} from '../../../../framework/core/authService';
+import {UniField} from '../../../../framework/uniform/unifield';
 
 declare const _;
 
@@ -37,10 +43,12 @@ export class CompanySettingsComponent implements OnInit {
         'BankAccounts.Account',
         'CompanyBankAccount',
         'TaxBankAccount',
-        'SalaryBankAccount'
+        'SalaryBankAccount',
+        'DefaultSalesAccount'
     ];
 
     private company: CompanySettings;
+    public onlyCompanyModel: Company;
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
@@ -67,8 +75,10 @@ export class CompanySettingsComponent implements OnInit {
 
     public config: any = {};
     public fields: any[] = [];
+    public onlyCompanyConfig: any = {};
+    public onlyCompanyFields: any[] = this.generateOnlyCompanyFields();
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
             action: (event) => this.saveSettings(event),
@@ -77,7 +87,8 @@ export class CompanySettingsComponent implements OnInit {
         }
     ];
 
-    constructor(private companySettingsService: CompanySettingsService,
+    constructor(
+        private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
         private currencyService: CurrencyService,
         private accountGroupSetService: AccountGroupSetService,
@@ -91,11 +102,18 @@ export class CompanySettingsComponent implements OnInit {
         private phoneService: PhoneService,
         private emailService: EmailService,
         private toastService: ToastService,
-        private accountVisibilityGroupService: AccountVisibilityGroupService) {
+        private accountVisibilityGroupService: AccountVisibilityGroupService,
+        private companyService: CompanyService,
+        private authService: AuthService
+    ) {
     }
 
     public ngOnInit() {
         this.getDataAndSetupForm();
+        this.companyService.Get(this.authService.activeCompany.ID).subscribe(
+            company => this.onlyCompanyModel = company,
+            err => console.log('Error while getting company info:', err)
+        );
     }
 
     private getDataAndSetupForm() {
@@ -108,7 +126,7 @@ export class CompanySettingsComponent implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
-            this.companySettingsService.Get(1, this.defaultExpands),
+            this.companySettingsService.getCached(1),
             this.municipalService.GetAll(null),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
@@ -129,6 +147,7 @@ export class CompanySettingsComponent implements OnInit {
                 // get accountvisibilitygroups that are not specific for a companytype
                 this.accountVisibilityGroups = dataset[11].filter(x => x.CompanyTypes.length === 0);
 
+                console.log(dataset[6]);
                 // do this after getting emptyPhone/email/address
                 this.company = this.setupCompanySettingsData(dataset[6]);
 
@@ -238,7 +257,7 @@ export class CompanySettingsComponent implements OnInit {
             .Put(this.company.ID, this.company)
             .subscribe(
             (response) => {
-                this.companySettingsService.Get(1, this.defaultExpands).subscribe(company => {
+                this.companySettingsService.getCached(1).subscribe(company => {
                     this.company = this.setupCompanySettingsData(company);
                     this.showExternalSearch = this.company.OrganizationNumber === '-';
 
@@ -409,6 +428,15 @@ export class CompanySettingsComponent implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
+        let defaultSalesAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultSalesAccountID');
+        defaultSalesAccountID.Options = {
+            source: this.accounts,
+            valueProperty: 'ID',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
+
         let officeMunicipality: UniFieldLayout = this.fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
             source: this.municipalities,
@@ -476,6 +504,37 @@ export class CompanySettingsComponent implements OnInit {
                 });
             })
         };
+    }
+
+    private generateInvoiceEmail() {
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
+            .subscribe(
+                company => this.onlyCompanyModel = company,
+                err => console.log('Error while getting company information:', err)
+            );
+    }
+
+    public generateOnlyCompanyFields(): UniField[] {
+        return [
+            <any>{
+                FieldType: FieldType.TEXT,
+                Label: 'Faktura e-mail',
+                Property: 'FileFlowEmail',
+                Placeholder: 'Trykk på knapp for å generere',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                ReadOnly: true
+            },
+            <any>{
+                FieldType: FieldType.COMBOBOX,
+                Label: 'Generer faktura epost adresse',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                Options: {
+                    click: () => this.generateInvoiceEmail()
+                }
+            }
+        ];
     }
 
     private getFormLayout() {
@@ -781,6 +840,28 @@ export class CompanySettingsComponent implements OnInit {
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Kundereskontro samlekonto',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'DefaultSalesAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.AUTOCOMPLETE,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Standard salgskonto',
                 Description: null,
                 HelpText: null,
                 FieldSet: 0,

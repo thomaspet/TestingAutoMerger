@@ -32,13 +32,12 @@
     </article>
 
     <!-- Invoice items and summary -->
-    <uni-invoice-items *ngIf="invoice && departments && projects"
+    <uni-invoice-items *ngIf="invoice"
                        [(invoice)]="invoice"
-                       (invoiceChange)="recalcDebouncer.next($event)"
-                       [projects]="projects"
-                       [departments]="departments">
+                       (invoiceChange)="invoiceItemsChange($event)"
+                       [readonly]="readonly">
     </uni-invoice-items>
-    <uni-summary [configs]="summaryFields"></uni-summary>
+    <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
 </section>
 
 <uni-save [actions]="saveActions"></uni-save>

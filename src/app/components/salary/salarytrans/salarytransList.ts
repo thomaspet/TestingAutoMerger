@@ -3,8 +3,8 @@ import { Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewCh
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement, GetRateFrom } from '../../../unientities';
-import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService } from '../../../services/services';
+import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement, GetRateFrom, Account } from '../../../unientities';
+import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService, AccountService } from '../../../services/services';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { ControlModal } from '../payrollrun/controlModal';
 import { PostingsummaryModal } from '../payrollrun/postingsummaryModal';
@@ -69,7 +69,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         private salarytransService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
         private router: Router,
-        private numberFormat: NumberFormat
+        private numberFormat: NumberFormat,
+        private _accountService: AccountService
     ) {
 
     }
@@ -317,7 +318,18 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 }
             });
 
-        var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setAlignment('right');
+        var accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
+            .setTemplate((dataItem) => {
+                return dataItem['Account'] || '';
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem: Account) => {
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                },
+                lookupFunction: (searchValue) => {
+                    return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
+                }
+            });
         var payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
@@ -394,6 +406,10 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
+                }
+
+                if (event.field === '_Account') {
+                    this.mapAccountToTrans(row);
                 }
 
                 return row;
@@ -473,6 +489,15 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         if (rowModel.Wagetype && rowModel.EmploymentID && (rowModel.Wagetype.GetRateFrom === GetRateFrom.HourlyPayEmployee || rowModel.Wagetype.GetRateFrom === GetRateFrom.MonthlyPayEmployee)) {
             this.getRate(rowModel);
         }
+    }
+
+    private mapAccountToTrans(rowModel: SalaryTransaction) {
+        let account: Account = rowModel['_Account'];
+        if (!account) {
+            return;
+        }
+
+        rowModel.Account = account.AccountNumber;
     }
 
     private calcItem(rowModel) {

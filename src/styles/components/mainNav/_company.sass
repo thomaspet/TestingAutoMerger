@@ -15,14 +15,18 @@ uni-company-dropdown
 .navbar_company_title
     @extend %clickable
     display: inline-block
-    padding: .5rem 1rem
+    padding: .5rem 2.2rem 0 1rem
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    max-width: 15rem
+    position: relative
 
     &:after
         display: inline-block
         height: .6rem
         width: .6rem
         content: ''
-        margin-left: .5rem
         background-image: unicon-chevron-down($navbarTextColor)
         background-size: contain
         background-repeat: no-repeat

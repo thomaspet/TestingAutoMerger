@@ -2,8 +2,8 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService, ReportDefinitionService, UserService} from '../../../../services/services';
-import {StatusCodeCustomerInvoice, CustomerInvoice, CompanySettings, User} from '../../../../unientities';
+import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
+import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -11,10 +11,10 @@ import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {ISummaryConfig} from '../../../common/summary/summary';
+import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import moment from 'moment';
 
 @Component({
     selector: 'invoice-list',
@@ -29,25 +29,21 @@ export class InvoiceList implements OnInit {
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private summaryConfig: ISummaryConfig[];
-    private user: User;
-    private companySettings: CompanySettings;
 
     constructor(private uniHttpService: UniHttp,
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
                 private reportDefinitionService: ReportDefinitionService,
                 private tabService: TabService,
-                private authService: AuthService,
-                private userService: UserService,
                 private toastService: ToastService,
-                private companySettingsService: CompanySettingsService) {
+                private numberFormat: NumberFormat) {
 
         this.setupInvoiceTable();
         this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
         this.summaryConfig = [
-            {title: 'Totalsum', value: '0'},
-            {title: 'Restsum', value: '0'},
-            {title: 'Sum krediter', value: '0'},
+            {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
+            {title: 'Restsum', value: this.numberFormat.asMoney(0)},
+            {title: 'Sum krediter', value: this.numberFormat.asMoney(0)},
         ];
     }
 
@@ -57,7 +53,6 @@ export class InvoiceList implements OnInit {
 
     public ngOnInit() {
         this.setupInvoiceTable();
-        this.onFiltersChange('');
     }
 
     public createInvoice() {
@@ -77,24 +72,13 @@ export class InvoiceList implements OnInit {
     }
 
     private setupInvoiceTable() {
-        this.companySettingsService.Get(1, ['DefaultEmail'])
-            .subscribe(settings => this.companySettings = settings,
-                err => {
-                    console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-                });
-
-        let jwt = this.authService.jwtDecoded;
-        this.userService.Get(`?filter=GlobalIdentity eq '${jwt.nameid}'`).subscribe((users) => {
-            this.user = users[0];
-        });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer,Customer.Info,Customer.Info.DefaultEmail,InvoiceReference');
+            urlParams.set('expand', 'Customer,InvoiceReference');
 
             if (urlParams.get('orderby') === null) {
-                urlParams.set('orderby', 'PaymentDueDate');
+                urlParams.set('orderby', 'ID desc');
             }
 
             return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams);
@@ -238,14 +222,9 @@ export class InvoiceList implements OnInit {
                 let sendemail = new SendEmail();
                 sendemail.EntityType = 'CustomerInvoice';
                 sendemail.EntityID = invoice.ID;
+                sendemail.CustomerID = invoice.CustomerID;
                 sendemail.Subject = 'Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
-                sendemail.EmailAddress = invoice.Customer.Info.DefaultEmail ? invoice.Customer.Info.DefaultEmail.EmailAddress : '';
-                sendemail.CopyAddress = this.user.Email;
-                sendemail.Message = 'Vedlagt finner du Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd') +
-                                    '\n\nMed vennlig hilsen\n' +
-                                    this.companySettings.CompanyName + '\n' +
-                                    this.user.DisplayName + '\n' +
-                                    (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
+                sendemail.Message = 'Vedlagt finner du Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
 
                 this.sendEmailModal.openModal(sendemail);
 
@@ -274,25 +253,37 @@ export class InvoiceList implements OnInit {
             .setWidth('8%').setFilterOperator('eq');
 
         var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
-            .setWidth('8%').setFilterOperator('eq');
+            .setWidth('8%').setFilterOperator('eq')
+            .setConditionalCls((item) => {
+                return (moment(item.PaymentDueDate).isBefore(moment()))
+                    ? 'date-good' : 'date-bad';
+            });
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.TaxInclusiveAmount >= 0)
+                    ? 'number-good' : 'number-bad';
+            })
             .setCls('column-align-right');
 
         var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
-            .setCls('column-align-right');
+            .setConditionalCls((item) => {
+                return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
+            });
 
         var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
-            .setCls('column-align-right');
+            .setConditionalCls((item) => {
+                return (+item.CreditedAmount >= 0) ? 'number-good' : 'number-bad';
+            });
 
         const invoiceReferencesCol = new UniTableColumn('InvoiceReference', 'FakturaRef', UniTableColumnType.Number)
             // .setFilterOperator('startswith')
@@ -329,9 +320,9 @@ export class InvoiceList implements OnInit {
         this.customerInvoiceService.getInvoiceSummary(filter)
             .subscribe((summary) => {
                 this.summaryConfig = [
-                    {title: 'Totalsum', value: summary.SumTotalAmount},
-                    {title: 'Restsum', value: summary.SumRestAmount},
-                    {title: 'Sum kreditert', value: summary.SumCreditedAmount},
+                    {title: 'Totalsum', value: this.numberFormat.asMoney(summary.SumTotalAmount)},
+                    {title: 'Restsum', value: this.numberFormat.asMoney(summary.SumRestAmount)},
+                    {title: 'Sum kreditert', value: this.numberFormat.asMoney(summary.SumCreditedAmount)},
                 ];
             });
     }

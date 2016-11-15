@@ -16,7 +16,7 @@ import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import {UniAccounting} from './accounting';
 import {AuthGuard} from '../../authGuard';
-
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 export const childRoutes = [
     {
@@ -49,15 +49,15 @@ export const childRoutes = [
     {
         path: 'accountingreports',
         component: AccountingReports,
-        children: AccountintReportsRoutes
-	},
-	{
+        children: AccountintReportsRoutes},
+    {
         path: 'bills',
         component: BillsView
     },
     {
         path: 'bill/:id',
-        component: BillView
+        component: BillView,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

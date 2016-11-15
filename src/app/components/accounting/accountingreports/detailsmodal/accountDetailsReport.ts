@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
 import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodReportPart';
-import {Account, JournalEntryLine} from '../../../../unientities';
+import {Account, JournalEntryLine, JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {DimensionService} from '../../../../services/common/DimensionService';
 
@@ -72,24 +72,25 @@ export class AccountDetailsReport {
         const filters = [];
 
         if (urlParams.get('filter')) {
-            filters.push(urlParams.get('filter'));
+            filters.push('(' + urlParams.get('filter') + ')');
         }
 
         filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
         filters.push(`Period.AccountYear eq ${this.periodFilter1.year}`);
         filters.push(`Period.No ge ${this.periodFilter1.fromPeriodNo}`);
         filters.push(`Period.No le ${this.periodFilter1.toPeriodNo}`);
-        filters.push('isnull(FileEntityLink.EntityType,\'JournalEntryLine\') eq \'JournalEntryLine\'');
+        filters.push('isnull(FileEntityLink.EntityType,\'JournalEntry\') eq \'JournalEntry\'');
 
         if (this.dimensionEntityName) {
             filters.push(`isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.config.dimensionId}`);
         }
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', 'ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate,Description as Description,VatType.VatCode,Amount as Amount,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,count(FileEntityLink.ID) as Attachments');
+        urlParams.set('select', 'ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate,Description as Description,VatType.VatCode,Amount as Amount,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,count(FileEntityLink.ID) as Attachments,JournalEntryID as JournalEntryID');
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period');
-        urlParams.set('join', 'JournalEntryLine.ID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and '));
+        urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
+        urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
+        urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -125,17 +126,18 @@ export class AccountDetailsReport {
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.VatTypeVatCode),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
+                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                     .setCls('column-align-right')
                     .setFilterOperator('eq'),
                 new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
                 new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
-                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
+                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
-                    .setOnCellClick(line => this.imageModal.open(JournalEntryLine.EntityType, line.ID))
+                    .setFilterable(false)
+                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
             ]);
     }
 }

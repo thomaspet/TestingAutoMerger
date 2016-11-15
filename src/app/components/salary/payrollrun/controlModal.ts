@@ -72,12 +72,18 @@ export class ControlModalContent {
         withholdingField.Property = 'salaryTransactionPay.Withholding';
         withholdingField.Label = 'Beregnet forskuddstrekk';
         withholdingField.ReadOnly = true;
+        withholdingField.Options = {
+            format: 'money'
+        };
 
         var baseVacationPay: UniFieldLayout = new UniFieldLayout();
         baseVacationPay.FieldType = FieldType.NUMERIC;
         baseVacationPay.Property = 'sums.baseVacation';
         baseVacationPay.Label = 'Feriepengegrunnlag';
         baseVacationPay.ReadOnly = true;
+        baseVacationPay.Options = {
+            format: 'money'
+        };
 
         var baseAga = new UniFieldLayout();
         baseAga.FieldType = FieldType.NUMERIC;
@@ -85,25 +91,36 @@ export class ControlModalContent {
         baseAga.Label = 'Arbeidsgiveravgift grunnlag';
         baseAga.ReadOnly = true;
         baseAga.LineBreak = true;
-
+        baseAga.Options = {
+            format: 'money'
+        };
 
         var netPayment = new UniFieldLayout();
         netPayment.FieldType = FieldType.NUMERIC;
         netPayment.Property = 'sums.netPayment';
         netPayment.Label = 'Sum til utbetaling';
         netPayment.ReadOnly = true;
+        netPayment.Options = {
+            format: 'money'
+        };
 
         var calculatedVacationPay = new UniFieldLayout();
         calculatedVacationPay.FieldType = FieldType.NUMERIC;
         calculatedVacationPay.Property = 'sums.calculatedVacationPay';
         calculatedVacationPay.Label = 'Beregnet feriepenger';
         calculatedVacationPay.ReadOnly = true;
+        calculatedVacationPay.Options = {
+            format: 'money'
+        };
 
         var calculatedAga = new UniFieldLayout();
         calculatedAga.FieldType = FieldType.NUMERIC;
         calculatedAga.Property = 'sums.calculatedAGA';
         calculatedAga.Label = 'Beregnet arbeidsgiveravgift';
         calculatedAga.ReadOnly = true;
+        calculatedAga.Options = {
+            format: 'money'
+        };
 
         this.fields = [withholdingField, baseVacationPay, baseAga, netPayment, calculatedVacationPay, calculatedAga];
     }
@@ -111,19 +128,17 @@ export class ControlModalContent {
     private generateTableConfigs() {
 
         this.payList = [];
-        let wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number);
+        let wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem');
         let wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
-        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
-        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
-        let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
-        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
-        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money);
+        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date).setWidth('6rem');
+        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date).setWidth('6rem');
+        let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('5rem');
+        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money).setWidth('7rem');
+        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('4rem');
+        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money).setWidth('7rem');
 
-        this.tableConfig = new UniTableConfig()
-            .setColumns([wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol])
-            .setEditable(false)
-            .setPageable(false);
+        this.tableConfig = new UniTableConfig(false, false)
+            .setColumns([wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol]);
         if (this.model.salaryTransactionPay.PayList) {
             this.model.salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
 

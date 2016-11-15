@@ -1,8 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
+import {ProductService, VatTypeService, CustomerInvoiceItemService, ProjectService, DepartmentService} from '../../../../services/services';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerInvoice, CustomerInvoiceItem, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, VatType} from '../../../../unientities';
 
 @Component({
     selector: 'uni-invoice-items',
@@ -17,6 +17,7 @@ export class InvoiceItems {
     @ViewChild(UniTable) private table: UniTable;
 
     @Input() public invoice: CustomerInvoice;
+    @Input() public readonly: boolean;
     @Input() public projects: any[];
     @Input() public departments: any[];
 
@@ -30,7 +31,9 @@ export class InvoiceItems {
     constructor(private customerInvoiceItemService: CustomerInvoiceItemService,
                 private productService: ProductService,
                 private vatTypeService: VatTypeService,
-                private tradeItemHelper: TradeItemHelper) {
+                private tradeItemHelper: TradeItemHelper,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService) {
         this.invoiceChange = new EventEmitter<CustomerInvoice>();
         this.initDataAndTable();
     }
@@ -39,6 +42,10 @@ export class InvoiceItems {
         if (changes['invoice']) {
             this.tableData = this.invoice.Items.filter(item => !item.Deleted);
         }
+
+        if (changes['readonly'] && this.table) {
+            this.initTableConfig();
+        }
     }
 
     public focusFirstRow() {
@@ -46,7 +53,7 @@ export class InvoiceItems {
     }
 
     private initDataAndTable() {
-        this.vatTypeService.GetAll(null).subscribe((vattypes) => {
+        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe((vattypes) => {
             this.vatTypes = vattypes;
             this.initTableConfig();
         });
@@ -61,7 +68,7 @@ export class InvoiceItems {
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
-                        ['VatType', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
+                        ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
                     );
                 }
             });
@@ -95,21 +102,48 @@ export class InvoiceItems {
         const discountCol = new UniTableColumn('Discount', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 
-        const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Select)
+        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
+                    let project = rowModel.Dimensions.Project;
+                    return project.ProjectNumber + ': ' + project.Name;
+                }
+
+                return '';
+            })
             .setDisplayField('Dimensions.Project.Name')
             .setEditorOptions({
-                itemTemplate: item => `${item.ProjectNumber}: ${item.Name}`,
-                resource: this.projects.filter(x => !!x)
-            })
-            .setVisible(false);
+                itemTemplate: (item) => {
+                    return (item.ProjectNumber + ': ' + item.Name);
+                },
+                searchPlaceholder: 'Velg prosjekt',
+                lookupFunction: (query) => {
+                    return this.projectService.GetAll(`filter=startswith(ProjectNumber,'${query}') or contains(Name,'${query}')&top=30`);
+                }
+            });
 
-        const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Select)
+        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
+                    let dep = rowModel.Dimensions.Department;
+                    return dep.DepartmentNumber + ': ' + dep.Name;
+                }
+
+                return '';
+            })
             .setDisplayField('Dimensions.Department.Name')
             .setEditorOptions({
-                itemTemplate: item => `${item.DepartmentNumber}: ${item.Name}`,
-                resource: this.departments.filter(x => !!x)
-            })
-            .setVisible(false);
+                itemTemplate: (item) => {
+                    return (item.DepartmentNumber + ': ' + item.Name);
+                },
+                searchPlaceholder: 'Velg avdeling',
+                lookupFunction: (query) => {
+                    return this.departmentService.GetAll(`filter=startswith(DepartmentNumber,'${query}') or contains(Name,'${query}')&top=30`);
+                }
+            });
+
 
         const sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Money, false)
             .setVisible(false);
@@ -120,8 +154,7 @@ export class InvoiceItems {
         const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum', UniTableColumnType.Money, false);
 
         // Table config
-        const editable = !this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft;
-        this.tableConfig = new UniTableConfig(editable)
+        this.tableConfig = new UniTableConfig(!this.readonly)
             .setColumns([
                 productCol, itemTextCol, numItemsCol, unitCol,
                 exVatCol, vatTypeCol, discountPercentCol, discountCol,
@@ -129,15 +162,21 @@ export class InvoiceItems {
             ])
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.invoice))
-            .setDeleteButton(editable)
-            .setChangeCallback((event) => {
-                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(event);
+            .setDeleteButton(!this.readonly)
+            .setChangeCallback((rowModel) => {
+                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel);
+
+                if (updatedRow.VatTypeID && !updatedRow.VatType) {
+                    updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
+                }
                 let index = this.getLocalIndex(updatedRow);
+
                 if (index >= 0) {
                     this.invoice.Items[index] = updatedRow;
                 } else {
                     this.invoice.Items.push(updatedRow);
                 }
+
                 this.invoiceChange.next(this.invoice);
                 return updatedRow;
             });

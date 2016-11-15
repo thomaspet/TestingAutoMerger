@@ -2,11 +2,8 @@ import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerInvoiceService, DepartmentService, CustomerInvoiceItemService, BusinessRelationService, UserService} from '../../../../services/services';
-import {ProjectService, AddressService, ReportDefinitionService} from '../../../../services/services';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, Address, User} from '../../../../unientities';
+import {CustomerInvoice, Address, Customer} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -22,9 +19,17 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {CustomerService} from '../../../../services/Sales/CustomerService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {AuthService} from '../../../../../framework/core/authService';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {GetPrintStatusText} from '../../../../models/printStatus';
+import {
+    CustomerInvoiceService,
+    CustomerInvoiceItemService,
+    BusinessRelationService,
+    UserService,
+    AddressService,
+    ReportDefinitionService
+} from '../../../../services/services';
 
 import {TofCustomerCard} from '../../common/customerCard';
 
@@ -68,17 +73,12 @@ export class InvoiceDetails {
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
 
-    private companySettings: any;
-    private departments: any[] = [];
-    private projects: any[] = [];
-
     private tabs: string[] = [];
     private activeTabIndex: number = 0;
     private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    private user: User;
 
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
@@ -87,20 +87,20 @@ export class InvoiceDetails {
 
     constructor(private customerInvoiceService: CustomerInvoiceService,
                 private customerInvoiceItemService: CustomerInvoiceItemService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
                 private addressService: AddressService,
                 private reportDefinitionService: ReportDefinitionService,
                 private businessRelationService: BusinessRelationService,
-                private companySettingsService: CompanySettingsService,
                 private userService: UserService,
                 private toastService: ToastService,
-                private authService: AuthService,
                 private customerService: CustomerService,
                 private numberFormat: NumberFormat,
                 private router: Router,
                 private route: ActivatedRoute,
-                private tabService: TabService) {}
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper) {
+                    // set default tab title, this is done to set the correct current module to make the breadcrumb correct
+                    this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+                }
 
     public ngOnInit() {
         this.tabs = ['Detaljer', 'Levering', 'Dokumenter'];
@@ -117,7 +117,7 @@ export class InvoiceDetails {
         ];
 
         // Subscribe and debounce recalc on table changes
-        this.recalcDebouncer.debounceTime(1500).subscribe((invoice) => {
+        this.recalcDebouncer.debounceTime(500).subscribe((invoice) => {
             if (invoice.Items.length) {
                 this.recalcItemSums(invoice);
             }
@@ -131,15 +131,9 @@ export class InvoiceDetails {
                     let sendemail = new SendEmail();
                     sendemail.EntityType = 'CustomerInvoice';
                     sendemail.EntityID = this.invoice.ID;
+                    sendemail.CustomerID = this.invoice.CustomerID;
                     sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-                    sendemail.EmailAddress = this.invoice.Customer.Info.DefaultEmail ? this.invoice.Customer.Info.DefaultEmail.EmailAddress : '';
-                    sendemail.CopyAddress = this.user.Email;
-                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd') +
-                                        '\n\nMed vennlig hilsen\n' +
-                                        this.companySettings.CompanyName + '\n' +
-                                        this.user.DisplayName + '\n' +
-                                        (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
+                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -151,19 +145,6 @@ export class InvoiceDetails {
                 disabled: () => !this.invoice.ID
             }
         ];
-
-        // Get data for subentities once
-        Observable.forkJoin(
-            this.departmentService.GetAll(null),
-            this.projectService.GetAll(null),
-            this.companySettingsService.Get(1, ['DefaultEmail']),
-            this.userService.Get(`?filter=GlobalIdentity eq '${this.authService.jwtDecoded.nameid}'`)
-        ).subscribe((response) => {
-            this.departments = response[0];
-            this.projects = response[1];
-            this.companySettings = response[2];
-            this.user = response[3][0];
-        });
 
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
@@ -177,17 +158,20 @@ export class InvoiceDetails {
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoiceExt>res[0];
-                    invoice.Customer = res[2];
-                    invoice.CustomerID = customerID;
+                    invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
-                    invoice.PaymentDueDate = null; // calculated in refreshInvoice()
-                    invoice.OurReference = res[1].DisplayName;
+                    invoice.PaymentDueDate = null;
+                    if (res[2]) {
+                        invoice = this.mapCustomerToInvoice(res[2], invoice);
+                    }
+
                     this.refreshInvoice(invoice);
                 });
             } else {
-                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((res) => {
-                    this.refreshInvoice(res);
+                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
+                    this.refreshInvoice(invoice);
+                    this.recalcItemSums(invoice);
                 });
             }
 
@@ -204,6 +188,35 @@ export class InvoiceDetails {
             // Page up
             this.customerCard.focus();
         }
+    }
+
+    public invoiceItemsChange(invoice) {
+        this.invoice = _.cloneDeep(invoice);
+        this.recalcDebouncer.next(invoice);
+    }
+
+    private mapCustomerToInvoice(customer: Customer, invoice: CustomerInvoiceExt): CustomerInvoiceExt {
+        invoice.Customer = customer;
+        invoice.CustomerID = customer.ID;
+        invoice.CustomerName = customer.Info.Name;
+
+        if (customer.Info) {
+            const addresses = customer.Info.Addresses || [];
+            if (customer.Info.InvoiceAddressID) {
+                this.addressService.addressToInvoice(
+                    invoice,
+                    addresses.find(addr => addr.ID === customer.Info.InvoiceAddressID)
+                );
+            }
+            if (customer.Info.ShippingAddressID) {
+                this.addressService.addressToShipping(
+                    invoice,
+                    addresses.find(addr => addr.ID === customer.Info.ShippingAddressID)
+                );
+            }
+        }
+
+        return invoice;
     }
 
     private getStatustrackConfig() {
@@ -260,7 +273,7 @@ export class InvoiceDetails {
         this.updateSaveActions();
     }
 
-    private onCustomerChange() {
+    public onCustomerChange() {
         this.invoice = _.cloneDeep(this.invoice);
     }
 
@@ -284,16 +297,24 @@ export class InvoiceDetails {
         if (this.invoice.InvoiceNumber) {
             const prefix = this.invoice.InvoiceType === InvoiceTypes.Invoice ? 'Fakturanr.' : 'Kreditnota.';
             invoiceText = `${prefix} ${this.invoice.InvoiceNumber}`;
+        } else {
+            invoiceText = (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
+        }
+
+        let customerText = '';
+        if (this.invoice.Customer && this.invoice.Customer.Info) {
+            customerText = `${this.invoice.Customer.CustomerNumber} - ${this.invoice.Customer.Info.Name}`;
         }
 
         let netSumText = 'Netto kr ';
         netSumText += this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat : this.invoice.TaxInclusiveAmount;
 
         let toolbarconfig: IToolbarConfig = {
-            title: this.invoice.Customer ? (this.invoice.Customer.CustomerNumber + ' - ' + this.invoice.Customer.Info.Name) : this.invoice.CustomerName,
+            title: invoiceText,
             subheads: [
-                {title: invoiceText},
+                {title: customerText},
                 {title: netSumText},
+                {title: GetPrintStatusText(this.invoice.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -332,7 +353,7 @@ export class InvoiceDetails {
         this.saveActions.push({
             label: 'Krediter faktura',
             action: (done) => this.creditInvoice(done),
-            disabled: status === StatusCodeCustomerInvoice.Draft
+            disabled: !status || status === StatusCodeCustomerInvoice.Draft
         });
 
         this.saveActions.push({
@@ -377,10 +398,18 @@ export class InvoiceDetails {
 
         // Prep new orderlines for complex put
         this.invoice.Items.forEach(item => {
+            if (item.ID && item['_createguid']) {
+                delete item['_createguid'];
+            }
+
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
             }
         });
+
+        if (!this.invoice.DeliveryDate) {
+            this.invoice.DeliveryDate = this.invoice.InvoiceDate || new Date();
+        }
 
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
             const message = 'En eller flere varelinjer mangler produkt';
@@ -558,58 +587,40 @@ export class InvoiceDetails {
             return;
         }
 
-        invoice.Items.forEach((x) => {
-            x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-            x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-            x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-            x.Discount = x.Discount ? x.Discount : 0;
-            x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-            x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-            x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-            x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-        });
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoice.Items);
+        this.updateSaveActions();
+        this.updateToolbar();
 
-        this.customerInvoiceService.calculateInvoiceSummary(invoice.Items)
-            .subscribe((data) => {
-                this.itemsSummaryData = data || {};
-                this.updateSaveActions();
-                this.updateToolbar();
-
-                this.summaryFields = [
-                    {
-                        title: 'Avgiftsfritt',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
-                    },
-                    {
-                        title: 'Avgiftsgrunnlag',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
-                    },
-                    {
-                        title: 'Sum rabatt',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
-                    },
-                    {
-                        title: 'Nettosum',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
-                    },
-                    {
-                        title: 'Mva',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
-                    },
-                    {
-                        title: 'Øreavrunding',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
-                    },
-                    {
-                        title: 'Totalsum',
-                        value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
-                    },
-                ];
+        this.summaryFields = [
+            {
+                title: 'Avgiftsfritt',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
             },
-            (err) => {
-                this.log(err);
-            }
-        );
+            {
+                title: 'Avgiftsgrunnlag',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
+            },
+            {
+                title: 'Sum rabatt',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
+            },
+            {
+                title: 'Nettosum',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
+            },
+            {
+                title: 'Mva',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
+            },
+            {
+                title: 'Øreavrunding',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
+            },
+            {
+                title: 'Totalsum',
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
+            },
+        ];
     }
 
     private log(err) {

@@ -9,6 +9,7 @@ import {UniModules} from '../layout/navbar/tabstrip/tabService';
 export class Settings {
 
     private childRoutes: any[];
+    private dummyObject: any = { settings: true }
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({ name: 'Innstillinger', url: '/settings/company', moduleID: UniModules.Settings, active: true });

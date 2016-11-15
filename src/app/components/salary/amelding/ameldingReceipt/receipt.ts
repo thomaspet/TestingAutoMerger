@@ -121,7 +121,16 @@ export class AmeldingReceiptView {
                 return moment(dataItem.tidsstempelFraAltinn).format('DD.MM.YYYY HH:mm');
             });
         let antallCol = new UniTableColumn('antallInntektsmottakere', 'Antall inntektsmottakere', UniTableColumnType.Text);
-        let replaceCol = new UniTableColumn('erstatterMeldingsId', 'Erstatter ID', UniTableColumnType.Number);
+        let replaceCol = new UniTableColumn('erstatterMeldingsId', 'Erstatter ID', UniTableColumnType.Text)
+            .setTemplate((dataItem) => {
+                let replID = 0;
+                this.aMeldingerInPeriod.forEach(amelding => {
+                    if (dataItem.erstatterMeldingsId === amelding.messageID) {
+                        replID = amelding.ID;
+                    }
+                });
+                return replID === 0 ? dataItem.erstatterMeldingsId : replID;
+            });
         let agaCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Aga', UniTableColumnType.Money);
         let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money);
 

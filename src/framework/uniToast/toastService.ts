@@ -31,6 +31,13 @@ export class ToastService {
         return id;
     }
 
+    public clear() {
+        this.toasts.forEach( x => {
+            this.removeToast(x.id);
+        });
+        this.toasts.length = 0;
+    }
+
     public removeToast(id) {
         this.toasts = this.toasts.filter((toast) => {
             return toast.id !== id;

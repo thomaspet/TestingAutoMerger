@@ -1357,6 +1357,7 @@ export class CustomerInvoice {
     public PaymentID: string;
     public PaymentInformation: string;
     public PaymentTerm: string;
+    public PrintStatus: number;
     public Requisition: string;
     public RestAmount: number;
     public SalesPerson: string;
@@ -1456,6 +1457,7 @@ export class CustomerOrder {
     public OrderNumberSeriesID: number;
     public OurReference: string;
     public PaymentTerm: string;
+    public PrintStatus: number;
     public Requisition: string;
     public SalesPerson: string;
     public ShippingAddressLine1: string;
@@ -1548,6 +1550,7 @@ export class CustomerQuote {
     public InvoiceReceiverName: string;
     public OurReference: string;
     public PaymentTerm: string;
+    public PrintStatus: number;
     public QuoteDate: Date;
     public QuoteNumber: number;
     public QuoteNumberSeriesID: number;
@@ -1766,6 +1769,7 @@ export class AGACalculation {
     public agaDraw: Array<AGADraw>;
     public agaPension: Array<AGAPension>;
     public foreignerWithPercent: Array<ForeignerWithPercent>;
+    public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public foreignerWithAmount: Array<ForeignerWithAmount>;
     public payrollRun: Array<PayrollRun>;
     public CustomFields: any;
@@ -2007,7 +2011,7 @@ export class CompanySalary {
     public MainAccountCostAGA: number;
     public MainAccountCostAGAVacation: number;
     public MainAccountCostVacation: number;
-    public PaymentInterval: number;
+    public PaymentInterval: CompanySalaryPaymentInterval;
     public RemitRegularTraits: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -3596,6 +3600,7 @@ export class SupplierInvoice {
     public PaymentID: string;
     public PaymentInformation: string;
     public PaymentTerm: string;
+    public PrintStatus: number;
     public Requisition: string;
     public RestAmount: number;
     public SalesPerson: string;
@@ -4596,6 +4601,13 @@ export enum SalaryRegistry{
 	Trans = 2,
 	Svalbard = 3,
 	Permisjon = 4,
+}
+
+
+export enum CompanySalaryPaymentInterval{
+	Monthly = 0,
+	Pr14Days = 1,
+	Weekly = 2,
 }
 
 

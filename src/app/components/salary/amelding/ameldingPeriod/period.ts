@@ -1,3 +1,4 @@
+import { NumberFormat } from './../../../../services/common/NumberFormatService';
 import { Component, Input } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { AmeldingData } from '../../../../unientities';
@@ -29,7 +30,7 @@ export class AmeldingPeriodSummaryView {
     @Input() private currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
 
-    constructor() {
+    constructor(private numberFormat: NumberFormat) {
         this.setupSystemTableConfig();
         this.setupAmeldingTableConfig();
     }
@@ -51,13 +52,13 @@ export class AmeldingPeriodSummaryView {
             this.systemPeriodSums = [
                 {
                     title: 'Grunnlag aga',
-                    value: this.sumGrunnlagAga.toString()
+                    value: this.numberFormat.asMoney(this.sumGrunnlagAga, {decimalLength: 0})
                 }, {
                     title: 'Sum aga',
-                    value: this.sumCalculatedAga.toString()
+                    value: this.numberFormat.asMoney(this.sumCalculatedAga, {decimalLength: 0})
                 }, {
                     title: 'Sum forskuddstrekk',
-                    value: this.sumForskuddstrekk.toString()
+                    value: this.numberFormat.asMoney(this.sumForskuddstrekk, {decimalLength: 0})
                 }
             ];
         }
@@ -96,10 +97,10 @@ export class AmeldingPeriodSummaryView {
                     value: this.forfallsdato
                 }, {
                     title: 'Sum aga',
-                    value: this.sumAmldAga ? this.sumAmldAga.toString() : null
+                    value: this.sumAmldAga ? this.numberFormat.asMoney(this.sumAmldAga, {decimalLength: 0}) : null
                 }, {
                     title: 'Sum forskuddstrekk',
-                    value: this.sumAmldFtrekk ? this.sumAmldFtrekk.toString() : null
+                    value: this.sumAmldFtrekk ? this.numberFormat.asMoney(this.sumAmldFtrekk, {decimalLength: 0}) : null
                 }];
             }
         }

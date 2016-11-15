@@ -397,8 +397,11 @@ export class UniMultivalueInput {
             if (row._mode === 2) {
                 var index = this.rows.indexOf(row);
                 this.rows = this.rows.slice(0, index).concat(this.rows.slice(index + 1));
-                _.set(this.model, this.field.Property, this.rows);
+                _.set(this.model, this.field.Options.listProperty, this.rows);
                 this.changeEvent.emit(this.model);
+                if (this.rows.indexOf(this.selectRow) === -1) {
+                    this.defaultRow = null;
+                }
                 this.cd.markForCheck();
             }
         }, 5000);

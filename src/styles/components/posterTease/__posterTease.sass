@@ -1,3 +1,9 @@
+$text-purple: #997baf
+$text-light-blue: #8ebeda
+$text-dark: #636465
+$color-red: #ce6061
+$color-green: #479354
+
 @keyframes placeholder
     from
         transform: scaleX(0)
@@ -25,6 +31,14 @@
     display: flex
     height: 15rem
     margin: 0 auto
+
+.poster_tease_widget_2
+    flex-grow: 1
+    width: 25%
+    height: 100%
+    padding: 1rem
+    border-left: pxToRem(1) solid $uni-color-negative
+    box-sizing: border-box
 
 .poster_tease_widget
     flex-grow: 1
@@ -63,22 +77,162 @@
 
 .widget_avatar
     @extend %posterElemCenter
-    height: 4rem
-    width: 4rem
-    background: unicon-user(transparentize($uni-color-C2A, .8)) no-repeat center center
-    background-size: contain
+    height: 7rem
+    width: 7rem
+    background: url('https://pbs.twimg.com/profile_images/29139742/hasselhoff-david-photo-xl-david-hasselhoff-6210194_400x400.jpg') no-repeat center center
+    background-size: cover
+    border-radius: 100%
+    margin-bottom: -15px
 
 .widget_headline
     @extend %posterPlaceholder
     @extend %posterElemCenter
     height: 1.8rem
+    line-height: 1.8rem
+    vertical-align: middle
+    text-align: center
     width: 90%
+    color: $text-light-blue
+    background-color: transparent
+    margin-top: 25px
 
 .widget_subhead
     @extend %posterPlaceholder
     @extend %posterElemCenter
     height: 1.4rem
-    width: 50%
+    line-height: 1.4 rem
+    vertical-align: middle
+    text-align: center
+    background-color: transparent
+    margin-top: -10px
+
+.widget_fixed_pay_headline
+    margin: 50px 0 0 0
+    font-size: 2.2rem
+    text-align: center
+    font-weight: 500
+
+.widget_fixed_pay_subhead
+    margin: 0
+    text-align: center
+
+.widget_fixes_pay_number
+    color: $text-purple
+    text-align: center
+    font-size: 2.4rem
+    font-weight: 500
+    margin-top: 5px
+
+.widget_triple_notifier
+    display: block
+    width: 90%
+    margin-left: 5%
+    border-radius: 3px
+    height: 25%
+    text-align: center
+    border: 1px solid transparent
+    margin-bottom: 3%
+
+    &:first-of-type
+        margin-top: 5%
+
+.widget_notifier_error
+    background-color: $color-red
+    color: #fff
+
+.widget_notifier_success
+    background-color: transparent
+    color: $color-green
+    border: 1px solid $color-green
+
+.employment_percent
+    font-size: 4rem
+    margin: 20px 0 0 0
+    font-weight: 400
+    text-align: center
+    color: $text-purple
+
+.employment_title
+    font-size: 1.1rem
+    text-align: center
+    font-weight: 400
+    margin: 15px
+
+.employment_active
+    font-size: 3rem
+    text-align: center
+    font-weight: 300
+    margin: 0
+
+.employment_number_of_active
+    font-size: 0.8rem
+    text-align: center
+    color: $text-purple
+    cursor: pointer
+
+.settings_orgnnumber_text
+    font-size: 2.8rem
+    font-weigth: 400
+    text-align: center
+    margin: 20px
+    margin-top: 30px
+    color: $text-dark
+
+.settings_orgnumber_number
+    font-size: 2.8rem
+    font-weight: 400
+    text-align: center
+    margin: 0
+    color: $text-purple
+
+.settings_businesses
+    font-size: 1.4rem
+    text-align: center
+    margin: 10px
+    font-weight: 600
+    color: $text-dark
+
+.settings_avatar_text
+    font-size: 1.4rem
+    font-weight: 400
+    color: $text-dark
+
+.active_users_number
+    font-size: 4rem
+    font-weight: 400
+    text-align: center
+    margin-bottom: 10px
+    color: $text-purple
+    transition: all 0.8s ease
+
+.active_users_text
+    font-size: 2.8rem
+    font-weigth: 400
+    text-align: center
+    margin: 20px
+    margin-top: 10px
+    color: $text-dark
+
+.active_error
+    font-size: 3rem
+    text-align: center
+    font-weight: 300
+    line-height: 45px
+
+.poster_margin_20
+    margin-top: 20px
+    margin-bottom: 20px
+
+.inbox_height
+    height: 25px
+
+.logo_placeholder
+    display: block
+    margin: -2rem auto
+
+.poster_logo
+    img
+        max-height: 10rem
 
 .widget_randomNumber
     margin: 0

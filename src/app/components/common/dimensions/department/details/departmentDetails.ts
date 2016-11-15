@@ -12,7 +12,7 @@ import {UniFieldLayout} from "../../../../../../framework/uniform/interfaces";
     templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html'
 })
 export class DepartmentDetails implements OnInit {
-    public config: any = {};
+    public config: any = {autofocus: true};
     public fields: any[] = [];
     private department: Department;
 

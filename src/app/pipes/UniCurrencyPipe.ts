@@ -4,7 +4,7 @@ import {Pipe, PipeTransform} from '@angular/core';
 export class UniCurrencyPipe implements PipeTransform {
     public transform(value: number, numberOfDecimalPlaces?: number): string {
         const nrOfDecimal = numberOfDecimalPlaces || 2;
-        const THOUSAND_SEPARATOR = '.';
+        const THOUSAND_SEPARATOR = ' ';
         const DECIMAL_SEPARATOR = ',';
         const roundedNumber = this.round10(value, nrOfDecimal);
         const decimalCorrect = this.enforceDecimalPlaces(roundedNumber, nrOfDecimal);

@@ -1,43 +1,43 @@
-<section *ngIf="currentAMelding">
-    <table>
-        <tr>
-            <td>A-melding id</td>
-            <td>{{currentAMelding.ID}}<span *ngIf="currentAMelding.replacesID > 0">, erstatter id {{currentAMelding.replacesID}}</span></td>
-        </tr>
-        <tr>
-            <td>Dato klargjort</td>
-            <td>{{createdDate}}</td>
-        </tr>
-        <tr>
-            <td>Dato innsendt</td>
-            <td>{{sentDate ? sentDate : 'Ikke innsendt'}}</td>
-        </tr>
-        <tr>
-            <td>Status</td>
-            <td>{{statusText}}</td>
-        </tr>
-    </table>
-</section>
+<dl class="amelding_summary_overview" *ngIf="currentAMelding">
+    <dt>A-melding ID</dt>
+    <dd>{{currentAMelding.replacesID > 0 ? currentAMelding.ID + ' (Erstatter ID ' + currentAMelding.replacesID + ')' : currentAMelding.ID}}</dd>
 
-<section class="unitableWidthAuto">
-    <ul *ngIf="currentSumUp">
-        <li *ngFor="let virksomhet of currentSumUp.entities; let index = index" class="amelding_summaryview" [ngClass]="{'-is-expanded':!virksomhet.collapsed}">
-            <h4 (click)="toggleCollapsed(index)">{{virksomhet.name}} - {{virksomhet.orgNumber}}</h4>
+    <dt>Klargjort</dt>
+    <dd>{{createdDate}}</dd>
 
-            <table *ngIf="!virksomhet.collapsed">
-                <tr>
-                    <td>Grunnlag arbeidsgiveravgift</td>
-                    <td>{{virksomhet.sums.agaBase}}</td>
-                </tr>
-                <tr>
-                    <td>Beregnet arbeidsgiveravgift</td>
-                    <td>{{virksomhet.sums.aga}}</td>
-                </tr>
-            </table>
-            <br><span *ngIf="!virksomhet.collapsed">Ansatte og arbeidsforhold</span>
-            <uni-table [config]="employeeTableConfig" [resource]="virksomhet.employees" *ngIf="!virksomhet.collapsed"></uni-table>
-            <br><span *ngIf="virksomhet.transactionTypes && !virksomhet.collapsed">Sum per beskrivelse</span>
-            <uni-table *ngIf="virksomhet.transactionTypes && !virksomhet.collapsed" [config]="transactionTableConfig" [resource]="virksomhet.transactionTypes"></uni-table>
-        </li>
-    </ul>
-</section>
+    <dt>Innsendt</dt>
+    <dd>{{sentDate ? sentDate : 'Ikke innsendt'}}</dd>
+
+    <dt>Status</dt>
+    <dd>{{statusText}}</dd>
+</dl>
+
+
+<ul class="amelding_summary_sections" *ngIf="currentSumUp">
+
+    <li *ngFor="let virksomhet of currentSumUp.entities; let index = index" class="amelding_summary_section" [attr.aria-expanded]="virksomhet.expanded">
+
+        <header class="amelding_summary_section_header" (click)="virksomhet.expanded = !virksomhet.expanded">
+
+            <h2><strong>{{virksomhet.orgNumber | uninumberformat:'orgno'}}</strong> {{virksomhet.name}}</h2>
+
+            <dl class="amelding_summary_section_overview">
+                <dt>Grunnlag arbeidsgiveravgift</dt>
+                <dd>{{virksomhet.sums.agaBase | unicurrency}}</dd>
+            </dl>
+
+        </header>
+
+        <article class="amelding_summary_section_details" *ngIf="virksomhet.expanded">
+
+            <h2>Ansatte og arbeidsforhold</h2>
+            <uni-table [config]="employeeTableConfig" [resource]="virksomhet.employees"></uni-table>
+
+            <h2 *ngIf="virksomhet.transactionTypes">Sum per beskrivelse</h2>
+            <uni-table *ngIf="virksomhet.transactionTypes" [config]="transactionTableConfig" [resource]="virksomhet.transactionTypes"></uni-table>
+
+        </article>
+
+
+    </li>
+</ul>
