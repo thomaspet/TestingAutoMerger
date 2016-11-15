@@ -50,13 +50,13 @@
                 <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
                     {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
                 </li>
-                <li [className]="isExecuted() ? 'success' : 'warn'">
+                <li [className]="isExecuted() ? 'success' : 'incomplete'">
                     {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
                 </li>
-                <li [className]="isSent() ? 'success' : 'warn'">
+                <li [className]="isSent() ? 'success' : 'incomplete'">
                     {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
                 </li>
-                <li [className]="isApproved() ? 'success' : 'warn'">
+                <li [className]="isApproved() ? 'success' : 'incomplete'">
                     {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
                 </li>
             </ul>

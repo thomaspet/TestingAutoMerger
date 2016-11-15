@@ -7,7 +7,31 @@
 .vatreport_poster_figures
     @extend .amelding_poster_figures
 .vatreport_poster_events
-    @extend .amelding_poster_events
+
+    li
+        width: 100%
+        border-radius: pxToRem(3)
+        display: block
+        list-style: none
+        text-align: center
+        padding: .2rem 1rem
+        font-size: 1rem
+
+        &:not(:last-of-type)
+            margin-bottom: .5rem
+
+        &.success
+            color: $uni-color-Good
+            border: pxToRem(2) solid $uni-color-Good
+
+        &.warn
+            color: $uni-color-Warn
+            border: pxToRem(2) solid $uni-color-Warn
+
+        &.incomplete
+            color: $uni-color-scale5
+            border: pxToRem(2) solid $uni-color-scale5
+
 
 vat-report-view
     .comment
