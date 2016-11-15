@@ -4,7 +4,7 @@
 
 uni-toolbar
     @include unigrid-flush(14)
-    margin: 0 auto 1rem
+    margin: 0 auto .5rem
     padding: 0 1rem 0 0
     display: flex
     flex-wrap: wrap
@@ -16,8 +16,6 @@ uni-toolbar
         flex-shrink: 1
         order: 1
         padding: 0
-        margin-top: 1.1rem // Magic number to line up baselines of crumbs and track
-        // (`align-self: baseline` alignes the baseline to the bottom of the track)
 
     uni-statustrack
         flex-basis: fit-content
@@ -36,6 +34,7 @@ uni-toolbar
         margin: 0 0 0 1rem
         flex-grow: 1
         order: 4
+        line-height: 100%
 
         small
             @extend p
