@@ -180,7 +180,7 @@ export class RecurringPost extends UniView {
                     return 'Nei';
                 }
             });
-        
+
         const accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return dataItem['Account'] || '';
@@ -207,15 +207,17 @@ export class RecurringPost extends UniView {
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
+                let rateObservable = null;
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
                     this.mapWagetypeToRecurringpost(row);
+                    rateObservable = this.getRate(row);
                 }
 
                 if (event.field === '_Employment') {
                     const employment = row['_Employment'];
                     row['EmploymentID'] = (employment) ? employment.ID : null;
-                    this.getRate(row);
+                    rateObservable = this.getRate(row);
                 }
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
@@ -234,7 +236,15 @@ export class RecurringPost extends UniView {
                     this.mapAccountToTrans(row);
                 }
 
-                this.updateAndCacheSalaryTransactionRow(row);
+                if (rateObservable) {
+                    rateObservable.subscribe(rate => {
+                        row['Rate'] = rate;
+                        this.calcItem(row);
+                        this.updateAndCacheSalaryTransactionRow(row);
+                    });
+                } else {
+                    this.updateAndCacheSalaryTransactionRow(row);
+                }
 
                 return row;
             });
@@ -263,8 +273,6 @@ export class RecurringPost extends UniView {
         rowModel['Amount'] = 1;
         rowModel['Rate'] = wagetype.Rate;
 
-        this.getRate(rowModel);
-
         let supplements: SalaryTransactionSupplement[] = [];
 
         if (rowModel['Supplements']) {
@@ -288,6 +296,10 @@ export class RecurringPost extends UniView {
         }
     }
 
+    private getRate(rowModel: SalaryTransaction) {
+        return this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+    }
+
     private mapAccountToTrans(rowModel: SalaryTransaction) {
         let account: Account = rowModel['_Account'];
         if (!account) {
@@ -295,14 +307,6 @@ export class RecurringPost extends UniView {
         }
 
         rowModel.Account = account.AccountNumber;
-    }
-
-    private getRate(rowModel: SalaryTransaction) {
-        this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']).subscribe(rate => {
-            rowModel['Rate'] = rate;
-            this.calcItem(rowModel);
-            this.updateAndCacheSalaryTransactionRow(rowModel);
-        });
     }
 
     private calcItem(rowModel) {
