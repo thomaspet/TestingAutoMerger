@@ -28,6 +28,8 @@ export class UniQueryReadOnly implements OnChanges {
     private selects: string;
     private expands: string;
     private queryDefinition: UniQueryDefinition;
+    private buttonTitle: string;
+    private buttonAction: any;
 
     private currentUserGlobalIdentity: string = '';
 
@@ -132,6 +134,20 @@ export class UniQueryReadOnly implements OnChanges {
         let expands: Array<string> = [];
         let selects: Array<string> = [];
 
+        if (this.queryDefinition.MainModelName.startsWith('Customer')) {
+            var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
+            if (title === 'Quote') {
+                this.buttonTitle = 'Nytt tilbud';
+                this.buttonAction = () => { this.router.navigateByUrl(`/sales/quotes/0;customerID=${this.externalID}`) }
+            } else if (title === 'Order') {
+                this.buttonTitle = 'Ny ordre';
+                this.buttonAction = () => { this.router.navigateByUrl(`/sales/orders/0;customerID=${this.externalID}`) }
+            } else if (title === 'Invoice') {
+                this.buttonTitle = 'Ny faktura';
+                this.buttonAction = () => { this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.externalID}`) }
+            }
+        }
+
         for (let i = 0; i < this.fields.length; i++) {
             let field = this.fields[i];
 
@@ -163,7 +179,6 @@ export class UniQueryReadOnly implements OnChanges {
             if (field.sumFunction && selectableColName.indexOf(field.sumFunction) === -1) {
                 selectableColName = `${field.sumFunction}(${selectableColName})`;
             }
-
             let col = new UniTableColumn(selectableColName, field.header, field.type);
             col.alias = aliasColName;
             col.path = field.path;
