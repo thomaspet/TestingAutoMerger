@@ -6,7 +6,7 @@
             <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
             <label>
                 Brukernavn
-                <input type="text" [disabled]="working" [formControl]="usernameControl" placeholder="Brukernavn">
+                <input type="text" autofocus [disabled]="working" [formControl]="usernameControl" placeholder="Brukernavn">
             </label>
 
             <label>
