@@ -43,7 +43,8 @@ export class CompanySettingsComponent implements OnInit {
         'BankAccounts.Account',
         'CompanyBankAccount',
         'TaxBankAccount',
-        'SalaryBankAccount'
+        'SalaryBankAccount',
+        'DefaultSalesAccount'
     ];
 
     private company: CompanySettings;
@@ -420,6 +421,15 @@ export class CompanySettingsComponent implements OnInit {
 
         let customerAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerAccountID');
         customerAccountID.Options = {
+            source: this.accounts,
+            valueProperty: 'ID',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
+
+        let defaultSalesAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultSalesAccountID');
+        defaultSalesAccountID.Options = {
             source: this.accounts,
             valueProperty: 'ID',
             displayProperty: 'AccountNumber',
@@ -830,6 +840,28 @@ export class CompanySettingsComponent implements OnInit {
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Kundereskontro samlekonto',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'DefaultSalesAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.AUTOCOMPLETE,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Standard salgskonto',
                 Description: null,
                 HelpText: null,
                 FieldSet: 0,
