@@ -36,7 +36,7 @@
     "rxjs": "5.0.0-beta.12",
     "zone.js": "^0.6.21",
     "file-saver": "1.3.2",
-    "unitable-ng2": "0.0.0-alpha075"
+    "unitable-ng2": "0.0.0-alpha076"
   },
   "devDependencies": {
     "del": "^2.2.0",
