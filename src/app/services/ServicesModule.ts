@@ -10,7 +10,7 @@ import {SalaryServicesModule} from './Salary/SalaryServicesModule';
 import {SalesServicesModule} from './Sales/SalesServicesModule';
 import {SharedServicesModule} from './Shared/SharedServicesModule';
 import {TimeTrackingModule} from './Timetracking/TimeTrackingModule';
-
+import {BrowserStorageService} from './BrowserStorageService';
 
 @NgModule({
     imports: [
@@ -26,7 +26,8 @@ import {TimeTrackingModule} from './Timetracking/TimeTrackingModule';
         UniCacheService,
         ParamsService,
         RootRouteParamsService,
-        StaticRegisterService
+        StaticRegisterService,
+        BrowserStorageService
     ],
     exports: [
         AccountingServicesModule,

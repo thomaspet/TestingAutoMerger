@@ -68,6 +68,16 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 .subscribe((data: Array<JournalEntryData>) => {
                     this.setJournalEntryData(data);
                 });
+        } else {
+            let data = this.journalEntryService.getSessionData(this.mode);
+
+            if (data && data.length > 0) {
+                // if we have any unsaved data in our sessionStorage, show this data. This needs to happen after a setTimeout
+                // to let Angular create the child components first
+                setTimeout(() => {
+                    this.setJournalEntryData(data);
+                });
+            }
         }
 
         this.setSums();
@@ -159,6 +169,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private onDataChanged(data: JournalEntryData[]) {
         if (data.length <= 0) {
             this.itemsSummaryData = null;
+            this.journalEntryService.setSessionData(this.mode, null);
             return;
         }
 
@@ -166,6 +177,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
             data.forEach((x) => {
                 x.Amount = x.Amount || 0;
             });
+
+            // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
+            this.journalEntryService.setSessionData(this.mode, data);
 
             this.validateJournalEntryData(data);
             this.calculateItemSums(data);

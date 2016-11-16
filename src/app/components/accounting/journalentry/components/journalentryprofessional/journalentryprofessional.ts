@@ -366,7 +366,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (item.ProjectNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.projects.filter((project) => project.ProjectNumber == searchValue || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
@@ -384,7 +384,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (item.DepartmentNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.departments.filter((dep) => dep.DepartmentNumber == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.departments.filter((dep) => dep.DepartmentNumber.toString().startsWith(searchValue) || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
@@ -560,7 +560,7 @@ export class JournalEntryProfessional implements OnInit {
                     this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
 
                 } else {
-                    this.toastService.addToast('Lagring var vellykket!', ToastType.good, 10);
+                    this.toastService.addToast('Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNo + (firstJournalEntry.JournalEntryNo !== lastJournalEntry.JournalEntryNo ? ' - ' + lastJournalEntry.JournalEntryNo : ''), ToastType.good, 10);
                 }
 
                 completeCallback('Lagret og bokført');
