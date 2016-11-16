@@ -9,6 +9,7 @@ import {UserService} from '../../../../../services/services';
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
 import {ISelectConfig} from '../../../../../../framework/uniform/controls/select/select';
 import {Observable} from 'rxjs/Observable';
+import {AltinnAuthenticationService} from '../../../../../services/common/AltinnAuthenticationService';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -86,6 +87,7 @@ export class UniCompanyDropdown {
     private activeYearHdr: string = '';
 
     constructor(
+        private _altInnService : AltinnAuthenticationService,        
         private _router: Router,
         private _authService: AuthService,
         private userService: UserService,
@@ -126,6 +128,7 @@ export class UniCompanyDropdown {
     }
 
     private loadCompanyData() {
+        this._altInnService.clearAltinnAuthenticationDataFromLocalstorage();
         this.companySettingsService.Get(1, ['DefaultPhone']).subscribe((company) => {
             this.company = company;
             this.getFinancialYear();
@@ -165,6 +168,7 @@ export class UniCompanyDropdown {
 
     private companySelected(selectedCompany): void {
         this.close();
+        if(this.activeCompany === selectedCompany) {return;}
         this.activeCompany = selectedCompany;
         this._authService.setActiveCompany(selectedCompany);
         this.loadCompanyData();

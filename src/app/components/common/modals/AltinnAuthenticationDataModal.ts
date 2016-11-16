@@ -275,6 +275,7 @@ export class AltinnAuthenticationDataModal {
                 return Promise.resolve(authorizationData);
 
             } else {
+                this.altinnAuthService.clearAltinnAuthenticationDataFromLocalstorage();
                 // should be opened here instead of the start of this function
                 // this.modal.open();
                 return component.completeAltinnAuthenticationData(authorizationData)
