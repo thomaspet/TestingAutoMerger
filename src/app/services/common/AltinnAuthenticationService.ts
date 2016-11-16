@@ -40,4 +40,8 @@ export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
     public getAltinnAuthenticationDataFromLocalstorage(): AltinnAuthenticationData {
         return AltinnAuthenticationData.fromObject(JSON.parse(localStorage.getItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY)));
     }
+    
+    public clearAltinnAuthenticationDataFromLocalstorage()    {
+        localStorage.removeItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY);
+    }
 }
