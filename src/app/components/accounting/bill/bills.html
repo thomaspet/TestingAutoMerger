@@ -1,4 +1,14 @@
+<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+
 <section class="supplierinvoice-listview">
+
+    <header class="horizontal_nav no-print">
+        <ul>
+            <li *ngFor="let filter of filters">
+                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}&nbsp;<span *ngIf="filter.count" [class.tab_counter_passive]="filter.passiveCounter" [class.tab_counter_hot]="filter.hotCounter" class="tab_counter">{{filter.count}}</span></a>
+            </li>
+        </ul>
+    </header>
 
     <header class="application">
         <table class='toolbar'><tr>
@@ -9,14 +19,6 @@
         <td></td>
         </tr></table>
     </header>
-
-    <aside class="horizontal_nav no-print">
-        <ul>
-            <li *ngFor="let filter of filters">
-                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}&nbsp;<span *ngIf="filter.count" [class.tab_counter_passive]="filter.passiveCounter" [class.tab_counter_hot]="filter.hotCounter" class="tab_counter">{{filter.count}}</span></a>
-            </li>
-        </ul>
-    </aside>
 
     <article  class="application no-topmargin" [attr.aria-busy]="busy" >
 

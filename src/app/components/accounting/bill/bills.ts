@@ -63,6 +63,10 @@ export class BillsView {
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
     ];
 
+    public toolbarConfig: any = {
+        title: 'Regninger fra leverandører'             
+    };
+
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
