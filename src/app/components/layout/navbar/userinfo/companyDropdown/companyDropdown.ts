@@ -168,6 +168,7 @@ export class UniCompanyDropdown {
 
     private companySelected(selectedCompany): void {
         this.close();
+        if(this.activeCompany === selectedCompany) {return;}
         this.activeCompany = selectedCompany;
         this._authService.setActiveCompany(selectedCompany);
         this.loadCompanyData();
