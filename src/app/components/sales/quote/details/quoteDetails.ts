@@ -562,6 +562,8 @@ export class QuoteDetails {
                     done(doneText);
                     if (transition === 'toOrder') {
                         this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
+                    } else if (transition === 'toInvoice') {
+                        this.router.navigateByUrl('/sales/invoices/' + transitionData.CustomerInvoiceID);
                     } else {
                         this.setup();
                     }
