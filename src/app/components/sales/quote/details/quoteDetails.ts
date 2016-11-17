@@ -24,6 +24,8 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {ErrorService} from '../../../../services/common/ErrorService';
+import {errorHandler} from '@angular/platform-browser/src/browser';
 
 declare const _;
 declare const moment;
@@ -91,7 +93,8 @@ export class QuoteDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper) {
+                private tradeItemHelper: TradeItemHelper,
+                private errorService: ErrorService) {
 
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
@@ -122,9 +125,6 @@ export class QuoteDetails {
             }
         ];
     }
-    private log(err) {
-        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
-    }
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
@@ -150,30 +150,28 @@ export class QuoteDetails {
     }
 
     public nextQuote() {
-        this.customerQuoteService.next(this.quote.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                }
-            },
-            (err) => {
-                console.log('Error getting next quote: ', err);
-                this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
-            }
+        this.customerQuoteService.getNextID(this.quote.ID)
+            .subscribe(ID => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/quotes/' + ID);
+                    } else {
+                        this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
+                    }
+                },
+                this.errorService.handle
             );
     }
 
     public previousQuote() {
-        this.customerQuoteService.previous(this.quote.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                }
-            },
-            (err) => {
-                console.log('Error getting previous quote: ', err);
-                this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
-            }
+        this.customerQuoteService.getPreviousID(this.quote.ID)
+            .subscribe(ID => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/quotes/' + ID);
+                    } else {
+                        this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
+                    }
+                },
+                this.errorService.handle
             );
     }
 
@@ -218,7 +216,7 @@ export class QuoteDetails {
                         this.updateToolbar();
                     });
                 }
-            });
+            }, this.errorService.handle);
         this.form.field('QuoteDate')
             .changeEvent
             .subscribe((data) => {
@@ -235,11 +233,7 @@ export class QuoteDetails {
         this.deletedItems = [];
 
         this.companySettingsService.Get(1)
-            .subscribe(settings => this.companySettings = settings,
-            err => {
-                console.log('Error retrieving company settings data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-            });
+            .subscribe(settings => this.companySettings = settings, this.errorService.handle);
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -277,10 +271,7 @@ export class QuoteDetails {
                 this.extendFormConfig();
 
                 this.formIsInitialized = true;
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-            });
+            }, this.errorService.handle);
         } else {
             const source = this.quoteID > 0 ?
                 this.customerQuoteService.Get(this.quoteID, this.expandOptions)
@@ -292,10 +283,7 @@ export class QuoteDetails {
                 this.setTabTitle();
                 this.updateToolbar();
                 this.updateSaveActions();
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-            });
+            }, this.errorService.handle);
         }
     }
 
@@ -399,7 +387,7 @@ export class QuoteDetails {
         this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((info) => {
             this.quote.Customer.Info = info;
             resolve(info.Addresses[idx]);
-        });
+        }, this.errorService.handle);
     }
 
     private updateToolbar() {
@@ -567,10 +555,9 @@ export class QuoteDetails {
                     } else {
                         this.setup();
                     }
-                }, (err) => {
-                    console.log('Feil oppstod ved ' + transition + ' transition', err);
+                }, err => {
+                    this.errorService.handle(err);
                     done('Feilet');
-                    this.log(err);
                 });
         });
     }
@@ -628,9 +615,8 @@ export class QuoteDetails {
                         }
                     });
                 },
-                (err) => {
-                    console.log('Feil oppsto ved lagring', err);
-                    this.log(err);
+                err => {
+                    this.errorService.handle(err);
                     done('Lagring feilet');
                 }
                 );
@@ -646,9 +632,9 @@ export class QuoteDetails {
 
                     this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
                 },
-                (err) => {
+                err => {
+                    this.errorService.handle(err);
                     console.log('Feil oppsto ved lagring', err);
-                    this.log(err);
                     done('Lagring feilet');
                 }
             );
@@ -689,7 +675,7 @@ export class QuoteDetails {
                 } else {
                     done('Rapport mangler');
                 }
-            });
+            }, this.errorService.handle);
         });
     }
 

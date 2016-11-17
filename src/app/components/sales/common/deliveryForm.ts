@@ -3,6 +3,7 @@ import {FieldType, Address} from '../../../unientities';
 import {AddressService, BusinessRelationService} from '../../../services/services';
 import {UniForm} from '../../../../framework/uniform';
 import {AddressModal} from '../../common/modals/modals';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;
 
 @Component({
@@ -68,8 +69,11 @@ export class TofDeliveryForm {
     private multivalueField: any;
     private address$: any;
 
-    constructor(private addressService: AddressService,
-                private businessRelationService: BusinessRelationService) {
+    constructor(
+        private addressService: AddressService,
+        private businessRelationService: BusinessRelationService,
+        private errorService: ErrorService
+    ) {
         this.initFormLayout();
     }
 
@@ -137,7 +141,7 @@ export class TofDeliveryForm {
         this.businessRelationService.Put(this.entity.Customer.Info.ID, this.entity.Customer.Info).subscribe((info) => {
             this.entity.Customer.Info = info;
             resolve(info.Addresses[idx]);
-        });
+        }, this.errorService.handle);
     }
 
     private initFormLayout() {
@@ -195,7 +199,7 @@ export class TofDeliveryForm {
                     } else {
                         resolve(address);
                     }
-                });
+                }, this.errorService.handle);
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);

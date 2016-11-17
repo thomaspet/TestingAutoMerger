@@ -13,6 +13,7 @@ import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const saveAs; // filesaver.js
 declare const _; // lodash
@@ -53,15 +54,18 @@ export class UniQueryDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     private saveactions: IUniSaveAction[] = [];
 
-    constructor(private uniHttpService: UniHttp,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private statisticsService: StatisticsService,
-                private uniQueryDefinitionService: UniQueryDefinitionService,
-                private toastService: ToastService,
-                private authService: AuthService,
-                private statusService: StatusService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private statisticsService: StatisticsService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private toastService: ToastService,
+        private authService: AuthService,
+        private statusService: StatusService,
+        private errorService: ErrorService
+    ) {
 
         this.route.params.subscribe(params => {
             this.queryDefinitionID = +params['id'];
@@ -93,7 +97,8 @@ export class UniQueryDetails {
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params);
+                .GetAllByUrlSearchParams(params)
+                .catch(this.errorService.handleRxCatch);
         };
     }
 
@@ -111,9 +116,7 @@ export class UniQueryDetails {
                         // query was deleted, navigate to overview
                         this.router.navigateByUrl('/uniqueries/overview');
                     },
-                    err => {
-                        console.log('Error deleting query', err);
-                    }
+                        this.errorService.handle
                 );
             } else {
                 // query has never been saved, so just redirect to overview without doing anything
@@ -174,10 +177,7 @@ export class UniQueryDetails {
                     this.updateSaveActions();
                     this.updateContextMenu();
                 },
-                err => {
-                    console.log('error loading querydef', err);
-                    this.toastService.addToast('Feil ved henting av uttrekk, se logg for mer informasjon', ToastType.bad);
-                });
+                this.errorService.handle);
         } else {
             this.tabService.addTab({ name: 'Nytt uttrekk', url: '/uniqueries/details/0', moduleID: UniModules.UniQuery, active: true });
 
@@ -203,7 +203,7 @@ export class UniQueryDetails {
                 this.setDefaultExpandedModels();
                 this.filterModels();
             },
-            err => console.log('Error getting models:', err)
+            this.errorService.handle
         );
     }
 
@@ -415,9 +415,7 @@ export class UniQueryDetails {
                     // download file so the user can open it
                     saveAs(blob, 'export.csv');
                 },
-                err => {
-                    console.log('Error exporting data', err);
-                });
+                this.errorService.handle);
 
         completeEvent('Eksport kjørt');
     }

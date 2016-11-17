@@ -23,6 +23,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const _;
 
@@ -76,22 +77,25 @@ export class OrderDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
-    constructor(private customerService: CustomerService,
-                private customerOrderService: CustomerOrderService,
-                private customerOrderItemService: CustomerOrderItemService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private addressService: AddressService,
-                private reportDefinitionService: ReportDefinitionService,
-                private businessRelationService: BusinessRelationService,
-                private companySettingsService: CompanySettingsService,
-                private toastService: ToastService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private userService: UserService,
-                private numberFormat: NumberFormat,
-                private tradeItemHelper: TradeItemHelper) {
+    constructor(
+        private customerService: CustomerService,
+        private customerOrderService: CustomerOrderService,
+        private customerOrderItemService: CustomerOrderItemService,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private addressService: AddressService,
+        private reportDefinitionService: ReportDefinitionService,
+        private businessRelationService: BusinessRelationService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private userService: UserService,
+        private numberFormat: NumberFormat,
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {
 
         this.tabService.addTab({ url: '/sales/orders/', name: 'Ordre', active: true, moduleID: UniModules.Orders });
 
@@ -125,10 +129,6 @@ export class OrderDetails {
         ];
     }
 
-    private log(err) {
-        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
-    }
-
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.order.StatusCode;
@@ -153,30 +153,28 @@ export class OrderDetails {
     }
 
     public nextOrder() {
-        this.customerOrderService.next(this.order.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/orders/' + data.ID);
+        this.customerOrderService.getNextID(this.order.ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/orders/' + ID);
+                    } else {
+                        this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
                     }
                 },
-                (err) => {
-                    console.log('Error getting next order: ', err);
-                    this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
-                }
+                this.errorService.handle
             );
     }
 
     public previousOrder() {
-        this.customerOrderService.previous(this.order.ID)
-            .subscribe((data) => {
-                    if (data) {
-                        this.router.navigateByUrl('/sales/orders/' + data.ID);
+        this.customerOrderService.getPreviousID(this.order.ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/orders/' + ID);
+                    } else {
+                        this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
                     }
                 },
-                (err) => {
-                    console.log('Error getting previous order: ', err);
-                    this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
-                }
+                this.errorService.handle
             );
     }
 
@@ -221,18 +219,14 @@ export class OrderDetails {
                         this.updateToolbar();
                     });
                 }
-            });
+            }, this.errorService.handle);
     }
 
     private setup() {
         this.deletedItems = [];
 
         this.companySettingsService.Get(1)
-            .subscribe(settings => this.companySettings = settings,
-                err => {
-                    console.log('Error retrieving company settings data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
-                });
+            .subscribe(settings => this.companySettings = settings, this.errorService.handle);
 
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
@@ -269,9 +263,7 @@ export class OrderDetails {
                 this.extendFormConfig();
 
                 this.formIsInitialized = true;
-            }, (err) => {
-                this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
-            });
+            }, this.errorService.handle);
         } else {
             const source = this.orderID > 0 ?
                 this.customerOrderService.Get(this.orderID, this.expandOptions)
@@ -284,10 +276,7 @@ export class OrderDetails {
                     this.setTabTitle();
                     this.updateToolbar();
                     this.updateSaveActions();
-                } , (err) => {
-                    console.log('Error retrieving data: ', err);
-                    this.toastService.addToast('En feil oppsto ved henting av data:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
-                });
+                } , this.errorService.handle);
         }
     }
 
@@ -386,7 +375,7 @@ export class OrderDetails {
         this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
                 this.order.Customer.Info = info;
                 resolve(info.Addresses[idx]);
-            });
+            }, this.errorService.handle);
     }
 
     private updateToolbar() {
@@ -518,9 +507,8 @@ export class OrderDetails {
                     this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
                     done('Lagret og overført til faktura');
                 }, (err) => {
-                    console.log('== TRANSFER-TO-INVOICE FAILED ==');
+                    this.errorService.handle(err);
                     done('Feilet i overføring til faktura');
-                    this.log(err);
                 });
             });
         }
@@ -547,9 +535,8 @@ export class OrderDetails {
                     this.ready(null);
                 });
             }, (err) => {
-                console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.errorService.handle(err);
                 done('Feilet');
-                this.log(err);
             });
         });
     }
@@ -607,9 +594,8 @@ export class OrderDetails {
                         });
                     },
                     (err) => {
-                        console.log('Feil oppsto ved lagring', err);
+                        this.errorService.handle(err);
                         done('Feil oppsto ved lagring');
-                        this.log(err);
                     }
                 );
         } else {
@@ -625,9 +611,8 @@ export class OrderDetails {
                         this.router.navigateByUrl('/sales/orders/' + orderSaved.ID);
                     },
                     (err) => {
-                        console.log('Feil oppsto ved lagring', err);
+                        this.errorService.handle(err);
                         done('Feil oppsto ved lagring');
-                        this.log(err);
                     }
                 );
         }
@@ -667,7 +652,7 @@ export class OrderDetails {
                 } else {
                     done('Rapport mangler');
                 }
-            });
+            }, this.errorService.handle);
         });
     }
 

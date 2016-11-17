@@ -18,6 +18,7 @@ import {IReference} from '../../../../models/iReference';
 import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
 
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 
 declare var _; // lodash
@@ -89,18 +90,21 @@ export class CustomerDetails {
          }
     ];
 
-    constructor(private uniQueryDefinitionService: UniQueryDefinitionService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private customerService: CustomerService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private phoneService: PhoneService,
-                private emailService: EmailService,
-                private addressService: AddressService,
-                private businessRealtionService: BusinessRelationService,
-                private tabService: TabService,
-                private toastService: ToastService) {}
+    constructor(
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private customerService: CustomerService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private phoneService: PhoneService,
+        private emailService: EmailService,
+        private addressService: AddressService,
+        private businessRealtionService: BusinessRelationService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         if (!this.modalMode) {
@@ -109,7 +113,7 @@ export class CustomerDetails {
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
-                    .subscribe(links => this.reportLinks = links);
+                    .subscribe(links => this.reportLinks = links, this.errorService.handle);
             });
         }
     }
@@ -133,7 +137,8 @@ export class CustomerDetails {
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
                     }
-                }
+                },
+                this.errorService.handle
             );
     }
 
@@ -145,7 +150,8 @@ export class CustomerDetails {
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
                     }
-                }
+                },
+                this.errorService.handle
             );
     }
 
@@ -209,9 +215,7 @@ export class CustomerDetails {
                    this.ready();
                 });
 
-            }, (err) => {
-                alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, this.errorService.handle);
         } else {
 
             Observable.forkJoin(
@@ -225,9 +229,7 @@ export class CustomerDetails {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, (err) => {
-                alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, this.errorService.handle);
         }
     }
 
@@ -492,7 +494,7 @@ export class CustomerDetails {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+                        this.errorService.handle(err);
                     }
                 );
         } else {
@@ -508,7 +510,7 @@ export class CustomerDetails {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+                        this.errorService.handle(err);
                     }
                 );
         }

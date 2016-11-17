@@ -3,6 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {passwordValidator} from '../authValidators';
+import {Logger} from '../../../../framework/core/logger';
 
 @Component({
     selector: 'uni-confirm-invite',
@@ -19,7 +20,7 @@ export class ConfirmInvite {
     private verificationCode: string;
 
 
-    constructor(private uniHttp: UniHttp, private route: ActivatedRoute, private router: Router) {
+    constructor(private uniHttp: UniHttp, private route: ActivatedRoute, private router: Router, private logger: Logger) {
         this.route.params.subscribe(params => {
             this.verificationCode = params['guid'];
 
@@ -95,6 +96,7 @@ export class ConfirmInvite {
                     } catch (e) {}
 
                     this.busy = false;
+                    this.logger.exception(error);
                 }
             );
     }

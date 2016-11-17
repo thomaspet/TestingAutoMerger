@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {passwordValidator} from '../authValidators';
 import {UniHttp} from '../../../../framework/core/http/http';
+import {Logger} from '../../../../framework/core/logger';
 
 @Component({
     selector: 'uni-reset-password',
@@ -22,7 +23,7 @@ export class ResetPassword {
     private emailForm: FormGroup;
     private passwordForm: FormGroup;
 
-    constructor(private route: ActivatedRoute, private uniHttp: UniHttp) {
+    constructor(private route: ActivatedRoute, private uniHttp: UniHttp, private logger: Logger) {
         this.route.queryParams.subscribe(params => {
             this.code = params['code'];
             this.userid = params['userid'];
@@ -82,6 +83,7 @@ export class ResetPassword {
                         this.errorMessage = 'Vi klarte ikke finne en aktiv bruker. Er epost korrekt?';
                     }
                     this.busy = false;
+                    this.logger.exception(error);
                 }
             );
     }

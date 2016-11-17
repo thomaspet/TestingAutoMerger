@@ -12,6 +12,7 @@ import {UniSave} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {NumberFormat} from '../../../services/common/NumberFormatService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var moment;
 
@@ -59,7 +60,8 @@ export class AMeldingView implements OnInit {
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
         private _salarytransService: SalaryTransactionService,
-        private numberformat: NumberFormat
+        private numberformat: NumberFormat,
+        private errorService: ErrorService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -90,7 +92,7 @@ export class AMeldingView implements OnInit {
                 this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
                 this.getAMeldingForPeriod();
-            });
+            }, this.errorService.handle);
     }
 
     public prevPeriod() {
@@ -133,9 +135,7 @@ export class AMeldingView implements OnInit {
                     a.dispatchEvent(e);
                     a.remove();
 
-                }, err => {
-                    this.onError(err);
-                });
+                }, this.errorService.handle);
         }
     }
 
@@ -150,6 +150,7 @@ export class AMeldingView implements OnInit {
             this._toastService.addToast('A-melding generert', ToastType.good, 4);
         },
         (err) => {
+            this.errorService.handle(err);
             this.saveStatus.completeCount++;
             this.saveStatus.hasErrors = true;
         });
@@ -185,7 +186,7 @@ export class AMeldingView implements OnInit {
             this.updateToolbar();
             this.updateSaveActions();
             this.setStatusForPeriod();
-        });
+        }, this.errorService.handle);
     }
 
     private getSumsInPeriod() {
@@ -206,7 +207,7 @@ export class AMeldingView implements OnInit {
 
             this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
             this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
-        });
+        }, this.errorService.handle);
     }
 
     private updateToolbar() {
@@ -300,7 +301,7 @@ export class AMeldingView implements OnInit {
                 this.currentSumUp._sumupStatusText = 'Status altinn';
             }
             this.legalEntityNo = response.LegalEntityNo;
-        });
+        }, this.errorService.handle);
     }
 
     private getDataFromFeedback(amelding, typeData): any {
@@ -405,9 +406,7 @@ export class AMeldingView implements OnInit {
                     this.updateToolbar();
                     this.updateSaveActions();
                 }
-            }, error => {
-                this.onError(error);
-            });
+            }, this.errorService.handle);
     }
 
     private setStatusForPeriod() {
@@ -504,7 +503,7 @@ export class AMeldingView implements OnInit {
                             this.setAMelding(response);
                             done('tilbakemelding hentet');
                         }
-                    });
+                    }, this.errorService.handle);
             });
 
     }
@@ -519,7 +518,7 @@ export class AMeldingView implements OnInit {
                 }
                 done('A-melding sendt inn');
             }
-        });
+        }, this.errorService.handle);
     }
 
     private openAmeldingTypeModal(done) {
@@ -537,18 +536,5 @@ export class AMeldingView implements OnInit {
     private spinner<T>(source: Observable<T>): Observable<T> {
         this.busy = true;
         return <Observable<T>>source.finally(() => this.busy = false);
-    }
-
-    private onError(error, optionalDoneHandler?: (error) => void) {
-        let errorMsg = 'Det har oppstått en feil';
-        let errorBody = error.json();
-        if (errorBody && errorBody.Message) {
-            errorMsg += ': ' + errorBody.Message;
-        }
-        this._toastService.addToast('Error', ToastType.bad, 0, errorMsg);
-
-        if (optionalDoneHandler) {
-            optionalDoneHandler('Det har oppstått en feil, forsøk igjen senere');
-        }
     }
 }

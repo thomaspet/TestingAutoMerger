@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {PayrollrunService} from '../../../../app/services/services';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var moment;
 
@@ -22,7 +23,8 @@ export class PostingsummaryModalContent {
     
     constructor(
         private payrollService: PayrollrunService, 
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private errorService: ErrorService
     ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
@@ -34,14 +36,11 @@ export class PostingsummaryModalContent {
         this.createTableConfig();
 
         this.payrollService.getPostingsummary(this.payrollrunID)
+        .finally(() => this.busy = false)
         .subscribe((response: any) => {
             this.summary = response;         
             this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
-            this.busy = false;
-        }, error => {
-            this.busy = false;
-            this.log(error);
-        });
+        }, this.errorService.handle);
     }
     
     

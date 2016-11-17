@@ -4,6 +4,7 @@ import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from 'unit
 import {GrantService, SubEntityService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'grants-modal-content',
@@ -19,7 +20,9 @@ export class GrantsModalContent {
 
     constructor(
         private _grantService: GrantService, 
-        private _subentityService: SubEntityService) {
+        private _subentityService: SubEntityService,
+        private errorService: ErrorService
+    ) {
     }
 
     public loadData() {
@@ -34,7 +37,7 @@ export class GrantsModalContent {
             });
             this.allSubEntities = subs;
             this.setTableConfig();
-        });
+        }, this.errorService.handle);
     }
 
     public saveData() {
@@ -45,6 +48,7 @@ export class GrantsModalContent {
                 this.done('Tilskudd lagret');
             },
             (err) => {
+                this.errorService.handle(err);
                 this.done(`Feil ved lagring av tilskudd: ${err}`);
             });
         });

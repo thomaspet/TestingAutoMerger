@@ -2,10 +2,11 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Phone, PhoneTypeEnum} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
+import {ErrorService} from '../common/ErrorService';
 
 export class PhoneService extends BizHttp<Phone> {
     
-    constructor(http: UniHttp) {        
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         
         this.relativeURL = "phones"; //TODO: missing Phone.RelativeUrl;
@@ -28,7 +29,7 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Type = PhoneTypeEnum.PtPhone;
                             
                 resolve(phone); 
-            }); 
+            }, this.errorService.handle);
         });  
     }
     
@@ -45,7 +46,7 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Type = PhoneTypeEnum.PtMobile;
                         
                 resolve(phone); 
-            }); 
+            }, this.errorService.handle);
         });        
     }        
 }

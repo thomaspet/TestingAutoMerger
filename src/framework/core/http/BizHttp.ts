@@ -27,7 +27,7 @@ export class BizHttp<T> {
             this.authService.authentication$.subscribe((authChange) => {
                 this.cachedEntity = undefined;
                 this.cachedEntities = undefined;
-            });
+            } /* don't need error handling*/ );
         }
     }
 

@@ -14,6 +14,7 @@ import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportF
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 class ReportCategory {
     public name: string;
@@ -47,7 +48,13 @@ export class Overview {
 
     public reportCategories: Array<ReportCategory>;
 
-    constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService, private uniQueryDefinitionService: UniQueryDefinitionService, private router: Router) {
+    constructor(
+        private tabService: TabService,
+        private reportDefinitionService: ReportDefinitionService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private router: Router,
+        private errorService: ErrorService
+) {
         this.tabService.addTab({ name: 'Rapportoversikt', url: '/reports/overview', moduleID: UniModules.Reports, active: true });
     }
 
@@ -118,7 +125,7 @@ export class Overview {
             }
 
             this.reportCategories.sort((a, b) => a.priority - b.priority);
-        });
+        }, this.errorService.handle);
     }
 
     private priorityByCategoryName(name: string): number {

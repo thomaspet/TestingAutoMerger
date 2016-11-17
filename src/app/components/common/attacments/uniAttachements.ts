@@ -7,6 +7,7 @@ import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 export interface IUploadConfig {
     isDisabled?: boolean;
@@ -65,12 +66,17 @@ export class UniAttachments {
 
     private files: File[] = [];
 
-    constructor(private ngHttp: Http, private http: UniHttp, private imageUploader: ImageUploader, authService: AuthService) {
+    constructor(
+        private ngHttp: Http,
+        private http: UniHttp,
+        private imageUploader: ImageUploader,
+        private errorService: ErrorService,
+        authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.token;
             this.activeCompany = authDetails.activeCompany;
-        });
+        } /* don't need error handling */);
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -82,7 +88,7 @@ export class UniAttachments {
                 .map(res => res.json())
                 .subscribe(
                     files => this.files = files,
-                    err => console.log('Got error when downloading attachements', err)
+                    this.errorService.handle
                 );
         }
     }
@@ -126,6 +132,6 @@ export class UniAttachments {
                 this.uploading = false;
                 this.files.push(res);
                 this.imageModal.refreshImages();
-            });
+            }, this.errorService.handle);
     }
 }

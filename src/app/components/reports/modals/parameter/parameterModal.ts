@@ -7,6 +7,7 @@ import {StatisticsService} from '../../../../services/services';
 
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'report-parameter-modal-type',
@@ -36,8 +37,12 @@ export class ParameterModal {
     
     private previewModal: PreviewModal;
     
-    constructor(private reportDefinitionParameterService: ReportDefinitionParameterService,
-                private http: Http, private statisticsService: StatisticsService)
+    constructor(
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private http: Http,
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService
+    )
     {
         this.modalConfig = {
             title: 'Parametre',
@@ -100,12 +105,12 @@ export class ParameterModal {
 
                     this.modalConfig.report.parameters = params;
                     this.modal.open();        
-                });
+                }, this.errorService.handle);
             } else {
                 this.modalConfig.report.parameters = params;
                 this.modal.open();        
             }
-        });
+        }, this.errorService.handle);
     }
 }
 

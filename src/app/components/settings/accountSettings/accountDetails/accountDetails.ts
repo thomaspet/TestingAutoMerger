@@ -5,6 +5,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {Account, VatType, FieldType, AccountGroup} from '../../../../unientities';
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 import {AccountGroupService} from '../../../../services/Accounting/AccountGroupService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const _; // lodash
 
@@ -25,11 +26,13 @@ export class AccountDetails implements OnInit {
     public config: any = {autofocus: true};
     public fields: any[] = this.getComponentLayout().Fields;
 
-    constructor(private accountService: AccountService,
-                private currencyService: CurrencyService,
-                private vatTypeService: VatTypeService,
-                private accountGroupService: AccountGroupService) {
-    }
+    constructor(
+        private accountService: AccountService,
+        private currencyService: CurrencyService,
+        private vatTypeService: VatTypeService,
+        private accountGroupService: AccountGroupService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         this.setup();
@@ -48,7 +51,7 @@ export class AccountDetails implements OnInit {
                 this.accountGroups = dataset[2].filter(x => x.GroupNumber != null && x.GroupNumber.toString().length === 3);
                 this.extendFormConfig();
             },
-            (error) => console.log(error)
+            this.errorService.handle
         );
     }
 
@@ -64,9 +67,7 @@ export class AccountDetails implements OnInit {
                     dataset => {
                         this.account = dataset;
                     },
-                    error => {
-                        console.log(error);
-                    }
+                    this.errorService.handle
                 );
         }
     }
@@ -148,8 +149,7 @@ export class AccountDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        console.log('Save failed: ', err);
-                        alert('Feil ved lagring: ' + JSON.stringify(err));
+                        this.errorService.handle(err);
                     }
                 );
         } else {
@@ -162,8 +162,7 @@ export class AccountDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        console.log('Save failed: ', err);
-                        alert('Feil ved lagring: ' + JSON.stringify(err));
+                        this.errorService.handle(err);
                     }
                 );
         }

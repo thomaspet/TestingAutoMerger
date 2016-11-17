@@ -10,6 +10,7 @@ import {Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -74,7 +75,9 @@ export class BillsView {
         private location: Location,
         private route: ActivatedRoute,
         private router: Router,
-        settingsService: SettingsService) {
+        settingsService: SettingsService,
+        private errorService: ErrorService
+    ) {
 
             this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
             tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
@@ -149,7 +152,7 @@ export class BillsView {
             this.busy = false;
 
             this.QueryInboxTotals();
-        });
+        }, this.errorService.handle);
         if (refreshTotals) {
             this.refreshTotals();
         }
@@ -180,7 +183,7 @@ export class BillsView {
             if (filter && data && data.length > 0) {
                 filter.count = data[0].countid;
             }
-        });
+        }, this.errorService.handle);
     }
 
     private getInboxFilter(): IFilter {
@@ -233,7 +236,7 @@ export class BillsView {
             this.filters[ixAll].count = count;
             this.filters[ixAll].total = total;
             this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
-        });
+        }, this.errorService.handle);
     }
 
     private createTableConfig(filter: IFilter): UniTableConfig {
@@ -314,8 +317,7 @@ export class BillsView {
                         this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe( (result) => {
                             this.toast.addToast('Filen er slettet', ToastType.good, 2);
                         }, (err) => {
-                            var msg = (err._body ? JSON.parse(err._body).Message : err.statusText) || err.statusText;
-                            this.toast.addToast(msg, ToastType.bad, 5);
+                            this.errorService.handle(err);
                             this.refreshList(this.currentFilter);
                         });
                     } else {

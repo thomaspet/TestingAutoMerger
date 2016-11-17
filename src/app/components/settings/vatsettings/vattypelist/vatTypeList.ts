@@ -4,6 +4,7 @@ import {URLSearchParams} from '@angular/http';
 import {VatType} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService} from '../../../../services/services';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'vattype-list',
@@ -15,7 +16,11 @@ export class VatTypeList {
     private vatTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private vatTypeService: VatTypeService, private vatCodeGroupService: VatCodeGroupService) {
+    constructor(
+        private vatTypeService: VatTypeService,
+        private vatCodeGroupService: VatCodeGroupService,
+        private errorService: ErrorService
+    ) {
     }
     
     public ngOnInit() {
@@ -45,7 +50,7 @@ export class VatTypeList {
             
             params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost,VatReportReferences.Account');
             
-            return this.vatTypeService.GetAllByUrlSearchParams(params);
+            return this.vatTypeService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
         
         

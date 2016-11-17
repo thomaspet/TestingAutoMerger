@@ -2,6 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniForm} from '../../../../../framework/uniform';
 import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
 import {AltinnIntegrationService} from '../../../../../app/services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 @Component({
@@ -32,7 +33,8 @@ export class TaxCardRequest {
     public uniform: UniForm;
 
     constructor(
-        private _altinnService: AltinnIntegrationService
+        private _altinnService: AltinnIntegrationService,
+        private errorService: ErrorService
     ) {
         this.initialize();
     }
@@ -125,7 +127,7 @@ export class TaxCardRequest {
             this.exitButton = 'OK';
             this.busy = false;
         },
-            error => console.log(error));
+            this.errorService.handle);
     }
 
     public ready(value) {

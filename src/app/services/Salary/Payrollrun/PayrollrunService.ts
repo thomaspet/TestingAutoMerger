@@ -4,6 +4,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, FieldType, VacationPayInfo} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
+import {ErrorService} from '../../common/ErrorService';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
@@ -23,7 +24,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         {ID: 6, text: 'Slettet'}
     ];
     
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
@@ -36,7 +37,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public refreshPayrunID(ID: number) {
         this.Get(ID).subscribe((payRun: PayrollRun) => {
             this.payrollRun.next(payRun);
-        });
+        }, this.errorService.handle);
     }
       
     public getStatus(payrollRun: PayrollRun) {        

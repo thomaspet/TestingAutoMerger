@@ -5,6 +5,7 @@ import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'altinn-settings',
@@ -26,7 +27,11 @@ export class AltinnSettings implements OnInit {
     
     public loginErr: string;
 
-    constructor(private _altinnService: AltinnIntegrationService, private integrate: IntegrationServerCaller) {
+    constructor(
+        private _altinnService: AltinnIntegrationService,
+        private integrate: IntegrationServerCaller,
+        private errorService: ErrorService
+    ) {
            this.loginErr = '';
     }
 
@@ -49,9 +54,10 @@ export class AltinnSettings implements OnInit {
             } else {
                 this.loginErr = 'Login ok';
             }
-         }, (err) => {
-             this.loginErr = err;
-         });               
+        }, (err) => {
+            this.errorService.handle(err);
+            this.loginErr = err;
+        });
 
     }
 
@@ -69,7 +75,7 @@ export class AltinnSettings implements OnInit {
                         this.formConfig = layout.Fields;
                     });
                 }
-            });
+            }, this.errorService.handle);
     }
 
     public saveAltinn(done) {
@@ -81,7 +87,7 @@ export class AltinnSettings implements OnInit {
                 done('altinninnstillinger lagret: ');
                 this.saveactions[0].disabled = false;
             }, error => {
-                this.log('problemer med å lagre Altinninnstillinger', error);
+                this.errorService.handle(error);
                 this.saveactions[0].disabled = false;
             });
         } else {
@@ -91,21 +97,9 @@ export class AltinnSettings implements OnInit {
                 done('altinninnstillinger lagret: ');
                 this.saveactions[0].disabled = false;
             }, error => {
-                this.log('problemer med å lagre Altinninnstillinger', error);
+                this.errorService.handle(error);
                 this.saveactions[0].disabled = false;
             });
         }
-    }
-
-    public log(title: string, err) {
-        if (!title) {
-            title = '';
-        }
-        if (err._body) {
-            alert(title + ' ' + err._body);
-        } else {
-            alert(title + ' ' + JSON.stringify(err));
-        }
-
     }
 }

@@ -8,6 +8,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {ProductService, VatTypeService, CustomerQuoteItemService} from '../../../../services/services';
 import {CustomerQuote, CustomerQuoteItem, Product, VatType, StatusCodeCustomerQuote} from '../../../../unientities';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'quote-item-list',
@@ -33,7 +34,9 @@ export class QuoteItemList implements OnInit{
         private customerQuoteItemService: CustomerQuoteItemService,
         private productService: ProductService,
         private vatTypeService: VatTypeService,
-        private tradeItemHelper: TradeItemHelper) {
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -60,7 +63,7 @@ export class QuoteItemList implements OnInit{
 
                     this.itemsLoaded.emit(this.items);
                 },
-                (err) => console.log('Error retrieving data: ', err)
+                this.errorService.handle
             );
          }
     }

@@ -6,6 +6,7 @@ import {CompanySalaryService, CompanyVacationRateService, AccountService} from '
 import {FieldType, CompanyVacationRate, Account} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import moment from 'moment';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
@@ -23,7 +24,12 @@ export class VacationpaySettingModalContent {
     private changedVacationRates: CompanyVacationRate[] = [];
     private infoText: string;
 
-    constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService, private _accountService: AccountService) {
+    constructor(
+        private _companysalaryService: CompanySalaryService,
+        private _companyvacationRateService: CompanyVacationRateService,
+        private _accountService: AccountService,
+        private errorService: ErrorService
+    ) {
         
     }
 
@@ -42,7 +48,7 @@ export class VacationpaySettingModalContent {
             this.setFormFields();
             this.setTableConfig();
             this.busy = false;
-        });
+        }, this.errorService.handle);
     }
 
     public ready(value) {
@@ -59,7 +65,7 @@ export class VacationpaySettingModalContent {
             this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
             .subscribe((formresponse) => {
                 this.done('Firmalønn oppdatert');
-            });
+            }, this.errorService.handle);
         }
         
         // save unitable
@@ -70,17 +76,13 @@ export class VacationpaySettingModalContent {
                 .subscribe((response) => {
                     this.done('Feriepengesats oppdatert');
                 },
-                (error) => {
-                    this.done('Feil ved oppdatering av feriepengepost: ' + error);
-                });
+                    this.errorService.handle);
             } else {
                 this._companyvacationRateService.Post(vacationRate)
                 .subscribe((response) => {
                     this.done('Feriepengesats lagret: ');
                 },
-                (error) => {
-                    this.done('Feil ved lagring av feriepengepost: ' + error);
-                });
+                    this.errorService.handle);
             }
         });
     }

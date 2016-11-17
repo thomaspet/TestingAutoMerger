@@ -8,6 +8,7 @@ import {FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector} from '
 import {CompanySalaryService, AccountService, SubEntityService, AgaZoneService} from '../../../services/services';
 import {GrantsModal} from './modals/grantsModal';
 import {FreeamountModal} from './modals/freeamountModal';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -52,7 +53,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         private companySalaryService: CompanySalaryService,
         private accountService: AccountService,
         private subentityService: SubEntityService,
-        private agazoneService: AgaZoneService
+        private agazoneService: AgaZoneService,
+        private errorService: ErrorService
     ) {
 
     }
@@ -69,7 +71,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             this.subentityService.getMainOrganization(),
             this.agazoneService.GetAll(''),
             this.agazoneService.getAgaRules()
-        ).subscribe(
+        ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
                 let [companysalaries, accounts, mainOrg, zones, rules] = dataset;
                 this.companySalary = companysalaries[0];
@@ -82,12 +84,8 @@ export class AgaAndSubEntitySettings implements OnInit {
 
                 this.mainOrganization['_AgaSoneLink'] = this.agaSoneOversiktUrl;
 
-                this.busy = false;
             },
-            error => {
-                this.log('fikk ikke hentet kontoer: ', error);
-                this.busy = false;
-            }
+            this.errorService.handle
             );
     }
 
@@ -307,11 +305,9 @@ export class AgaAndSubEntitySettings implements OnInit {
                 this.subEntityList.refreshList(true);
             }
             done('Sist lagret: ');
-            this.saveactions[0].disabled = false;
-        }, error => {
-            this.log('Fikk ikke lagret aga og virksomheter: ', error);
-            this.saveactions[0].disabled = false;
-        });
+        },
+        this.errorService.handle,
+        () => this.saveactions[0].disabled = false);
     }
 
     public toggleShowSubEntities() {

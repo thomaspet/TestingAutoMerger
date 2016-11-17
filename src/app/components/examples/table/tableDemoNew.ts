@@ -6,6 +6,7 @@ import {TableBuilder} from '../../../../framework/uniTable/tableBuilder';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import {FieldType} from '../../../unientities';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'unitable-demo',
@@ -47,7 +48,7 @@ export class UniTableDemoNew {
     private demoTable2: UniTableConfig;
     private demoTable3: UniTableConfig;
 
-    constructor(private http: Http, private uniHttp: UniHttp) {
+    constructor(private http: Http, private uniHttp: UniHttp, private errorService: ErrorService) {
         this.buildDemoTable1();
         this.buildDemoTable2();
         this.buildDemoTable3();
@@ -275,7 +276,8 @@ export class UniTableDemoNew {
             .usingBusinessDomain()
             .withEndPoint('employments')
             .send({top: 10})
-            .map(response => response.json());
+            .map(response => response.json())
+            .catch(this.errorService.handleRxCatch);
 
         let jobNameCol = new UniTableColumn('JobName', 'Job name');
         let startDateCol = new UniTableColumn('StartDate', 'Start date', UniTableColumnType.Date);
@@ -315,7 +317,8 @@ export class UniTableDemoNew {
             return this.uniHttp.asGET()
                 .usingBusinessDomain()
                 .withEndPoint('employments')
-                .send({}, urlParams);
+                .send({}, urlParams)
+                .catch(this.errorService.handleRxCatch);
             // return this.http.get('https://devapi.unieconomy.no/api/biz/employments', {search: urlParams});
         };
 

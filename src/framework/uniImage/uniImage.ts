@@ -6,6 +6,7 @@ import {AuthService} from '../core/authService';
 import {ImageUploader} from './imageUploader';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
+import {ErrorService} from '../../app/services/common/ErrorService';
 
 export enum UniImageSize {
     small = 150,
@@ -99,12 +100,17 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
 
-    constructor(private ngHttp: Http, private http: UniHttp, authService: AuthService) {
+    constructor(
+        private ngHttp: Http,
+        private http: UniHttp,
+        authService: AuthService,
+        private errorService: ErrorService
+    ) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.token;
             this.activeCompany = authDetails.activeCompany;
-        });
+        } /* don't need error handling */);
     }
 
     public finishedLoadingImage() {
@@ -145,7 +151,7 @@ export class UniImage {
                         this.loadThumbnails();
                     }
                 }
-            });
+            }, this.errorService.handle);
     }
 
     private getChosenFileIndex() {
@@ -260,7 +266,7 @@ export class UniImage {
                     .send()
                     .subscribe((res) => {
                         this.uploadFile(newFile);
-                    });
+                    }, this.errorService.handle);
             } else {
                 this.uploadFile(newFile);
             }
@@ -287,6 +293,6 @@ export class UniImage {
                 if (!this.singleImage) {
                     this.loadThumbnails();
                 }
-            });
+            }, this.errorService.handle);
     }
 }

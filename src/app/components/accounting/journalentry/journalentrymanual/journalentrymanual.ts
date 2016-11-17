@@ -8,6 +8,7 @@ import {JournalEntryService} from '../../../../services/services';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 export enum JournalEntryMode {
     Manual,
@@ -47,8 +48,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     ];
 
-    constructor(private journalEntryService: JournalEntryService,
-                private numberFormat: NumberFormat) {
+    constructor(
+        private journalEntryService: JournalEntryService,
+        private numberFormat: NumberFormat,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -60,14 +64,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.setJournalEntryData(data);
-                });
+                }, this.errorService.handle);
         } else if (this.journalEntryID > 0) {
             this.mode = JournalEntryMode.JournalEntryView;
 
             this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
                 .subscribe((data: Array<JournalEntryData>) => {
                     this.setJournalEntryData(data);
-                });
+                }, this.errorService.handle);
         } else {
             let data = this.journalEntryService.getSessionData(this.mode);
 

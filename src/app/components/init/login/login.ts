@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ISelectConfig} from '../../../../framework/uniform/controls/select/select';
+import {Logger} from '../../../../framework/core/logger';
 
 @Component({
     selector: 'uni-login',
@@ -20,7 +21,7 @@ export class Login {
     private availableCompanies: any[];
     private selectConfig: ISelectConfig;
 
-    constructor(private _authService: AuthService, private _router: Router, private http: UniHttp) {
+    constructor(private _authService: AuthService, private _router: Router, private http: UniHttp, private logger: Logger) {
         this.selectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg selskap'
@@ -42,6 +43,7 @@ export class Login {
             (error) => {
                 this.working = false;
                 this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.';
+                this.logger.exception(error);
             }
         );
     }

@@ -7,6 +7,7 @@ import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientit
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -32,7 +33,9 @@ export class ControlModalContent {
         private _payrollRunService: PayrollrunService,
         private _employeeService: EmployeeService,
         private _router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        private errorService: ErrorService
+    ) {
         this.route.params.subscribe(params => {
             this.payrollRunID = +params['id'];
         });
@@ -169,7 +172,7 @@ export class ControlModalContent {
             this.getData().subscribe((data) => {
                 this.setData(data);
             }, error => console.log(error));
-        }, error => console.log(error));
+        }, this.errorService.handle);
     }
 
     public showPaymentList() {
@@ -198,7 +201,7 @@ export class ControlModal implements AfterViewInit {
     private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[] };
     public type: Type<any> = ControlModalContent;
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private route: ActivatedRoute, private errorService: ErrorService) {
         
         this.modalConfig = {
             hasCancelButton: true,
@@ -217,7 +220,7 @@ export class ControlModal implements AfterViewInit {
                                 this.updatePayrollRun.emit(true);
                                 content.showPaymentList();
                             }
-                        });
+                        }, this.errorService.handle);
                     });
                 }
             }]

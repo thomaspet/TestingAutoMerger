@@ -20,6 +20,7 @@ import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {PeriodDateFormatPipe} from '../../../pipes/PeriodDateFormatPipe';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -50,7 +51,6 @@ export class VatReportView implements OnInit, OnDestroy {
     private vatReportsInPeriod: VatReport[];
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
-    private periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
     constructor(
         private tabService: TabService,
@@ -58,7 +58,9 @@ export class VatReportView implements OnInit, OnDestroy {
         private vatReportService: VatReportService,
         private vatTypeService: VatTypeService,
         private toastService: ToastService,
-        private altinnAuthenticationService: AltinnAuthenticationService
+        private altinnAuthenticationService: AltinnAuthenticationService,
+        private errorService: ErrorService,
+        private periodDateFormat: PeriodDateFormatPipe
     ) {
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
     
@@ -86,7 +88,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 },
                 contextmenu: this.contextMenuItems
             };            
-        });
+        } /* No error handling necessary, can't produce errors */);
     }
 
     private getStatustrackConfig() {
@@ -114,10 +116,10 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public ngOnInit() {
         this.companySettingsService.Get(1, ['CompanyBankAccount'])
-            .subscribe(settings => this.companySettings = settings, err => this.onError(err));
+            .subscribe(settings => this.companySettings = settings, this.errorService.handle);
 
         this.spinner(this.vatReportService.getCurrentPeriod())
-            .subscribe(vatReport => this.setVatreport(vatReport), err => this.onError(err));
+            .subscribe(vatReport => this.setVatreport(vatReport), this.errorService.handle);
 
 
         this.subs.push(
@@ -133,7 +135,7 @@ export class VatReportView implements OnInit, OnDestroy {
                     .vatReportService
                     .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
-                .subscribe(null, err => this.onError(err))
+                .subscribe(null, this.errorService.handle)
         );
 
         this.subs.push(
@@ -149,10 +151,10 @@ export class VatReportView implements OnInit, OnDestroy {
                     .vatReportService
                     .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
-                .subscribe(null, err => this.onError(err))
+                .subscribe(null, this.errorService.handle)
         );
 
-        this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, err => this.onError(err));
+        this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, this.errorService.handle);
     }
 
     private updateSaveActions() {
@@ -244,21 +246,21 @@ export class VatReportView implements OnInit, OnDestroy {
                     this.isHistoricData = data[0].IsHistoricData;
                 }
             },
-            err => this.onError(err)
+            this.errorService.handle
             );
 
         this.reportSummaryPerPost = null;
         this.vatReportService.getVatReportSummaryPerPost(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
             data => this.reportSummaryPerPost = data,
-            err => this.onError(err)
+            this.errorService.handle
             );
 
         this.reportMessages = null;
         this.vatReportService.getVatReportMessages(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
             data => this.reportMessages = data,
-            err => this.onError(err)
+            this.errorService.handle
             );
         this.updateStatusText();
         this.getVatReportsInPeriod();
@@ -270,10 +272,7 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.GetAll('filter=TerminPeriodID eq ' + this.currentVatReport.TerminPeriodID)
             .subscribe((response: VatReport[]) => {
                 this.vatReportsInPeriod = response;
-            }, (err) => {
-                console.log('Error retrieving VatReports data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av VatReports data: ' + JSON.stringify(err), ToastType.bad);
-            });
+            }, this.errorService.handle);
     }
     private updateStatusText() {
         this.statusText = this.vatReportService.getStatusText(this.currentVatReport.StatusCode);
@@ -287,7 +286,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 if (error.status === 404) {
                     this.toastService.addToast('Ingen flere perioder bakover i tid', ToastType.warn);
                 } else {
-                    this.onError(error);
+                    this.errorService.handle(error);
                 }
             });
     }
@@ -300,7 +299,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 if (error.status === 404) {
                     this.toastService.addToast('Ingen flere perioder fremover i tid', ToastType.warn);
                 } else {
-                    this.onError(error);
+                    this.errorService.handle(error);
                 }
             });
     }
@@ -324,7 +323,10 @@ export class VatReportView implements OnInit, OnDestroy {
                 this.setVatreport(vatReport);
                 done();
             },
-            err => this.onError(err, done)
+            err => {
+                this.errorService.handle(err);
+                done('Det skjedde en feil, forsøk igjen senere');
+            }
             );
     }
 
@@ -342,10 +344,16 @@ export class VatReportView implements OnInit, OnDestroy {
                                     this.setVatreport(vatreport);
                                     done();
                                 },
-                                err => this.onError(err, done)
+                                err => {
+                                    this.errorService.handle(err);
+                                    done('Det skjedde en feil, forsøk igjen senere');
+                                }
                                 );
                         },
-                        err => this.onError(err, done)
+                        err => {
+                            this.errorService.handle(err);
+                            done('Det skjedde en feil, forsøk igjen senere');
+                        }
                         );
                 } else {
                     done();
@@ -377,7 +385,10 @@ export class VatReportView implements OnInit, OnDestroy {
                                         this.receiptVat.checkForReceipt();
                                     });
                                 },
-                                err => this.onError(err, done)
+                                err => {
+                                    this.errorService.handle(err);
+                                    done('Det skjedde en feil, forsøk igjen senere');
+                                }
                                 );
                         }
                     },
@@ -390,7 +401,8 @@ export class VatReportView implements OnInit, OnDestroy {
                             this.altinnAuthenticationService.storeAltinnAuthenticationDataInLocalstorage(authData);
                         }
 
-                        this.onError(err, done);
+                        this.errorService.handle(err)
+                        done('Det skjedde en feil, forsøk igjen senere');
                     });
                 }
             );
@@ -408,12 +420,12 @@ export class VatReportView implements OnInit, OnDestroy {
                         },
                         err => {
                             done('Feilet å hente vatreport');
-                            this.onError(err);
+                            this.errorService.handle(err);
                         });
                 },
                 err => {
                     done('Godkjenning feilet');
-                    this.onError(err);
+                    this.errorService.handle(err);
                 }
                 );
         } else {
@@ -470,9 +482,7 @@ export class VatReportView implements OnInit, OnDestroy {
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
                         },
-                        err => {
-                            this.onError(err);
-                        });
+                        this.errorService.handle);
                 }
 
                 done('Endringsmelding opprettet');
@@ -511,22 +521,6 @@ export class VatReportView implements OnInit, OnDestroy {
         return <Observable<T>>source.finally(() => this.isBusy = false);
     }
 
-    private onError(error, optionalDoneHandler?: (error) => void) {
-        let errorMsg = 'Det skjedde en feil';
-
-        let errorBody = error.json();
-        if (errorBody && errorBody.Message) {
-            errorMsg = errorBody.Message;
-        }
-        this.toastService.addToast('Feil oppsto', ToastType.bad, 0, errorMsg);
-
-        if (optionalDoneHandler) {
-            optionalDoneHandler('Det skjedde en feil, forsøk igjen senere');
-        }
-
-        console.log('Error in the vat report view:', error);
-    }
-
     public ngOnDestroy() {
         this.subs.forEach(sub => sub.unsubscribe());
     }
@@ -536,9 +530,7 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe(vatreport => {
                 this.setVatreport(vatreport);
             },
-            err => {
-                this.onError(err);
-            });
+            this.errorService.handle);
 
     }
 }

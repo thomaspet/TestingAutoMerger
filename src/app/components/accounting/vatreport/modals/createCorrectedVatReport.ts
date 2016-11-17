@@ -6,6 +6,7 @@ import {VatReportService} from '../../../../services/Accounting/VatReportService
 import {PeriodService} from '../../../../services/Accounting/PeriodService';
 import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 declare const moment;
@@ -42,7 +43,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
     public newVatReportID: number = 0;
     public period: Period;
 
-    constructor(private vatReportService: VatReportService, private toastService: ToastService) {
+    constructor(private vatReportService: VatReportService, private errorService: ErrorService) {
     }
 
     public ngOnInit() {
@@ -113,7 +114,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
             error => {
                 this.title = 'Feil ved opprettelse av ny mva-melding';
                 this.error = 'Feilmelding: ' + error.ErrorText;
-                console.log(error);
+                this.errorService.handle(error);
             });
     }
 
@@ -136,7 +137,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
             error => {
                 this.title = 'Feil ved opprettelse av ny mva-melding';
                 this.error = 'Feilmelding: ' + error.ErrorText;
-                console.log(error);
+                this.errorService.handle(error);
             });
     }
 
@@ -170,9 +171,12 @@ export class CreateCorrectedVatReportModal {
     private periodID: number;
     private period: Period;
     public type: Type<any> = CreateCorrectedVatReportForm;
-    public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
-    constructor(private periodService: PeriodService, private toastService: ToastService) {
+    constructor(
+        private periodService: PeriodService,
+        private errorService: ErrorService,
+        public periodDateFormat: PeriodDateFormatPipe
+    ) {
         const self = this;
 
         self.modalConfig = {
@@ -214,9 +218,6 @@ export class CreateCorrectedVatReportModal {
                     modalContent.title = 'Opprett endringsmelding for termin: ' + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
                 });
             },
-            err => {
-                console.log('Error retrieving vat report: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av periode-data: ' + JSON.stringify(err), ToastType.bad);
-            });
+            this.errorService.handle);
     }
 }

@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
 import {safeInt} from '../../utils/utils';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var moment;
 
@@ -27,7 +28,11 @@ export class RegtimeTools {
         { types: [20], name: 'Sickleave', label: 'Sykdom', sum: 0 }
     ];
 
-    constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  
+    constructor(
+        private workerService: WorkerService,
+        private timesheetService: TimesheetService,
+        private errorService: ErrorService
+    ) {
         this.filters = workerService.getIntervalItems();
     }
 
@@ -169,7 +174,7 @@ export class RegtimeTools {
                     this.showData([{'label': result.Message}]);
                 }
             } 
-        });
+        }, this.errorService.handle);
     }
 
     private createArg(name: string, value: string): string {

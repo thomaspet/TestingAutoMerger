@@ -6,6 +6,7 @@ import { Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, W
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 
@@ -31,7 +32,9 @@ export class RecurringPost extends UniView {
         private salarytransService: SalaryTransactionService,
         cacheService: UniCacheService,
         route: ActivatedRoute,
-        private _accountService: AccountService) {
+        private _accountService: AccountService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
@@ -42,7 +45,7 @@ export class RecurringPost extends UniView {
             // TODO: cache this?
             this.wagetypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
                 this.wagetypes = wagetypes;
-            });
+            }, this.errorService.handle);
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
             const employmentSubject = super.getStateSubject('employments');
@@ -60,7 +63,7 @@ export class RecurringPost extends UniView {
                     this.unsavedEmployments = this.employments.length !== employments.length;
 
                     this.buildTableConfig();
-                });
+                }, this.errorService.handle);
         });
     }
 

@@ -6,6 +6,7 @@ import {AltinnAuthenticationService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {KeyCodes} from '../../../../framework/uniform/interfaces';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,
@@ -67,15 +68,13 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
         new EventEmitter<AltinnAuthenticationData>();
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
-    private onError: (err: string) => void = (err) => {
-        this.busy = false;
-        console.log('An error occured in the Altinn login modal:', err);
-    };
+
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
         private toastService: ToastService,
-        private elementRef: ElementRef
+        private elementRef: ElementRef,
+        private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
@@ -183,15 +182,9 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
                             this.formState = LoginState.Pin;
                         }, error => {
                             // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
-                            this.toastService.addToast(
-                                'ERROR',
-                                ToastType.bad,
-                                null,
-                                'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows'
-                            );
-                            this.onError(error);
+                            this.errorService.handleWithMessage(error, 'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows');
                         });
-                }, this.onError);
+                }, this.errorService.handle);
         }
 
         return new Promise((resolve, reject) => {
@@ -203,7 +196,7 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
             return this.userSubmittedPin
                     .subscribe(() => {
                         resolve(this.userLoginData);
-                    }, this.onError);
+                    }, this.errorService.handle);
             });
     }
 

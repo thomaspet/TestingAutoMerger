@@ -8,6 +8,7 @@ import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -93,7 +94,9 @@ export class WagetypeDetail extends UniView {
         private wageService: WageTypeService,
         private accountService: AccountService,
         private inntektService: InntektService,
-        public cacheService: UniCacheService) {
+        public cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
@@ -114,7 +117,7 @@ export class WagetypeDetail extends UniView {
 
                     this.setup();
                 }
-            });
+            }, this.errorService.handle);
         });
     }
 
@@ -149,10 +152,8 @@ export class WagetypeDetail extends UniView {
                 this.updateUniformFields();
                 this.checkAmeldingInfo();
             },
-            (err) => {
-                this.log('Feil ved henting av lønnsart', err);
-            }
-            );
+            this.errorService.handle
+        );
     }
 
     private extendFields() {
@@ -398,7 +399,7 @@ export class WagetypeDetail extends UniView {
                         this.setPackagesFilteredByDescription();
                     }
                 }
-            });
+            }, this.errorService.handle);
     }
 
     private setBenefitAndDescriptionSource(selectedType: string) {

@@ -2,6 +2,7 @@ import {Component, Input, SimpleChanges, OnChanges} from '@angular/core';
 import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -53,8 +54,11 @@ export class EmployeeCategoryButtons implements OnChanges {
     private selectedCategories: EmployeeCategory[];
 
 
-    constructor(private employeeService: EmployeeService,
-                private employeeCategoryService: EmployeeCategoryService) {
+    constructor(
+        private employeeService: EmployeeService,
+        private employeeCategoryService: EmployeeCategoryService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -87,7 +91,7 @@ export class EmployeeCategoryButtons implements OnChanges {
             });
 
             this.busy = false;
-        });
+        }, this.errorService.handle);
     }
 
     public filterCategories(tag: string) {
@@ -110,7 +114,7 @@ export class EmployeeCategoryButtons implements OnChanges {
                 this.categories.splice(index, 1);
             }
             this.filteredCategories = this.categories;
-        });
+        }, this.errorService.handle);
     }
 
     public removeCategory(category: EmployeeCategory, index: number) {

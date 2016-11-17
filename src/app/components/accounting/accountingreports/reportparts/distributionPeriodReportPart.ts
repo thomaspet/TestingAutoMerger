@@ -5,6 +5,7 @@ import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTab
 import {ChartHelper, IChartDataSet} from '../chartHelper';
 import {Account, JournalEntryLine} from '../../../../unientities';
 import {DimensionService} from '../../../../services//common/DimensionService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -37,7 +38,7 @@ export class DistributionPeriodReportPart implements OnChanges {
 
     private colors: Array<string> = ['#7293CB', '#84BA5B'];
 
-    constructor(private statisticsService: StatisticsService) {
+    constructor(private statisticsService: StatisticsService, private errorService: ErrorService) {
     }
 
     public ngOnChanges() {
@@ -145,7 +146,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                     ]);
 
                 this.setupDistributionPeriodChart();
-            });
+            }, this.errorService.handle);
         }
     }
 

@@ -4,6 +4,7 @@ import {UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionService, BasicAmountService, PayrollrunService} from '../../../../../app/services/services';
 import {VacationpaySettingModal} from './vacationPaySettingModal';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 
@@ -25,7 +26,12 @@ export class VacationpayModalContent {
     private vacationpayBasis: any;
     private vacationBaseYear: number;
 
-    constructor(private _salarytransService: SalaryTransactionService, private _basicamountService: BasicAmountService, private _payrollrunService: PayrollrunService) {
+    constructor(
+        private _salarytransService: SalaryTransactionService,
+        private _basicamountService: BasicAmountService,
+        private _payrollrunService: PayrollrunService,
+        private errorService: ErrorService
+    ) {
         
     }
 
@@ -44,7 +50,7 @@ export class VacationpayModalContent {
             this.createTableConfig();
             
             this.busy = false;
-        });
+        }, this.errorService.handle);
     }
 
     public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number}) {
@@ -65,14 +71,12 @@ export class VacationpayModalContent {
             vacationPayInfoList.push(vacationPayInfo);
         });
 
-        this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList).subscribe((response) => {
-            this.busy = false;
+        this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
+        .finally(() => this.busy = false)
+        .subscribe((response) => {
             this._payrollrunService.refreshPayrunID(this.config.payrollRunID);
             this.config.cancel();
-        }, error => {
-            this.busy = false;
-            alert(error._body);
-        });
+        }, this.errorService.handle);
     }
 
     public openVacationpaySettings() {
@@ -96,7 +100,7 @@ export class VacationpayModalContent {
             }
             this.updatetotalPay();
             this.basicamountBusy = false;
-        });
+        }, this.errorService.handle);
 
     }
 

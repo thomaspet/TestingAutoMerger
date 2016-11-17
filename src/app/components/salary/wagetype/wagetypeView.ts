@@ -8,6 +8,7 @@ import { UniSave, IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare var _; // lodash
 
 @Component({
@@ -34,7 +35,9 @@ export class WageTypeView extends UniView {
         private toastService: ToastService,
         private router: Router,
         private tabService: TabService,
-        public cacheService: UniCacheService) {
+        public cacheService: UniCacheService,
+        private errorService: ErrorService
+) {
 
         super(router.url, cacheService);
 
@@ -87,7 +90,7 @@ export class WageTypeView extends UniView {
                 }
 
                 this.checkDirty();
-            });
+            }, this.errorService.handle);
             if (this.wageType && this.wageType.ID === +params['id']) {
                 super.updateState('wagetype', this.wageType, false);
             } else {
@@ -129,19 +132,7 @@ export class WageTypeView extends UniView {
                 } else {
                     this.saveComponent.manualSaveComplete('Lagring feilet');
                 }
-                let toastHeader = 'Noe gikk galt ved lagring av lønnsart';
-                if (error.json().Messages) {
-                    error.json().Messages.forEach(validationMessage => {
-                        let toastType = !validationMessage || validationMessage.Level === ValidationLevel.Error
-                            ? ToastType.bad
-                            : validationMessage.Level === ValidationLevel.Error
-                                ? ToastType.warn
-                                : ToastType.good;
-                        this.toastService.addToast(toastHeader, toastType, 20, validationMessage.Message);
-                    });
-                } else {
-                    this.toastService.addToast(toastHeader, ToastType.bad, 0, error);
-                }
+                this.errorService.handle(error);
             });
     }
 
@@ -155,7 +146,7 @@ export class WageTypeView extends UniView {
         this.wageTypeService.getWageType(this.wagetypeID).subscribe((wageType: WageType) => {
             this.wageType = wageType;
             super.updateState('wagetype', wageType, false);
-        });
+        }, this.errorService.handle);
     }
 
     public previousWagetype() {
@@ -163,6 +154,7 @@ export class WageTypeView extends UniView {
             return;
         }
 
+        // TODO: should use BizHttp.getPreviousID() instead
         this.wageTypeService.getPrevious(this.wageType.ID)
             .subscribe((prev: WageType) => {
                 if (prev) {
@@ -170,14 +162,14 @@ export class WageTypeView extends UniView {
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
                 }
-            });
+            }, this.errorService.handle);
     }
 
     public nextWagetype() {
         if (!super.canDeactivate()) {
             return;
         }
-
+        // TODO: should use BizHttp.getNextID() instead
         this.wageTypeService.getNext(this.wageType.ID)
             .subscribe((next: WageType) => {
                 if (next) {
@@ -185,7 +177,7 @@ export class WageTypeView extends UniView {
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
                 }
-            });
+            }, this.errorService.handle);
     }
 
     public newWagetype() {
@@ -199,6 +191,6 @@ export class WageTypeView extends UniView {
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
             }
-        });
+        }, this.errorService.handle);
     }
 }

@@ -14,6 +14,7 @@ import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _;
 
@@ -46,7 +47,8 @@ export class PayrollrunDetails {
         private payrollrunService: PayrollrunService, 
         private router: Router, private tabSer: TabService, 
         private _rootRouteParamsService: RootRouteParamsService,
-        private _toastService: ToastService
+        private _toastService: ToastService,
+        private errorService: ErrorService
     ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
@@ -69,22 +71,17 @@ export class PayrollrunDetails {
                     } else {
                         if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
                             this.busy = true;
-                            this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
+                            this.payrollrunService.resetSettling(this.payrollrunID)
+                            .finally(() => this.busy = false)
+                            .subscribe((response: boolean) => {
                                 if (response) {
                                     this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
                                         this.payrollrunService.refreshPayrun(payrollRun);
-                                    }, error => {
-                                        this.busy = false;
-                                        this.log(error);
-                                    });
+                                    }, this.errorService.handle);
                                 } else {
-                                    alert('fikk ikke nullstilt lønnsavregning');
-                                    this.busy = false;
+                                    this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
                                 }
-                            }, error => {
-                                this.busy = false;
-                                this.log(error);
-                            });
+                            }, this.errorService.handle);
                         }
                     }
 
@@ -123,7 +120,7 @@ export class PayrollrunDetails {
                 },
                 contextmenu: this.contextMenuItems,
             };
-        });
+        }, this.errorService.handle);
     }
 
     private getStatustrackConfig() {
@@ -156,7 +153,7 @@ export class PayrollrunDetails {
             Observable.forkJoin(
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID),
                 this.payrollrunService.layout('payrollrunDetailsForm')
-            ).subscribe((response: any) => {
+            ).finally(() => this.busy = false).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
                 this.payrollrunService.refreshPayrun(payrollrun);
                 this.payrollrun = payrollrun;
@@ -165,13 +162,8 @@ export class PayrollrunDetails {
                 this.config = {
                     submitText: ''
                 };
-                this.busy = false;
             },
-                (err) => {
-                    this.busy = false;
-                    this.log(err);
-                    console.log(err);
-                });
+            this.errorService.handle);
         }
     }
 
@@ -249,10 +241,7 @@ export class PayrollrunDetails {
                     this.payrollrunService.refreshPayrun(response);
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
                 }
-            },
-            (err) => {
-                this.log(err);
-            });
+            }, this.errorService.handle);
     }
 
     public nextPayrollrun() {
@@ -262,10 +251,7 @@ export class PayrollrunDetails {
                     this.payrollrunService.refreshPayrun(response);
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
                 }
-            },
-            (err) => {
-                this.log(err);
-            });
+            }, this.errorService.handle);
     }
 
     public runSettling() {
@@ -273,25 +259,25 @@ export class PayrollrunDetails {
         this.saveactions[0].disabled = true;
         this.saveactions = _.cloneDeep(this.saveactions);
         this.payrollrunService.runSettling(this.payrollrunID)
+            .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
                     this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
+                        .finally(() => this.busy = false)
                         .subscribe((response) => {
                             this.payrollrunService.refreshPayrun(response);
                             this.setEditMode();
                             this.showPaymentList();
                         },
                         (err) => {
-                            this.log(err);
-                            this.busy = false;
+                            this.errorService.handle(err);
                             this.saveactions[0].disabled = false;
                             this.saveactions = _.cloneDeep(this.saveactions);
                         });
                 }
             },
             (err) => {
-                this.log(err);
-                this.busy = false;
+                this.errorService.handle(err);
                 this.saveactions[0].disabled = false;
                 this.saveactions = _.cloneDeep(this.saveactions);
             });
@@ -309,14 +295,10 @@ export class PayrollrunDetails {
                         .subscribe((response) => {
                             this.payrollrunService.refreshPayrun(response);
                         },
-                        (err) => {
-                            this.log(err);
-                        });
+                        this.errorService.handle);
                 }
             },
-            (err) => {
-                this.log(err);
-            });
+            this.errorService.handle);
     }
 
     private findByProperty(fields, name) {
@@ -378,30 +360,26 @@ export class PayrollrunDetails {
 
         if (this.payrollrun.ID > 0) {
             this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun)
+                .finally(() => this.busy = false)
                 .subscribe((response: PayrollRun) => {
                     this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
-                    this.busy = false;
                 },
                 (err) => {
-                    this.log(err);
-                    console.log('Feil ved oppdatering av lønnsavregning', err);
+                    this.errorService.handle(err);
                     this.refreshSaveActions();
-                    this.busy = false;
                 });
         } else {
             this.payrollrunService.Post(this.payrollrun)
+                .finally(() => this.busy = false)
                 .subscribe((response: PayrollRun) => {
                     this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrun.ID);
-                    this.busy = false;
                 },
                 (err) => {
-                    this.log(err);
-                    console.log('Feil ved lagring', err);
+                    this.errorService.handle(err);
                     this.refreshSaveActions();
-                    this.busy = false;
                 });
         }
     }
@@ -419,17 +397,7 @@ export class PayrollrunDetails {
             .subscribe((response) => {
                 this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
             },
-            (err) => {
-                this.log(err);
-                console.log('Error creating payrollrun: ', err);
-            });
+            this.errorService.handle);
     }
 
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
-        }
-    }
 }

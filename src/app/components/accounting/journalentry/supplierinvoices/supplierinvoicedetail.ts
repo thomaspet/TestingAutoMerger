@@ -14,6 +14,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var moment;
 declare const _;
@@ -53,14 +54,16 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private tabService: TabService,
         private projectService: ProjectService,
-        private departmentService: DepartmentService) {
+        private departmentService: DepartmentService,
+        private errorService: ErrorService
+    ) {
 
         route.params.subscribe(params => {
             this.invoiceId = +params['id'];
         });
     }
 
-    private setError(error) {
+    private showError(error) {
         console.log('== ERROR ==', error);
         var messages = error._body ? JSON.parse(error._body) : error;
         if (messages) {
@@ -126,9 +129,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 // call ready to set readonly fields if needed
                 this.ready(null);
             },
-            (error) => {
-                this.setError(error);
-            }
+                this.errorService.handle
             );
     }
 
@@ -160,9 +161,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             this.setTabTitle();
 
             this.buildForm();
-        }, (error) => {
-            this.setError(error);
-        });
+        }, this.errorService.handle);
     }
 
     private updateToolbar() {
@@ -219,7 +218,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             console.log('== TRANSITION OK ' + transition + ' ==');
             this.refreshFormData(this.supplierInvoice);
             done(doneText);
-        });
+        }, this.errorService.handle);
     }
 
     private payInvoice(done: any) {
@@ -230,7 +229,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 done('Betalt');
             },
                 (error) => {
-                    this.setError(error);
+                    this.errorService.handle(error);
                     done('Lagring feilet');
                 });
         } else {
@@ -243,13 +242,13 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
     private save(runSmartBooking: boolean, done) {
         if (!this.supplierInvoice.SupplierID) {
-            this.setError({Message: 'Leverandør må være fyllt ut.'});
+            this.showError({Message: 'Leverandør må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
 
         if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
-            this.setError({Message: 'KID eller melding må være fyllt ut.'});
+            this.showError({Message: 'KID eller melding må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
@@ -278,7 +277,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                     done('Lagret');
                 }
             }, (error) => {
-                this.setError(error);
+                this.errorService.handle(error);
                 done('Lagring feilet');
             });
         } else {
@@ -288,7 +287,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                     this.runSmartBooking(this.supplierInvoice, done);
                 },
                 (error) => {
-                    this.setError(error);
+                    this.errorService.handle(error);
                     done('Lagring feilet');
                 }
                 );
@@ -332,7 +331,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                                     });
 
                         if (sum !== this.supplierInvoice.TaxInclusiveAmount) {
-                            this.setError({ Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp' });
+                            this.showError({ Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp' });
                             done('Bokføring feilet');
                         } else {
                             this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
@@ -341,20 +340,20 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                                     this.refreshFormData(this.supplierInvoice);
                                 },
                                 (error) => {
-                                    this.setError(error);
+                                    this.errorService.handle(error);
                                     done('Bokføring feilet');
                                 }
                                 );
                         }
                     },
                     (error) => {
-                        this.setError(error);
+                        this.errorService.handle(error);
                         done('Lagring feilet');
                     }
                     )
             },
             (error) => {
-                this.setError(error);
+                this.errorService.handle(error);
                 done('Lagring feilet');
             }
             );
@@ -375,7 +374,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 done('Smartbokført');
             },
             (error) => {
-                this.setError(error);
+                this.errorService.handle(error);
                 done('Feilet i smartbokføring');
             }
             );
@@ -536,7 +535,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                         this.supplierInvoice.Dimensions = _.cloneDeep(supplier.Dimensions);
                         this.supplierInvoice = _.cloneDeep(this.supplierInvoice);
                         this.updateToolbar();
-                    });
+                    }, this.errorService.handle);
                 }
              });
     }
@@ -552,7 +551,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                     this.refreshFormData(this.supplierInvoice);
                     done('Betaling registrert');
                 }, (error) => {
-                    this.setError(error);
+                    this.showError(error);
                     done('Feilet ved registrering av betaling');
                 });
             });

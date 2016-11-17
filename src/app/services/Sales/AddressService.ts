@@ -3,13 +3,14 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Address} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
+import {ErrorService} from '../common/ErrorService';
 
 declare var _;
 
 @Injectable()
 export class AddressService extends BizHttp<Address> {
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
 
         this.relativeURL = 'addresses'; // TODO: missing Address.RelativeUrl;
@@ -36,7 +37,7 @@ export class AddressService extends BizHttp<Address> {
                 address.Country = selectedSearchInfo.forradrland;
 
                 resolve(address);
-            });
+            }, this.errorService.handle);
         });
     }
 
@@ -57,7 +58,7 @@ export class AddressService extends BizHttp<Address> {
                 address.Country = selectedSearchInfo.ppostland;
 
                 resolve(address);
-            });
+            }, this.errorService.handle);
         });
     }
 

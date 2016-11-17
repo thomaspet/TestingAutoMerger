@@ -7,6 +7,7 @@ import {AuthService} from '../../../framework/core/authService';
 import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/timetracking/utils/utils';
 import {AppConfig} from '../../appConfig';
+import {ErrorService} from '../common/ErrorService';
 
 declare var moment;
 
@@ -38,7 +39,7 @@ export class WorkerService extends BizHttp<Worker> {
         company: ''
     };    
     
-    constructor(http: UniHttp, authService: AuthService) {
+    constructor(http: UniHttp, authService: AuthService, private errorService: ErrorService) {
         super(http);
         this.relativeURL = Worker.RelativeUrl;
         this.entityType = Worker.EntityType;
@@ -98,7 +99,7 @@ export class WorkerService extends BizHttp<Worker> {
                         }
                     }
                 } 
-            });            
+            }, this.errorService.handle);
         });
     }
     

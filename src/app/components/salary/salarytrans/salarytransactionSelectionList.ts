@@ -6,6 +6,7 @@ import { UniHttp } from '../../../../framework/core/http/http';
 import { PayrollRun, Employee } from '../../../unientities';
 import { EmployeeService, PayrollrunService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare var _;
 
 @Component({
@@ -28,14 +29,19 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
 
     private filter: string;
 
-    constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService, private _payrollRunService: PayrollrunService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private _employeeService: EmployeeService,
+        private _payrollRunService: PayrollrunService,
+        private errorService: ErrorService
+    ) {
         this.tableConfig();
     }
 
     public ngOnInit() {
         this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
             payrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
-        });
+        }, this.errorService.handle);
         this.filter = '';
     }
 
@@ -57,10 +63,7 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
                 this.selectedEmployeeID = this.employeeList[0].ID;
                 this.table.focusRow(0);
             }
-        }, (error: any) => {
-            this.log(error);
-            console.log(error);
-        });
+        }, this.errorService.handle);
     }
 
     private tableConfig() {
@@ -135,13 +138,5 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
     }
 
     public saveRun(event: any) {
-    }
-
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
-        }
     }
 }

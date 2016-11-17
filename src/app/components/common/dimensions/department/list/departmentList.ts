@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 import {DepartmentService} from '../../../../../services/common/DepartmentService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'department-dimensions-list',
@@ -17,7 +18,9 @@ export class DepartmentList {
     constructor(
         private router: Router,
         private departmentService: DepartmentService,
-        private tabService: TabService) {
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Avdelinger', url: '/dimensions/department', active: true, moduleID: UniModules.Departments });
         this.setupTable();
     }
@@ -34,7 +37,8 @@ export class DepartmentList {
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            return this.departmentService.GetAllByUrlSearchParams(urlParams);
+            return this.departmentService.GetAllByUrlSearchParams(urlParams)
+                .catch(this.errorService.handleRxCatch);
         };
 
         this.tableConfig = new UniTableConfig(false, true, 25)

@@ -6,6 +6,7 @@ import {UniSave, IUniSaveAction} from '../../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
 import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'Project-dimensions-details',
@@ -25,16 +26,14 @@ export class ProjectDetails implements OnInit {
         }
     ];
 
-    private errorHandler(err: Error) {
-        console.log('Error in ProjectDetails:', err);
-        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ett problem oppstod, forsøk igjen senere');
-    }
-
-    constructor(private projectService: ProjectService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private toastService: ToastService) {
+    constructor(
+        private projectService: ProjectService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -46,7 +45,7 @@ export class ProjectDetails implements OnInit {
                 this.projectService.Get(projectID)
                     .subscribe(
                         project => this.setProject(project),
-                        err => this.errorHandler(err)
+                        this.errorService.handle
                     );
             } else {
                 this.setProject(new Project);
@@ -71,7 +70,7 @@ export class ProjectDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere prosjekt etter denne');
                     }
                 },
-                err => this.errorHandler(err)
+                this.errorService.handle
             );
     }
 
@@ -85,7 +84,7 @@ export class ProjectDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere prosjekt før denne');
                     }
                 },
-                err => this.errorHandler(err)
+                this.errorService.handle
             );
     }
 
@@ -105,7 +104,7 @@ export class ProjectDetails implements OnInit {
                         if (err.status === 400) {
                             this.toastService.addToast('Warning', ToastType.warn, 0, 'Prosjekt nummer allerede brukt, venligst bruk et annet nummer');
                         } else {
-                            this.errorHandler(err);
+                            this.errorService.handle(err);
                         }
                     });
         } else {
@@ -115,7 +114,7 @@ export class ProjectDetails implements OnInit {
                         this.router.navigateByUrl('/dimensions/project/' + newProject.ID);
                         done('Prosjekt lagret');
                     },
-                    err => this.errorHandler(err));
+                    this.errorService.handle);
         }
     }
 

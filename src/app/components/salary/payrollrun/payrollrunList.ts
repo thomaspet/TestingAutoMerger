@@ -5,6 +5,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'payrollrun-list',
@@ -16,13 +17,16 @@ export class PayrollrunList implements OnInit {
     private payrollRuns$: Observable<PayrollRun>;
     public busy: boolean;
 
-    constructor(private router: Router, private tabSer: TabService, private payrollService: PayrollrunService) {
-
-    }
+    constructor(
+        private router: Router,
+        private tabSer: TabService,
+        private payrollService: PayrollrunService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
 
-        this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc');
+        this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc').catch(this.errorService.handleRxCatch);
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
         .setWidth('5rem');
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
@@ -54,22 +58,10 @@ export class PayrollrunList implements OnInit {
             this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
             this.busy = false;
         },
-        (err) => {
-            this.log(err);
-            console.log('Error creating payrollrun: ', err)
-        });
+        this.errorService.handle);
     }
 
     public rowSelected(event) {
         this.router.navigateByUrl('/salary/payrollrun/' + event.rowModel.ID);
     }
-
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
-        }
-    }
-
 }

@@ -5,6 +5,7 @@ import { GrantService, SubEntityService } from '../../../../services/services';
 import { FieldType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from '../../../../../framework/uniform/index';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'freeamount-modal-content',
@@ -21,7 +22,8 @@ export class FreeamountModalContent {
 
     constructor(
         private _subentityService: SubEntityService,
-        private _grantService: GrantService) {
+        private _grantService: GrantService,
+        private errorService: ErrorService) {
 
     }
 
@@ -46,7 +48,7 @@ export class FreeamountModalContent {
 
             this.setTableConfig();
             this.setFormConfig();
-        });
+        }, this.errorService.handle);
     }
 
     private setTableConfig() {

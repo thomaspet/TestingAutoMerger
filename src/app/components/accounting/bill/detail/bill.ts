@@ -16,6 +16,7 @@ import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -93,7 +94,9 @@ export class BillView {
         private vatTypeService: VatTypeService,
         private supplierService: SupplierService,
         private router: Router, 
-        private location: Location) {
+        private location: Location,
+        private errorService: ErrorService
+    ) {
             this.actions = this.rootActions;
     }
 
@@ -216,8 +219,7 @@ export class BillView {
                     this.handleOcrResult( new OcrValuables(result) );
                     resolve(true);
                 }, (err) => {
-                    this.toast.clear();
-                    this.showHttpError(err);
+                    this.errorService.handle(err);
                     resolve(false);
                 });        
             }
@@ -234,7 +236,7 @@ export class BillView {
                     } else {
                         this.findSupplierViaPhonebook(orgNo, true);
                     }
-                });
+                },this.errorService.handle);
             }
         }
         this.setFormValue('PaymentID', ocr.PaymentID);
@@ -262,7 +264,7 @@ export class BillView {
                     this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
                 }
             }
-        });
+        }, this.errorService.handle);
     }
 
     private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
@@ -283,9 +285,7 @@ export class BillView {
         };
         this.supplierService.Post(sup).subscribe( x => {
             this.setSupplier(x);
-        }, (err) => {
-            this.showHttpError(err);
-        });
+        }, this.errorService.handle);
         
     }
 
@@ -478,8 +478,8 @@ export class BillView {
                     this.userMsg(JSON.stringify(result));
                     done('ok');
                 }, (err) => {
-                    var msg = this.showHttpError(err);
-                    done(msg);
+                    this.errorService.handle(err);
+                    done(err);
                 });
                 return true;
 
@@ -504,15 +504,15 @@ export class BillView {
 
     private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string ): boolean {
         this.busy = true;
-        this.supplierInvoiceService.PostAction(this.current.ID, action).subscribe( () => {
-            this.busy = false;
+        this.supplierInvoiceService.PostAction(this.current.ID, action)
+        .finally(() => this.busy = false)
+        .subscribe( () => {
             this.fetchInvoice(this.current.ID, true);
             if (done) { done(successMsg); }
         }, (err) => {
-            this.busy = false;
-            var msg = this.showHttpError(err);
-            done(msg);            
-        });        
+            this.errorService.handle(err);
+            done(err);
+        });
         return true;
     }
 
@@ -534,8 +534,8 @@ export class BillView {
                     this.userMsg(lang.journaled_ok, null, 6, true);
 
                 }, (err) => {
-                    var msg = this.showHttpError(err);
-                    reject(msg);
+                    this.errorService.handle(err)
+                    reject(err);
                 });
 
             
@@ -546,16 +546,7 @@ export class BillView {
         });
     }
 
-    private showHttpError(error: any): string {
-        var msg = error.statusText;
-        if (error._body) {
-            msg = error._body;
-        }             
-        this.showErrMsg(msg, true);
-        return msg;
-    }
-
-    private mapActionLabel(key: string): string {        
+    private mapActionLabel(key: string): string {
         var label = workflowLabels[key];
         if (!label) {
             return key;
@@ -581,8 +572,8 @@ export class BillView {
                 this.checkLockStatus();
                 resolve('');
             }, (err) => {
-                var msg = this.showHttpError(err);
-                reject(msg);
+                this.errorService.handle(err);
+                reject(err);
             });
         });              
     }
@@ -770,6 +761,7 @@ export class BillView {
                         completeAccount(item, true);
                         return;
                     }, (err) => {
+                        this.errorService.handle(err);
                         reject({ success: false, errorMessage: lang.err_supplieraccount_not_found});
                     });
                     return;
@@ -788,13 +780,13 @@ export class BillView {
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
                 this.busy = true;
-                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
+                .finally(() => this.busy = false)
+                .subscribe((journalEntry) => {
                     this.fetchInvoice(this.current.ID, true);
                     this.userMsg(lang.payment_ok, null, null, true);
-                    this.busy = false;
                 }, (error) => {
-                    this.showHttpError(error);
-                    this.busy = false;
+                    this.errorService.handle(error);
                 });
             });
         }
@@ -947,6 +939,7 @@ export class BillView {
             resultFld = 'maxid';
         }
 
+        // TODO: should use BizHttp.getNextID() / BizHttp.getPreviousID()
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.getStatQuery(params).subscribe((items) => {
                 if (items && items.length > 0) {
@@ -977,7 +970,7 @@ export class BillView {
     private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
         var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
         if (flagFileStatus === 0 || flagFileStatus) {
-            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe();    
+            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe(null, this.errorService.handle);
         }
         return this.supplierInvoiceService.send(route).toPromise();
     }

@@ -5,6 +5,7 @@ import {UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 
 export interface IViewConfig {
@@ -41,14 +42,21 @@ export class GenericListView {
 
     private lookupFunction: (value: any) => {};
 
-    constructor(private tabService: TabService, private router: Router, private toastService: ToastService, private workerService: WorkerService) {
+    constructor(
+        private tabService: TabService,
+        private router: Router,
+        private toastService: ToastService,
+        private workerService: WorkerService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
         if (this.viewconfig) {
             this.label = this.viewconfig.tab.label;
             this.lookupFunction = (urlParams) => {
-                return this.workerService.queryWithUrlParams(urlParams, this.viewconfig.data.route, this.viewconfig.data.expand);
+                return this.workerService.queryWithUrlParams(urlParams, this.viewconfig.data.route, this.viewconfig.data.expand)
+                    .catch(this.errorService.handleRxCatch);
             };
             var tab = this.viewconfig.tab;
             this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });

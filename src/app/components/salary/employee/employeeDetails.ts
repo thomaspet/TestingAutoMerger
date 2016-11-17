@@ -10,6 +10,7 @@ import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 
 import { UniView } from '../../../../framework/core/uniView';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare var _; // lodash
 
 @Component({
@@ -46,7 +47,9 @@ export class EmployeeDetails extends UniView {
         private toastService: ToastService,
         private router: Router,
         private tabService: TabService,
-        cacheService: UniCacheService) {
+        cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
@@ -92,27 +95,27 @@ export class EmployeeDetails extends UniView {
                     }
                 };
                 this.checkDirty();
-            });
+            }, this.errorService.handle);
 
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments;
                 this.posterEmployee.employments = employments;
                 this.checkDirty();
-            });
+            }, this.errorService.handle);
 
             super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
                 this.recurringPosts = recurringPosts;
                 this.checkDirty();
-            });
+            }, this.errorService.handle);
 
             super.getStateSubject('employeeLeave').subscribe((employeeLeave) => {
                 this.employeeLeave = employeeLeave;
                 this.checkDirty();
-            });
+            }, this.errorService.handle);
 
             super.getStateSubject('subEntities').subscribe((subEntities: SubEntity[]) => {
                 this.subEntities = subEntities;
-            });
+            }, this.errorService.handle);
 
 
             // If employee ID was changed by next/prev button clicks employee has been
@@ -197,15 +200,17 @@ export class EmployeeDetails extends UniView {
             return;
         }
 
+        // TODO: this should use BizHttp.getNextID()
         this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
             if (next) {
                 this.employee = next;
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
             }
-        });
+        }, this.errorService.handle);
     }
 
+    // TODO: this should use BizHttp.getPreviousID()
     public previousEmployee() {
         if (!super.canDeactivate()) {
             return;
@@ -217,7 +222,7 @@ export class EmployeeDetails extends UniView {
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
             }
-        });
+        }, this.errorService.handle);
     }
 
     public newEmployee() {
@@ -228,28 +233,28 @@ export class EmployeeDetails extends UniView {
             this.employee = emp;
             let childRoute = this.router.url.split('/').pop();
             this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
-        });
+        }, this.errorService.handle);
     }
 
     private getEmployee() {
         this.employeeService.get(this.employeeID).subscribe((employee: Employee) => {
             this.employee = employee;
             super.updateState('employee', employee, false);
-        });
+        }, this.errorService.handle);
     }
 
     private getEmployments() {
         this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID).subscribe((employments) => {
             this.posterEmployee.employments = employments;
             super.updateState('employments', employments, false);
-        });
+        }, this.errorService.handle);
     }
 
     private getRecurringPosts() {
         let filter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
         this.salaryTransService.GetAll('filter=' + filter, ['Supplements.WageTypeSupplement']).subscribe((response) => {
             super.updateState('recurringPosts', response, false);
-        });
+        }, this.errorService.handle);
     }
 
     private getEmployeeLeave() {
@@ -262,13 +267,13 @@ export class EmployeeDetails extends UniView {
 
         this.employeeLeaveService.GetAll(`filter=${filterParts.join(' or ')}`).subscribe((response) => {
             super.updateState('employeeLeave', response, false);
-        });
+        }, this.errorService.handle);
     }
 
     private getSubEntities() {
         this.subEntityService.GetAll(null, ['BusinessRelationInfo']).subscribe((response: SubEntity[]) => {
             super.updateState('subEntities', response.length > 1 ? response.filter(x => x.SuperiorOrganizationID > 0) : response, false);
-        });
+        }, this.errorService.handle);
     }
 
     private checkForSaveDone() {
@@ -344,9 +349,7 @@ export class EmployeeDetails extends UniView {
                 } else {
                     this.saveComponent.manualSaveComplete('Lagring feilet');
                 }
-                let toastHeader = 'Noe gikk galt ved lagring av persondetaljer';
-                let toastBody = (error.json().Messages) ? error.json().Messages[0].Message : '';
-                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                this.errorService.handle(error);
             }
         );
     }
@@ -442,7 +445,7 @@ export class EmployeeDetails extends UniView {
                     this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                 }
                 );
-        });
+        }, this.errorService.handle);
     }
 
     private saveRecurringPosts() {
@@ -498,7 +501,7 @@ export class EmployeeDetails extends UniView {
                         }
                         );
                 });
-        });
+        }, this.errorService.handle);
     }
 
     private saveEmployeeLeave() {
@@ -544,7 +547,7 @@ export class EmployeeDetails extends UniView {
                         );
                 }
             });
-        });
+        }, this.errorService.handle);
     }
 
 }

@@ -8,6 +8,7 @@ import {WorkerService, ItemInterval} from '../../../services/timetracking/worker
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {setDeepValue} from '../utils/utils';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime', false, '', RegisterTime);
 
@@ -57,7 +58,12 @@ export class RegisterTime {
             { label: 'Lagre', action: (done) => this.save(done), main: true, disabled: true }
         ];
 
-    constructor(private tabService: TabService, private workerService: WorkerService, private timesheetService: TimesheetService) {
+    constructor(
+        private tabService: TabService,
+        private workerService: WorkerService,
+        private timesheetService: TimesheetService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: view.label, url: view.url, active: true });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
@@ -76,8 +82,8 @@ export class RegisterTime {
             this.timeSheet.saveItems().subscribe((item: WorkItem) => {
                 counter++;
             }, (err) => {
-                var msg = this.showErrMsg(err._body || err.statusText, true);
-                if (done) { done('Feil ved lagring: ' + msg); }
+                this.errorService.handle(err);
+                if (done) { done('Feil ved lagring'); }
                 this.busy = false;
                 resolve(false);
             }, () => {
@@ -115,7 +121,7 @@ export class RegisterTime {
                 this.actions[0].disabled = true;
             });
         } else {
-            this.showErrMsg('Current worker/user has no workrelations!');
+            this.errorService.handle('Current worker/user has no workrelations!');
         }
     }
 
@@ -130,9 +136,7 @@ export class RegisterTime {
 
         this.workerService.queryWithUrlParams().subscribe((result: Array<WorkType>) => {
             this.worktypes = result;
-        }, (err) => {
-            this.showErrMsg('errors in getworktypes!');
-        });
+        }, this.errorService.handle);
 
     }
 
@@ -209,17 +213,6 @@ export class RegisterTime {
 
     public hasUnsavedChanges(): boolean {
         return !this.actions[0].disabled;
-    }
-
-    public showErrMsg(msg: string, lookForMsg = false): string {
-        var txt = msg;
-        if (lookForMsg) {
-            if (msg.indexOf('"Message":') > 0) {
-                txt = msg.substr(msg.indexOf('"Message":') + 12, 80) + '..';
-            }
-        }
-        alert(txt);
-        return txt;
     }
 
     // UniTable helperes:

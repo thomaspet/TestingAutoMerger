@@ -7,6 +7,7 @@ import {UniForm} from '../../../../framework/uniform';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../utils/utils';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 enum IAction {
     Save = 0,
@@ -60,7 +61,14 @@ export class GenericDetailview {
         { label: labels.action_delete, action: (done) => this.delete(done), main: false, disabled: true}
     ];
 
-    constructor(private workerService: WorkerService, private route: ActivatedRoute, private tabService: TabService, private toastService: ToastService, private router: Router) {
+    constructor(
+        private workerService: WorkerService,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private router: Router,
+        private errorService: ErrorService
+    ) {
         this.route.params.subscribe(params => this.ID = +params['id']);
     }
 
@@ -139,7 +147,9 @@ export class GenericDetailview {
     private loadCurrent(id: number, updateTitle = true) {
         if (id) {
             this.busy = true;
-            this.workerService.getByID(id, this.viewconfig.data.route, this.viewconfig.data.expand).subscribe((item: any) => {
+            this.workerService.getByID(id, this.viewconfig.data.route, this.viewconfig.data.expand)
+            .finally(() => this.busy = false)
+            .subscribe((item: any) => {
                 this.ID = item.ID;
                 if (item) {
                     if (this.viewconfig.data && this.viewconfig.data.check) {
@@ -154,10 +164,9 @@ export class GenericDetailview {
                 }
                 this.flagDirty(false);
                 this.busy = false;
-            }, (err) => {
-                this.showErrMsg(err._body || err.statusText, labels.err_loading, true);
-                this.busy = false;
-            });
+            },
+                this.errorService.handle
+            );
         } else {
             this.ID = 0;
             if (this.viewconfig.data && this.viewconfig.data.factory) {
@@ -192,7 +201,9 @@ export class GenericDetailview {
     private save(done) {
         this.busy = true;
         this.ensureEditCompleted();
-        this.workerService.saveByID(this.current, this.viewconfig.data.route).subscribe((item) => {
+        this.workerService.saveByID(this.current, this.viewconfig.data.route)
+            .finally(() => this.busy = false)
+            .subscribe((item) => {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
@@ -208,17 +219,17 @@ export class GenericDetailview {
 
             if (details.promise) {
                 details.promise.then((result: IResult) => postActions()).catch((result: IResult) => {
-                    done(this.showErrMsg(result.msg, 'Feil ved lagring', true));
+                    done('Feil ved lagring');
+                    this.errorService.handle(result);
                 });
             } else {
                 postActions();
             }
 
         }, (err) => {
-            this.busy = false;
-            var msg = this.showErrMsg(err._body || err.statusText, labels.err_save, true);
-            if (done) { done(labels.err_save + ':' + msg); }
-        }, () => this.busy = false);
+            this.errorService.handle(err);
+            if (done) { done(labels.err_save); }
+        });
     }
 
     private ensureEditCompleted() {
@@ -234,14 +245,15 @@ export class GenericDetailview {
     private delete(done?) {
         if (this.ID) {
             if (!confirm(labels.ask_delete)) { if (done) { done(); } return; }
-            this.workerService.deleteByID(this.ID, this.viewconfig.data.route).subscribe((result) => {
+            this.workerService.deleteByID(this.ID, this.viewconfig.data.route)
+            .finally(() => this.busy = false)
+            .subscribe((result) => {
                 if (done) { done(labels.deleted_ok); }
                 this.postDeleteAction();
             }, (err) => {
-                var msg = this.showErrMsg(err._body || err.statusText, labels.err_delete, true);
-                if (done) { done(labels.err_delete + ':' + msg); }
-                this.busy = false;
-            }, () => this.busy = false);
+                this.errorService.handle(err);
+                if (done) { done(labels.err_delete); }
+            });
         }
     }
 
@@ -257,26 +269,4 @@ export class GenericDetailview {
             this.loadCurrent(0);
         });
     }
-
-    private showErrMsg(msg: string, title?: string, lookForMsg = false): string {
-        var txt = msg;
-        if (lookForMsg) {
-            let tStart = '"Message":';
-            let ix = msg.indexOf(tStart);
-            if (ix > 0) {
-                ix += tStart.length;
-                let ix2 = msg.indexOf('"', ix);
-                if (ix2 > ix) {
-                    ix = ix2 + 1;
-                    ix2 = msg.indexOf('"', ix2 + 1);
-                    txt = msg.substr(ix, ix2 > ix ? ix2 - ix : 80);
-                } else {
-                    txt = msg.substr(ix, 80) + '..';
-                }
-            }
-        }
-        this.toastService.addToast(title || labels.error, ToastType.bad, 6, txt);
-        return txt;
-    }
-
 }

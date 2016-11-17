@@ -13,6 +13,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {SupplierInvoice, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -39,7 +40,9 @@ export class SupplierInvoiceList implements OnInit {
         private supplierInvoiceService: SupplierInvoiceService,
         private router: Router,
         private tabService: TabService,
-        private journalEntryService: JournalEntryService) {
+        private journalEntryService: JournalEntryService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices', moduleID: UniModules.Accounting, active: true });
     }
 
@@ -59,7 +62,8 @@ export class SupplierInvoiceList implements OnInit {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set('expand', 'JournalEntry,Supplier.Info,Dimensions.Department,Dimensions.Project');
-            return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams);
+            return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams)
+                .catch(this.errorService.handleRxCatch);
         };
 
         this.onFiltersChange('');
@@ -76,9 +80,7 @@ export class SupplierInvoiceList implements OnInit {
                 (supplierinvoice) => {
                     this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + supplierinvoice.ID);
                 },
-                (err) => {
-                    console.log('Error creating invoice: ', err);
-                }
+                    this.errorService.handle
                 );
         });
     }
@@ -97,9 +99,7 @@ export class SupplierInvoiceList implements OnInit {
         this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             this.table.refreshTableData();
 
-        }, (error) => {
-            this.setError(error);
-        });
+        }, this.errorService.handle);
     }
 
     private setupTableCfg(): UniTableConfig {
@@ -219,14 +219,10 @@ export class SupplierInvoiceList implements OnInit {
                                                 );
                                         }
                                     },
-                                    (error) => {
-                                        this.setError(error);
-                                    }
+                                        this.errorService.handle
                                     )
                             },
-                            (error) => {
-                                this.setError(error);
-                            }
+                                this.errorService.handle
                             );
 
                     },
@@ -246,9 +242,8 @@ export class SupplierInvoiceList implements OnInit {
                                 console.log('== TRANSITION OK sendForPayment ==');
                                 this.registerPayment(supplierInvoice)
                             },
-                                (error) => {
-                                    this.setError(error);
-                                });
+                                this.errorService.handle
+                            );
                         }
                         else {
                             this.registerPayment(supplierInvoice);
@@ -267,7 +262,7 @@ export class SupplierInvoiceList implements OnInit {
                 {
                     label: 'Slett',
                     action: supplierInvoice => this.supplierInvoiceService.Remove(supplierInvoice.ID, supplierInvoice)
-                        .subscribe(() => alert('Successful'), error => alert(`An error occurred: ${error}`)),
+                        .subscribe(() => alert('Successful'), this.errorService.handle),
                     disabled: supplierInvoice => !supplierInvoice._links.actions.delete
                 }
             ]);
@@ -280,7 +275,7 @@ export class SupplierInvoiceList implements OnInit {
                 this.summaryData = summary;
             },
             (err) => {
-                console.log('Error retrieving summarydata:', err);
+                this.errorService.handle(err);
                 this.summaryData = null;
             });
     }

@@ -5,6 +5,7 @@ import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsM
 import {AddressModal} from '../../common/modals/modals';
 import {AddressService, CustomerService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;
 
 @Component({
@@ -109,8 +110,11 @@ export class TofCustomerCard {
     private lookupResults: Customer[] = [];
     private busy: boolean;
 
-    constructor(private addressService: AddressService,
-                private customerService: CustomerService) {
+    constructor(
+        private addressService: AddressService,
+        private customerService: CustomerService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -236,7 +240,7 @@ export class TofCustomerCard {
             this.selectedIndex = (this.control.value) ? 0 : -1;
             this.expanded = true;
             this.busy = false;
-        });
+        }, this.errorService.handle);
     }
 
     public onKeydown(event: KeyboardEvent) {

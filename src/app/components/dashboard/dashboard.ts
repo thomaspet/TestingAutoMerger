@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
+import {ErrorService} from '../../services/common/ErrorService';
 
 declare var Chart;
 declare var moment;
@@ -33,35 +34,45 @@ export class Dashboard {
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
 
-    constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
+    constructor(
+        private tabService: TabService,
+        private http: UniHttp,
+        private router: Router,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
         Chart.defaults.global.maintainAspectRatio = false;
 
         this.getCompany().subscribe(
             (data) => { this.current = data[0]; },
-            (error) => { console.log(error); }
+            this.errorService.handle
         );
     }
 
     public ngAfterViewInit() {
 
         this.getInvoicedData().subscribe(
-            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount'))
+            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
+            this.errorService.handle
         );
         this.getOrdreData().subscribe(
-            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) }
+            (data) => this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')),
+            this.errorService.handle
         );
 
         this.getQuoteData().subscribe(
-            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) }
+            (data) => this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')),
+            this.errorService.handle
         );
 
         this.getOperatingData().subscribe(
-            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) }
+            (data) => this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)),
+            this.errorService.handle
         );
 
         this.getLastJournalEntry().subscribe(
-            (data) => { this.generateLastTenList(data, true); }
+            (data) => this.generateLastTenList(data, true),
+            this.errorService.handle
         );
 
         this.getMyUserInfo().subscribe(
@@ -72,19 +83,22 @@ export class Dashboard {
                     (data) => { this.generateLastTenList(data.Data, false, true) }
                     )
             },
-            error => console.log(error)
+            this.errorService.handle
         );
 
         this.getTransactions().subscribe(
-            (data) => { this.generateLastTenList(data.Data, false) }
+            (data) => this.generateLastTenList(data.Data, false),
+            this.errorService.handle
         );
 
         this.getAssets().subscribe(
-            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data.Data)) }
+            (data) => this.chartGenerator('assets_chart', this.assetsChartData(data.Data)),
+            this.errorService.handle
         );
 
         this.getMail().subscribe(
-            (data) => { this.fixInboxItems(data.Data); }
+            (data) => this.fixInboxItems(data.Data),
+            this.errorService.handle
         );
     }
 

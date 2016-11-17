@@ -6,6 +6,7 @@ import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../.
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
 import {checkGuid} from '../../../../../services/common/dimensionservice';
 import {FinancialYearService} from '../../../../../services/services';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 
 @Component({
@@ -37,8 +38,9 @@ export class BillSimpleJournalEntryView {
     constructor(
         private toast: ToastService,
         private lookup: Lookupservice,
-        private financialYearService: FinancialYearService) {
-
+        private financialYearService: FinancialYearService,
+        private errorService: ErrorService
+    ) {
         this.clear();
         this.initTableConfig();
         this.initYear();
@@ -391,7 +393,7 @@ export class BillSimpleJournalEntryView {
         } else {
             this.financialYearService.GetAll(null).subscribe((response) => {
                 this.financialYears = response;
-            });
+            }, this.errorService.handle);
         }
     }
 

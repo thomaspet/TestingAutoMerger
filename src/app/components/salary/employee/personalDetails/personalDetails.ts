@@ -9,6 +9,7 @@ import { UniFieldLayout } from '../../../../../framework/uniform/index';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 declare var _;
 
 @Component({
@@ -42,21 +43,24 @@ export class PersonalDetails extends UniView {
         private router: Router,
         private municipalService: MunicipalService,
         route: ActivatedRoute,
-        cacheService: UniCacheService) {
+        cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
         // Update cache key and (re)subscribe when param changes (different employee)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
-            super.getStateSubject('employee').subscribe((employee) => {
-                this.employee = employee;
-            });
+            super.getStateSubject('employee').subscribe(
+                employee => this.employee = employee,
+                this.errorService.handle
+            );
 
             super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
                 this.subEntities = subEntity;
                 this.getLayout();
-            });
+            }, this.errorService.handle);
         });
     }
 
@@ -86,10 +90,7 @@ export class PersonalDetails extends UniView {
                 this.extendFormConfig();
 
             }
-            , (error: any) => {
-                console.error(error);
-                this.log(error);
-            }
+            , this.errorService.handle
         );
     }
 
@@ -236,7 +237,7 @@ export class PersonalDetails extends UniView {
                 template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
             };
             this.fields = _.cloneDeep(this.fields);
-        });
+        }, this.errorService.handle);
 
 
 
@@ -290,11 +291,7 @@ export class PersonalDetails extends UniView {
                 this.employee.MunicipalityNo = employee.MunicipalityNo;
                 this.employee.NotMainEmployer = employee.NotMainEmployer;
                 this.updateState('employee', employee);
-            });
+            }, this.errorService.handle);
         }
-    }
-
-    public log(err) {
-        alert(err._body);
     }
 }

@@ -6,6 +6,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService} from '../../../../services/services';
 import {Product} from '../../../../unientities';
 import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -17,7 +18,13 @@ export class ProductList {
     private productTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private tabService: TabService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private productService: ProductService,
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.setupProductTable();
         this.tabService.addTab({ name: "Produkter", url: "/products", active: true, moduleID: UniModules.Products });
     }
@@ -41,7 +48,7 @@ export class ProductList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
                         
-            return this.productService.GetAllByUrlSearchParams(params);
+            return this.productService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
 
         // Define columns to use in the table

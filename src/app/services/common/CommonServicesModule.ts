@@ -22,6 +22,7 @@ import {NumberFormat} from './NumberFormatService';
 import {StatusService} from './StatusService';
 import {SettingsService} from './settingsservice';
 import {CompanyService} from './CompanyService';
+import {ErrorService} from './ErrorService';
 
 @NgModule({
     providers: [
@@ -47,7 +48,8 @@ import {CompanyService} from './CompanyService';
         NumberFormat,
         StatusService,
         SettingsService,
-        CompanyService
+        CompanyService,
+        ErrorService
     ]
 })
 export class CommonServicesModule {

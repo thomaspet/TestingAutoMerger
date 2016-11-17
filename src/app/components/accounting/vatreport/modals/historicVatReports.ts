@@ -8,6 +8,7 @@ import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 declare const moment;
@@ -31,14 +32,18 @@ export class HistoricVatReportTable implements OnInit {
 
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
-    constructor(private vatReportService: VatReportService, private toastService: ToastService) {
-    }
+    constructor(
+        public periodDateFormat: PeriodDateFormatPipe,
+        private vatReportService: VatReportService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
-        this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
+        this.lookupFunction = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams).catch(this.errorService.handleRxCatch);
 
     }
 
@@ -92,9 +97,12 @@ export class HistoricVatReportModal {
 
     private modalConfig: any = {};
     public type: Type<any> = HistoricVatReportTable;
-    public periodDateFormat: PeriodDateFormatPipe = new PeriodDateFormatPipe();
 
-    constructor(private periodService: PeriodService, private toastService: ToastService) {
+    constructor(
+        private periodService: PeriodService,
+        private toastService: ToastService,
+        public periodDateFormat: PeriodDateFormatPipe
+    ) {
         const self = this;
 
         self.modalConfig = {

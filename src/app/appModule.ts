@@ -1,7 +1,7 @@
 /// <reference path='../../typings/browser/ambient/es6-shim/es6-shim.d.ts'/>
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts'/>
 
-import {enableProdMode, NgModule} from '@angular/core';
+import {enableProdMode, NgModule, ErrorHandler, Inject} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 import {BrowserModule} from '@angular/platform-browser';
@@ -32,6 +32,7 @@ import {InitModule} from './components/init/initModule';
 import {SalesModule} from './components/sales/salesModule';
 import {SettingsModule} from './components/settings/settingsModule';
 import {TimetrackingModule} from './components/timetracking/timetrackingModule';
+import {ErrorService} from './services/common/ErrorService';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -41,6 +42,17 @@ declare var window;
 if (window.ENV === 'production') {
     enableProdMode();
 }
+
+class UniErrorHandler implements ErrorHandler {
+    private errorService: ErrorService;
+    public handleError (error: any) {
+        this.errorService.handle(error);
+    }
+    constructor(@Inject(ErrorService) errorService) {
+        this.errorService = errorService;
+    }
+}
+
 
 @NgModule({
     imports: [
@@ -84,7 +96,8 @@ if (window.ENV === 'production') {
     providers: [
         AuthGuard,
         COMPILER_PROVIDERS,
-        {provide: LocationStrategy, useClass: HashLocationStrategy}
+        {provide: LocationStrategy, useClass: HashLocationStrategy},
+        {provide: ErrorHandler, useClass: UniErrorHandler}
     ]
 })
 export class AppModule {}

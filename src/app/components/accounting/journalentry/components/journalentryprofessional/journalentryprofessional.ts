@@ -7,6 +7,7 @@ import {VatTypeService, AccountService, JournalEntryService, DepartmentService, 
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
@@ -41,14 +42,17 @@ export class JournalEntryProfessional implements OnInit {
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
 
-    constructor(private uniHttpService: UniHttp,
-            private vatTypeService: VatTypeService,
-            private accountService: AccountService,
-            private journalEntryService: JournalEntryService,
-            private departmentService: DepartmentService,
-            private projectService: ProjectService,
-            private customerInvoiceService: CustomerInvoiceService,
-            private toastService: ToastService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private vatTypeService: VatTypeService,
+        private accountService: AccountService,
+        private journalEntryService: JournalEntryService,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private customerInvoiceService: CustomerInvoiceService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {
 
     }
 
@@ -78,7 +82,7 @@ export class JournalEntryProfessional implements OnInit {
 
                 this.dataLoaded.emit(this.journalEntryLines);
             },
-            (err) => console.log('Error retrieving data: ', err)
+            this.errorService.handle
         );
     }
 
@@ -577,9 +581,7 @@ export class JournalEntryProfessional implements OnInit {
             },
             err => {
                 completeCallback('Lagring feilet');
-
-                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, this.toastService.parseErrorMessageFromError(err));
-                console.log('error in postJournalEntryData: ', err);
+                this.errorService.handle(err);
             });
 
     }

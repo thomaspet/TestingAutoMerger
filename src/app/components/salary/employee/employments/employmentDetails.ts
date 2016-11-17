@@ -5,6 +5,7 @@ import { UniForm } from '../../../../../framework/uniform';
 import { UniFieldLayout } from '../../../../../framework/uniform/index';
 import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
 import { Observable } from 'rxjs/Observable';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -42,7 +43,8 @@ export class EmploymentDetails implements OnChanges {
         private employeeService: EmployeeService,
         private employmentService: EmploymentService,
         private accountService: AccountService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService
         ) {
     }
 
@@ -92,7 +94,7 @@ export class EmploymentDetails implements OnChanges {
             subEntityField.Options.source = this.subEntities;
 
             this.formReady = true;
-        });
+        }, this.errorService.handle);
     }
 
     private updateTitle(styrk) {
@@ -108,7 +110,7 @@ export class EmploymentDetails implements OnChanges {
                             this.form.field('WorkPercent').focus();
                         }, 50);
                     }
-                });
+                }, this.errorService.handle);
         }
     }
 

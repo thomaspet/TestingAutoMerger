@@ -13,6 +13,7 @@ import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {ActivatedRoute} from '@angular/router';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var moment;
 
@@ -83,9 +84,15 @@ export class TimeEntry {
             }
     };
 
-    constructor(private tabService: TabService, private service: WorkerService,
-                private timesheetService: TimesheetService, private lookup: Lookupservice,
-                private toast: ToastService, private route: ActivatedRoute) {
+    constructor(
+        private tabService: TabService,
+        private service: WorkerService,
+        private timesheetService: TimesheetService,
+        private lookup: Lookupservice,
+        private toast: ToastService,
+        private route: ActivatedRoute,
+        private errorService: ErrorService
+    ) {
 
         this.filters = service.getIntervalItems();
 
@@ -106,7 +113,7 @@ export class TimeEntry {
         if (workerId) {
             this.service.getByID(workerId, 'workers', 'Info').subscribe( (worker: Worker) => {
                 this.userName = worker.Info.Name;
-            });
+            }, this.errorService.handle);
         } else {
             this.userName = this.service.user.name;
         }
@@ -164,7 +171,7 @@ export class TimeEntry {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
             this.loadItems();
-        });
+        }, this.errorService.handle);
     }
 
     private loadItems() {
@@ -174,7 +181,7 @@ export class TimeEntry {
                 this.timeSheet.ensureRowCount(itemCount + 1);
                 this.flagUnsavedChanged(true);
                 this.busy = false;
-            });
+            }, this.errorService.handle);
         } else {
             alert('Current worker/user has no workrelations!');
         }
@@ -194,8 +201,8 @@ export class TimeEntry {
             this.timeSheet.saveItems().subscribe((item: WorkItem) => {
                 counter++;
             }, (err) => {
-                var msg = this.showErrMsg(err._body || err.statusText, true);
-                if (done) { done('Feil ved lagring: ' + msg); }
+                this.errorService.handle(err);
+                if (done) { done('Feil ved lagring'); }
                 this.busy = false;
                 resolve(false);
             }, () => {

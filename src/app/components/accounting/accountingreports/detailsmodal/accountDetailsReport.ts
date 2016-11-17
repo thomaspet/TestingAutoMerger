@@ -8,6 +8,7 @@ import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodRep
 import {Account, JournalEntryLine, JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {DimensionService} from '../../../../services/common/DimensionService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
@@ -34,11 +35,12 @@ export class AccountDetailsReport {
     private transactionsLookupFunction: (urlParams: URLSearchParams) => any;
     private doTurnDistributionAmounts: boolean = false;
 
-    constructor(private statisticsService: StatisticsService) {
+    constructor(private statisticsService: StatisticsService, private errorService: ErrorService) {
     }
 
     public ngOnInit() {
-        this.transactionsLookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
+        this.transactionsLookupFunction =
+            (urlParams: URLSearchParams) => this.getTableData(urlParams).catch(this.errorService.handleRxCatch);
     }
 
     // modal is reused if multiple accounts are viewed, and the loadData will be called from the accountDetailsReportModal

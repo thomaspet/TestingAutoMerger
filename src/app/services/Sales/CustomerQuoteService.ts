@@ -4,6 +4,7 @@ import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
 import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../common/ErrorService';
 
 declare var moment;
 
@@ -42,7 +43,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     };
 
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = CustomerQuote.RelativeUrl;
         this.entityType = CustomerQuote.EntityType;
@@ -65,7 +66,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
                 quote.ValidUntilDate = moment().add(1, 'month').toDate();
 
                 resolve(quote);
-            });
+            }, this.errorService.handle);
         });
     }
 

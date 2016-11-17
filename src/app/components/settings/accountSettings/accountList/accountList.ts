@@ -3,6 +3,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
 import {AccountService} from '../../../../services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 
@@ -16,7 +17,7 @@ export class AccountList {
     private accountTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private accountService: AccountService) {
+    constructor(private accountService: AccountService,private errorService: ErrorService) {
 
     }
 
@@ -53,7 +54,7 @@ export class AccountList {
 
             params.set('expand', 'AccountGroup,VatType');
 
-            return this.accountService.GetAllByUrlSearchParams(params);
+            return this.accountService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
 
         // Define columns to use in the table

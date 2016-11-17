@@ -7,6 +7,7 @@ import {StatisticsService, UniQueryDefinitionService, StatusService} from '../..
 import {AuthService} from '../../../../framework/core/authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-query-read-only',
@@ -39,7 +40,8 @@ export class UniQueryReadOnly implements OnChanges {
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private toastService: ToastService,
         private authService: AuthService,
-        private statusService: StatusService
+        private statusService: StatusService,
+        private errorService: ErrorService
     ) {
         let token = this.authService.getTokenDecoded();
         if (token) {
@@ -61,7 +63,7 @@ export class UniQueryReadOnly implements OnChanges {
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params);
+                .GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
     }
 
@@ -114,10 +116,7 @@ export class UniQueryReadOnly implements OnChanges {
 
                         this.setupTableConfig();
                     },
-                    err => {
-                        console.log('error loading querydef', err);
-                        this.toastService.addToast('Feil ved henting av uttrekk, se logg for mer informasjon', ToastType.bad);
-                    });
+                    this.errorService.handle);
         } else {
             this.queryDefinition = new UniQueryDefinition();
             this.queryDefinition.ID = 0;

@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {ProjectService} from '../../../../../services/common/ProjectService';
 import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'project-dimensions-list',
@@ -17,7 +18,9 @@ export class ProjectList {
     constructor(
         private router: Router,
         private projectService: ProjectService,
-        private tabService: TabService) {
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Prosjekter', url: '/dimensions/project', active: true, moduleID: UniModules.Projects });
         this.setupTable();
     }
@@ -34,7 +37,7 @@ export class ProjectList {
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            return this.projectService.GetAllByUrlSearchParams(urlParams);
+            return this.projectService.GetAllByUrlSearchParams(urlParams).catch(this.errorService.handleRxCatch);
         };
 
         this.tableConfig = new UniTableConfig(false, true, 25)

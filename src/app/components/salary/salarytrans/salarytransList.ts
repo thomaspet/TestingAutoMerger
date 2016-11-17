@@ -12,6 +12,7 @@ import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IContextM
 import { UniForm } from '../../../../framework/uniform';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 import { ISummaryConfig } from '../../common/summary/summary';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _;
 
@@ -70,7 +71,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         private _payrollRunService: PayrollrunService,
         private router: Router,
         private numberFormat: NumberFormat,
-        private _accountService: AccountService
+        private _accountService: AccountService,
+        private errorService: ErrorService
     ) {
 
     }
@@ -84,10 +86,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             if (this.payrollRun && this.employee) {
                 this.createTableConfig();
             }
-        }, (error: any) => {
-            this.log(error);
-            console.log(error);
-        });
+        }, this.errorService.handle);
 
         this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
             this.busy = true;
@@ -105,14 +104,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                             this.createTableConfig();
                         }
                         this.getAgaAndShowView();
-                    }, (error: any) => {
-                        this.log(error);
-                        console.log(error);
-                    });
+                    }, this.errorService.handle);
             }
 
 
-        });
+        }, this.errorService.handle);
 
         this.config = {
             submitText: ''
@@ -145,10 +141,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                         this.salarytransEmployeeTableConfig = _.cloneDeep(this.salarytransEmployeeTableConfig); // Trigger change detection in unitable
                     }
 
-                }, (error: any) => {
-                    this.log(error);
-                    console.log(error);
-                });
+                }, this.errorService.handle);
         }
     }
 
@@ -168,7 +161,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     public refreshPayrollRun(value) {
         this._payrollRunService.Get(this.payrollRun.ID).subscribe((response: PayrollRun) => {
             this._payrollRunService.refreshPayrun(response);
-        });
+        }, this.errorService.handle);
     }
 
     private refreshSaveActions() {
@@ -239,7 +232,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             done('Lønnsposter lagret: ');
         },
             (err) => {
-                this.log(err);
+                this.errorService.handle(err);
                 done('Feil ved lagring av lønnspost', err);
                 this.saveactions[0].disabled = false;
                 this.setSummarySource();
@@ -267,10 +260,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                         this.fields = _.cloneDeep(this.fields);
                     }
                     this.busy = false;
-                }, (error: any) => {
-                    this.log(error);
-                    console.log(error);
-                });
+                }, this.errorService.handle);
         } else {
             this.agaZone = new AGAZone();
             if (this.fields.length !== 0) {
@@ -477,7 +467,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             this.calcItem(rowModel);
             this.table.updateRow(rowModel['_originalIndex'], rowModel);
             this.updateSalaryChanged(rowModel);
-        });
+        }, this.errorService.handle);
     }
 
     private mapEmploymentToTrans(rowModel: SalaryTransaction) {
@@ -519,7 +509,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                 filter: filter,
                 expand: '@Wagetype.SupplementaryInformations,@Supplements.WageTypeSupplement'
             })
-            .map(response => response.json());
+            .map(response => response.json())
+            .catch(this.errorService.handleRxCatch);
     }
 
     private setSummarySource() {
@@ -529,10 +520,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                     this.employeeTotals = response;
                     this.setSums();
                 }
-            }, (error: any) => {
-                this.log(error);
-                console.log(error);
-            });
+            }, this.errorService.handle);
     }
 
 
@@ -649,14 +637,14 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
                             this.saveactions[0].disabled = false;
                             this.saveactions = _.cloneDeep(this.saveactions);
                         }, error => {
-                            this.log(error);
+                            this.errorService.handle(error);
                             this.busy = false;
                             this.saveactions[0].disabled = false;
                             this.saveactions = _.cloneDeep(this.saveactions);
                         });
                 }
             }, error => {
-                this.log(error);
+                this.errorService.handle(error);
                 this.busy = false;
                 this.saveactions[0].disabled = false;
                 this.saveactions = _.cloneDeep(this.saveactions);
@@ -699,13 +687,5 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         let noTax = !this.employee.TaxTable && !this.employee.TaxPercentage;
 
         return noBankAccounts || noTax;
-    }
-
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
-        }
     }
 }

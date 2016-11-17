@@ -6,6 +6,7 @@ import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unit
 import {Employee, Employment, SubEntity} from '../../../../unientities';
 
 import {UniCacheService} from '../../../../services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'employments',
@@ -21,10 +22,13 @@ export class Employments extends UniView {
     private tableConfig: UniTableConfig;
     private subEntities: SubEntity[];
 
-    constructor(private employmentService: EmploymentService,
-                cacheService: UniCacheService,
-                router: Router,
-                route: ActivatedRoute) {
+    constructor(
+        private employmentService: EmploymentService,
+        cacheService: UniCacheService,
+        router: Router,
+        route: ActivatedRoute,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
@@ -38,8 +42,8 @@ export class Employments extends UniView {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
 
-            super.getStateSubject('subEntities').subscribe( subEntities => this.subEntities = subEntities );
-            super.getStateSubject('employee').subscribe(employee => this.employee = employee);
+            super.getStateSubject('subEntities').subscribe( subEntities => this.subEntities = subEntities, this.errorService.handle);
+            super.getStateSubject('employee').subscribe(employee => this.employee = employee, this.errorService.handle);
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments || [];
 
@@ -56,7 +60,7 @@ export class Employments extends UniView {
                     }
                     this.selectedIndex = focusIndex;
                 }
-            });
+            }, this.errorService.handle);
         });
     }
 
@@ -87,7 +91,7 @@ export class Employments extends UniView {
             this.employments.push(newEmployment);
             this.table.addRow(newEmployment);
             this.table.focusRow(this.employments.length - 1);
-        });
+        }, this.errorService.handle);
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!

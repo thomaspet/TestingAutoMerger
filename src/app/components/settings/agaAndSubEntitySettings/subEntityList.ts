@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { SubEntityService, AgaZoneService, MunicipalService } from '../../../services/services';
 import { SubEntity, Municipal, AGAZone } from '../../../unientities';
 import { SubEntityDetails } from './subEntityDetails';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({
@@ -33,7 +34,9 @@ export class SubEntityList implements OnInit {
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalService: MunicipalService,
-        private _toastService: ToastService) {
+        private _toastService: ToastService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -48,7 +51,7 @@ export class SubEntityList implements OnInit {
             this.createTableConfig();
             this.refreshList();
             this.busy = false;
-        });
+        }, this.errorService.handle);
 
         this._subEntityService.getMainOrganization().subscribe(response => {
             this.mainOrg = response[0];

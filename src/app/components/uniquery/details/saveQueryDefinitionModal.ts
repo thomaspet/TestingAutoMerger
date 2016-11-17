@@ -7,6 +7,7 @@ import {URLSearchParams} from '@angular/http';
 import {Observable, Subject} from 'rxjs/Rx';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
@@ -202,7 +203,11 @@ export class SaveQueryDefinitionModal {
     private modalConfig: any = {};
     public type: Type<any> = SaveQueryDefinitionForm;
 
-    constructor(private toastService: ToastService, private uniQueryDefinitionService: UniQueryDefinitionService) {
+    constructor(
+        private toastService: ToastService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private errorService: ErrorService
+    ) {
         this.modalConfig = {
             title: 'Lagre uttrekk',
             mode: null,
@@ -224,9 +229,7 @@ export class SaveQueryDefinitionModal {
                                 this.saved.emit(res);
                                 return false;
                             },
-                            (err) => {
-                                console.log('Error saving querydefinition:', err);
-                            });
+                        this.errorService.handle);
                     }
                 },
                 {

@@ -7,6 +7,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {CustomerOrderService, ProductService} from '../../../../services/services';
 import {StatusCodeCustomerOrderItem} from '../../../../unientities';
 import {CustomerOrder, CustomerOrderItem} from '../../../../unientities';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'order-to-invoice-table',
@@ -91,7 +92,7 @@ export class OrderToInvoiceModal {
     private modalConfig: any = {};
     public type: Type<any> = OrderToInvoiceModalType;
 
-    constructor(private customerOrderService: CustomerOrderService) {
+    constructor(private customerOrderService: CustomerOrderService, private errorService: ErrorService) {
         var self = this;
         this.modalConfig = {
             title: '',
@@ -146,7 +147,7 @@ export class OrderToInvoiceModal {
                 this.modalConfig.model = data[0];
                 this.modal.open();
             },
-            (err) => console.log('Error retrieving data: ', err)
+            this.errorService.handle
             );
     }
 }

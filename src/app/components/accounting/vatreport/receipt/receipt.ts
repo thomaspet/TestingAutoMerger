@@ -3,6 +3,7 @@ import {VatReport, AltinnGetVatReportDataFromAltinnStatus, VatReportSummaryPerPo
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {VatReportService} from '../../../../services/Accounting/VatReportService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'vatreport-receipt-view',
@@ -17,15 +18,10 @@ export class ReceiptVat {
 
     private busy: boolean = false;
 
-    private onError: (error) => void = (error) => {
-        this.toastService.addToast('Error', ToastType.bad, null, 'En feil oppstod, forsøk igjen senere!');
-        this.busy = false;
-        console.log('An error occurred in the receipt.ts file:', error);
-    };
-
     constructor(
         private vatReportService: VatReportService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private errorService: ErrorService
     ) {}
 
     public checkForReceipt() {
@@ -63,11 +59,11 @@ export class ReceiptVat {
                                             this.toastService.addToast('Kvitteringsdata hentet fra Altinn', ToastType.good);
                                             this.busy = false;
                                         },
-                                        this.onError
+                                        this.errorService.handle
                                     );
                             }
                         },
-                        this.onError
+                        this.errorService.handle
                     );
                 }
             );

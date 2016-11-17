@@ -12,6 +12,7 @@ import {Project} from '../../../../unientities';
 import {Department} from '../../../../unientities';
 import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -58,8 +59,17 @@ export class ProductDetails {
          }
     ];
 
-    constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router,
-    private route: ActivatedRoute, private tabService: TabService, private projectService: ProjectService, private departmentService: DepartmentService) {
+    constructor(
+        private productService: ProductService,
+        private accountService: AccountService,
+        private vatTypeService: VatTypeService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService,
+        private errorService: ErrorService
+    ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
             this.setupForm();
@@ -89,7 +99,7 @@ export class ProductDetails {
                     this.formIsInitialized = true;
 
                     this.loadProduct();
-                });
+                }, this.errorService.handle);
         } else {
             this.loadProduct();
         }
@@ -119,9 +129,7 @@ export class ProductDetails {
                 isDisabled: (!this.productId || parseInt(this.productId) === 0),
                 disableMessage: 'Produkt må lagres før bilde kan lastes opp'
             };
-        } , (err) => {
-            console.log('Error retrieving data: ', err);
-        });
+        } , this.errorService.handle);
     }
 
     private setTabTitle() {
@@ -149,7 +157,7 @@ export class ProductDetails {
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
-                        console.log('Feil oppsto ved lagring', err);
+                        this.errorService.handle(err);
                     }
                 );
         } else {
@@ -162,7 +170,7 @@ export class ProductDetails {
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
-                        console.log('Feil oppsto ved lagring', err);
+                        this.errorService.handle(err);
                     }
                 );
         }
@@ -176,7 +184,7 @@ export class ProductDetails {
 
                 this.product = _.cloneDeep(this.product);
             },
-            (err) => console.log('Feil ved kalkulering av pris', err)
+            this.errorService.handle
         );
     }
 
@@ -188,21 +196,25 @@ export class ProductDetails {
     }
 
     private previousProduct() {
-        this.productService.previous(this.product.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/products/' + data.ID);
+        this.productService.getPreviousID(this.product.ID)
+            .subscribe((ID) => {
+                if (ID) {
+                    this.router.navigateByUrl('/products/' + ID);
+                } else {
+                    alert('Ingen flere produkter før denne!')
                 }
-            });
+            }, this.errorService.handle);
     }
 
     private nextProduct() {
-        this.productService.next(this.product.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/products/' + data.ID);
+        this.productService.getNextID(this.product.ID)
+            .subscribe((ID) => {
+                if (ID) {
+                    this.router.navigateByUrl('/products/' + ID);
+                } else {
+                    alert('Ingen flere produkter etter denne!')
                 }
-            });
+            }, this.errorService.handle);
     }
 
     private addProduct() {

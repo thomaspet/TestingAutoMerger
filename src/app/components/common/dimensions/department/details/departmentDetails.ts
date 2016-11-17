@@ -6,6 +6,7 @@ import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {DepartmentService} from '../../../../../services/common/DepartmentService';
 import {UniFieldLayout} from "../../../../../../framework/uniform/interfaces";
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'department-dimensions-details',
@@ -25,16 +26,14 @@ export class DepartmentDetails implements OnInit {
         }
     ];
 
-    private errorHandler(err: Error) {
-        console.log('Error in DepartmentDetails:', err);
-        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ett problem oppstod, forsøk igjen senere');
-    }
-
-    constructor(private departmentService: DepartmentService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private toastService: ToastService) {
+    constructor(
+        private departmentService: DepartmentService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -46,7 +45,7 @@ export class DepartmentDetails implements OnInit {
                 this.departmentService.Get(departmentID)
                     .subscribe(
                         department => this.setDepartment(department),
-                        err => this.errorHandler(err)
+                        err => this.errorService.handle
                     );
             } else {
                 this.setDepartment(new Department);
@@ -71,7 +70,7 @@ export class DepartmentDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger etter denne');
                     }
                 },
-                err => this.errorHandler(err)
+                this.errorService.handle
             );
     }
 
@@ -85,7 +84,7 @@ export class DepartmentDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger før denne');
                     }
                 },
-                err => this.errorHandler(err)
+                this.errorService.handle
             );
     }
 
@@ -105,7 +104,7 @@ export class DepartmentDetails implements OnInit {
                         if (err.status === 400) {
                             this.toastService.addToast('Warning', ToastType.warn, 0, 'Avdelingsnummer allerede brukt, venligst bruk et annet nummer');
                         } else {
-                            this.errorHandler(err);
+                            this.errorService.handle(err);
                         }
                     });
         } else {
@@ -115,7 +114,7 @@ export class DepartmentDetails implements OnInit {
                         this.router.navigateByUrl('/dimensions/department/' + newDepartment.ID);
                         done('Avdeling lagret');
                     },
-                    err => this.errorHandler(err));
+                    this.errorService.handle);
         }
     }
 

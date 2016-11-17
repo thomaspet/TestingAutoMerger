@@ -6,6 +6,7 @@ import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
+import {ErrorService} from './services/common/ErrorService';
 
 @Component({
     selector: 'uni-app',
@@ -17,9 +18,12 @@ export class App {
     @ViewChild(LoginModal) private loginModal: LoginModal;
     @ViewChild(CompanySyncModal) private companySyncModal: CompanySyncModal;
 
-    constructor(private authService: AuthService,
-                private http: UniHttp,
-                private staticRegisterService: StaticRegisterService) {
+    constructor(
+        private authService: AuthService,
+        private http: UniHttp,
+        private staticRegisterService: StaticRegisterService,
+        private errorService: ErrorService
+    ) {
 
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
@@ -35,14 +39,14 @@ export class App {
             if (!this.loginModal.isOpen && (location.href.indexOf('login') === -1)) {
                 this.loginModal.open();
             }
-        });
+        } /* don't need error handling */);
 
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = authDetails.token && authDetails.activeCompany;
             if (this.isAuthenticated) {
                 this.initialize();
             }
-        });
+        } /* don't need error handling */);
     }
 
     private initialize() {
@@ -52,7 +56,10 @@ export class App {
             .withEndPoint('companysettings')
             .send()
             .map(response => response.json())
-            .subscribe(response => localStorage.setItem('companySettings', JSON.stringify(response[0])));
+            .subscribe(
+                response => localStorage.setItem('companySettings', JSON.stringify(response[0])),
+                this.errorService.handle
+            );
 
         // Check if company needs to be initialized
         this.http.asGET()
@@ -64,7 +71,7 @@ export class App {
                 if (!isActive) {
                     this.companySyncModal.open();
                 }
-            });
+            }, this.errorService.handle);
 
         // KE: For now, don't load static registers - these are slow because of to much data in local storage
         // this.staticRegisterService.checkForStaticRegisterUpdate();

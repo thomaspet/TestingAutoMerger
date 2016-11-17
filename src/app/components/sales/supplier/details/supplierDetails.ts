@@ -15,6 +15,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
 import {BankAccountModal} from '../../../common/modals/modals';
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -72,18 +73,20 @@ export class SupplierDetails implements OnInit {
         }
     };
 
-    constructor(private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private supplierService: SupplierService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private phoneService: PhoneService,
-                private emailService: EmailService,
-                private addressService: AddressService,
-                private bankaccountService: BankAccountService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private uniQueryDefinitionService: UniQueryDefinitionService
+    constructor(
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private supplierService: SupplierService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private phoneService: PhoneService,
+        private emailService: EmailService,
+        private addressService: AddressService,
+        private bankaccountService: BankAccountService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
@@ -106,25 +109,27 @@ export class SupplierDetails implements OnInit {
     }
 
     public nextSupplier() {
-        this.supplierService.NextSupplier(this.supplier.ID)
-            .subscribe((data) => {
-                    this.router.navigateByUrl('/sales/suppliers/' + data.ID);
+        this.supplierService.getNextID(this.supplier.ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
+                    }
                 },
-                (err) => {
-                    console.log('Error getting next supplier: ', err);
-                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
-                });
+                this.errorService.handle);
     }
 
     public previousSupplier() {
         this.supplierService.PreviousSupplier(this.supplier.ID)
-            .subscribe((data) => {
-                    this.router.navigateByUrl('/sales/suppliers/' + data.ID);
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+                    }
                 },
-                (err) => {
-                    console.log('Error getting previous supplier: ', err);
-                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
-                });
+                this.errorService.handle);
     }
 
     public addSupplier() {
@@ -196,10 +201,7 @@ export class SupplierDetails implements OnInit {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, this.errorService.handle);
 
         } else {
             Observable.forkJoin(
@@ -217,10 +219,7 @@ export class SupplierDetails implements OnInit {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, this.errorService.handle);
         }
     }
 
@@ -525,7 +524,7 @@ export class SupplierDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+                        this.errorService.handle(err);
                     }
                 );
         } else {
@@ -541,7 +540,7 @@ export class SupplierDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+                        this.errorService.handle(err);
                     }
                 );
         }

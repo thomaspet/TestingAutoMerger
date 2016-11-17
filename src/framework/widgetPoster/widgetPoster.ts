@@ -1,6 +1,7 @@
 import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { UniHttp } from '../core/http/http';
 import { UserService, NumberFormat } from '../../app/services/services';
+import {ErrorService} from '../../app/services/common/ErrorService';
 declare var Chart;
 
 @Component({
@@ -24,7 +25,13 @@ export class WidgetPoster {
     private numberOfActiveUsers: number = 0;
     private hasImage: boolean = true;
 
-    constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp, private numberFormatter: NumberFormat) {
+    constructor(
+        cdr: ChangeDetectorRef,
+        private userService: UserService,
+        private http: UniHttp,
+        private numberFormatter: NumberFormat,
+        private errorService: ErrorService
+    ) {
         this.cdr = cdr;
     }
 
@@ -107,7 +114,7 @@ export class WidgetPoster {
                     } else {
                         this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
                     }
-                });
+                }, this.errorService.handle);
         }
     }
 
@@ -120,7 +127,7 @@ export class WidgetPoster {
 
         this.userService.getCurrentUser().subscribe((data) => {
             this.currentUser = data;
-        })
+        }, this.errorService.handle);
 
         /*  THESE SHOULD NOT BE HERE.. SHOULD BE REMOVED
             GETS THE NUMBER OF SUBENTITIES AND NUMBER OF ACTIVE USERS   */
@@ -132,7 +139,7 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfBusinesses = data.Data[0].countid;
-            });
+            }, this.errorService.handle);
 
         this.http
             .asGET()
@@ -142,7 +149,7 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfActiveUsers = data.Data[0].countid;
-            })
+            }, this.errorService.handle)
         setTimeout(() => {
             this.hasImage = document.querySelectorAll('.poster_tease_widget_2 uni-image article picture').length !== 0;
         }, 1200)

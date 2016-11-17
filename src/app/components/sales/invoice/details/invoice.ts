@@ -32,6 +32,7 @@ import {
 } from '../../../../services/services';
 
 import {TofCustomerCard} from '../../common/customerCard';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
@@ -85,19 +86,22 @@ export class InvoiceDetails {
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    constructor(private customerInvoiceService: CustomerInvoiceService,
-                private customerInvoiceItemService: CustomerInvoiceItemService,
-                private addressService: AddressService,
-                private reportDefinitionService: ReportDefinitionService,
-                private businessRelationService: BusinessRelationService,
-                private userService: UserService,
-                private toastService: ToastService,
-                private customerService: CustomerService,
-                private numberFormat: NumberFormat,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper) {
+    constructor(
+        private customerInvoiceService: CustomerInvoiceService,
+        private customerInvoiceItemService: CustomerInvoiceItemService,
+        private addressService: AddressService,
+        private reportDefinitionService: ReportDefinitionService,
+        private businessRelationService: BusinessRelationService,
+        private userService: UserService,
+        private toastService: ToastService,
+        private customerService: CustomerService,
+        private numberFormat: NumberFormat,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {
                     // set default tab title, this is done to set the correct current module to make the breadcrumb correct
                     this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
                 }
@@ -167,15 +171,15 @@ export class InvoiceDetails {
                     }
 
                     this.refreshInvoice(invoice);
-                });
+                }, this.errorService.handle);
             } else {
                 this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
                     this.refreshInvoice(invoice);
                     this.recalcItemSums(invoice);
-                });
+                }, this.errorService.handle);
             }
 
-        });
+        }, this.errorService.handle);
     }
 
     @HostListener('keydown', ['$event'])
@@ -446,13 +450,13 @@ export class InvoiceDetails {
                     },
                     (err) => {
                         done(errText);
-                        this.log(err);
+                        this.errorService.handle(err);
                     }
                 );
             },
             (err) => {
                 done('Noe gikk galt under fakturering');
-                this.log(err);
+                this.errorService.handle(err);
             }
         );
     }
@@ -475,7 +479,7 @@ export class InvoiceDetails {
             },
             (err) => {
                 done('Noe gikk galt under lagring');
-                this.log(err);
+                this.errorService.handle(err);
             }
         );
     }
@@ -504,7 +508,7 @@ export class InvoiceDetails {
             },
             (err) => {
                 done('Feil ved kreditering');
-                this.log(err);
+                this.errorService.handle(err);
             }
         );
     }
@@ -530,7 +534,7 @@ export class InvoiceDetails {
                     });
                 }, (err) => {
                     done('Feilet ved registrering av betaling');
-                    this.log(err);
+                    this.errorService.handle(err);
                 });
             });
         }
@@ -549,6 +553,7 @@ export class InvoiceDetails {
                 this.router.navigateByUrl('/sales/invoices');
             },
             (err) => {
+                this.errorService.handle(err);
                 done('Noe gikk galt under sletting');
             }
         );
@@ -559,12 +564,12 @@ export class InvoiceDetails {
             .subscribe((invoiceID) => {
                 if (invoiceID) {
                     this.router.navigateByUrl('/sales/invoices/' + invoiceID);
+                } else {
+                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
                 }
             },
-            (err) => {
-                console.log('Error getting next invoice: ', err);
-                this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
-            });
+                this.errorService.handle
+            );
     }
 
     public previousInvoice() {
@@ -572,12 +577,11 @@ export class InvoiceDetails {
             .subscribe((invoiceID) => {
                     if (invoiceID) {
                         this.router.navigateByUrl('/sales/invoices/' + invoiceID);
+                    } else {
+                        this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
                     }
                 },
-                (err) => {
-                    console.log('Error getting previous invoice: ', err);
-                    this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
-                }
+                this.errorService.handle
             );
     }
 
@@ -621,16 +625,5 @@ export class InvoiceDetails {
                 value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
             },
         ];
-    }
-
-    private log(err) {
-        err = err.json();
-        if (err.Messages) {
-            err.Messages.forEach((message) => {
-                this.toastService.addToast(message.Message, ToastType.bad, 10);
-            });
-        } else {
-            this.toastService.addToast('Noe gikk galt', ToastType.bad, 10);
-        }
     }
 }

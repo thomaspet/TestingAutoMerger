@@ -3,6 +3,7 @@ import {UserService} from '../../../services/services';
 import {UniForm} from '../../../../framework/uniform';
 import {FieldType, User} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'user-settings',
@@ -25,7 +26,7 @@ export class UserSettings {
         }
     ];
 
-    constructor(private userService: UserService) {
+    constructor(private userService: UserService, private errorService: ErrorService) {
     }
 
     public ngOnInit() {
@@ -34,7 +35,7 @@ export class UserSettings {
 
     private getDataAndSetupForm() {
         this.getFormLayout();
-        this.userService.getCurrentUser().subscribe(user => this.user = user);
+        this.userService.getCurrentUser().subscribe(user => this.user = user, this.errorService.handle);
     }
 
     public saveSettings(complete) {
@@ -46,7 +47,7 @@ export class UserSettings {
                 },
                 (error) => {
                     complete('Feil oppsto ved lagring');
-                    alert('Feil oppsto ved lagring:' + JSON.stringify(error.json()));
+                    this.errorService.handle(error);
                 }
             );
     }

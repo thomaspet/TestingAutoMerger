@@ -4,6 +4,7 @@ import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../.
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from "../../../../../framework/uniform/interfaces";
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'supplier-account-report-filter-form',
@@ -125,7 +126,10 @@ export class SupplierAccountReportFilterModal {
 
     private previewModal: PreviewModal;
 
-    constructor(private reportDefinitionParameterService: ReportDefinitionParameterService) {
+    constructor(
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private errorService: ErrorService
+    ) {
         this.modalConfig = {
             title: 'Parametre',
             model: null,
@@ -203,7 +207,7 @@ export class SupplierAccountReportFilterModal {
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
-        });
+        }, this.errorService.handle);
     }
 }
 

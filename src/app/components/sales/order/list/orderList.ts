@@ -10,6 +10,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -31,18 +32,17 @@ export class OrderList {
         omitFinalCrumb: true
     };
 
-    constructor(private router: Router,
-                private customerOrderService: CustomerOrderService,
-                private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService,
-                private toastService: ToastService) {
+    constructor(
+        private router: Router,
+        private customerOrderService: CustomerOrderService,
+        private reportDefinitionService: ReportDefinitionService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {
 
         this.tabService.addTab({ name: 'Ordre', url: '/sales/orders', moduleID: UniModules.Orders, active: true });
         this.setupOrderTable();
-    }
-
-    private log(err) {
-        alert(err._body);
     }
 
     public createOrder() {
@@ -59,7 +59,8 @@ export class OrderList {
                 params.set('orderby', 'OrderDate desc');
             }
 
-            return this.customerOrderService.GetAllByUrlSearchParams(params);
+            return this.customerOrderService.GetAllByUrlSearchParams(params)
+                .catch(this.errorService.handleRxCatch);
         };
 
         // Context menu
@@ -107,10 +108,7 @@ export class OrderList {
                     console.log('== order Transistion OK ==');
                     alert('Overgang til -Avslutt- OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
-                    this.log(err);
-                });
+                }, this.errorService.handle);
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.complete;
@@ -129,7 +127,7 @@ export class OrderList {
                     if (report) {
                         this.previewModal.openWithId(report, order.ID);
                     }
-                });
+                }, this.errorService.handle);
             },
             disabled: (rowModel) => {
                 return false;

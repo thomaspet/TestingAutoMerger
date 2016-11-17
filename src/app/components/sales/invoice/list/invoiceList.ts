@@ -15,6 +15,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import moment from 'moment';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'invoice-list',
@@ -30,13 +31,16 @@ export class InvoiceList implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private summaryConfig: ISummaryConfig[];
 
-    constructor(private uniHttpService: UniHttp,
-                private router: Router,
-                private customerInvoiceService: CustomerInvoiceService,
-                private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private numberFormat: NumberFormat) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private customerInvoiceService: CustomerInvoiceService,
+        private reportDefinitionService: ReportDefinitionService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private numberFormat: NumberFormat,
+        private errorService: ErrorService
+    ) {
 
         this.setupInvoiceTable();
         this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -81,7 +85,8 @@ export class InvoiceList implements OnInit {
                 urlParams.set('orderby', 'ID desc');
             }
 
-            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams);
+            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
+                .catch(this.errorService.handleRxCatch);
         };
 
         // Context menu

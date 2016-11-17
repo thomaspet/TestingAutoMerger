@@ -7,6 +7,7 @@ import {URLSearchParams} from '@angular/http';
 import {CustomerService} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Customer} from '../../../../unientities';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -25,7 +26,13 @@ export class CustomerList {
         omitFinalCrumb: true
     };
 
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService, private tabService: TabService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private customerService: CustomerService,
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Kunder', url: '/sales/customer', moduleID: UniModules.Customers, active: true });
         this.setupCustomerTable();
     }
@@ -53,7 +60,7 @@ export class CustomerList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
-            return this.customerService.GetAllByUrlSearchParams(params);
+            return this.customerService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
 
         // Define columns to use in the table

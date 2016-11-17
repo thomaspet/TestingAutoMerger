@@ -3,6 +3,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {ProductService, VatTypeService, CustomerInvoiceItemService, ProjectService, DepartmentService} from '../../../../services/services';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerInvoice, CustomerInvoiceItem, VatType} from '../../../../unientities';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-invoice-items',
@@ -28,12 +29,15 @@ export class InvoiceItems {
     private tableConfig: UniTableConfig;
     private tableData: CustomerInvoiceItem[];
 
-    constructor(private customerInvoiceItemService: CustomerInvoiceItemService,
-                private productService: ProductService,
-                private vatTypeService: VatTypeService,
-                private tradeItemHelper: TradeItemHelper,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService) {
+    constructor(
+        private customerInvoiceItemService: CustomerInvoiceItemService,
+        private productService: ProductService,
+        private vatTypeService: VatTypeService,
+        private tradeItemHelper: TradeItemHelper,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private errorService: ErrorService
+    ) {
         this.invoiceChange = new EventEmitter<CustomerInvoice>();
         this.initDataAndTable();
     }
@@ -56,7 +60,7 @@ export class InvoiceItems {
         this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe((vattypes) => {
             this.vatTypes = vattypes;
             this.initTableConfig();
-        });
+        }, this.errorService.handle);
     }
 
     private initTableConfig() {

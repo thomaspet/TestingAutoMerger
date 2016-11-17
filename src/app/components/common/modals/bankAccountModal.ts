@@ -6,6 +6,7 @@ import {BankService, AccountService, AddressService} from '../../../services/ser
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BankData} from '../../../models/models';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _;
 
@@ -34,10 +35,13 @@ export class BankAccountForm {
     private busy: boolean = false;
     private accounts: Account[] = [];
 
-    constructor(private bankService: BankService,
-                private toastService: ToastService,
-                private accountService: AccountService,
-                private addressService: AddressService) {
+    constructor(
+        private bankService: BankService,
+        private toastService: ToastService,
+        private accountService: AccountService,
+        private addressService: AddressService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -55,7 +59,7 @@ export class BankAccountForm {
                         this.lookupBankAccountNumber(bankaccount);
                     })
             );
-       });
+       }, this.errorService.handle);
 
     }
 
@@ -66,21 +70,22 @@ export class BankAccountForm {
         if (bankaccount.AccountNumber && bankaccount.AccountNumber.length == 11) {
             this.busy = true;
             this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn, 5);
-            this.bankService.getIBANUpsertBank(bankaccount.AccountNumber).subscribe((bankdata: BankData) => {
+            this.bankService.getIBANUpsertBank(bankaccount.AccountNumber)
+            .finally(() => this.busy = false)
+            .subscribe((bankdata: BankData) => {
                 this.config.model.IBAN = bankdata.IBAN;
                 this.config.model.Bank = bankdata.Bank;
                 this.config.model.BankID = bankdata.Bank.ID;
 
                 this.config.model = _.cloneDeep(this.config.model);
-                this.busy = false;
                 if (this.form.field('AccountID')) {
                     this.form.field('AccountID').focus();
                 }
                 this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
-            }, (error) => {
-                this.busy = false;
-                this.toastService.addToast('Kunne ikke slå opp kontonummer ' + bankaccount.AccountNumber, ToastType.bad, 10);
-            });
+            },
+            (error) => this.errorService.handleWithMessage(
+                error, 'Kunne ikke slå opp kontonummer ' + bankaccount.AccountNumber
+            ));
         } else {
             this.toastService.addToast('Kontonummer må ha 11 siffer', ToastType.warn, 10);
         }

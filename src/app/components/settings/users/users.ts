@@ -2,6 +2,7 @@
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-users',
@@ -19,7 +20,7 @@ export class Users {
     // Misc
     private busy: boolean = false;
 
-    constructor(private http: UniHttp) {
+    constructor(private http: UniHttp, private errorService: ErrorService) {
         this.newUserForm = new FormGroup({
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', this.isInvalidEmail)
@@ -67,7 +68,7 @@ export class Users {
             .withEndPoint('users')
             .send()
             .map(response => response.json())
-            .subscribe(response => this.users = response);
+            .subscribe(response => this.users = response, this.errorService.handle);
     }
 
     private sendInvite(user?) {
@@ -87,10 +88,10 @@ export class Users {
             })
             .send()
             .map(response => response.json())
+            .finally(() => this.busy = false)
             .subscribe(
                 (data) => {
-                    this.busy = false;
-                    
+
                     // clear form
                     this.newUserForm = new FormGroup({
                         DisplayName: new FormControl('', Validators.required),
@@ -99,10 +100,7 @@ export class Users {
 
                     this.refreshUsers();
                 },
-                (error) => {
-                    this.busy = false;                        
-                    this.errorMessage = 'Noe gikk galt med invitasjonen. Vennligst prøv igjen.';
-                }
+                this.errorService.handle
             );
     }
 
@@ -114,7 +112,7 @@ export class Users {
                 .withEndPoint('users/' + user.ID)
                 .send({action: 'activate'})
                 .map(response => response.json())
-                .subscribe(response => this.refreshUsers());
+                .subscribe(response => this.refreshUsers(), this.errorService.handle);
         }
         // If user has not responded to invite
         else {
@@ -129,7 +127,7 @@ export class Users {
             .withEndPoint('users/' + user.ID)
             .send({ action: 'inactivate' })
             .map(response => response.json())
-            .subscribe(response => this.refreshUsers());
+            .subscribe(response => this.refreshUsers(), this.errorService.handle);
     }
     
     private getStatusCodeText(statusCode: number): string {

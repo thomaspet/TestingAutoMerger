@@ -3,6 +3,7 @@ import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService }
 import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
 import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
 import { Observable } from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({
@@ -25,7 +26,8 @@ export class SubEntityDetails {
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalityService: MunicipalService,
-        private _statisticsService: StatisticsService
+        private _statisticsService: StatisticsService,
+        private errorService: ErrorService
     ) {
 
     }
@@ -44,7 +46,7 @@ export class SubEntityDetails {
             this.municipalities = municipalities;
             this.createForm();
             this.busy = false;
-        });
+        }, this.errorService.handle);
     }
 
     private createForm() {
@@ -99,7 +101,7 @@ export class SubEntityDetails {
             this.fields = _.cloneDeep(this.fields);
 
 
-        });
+        }, this.errorService.handle);
     }
 
     private findByProperty(fields, name) {
@@ -126,7 +128,7 @@ export class SubEntityDetails {
                             this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City = postalCodeArr[0].City;
                             this.currentSubEntity = _.cloneDeep(this.currentSubEntity);
                         }
-                    });
+                    }, this.errorService.handle);
             }
         }
     }

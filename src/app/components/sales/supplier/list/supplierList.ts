@@ -6,6 +6,7 @@ import {SupplierService} from '../../../../services/services';
 import {Supplier} from '../../../../unientities';
 
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -18,7 +19,12 @@ export class SupplierList {
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private router: Router, private supplierService: SupplierService, private tabService: TabService) {
+    constructor(
+        private router: Router,
+        private supplierService: SupplierService,
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Leverandører', url: '/sales/suppliers', active: true, moduleID: UniModules.Suppliers });
         this.setupSupplierTable();
     }
@@ -42,7 +48,7 @@ export class SupplierList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
-            return this.supplierService.GetAllByUrlSearchParams(params);
+            return this.supplierService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
 
         // Define columns to use in the table

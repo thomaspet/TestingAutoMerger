@@ -10,6 +10,7 @@ import {CompanySettings, FinancialYear} from '../../../../../unientities';
 import {ISelectConfig} from '../../../../../../framework/uniform/controls/select/select';
 import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationService} from '../../../../../services/common/AltinnAuthenticationService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -93,11 +94,13 @@ export class UniCompanyDropdown {
         private userService: UserService,
         private http: UniHttp,
         private companySettingsService: CompanySettingsService,
-        private financialYearService: FinancialYearService) {
+        private financialYearService: FinancialYearService,
+        private errorService: ErrorService
+    ) {
 
         this.userService.getCurrentUser().subscribe((user) => {
             this.username = user.DisplayName;
-        });
+        }, this.errorService.handle);
 
         this.http.asGET()
             .usingInitDomain()
@@ -107,7 +110,7 @@ export class UniCompanyDropdown {
             .subscribe((response) => {
                 this.availableCompanies = response;
                 this.selectCompanyConfig.searchable = response.length >= 8;
-            });
+            }, this.errorService.handle);
 
         this.selectCompanyConfig = {
             displayProperty: 'Name'
@@ -132,7 +135,7 @@ export class UniCompanyDropdown {
         this.companySettingsService.Get(1, ['DefaultPhone']).subscribe((company) => {
             this.company = company;
             this.getFinancialYear();
-        });
+        }, this.errorService.handle);
     }
 
     private getFinancialYear() {
@@ -140,7 +143,7 @@ export class UniCompanyDropdown {
         this.financialYearService.GetAll(null).subscribe((response) => {
             this.financialYears = response;
             this.setActiveYear();
-        });
+        }, this.errorService.handle);
     }
 
     private setActiveYear() {
