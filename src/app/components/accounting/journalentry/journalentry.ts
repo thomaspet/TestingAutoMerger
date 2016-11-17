@@ -11,7 +11,8 @@ export class JournalEntry {
     constructor() {
         this.childRoutes = [
             {name: 'Bilagsregistrering', path: 'manual'},
-            {name: 'Betaling', path: 'payments'}
+            {name: 'Betaling', path: 'payments'},
+            {name: 'Fakturamottak', path: 'bills'}
         ];
     }
 }

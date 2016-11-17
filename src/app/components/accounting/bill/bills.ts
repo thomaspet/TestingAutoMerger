@@ -64,7 +64,7 @@ export class BillsView {
     ];
 
     public toolbarConfig: any = {
-        title: 'Regninger fra leverandører'             
+        title: 'Fakturamottak'             
     };
 
     constructor(
@@ -77,7 +77,7 @@ export class BillsView {
         settingsService: SettingsService) {
 
             this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
-            tabService.addTab({ name: 'Regninger', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
+            tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
             this.checkPath();
     }
 

@@ -9,10 +9,10 @@ export const billViewLanguage = {
     tab_items: 'Varelinjer',
     tab_history: 'Historikk',
 
-    title_new: 'Regning (ny)',
-    title_with_id: 'Regning #',
+    title_new: 'Fakturamottak (nytt)',
+    title_with_id: 'Fakturamottak #',
 
-    headliner_new: 'Ny regning',
+    headliner_new: 'Nytt fakturamottak',
     headliner_invoice: 'Fakturanr.',
     headliner_supplier: 'Lev.nr.',
     headliner_journal: 'Bilagsnr.',
@@ -48,8 +48,8 @@ export const billViewLanguage = {
     err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
 
     ask_archive: 'Arkivere faktura ',
-    ask_journal_msg: 'Bokføre regning med beløp ',
-    ask_journal_title: 'Bokføre regning fra ',
+    ask_journal_msg: 'Bokføre fakturamottak med beløp ',
+    ask_journal_title: 'Bokføre fakturamottak fra ',
     warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
 
     ask_delete: 'Vil du virkelig slette faktura ',
