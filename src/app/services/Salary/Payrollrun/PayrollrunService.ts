@@ -3,15 +3,10 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, FieldType, VacationPayInfo} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
 import {ErrorService} from '../../common/ErrorService';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
-
-    private payrollRun: Subject<PayrollRun> = new Subject<PayrollRun>();
-
-    public refreshPayrollRun$: Observable<PayrollRun> = this.payrollRun.asObservable();
     
     public payStatusTable: any = [
         {ID: null, text: 'Opprettet'},
@@ -29,16 +24,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
     }
-
-    public refreshPayrun(payRun: PayrollRun) {
-        return this.payrollRun.next(payRun);
-    }
-
-    public refreshPayrunID(ID: number) {
-        this.Get(ID).subscribe((payRun: PayrollRun) => {
-            this.payrollRun.next(payRun);
-        }, this.errorService.handle);
-    }
       
     public getStatus(payrollRun: PayrollRun) {        
         return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode); 
@@ -54,21 +39,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
     
     public getPrevious(ID: number) {
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=previous&RunID=' + ID)
-            .send()
-            .map(response => response.json());
+        return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
     }
     
     public getNext(ID: number) {
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=next&RunID=' + ID)
-            .send()
-            .map(response => response.json());
+        return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID ASC`).map(resultSet => resultSet[0]);
     }
     
     public runSettling(ID: number) {

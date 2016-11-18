@@ -6,7 +6,7 @@
 		<uni-form [config]="config" [fields]="fields" [model]="salaryTransaction"></uni-form>
 	</section>
 	<footer *ngIf="config">
-		<button class="good" (click)="config.submit(salaryTransaction)">OK</button>
+		<button class="good" (click)="readOnly ? config.cancel() : config.submit(salaryTransaction)">OK</button>
 		<button class="bad" (click)="config.cancel()">Avbryt</button>
 	</footer>
 </article>

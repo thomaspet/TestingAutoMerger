@@ -11,7 +11,7 @@ declare var _;
 })
 export class VacationpayModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
-    private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number };
+    private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number , submit: () => void};
     
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public type: Type<any> = VacationpayModalContent;
@@ -21,6 +21,10 @@ export class VacationpayModal implements AfterViewInit {
             this.modalConfig = {
                 hasCancelButton: true,
                 cancel: () => {
+                    this.modal.close();
+                },
+                submit: () => {
+                    this.updatePayrollRun.emit(true);
                     this.modal.close();
                 },
                 payrollRunID: +params['id']

@@ -13,7 +13,7 @@ declare var _;
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
 })
 export class VacationpayModalContent {
-    @Input('config') private config: {hasCancelButton: boolean, cancel: any, payrollRunID: number};
+    @Input('config') private config: {hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void};
     private busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel: any = {};
@@ -53,7 +53,7 @@ export class VacationpayModalContent {
         }, this.errorService.handle);
     }
 
-    public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number}) {
+    public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void}) {
         this.config = newConfig;
     }
 
@@ -74,8 +74,7 @@ export class VacationpayModalContent {
         this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
         .finally(() => this.busy = false)
         .subscribe((response) => {
-            this._payrollrunService.refreshPayrunID(this.config.payrollRunID);
-            this.config.cancel();
+            this.config.submit();
         }, this.errorService.handle);
     }
 

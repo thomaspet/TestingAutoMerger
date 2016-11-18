@@ -1,34 +1,7 @@
-<header class="detail_header">
-    <section *ngIf="employee" [attr.aria-busy]="busy" class="detail_header_info">
-        <h1>{{employee.ID}} - {{employee.BusinessRelationInfo.Name}}</h1>
-        <p *ngIf="hasError()" role="alert" class="error" [innerHTML]="generateErrorMessage()"></p>
-        <dl class="detail_keyFigures" *ngIf="employee && agaZone">
-            <dt>Prosenttrekk</dt>
-            <dd>{{employee.TaxPercentage}}</dd>
-
-            <dt>Virksomhet</dt>
-            <dd>{{employee.SubEntity.BusinessRelationInfo.Name}}</dd>
-
-            <dt>Tabelltrekk</dt>
-            <dd>{{employee.TaxTable}}</dd>
-
-            <dt><abbr title="Arbeidsgiveravgift">Aga</abbr>-sone</dt>
-            <dd>{{agaZone.ZoneName}}</dd>
-        </dl>
-
-    </section>
-
-    <nav class="detail_header_navigation">
-        <a (click)="getPrevious()" class="previous">Forrige</a>
-        <a (click)="getNext()" class="next">Neste</a>
-    </nav>
-</header>
-
 <section [attr.aria-busy]="busy" class="detail_tables">
-    <uni-table [resource]="salarytransItems$ | async" [config]="salarytransEmployeeTableConfig" (rowChanged)="rowChanged($event)" class="maintable"></uni-table>
-    <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+    <uni-table [resource]="filteredTranses" 
+               [config]="salarytransEmployeeTableConfig" 
+               (rowChanged)="rowChanged($event)"
+               class="maintable"></uni-table>
 </section>
-<control-modal (updatePayrollRun)="refreshPayrollRun($value)"></control-modal>
-<postingsummary-modal (updatePayrollRun)="refreshPayrollRun($value)"></postingsummary-modal>
 <sal-trans-supplements-modal (updatedSalaryTransaction)="updateSingleSalaryTransaction($event)"></sal-trans-supplements-modal>
-<uni-save [actions]="saveactions"></uni-save>

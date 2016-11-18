@@ -129,7 +129,7 @@ export class EmployeeDetails extends UniView {
             // Update navbar tabs
             if (this.employeeID) {
                 this.tabService.addTab({
-                    name: 'Ansattnr. ' + this.employeeID,
+                    name: 'Ansattnr. ' + (this.employee ? this.employee.EmployeeNumber : this.employeeID),
                     url: this.url + this.employeeID,
                     moduleID: UniModules.Employees,
                     active: true

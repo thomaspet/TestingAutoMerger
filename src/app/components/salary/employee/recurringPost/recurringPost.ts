@@ -45,6 +45,9 @@ export class RecurringPost extends UniView {
             // TODO: cache this?
             this.wagetypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
                 this.wagetypes = wagetypes;
+                if (this.recurringPosts) {
+                    this.mapWageTypes();
+                }
             }, this.errorService.handle);
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
@@ -64,6 +67,15 @@ export class RecurringPost extends UniView {
 
                     this.buildTableConfig();
                 }, this.errorService.handle);
+        });
+    }
+
+    private mapWageTypes() {
+        this.recurringPosts = this.recurringPosts.map((post) => {
+            if (post['WageTypeID']) {
+                post['_Wagetype'] = this.wagetypes.find(wt => wt.ID === post['WageTypeID']);
+            }
+            return post;
         });
     }
 
@@ -322,7 +334,7 @@ export class RecurringPost extends UniView {
     }
 
     public openSuplementaryInformationModal(row: SalaryTransaction) {
-        this.supplementModal.openModal(row);
+        this.supplementModal.openModal(row, false);
     }
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {

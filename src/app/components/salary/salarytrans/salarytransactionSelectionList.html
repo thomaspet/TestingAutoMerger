@@ -1,15 +1,36 @@
-<section class="salarytrans-filter">
-    <salarytrans-filter [isDisabled]="disableFilter" (filtStringChange)="changeFilter($event)"></salarytrans-filter>
-</section>
 <section class="splitview">
     <nav class="splitview_list">
         <uni-table [config]="salarytransSelectionTableConfig" [resource]="employeeList" (rowSelected)="rowSelected($event)"></uni-table>
     </nav>
     <main class="splitview_detail">
-        <salary-transactions-employee *ngIf="selectedEmployeeID" 
-            [employeeID]="selectedEmployeeID"
-            (nextEmployee)="goToNextEmployee($id)" 
-            (previousEmployee)="goToPreviousEmployee($id)" 
-            (salarytransListReady)="checkReady($value)"></salary-transactions-employee>
+        <header class="detail_header" *ngIf="employeeList && employeeList.length">
+            <section *ngIf="employeeList[selectedIndex]" [attr.aria-busy]="busy" class="detail_header_info">
+                <h1>{{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo.Name}}</h1>
+                <p *ngIf="hasError()" role="alert" class="error" [innerHTML]="generateErrorMessage()"></p>
+                <dl class="detail_keyFigures" *ngIf="agaZone">
+                    <dt>Prosenttrekk</dt>
+                    <dd>{{employeeList[selectedIndex].TaxPercentage}}</dd>
+
+                    <dt>Virksomhet</dt>
+                    <dd>{{employeeList[selectedIndex].SubEntity.BusinessRelationInfo.Name}}</dd>
+
+                    <dt>Tabelltrekk</dt>
+                    <dd>{{employeeList[selectedIndex].TaxTable}}</dd>
+
+                    <dt><abbr title="Arbeidsgiveravgift">Aga</abbr>-sone</dt>
+                    <dd>{{agaZone.ZoneName}}</dd>
+                </dl>
+
+            </section>
+
+            <nav class="detail_header_navigation" *ngIf="employeeList.length">
+                <a (click)="goToPreviousEmployee()" class="previous">Forrige</a>
+                <a (click)="goToNextEmployee()" class="next">Neste</a>
+            </nav>
+        </header>
+        <salary-transactions-employee *ngIf="selectedIndex !== undefined" [employee]="employeeList[selectedIndex]"></salary-transactions-employee>
+        <section class="detail_tables" *ngIf="employeeList && employeeList[selectedIndex]">
+            <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':hasDirty()}"></uni-summary>
+        </section>
     </main>
 </section>

@@ -1,21 +1,24 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PayrollRun } from '../../../unientities';
-import { PayrollrunService } from '../../../services/services';
+import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType } from '../../../unientities';
+import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
 import { PostingsummaryModal } from './postingsummaryModal';
 import { VacationpayModal } from './vacationpay/VacationpayModal';
 import { RootRouteParamsService } from '../../../services/rootRouteParams';
-import { IUniSaveAction } from '../../../../framework/save/save';
+import { IUniSaveAction, UniSave } from '../../../../framework/save/save';
 import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../services/common/ErrorService';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+import { ErrorService } from '../../../services/common/ErrorService';
 
+import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
+
+import { UniView } from '../../../../framework/core/uniView';
 declare var _;
 
 
@@ -24,10 +27,11 @@ declare var _;
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
 })
 
-export class PayrollrunDetails {
+export class PayrollrunDetails extends UniView {
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(UniSave) private saveComponent: UniSave;
     private payrollrun: PayrollRun;
     private payrollrunID: number;
     private payDate: Date = null;
@@ -35,27 +39,143 @@ export class PayrollrunDetails {
     @ViewChild(ControlModal) private controlModal: ControlModal;
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
     @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
+    @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
     private isEditable: boolean;
     private busy: boolean = false;
+    private url: string = '/salary/payrollrun/';
     private saveactions: IUniSaveAction[] = [];
     private formIsReady: boolean = false;
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
+    private filter: string = '';
+    private disableFilter: boolean;
+
+    private employees: Employee[];
+    private salaryTransactions: SalaryTransaction[];
+    private wagetypes: WageType[];
 
     constructor(
-        private route: ActivatedRoute, 
-        private payrollrunService: PayrollrunService, 
-        private router: Router, private tabSer: TabService, 
+        private route: ActivatedRoute,
+        private payrollrunService: PayrollrunService,
+        private router: Router, private tabSer: TabService,
         private _rootRouteParamsService: RootRouteParamsService,
         private _toastService: ToastService,
+        protected cacheService: UniCacheService,
+        private _salaryTransactionService: SalaryTransactionService,
+        private _employeeService: EmployeeService,
+        private _wageTypeService: WageTypeService,
         private errorService: ErrorService
     ) {
+        super(router.url, cacheService);
+        this.getLayout();
+        this.config = {
+            submitText: ''
+        };
+
+        this.saveactions = [];
+
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
+            super.updateCacheKey(this.router.url);
+            this.employees = undefined;
+            this.salaryTransactions = undefined;
+
+            super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
+
+                this.payrollrun = payrollRun;
+                this.payDate = new Date(this.payrollrun.PayDate.toString());
+                this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
+
+                this.saveactions = [
+                    {
+                        label: 'Lagre',
+                        action: this.saveAll.bind(this),
+                        main: this.payrollrun.StatusCode < 1,
+                        disabled: true
+                    },
+                    {
+                        label: 'Kontroller',
+                        action: this.openControlModal.bind(this),
+                        main: false,
+                        disabled: this.payrollrun.StatusCode > 0
+                    },
+                    {
+                        label: 'Avregn',
+                        action: this.runSettling.bind(this),
+                        main: false,
+                        disabled: this.payrollrun.StatusCode > 0
+                    },
+                    {
+                        label: 'Utbetalingsliste',
+                        action: this.showPaymentList.bind(this),
+                        main: this.payrollrun.StatusCode > 1,
+                        disabled: this.payrollrun.StatusCode < 1
+                    },
+                    {
+                        label: 'Bokfør',
+                        action: this.openPostingSummaryModal.bind(this),
+                        main: this.payrollrun.StatusCode === 1,
+                        disabled: this.payrollrun.StatusCode !== 1
+                    }
+                ];
+
+                if (this.formIsReady) {
+                    this.setEditMode();
+                }
+
+                this.toolbarconfig = {
+                    title: this.payrollrun.Description ? this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID,
+                    subheads: [{
+                        title: this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : ''
+                    },
+                    {
+                        title: 'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
+                    }],
+                    statustrack: this.getStatustrackConfig(),
+                    navigation: {
+                        prev: this.previousPayrollrun.bind(this),
+                        next: this.nextPayrollrun.bind(this),
+                        add: this.createNewRun.bind(this)
+                    },
+                    contextmenu: this.contextMenuItems,
+                };
+
+                this.checkDirty();
+
+            });
+
+            super.getStateSubject('employees').subscribe((employees: Employee[]) => {
+                this.employees = employees;
+            });
+
+            super.getStateSubject('salaryTransactions').subscribe((salaryTransactions: SalaryTransaction[]) => {
+                this.salaryTransactions = salaryTransactions;
+                this.checkDirty();
+            });
+
+            super.getStateSubject('wagetypes').subscribe((wagetypes) => {
+                this.wagetypes = wagetypes;
+            });
+
+            if (this.payrollrun && this.payrollrun.ID === +params['id']) {
+                super.updateState('payrollRun', this.payrollrun, false);
+            } else {
+                this.payrollrun = undefined;
+            }
+
             this._rootRouteParamsService.params = params;
             this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: UniModules.Payrollrun, active: true });
             this.getPayrollRun();
         });
+
+        this.getWageTypes();
+
+        this.router.events.subscribe((event: any) => {
+            if (event.constructor.name === 'NavigationEnd') {
+                this.getData();
+            }
+        });
+
         this.contextMenuItems = [
             {
                 label: 'Generer feriepenger',
@@ -72,16 +192,14 @@ export class PayrollrunDetails {
                         if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
                             this.busy = true;
                             this.payrollrunService.resetSettling(this.payrollrunID)
-                            .finally(() => this.busy = false)
-                            .subscribe((response: boolean) => {
-                                if (response) {
-                                    this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
-                                        this.payrollrunService.refreshPayrun(payrollRun);
-                                    }, this.errorService.handle);
-                                } else {
-                                    this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
-                                }
-                            }, this.errorService.handle);
+                                .finally(() => this.busy = false)
+                                .subscribe((response: boolean) => {
+                                    if (response) {
+                                        this.getData();
+                                    } else {
+                                        this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
+                                    }
+                                }, this.errorService.handle);
                         }
                     }
 
@@ -91,36 +209,57 @@ export class PayrollrunDetails {
                 }
             }
         ];
+    }
 
-        this.payrollrunService.refreshPayrollRun$.subscribe((payrollrun: PayrollRun) => {
-            this.busy = true;
-            this.payrollrun = payrollrun;
-            this.payrollrunID = payrollrun.ID;
-            this.payDate = new Date(this.payrollrun.PayDate.toString());
-            this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
-            this.refreshSaveActions();
-            if (this.formIsReady) {
-                this.setEditMode();
-            }
-            this.busy = false;
+    private getLayout() {
+        this.payrollrunService.layout('payrollrunDetailsForm').subscribe(layout => this.fields = layout.Fields);
+    }
 
-            this.toolbarconfig = {
-                title: this.payrollrun.Description ? this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID,
-                subheads: [{
-                    title: this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : ''
-                },
-                {
-                    title: 'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
-                }],
-                statustrack: this.getStatustrackConfig(),
-                navigation: {
-                    prev: this.previousPayrollrun.bind(this),
-                    next: this.nextPayrollrun.bind(this),
-                    add: this.createNewRun.bind(this)
-                },
-                contextmenu: this.contextMenuItems,
-            };
+    private getData() {
+
+        this.getSalaryTransactions();
+
+        this.getPayrollRun();
+
+        this.getEmployees();
+    }
+
+    private getSalaryTransactions() {
+        let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
+        this._salaryTransactionService.GetAll('filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC', ['Supplements.WageTypeSupplement']).subscribe((response) => {
+            super.updateState('salaryTransactions', response, false);
         }, this.errorService.handle);
+    }
+
+    private getPayrollRun() {
+        this.payrollrunService.Get(this.payrollrunID)
+            .subscribe((payrollRun: PayrollRun) => {
+                this.payrollrun = payrollRun;
+                payrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
+                this.updateState('payrollRun', payrollRun, false);
+            }, this.errorService.handle);
+    }
+
+    private getEmployees() {
+        this._employeeService.GetAll('filter=' + this.filter, ['Employments', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']).subscribe(response => {
+            this.updateState('employees', response, false);
+        }, this.errorService.handle);
+    }
+
+    private getWageTypes() {
+        this._wageTypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
+            this.updateState('wagetypes', wagetypes, false);
+        });
+    }
+
+    private checkDirty() {
+        if (this.saveactions && this.saveactions.length) {
+            if (super.isDirty()) {
+                this.saveactions[0].disabled = false;
+            } else {
+                this.saveactions[0].disabled = true;
+            }
+        }
     }
 
     private getStatustrackConfig() {
@@ -145,61 +284,6 @@ export class PayrollrunDetails {
             };
         });
         return statustrack;
-    }
-
-    private getPayrollRun() {
-        this.busy = true;
-        if (this.payrollrunID) {
-            Observable.forkJoin(
-                this.payrollrunService.Get<PayrollRun>(this.payrollrunID),
-                this.payrollrunService.layout('payrollrunDetailsForm')
-            ).finally(() => this.busy = false).subscribe((response: any) => {
-                var [payrollrun, layout] = response;
-                this.payrollrunService.refreshPayrun(payrollrun);
-                this.payrollrun = payrollrun;
-                this.payDate = new Date(this.payrollrun.PayDate.toString());
-                this.fields = layout.Fields;
-                this.config = {
-                    submitText: ''
-                };
-            },
-            this.errorService.handle);
-        }
-    }
-
-    private refreshSaveActions() {
-        this.saveactions = [
-            {
-                label: 'Lagre lønnsavregning',
-                action: this.savePayrollrun.bind(this),
-                main: true,
-                disabled: this.payrollrun.StatusCode > 0
-            },
-            {
-                label: 'Kontroller',
-                action: this.openControlModal.bind(this),
-                main: false,
-                disabled: this.payrollrun.StatusCode > 0
-            },
-            {
-                label: 'Avregn',
-                action: this.runSettling.bind(this),
-                main: false,
-                disabled: this.payrollrun.StatusCode > 0
-            },
-            {
-                label: 'Utbetalingsliste',
-                action: this.showPaymentList.bind(this),
-                main: false,
-                disabled: this.payrollrun.StatusCode < 1
-            },
-            {
-                label: 'Bokfør',
-                action: this.openPostingSummaryModal.bind(this),
-                main: false,
-                disabled: this.payrollrun.StatusCode !== 1
-            }
-        ];
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
@@ -235,50 +319,67 @@ export class PayrollrunDetails {
     }
 
     public previousPayrollrun() {
+
+        if (!super.canDeactivate()) {
+            return;
+        }
+
         this.payrollrunService.getPrevious(this.payrollrunID)
-            .subscribe((response) => {
-                if (response) {
-                    this.payrollrunService.refreshPayrun(response);
-                    this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
+            .subscribe((previous) => {
+                if (previous) {
+                    this.payrollrun = previous;
+                    this.setSection();
+                    this.router.navigateByUrl(this.url + previous.ID);
                 }
             }, this.errorService.handle);
     }
 
     public nextPayrollrun() {
+
+        if (!super.canDeactivate()) {
+            return;
+        }
+
         this.payrollrunService.getNext(this.payrollrunID)
-            .subscribe((response) => {
-                if (response) {
-                    this.payrollrunService.refreshPayrun(response);
-                    this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
+            .subscribe((next) => {
+                if (next) {
+                    this.payrollrun = next;
+                    this.setSection();
+                    this.router.navigateByUrl(this.url + next.ID);
                 }
             }, this.errorService.handle);
     }
 
-    public runSettling() {
-        this.busy = true;
+    public runSettling(done?: (message: string) => void) {
         this.saveactions[0].disabled = true;
+        this.saveactions[0].main = false;
+        this.saveactions[2].main = true;
+        this.saveactions[2].disabled = true;
         this.saveactions = _.cloneDeep(this.saveactions);
         this.payrollrunService.runSettling(this.payrollrunID)
             .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
-                    this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
-                        .finally(() => this.busy = false)
-                        .subscribe((response) => {
-                            this.payrollrunService.refreshPayrun(response);
-                            this.setEditMode();
-                            this.showPaymentList();
-                        },
-                        (err) => {
-                            this.errorService.handle(err);
-                            this.saveactions[0].disabled = false;
-                            this.saveactions = _.cloneDeep(this.saveactions);
-                        });
+                    this.getPayrollRun();
+                    this.getSalaryTransactions();
+                    if (done) {
+                        done('Avregnet');
+                    } else {
+                        this.saveComponent.manualSaveComplete('Avregnet');
+                    }
                 }
             },
             (err) => {
+                if (done) {
+                    done('Feil ved avregning');
+                } else {
+                    this.saveComponent.manualSaveComplete('Feil ved avregning');
+                }
                 this.errorService.handle(err);
-                this.saveactions[0].disabled = false;
+                this.saveactions[2].main = false;
+                this.saveactions[2].disabled = false;
+                this.saveactions[0].main = true;
+                this.checkDirty();
                 this.saveactions = _.cloneDeep(this.saveactions);
             });
     }
@@ -291,11 +392,8 @@ export class PayrollrunDetails {
         this.payrollrunService.resetSettling(this.payrollrunID)
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
-                    this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
-                        .subscribe((response) => {
-                            this.payrollrunService.refreshPayrun(response);
-                        },
-                        this.errorService.handle);
+                    this.getPayrollRun();
+                    this.getSalaryTransactions();
                 }
             },
             this.errorService.handle);
@@ -326,62 +424,122 @@ export class PayrollrunDetails {
             noNegativePayCheck.ReadOnly = true;
         }
         this.fields = _.cloneDeep(this.fields);
+    }
 
-        if (!this.payrollrun.Description) {
+    private setSection() {
+        if (!this.payrollrun.Description && !this.uniform.section(1).isOpen) {
+            this.uniform.section(1).toggle();
+        } else if (this.payrollrun.Description && this.uniform.section(1).isOpen) {
             this.uniform.section(1).toggle();
         }
     }
 
     public toggle(section) {
-        if (section.isOpen && section.sectionId === 1 && this.payrollrun.Description === '') {
-            this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
-            this.uniform.field('Description').focus();
-        }
-    }
-
-
-    public salarytransReady(value) {
-        if (this.payrollrun) {
-            this.payrollrunService.refreshPayrun(_.cloneDeep(this.payrollrun));
+        if (!section.isOpen) {
+            if (section.sectionId === 1 && (!this.payrollrun.Description || this.payrollrun.Description === '')) {
+                this.uniform.section(1).toggle();
+                this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
+                this.uniform.field('Description').focus();
+            } else {
+                this.selectionList.focusRow();
+            }
         }
     }
 
     public ready(value) {
         this.setEditMode();
+        this.setSection();
         this.formIsReady = true;
     }
 
-    public savePayrollrun(done) {
-        this.busy = true;
+    private saveAll(done?: (message: string) => void) {
+        this.setEditableOnChildren(false);
+        this.savePayrollrun().finally(() => this.setEditableOnChildren(true)).subscribe((payrollRun: PayrollRun) => {
+
+            this.payrollrun = payrollRun;
+            this.setSection();
+            super.updateState('payrollRun', this.payrollrun, false);
+
+            if (!this.payrollrunID) {
+                this.router.navigateByUrl(this.url + this.payrollrun.ID);
+                return;
+            }
+
+            let newTranses = this.payrollrun.transactions.filter(x => !x.Deleted);
+
+            this.salaryTransactions
+                .filter(x => !x.Deleted && x['_isDirty'])
+                .map(trans => {
+                    trans['_isDirty'] = false;
+                    return trans;
+                })
+                .forEach((trans, index) => {
+                    trans = newTranses[index];
+                });
+
+            this.updateState('salaryTransactions', this.salaryTransactions, false);
+
+            if (done) {
+                done('Lagret');
+            } else {
+                this.saveComponent.manualSaveComplete('Lagret');
+            }
+
+        },
+            (err) => {
+                if (done) {
+                    done('Feil ved lagring');
+                } else {
+                    this.saveComponent.manualSaveComplete('Feil ved lagring');
+                }
+                this.errorService.handle(err);
+            });
+    }
+
+    private change(value) {
+        super.updateState('payrollRun', this.payrollrun, true);
+    }
+
+    private setEditableOnChildren(isEditable: boolean) {
+        this.selectionList.setEditable(isEditable);
+    }
+
+    public changeFilter(filter: string) {
+        this.filter = filter;
+        this.getEmployees();
+    }
+
+    public savePayrollrun(): Observable<PayrollRun> {
+        let retObs = null;
 
         this.payrollrun.PayDate = this.fixTimezone(this.payrollrun.PayDate);
         this.payrollrun.FromDate = this.fixTimezone(this.payrollrun.FromDate);
         this.payrollrun.ToDate = this.fixTimezone(this.payrollrun.ToDate);
 
         if (this.payrollrun.ID > 0) {
-            this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun)
-                .finally(() => this.busy = false)
-                .subscribe((response: PayrollRun) => {
-                    this.payrollrunService.refreshPayrun(response);
-                    done('Sist lagret: ');
-                },
-                (err) => {
-                    this.errorService.handle(err);
-                    this.refreshSaveActions();
+            this.payrollrun.transactions = this.salaryTransactions
+                .filter(x => x['_isDirty'] || x.Deleted)
+                .map((trans: SalaryTransaction) => {
+                    if (!trans.ID) {
+                        trans['_createguid'] = this._salaryTransactionService.getNewGuid();
+                    }
+                    if (trans.Supplements) {
+                        trans.Supplements
+                            .filter(x => !x.ID)
+                            .forEach((supplement: SalaryTransactionSupplement) => {
+                                supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
+                            });
+                    }
+                    trans.Wagetype = null;
+                    trans.Employee = null;
+                    return trans;
                 });
+            retObs = this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun);
         } else {
-            this.payrollrunService.Post(this.payrollrun)
-                .finally(() => this.busy = false)
-                .subscribe((response: PayrollRun) => {
-                    this.payrollrunService.refreshPayrun(response);
-                    done('Sist lagret: ');
-                    this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrun.ID);
-                },
-                (err) => {
-                    this.errorService.handle(err);
-                    this.refreshSaveActions();
-                });
+            retObs = this.payrollrunService.Post(this.payrollrun);
         }
+
+        return retObs;
     }
 
     public createNewRun() {
@@ -394,10 +552,15 @@ export class PayrollrunDetails {
         createdPayrollrun.PayDate = this.fixTimezone(dates[2]);
 
         this.payrollrunService.Post(createdPayrollrun)
+            .finally(() => this.busy = false)
             .subscribe((response) => {
-                this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
+                this.payrollrun = response;
+                this.router.navigateByUrl(this.url + response.ID);
             },
             this.errorService.handle);
     }
 
+    public updatePayrollRun() {
+        this.getPayrollRun();
+    }
 }
