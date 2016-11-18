@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement, GetRateFrom, Account } from '../../../unientities';
-import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService, AccountService } from '../../../services/services';
+import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService, AccountService, ReportDefinitionService } from '../../../services/services';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { ControlModal } from '../payrollrun/controlModal';
 import { PostingsummaryModal } from '../payrollrun/postingsummaryModal';
@@ -12,6 +12,7 @@ import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IContextM
 import { UniForm } from '../../../../framework/uniform';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 import { ISummaryConfig } from '../../common/summary/summary';
+import { PreviewModal } from '../../reports/modals/preview/previewModal';
 
 declare var _;
 
@@ -55,6 +56,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild(UniTable) public table: UniTable;
+    @ViewChild(PreviewModal) public previewModal: PreviewModal;
 
     private busy: boolean;
     private salarytransChanged: any[] = [];
@@ -70,7 +72,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
         private _payrollRunService: PayrollrunService,
         private router: Router,
         private numberFormat: NumberFormat,
-        private _accountService: AccountService
+        private _accountService: AccountService,
+        private _reportDefinitionService: ReportDefinitionService
     ) {
 
     }
@@ -176,7 +179,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             {
                 label: 'Lagre lønnsposter',
                 action: (done) => this.saveSalarytrans(done),
-                main: true,
+                main: this.payrollRun.StatusCode === null || this.payrollRun.StatusCode === 0,
                 disabled: this.payrollRun.StatusCode > 0
             },
             {
@@ -194,13 +197,13 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
             {
                 label: 'Utbetalingsliste',
                 action: this.showPayList.bind(this),
-                main: false,
+                main: this.payrollRun.StatusCode >= 4,
                 disabled: this.payrollRun.StatusCode < 1
             },
             {
                 label: 'Bokfør',
                 action: this.openPostingSummaryModal.bind(this),
-                main: false,
+                main: this.payrollRun.StatusCode === 1,
                 disabled: this.payrollRun.StatusCode !== 1
             }
         ];
@@ -628,7 +631,10 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit, 
     }
 
     public showPayList(done) {
-        this.router.navigateByUrl('/salary/paymentlist/' + this.payrollRun.ID);
+        this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
+            this.previewModal.openWithId(report, this.payrollRun.ID, 'RunID');
+            done('');
+        });
     }
 
     public runSettle(done) {

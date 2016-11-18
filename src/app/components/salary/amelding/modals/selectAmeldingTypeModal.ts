@@ -41,7 +41,12 @@ export class SelectAmeldingTypeModalContent {
                 {id: 3, name: 'Nullstille a-meldingen'}
             ],
             displayProperty: 'name',
-            valueProperty: 'id'
+            valueProperty: 'id',
+            events: {
+                enter: (event) => {
+                    this.config.actions[0].method();
+                }
+            }
         };
 
         this.fields = [ameldTypeField];

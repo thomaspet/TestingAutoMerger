@@ -113,6 +113,7 @@ export class GrantsModalContent {
             if (event.field === '_Subentity') {
                 const subentity = row['_Subentity'];
                 row['SubentityID'] = (subentity) ? subentity.ID : null;
+                row['AffectsAGA'] = true;
             }
 
             if (event.field === 'AffectsAGA') {

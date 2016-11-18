@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRun } from '../../../unientities';
-import { PayrollrunService } from '../../../services/services';
+import { PayrollrunService, ReportDefinitionService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
@@ -14,6 +14,7 @@ import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {PreviewModal} from '../../reports/modals/preview/previewModal';
 
 declare var _;
 
@@ -40,13 +41,15 @@ export class PayrollrunDetails {
     private formIsReady: boolean = false;
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
+    @ViewChild(PreviewModal) public previewModal: PreviewModal;
 
     constructor(
         private route: ActivatedRoute, 
         private payrollrunService: PayrollrunService, 
         private router: Router, private tabSer: TabService, 
         private _rootRouteParamsService: RootRouteParamsService,
-        private _toastService: ToastService
+        private _toastService: ToastService,
+        private _reportDefinitionService: ReportDefinitionService
     ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
@@ -180,7 +183,7 @@ export class PayrollrunDetails {
             {
                 label: 'Lagre lønnsavregning',
                 action: this.savePayrollrun.bind(this),
-                main: true,
+                main: this.payrollrun.StatusCode === null || this.payrollrun.StatusCode === 0,
                 disabled: this.payrollrun.StatusCode > 0
             },
             {
@@ -198,13 +201,13 @@ export class PayrollrunDetails {
             {
                 label: 'Utbetalingsliste',
                 action: this.showPaymentList.bind(this),
-                main: false,
+                main: this.payrollrun.StatusCode >= 4,
                 disabled: this.payrollrun.StatusCode < 1
             },
             {
                 label: 'Bokfør',
                 action: this.openPostingSummaryModal.bind(this),
-                main: false,
+                main: this.payrollrun.StatusCode === 1,
                 disabled: this.payrollrun.StatusCode !== 1
             }
         ];
@@ -268,7 +271,7 @@ export class PayrollrunDetails {
             });
     }
 
-    public runSettling() {
+    public runSettling(done) {
         this.busy = true;
         this.saveactions[0].disabled = true;
         this.saveactions = _.cloneDeep(this.saveactions);
@@ -279,7 +282,7 @@ export class PayrollrunDetails {
                         .subscribe((response) => {
                             this.payrollrunService.refreshPayrun(response);
                             this.setEditMode();
-                            this.showPaymentList();
+                            done('Avregnet');
                         },
                         (err) => {
                             this.log(err);
@@ -297,8 +300,11 @@ export class PayrollrunDetails {
             });
     }
 
-    public showPaymentList() {
-        this.router.navigateByUrl('/salary/paymentlist/' + this.payrollrun.ID);
+    public showPaymentList(done) {
+        this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
+            this.previewModal.openWithId(report, this.payrollrun.ID, 'RunID');
+            done('');
+        });
     }
 
     public resetSettling() {
