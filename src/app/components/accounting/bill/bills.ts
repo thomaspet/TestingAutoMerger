@@ -6,12 +6,12 @@ import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/S
 import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {URLSearchParams} from '@angular/http';
-import {Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {safeInt} from '../../timetracking/utils/utils';
 import {ErrorService} from '../../../services/common/ErrorService';
+import {PageStateService} from '../../../services/common/PageStateService';
 
 declare const moment;
 
@@ -73,11 +73,11 @@ export class BillsView {
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
         private toast: ToastService,
-        private location: Location,
         private route: ActivatedRoute,
         private router: Router,
         settingsService: SettingsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private pageStateService: PageStateService
     ) {
 
             this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
@@ -298,65 +298,8 @@ export class BillsView {
         }
     }
 
-    /*
-    private deleteFileTags(fileId: number): Promise<boolean> {
-        return new Promise( (resolve, reject) => {
-        this.supplierInvoiceService.getStatQuery('?model=filetag&select=id&filter=fileid eq ' + fileId).subscribe( (tags) => {
-
-            }).subscribe(()=> {
-
-            });
-        });
-    }
-    */
-
-    private setPageState(parameterName: string, value: string) {
-        var input = this.location.path(false);
-        var output = this.mapIntoUrl(input, parameterName, value);
-        this.location.replaceState(output);
-    }   
-
-    private mapIntoUrl(url: string, parameterName: string, value: string): string {
-        var parts: string[] = [];
-        var ixParams = url.indexOf('?');
-        if (ixParams > 0) {
-            let tParts = url.substr(ixParams + 1);
-            url = url.substr(0, ixParams);        
-            if (tParts.length > 0) {
-                parts = tParts.split('&');
-                for (var i = 0; i < parts.length; i++) {
-                    if (parts[i].indexOf(parameterName + '=') === 0) {
-                        parts[i] = parameterName + '=' + value;
-                        return url + '?' + parts.join('&');
-                    }
-                }
-            }            
-        }
-        parts.push(`${parameterName}=${value}`);
-        return url + (parts.length > 0 ? ('?' + parts.join('&')) : '');
-    }  
-
-    private mapFromUrl(url: string): any {
-        var keyValues: any = {};
-        var ixParams = url.indexOf('?');
-        if (ixParams > 0) {
-            let tParts = url.substr(ixParams + 1);
-            url = url.substr(0, ixParams);        
-            if (tParts.length > 0) {
-                let parts = tParts.split('&');
-                for (var i = 0; i < parts.length; i++) {
-                    let keyValue = parts[i].split('=');
-                    if (keyValue.length >= 2) {
-                        keyValues[keyValue[0]] = keyValue[1]; 
-                    } 
-                }
-            }                        
-        }   
-        return keyValues;     
-    }
-
     public onPageChange(page) {
-        this.setPageState('page', page);
+        this.pageStateService.setPageState('page', page);
     }
 
     public onRowDeleted(row) {
@@ -389,9 +332,9 @@ export class BillsView {
         this.refreshList(filter, !this.hasQueriedTotals , searchFilter);
         filter.isSelected = true;
         if (searchFilter) {
-            this.setPageState('search', this.startupWithSearchText);
+            this.pageStateService.setPageState('search', this.startupWithSearchText);
         } else {
-            this.setPageState('filter', filter.name);
+            this.pageStateService.setPageState('filter', filter.name);
             this.viewSettings.setProp('defaultFilter', filter.name );
         }
     }
@@ -399,7 +342,7 @@ export class BillsView {
   
 
     private checkPath() {
-        var params = this.mapFromUrl(this.location.path(true));
+        var params = this.pageStateService.getPageState();
         if (params.filter) {
             this.currentFilter = this.filters.find( x => x.name === params.filter);
             if (this.currentFilter) {

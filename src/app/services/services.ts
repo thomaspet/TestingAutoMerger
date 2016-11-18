@@ -73,3 +73,4 @@ export * from './cacheService';
 export * from './common/NumberFormatService';
 export * from './Salary/AMelding/AMeldingService';
 export * from './common/settingsservice';
+export * from './common/PageStateService';
