@@ -171,7 +171,7 @@ export class ControlModalContent {
         this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
             this.getData().subscribe((data) => {
                 this.setData(data);
-            }, error => console.log(error));
+            }, this.errorService.handle);
         }, this.errorService.handle);
     }
 

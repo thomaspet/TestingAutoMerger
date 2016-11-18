@@ -236,7 +236,7 @@ export class AltinnAuthenticationDataModal {
             return authData;
         };
 
-    constructor(private altinnAuthService: AltinnAuthenticationService) {
+    constructor(private altinnAuthService: AltinnAuthenticationService, private errorService: ErrorService) {
         this.config = {
             close: () => {
                 this.modal.getContent().then((component: AltinnAuthenticationDataModalContent) => {
@@ -275,6 +275,6 @@ export class AltinnAuthenticationDataModal {
                     .then(this.storeAuthenticationDataInLocalstorage)
                     .then(this.closeThisModal);
             }
-        }, (error) => console.log('altinnmodalerror: ' + error));
+        }, this.errorService.handle);
     }
 }

@@ -2,6 +2,7 @@ import {Component, ViewChild, Output, EventEmitter, Type, AfterViewInit} from '@
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
+import {ErrorService} from '../../../../services/common/ErrorService';
 declare var _;
 
 @Component({
@@ -15,7 +16,7 @@ export class VacationpayModal implements AfterViewInit {
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public type: Type<any> = VacationpayModalContent;
 
-    constructor(private router: ActivatedRoute) {
+    constructor(private router: ActivatedRoute, private errorService: ErrorService) {
         this.router.params.subscribe((params) => {
             this.modalConfig = {
                 hasCancelButton: true,
@@ -41,6 +42,6 @@ export class VacationpayModal implements AfterViewInit {
         this.modal.getContent().then((component: VacationpayModalContent) => {
             this.modal.open();
             component.load();
-        }, (error) => console.log('error: ' + error));
+        }, this.errorService.handle);
     }
 }

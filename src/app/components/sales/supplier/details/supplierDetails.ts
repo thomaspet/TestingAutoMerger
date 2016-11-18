@@ -97,7 +97,7 @@ export class SupplierDetails implements OnInit {
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
                     links => this.reportLinks = links,
-                    err => console.log('Error loading queries:', err)
+                    this.errorService.handle
                 );
             });
         }

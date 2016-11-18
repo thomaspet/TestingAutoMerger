@@ -51,10 +51,6 @@ export class InvoiceList implements OnInit {
         ];
     }
 
-    private log(err) {
-        alert(err._body);
-    }
-
     public ngOnInit() {
         this.setupInvoiceTable();
     }
@@ -69,10 +65,7 @@ export class InvoiceList implements OnInit {
             // this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
             this.table.refreshTableData();
-        }, (err) => {
-            console.log('Error registering payment: ', err);
-            this.log(err);
-        });
+        }, this.errorService.handle);
     }
 
     private setupInvoiceTable() {
@@ -106,10 +99,7 @@ export class InvoiceList implements OnInit {
                     .subscribe((data) => {
                         this.router.navigateByUrl('/sales/invoices/' + data.ID);
                     },
-                    (err) => {
-                        console.log('Error creating credit note: ', err);
-                        this.log(err);
-                    }
+                        this.errorService.handle
                     );
             },
             disabled: (rowModel) => {
@@ -147,10 +137,7 @@ export class InvoiceList implements OnInit {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('Error fakturerer: ', err);
-                    this.log(err);
-                });
+                }, this.errorService.handle);
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
@@ -169,10 +156,7 @@ export class InvoiceList implements OnInit {
                     console.log('== kreditnota Kreditert OK ==');
                     alert('Kreditnota kreditert  OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('Error fakturerer: ', err);
-                    this.log(err);
-                });
+                }, this.errorService.handle);
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
