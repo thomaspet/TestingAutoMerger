@@ -13,7 +13,6 @@ import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {InvoiceItems} from './invoiceItems';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -21,6 +20,7 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {TradeItemTable} from '../../common/tradeItemTable';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
@@ -28,11 +28,11 @@ import {
     UserService,
     ReportDefinitionService,
     CustomerService,
-    NumberFormat
+    NumberFormat,
+    ErrorService
 } from '../../../../services/services';
 
 import {TofCustomerCard} from '../../common/customerCard';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
@@ -54,8 +54,8 @@ export class InvoiceDetails {
     @ViewChild(TofCustomerCard)
     private customerCard: TofCustomerCard;
 
-    @ViewChild(InvoiceItems)
-    private invoiceItems: InvoiceItems;
+    @ViewChild(TradeItemTable)
+    private tradeItemTable: TradeItemTable;
 
     @Input()
     public invoiceID: any;
@@ -86,9 +86,9 @@ export class InvoiceDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper,
                 private tofHelper: TofHelper,
-				private tradeItemHelper: TradeItemHelper) {
+                private tradeItemHelper: TradeItemHelper,
+                private errorService: ErrorService) {
                     // set default tab title, this is done to set the correct current module to make the breadcrumb correct
                     this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
                 }
@@ -171,7 +171,7 @@ export class InvoiceDetails {
         const key = event.which || event.keyCode;
         if (key === 34) {
             // Page down
-            this.invoiceItems.focusFirstRow();
+            this.tradeItemTable.focusFirstRow();
         } else if (key === 33) {
             // Page up
             this.customerCard.focus();

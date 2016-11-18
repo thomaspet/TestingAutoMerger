@@ -5,10 +5,8 @@ import {CompanySettingsService} from '../../../../services/common/CompanySetting
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerQuote} from '../../../../unientities';
-import {Address} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -26,7 +24,8 @@ import {
     CustomerQuoteItemService,
     CustomerService,
     ReportDefinitionService,
-    UserService
+    UserService,
+    ErrorService
 } from '../../../../services/services';
 import moment from 'moment';
 declare const _;
@@ -66,7 +65,8 @@ export class QuoteDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper) {}
+                private tradeItemHelper: TradeItemHelper,
+                private errorService: ErrorService) {}
 
     public ngOnInit() {
         this.setSums();
@@ -99,7 +99,10 @@ export class QuoteDetails {
             }
         });
 
-        this.companySettingsService.Get(1).subscribe(settings => this.companySettings = settings);
+        this.companySettingsService.Get(1).subscribe(
+            settings => this.companySettings = settings,
+            this.errorService.handle
+        );
 
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe(params => {
@@ -113,14 +116,17 @@ export class QuoteDetails {
                 Observable.forkJoin(
                     this.customerQuoteService.GetNewEntity([], CustomerQuote.EntityType),
                     this.userService.getCurrentUser(),
-                ).subscribe((dataset) => {
-                    let quote = <CustomerQuote> dataset[0];
-                    quote.OurReference = dataset[1].DisplayName;
-                    quote.QuoteDate = new Date();
-                    quote.DeliveryDate = new Date();
-                    quote.ValidUntilDate = null;
-                    this.refreshQuote(quote);
-                });
+                ).subscribe(
+                    (dataset) => {
+                        let quote = <CustomerQuote> dataset[0];
+                        quote.OurReference = dataset[1].DisplayName;
+                        quote.QuoteDate = new Date();
+                        quote.DeliveryDate = new Date();
+                        quote.ValidUntilDate = null;
+                        this.refreshQuote(quote);
+                    },
+                    this.errorService.handle
+                );
             }
 
         });
@@ -189,9 +195,7 @@ export class QuoteDetails {
                     this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
             },
-            (err) => {
-                this.toastService.addToast('Ikke flere tilbud etter dette', ToastType.warn, 5);
-            }
+            this.errorService.handle
         );
     }
 
@@ -202,9 +206,7 @@ export class QuoteDetails {
                     this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
             },
-            (err) => {
-                this.toastService.addToast('Ikke flere tilbud før dette', ToastType.warn, 5);
-            }
+            this.errorService.handle
         );
     }
 
@@ -368,11 +370,14 @@ export class QuoteDetails {
                         this.router.navigateByUrl('/sales/invoices/' + transitionData.CustomerInvoiceID);
                     } else {
                         this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                            .subscribe(res => this.refreshQuote(res));
+                            .subscribe(
+                                res => this.refreshQuote(res),
+                                this.errorService.handle
+                        );
                     }
                 }, (err) => {
-                    done('Feilet');
-                    this.log(err);
+                    done('Noe gikk galt under lagring');
+                    this.errorService.handle;
                 });
         });
     }
@@ -389,14 +394,13 @@ export class QuoteDetails {
         // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
             if (done) {
-                done('Lagring feilet');
+                done('Lagring feilet. En eller flere varelinjer mangler produkt.');
             }
             return;
         }
 
         if (this.quote.ID > 0) {
-            this.customerQuoteService.Put(this.quote.ID, this.quote)
-                .subscribe(
+            this.customerQuoteService.Put(this.quote.ID, this.quote).subscribe(
                 (quoteSaved) => {
                     this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(newQuoate => {
                         this.quote = newQuoate;
@@ -412,13 +416,12 @@ export class QuoteDetails {
                     });
                 },
                 (err) => {
-                    this.log(err);
                     done('Lagring feilet');
+                    this.errorService.handle(err);
                 }
-                );
+            );
         } else {
-            this.customerQuoteService.Post(this.quote)
-                .subscribe(
+            this.customerQuoteService.Post(this.quote).subscribe(
                 (quoteSaved) => {
                     if (next) {
                         next(quoteSaved);
@@ -429,8 +432,8 @@ export class QuoteDetails {
                     this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
                 },
                 (err) => {
-                    this.log(err);
                     done('Lagring feilet');
+                    this.errorService.handle(err);
                 }
             );
         }
@@ -472,9 +475,5 @@ export class QuoteDetails {
                 }
             });
         });
-    }
-
-    private log(err) {
-        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
     }
 }

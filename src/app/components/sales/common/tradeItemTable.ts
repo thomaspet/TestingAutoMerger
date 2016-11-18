@@ -1,8 +1,15 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {ProductService, VatTypeService, ProjectService, DepartmentService} from '../../../services/services';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {VatType} from '../../../unientities';
+import {
+    ProductService,
+    VatTypeService,
+    ProjectService,
+    DepartmentService,
+    ErrorService
+} from '../../../services/services';
+
 
 @Component({
     selector: 'uni-tradeitem-table',
@@ -27,13 +34,17 @@ export class TradeItemTable {
                 private vatTypeService: VatTypeService,
                 private tradeItemHelper: TradeItemHelper,
                 private departmentService: DepartmentService,
-                private projectService: ProjectService) {}
+                private projectService: ProjectService,
+                private errorService: ErrorService) {}
 
     public ngOnInit() {
-        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe((vattypes) => {
-            this.vatTypes = vattypes;
-            this.initTableConfig();
-        });
+        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe(
+            (vattypes) => {
+                this.vatTypes = vattypes;
+                this.initTableConfig();
+            },
+            this.errorService.handle
+        );
     }
 
     public ngOnChanges(changes) {
@@ -60,7 +71,7 @@ export class TradeItemTable {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
                         ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
-                    );
+                    ).catch(this.errorService.handleRxCatch);
                 }
             });
 
@@ -110,7 +121,9 @@ export class TradeItemTable {
                 },
                 searchPlaceholder: 'Velg prosjekt',
                 lookupFunction: (query) => {
-                    return this.projectService.GetAll(`filter=startswith(ProjectNumber,'${query}') or contains(Name,'${query}')&top=30`);
+                    return this.projectService.GetAll(
+                        `filter=startswith(ProjectNumber,'${query}') or contains(Name,'${query}')&top=30`
+                    ).catch(this.errorService.handleRxCatch);
                 }
             });
 
@@ -131,7 +144,9 @@ export class TradeItemTable {
                 },
                 searchPlaceholder: 'Velg avdeling',
                 lookupFunction: (query) => {
-                    return this.departmentService.GetAll(`filter=startswith(DepartmentNumber,'${query}') or contains(Name,'${query}')&top=30`);
+                    return this.departmentService.GetAll(
+                        `filter=startswith(DepartmentNumber,'${query}') or contains(Name,'${query}')&top=30`
+                    ).catch(this.errorService.handleRxCatch);
                 }
             });
 
