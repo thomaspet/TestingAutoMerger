@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
-import {safeInt, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -813,9 +813,10 @@ export class BillView {
                 minSum = itemSum < minSum ? itemSum : minSum;
                 sum += x.Amount;
             });
+            sum = roundTo(sum);
             if (sum === 0 && (maxSum || minSum)) {
                 return { success: true };
-            }
+            }            
             if (sum !== 0) {
                 msg = lang.err_diff;
             }

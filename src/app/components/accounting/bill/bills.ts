@@ -1,7 +1,7 @@
 import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
 import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/SupplierinvoiceService';
 import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
@@ -10,6 +10,7 @@ import {Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {safeInt} from '../../timetracking/utils/utils';
 import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const moment;
@@ -36,7 +37,7 @@ interface IFilter {
 export class BillsView {
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    // @ViewChild(UniTable) private unitable: UniTable;
+    @ViewChild(UniTable) private unitable: UniTable;
     private searchControl: FormControl = new FormControl('');
 
     public tableConfig: UniTableConfig;
@@ -46,12 +47,12 @@ export class BillsView {
     public searchTotals: { grandTotal: number, count: number } = { grandTotal: 0, count: 0 };
     public currentFilter: IFilter;
     private preSearchFilter: IFilter;
-    private defaultPath: string;
     private viewSettings: ViewSettings;
 
     private hasQueriedInboxCount: boolean = false;
     private startupWithSearchText: string;
     private hasQueriedTotals: boolean = false;
+    private startupPage: number = 0;
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
@@ -103,7 +104,7 @@ export class BillsView {
 
     private refreshWihtSearchText(value: string) {
         var allFilter = this.filters.find( x => x.name === 'All');
-        if (value) {
+        if (value || value === '') {
             var sFilter = this.createFilters(value, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber', 'ID');
             if (this.currentFilter.name !== allFilter.name ) { this.preSearchFilter = this.currentFilter; }
             this.onFilterClick(allFilter, sFilter);
@@ -155,6 +156,14 @@ export class BillsView {
         }, this.errorService.handle);
         if (refreshTotals) {
             this.refreshTotals();
+        }
+
+        // Set initial page ?
+        if (this.startupPage > 1) {
+            setTimeout(() => {
+                this.unitable.goToPage(this.startupPage);
+                this.startupPage = 0;                
+            }, 200);
         }
     }
 
@@ -301,10 +310,53 @@ export class BillsView {
     }
     */
 
+    private setPageState(parameterName: string, value: string) {
+        var input = this.location.path(false);
+        var output = this.mapIntoUrl(input, parameterName, value);
+        this.location.replaceState(output);
+    }   
+
+    private mapIntoUrl(url: string, parameterName: string, value: string): string {
+        var parts: string[] = [];
+        var ixParams = url.indexOf('?');
+        if (ixParams > 0) {
+            let tParts = url.substr(ixParams + 1);
+            url = url.substr(0, ixParams);        
+            if (tParts.length > 0) {
+                parts = tParts.split('&');
+                for (var i = 0; i < parts.length; i++) {
+                    if (parts[i].indexOf(parameterName + '=') === 0) {
+                        parts[i] = parameterName + '=' + value;
+                        return url + '?' + parts.join('&');
+                    }
+                }
+            }            
+        }
+        parts.push(`${parameterName}=${value}`);
+        return url + (parts.length > 0 ? ('?' + parts.join('&')) : '');
+    }  
+
+    private mapFromUrl(url: string): any {
+        var keyValues: any = {};
+        var ixParams = url.indexOf('?');
+        if (ixParams > 0) {
+            let tParts = url.substr(ixParams + 1);
+            url = url.substr(0, ixParams);        
+            if (tParts.length > 0) {
+                let parts = tParts.split('&');
+                for (var i = 0; i < parts.length; i++) {
+                    let keyValue = parts[i].split('=');
+                    if (keyValue.length >= 2) {
+                        keyValues[keyValue[0]] = keyValue[1]; 
+                    } 
+                }
+            }                        
+        }   
+        return keyValues;     
+    }
+
     public onPageChange(page) {
-        // console.log('active page is now ' + page);
-        // for å skifte page:
-        // this.unitable.goToPage(1);
+        this.setPageState('page', page);
     }
 
     public onRowDeleted(row) {
@@ -337,34 +389,30 @@ export class BillsView {
         this.refreshList(filter, !this.hasQueriedTotals , searchFilter);
         filter.isSelected = true;
         if (searchFilter) {
-            this.location.replaceState(this.defaultPath + '?search=' + this.startupWithSearchText);
+            this.setPageState('search', this.startupWithSearchText);
         } else {
-            this.location.replaceState(this.defaultPath + '?filter=' + filter.name);
+            this.setPageState('filter', filter.name);
             this.viewSettings.setProp('defaultFilter', filter.name );
         }
     }
 
+  
+
     private checkPath() {
-        this.defaultPath = this.location.path(true);
-        var ix = this.defaultPath.indexOf('?');
-        if (ix > 0) {
-            var params = this.defaultPath.substr(ix + 1).split('&');
-            if (params && params.length > 0) {
-                params.forEach(element => {
-                    var parts = element.split('=');
-                    if (parts.length > 1) {
-                        if (parts[0] === 'filter') {
-                            this.currentFilter = this.filters.find(x => x.name === parts[1]);
-                            this.filters.forEach(x => x.isSelected = false);
-                            this.currentFilter.isSelected = true;
-                        }
-                        if (parts[0] === 'search') {
-                            this.startupWithSearchText = parts[1];
-                        }
-                    }
-                });
+        var params = this.mapFromUrl(this.location.path(true));
+        if (params.filter) {
+            this.currentFilter = this.filters.find( x => x.name === params.filter);
+            if (this.currentFilter) {
+                this.filters.forEach(x => x.isSelected = false);
+                this.currentFilter.isSelected = true;                
             }
-            this.defaultPath = this.defaultPath.substr(0, ix);
+        }
+        if (params.search) {
+            this.startupWithSearchText = params.search;
+            this.searchControl.setValue(this.startupWithSearchText, { emitEvent: false});
+        }
+        if (params.page) {
+            this.startupPage = safeInt(params.page);
         }
 
         // Default-filter?
