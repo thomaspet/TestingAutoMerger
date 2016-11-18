@@ -42,6 +42,14 @@ export function safeInt(value: any) {
     return tmp;
 }
 
+export function roundTo(value: number, decimals = 2): number {
+    var dVal = value;
+    if (typeof(dVal) !== 'number') {
+        dVal = safeDec(value);
+    }
+    return parseFloat(dVal.toFixed(decimals));
+}
+
 export function safeDec(value: any) {
     if (value === undefined) { return 0; }
     if (typeof(value) === 'number') { return value; }

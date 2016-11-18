@@ -2,7 +2,7 @@ import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} 
 import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
 import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/unitoast/toastservice';
-import {safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
 import {checkGuid} from '../../../../../services/common/dimensionservice';
 import {FinancialYearService} from '../../../../../services/services';
@@ -101,12 +101,12 @@ export class BillSimpleJournalEntryView {
             this.costItems.forEach( x => {
                 var value = safeDec(x.Amount);
                 if (x.VatType && x.VatType.VatPercent) {
-                    sumVat += parseFloat(((value * x.VatType.VatPercent) / (100 + x.VatType.VatPercent)).toFixed(2));
+                    sumVat += roundTo((value * x.VatType.VatPercent) / (100 + x.VatType.VatPercent));
                 }
                 sumItems += value;
             });  
             this.sumVat = sumVat;
-            this.sumRemainder = total - sumItems;              
+            this.sumRemainder = roundTo(total - sumItems);              
             return this.sumRemainder;
         }
         return 0;
@@ -248,7 +248,7 @@ export class BillSimpleJournalEntryView {
         var line: JournalEntryLineDraft = this.costItems[details.position.row];
         if (line.VatType && line.VatType.VatPercent) {
             var currentSum = safeDec(details.value);
-            var grossValue = (currentSum * ((100 + line.VatType.VatPercent) / 100)).toFixed(2);
+            var grossValue = roundTo(currentSum * ((100 + line.VatType.VatPercent) / 100));
             details.rows = [{ sum: grossValue }];
             details.renderFunc = x => `+ ${line.VatType.VatPercent}% = ${x.sum}`;
             details.ignore = false;
@@ -285,6 +285,7 @@ export class BillSimpleJournalEntryView {
 
     private updateChange(change: IChangeEvent) {
         var line: JournalEntryLineDraft;
+
         var actualRowIndex = -1;
         var isLastRow = change.row >= this.costItems.length - 1;
 
@@ -333,7 +334,7 @@ export class BillSimpleJournalEntryView {
                 if (typeof(change.value) === 'object') {
                     line.Amount = change.value.sum;
                 } else {
-                    line.Amount = safeDec(change.value);
+                    line.Amount = roundTo(change.value);
                 }                                
                 change.reloadAfterEdit = true;
                 if (change.row > 0 && (!this.sumRemainder) ) {
@@ -355,7 +356,7 @@ export class BillSimpleJournalEntryView {
     private autoBalanceFirstRow() {
         if (this.sumRemainder) {
             var sum = this.costItems[0].Amount || 0;
-            this.costItems[0].Amount = sum + (this.sumRemainder || 0);
+            this.costItems[0].Amount = roundTo(sum + (this.sumRemainder || 0));
             this.calcRemainder();
         }
     }

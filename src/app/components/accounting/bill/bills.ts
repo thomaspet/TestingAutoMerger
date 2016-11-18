@@ -63,6 +63,10 @@ export class BillsView {
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
     ];
 
+    public toolbarConfig: any = {
+        title: 'Fakturamottak'             
+    };
+
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -73,7 +77,7 @@ export class BillsView {
         settingsService: SettingsService) {
 
             this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
-            tabService.addTab({ name: 'Regninger', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
+            tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
             this.checkPath();
     }
 
