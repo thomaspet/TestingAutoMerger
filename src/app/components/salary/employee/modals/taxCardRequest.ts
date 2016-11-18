@@ -119,7 +119,18 @@ export class TaxCardRequest {
         this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn-forespørsel';
-                this.error = 'Feilmelding fra Altinn: ' + response.ErrorText;
+                if (response.ErrorText === 'An error occurred') {
+                    this.error = 
+                    ` Feilmelding fra Altinn: ${response.ErrorText}`
+                    + '\n Forslag:' 
+                    + '\n\t 1. Sjekk at systempålogging stemmer' 
+                    + '\n\t     (trykk "sjekk login info" på innstillinger under Altinn)'
+                    + '\n'
+                    + '\n\t 2. Gå til innstillinger og sjekk at orgnr stemmer overens'
+                    + '\n\t     med Altinn systempålogging';
+                } else {
+                    this.error = 'Feilmelding fra Altinn: ' + response.ErrorText;
+                }
             } else {
                 this.title = 'Skatteforespørsel er sendt';
                 this.newReceipt.emit(true);
