@@ -59,6 +59,12 @@ export class GrantsModalContent {
     }
 
     private setTableConfig() {
+        let yesNo: any[] = 
+        [
+            {Text: 'Ja', Value: true},
+            {Text: 'Nei', Value: false}
+        ];
+
         let subentCol = new UniTableColumn('_Subentity', 'Virksomhet', UniTableColumnType.Lookup)
         .setTemplate((rowModel) => {
             let subEntity = rowModel['_Subentity'];
@@ -85,7 +91,7 @@ export class GrantsModalContent {
         let dateCol = new UniTableColumn('FromDate', 'Dato', UniTableColumnType.Date);
         let descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        let agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Select)
+        let agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Lookup)
         .setTemplate((rowModel) => {
             if (rowModel['AffectsAGA'] !== null) {
                 if (rowModel['AffectsAGA'] === true) {
@@ -97,11 +103,15 @@ export class GrantsModalContent {
             return '';
         })
         .setEditorOptions({
-            resource: [
-                {Text: 'Ja', Value: true},
-                {Text: 'Nei', Value: false}
-            ],
-            displayField: 'Text'
+            lookupFunction: (searchValue: string) => {
+                return yesNo.filter((affect) => {
+                    let text = (affect.Text || '').toLowerCase();
+                    return (text.indexOf(searchValue.toLowerCase()) > - 1);
+                }); 
+            },
+            itemTemplate: (selectedItem) => {
+                return selectedItem ? selectedItem.Text : '';
+            }
         });
 
         this.grantTableConfig = new UniTableConfig(true, true, 15)
@@ -117,6 +127,7 @@ export class GrantsModalContent {
             if (event.field === '_Subentity') {
                 const subentity = row['_Subentity'];
                 row['SubentityID'] = (subentity) ? subentity.ID : null;
+                row['AffectsAGA'] = true;
             }
 
             if (event.field === 'AffectsAGA') {
