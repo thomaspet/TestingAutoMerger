@@ -269,19 +269,14 @@ export class JournalEntryProfessional implements OnInit {
                     let account = rowModel.DebitAccount;
                     return account.AccountNumber
                         + ': '
-                        + account.AccountName
-                            .replace('Kundereskontro ', '')
-                            .replace('Leverandørreskontro ', '');
+                        + account.AccountName;
                 }
                 return '';
             })
             .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
-                        .replace('Kundereskontro ', '')
-                        .replace('Leverandørreskontro ', '')
-                    );
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
@@ -315,19 +310,14 @@ export class JournalEntryProfessional implements OnInit {
                     let account = rowModel.CreditAccount;
                     return account.AccountNumber
                         + ': '
-                        + account.AccountName
-                            .replace('Kundereskontro ', '')
-                            .replace('Leverandørreskontro ', '');
+                        + account.AccountName;
                 }
                 return '';
             })
             .setWidth('15%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
-                            .replace('Kundereskontro ', '')
-                            .replace('Leverandørreskontro ', '')
-                    );
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
