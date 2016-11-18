@@ -2,8 +2,9 @@ import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, Address, Customer} from '../../../../unientities';
+import {CustomerInvoice} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -16,19 +17,18 @@ import {InvoiceItems} from './invoiceItems';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {IContextMenuItem} from 'unitable-ng2/main';
-import {CustomerService} from '../../../../services/Sales/CustomerService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
     BusinessRelationService,
     UserService,
-    AddressService,
-    ReportDefinitionService
+    ReportDefinitionService,
+    CustomerService,
+    NumberFormat
 } from '../../../../services/services';
 
 import {TofCustomerCard} from '../../common/customerCard';
@@ -36,15 +36,6 @@ import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
-
-class CustomerInvoiceExt extends CustomerInvoice {
-    public _InvoiceAddress: Address;
-    public _InvoiceAddresses: Array<Address>;
-    public _ShippingAddress: Address;
-    public _ShippingAddresses: Array<Address>;
-    public _InvoiceAddressID: number;
-    public _ShippingAddressID: number;
-}
 
 @Component({
     selector: 'uni-invoice',
@@ -57,25 +48,23 @@ export class InvoiceDetails {
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
 
+    @ViewChild(SendEmailModal)
+    private sendEmailModal: SendEmailModal;
+
     @ViewChild(TofCustomerCard)
     private customerCard: TofCustomerCard;
 
     @ViewChild(InvoiceItems)
     private invoiceItems: InvoiceItems;
 
-    @ViewChild(SendEmailModal)
-    private sendEmailModal: SendEmailModal;
-
     @Input()
     public invoiceID: any;
 
-    private invoice: CustomerInvoiceExt;
+    private invoice: CustomerInvoice;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
 
-    private tabs: string[] = [];
-    private activeTabIndex: number = 0;
     private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
@@ -86,30 +75,25 @@ export class InvoiceDetails {
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    constructor(
-        private customerInvoiceService: CustomerInvoiceService,
-        private customerInvoiceItemService: CustomerInvoiceItemService,
-        private addressService: AddressService,
-        private reportDefinitionService: ReportDefinitionService,
-        private businessRelationService: BusinessRelationService,
-        private userService: UserService,
-        private toastService: ToastService,
-        private customerService: CustomerService,
-        private numberFormat: NumberFormat,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService
-    ) {
+    constructor(private customerInvoiceService: CustomerInvoiceService,
+                private customerInvoiceItemService: CustomerInvoiceItemService,
+                private reportDefinitionService: ReportDefinitionService,
+                private businessRelationService: BusinessRelationService,
+                private userService: UserService,
+                private toastService: ToastService,
+                private customerService: CustomerService,
+                private numberFormat: NumberFormat,
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper,
+                private tofHelper: TofHelper,
+				private tradeItemHelper: TradeItemHelper) {
                     // set default tab title, this is done to set the correct current module to make the breadcrumb correct
                     this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
                 }
 
     public ngOnInit() {
-        this.tabs = ['Detaljer', 'Levering', 'Dokumenter'];
-        this.activeTabIndex = 0;
-
         this.summaryFields = [
             {title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0)},
             {title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0)},
@@ -156,20 +140,20 @@ export class InvoiceDetails {
             const customerID = +params['customerID'];
 
             if (this.invoiceID === 0) {
-                return Observable.forkJoin(
+                Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe((res) => {
-                    let invoice = <CustomerInvoiceExt>res[0];
+                    let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new Date();
                     invoice.DeliveryDate = new Date();
                     invoice.PaymentDueDate = null;
                     if (res[2]) {
-                        invoice = this.mapCustomerToInvoice(res[2], invoice);
+                        console.log('mapping!');
+                        invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
-
                     this.refreshInvoice(invoice);
                 }, this.errorService.handle);
             } else {
@@ -197,30 +181,6 @@ export class InvoiceDetails {
     public invoiceItemsChange(invoice) {
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice);
-    }
-
-    private mapCustomerToInvoice(customer: Customer, invoice: CustomerInvoiceExt): CustomerInvoiceExt {
-        invoice.Customer = customer;
-        invoice.CustomerID = customer.ID;
-        invoice.CustomerName = customer.Info.Name;
-
-        if (customer.Info) {
-            const addresses = customer.Info.Addresses || [];
-            if (customer.Info.InvoiceAddressID) {
-                this.addressService.addressToInvoice(
-                    invoice,
-                    addresses.find(addr => addr.ID === customer.Info.InvoiceAddressID)
-                );
-            }
-            if (customer.Info.ShippingAddressID) {
-                this.addressService.addressToShipping(
-                    invoice,
-                    addresses.find(addr => addr.ID === customer.Info.ShippingAddressID)
-                );
-            }
-        }
-
-        return invoice;
     }
 
     private getStatustrackConfig() {
@@ -259,7 +219,7 @@ export class InvoiceDetails {
         return statustrack;
     }
 
-    private refreshInvoice(invoice: CustomerInvoiceExt) {
+    private refreshInvoice(invoice: CustomerInvoice) {
         if (!invoice.PaymentDueDate) {
             let dueDate = new Date(invoice.InvoiceDate);
             if (dueDate) {
@@ -270,15 +230,10 @@ export class InvoiceDetails {
 
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         this.invoice = _.cloneDeep(invoice);
-        this.addressService.setAddresses(this.invoice);
         this.recalcDebouncer.next(invoice);
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
-    }
-
-    public onCustomerChange() {
-        this.invoice = _.cloneDeep(this.invoice);
     }
 
     private updateTabTitle() {
@@ -397,7 +352,7 @@ export class InvoiceDetails {
         }
     }
 
-    private saveInvoice(refreshOnSuccess?: boolean): Observable<CustomerInvoiceExt> {
+    private saveInvoice(refreshOnSuccess?: boolean): Observable<CustomerInvoice> {
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         // Prep new orderlines for complex put

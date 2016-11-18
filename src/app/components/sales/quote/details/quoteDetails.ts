@@ -1,14 +1,11 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
-import {ProjectService, DepartmentService, AddressService, ReportDefinitionService, UserService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {FieldType, CustomerQuote, Customer, User} from '../../../../unientities';
-import {Address, CustomerQuoteItem} from '../../../../unientities';
+import {CustomerQuote} from '../../../../unientities';
+import {Address} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {AddressModal} from '../../../common/modals/modals';
@@ -24,52 +21,32 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
-import {ErrorService} from '../../../../services/common/ErrorService';
-import {errorHandler} from '@angular/platform-browser/src/browser';
-
+import {
+    CustomerQuoteService,
+    CustomerQuoteItemService,
+    CustomerService,
+    ReportDefinitionService,
+    UserService
+} from '../../../../services/services';
+import moment from 'moment';
 declare const _;
-declare const moment;
-
-class CustomerQuoteExt extends CustomerQuote {
-    public _InvoiceAddress: Address;
-    public _InvoiceAddresses: Array<Address>;
-    public _ShippingAddress: Address;
-    public _ShippingAddresses: Array<Address>;
-    public _InvoiceAddressID: number;
-    public _ShippingAddressID: number;
-}
 
 @Component({
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
 })
 export class QuoteDetails {
-    @Input() public quoteID: any;
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
+    @Input() public quoteID: any;
 
-    public config: any = {autofocus: true};
-    public fields: any[] = [];
-
-    private quote: CustomerQuoteExt;
-    private deletedItems: Array<CustomerQuoteItem>;
-
+    private quote: CustomerQuote;
     private itemsSummaryData: TradeHeaderCalculationSummary;
-
-    private customers: Customer[];
-    private dropdownData: any;
-
-    private emptyAddress: Address;
-    private recalcTimeout: any;
-    private addressChanged: any;
-
     private companySettings: CompanySettings;
-
     private actions: IUniSaveAction[];
+    private readonly: boolean;
+    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
-    private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
@@ -81,10 +58,6 @@ export class QuoteDetails {
     constructor(private customerService: CustomerService,
                 private customerQuoteService: CustomerQuoteService,
                 private customerQuoteItemService: CustomerQuoteItemService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private addressService: AddressService,
-                private businessRelationService: BusinessRelationService,
                 private reportDefinitionService: ReportDefinitionService,
                 private companySettingsService: CompanySettingsService,
                 private toastService: ToastService,
@@ -93,37 +66,93 @@ export class QuoteDetails {
                 private router: Router,
                 private route: ActivatedRoute,
                 private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper,
-                private errorService: ErrorService) {
+                private tradeItemHelper: TradeItemHelper) {}
 
-        this.route.params.subscribe(params => {
-            this.quoteID = +params['id'];
-            this.setSums();
-            this.setup();
+    public ngOnInit() {
+        this.setSums();
+        this.contextMenuItems = [{
+            label: 'Send på epost',
+            action: () => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerQuote';
+                sendemail.EntityID = this.quote.ID;
+                sendemail.CustomerID = this.quote.CustomerID;
+                sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                    this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                    });
+                }
+            },
+            disabled: () => !this.quote.ID
+        }];
+
+        // Subscribe and debounce recalc on table changes
+        this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
+            console.log('debounce', quoteitems);
+            if (quoteitems.length) {
+                this.recalcItemSums(quoteitems);
+            }
         });
 
-        this.contextMenuItems = [
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerQuote';
-                    sendemail.EntityID = this.quote.ID;
-                    sendemail.CustomerID = this.quote.CustomerID;
-                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+        this.companySettingsService.Get(1).subscribe(settings => this.companySettings = settings);
 
-                    this.sendEmailModal.openModal(sendemail);
+        // Subscribe to route param changes and update invoice data
+        this.route.params.subscribe(params => {
+            this.quoteID = +params['id'];
 
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.quote.ID
+            if (this.quoteID) {
+                this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe((quote) => {
+                    this.refreshQuote(quote);
+                });
+            } else {
+                Observable.forkJoin(
+                    this.customerQuoteService.GetNewEntity([], CustomerQuote.EntityType),
+                    this.userService.getCurrentUser(),
+                ).subscribe((dataset) => {
+                    let quote = <CustomerQuote> dataset[0];
+                    quote.OurReference = dataset[1].DisplayName;
+                    quote.QuoteDate = new Date();
+                    quote.DeliveryDate = new Date();
+                    quote.ValidUntilDate = null;
+                    this.refreshQuote(quote);
+                });
             }
-        ];
+
+        });
+    }
+
+    private refreshQuote(quote: CustomerQuote) {
+        this.onQuoteChange(quote);
+        this.readonly = quote.StatusCode && (
+            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+        );
+
+        this.quote = _.cloneDeep(quote);
+        this.setTabTitle();
+        this.updateToolbar();
+        this.updateSaveActions();
+        this.recalcDebouncer.next(quote.Items);
+    }
+
+    public onQuoteChange(quote: CustomerQuote) {
+        if (quote.QuoteDate && !quote.ValidUntilDate) {
+            quote.ValidUntilDate = moment(quote.QuoteDate).add(1, 'month').toDate();
+        }
+
+        if (!quote.CreditDays) {
+            if (quote.Customer && quote.Customer.CreditDays) {
+                quote.CreditDays = quote.Customer.CreditDays;
+            } else if (this.companySettings) {
+                quote.CreditDays = this.companySettings.CustomerCreditDays;
+            }
+        }
     }
 
     private getStatustrackConfig() {
@@ -149,246 +178,42 @@ export class QuoteDetails {
         return statustrack;
     }
 
-    public nextQuote() {
-        this.customerQuoteService.getNextID(this.quote.ID)
-            .subscribe(ID => {
-                    if (ID) {
-                        this.router.navigateByUrl('/sales/quotes/' + ID);
-                    } else {
-                        this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
-                    }
-                },
-                this.errorService.handle
-            );
-    }
-
-    public previousQuote() {
-        this.customerQuoteService.getPreviousID(this.quote.ID)
-            .subscribe(ID => {
-                    if (ID) {
-                        this.router.navigateByUrl('/sales/quotes/' + ID);
-                    } else {
-                        this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
-                    }
-                },
-                this.errorService.handle
-            );
-    }
-
     public addQuote() {
         this.router.navigateByUrl('/sales/quotes/0');
     }
 
-    public ready(event) {
-        this.setupSubscriptions(null);
-    }
-
-    private setupSubscriptions(event) {
-        Observable.merge(
-            this.form.field('CustomerID')
-                .changeEvent
-                .map(uniField => uniField['CustomerID']),
-            this.route.params
-                .filter(params => !!params['customerID'])
-                .map(params => +params['customerID'])
-        )
-            .subscribe(customerID => {
-                if (customerID) {
-                    this.quote.CustomerID = customerID;
-                    this.customerService.Get(customerID, this.customerExpandOptions).subscribe((customer: Customer) => {
-                        let keepEntityAddresses: boolean = true;
-                        if (this.quote.Customer && customerID !== this.quote.Customer.ID) {
-                            keepEntityAddresses = false;
-                        }
-
-                        this.quote.Customer = customer;
-                        this.addressService.setAddresses(this.quote, null, keepEntityAddresses);
-
-                        this.quote.CustomerName = customer.Info.Name;
-
-                        if (customer.CreditDays !== null) {
-                            this.quote.CreditDays = customer.CreditDays;
-                        } else {
-                            this.quote.CreditDays = this.companySettings.CustomerCreditDays;
-                        }
-
-                        this.quote = _.cloneDeep(this.quote);
-                        this.updateToolbar();
-                    });
-                }
-            }, this.errorService.handle);
-        this.form.field('QuoteDate')
-            .changeEvent
-            .subscribe((data) => {
+    public nextQuote() {
+        this.customerQuoteService.next(this.quote.ID).subscribe(
+            (data) => {
                 if (data) {
-                    this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();
-
-                    this.quote = _.cloneDeep(this.quote);
-                    this.updateToolbar();
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
-            });
+            },
+            (err) => {
+                this.toastService.addToast('Ikke flere tilbud etter dette', ToastType.warn, 5);
+            }
+        );
     }
 
-    private setup() {
-        this.deletedItems = [];
-
-        this.companySettingsService.Get(1)
-            .subscribe(settings => this.companySettings = settings, this.errorService.handle);
-
-        if (!this.formIsInitialized) {
-            this.fields = this.getComponentLayout().Fields;
-
-            Observable.forkJoin(
-                this.departmentService.GetAll(null),
-                this.projectService.GetAll(null),
-                (
-                    this.quoteID > 0 ?
-                        this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                        : this.customerQuoteService.newCustomerQuote()
-                ),
-                this.customerService.GetAll(null, ['Info']),
-                this.addressService.GetNewEntity(null, 'address'),
-                this.quoteID ? Observable.of(null) : this.userService.getCurrentUser()
-            ).subscribe(response => {
-                this.dropdownData = [response[0], response[1]];
-                this.quote = response[2];
-                this.customers = response[3];
-                this.emptyAddress = response[4];
-                const currentUser = response[5];
-
-                if (!this.quoteID) {
-                    this.quote.OurReference = currentUser.DisplayName;
+    public previousQuote() {
+        this.customerQuoteService.previous(this.quote.ID).subscribe(
+            (data) => {
+                if (data) {
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
-
-                // Add a blank item in the dropdown controls
-                this.customers.unshift(null);
-
-                this.addressService.setAddresses(this.quote);
-                this.setTabTitle();
-
-                this.updateSaveActions();
-                this.updateToolbar();
-                this.extendFormConfig();
-
-                this.formIsInitialized = true;
-            }, this.errorService.handle);
-        } else {
-            const source = this.quoteID > 0 ?
-                this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                : Observable.fromPromise(this.customerQuoteService.newCustomerQuote());
-
-            source.subscribe(response => {
-                this.quote = response;
-                this.addressService.setAddresses(this.quote);
-                this.setTabTitle();
-                this.updateToolbar();
-                this.updateSaveActions();
-            }, this.errorService.handle);
-        }
+            },
+            (err) => {
+                this.toastService.addToast('Ikke flere tilbud før dette', ToastType.warn, 5);
+            }
+        );
     }
+
 
     private setTabTitle() {
         let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud';
         this.tabService.addTab({ url: '/sales/quotes/' + this.quote.ID, name: tabTitle, active: true, moduleID: UniModules.Quotes });
     }
 
-    private extendFormConfig() {
-        let self = this;
-
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
-        invoiceaddress.Options = {
-            entity: Address,
-            listProperty: '_InvoiceAddresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: '_InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value, !!!this.quote.CustomerID);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) {
-                        self.saveAddressOnCustomer(address, resolve);
-                    } else {
-                        resolve(address);
-                    }
-                });
-            }),
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === '_ShippingAddress');
-        shippingaddress.Options = {
-            entity: Address,
-            listProperty: '_ShippingAddresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: '_ShippingAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) {
-                        self.saveAddressOnCustomer(address, resolve);
-                    } else {
-                        resolve(address);
-                    }
-                });
-            }),
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
-        customer.Options = {
-            source: this.customers,
-            valueProperty: 'ID',
-            displayProperty: 'Info.Name',
-            debounceTime: 200
-        };
-    }
-
-    private saveAddressOnCustomer(address: Address, resolve) {
-        var idx = 0;
-
-        if (!address.ID || address.ID === 0) {
-            address['_createguid'] = this.addressService.getNewGuid();
-            this.quote.Customer.Info.Addresses.push(address);
-            idx = this.quote.Customer.Info.Addresses.length - 1;
-        } else {
-            idx = this.quote.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
-            this.quote.Customer.Info.Addresses[idx] = address;
-        }
-
-        // remove entries with equal _createguid
-        this.quote.Customer.Info.Addresses = _.uniq(this.quote.Customer.Info.Addresses, '_createguid');
-
-        // this.quote.Customer.Info.ID
-        this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((info) => {
-            this.quote.Customer.Info = info;
-            resolve(info.Addresses[idx]);
-        }, this.errorService.handle);
-    }
 
     private updateToolbar() {
         this.toolbarconfig = {
@@ -505,25 +330,14 @@ export class QuoteDetails {
     }
 
     public recalcItemSums(quoteItems: any) {
-        if (quoteItems === null || quoteItems === undefined) {
+        console.log(quoteItems);
+        if (!quoteItems || !quoteItems.length) {
             return;
         }
         this.quote.Items = quoteItems;
-
-        // Do recalc after 2 second to avoid to much requests
-        if (this.recalcTimeout) {
-            clearTimeout(this.recalcTimeout);
-        }
-
-        this.recalcTimeout = setTimeout(() => {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
-            this.updateToolbar();
-            this.setSums();
-        }, 500);
-    }
-
-    private deleteItem(item: CustomerQuoteItem) {
-        this.deletedItems.push(item);
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+        this.updateToolbar();
+        this.setSums();
     }
 
     private saveQuoteManual(done: any) {
@@ -553,20 +367,17 @@ export class QuoteDetails {
                     } else if (transition === 'toInvoice') {
                         this.router.navigateByUrl('/sales/invoices/' + transitionData.CustomerInvoiceID);
                     } else {
-                        this.setup();
+                        this.customerQuoteService.Get(this.quoteID, this.expandOptions)
+                            .subscribe(res => this.refreshQuote(res));
                     }
-                }, err => {
-                    this.errorService.handle(err);
+                }, (err) => {
                     done('Feilet');
+                    this.log(err);
                 });
         });
     }
 
     private saveQuote(done: any, next: any = null) {
-        // Transform addresses to flat
-        this.addressService.addressToInvoice(this.quote, this.quote._InvoiceAddress);
-        this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
-
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         this.quote.Items.forEach(item => {
@@ -577,24 +388,11 @@ export class QuoteDetails {
 
         // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');
             if (done) {
                 done('Lagring feilet');
             }
             return;
         }
-
-        // set deleted items as deleted on server as well, using soft delete / complex put
-        this.deletedItems.forEach((item: CustomerQuoteItem) => {
-            // don't send deleted items that has not been saved previously,
-            // because this can cause problems with validation
-            if (item.ID > 0) {
-                item.Deleted = true;
-                this.quote.Items.push(item);
-            }
-        });
-
-        this.deletedItems = [];
 
         if (this.quote.ID > 0) {
             this.customerQuoteService.Put(this.quote.ID, this.quote)
@@ -602,11 +400,9 @@ export class QuoteDetails {
                 (quoteSaved) => {
                     this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(newQuoate => {
                         this.quote = newQuoate;
-                        this.addressService.setAddresses(this.quote);
                         this.updateSaveActions();
                         this.updateToolbar();
                         this.setTabTitle();
-                        this.ready(null);
 
                         if (next) {
                             next(this.quote);
@@ -615,8 +411,8 @@ export class QuoteDetails {
                         }
                     });
                 },
-                err => {
-                    this.errorService.handle(err);
+                (err) => {
+                    this.log(err);
                     done('Lagring feilet');
                 }
                 );
@@ -632,9 +428,8 @@ export class QuoteDetails {
 
                     this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
                 },
-                err => {
-                    this.errorService.handle(err);
-                    console.log('Feil oppsto ved lagring', err);
+                (err) => {
+                    this.log(err);
                     done('Lagring feilet');
                 }
             );
@@ -675,309 +470,11 @@ export class QuoteDetails {
                 } else {
                     done('Rapport mangler');
                 }
-            }, this.errorService.handle);
+            });
         });
     }
 
-    private getComponentLayout(): any {
-        return {
-            Name: 'CustomerQuote',
-            BaseEntity: 'CustomerQuote',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'CustomerID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kunde',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'QuoteDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Tilbudsdato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'ValidUntilDate',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Gyldig til dato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'CreditDays',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kredittdager',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: '_InvoiceAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fakturaadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: '_ShippingAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Leveringsadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 6,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Vår referanse
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'OurReference',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Vår referanse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 10,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Deres referanse
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'YourReference',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Deres referanse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 11,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Rekvisisjon
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'Requisition',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Rekvisisjon',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 12,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'FreeTxt',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXTAREA,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: '',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 1,
-                    Sectionheader: 'Fritekst',
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Fritekst',
-                    StatusCode: 0,
-                    ID: 30,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
-                    Classes: 'max-width'
-                }
-            ]
-        };
+    private log(err) {
+        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
     }
 }

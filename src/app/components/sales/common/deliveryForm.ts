@@ -17,7 +17,7 @@ declare const _;
                       (changeEvent)="onLeftFormChange($event)">
             </uni-form>
 
-            <section *ngIf="entity?.Customer && entity.ShippingAddressLine1"
+            <section *ngIf="entity?.Customer?.Info?.ShippingAddressID"
                      class="addressCard"
                      [attr.aria-readonly]="readonly">
                 <strong>{{entity.Customer?.Info?.Name}}</strong>

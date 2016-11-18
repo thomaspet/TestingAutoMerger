@@ -1,12 +1,11 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {ProductService, VatTypeService, CustomerInvoiceItemService, ProjectService, DepartmentService} from '../../../../services/services';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerInvoice, CustomerInvoiceItem, VatType} from '../../../../unientities';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ProductService, VatTypeService, ProjectService, DepartmentService} from '../../../services/services';
+import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
+import {VatType} from '../../../unientities';
 
 @Component({
-    selector: 'uni-invoice-items',
+    selector: 'uni-tradeitem-table',
     template: `
         <uni-table [resource]="tableData"
                    [config]="tableConfig"
@@ -14,37 +13,32 @@ import {ErrorService} from '../../../../services/common/ErrorService';
         </uni-table>
     `
 })
-export class InvoiceItems {
+export class TradeItemTable {
     @ViewChild(UniTable) private table: UniTable;
-
-    @Input() public invoice: CustomerInvoice;
     @Input() public readonly: boolean;
-    @Input() public projects: any[];
-    @Input() public departments: any[];
-
-    @Output() public invoiceChange: EventEmitter<CustomerInvoice>;
+    @Input() public entity: any;
+    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
-
     private tableConfig: UniTableConfig;
-    private tableData: CustomerInvoiceItem[];
+    private tableData: any[];
 
-    constructor(
-        private customerInvoiceItemService: CustomerInvoiceItemService,
-        private productService: ProductService,
-        private vatTypeService: VatTypeService,
-        private tradeItemHelper: TradeItemHelper,
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private errorService: ErrorService
-    ) {
-        this.invoiceChange = new EventEmitter<CustomerInvoice>();
-        this.initDataAndTable();
+    constructor(private productService: ProductService,
+                private vatTypeService: VatTypeService,
+                private tradeItemHelper: TradeItemHelper,
+                private departmentService: DepartmentService,
+                private projectService: ProjectService) {}
+
+    public ngOnInit() {
+        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe((vattypes) => {
+            this.vatTypes = vattypes;
+            this.initTableConfig();
+        });
     }
 
     public ngOnChanges(changes) {
-        if (changes['invoice']) {
-            this.tableData = this.invoice.Items.filter(item => !item.Deleted);
+        if (changes['entity'] && this.entity) {
+            this.tableData = this.entity.Items.filter(item => !item.Deleted);
         }
 
         if (changes['readonly'] && this.table) {
@@ -54,13 +48,6 @@ export class InvoiceItems {
 
     public focusFirstRow() {
         this.table.focusRow(0);
-    }
-
-    private initDataAndTable() {
-        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe((vattypes) => {
-            this.vatTypes = vattypes;
-            this.initTableConfig();
-        }, this.errorService.handle);
     }
 
     private initTableConfig() {
@@ -165,7 +152,7 @@ export class InvoiceItems {
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
             ])
             .setColumnMenuVisible(true)
-            .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.invoice))
+            .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.entity))
             .setDeleteButton(!this.readonly)
             .setChangeCallback((rowModel) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel);
@@ -173,36 +160,26 @@ export class InvoiceItems {
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
                 }
-                let index = this.getLocalIndex(updatedRow);
+                const index = updatedRow['_originalIndex'];
 
                 if (index >= 0) {
-                    this.invoice.Items[index] = updatedRow;
+                    this.entity.Items[index] = updatedRow;
                 } else {
-                    this.invoice.Items.push(updatedRow);
+                    this.entity.Items.push(updatedRow);
                 }
 
-                this.invoiceChange.next(this.invoice);
+                this.entityChange.next(this.entity);
                 return updatedRow;
             });
     }
 
-    public onRowDeleted(row: CustomerInvoiceItem) {
-        let index = this.getLocalIndex(row);
+    public onRowDeleted(row) {
         if (row.ID) {
-            this.invoice.Items[index].Deleted = true;
-        } else if (index > -1) {
-            this.invoice.Items.splice(index, 1);
-        }
-
-        this.invoiceChange.next(this.invoice);
-    }
-
-    public getLocalIndex(rowModel): number {
-        if (rowModel.ID) {
-            return this.invoice.Items.findIndex(item => item.ID === rowModel.ID);
+            this.entity.Items[row['_originalIndex']].Deleted = true;
         } else {
-            return this.invoice.Items.findIndex(item => item['_guid'] === rowModel['_guid']);
+            this.entity.Items.splice(row['_originalIndex'], 1);
         }
-    }
 
+        this.entityChange.next(this.entity);
+    }
 }

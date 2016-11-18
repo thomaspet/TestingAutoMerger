@@ -33,11 +33,11 @@ export class TofDetailsForm {
     private fields: any[];
     public formConfig: any = {autofocus: false};
 
-    constructor() {
-        this.initFormFields();
-    }
-
     public ngOnChanges(changes) {
+        if (changes['entityType'] && this.entityType) {
+            this.initFormFields();
+        }
+
         if (changes['entity'] && this.entity) {
             this.entity = _.cloneDeep(this.entity);
         }
@@ -64,7 +64,7 @@ export class TofDetailsForm {
     }
 
     private initFormFields() {
-        this.fields = [
+        let fields = [
             {
                 EntityType: this.entityType,
                 Property: 'YourReference',
@@ -227,5 +227,19 @@ export class TofDetailsForm {
                 CustomFields: null
             },
         ];
+
+        if (this.entityType === 'CustomerQuote') {
+            fields[3].Label = 'Tilbudsdato';
+            fields[3].Property = 'QuoteDate';
+            fields[4].Label = 'Gyldig til dato';
+            fields[4].Property = 'ValidUntilDate';
+        } else if (this.entityType === 'CustomerOrder') {
+            fields[3].Label = 'Ordredato';
+            fields[3].Property = 'OrderDate';
+            fields[4].Hidden = true;
+        }
+
+        this.fields = fields;
     }
+
 }
