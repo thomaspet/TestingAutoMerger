@@ -309,7 +309,7 @@ export class TimeEntry {
 
     private asyncValidationFailed(event: IChangeEvent) {
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
-        if (droplistItems && droplistItems.length === 1 && event.columnDefinition) {
+        if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
             let item = droplistItems[0];
             event.value = item[lk.colToSave || 'ID'];

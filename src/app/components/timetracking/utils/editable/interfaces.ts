@@ -143,6 +143,7 @@ export interface ILookupDetails {
     select?: string;
     filter?: string;    
     visualKey?: string;
+    visualKeyType?: ColumnType;
     blankFilter?: string;
     model?: string;
     expand?: string;

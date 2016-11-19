@@ -170,7 +170,7 @@ export class BillSimpleJournalEntryView {
                 new Column('VatTypeID', '', ColumnType.Integer, 
                     {
                         route: 'vattypes',
-                        select: 'VatCode,Name,VatPercent,ID', visualKey: 'VatCode',
+                        select: 'VatCode,Name,VatPercent,ID', visualKey: 'VatCode', visualKeyType: ColumnType.Text,
                         model: 'vattype',
                         render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name,12)}`)
                     }
@@ -367,8 +367,9 @@ export class BillSimpleJournalEntryView {
         if (!this.editable) {
             return;
         }
+        // No match: take first item in dropdown-list ?
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
-        if (droplistItems && droplistItems.length === 1 && event.columnDefinition) {
+        if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
             let item = droplistItems[0];
             event.value = item[lk.colToSave || 'ID'];
