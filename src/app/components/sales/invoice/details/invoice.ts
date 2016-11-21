@@ -228,16 +228,6 @@ export class InvoiceDetails {
         }
 
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-
-        // Set shippingAddressID for multivalue in delivery form
-        const shippingAddress = invoice.Customer.Info.Addresses.find((addr) => {
-            return addr.AddressLine1 === invoice.ShippingAddressLine1
-                && addr.PostalCode === invoice.ShippingPostalCode
-                && addr.City === invoice.ShippingCity
-                && addr.Country === invoice.ShippingCountry;
-        });
-        invoice['_shippingAddressID'] = shippingAddress.ID;
-
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice);
         this.updateTabTitle();

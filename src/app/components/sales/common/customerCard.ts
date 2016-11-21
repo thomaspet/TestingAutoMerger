@@ -159,7 +159,7 @@ export class TofCustomerCard {
         this.entity.CustomerID = customer.ID;
         this.entity.CustomerName = info.Name;
         this.entity.Customer = customer;
-
+        this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
         this.entityChange.next(_.cloneDeep(this.entity));
     }
 
@@ -214,6 +214,7 @@ export class TofCustomerCard {
         }
 
         this.entity.Customer = customer;
+        this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
         this.entityChange.next(_.cloneDeep(this.entity));
     }
 

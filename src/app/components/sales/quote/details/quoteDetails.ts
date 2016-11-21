@@ -163,15 +163,6 @@ export class QuoteDetails {
             || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
         );
 
-        // Set shippingAddresID for multivalue in delivery form
-        const shippingAddress = quote.Customer.Info.Addresses.find((addr) => {
-            return addr.AddressLine1 === quote.ShippingAddressLine1
-                && addr.PostalCode === quote.ShippingPostalCode
-                && addr.City === quote.ShippingCity
-                && addr.Country === quote.ShippingCountry;
-        });
-        quote['_shippingAddressID'] = shippingAddress.ID;
-
         this.quote = _.cloneDeep(quote);
         this.setTabTitle();
         this.updateToolbar();
@@ -397,7 +388,7 @@ export class QuoteDetails {
                     }
                 }, (err) => {
                     done('Noe gikk galt under lagring');
-                    this.errorService.handle;
+                    this.errorService.handle(err);
                 });
         });
     }
