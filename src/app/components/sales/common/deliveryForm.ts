@@ -78,10 +78,6 @@ export class TofDeliveryForm {
     }
 
     public ngOnChanges(changes) {
-        if (changes['entity'] && this.entity) {
-            this.entity = _.cloneDeep(this.entity);
-        }
-
         if (changes['readonly'] && this.forms) {
             setTimeout(() => {
                 if (this.readonly) {
@@ -112,8 +108,8 @@ export class TofDeliveryForm {
     }
 
     public onLeftFormChange(model) {
+        this.addressService.addressToShipping(model, model['_ShippingAddress']);
         this.entity = model;
-        this.addressService.addressToShipping(this.entity, model['_ShippingAddress']);
         this.entityChange.next(model);
     }
 
@@ -180,7 +176,7 @@ export class TofDeliveryForm {
             listProperty: 'Customer.Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Customer.Info.ShippingAddressID',
+            storeResultInProperty: '_shippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();

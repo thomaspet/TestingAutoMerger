@@ -38,10 +38,6 @@ export class TofDetailsForm {
             this.initFormFields();
         }
 
-        if (changes['entity'] && this.entity) {
-            this.entity = _.cloneDeep(this.entity);
-        }
-
         if (changes['readonly'] && this.form) {
             setTimeout(() => {
                 if (this.readonly) {

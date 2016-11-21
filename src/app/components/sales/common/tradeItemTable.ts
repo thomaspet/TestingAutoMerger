@@ -30,12 +30,14 @@ export class TradeItemTable {
     private tableConfig: UniTableConfig;
     private tableData: any[];
 
-    constructor(private productService: ProductService,
-                private vatTypeService: VatTypeService,
-                private tradeItemHelper: TradeItemHelper,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private errorService: ErrorService) {}
+    constructor(
+        private productService: ProductService,
+        private vatTypeService: VatTypeService,
+        private tradeItemHelper: TradeItemHelper,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe(

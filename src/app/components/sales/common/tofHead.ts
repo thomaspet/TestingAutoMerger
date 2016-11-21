@@ -4,7 +4,6 @@ import {
     Output,
     ViewChild,
     EventEmitter,
-    HostListener
 } from '@angular/core';
 import {TofCustomerCard} from './customerCard';
 declare const _;
@@ -17,10 +16,10 @@ export class TofHead {
     private customerCard: TofCustomerCard;
 
     @Input()
-    private entityName: string;
+    public entityName: string;
 
     @Input()
-    private readonly: boolean;
+    public readonly: boolean;
 
     @Input()
     private data: any; // type?
@@ -28,14 +27,19 @@ export class TofHead {
     @Output()
     public dataChange: EventEmitter<any> = new EventEmitter();
 
-    private tabs: string[] = ['Detaljer', 'Levering', 'Dokumenter'];
-    private activeTabIndex: number = 0;
+    public tabs: string[] = ['Detaljer', 'Levering', 'Dokumenter'];
+    public activeTabIndex: number = 0;
 
     public onDataChange(data) {
         this.data = _.cloneDeep(data);
         this.dataChange.next(this.data);
     }
 
+    public focus() {
+        if (this.customerCard) {
+            this.customerCard.focus();
+        }
+    }
     // TODO: focus handling
 
     // TODO: key handling?

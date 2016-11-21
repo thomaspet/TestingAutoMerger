@@ -1,11 +1,11 @@
-import {Component, Input, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerQuote} from '../../../../unientities';
-import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
+import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -19,6 +19,8 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {TofHead} from '../../common/tofHead';
+import {TradeItemTable} from '../../common/tradeItemTable';
 import {
     CustomerQuoteService,
     CustomerQuoteItemService,
@@ -37,14 +39,22 @@ declare const _;
 export class QuoteDetails {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
-    @Input() public quoteID: any;
+
+    @ViewChild(TofHead)
+    private tofHead: TofHead;
+
+    @ViewChild(TradeItemTable)
+    private tradeItemTable: TradeItemTable;
+
+    @Input()
+    public quoteID: number;
 
     private quote: CustomerQuote;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
     private actions: IUniSaveAction[];
     private readonly: boolean;
-    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
+    private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
 
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
@@ -54,19 +64,21 @@ export class QuoteDetails {
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    constructor(private customerService: CustomerService,
-                private customerQuoteService: CustomerQuoteService,
-                private customerQuoteItemService: CustomerQuoteItemService,
-                private reportDefinitionService: ReportDefinitionService,
-                private companySettingsService: CompanySettingsService,
-                private toastService: ToastService,
-                private userService: UserService,
-                private numberFormat: NumberFormat,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper,
-                private errorService: ErrorService) {}
+    constructor(
+        private customerService: CustomerService,
+        private customerQuoteService: CustomerQuoteService,
+        private customerQuoteItemService: CustomerQuoteItemService,
+        private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private userService: UserService,
+        private numberFormat: NumberFormat,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         this.setSums();
@@ -93,7 +105,6 @@ export class QuoteDetails {
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
-            console.log('debounce', quoteitems);
             if (quoteitems.length) {
                 this.recalcItemSums(quoteitems);
             }
@@ -132,6 +143,18 @@ export class QuoteDetails {
         });
     }
 
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+        if (key === 34) {
+            event.preventDefault();
+            this.tradeItemTable.focusFirstRow();
+        } else if (key === 33) {
+            event.preventDefault();
+            this.tofHead.focus();
+        }
+    }
+
     private refreshQuote(quote: CustomerQuote) {
         this.onQuoteChange(quote);
         this.readonly = quote.StatusCode && (
@@ -140,11 +163,19 @@ export class QuoteDetails {
             || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
         );
 
+        // Set shippingAddresID for multivalue in delivery form
+        const shippingAddress = quote.Customer.Info.Addresses.find((addr) => {
+            return addr.AddressLine1 === quote.ShippingAddressLine1
+                && addr.PostalCode === quote.ShippingPostalCode
+                && addr.City === quote.ShippingCity
+                && addr.Country === quote.ShippingCountry;
+        });
+        quote['_shippingAddressID'] = shippingAddress.ID;
+
         this.quote = _.cloneDeep(quote);
         this.setTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
-        this.recalcDebouncer.next(quote.Items);
     }
 
     public onQuoteChange(quote: CustomerQuote) {
@@ -159,6 +190,9 @@ export class QuoteDetails {
                 quote.CreditDays = this.companySettings.CustomerCreditDays;
             }
         }
+
+        this.quote = _.cloneDeep(quote);
+        this.recalcDebouncer.next(quote.Items);
     }
 
     private getStatustrackConfig() {
@@ -189,27 +223,18 @@ export class QuoteDetails {
     }
 
     public nextQuote() {
-        this.customerQuoteService.next(this.quote.ID).subscribe(
-            (data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                }
-            },
+        this.customerQuoteService.getNextID(this.quote.ID).subscribe(
+            id => this.router.navigateByUrl('/sales/quotes/' + id),
             this.errorService.handle
         );
     }
 
     public previousQuote() {
-        this.customerQuoteService.previous(this.quote.ID).subscribe(
-            (data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                }
-            },
+        this.customerQuoteService.getPreviousID(this.quote.ID).subscribe(
+            id => this.router.navigateByUrl('/sales/quotes/' + id),
             this.errorService.handle
         );
     }
-
 
     private setTabTitle() {
         let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud';
@@ -240,7 +265,7 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Lagre',
-            action: (done) => this.saveQuoteManual(done),
+            action: (done) => this.saveQuote(done),
             disabled: this.quote.ID === 0,
             main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
@@ -332,7 +357,6 @@ export class QuoteDetails {
     }
 
     public recalcItemSums(quoteItems: any) {
-        console.log(quoteItems);
         if (!quoteItems || !quoteItems.length) {
             return;
         }
@@ -340,10 +364,6 @@ export class QuoteDetails {
         this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
         this.updateToolbar();
         this.setSums();
-    }
-
-    private saveQuoteManual(done: any) {
-        this.saveQuote(done);
     }
 
     private saveQuoteAsRegistered(done: any) {
@@ -402,16 +422,12 @@ export class QuoteDetails {
         if (this.quote.ID > 0) {
             this.customerQuoteService.Put(this.quote.ID, this.quote).subscribe(
                 (quoteSaved) => {
-                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(newQuoate => {
-                        this.quote = newQuoate;
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
-
+                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quote => {
                         if (next) {
-                            next(this.quote);
+                            next(quote);
                         } else {
                             done('Tilbud lagret');
+                            this.refreshQuote(quote);
                         }
                     });
                 },
@@ -441,25 +457,25 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
                 title: 'Avgiftsfritt',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
                 title: 'Avgiftsgrunnlag',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
                 title: 'Sum rabatt',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
                 title: 'Nettosum',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
                 title: 'Mva',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
                 title: 'Øreavrunding',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
                 title: 'Totalsum',
             }];
     }

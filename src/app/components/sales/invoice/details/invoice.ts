@@ -21,6 +21,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {TofHead} from '../../common/tofHead';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
@@ -32,7 +33,6 @@ import {
     ErrorService
 } from '../../../../services/services';
 
-import {TofCustomerCard} from '../../common/customerCard';
 
 declare const _;
 declare const moment;
@@ -51,8 +51,8 @@ export class InvoiceDetails {
     @ViewChild(SendEmailModal)
     private sendEmailModal: SendEmailModal;
 
-    @ViewChild(TofCustomerCard)
-    private customerCard: TofCustomerCard;
+    @ViewChild(TofHead)
+    private tofHead: TofHead;
 
     @ViewChild(TradeItemTable)
     private tradeItemTable: TradeItemTable;
@@ -151,7 +151,6 @@ export class InvoiceDetails {
                     invoice.DeliveryDate = new Date();
                     invoice.PaymentDueDate = null;
                     if (res[2]) {
-                        console.log('mapping!');
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
                     this.refreshInvoice(invoice);
@@ -170,11 +169,11 @@ export class InvoiceDetails {
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
         if (key === 34) {
-            // Page down
+            event.preventDefault();
             this.tradeItemTable.focusFirstRow();
         } else if (key === 33) {
-            // Page up
-            this.customerCard.focus();
+            event.preventDefault();
+            this.tofHead.focus();
         }
     }
 
@@ -229,6 +228,16 @@ export class InvoiceDetails {
         }
 
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+
+        // Set shippingAddressID for multivalue in delivery form
+        const shippingAddress = invoice.Customer.Info.Addresses.find((addr) => {
+            return addr.AddressLine1 === invoice.ShippingAddressLine1
+                && addr.PostalCode === invoice.ShippingPostalCode
+                && addr.City === invoice.ShippingCity
+                && addr.Country === invoice.ShippingCountry;
+        });
+        invoice['_shippingAddressID'] = shippingAddress.ID;
+
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice);
         this.updateTabTitle();
@@ -515,29 +524,17 @@ export class InvoiceDetails {
     }
 
     public nextInvoice() {
-        this.customerInvoiceService.getNextID(this.invoice.ID)
-            .subscribe((invoiceID) => {
-                if (invoiceID) {
-                    this.router.navigateByUrl('/sales/invoices/' + invoiceID);
-                } else {
-                    this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
-                }
-            },
-                this.errorService.handle
-            );
+        this.customerInvoiceService.getNextID(this.invoice.ID).subscribe(
+            id => this.router.navigateByUrl('/sales/invoices/' + id),
+            this.errorService.handle
+        );
     }
 
     public previousInvoice() {
-        this.customerInvoiceService.getPreviousID(this.invoice.ID)
-            .subscribe((invoiceID) => {
-                    if (invoiceID) {
-                        this.router.navigateByUrl('/sales/invoices/' + invoiceID);
-                    } else {
-                        this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
-                    }
-                },
-                this.errorService.handle
-            );
+        this.customerInvoiceService.getPreviousID(this.invoice.ID).subscribe(
+            id => this.router.navigateByUrl('/sales/invoices/' + id),
+            this.errorService.handle
+        );
     }
 
     // Summary
