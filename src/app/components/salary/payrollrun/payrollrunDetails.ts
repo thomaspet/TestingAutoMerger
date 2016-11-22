@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType } from '../../../unientities';
-import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService } from '../../../services/services';
+import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService, ReportDefinitionService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
@@ -15,12 +15,11 @@ import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { ErrorService } from '../../../services/common/ErrorService';
-
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
-
 import { UniView } from '../../../../framework/core/uniView';
-declare var _;
+import { PreviewModal } from '../../reports/modals/preview/previewModal';
 
+declare var _;
 
 @Component({
     selector: 'payrollrun-details',
@@ -65,7 +64,7 @@ export class PayrollrunDetails extends UniView {
         private _salaryTransactionService: SalaryTransactionService,
         private _employeeService: EmployeeService,
         private _wageTypeService: WageTypeService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
         private _reportDefinitionService: ReportDefinitionService
     ) {
         super(router.url, cacheService);
