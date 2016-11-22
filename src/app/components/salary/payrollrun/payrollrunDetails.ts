@@ -49,6 +49,7 @@ export class PayrollrunDetails extends UniView {
     private toolbarconfig: IToolbarConfig;
     private filter: string = '';
     private disableFilter: boolean;
+    @ViewChild(PreviewModal) public previewModal: PreviewModal;
 
     private employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
@@ -65,6 +66,7 @@ export class PayrollrunDetails extends UniView {
         private _employeeService: EmployeeService,
         private _wageTypeService: WageTypeService,
         private errorService: ErrorService
+        private _reportDefinitionService: ReportDefinitionService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -384,8 +386,11 @@ export class PayrollrunDetails extends UniView {
             });
     }
 
-    public showPaymentList() {
-        this.router.navigateByUrl('/salary/paymentlist/' + this.payrollrun.ID);
+    public showPaymentList(done) {
+        this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
+            this.previewModal.openWithId(report, this.payrollrun.ID, 'RunID');
+            done('');
+        });
     }
 
     public resetSettling() {

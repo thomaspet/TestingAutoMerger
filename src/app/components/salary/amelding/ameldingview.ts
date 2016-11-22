@@ -196,6 +196,8 @@ export class AMeldingView implements OnInit {
 
             this.totalAGAFeedback = 0;
             this.totalFtrekkFeedback = 0;
+            this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
+            this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
 
             this.totalAGASystem = 0;
             this.totalFtrekkSystem = 0;
@@ -526,6 +528,7 @@ export class AMeldingView implements OnInit {
                     .subscribe((response: AmeldingData) => {
                         if (response) {
                             this.setAMelding(response);
+                            this.showView = 'receipt';
                             done('tilbakemelding hentet');
                         }
                     }, this.errorService.handle);

@@ -21,6 +21,7 @@ import {AmeldingReceiptView} from './amelding/ameldingReceipt/receipt';
 import {AmeldingSummaryView} from './amelding/ameldingSummary/summary';
 import {SelectAmeldingTypeModalContent} from './amelding/modals/selectAmeldingTypeModal';
 import {SelectAmeldingTypeModal} from './amelding/modals/selectAmeldingTypeModal';
+import {ReportsModule} from '../reports/reportsModule';
 
 import {UniEmployee} from './employee/employee';
 import {EmployeeCategoryButtons} from './employee/employeeCategoryButtons';
@@ -81,6 +82,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         AppCommonModule,
         AppPipesModule,
         AppServicesModule,
+        ReportsModule,
 
         // routes
         SalaryRoutes
