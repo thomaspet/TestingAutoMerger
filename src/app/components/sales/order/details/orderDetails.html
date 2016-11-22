@@ -11,29 +11,26 @@
         </section>
     </header>
 
+    <uni-tof-head [readonly]="readonly"
+                  [entityName]="'CustomerOrder'"
+                  [(data)]="order">
+    </uni-tof-head>
+
     <section class="application">
-        <uni-form *ngIf='order'
-                  [config]="config"
-                  [fields]="fields"
-                  [model]="order"
-                  (readyEvent)="ready($event)">
-        </uni-form>
-        <order-item-list *ngIf="order && dropdownData" [order]="order" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>
+        <uni-tradeitem-table *ngIf="order"
+                             [readonly]="readonly"
+                             [(entity)]="order">
+        </uni-tradeitem-table>
         <uni-summary *ngIf="order" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>
-
-<article class="application">
-    <uni-image [entity]="'order'" [entityID]="order?.ID"></uni-image>
-</article>
-
-<send-email-modal></send-email-modal>
-<report-preview-modal></report-preview-modal>
-<order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
-<address-modal question="Lagre på kundekort?"></address-modal>
 
 <footer class="full-footer">
     <section class="application" *ngIf="actions">
         <uni-save [actions]="actions"></uni-save>
     </section>
 </footer>
+
+<send-email-modal></send-email-modal>
+<report-preview-modal></report-preview-modal>
+<order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>

@@ -1,15 +1,8 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
-import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService, UserService} from '../../../../services/services';
-import {ProjectService, DepartmentService, AddressService, ReportDefinitionService} from '../../../../services/services';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {Address, CustomerOrderItem, Customer, FieldType} from '../../../../unientities';
-import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
-import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -21,12 +14,31 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    Address,
+    CustomerOrder,
+    StatusCodeCustomerOrder,
+    CompanySettings
+} from '../../../../unientities';
+import {
+    CompanySettingsService,
+    CustomerOrderService,
+    CustomerOrderItemService,
+    CustomerService,
+    BusinessRelationService,
+    UserService,
+    ErrorService,
+    NumberFormat,
+    ProjectService,
+    DepartmentService,
+    AddressService,
+    ReportDefinitionService
+} from '../../../../services/services';
 
 declare const _;
 
+// TODO: this can be removed when refactor is complete
 class CustomerOrderExt extends CustomerOrder {
     public _InvoiceAddress: Address;
     public _InvoiceAddresses: Array<Address>;
@@ -41,41 +53,28 @@ class CustomerOrderExt extends CustomerOrder {
     templateUrl: 'app/components/sales/order/details/orderDetails.html'
 })
 export class OrderDetails {
-
-    @Input() public orderID: any;
-    @ViewChild(UniForm) public form: UniForm;
     @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
-    @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
-    public config: any = {autofocus: true};
-    public fields: any[] = [];
+    @Input()
+    public orderID: any;
 
     private order: CustomerOrderExt;
-    private deletedItems: Array<CustomerOrderItem>;
-
     private itemsSummaryData: TradeHeaderCalculationSummary;
-
-    private customers: Customer[];
-    private dropdownData: any;
-
-    private emptyAddress: Address;
-    private recalcTimeout: any;
-    private addressChanged: any;
-
     private companySettings: CompanySettings;
-
     private actions: IUniSaveAction[];
+    private toolbarconfig: IToolbarConfig;
+    private contextMenuItems: IContextMenuItem[] = [];
+    public summary: ISummaryConfig[] = [];
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
-    private formIsInitialized: boolean = false;
-    private toolbarconfig: IToolbarConfig;
-    private contextMenuItems: IContextMenuItem[] = [];
-    public summary: ISummaryConfig[] = [];
+    // New
+    private recalcDeboucer: EventEmitter<any> = new EventEmitter();
+    private readonly: boolean;
 
     constructor(
         private customerService: CustomerService,
@@ -97,36 +96,83 @@ export class OrderDetails {
         private errorService: ErrorService
     ) {
 
-        this.tabService.addTab({ url: '/sales/orders/', name: 'Ordre', active: true, moduleID: UniModules.Orders });
+        // this.tabService.addTab({ url: '/sales/orders/', name: 'Ordre', active: true, moduleID: UniModules.Orders });
 
-        this.route.params.subscribe(params => {
-            this.orderID = +params['id'];
-            this.setSums();
-            this.setup();
+    }
+
+    public ngOnInit() {
+        this.setSums();
+        this.contextMenuItems = [{
+            label: 'Send på epost',
+            action: () => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerOrder';
+                sendemail.EntityID = this.order.ID;
+                sendemail.CustomerID = this.order.CustomerID;
+                sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                    this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                    });
+                }
+            },
+            disabled: () => !this.order.ID
+        }];
+
+        // Subscribe and debounce recalc on table changes
+        this.recalcDeboucer.debounceTime(500).subscribe((orderItems) => {
+            if (orderItems.length) {
+                this.recalcItemSums(orderItems);
+            }
         });
 
-        this.contextMenuItems = [
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerOrder';
-                    sendemail.EntityID = this.order.ID;
-                    sendemail.CustomerID = this.order.CustomerID;
-                    sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                         
-                    this.sendEmailModal.openModal(sendemail);
+        // Subscribe to route param changes and update invoice data
+        this.route.params.subscribe((params) => {
+            this.orderID = +params['id'];
 
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.order.ID
+            if (this.orderID) {
+                this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
+                    res => this.refreshOrder(res),
+                    this.errorService.handle
+                );
+            } else {
+                Observable.forkJoin(
+                    this.customerOrderService.GetNewEntity([], CustomerOrder.EntityType),
+                    this.userService.getCurrentUser()
+                ).subscribe(
+                    (dataset) => {
+                        let order = <CustomerOrder> dataset[0];
+                        order.OurReference = dataset[1].DisplayName;
+                        order.OrderDate = new Date();
+                        order.DeliveryDate = new Date();
+                        this.refreshOrder(order);
+                    },
+                    this.errorService.handle
+                );
             }
-        ];
+        });
+    }
+
+    private refreshOrder(order: CustomerOrder) {
+        if (!order.CreditDays) {
+            if (order.Customer && order.Customer.CreditDays) {
+                order.CreditDays = order.Customer.CreditDays;
+            } else if (this.companySettings) {
+                order.CreditDays = this.companySettings.CustomerCreditDays;
+            }
+        }
+
+        this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
+
+        this.order = _.cloneDeep(order);
+        this.setTabTitle();
+        this.updateToolbar();
+        this.updateSaveActions();
+        this.recalcDeboucer.next(order.Items);
     }
 
     private getStatustrackConfig() {
@@ -152,230 +198,39 @@ export class OrderDetails {
         return statustrack;
     }
 
-    public nextOrder() {
-        this.customerOrderService.getNextID(this.order.ID)
-            .subscribe((ID) => {
-                    if (ID) {
-                        this.router.navigateByUrl('/sales/orders/' + ID);
-                    } else {
-                        this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
-                    }
-                },
-                this.errorService.handle
-            );
-    }
-
-    public previousOrder() {
-        this.customerOrderService.getPreviousID(this.order.ID)
-            .subscribe((ID) => {
-                    if (ID) {
-                        this.router.navigateByUrl('/sales/orders/' + ID);
-                    } else {
-                        this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
-                    }
-                },
-                this.errorService.handle
-            );
-    }
-
     public addOrder() {
         this.router.navigateByUrl('/sales/orders/0');
     }
 
-    public ready(event) {
-        this.setupSubscriptions(null);
+    public nextOrder() {
+        this.customerOrderService.getNextID(this.order.ID).subscribe(
+            (ID) => {
+                if (ID) {
+                    this.router.navigateByUrl('/sales/orders/' + ID);
+                } else {
+                    this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
+                }
+            },
+            this.errorService.handle
+        );
     }
 
-    private setupSubscriptions(event) {
-        Observable.merge(
-            this.form.field('CustomerID')
-                .changeEvent
-                .map(uniField => uniField['CustomerID']),
-            this.route.params
-                .filter(params => !!params['customerID'])
-                .map(params => +params['customerID'])
-        )
-            .subscribe(customerID => {
-                if (customerID) {
-                    this.customerService.Get(customerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((customer: Customer) => {
-                        this.order.CustomerID = customerID;
-                        let keepEntityAddresses: boolean = true;
-                        if (this.order.Customer && customerID !== this.order.Customer.ID) {
-                            keepEntityAddresses = false;
-                        }
-
-                        this.order.Customer = customer;
-                        this.addressService.setAddresses(this.order, null, keepEntityAddresses);
-
-                        this.order.CustomerName = customer.Info.Name;
-
-                        if (customer.CreditDays !== null) {
-                            this.order.CreditDays = customer.CreditDays;
-                        } else {
-                            this.order.CreditDays = this.companySettings.CustomerCreditDays;
-                        }
-
-                        this.order = _.cloneDeep(this.order);
-                        this.updateToolbar();
-                    });
+    public previousOrder() {
+        this.customerOrderService.getPreviousID(this.order.ID).subscribe(
+            (ID) => {
+                if (ID) {
+                    this.router.navigateByUrl('/sales/orders/' + ID);
+                } else {
+                    this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
                 }
-            }, this.errorService.handle);
-    }
-
-    private setup() {
-        this.deletedItems = [];
-
-        this.companySettingsService.Get(1)
-            .subscribe(settings => this.companySettings = settings, this.errorService.handle);
-
-        if (!this.formIsInitialized) {
-            this.fields = this.getComponentLayout().Fields;
-
-            Observable.forkJoin(
-                this.departmentService.GetAll(null),
-                this.projectService.GetAll(null),
-                (
-                    this.orderID > 0 ?
-                        this.customerOrderService.Get(this.orderID, this.expandOptions)
-                        : this.customerOrderService.newCustomerOrder()
-                ),
-                this.customerService.GetAll(null, ['Info']),
-                this.addressService.GetNewEntity(null, 'address'),
-                this.orderID ? Observable.of(null) : this.userService.getCurrentUser()
-            ).subscribe(response => {
-                this.dropdownData = [response[0], response[1]];
-                this.order = response[2];
-                this.customers = response[3];
-                this.emptyAddress = response[4];
-                const currentUser = response[5];
-
-                if (!this.orderID) {
-                    this.order.OurReference = currentUser.DisplayName;
-                }
-
-                // Add a blank item in the dropdown controls
-                this.customers.unshift(null);
-
-                this.addressService.setAddresses(this.order);
-                this.setTabTitle();
-                this.updateSaveActions();
-                this.updateToolbar();
-                this.extendFormConfig();
-
-                this.formIsInitialized = true;
-            }, this.errorService.handle);
-        } else {
-            const source = this.orderID > 0 ?
-                this.customerOrderService.Get(this.orderID, this.expandOptions)
-                : Observable.fromPromise(this.customerOrderService.newCustomerOrder());
-
-            source
-                .subscribe((order) => {
-                    this.order = order;
-                    this.addressService.setAddresses(this.order);
-                    this.setTabTitle();
-                    this.updateToolbar();
-                    this.updateSaveActions();
-                } , this.errorService.handle);
-        }
+            },
+            this.errorService.handle
+        );
     }
 
     private setTabTitle() {
         let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)';
         this.tabService.addTab({ url: '/sales/orders/' + this.order.ID, name: tabTitle, active: true, moduleID: UniModules.Orders });
-    }
-
-    private extendFormConfig() {
-        let self = this;
-
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
-
-        invoiceaddress.Options = {
-            entity: Address,
-            listProperty: '_InvoiceAddresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: '_InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value, !!!this.order.CustomerID);
-
-                 if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(address => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
-                });
-            }),
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === '_ShippingAddress');
-        shippingaddress.Options = {
-            entity: Address,
-            listProperty: '_ShippingAddresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: '_ShippingAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
-                });
-            }),
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
-        customer.Options = {
-            source: this.customers,
-            valueProperty: 'ID',
-            displayProperty: 'Info.Name',
-            debounceTime: 200
-        };
-    }
-
-    private saveAddressOnCustomer(address: Address, resolve) {
-        var idx = 0;
-
-        if (!address.ID || address.ID === 0) {
-            address['_createguid'] = this.addressService.getNewGuid();
-            this.order.Customer.Info.Addresses.push(address);
-            idx = this.order.Customer.Info.Addresses.length - 1;
-        } else {
-            idx = this.order.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
-            this.order.Customer.Info.Addresses[idx] = address;
-        }
-
-        // remove entries with equal _createguid
-        this.order.Customer.Info.Addresses = _.uniq(this.order.Customer.Info.Addresses, '_createguid');
-
-        // this.quote.Customer.Info.ID
-        this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
-                this.order.Customer.Info = info;
-                resolve(info.Addresses[idx]);
-            }, this.errorService.handle);
     }
 
     private updateToolbar() {
@@ -466,22 +321,14 @@ export class OrderDetails {
     }
 
     private recalcItemSums(orderItems: any) {
-        this.order.Items = orderItems;
-
-        // do recalc after 2 second to avoid to much requests
-        if (this.recalcTimeout) {
-            clearTimeout(this.recalcTimeout);
+        if (!orderItems || !orderItems.length) {
+            return;
         }
 
-        this.recalcTimeout = setTimeout(() => {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems);
-            this.updateToolbar();
-            this.setSums();
-        }, 500);
-    }
-
-    private deleteItem(item: CustomerOrderItem) {
-        this.deletedItems.push(item);
+        this.order.Items = orderItems;
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems);
+        this.updateToolbar();
+        this.setSums();
     }
 
     private saveOrderManual(done: any) {
@@ -489,7 +336,6 @@ export class OrderDetails {
     }
 
     private saveAndTransferToInvoice(done: any) {
-
         // Set up subscription to listen to when items has been selected and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.oti.changed.observers.length === 0) {
@@ -532,7 +378,6 @@ export class OrderDetails {
                     this.updateSaveActions();
                     this.updateToolbar();
                     this.setTabTitle();
-                    this.ready(null);
                 });
             }, (err) => {
                 this.errorService.handle(err);
@@ -542,10 +387,6 @@ export class OrderDetails {
     }
 
     private saveOrder(done: any, next: any = null) {
-        // Transform addresses to flat
-        this.addressService.addressToInvoice(this.order, this.order._InvoiceAddress);
-        this.addressService.addressToShipping(this.order, this.order._ShippingAddress);
-
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         this.order.Items.forEach(item => {
@@ -554,67 +395,53 @@ export class OrderDetails {
             }
         });
 
-        // set deleted items as deleted on server as well, using soft delete / complex put
-        this.deletedItems.forEach((item: CustomerOrderItem) => {
-           // don't send deleted items that has not been saved previously,
-           // because this can cause problems with validation
-           if (item.ID > 0) {
-               item.Deleted = true;
-               this.order.Items.push(item);
-           }
-        });
 
-        this.deletedItems = [];
-
-        //Save only lines with products from product list
+        // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');
             if (done) {
-                done('Lagring feilet')
+                done('Lagring feilet. En eller flere varelinjer mangler produkt.');
             }
             return;
         }
 
         if (this.orderID > 0) {
-            this.customerOrderService.Put(this.order.ID, this.order)
-                .subscribe(
-                    (orderSaved) => {
-                        this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
-                            this.order = orderGet;
-                            this.addressService.setAddresses(this.order);
-                            this.updateSaveActions();
-                            this.updateToolbar();
-                            this.setTabTitle();
+            this.customerOrderService.Put(this.order.ID, this.order).subscribe(
+                (orderSaved) => {
+                    this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
+                        this.order = orderGet;
+                        this.addressService.setAddresses(this.order);
+                        this.updateSaveActions();
+                        this.updateToolbar();
+                        this.setTabTitle();
 
-                            if (next) {
-                                next(this.order);
-                            } else {
-                                done('Ordre lagret');
-                            }
-                        });
-                    },
-                    (err) => {
-                        this.errorService.handle(err);
-                        done('Feil oppsto ved lagring');
-                    }
-                );
-        } else {
-            this.customerOrderService.Post(this.order)
-                .subscribe(
-                    (orderSaved) => {
                         if (next) {
                             next(this.order);
                         } else {
                             done('Ordre lagret');
                         }
-
-                        this.router.navigateByUrl('/sales/orders/' + orderSaved.ID);
-                    },
-                    (err) => {
-                        this.errorService.handle(err);
-                        done('Feil oppsto ved lagring');
+                    });
+                },
+                (err) => {
+                    this.errorService.handle(err);
+                    done('Feil oppsto ved lagring');
+                }
+            );
+        } else {
+            this.customerOrderService.Post(this.order).subscribe(
+                (orderSaved) => {
+                    if (next) {
+                        next(this.order);
+                    } else {
+                        done('Ordre lagret');
                     }
-                );
+
+                    this.router.navigateByUrl('/sales/orders/' + orderSaved.ID);
+                },
+                (err) => {
+                    this.errorService.handle(err);
+                    done('Feil oppsto ved lagring');
+                }
+            );
         }
     }
 
@@ -654,307 +481,5 @@ export class OrderDetails {
                 }
             }, this.errorService.handle);
         });
-    }
-
-    private getComponentLayout(): any {
-        return {
-            Name: 'CustomerOrder',
-            BaseEntity: 'CustomerOrder',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerOrder',
-                    Property: 'CustomerID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kunde',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerOrder',
-                    Property: 'OrderDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Ordredato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerOrder',
-                    Property: 'DeliveryDate',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Leveringsdato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerOrder',
-                    Property: 'CreditDays',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kredittdager',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Address',
-                    Property: '_InvoiceAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fakturaadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Address',
-                    Property: '_ShippingAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Leveringsadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 6,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Vår referanse
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'OurReference',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Vår referanse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 10,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Deres referanse
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'YourReference',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Deres referanse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 11,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Rekvisisjon
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'Requisition',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Rekvisisjon',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 12,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerOrder',
-                    Property: 'FreeTxt',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXTAREA,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: '',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 1,
-                    Sectionheader: 'Fritekst',
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Fritekst',
-                    StatusCode: 0,
-                    ID: 30,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
-                    Classes: 'max-width'
-                }
-            ]
-        };
     }
 }
