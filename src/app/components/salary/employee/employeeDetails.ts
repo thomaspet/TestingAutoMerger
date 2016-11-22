@@ -82,7 +82,7 @@ export class EmployeeDetails extends UniView {
                 this.datachecks = this.boolChecks(employee);
                 this.employee = employee;
                 this.posterEmployee.employee = employee;
-                this.posterEmployee.employments = this.employments;
+                this.posterEmployee = _.cloneDeep(this.posterEmployee);
                 this.toolbarConfig = {
                     title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
                     subheads: [{
@@ -100,6 +100,7 @@ export class EmployeeDetails extends UniView {
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments;
                 this.posterEmployee.employments = employments;
+                this.posterEmployee = _.cloneDeep(this.posterEmployee);
                 this.checkDirty();
             }, this.errorService.handle);
 
@@ -186,13 +187,13 @@ export class EmployeeDetails extends UniView {
         }
     }
 
-    //Dummy check to see is user has Tax Card, social security number and account number
+    // Dummy check to see is user has Tax Card, social security number and account number
     private boolChecks(employee: Employee) {
         return {
             hasTaxCard: employee.TaxPercentage || employee.TaxTable,
             hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
             hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
-        }
+        };
     }
 
     public nextEmployee() {
@@ -245,7 +246,6 @@ export class EmployeeDetails extends UniView {
 
     private getEmployments() {
         this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID).subscribe((employments) => {
-            this.posterEmployee.employments = employments;
             super.updateState('employments', employments, false);
         }, this.errorService.handle);
     }
