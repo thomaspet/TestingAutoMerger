@@ -1,11 +1,11 @@
 uni-toast-list
     z-index: 999
-    position: absolute
+    position: fixed
     top: 0
     right: 0
     z-index: 2000
 
-    & ol.toast-list 
+    & ol.toast-list
         margin: 0
         padding: 0
 
@@ -15,7 +15,7 @@ uni-toast-list
             padding: 0
             &:before
                 content: ' '
-        
+
 uni-toast
     display: inline-block
     cursor: pointer
@@ -31,7 +31,7 @@ uni-toast
 
     &:hover
         box-shadow: 0 0 1rem rgba(161,170,188,.6)
-    
+
     &:focus
         color: red
 
