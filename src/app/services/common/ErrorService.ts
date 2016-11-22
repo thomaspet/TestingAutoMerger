@@ -24,6 +24,10 @@ export class ErrorService {
     };
 
     public handleWithMessage(error: any, toastMsg: string) {
+        if (error.status === 401) {
+            return;
+        }
+
         const message = toastMsg
             || error.message
             || error.Message
