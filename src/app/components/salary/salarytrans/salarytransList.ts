@@ -2,18 +2,12 @@ import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton, IContextMenuItem } from 'unitable-ng2/main';
-import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, AGAZone, WageType, PayrollRun, SalaryTransaction, SalaryTransactionSums, WageTypeSupplement, SalaryTransactionSupplement, GetRateFrom, Account } from '../../../unientities';
-import { EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService, AccountService, ReportDefinitionService, UniCacheService } from '../../../services/services';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { ControlModal } from '../payrollrun/controlModal';
-import { PostingsummaryModal } from '../payrollrun/postingsummaryModal';
+import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from 'unitable-ng2/main';
+import { Employee, WageType, PayrollRun, SalaryTransaction, WageTypeSupplement, SalaryTransactionSupplement, Account } from '../../../unientities';
+import { SalaryTransactionService, AccountService, ReportDefinitionService, UniCacheService } from '../../../services/services';
 import { UniForm } from '../../../../framework/uniform';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 import { ErrorService } from '../../../services/common/ErrorService';
-import { ISummaryConfig } from '../../common/summary/summary';
-import { PreviewModal } from '../../reports/modals/preview/previewModal';
 
 import { UniView } from '../../../../framework/core/uniView';
 declare var _;
@@ -43,7 +37,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild(UniTable) public table: UniTable;
-    @ViewChild(PreviewModal) public previewModal: PreviewModal;
 
     private busy: boolean;
     private salaryTransactions: SalaryTransaction[];
@@ -393,13 +386,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             this.salaryTransactions.splice(transIndex, 1);
             hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty']);
         }
-    }
-    
-    public showPayList(done) {
-        this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
-            this.previewModal.openWithId(report, this.payrollRun.ID, 'RunID');
-            done('');
-        });
     }
 
     private updateSalaryChanged(row) {
