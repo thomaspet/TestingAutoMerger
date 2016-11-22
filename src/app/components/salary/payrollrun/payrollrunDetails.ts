@@ -471,15 +471,17 @@ export class PayrollrunDetails extends UniView {
 
             let newTranses = this.payrollrun.transactions.filter(x => !x.Deleted);
 
-            this.salaryTransactions
-                .filter(x => !x.Deleted && x['_isDirty'])
-                .map(trans => {
-                    trans['_isDirty'] = false;
-                    return trans;
-                })
-                .forEach((trans, index) => {
-                    trans = newTranses[index];
-                });
+            this.salaryTransactions = this.salaryTransactions
+                .filter(x => !x.Deleted && x.ID);
+
+            newTranses.map(trans => {
+                let index = this.salaryTransactions.findIndex(x => x.ID === trans.ID);
+                if (index > 0) {
+                    this.salaryTransactions[index] = trans;
+                } else {
+                    this.salaryTransactions.push(trans);
+                }
+            });
 
             this.updateState('salaryTransactions', this.salaryTransactions, false);
 
@@ -524,15 +526,17 @@ export class PayrollrunDetails extends UniView {
             this.payrollrun.transactions = this.salaryTransactions
                 .filter(x => x['_isDirty'] || x.Deleted)
                 .map((trans: SalaryTransaction) => {
-                    if (!trans.ID) {
-                        trans['_createguid'] = this._salaryTransactionService.getNewGuid();
-                    }
-                    if (trans.Supplements) {
-                        trans.Supplements
-                            .filter(x => !x.ID)
-                            .forEach((supplement: SalaryTransactionSupplement) => {
-                                supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
-                            });
+                    if (!trans.Deleted) {
+                        if (!trans.ID) {
+                            trans['_createguid'] = this._salaryTransactionService.getNewGuid();
+                        }
+                        if (trans.Supplements) {
+                            trans.Supplements
+                                .filter(x => !x.ID)
+                                .forEach((supplement: SalaryTransactionSupplement) => {
+                                    supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
+                                });
+                        }
                     }
                     trans.Wagetype = null;
                     trans.Employee = null;

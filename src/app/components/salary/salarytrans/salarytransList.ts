@@ -223,7 +223,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
                 transtypeCol, payoutCol
             ])
-            .setDeleteButton( this.payrollRun.StatusCode < 1 ? this.deleteButton : false )
+            .setDeleteButton(this.payrollRun.StatusCode < 1 ? this.deleteButton : false)
             .setPageable(false)
             .setChangeCallback((event) => {
                 let row = event.rowModel;
@@ -379,12 +379,15 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         let hasDirtyRow: boolean = true;
 
         let transIndex: number = this.getTransIndex(row);
+        if (transIndex >= 0) {
+            if (this.salaryTransactions[transIndex].ID) {
+                this.salaryTransactions[transIndex].Deleted = true;
+            } else {
+                this.salaryTransactions.splice(transIndex, 1);
+                hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty'] || trans['Deleted']);
+            }
 
-        if (transIndex >= 0 && this.salaryTransactions[transIndex].ID) {
-            this.salaryTransactions[transIndex].Deleted = true;
-        } else {
-            this.salaryTransactions.splice(transIndex, 1);
-            hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty']);
+            super.updateState('salaryTransactions', this.salaryTransactions, hasDirtyRow);
         }
     }
 
@@ -411,7 +414,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             row['EmployeeID'] = this.employeeID;
             row['PayrollRunID'] = this.payrollRunID;
             row['IsRecurringPost'] = false;
-            transIndex = this.salaryTransactions.findIndex(x => x['_originalIndex'] === row['_originalIndex'] && x.EmployeeID === this.employeeID);
+            transIndex = this.salaryTransactions.findIndex(x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID);
         }
 
         return transIndex;
