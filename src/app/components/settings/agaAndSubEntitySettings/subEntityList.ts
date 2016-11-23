@@ -59,7 +59,13 @@ export class SubEntityList implements OnInit {
     }
 
     private createTableConfig() {
-        let name = new UniTableColumn('BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
+        let name = new UniTableColumn('', 'Virksomhet', UniTableColumnType.Text).setTemplate((row: SubEntity) => {
+            if (!row.BusinessRelationInfo) {
+                return;
+            }
+
+            return row.BusinessRelationInfo.Name;
+        });
         let orgnr = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text);
         let municipal = new UniTableColumn('MunicipalityNo', 'Kommune', UniTableColumnType.Text).setTemplate((rowModel) => {
             let municipalObj = this.municipalities.find(x => x.MunicipalityNo === rowModel['MunicipalityNo']);
@@ -108,7 +114,7 @@ export class SubEntityList implements OnInit {
     }
 
     public rowSelected(event) {
-        this.currentSubEntity = event.rowModel;
+        this.currentSubEntity = this.allSubEntities[event.rowModel['_originalIndex']];
     }
 
     public onNewSubEntity(action) {
@@ -175,6 +181,13 @@ export class SubEntityList implements OnInit {
     }
 
     public saveSubEntity() {
-        return this.subEntityDetails.saveSubentities();
+        return this.subEntityDetails.saveSubentities().map(x => {
+            let index = this.currentSubEntity['_originalIndex'];
+            this.allSubEntities[index] = x;
+            this.allSubEntities[index]['_originalIndex'] = index;
+            this.currentSubEntity = this.allSubEntities[index];
+            this.table.updateRow(index, this.allSubEntities[index]);
+            this.table.focusRow(index);
+            return x; });
     }
 }

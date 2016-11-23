@@ -1,14 +1,14 @@
-﻿import {Component, OnInit, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+﻿import { Component, OnInit, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {SubEntityList} from './subEntityList';
-import {FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector} from '../../../unientities';
-import {CompanySalaryService, AccountService, SubEntityService, AgaZoneService} from '../../../services/services';
-import {GrantsModal} from './modals/grantsModal';
-import {FreeamountModal} from './modals/freeamountModal';
-import {ErrorService} from '../../../services/common/ErrorService';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { SubEntityList } from './subEntityList';
+import { FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector } from '../../../unientities';
+import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService } from '../../../services/services';
+import { GrantsModal } from './modals/grantsModal';
+import { FreeamountModal } from './modals/freeamountModal';
+import { ErrorService } from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -104,7 +104,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgOrg.Property = 'OrgNumber';
         mainOrgOrg.FieldType = FieldType.TEXT;
         mainOrgOrg.Section = 1;
-
+        
         var mainOrgZone = new UniFieldLayout();
         mainOrgZone.Label = 'Sone';
         mainOrgZone.EntityType = 'mainOrganization';
@@ -130,7 +130,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             displayProperty: 'Sector',
             debounceTime: 500,
         };
-        
+
         var mainOrgFreeAmount = new UniFieldLayout();
         mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';
         mainOrgFreeAmount.EntityType = 'mainOrganization';
@@ -279,35 +279,39 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public saveAgaAndSubEntities(done) {
-        if (!this.companySalary.PaymentInterval) {
-            this.companySalary.PaymentInterval = 1;
-        }
         let saveObs: Observable<any>[] = [];
 
         if (this.companySalary) {
-            saveObs.push(this.companySalaryService.Put(this.companySalary.ID, this.companySalary));
+            let companySaveObs: Observable<CompanySalary>;
+            companySaveObs = this.companySalary['_isDirty'] ? this.companySalaryService.Put(this.companySalary.ID, this.companySalary) : Observable.of(this.companySalary);
+
+            saveObs.push(companySaveObs);
         }
 
         if (this.subEntityList) {
             saveObs.push(this.subEntityList.saveSubEntity());
-        } 
+        }
 
         if (this.mainOrganization) {
-            if (this.mainOrganization.ID) {
-                saveObs.push(this.subentityService.Put(this.mainOrganization.ID, this.mainOrganization));
+            let mainOrgSave: Observable<SubEntity> = null;
+
+            if (this.mainOrganization['_isDirty']) {
+                mainOrgSave = this.mainOrganization.ID
+                    ? this.subentityService.Put(this.mainOrganization.ID, this.mainOrganization)
+                    : this.subentityService.Post(this.mainOrganization);
             } else {
-                saveObs.push(this.subentityService.Post(this.mainOrganization));
+                mainOrgSave = Observable.of(this.mainOrganization);
             }
+
+            saveObs.push(mainOrgSave);
         }
         Observable.forkJoin(saveObs).subscribe((response: any) => {
             this.companySalary = response[0];
-            if (this.subEntityList) {
-                this.subEntityList.refreshList(true);
-            }
+            this.mainOrganization = response[2];
             done('Sist lagret: ');
         },
-        this.errorService.handle,
-        () => this.saveactions[0].disabled = false);
+            this.errorService.handle,
+            () => this.saveactions[0].disabled = false);
     }
 
     public toggleShowSubEntities() {
@@ -324,6 +328,14 @@ export class AgaAndSubEntitySettings implements OnInit {
             alert(title + ' ' + JSON.stringify(err));
         }
 
+    }
+
+    public companySalarychange(event) {
+        this.companySalary['_isDirty'] = true;
+    }
+
+    public mainOrgChange(event) {
+        this.mainOrganization['_isDirty'] = true;
     }
 
     //#endregion Test data
