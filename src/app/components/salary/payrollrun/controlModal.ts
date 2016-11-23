@@ -45,7 +45,7 @@ export class ControlModalContent {
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
-            this._salaryTransactionService.GetAll('filter: PayrollRunID eq ' + this.payrollRunID),
+            this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true'),
             this._employeeService.getTotals(this.payrollRunID),
             this._payrollRunService.getPaymentList(this.payrollRunID),
             this._payrollRunService.Get(this.payrollRunID)
