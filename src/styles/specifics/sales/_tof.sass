@@ -1,9 +1,9 @@
-article.invoice-head
+article.tof-head
     width: 100%
     display: flex
     flex-flow: row wrap
     position: relative
-    min-height: 10.5rem
+    min-height: 12.5rem
 
     tof-customer-card
         order: 1
@@ -72,11 +72,8 @@ article.invoice-head
     border: 1px dashed $uni-color-scale8
     font-size: .9rem
     position: relative
-    cursor: pointer
 
     &[aria-readonly]:not([aria-readonly=false])
-        cursor: default
-
         .edit-btn
             cursor: not-allowed
 
@@ -93,7 +90,3 @@ article.invoice-head
         background-image: unicon-edit($uni-color-scale5)
         &:hover
             background-image: unicon-edit($uni-color-C2A)
-
-uni-invoice-items
-    display: block
-    margin-top: 2rem
