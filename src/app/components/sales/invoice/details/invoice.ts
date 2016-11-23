@@ -75,23 +75,25 @@ export class InvoiceDetails {
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    constructor(private customerInvoiceService: CustomerInvoiceService,
-                private customerInvoiceItemService: CustomerInvoiceItemService,
-                private reportDefinitionService: ReportDefinitionService,
-                private businessRelationService: BusinessRelationService,
-                private userService: UserService,
-                private toastService: ToastService,
-                private customerService: CustomerService,
-                private numberFormat: NumberFormat,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private tofHelper: TofHelper,
-                private tradeItemHelper: TradeItemHelper,
-                private errorService: ErrorService) {
-                    // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-                    this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
-                }
+    constructor(
+        private customerInvoiceService: CustomerInvoiceService,
+        private customerInvoiceItemService: CustomerInvoiceItemService,
+        private reportDefinitionService: ReportDefinitionService,
+        private businessRelationService: BusinessRelationService,
+        private userService: UserService,
+        private toastService: ToastService,
+        private customerService: CustomerService,
+        private numberFormat: NumberFormat,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private tofHelper: TofHelper,
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {
+        // set default tab title, this is done to set the correct current module to make the breadcrumb correct
+        this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+    }
 
     public ngOnInit() {
         this.summaryFields = [

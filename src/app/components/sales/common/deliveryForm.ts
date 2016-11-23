@@ -12,7 +12,7 @@ declare const _;
         <section class="shippingAddress">
             <uni-form [fields]="[multivalueField]"
                       [model]="entity"
-                      [config]="{autofocus: true}"
+                      [config]="{}"
                       (readyEvent)="onLeftFormReady($event)"
                       (changeEvent)="onLeftFormChange($event)">
             </uni-form>
@@ -101,7 +101,9 @@ export class TofDeliveryForm {
                     && addr.City === this.entity.ShippingCity
                     && addr.Country === this.entity.ShippingCountry;
             });
-            this.entity['_shippingAddressID'] = shippingAddress.ID;
+            if (shippingAddress) {
+                this.entity['_shippingAddressID'] = shippingAddress.ID;
+            }
         }
     }
 
