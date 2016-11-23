@@ -8,7 +8,7 @@
   display: block
   text-align: center
   width: 100vw
-  margin-top: calc(45vh - 1.5rem)
+  margin-top: calc(45vh - 1.5rem - 5.5rem)
 
 kitchensink label
   @include unigrid-flush(5)
@@ -85,7 +85,7 @@ uni-document-demo
   @extend button.good
   position: absolute
   margin-left: 19rem
-  z-index: 2
+  z-index: #{map-get($zindex, base) + 1}
 
 button.good.salary-new
   margin-left: 0
@@ -116,7 +116,7 @@ body.half .employee-personal-details form
   box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
   border-radius: pxToRem(5)
   min-width: 12rem
-  z-index: 9999
+  z-index: map-get($zindex, hamburger)
   margin-left: calc(-50% - 1rem)
 
   &:before

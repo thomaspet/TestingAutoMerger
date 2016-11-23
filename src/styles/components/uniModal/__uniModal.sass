@@ -28,7 +28,7 @@ dialog.uniModal
     align-items: center
     justify-content: center
     overflow: auto
-    z-index: 999
+    z-index: map-get($zindex, modal)
     @supports (backdrop-filter: blur(.2rem))
         backdrop-filter: blur(.2rem)
         background: transparentize($uni-color-negative, .4)

@@ -44,7 +44,7 @@
     max-height: 15rem
     overflow-x: auto
     list-style: none
-    z-index: 999
+    z-index: map-get($zindex, picker)
     border-width: 0
 
     &[aria-expanded=true]
@@ -58,5 +58,5 @@
 
     &[aria-selected=true]
         font-weight: 400
-        background: $uni-color-C2A
+        background: $uni-color-c2a
         color: $uni-color-negative

@@ -1,12 +1,10 @@
-﻿$navbarBackground: #0082c0
-
-.horizontal_nav
+﻿.horizontal_nav
     ul
         margin: 0
         list-style: none
         text-align: center
         width: 100%
-        background: mix($uni-color-scale9, $navbarBackground, 60%)
+        background: $navbarBackground
         display: flex
         flex-direction: row
         justify-content: center
@@ -30,7 +28,7 @@
             &:hover,
             &.-is-active,
             &.router-link-active
-                background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
+                background: $navbarActive
 
 .tab_counter
     display: inline-block

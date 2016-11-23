@@ -10,7 +10,7 @@
 
     &:hover,
     &:focus
-        background: $uni-color-C2A
+        background: $uni-color-c2a
         color: $uni-color-negative
 
     &[aria-disabled=true]
@@ -30,7 +30,7 @@
     border-radius: pxToRem(3)
     border: 1px solid $uni-color-scale8
     box-shadow: 0 0 .6rem transparentize($uni-color-scale5, .7)
-    z-index: 999
+    z-index: map-get($zindex, toolbar)
 
     &:not([aria-expanded=true])
         display: none
@@ -44,11 +44,11 @@ uni-save
     left: 0
     bottom: 0
     right: 0
-    background: transparentize(mix($uni-color-negative, $uni-color-Good, 84%), .1)
+    background: transparentize(mix($uni-color-negative, $uni-color-good, 84%), .1)
     backdrop-filter: blur(.2rem)
     border-top: pxToRem(1) solid $uni-color-scale9
     height: 3.5rem
-    z-index: 990
+    z-index: map-get($zindex, hamburger)
 
     .uniSave
         @include unigrid-flush(14)

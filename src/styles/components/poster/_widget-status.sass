@@ -1,11 +1,11 @@
 @keyframes success
     0%
-        background-color: transparentize($uni-color-Bad, .8)
-        border-color: $uni-color-Bad
+        background-color: transparentize($uni-color-bad, .8)
+        border-color: $uni-color-bad
 
     100%
-        background-color: transparentize($uni-color-Good, .8)
-        border-color: $uni-color-Good
+        background-color: transparentize($uni-color-good, .8)
+        border-color: $uni-color-good
 
 .poster_widget_status
     text-align: left
@@ -70,15 +70,15 @@
             background-size: contain
 
     .error
-        @include status-widget($uni-color-Bad)
+        @include status-widget($uni-color-bad)
 
     .good
-        @include status-widget($uni-color-Good)
+        @include status-widget($uni-color-good)
         h3
             font-size: 1.5rem
 
         &:before
-            background-image: unicon-thumbsup($uni-color-Good)
+            background-image: unicon-thumbsup($uni-color-good)
 
 @include media(small)
     .poster_widget_status ul

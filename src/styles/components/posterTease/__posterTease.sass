@@ -69,7 +69,7 @@ $color-green: #479354
         justify-content: space-around
 
 %posterPlaceholder
-    background: transparentize($uni-color-C2A, .9)
+    background: transparentize($uni-color-c2a, .9)
     animation: 1000ms ease placeholder
 
 %posterElemCenter
@@ -241,7 +241,7 @@ $color-green: #479354
     text-align: center
     font-size: 7rem
     font-weight: 700
-    color: transparentize($uni-color-C2A, .9)
+    color: transparentize($uni-color-c2a, .9)
 
 .poster_explain
     background: none
@@ -251,15 +251,15 @@ $color-green: #479354
     margin: .5rem 0
     text-shadow: none
     box-shadow: none
-    border: pxToRem(2) solid transparentize($uni-color-C2A, .7)
-    color: transparentize($uni-color-C2A, .5)
+    border: pxToRem(2) solid transparentize($uni-color-c2a, .7)
+    color: transparentize($uni-color-c2a, .5)
     transition: all ease 300ms
 
     &:hover,
     &:focus
         background: $uni-color-negative
-        color: $uni-color-C2A
-        border-color: $uni-color-C2A
+        color: $uni-color-c2a
+        border-color: $uni-color-c2a
 
 .widget_checkmark
     position: relative
@@ -293,7 +293,7 @@ $color-green: #479354
     position: absolute
     height: 15rem
     background: transparentize(lighten($uni-color-scale9, 5%), .5)
-    z-index: 1
+    z-index: map-get($zindex, base)
 
     & > *:not(button)
         @include unigrid-flush(14)
@@ -304,4 +304,4 @@ $color-green: #479354
     button.close
         position: absolute
         right: 0
-        z-index: 1
+        z-index: map-get($zindex, base)

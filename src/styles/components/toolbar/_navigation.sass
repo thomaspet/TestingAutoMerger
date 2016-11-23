@@ -1,49 +1,78 @@
+%toolbarButton
+    display: inline-block
+    height: 1.1rem
+    width: 2.1rem
+    margin: 0 0 0 .2rem
+    font-size: 0
+    box-shadow: none
+    background-color: mix($uni-color-negative, $uni-color-c2a, 80%)
+    background-repeat: no-repeat
+    background-position: center
+    background-size: 1rem auto
+    position: relative
+    top: -.3rem
+    border-radius: pxToRem(3)
+    padding: 0
+    border: pxToRem(1) solid transparentize($uni-color-scale9, .5)
+
+    &[type=button]
+        top: -0.05rem
+
+    &:hover,
+    &:focus
+        border-color: $uni-color-negative
+
 .toolbar_tools
     min-width: 14rem
     text-align: right
     cursor: pointer
+    color: $uni-color-positive
 
     a,
     button
         @extend %toolbarButton
 
-    .previous
-        background-image: unicon-prev($uni-color-scale3)
-        background-size: auto 1rem
-        &:hover,
-        &:focus
-            background-image: unicon-prev($uni-color-C2A)
+    .previous,
     .next
-        background-image: unicon-next($uni-color-scale3)
-        background-size: auto 1rem
+        width: 3rem
+        background-color: $uni-color-c2a
+        background-size: auto .8rem
+
+    .previous
+        background-image: unicon-prev($uni-color-scale9)
         &:hover,
         &:focus
-            background-image: unicon-next($uni-color-C2A)
+            background-image: unicon-prev(white)
+    .next
+        background-image: unicon-next($uni-color-scale9)
+        &:hover,
+        &:focus
+            background-image: unicon-next(white)
     .new
         background-image: unicon-new($uni-color-scale3)
         &:hover,
         &:focus
-            background-image: unicon-new($uni-color-C2A)
+            background-image: unicon-new($uni-color-c2a)
     .edit
         background-image: unicon-edit($uni-color-scale3)
         &:hover
-            background-image: unicon-edit($uni-color-C2A)
+            background-image: unicon-edit($uni-color-c2a)
         &.-is-active
-            background-color: $uni-color-C2A
+            background-color: $uni-color-c2a
             background-image: unicon-edit($uni-color-negative)
     .down
         background-image: unicon-down($uni-color-scale3)
         &:hover
-            background-image: unicon-down($uni-color-C2A)
+            background-image: unicon-down($uni-color-c2a)
     .trash
         background-image: unicon-trash($uni-color-scale3)
         &:hover
-            background-image: unicon-trash($uni-color-C2A)
+            background-image: unicon-trash($uni-color-c2a)
     .close
         background-image: unicon-close($uni-color-scale3)
         &:hover
-            background-image: unicon-close($uni-color-C2A)
+            background-image: unicon-close($uni-color-c2a)
     .search
         background-image: unicon-search($uni-color-scale3)
         &:hover
-            background-image: unicon-search($uni-color-C2A)
+            background-image: unicon-search($uni-color-c2a)

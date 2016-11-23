@@ -45,7 +45,7 @@
     background-image: unicon-down($uni-color-scale4)
 
   input:focus + .uni-multivalue-moreBtn
-    border-color: $uni-color-C2A
+    border-color: $uni-color-c2a
 
 
 // THE VALUE LIST
@@ -56,7 +56,7 @@
   border: pxToRem(1) solid $uni-color-scale7
   background-color: #fff
   margin-top: 1.68rem
-  z-index: 99
+  z-index: map-get($zindex, picker)
   border-bottom-left-radius: pxToRem(3)
   border-bottom-right-radius: pxToRem(3)
   display: none
@@ -76,11 +76,11 @@
 
     &:hover,
     &:focus
-      background-color: transparentize($uni-color-C2A, .8)
+      background-color: transparentize($uni-color-c2a, .8)
       cursor: pointer
 
     &[aria-selected]:not([aria-selected=false])
-      background-color: $uni-color-C2A
+      background-color: $uni-color-c2a
       color: $uni-color-negative
 
 
@@ -90,7 +90,7 @@
   margin: -.2rem -.5rem
   width: calc(100% + 1rem)
   height: calc(100% + .4rem)
-  background: $uni-color-Bad
+  background: $uni-color-bad
   color: $uni-color-negative
 
   a
@@ -170,7 +170,7 @@ input[type=text].uni-multivalue_edit
 
   &:hover,
   &:focus
-    background-image: unicon-trash($uni-color-Bad)
+    background-image: unicon-trash($uni-color-bad)
 
   [aria-selected]:not([aria-selected=false]) &,
     background-image: unicon-trash($uni-color-scale8)

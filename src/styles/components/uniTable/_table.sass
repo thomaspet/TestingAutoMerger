@@ -1,7 +1,7 @@
 $cellpadding: pxToRem(5) pxToRem(10)
 
 %unitable-selected-cell
-    box-shadow: inset 0 0 0 pxToRem(2) $uni-color-C2A
+    box-shadow: inset 0 0 0 pxToRem(2) $uni-color-c2a
     padding: $cellpadding
     margin: pxToRem(1)
     min-height: calc(1.5rem + #{pxToRem(10)})
@@ -41,10 +41,10 @@ uni-table
             color: $uni-color-minus
 
         &.date-good
-            color: $uni-color-Good
+            color: $uni-color-good
 
         &.date-bad
-            color: $uni-color-Bad
+            color: $uni-color-bad
 
     tr
         border-bottom: pxToRem(1) solid $uni-color-scale9
@@ -53,7 +53,7 @@ uni-table
             background: mix($uni-color-scale9, $uni-color-negative, 30%)
 
         &:hover
-            background: mix($uni-color-C2A, $uni-color-negative, 15%)
+            background: mix($uni-color-c2a, $uni-color-negative, 15%)
 
 
         &[aria-readonly]:not([aria-readonly=false])
@@ -65,12 +65,12 @@ uni-table
     table:not(.editable-table) tr
         &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
         &:focus:not([aria-readonly=true])
-            background: $uni-color-C2A
+            background: $uni-color-c2a
             color: $uni-color-negative
             outline: none
 
             td
-                border-left-color: mix($uni-color-negative, $uni-color-C2A, 20%)
+                border-left-color: mix($uni-color-negative, $uni-color-c2a, 20%)
 
     th
         background: $uni-color-negative
@@ -166,7 +166,7 @@ unitable-editor
     overflow-x: auto
     list-style: none
     margin-top: 2rem
-    z-index: 999
+    z-index: map-get($zindex, picker)
 
     &[aria-expanded=false]
         visibility: hidden
@@ -176,7 +176,7 @@ unitable-editor
 
     &[aria-selected=true]
         font-weight: 400
-        background: $uni-color-C2A
+        background: $uni-color-c2a
         color: $uni-color-negative
 
 unitable-contextmenu
@@ -185,7 +185,7 @@ unitable-contextmenu
 
     ul
         position: absolute
-        z-index: 100
+        z-index: map-get($zindex, picker)
 
         margin: 0
         padding: 0
@@ -210,7 +210,7 @@ unitable-contextmenu
     background-image: unicon-trash($uni-color-scale7)
 
     &:hover, &:focus
-        background-image: unicon-trash($uni-color-Bad)
+        background-image: unicon-trash($uni-color-bad)
 
     button
         min-width: 100%
@@ -235,7 +235,7 @@ unitable-select
 
         input.uniSelect_input
             position: relative
-            z-index: 999
+            z-index: map-get($zindex, picker)
             background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
             background-size: auto .5rem
             padding-right: 2rem

@@ -37,7 +37,8 @@
     uni-calendar
         position: absolute
         margin-top: 1.68rem
-        z-index: 99
+
+        z-index: map-get($zindex, toolbar)
         background: $uni-color-negative
         box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1)
         display: none
@@ -48,7 +49,7 @@
             display: block
 
         caption
-            background-color: $uni-color-C2A
+            background-color: $uni-color-c2a
             color: $uni-color-negative
             height: 2.5rem
             line-height: 2.5rem
@@ -89,7 +90,7 @@
             cursor: pointer
 
             &.selected, &:hover
-                color: $uni-color-C2A
+                color: $uni-color-c2a
                 font-weight: bold
 
             &.other-month

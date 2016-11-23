@@ -65,7 +65,7 @@ uni-company-dropdown
     text-align: left
     min-width: 15rem
     max-width: 20rem
-    z-index: 9999
+    z-index: map-get($zindex, hamburger)
     padding: .5rem 1rem
 
 
@@ -129,7 +129,7 @@ uni-company-dropdown
         &:hover,
         &:focus
             border-style: solid
-            border-color: $uni-color-C2A
+            border-color: $uni-color-c2a
 
 .navbar_company_activeYear,
 .navbar_company_taxyearselect
@@ -152,7 +152,7 @@ button.navbar_company_logout
     text-shadow: none
     margin: 0
     padding: 0
-    color: $uni-color-Bad
+    color: $uni-color-bad
     float: right
 
     &:focus,

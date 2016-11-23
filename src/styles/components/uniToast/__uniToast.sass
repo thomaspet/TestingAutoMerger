@@ -1,9 +1,8 @@
 uni-toast-list
-    z-index: 999
     position: fixed
     top: 0
     right: 0
-    z-index: 2000
+    z-index: map-get($zindex, modal)
 
     & ol.toast-list
         margin: 0
@@ -42,17 +41,17 @@ uni-toast
         margin: 0 .5rem 0 .25rem
 
     &.good
-        background-color: transparentize($uni-color-Good, .1)
+        background-color: transparentize($uni-color-good, .1)
         &:before
             content: '\2713'
 
     &.bad
-        background-color: transparentize($uni-color-Bad, .1)
+        background-color: transparentize($uni-color-bad, .1)
         &:before
             content: '\2A09'
 
     &.warn
-        background-color: transparentize($uni-color-Warn, .1)
+        background-color: transparentize($uni-color-warn, .1)
         &:before
             content: '\26A0'
 
