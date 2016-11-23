@@ -30,7 +30,7 @@ declare var _; // lodash
 export class CustomerDetails {
     @Input() public customerID: any;
     @Input() public modalMode: boolean;
-    @Output() public customerCreated: EventEmitter<Customer> = new EventEmitter<Customer>();
+    @Output() public customerUpdated: EventEmitter<number> = new EventEmitter<number>();
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -178,6 +178,11 @@ export class CustomerDetails {
 
     public reset() {
         this.customerID = null;
+        this.setup();
+    }
+
+    public openInModalMode(id?: number) {
+        this.customerID = id;
         this.setup();
     }
 
@@ -483,36 +488,38 @@ export class CustomerDetails {
         }
 
         if (this.customerID > 0) {
-            this.customerService.Put(this.customer.ID, this.customer)
-                .subscribe(
-                    (customer) => {
-                        completeEvent('Kunde lagret');
+            this.customerService.Put(this.customer.ID, this.customer).subscribe(
+                (customer) => {
+                    completeEvent('Kunde lagret');
+                    if (this.modalMode) {
+                        this.customerUpdated.next(this.customer.ID);
+                    } else {
                         this.customerService.Get(this.customer.ID, this.expandOptions).subscribe(customer => {
                             this.customer = customer;
                             this.setTabTitle();
                         });
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(err);
                     }
-                );
+                },
+                (err) => {
+                    completeEvent('Feil ved lagring');
+                    this.errorService.handle(err);
+                }
+            );
         } else {
-            this.customerService.Post(this.customer)
-                .subscribe(
-                    (newCustomer) => {
-                        completeEvent('Kunde lagret');
-                        if (this.modalMode) {
-                            this.customerCreated.next(newCustomer);
-                        } else {
-                            this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
-                        }
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(err);
+            this.customerService.Post(this.customer).subscribe(
+                (newCustomer) => {
+                    completeEvent('Kunde lagret');
+                    if (this.modalMode) {
+                        this.customerUpdated.next(newCustomer.ID);
+                    } else {
+                        this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
                     }
-                );
+                },
+                (err) => {
+                    completeEvent('Feil ved lagring');
+                    this.errorService.handle(err);
+                }
+            );
         }
     }
 
