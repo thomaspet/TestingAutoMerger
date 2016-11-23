@@ -2,7 +2,7 @@ import {Component, Input, OnInit, ViewChild, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, ProjectService, DepartmentService} from '../../../../services/services';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {JournalEntryData} from '../../../../models/models';
 import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType, Project, Department} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';

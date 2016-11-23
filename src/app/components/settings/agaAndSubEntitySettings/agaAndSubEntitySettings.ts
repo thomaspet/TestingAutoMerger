@@ -2,7 +2,7 @@
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
-import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { SubEntityList } from './subEntityList';
 import { FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector } from '../../../unientities';
 import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService } from '../../../services/services';

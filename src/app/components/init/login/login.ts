@@ -3,7 +3,7 @@ import {FormControl, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {ISelectConfig} from '../../../../framework/uniform/controls/select/select';
+import {ISelectConfig} from 'uniform-ng2/main';
 import {Logger} from '../../../../framework/core/logger';
 
 @Component({

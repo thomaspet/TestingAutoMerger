@@ -4,7 +4,7 @@ import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../.
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash

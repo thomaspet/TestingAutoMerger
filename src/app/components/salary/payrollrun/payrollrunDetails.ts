@@ -9,7 +9,7 @@ import { PostingsummaryModal } from './postingsummaryModal';
 import { VacationpayModal } from './vacationpay/VacationpayModal';
 import { RootRouteParamsService } from '../../../services/rootRouteParams';
 import { IUniSaveAction, UniSave } from '../../../../framework/save/save';
-import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';

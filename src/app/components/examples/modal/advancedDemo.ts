@@ -1,9 +1,9 @@
-import {Component, ViewChild, Type, Input, ComponentRef} from '@angular/core';
+import {Component, ViewChild, Type, Input} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
-import {UniForm} from '../../../../framework/uniform/index';
+import {UniForm} from 'uniform-ng2/main';
 import {FieldType} from '../../../unientities';
-import {UniFieldLayout} from '../../../../framework/uniform/interfaces';
+import {UniFieldLayout} from 'uniform-ng2/main';
 
 @Component({
     selector: 'reusable-component',

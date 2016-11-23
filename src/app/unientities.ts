@@ -68,10 +68,10 @@ export class WorkItem {
     public UpdatedBy: string;
     public WorkRelationID: number;
     public WorkTypeID: number;
-    public Dimensions: Dimensions;
     public WorkRelation: WorkRelation;
     public Worktype: WorkType;
     public CustomerOrder: CustomerOrder;
+    public Dimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -1032,22 +1032,6 @@ export class STYRKCode {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ynr: number;
-    public CustomFields: any;
-}
-
-
-export class TracelinkType {
-    public static RelativeUrl = 'tracelinktypes';
-    public static EntityType = 'TracelinkType';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public ID: number;
-    public Name: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -2423,6 +2407,24 @@ export class BankAccountSalary {
 }
 
 
+export class StatusLog {
+    public static RelativeUrl = 'statuslogs';
+    public static EntityType = 'StatusLog';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public FromStatus: number;
+    public ID: number;
+    public ToStatus: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class EmailLog {
     public static RelativeUrl = 'emails';
     public static EntityType = 'EmailLog';
@@ -2610,13 +2612,11 @@ export class Tracelink {
     public CreatedBy: string;
     public Date: Date;
     public Deleted: boolean;
-    public DestinationID: number;
-    public DestinationTypeID: number;
+    public DestinationEntityName: string;
+    public DestinationInstanceID: number;
     public ID: number;
-    public RootID: number;
-    public RootTypeID: number;
-    public SourceID: number;
-    public SourceTypeID: number;
+    public SourceEntityName: string;
+    public SourceInstanceID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -3427,30 +3427,59 @@ export class JournalEntryLineDraft {
 }
 
 
+export class PaymentBatch {
+    public static RelativeUrl = 'paymentbatches';
+    public static EntityType = 'PaymentBatch';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public PaymentFileID: number;
+    public PaymentReceiptFileID: number;
+    public PaymentReferenceID: string;
+    public ReceiptDate: Date;
+    public StatusCode: number;
+    public TotalAmount: number;
+    public TransferredDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Payments: Array<Payment>;
+    public CustomFields: any;
+}
+
+
 export class Payment {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
 
     public Amount: number;
     public AutoJournal: boolean;
-    public BankAccountID: number;
-    public BankAccountNumberTarget: string;
+    public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyID: number;
-    public CustomerID: number;
     public Deleted: boolean;
+    public Description: string;
+    public DueDate: Date;
+    public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
-    public IsPaymentToSupplier: boolean;
+    public PaymentBatchID: number;
+    public PaymentCodeID: number;
+    public PaymentDate: Date;
     public PaymentID: string;
     public ReconcilePayment: boolean;
     public StatusCode: number;
+    public ToBankAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccount: BankAccount;
-    public Customer: Customer;
+    public PaymentBatch: PaymentBatch;
+    public BusinessRelation: BusinessRelation;
+    public FromBankAccount: BankAccount;
+    public ToBankAccount: BankAccount;
     public Currency: Currency;
+    public PaymentCode: PaymentCode;
     public CustomFields: any;
 }
 
@@ -3726,7 +3755,8 @@ export class JournalEntrySourceSerie {
     public CreatedBy: string;
     public Deleted: boolean;
     public ID: number;
-    public JournalEntrySourceID: number;
+    public JournalEntrySourceEntityName: string;
+    public JournalEntrySourceInstanceID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;

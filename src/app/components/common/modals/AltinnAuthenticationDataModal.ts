@@ -1,11 +1,10 @@
 import {Component, Type, ViewChild, Input, EventEmitter, ElementRef, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout} from '../../../../framework/uniform';
+import {UniFieldLayout, KeyCodes} from 'uniform-ng2/main';
 import {FieldType, AltinnAuthRequest} from '../../../unientities';
 import {AltinnAuthenticationService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {KeyCodes} from '../../../../framework/uniform/interfaces';
+import {ToastService} from '../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../services/common/ErrorService';
 
 enum LoginState {

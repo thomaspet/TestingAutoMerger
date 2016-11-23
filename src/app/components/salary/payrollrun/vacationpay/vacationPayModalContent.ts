@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {FieldType, BasicAmount, VacationPayInfo, VacationPayLine} from '../../../../unientities';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionService, BasicAmountService, PayrollrunService} from '../../../../../app/services/services';
 import {VacationpaySettingModal} from './vacationPaySettingModal';

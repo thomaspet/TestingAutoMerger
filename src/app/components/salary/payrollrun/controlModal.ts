@@ -1,7 +1,7 @@
 import {Component, Type, ViewChild, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout} from '../../../../framework/uniform';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';

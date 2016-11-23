@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {UserService} from '../../../services/services';
-import {UniForm} from '../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {FieldType, User} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {ErrorService} from '../../../services/common/ErrorService';

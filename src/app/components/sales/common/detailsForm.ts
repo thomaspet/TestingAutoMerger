@@ -1,5 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {UniForm} from '../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {FieldType} from '../../../unientities';
 declare const _;
 

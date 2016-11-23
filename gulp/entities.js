@@ -3,7 +3,7 @@ var fs = require('fs');
 var request = require('request');
 
 
-var SERVER_URL = process.env.SERVER_URL;
+var SERVER_URL = process.env.SERVER_URL || 'https://devapi-unieconomy.azurewebsites.net';
 
 var URL = [
     SERVER_URL,
@@ -25,6 +25,7 @@ module.export = gulp.task('entities', function(done) {
             'client': CLIENT
         }
     }, function(error, response, body) {
+        console.log(URL);
         error ? done(error) : fs.writeFile('./src/app/unientities.ts', body, done);
     });
 });

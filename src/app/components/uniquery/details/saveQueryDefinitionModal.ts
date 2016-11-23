@@ -1,11 +1,10 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniQueryDefinition, UniQueryField, UniQueryFilter, FieldType} from '../../../../app/unientities';
+import {UniQueryDefinition, FieldType} from '../../../../app/unientities';
 import {UniQueryDefinitionService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {URLSearchParams} from '@angular/http';
-import {Observable, Subject} from 'rxjs/Rx';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {Observable} from 'rxjs/Rx';
+import {UniForm} from 'uniform-ng2/main';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService} from '../../../services/common/ErrorService';
 

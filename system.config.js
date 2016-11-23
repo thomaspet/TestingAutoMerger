@@ -4,6 +4,10 @@ var packages = {
         main: 'main',
         defaultExtension: 'js'
     },
+    'uniform-ng2': {
+        main: 'main',
+        defaultExtension: 'js'
+    },
     'moment': {
         main: 'moment',
         defaultExtension: 'js'
@@ -21,10 +25,11 @@ var ngPackageNames = [
     'router',
     'router-deprecated',
     'forms',
-    'upgrade'];
+    'upgrade'
+];
 
-ngPackageNames.forEach(function (element) {
-    packages['@angular/' + element] = { main: 'bundles/'+element + '.umd.js', defaultExtension: 'js' };
+ngPackageNames.forEach(function(element) {
+    packages['@angular/' + element] = { main: 'bundles/' + element + '.umd.js', defaultExtension: 'js' };
 });
 
 // Apply the user's configuration.

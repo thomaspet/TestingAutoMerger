@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
 import {UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {Router} from '@angular/router';
 import {AccountService, JournalEntryService} from '../../../../services/services';
 import {Account, FieldType} from '../../../../unientities';

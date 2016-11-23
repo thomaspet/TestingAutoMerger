@@ -1,8 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {UniForm} from '../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../framework/uniform/index';
-import {NgIf} from '@angular/common';
+import {UniForm} from 'uniform-ng2/main';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {Employee, Employment, FieldType} from '../../../unientities';
 
 declare var _;

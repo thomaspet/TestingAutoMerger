@@ -17,6 +17,12 @@ gulp.task('dependencies', function() {
             './node_modules/unitable-ng2/**/*.css',
             './node_modules/unitable-ng2/**/*.html',
 
+            // Unitable
+            './node_modules/uniform-ng2/**/*.js',
+            './node_modules/uniform-ng2/**/*.js.map',
+            './node_modules/uniform-ng2/**/*.css',
+            './node_modules/uniform-ng2/**/*.html',
+
             // Moment
             './node_modules/moment/min/moment.min.js',
             './node_modules/moment/locale/nb.js',

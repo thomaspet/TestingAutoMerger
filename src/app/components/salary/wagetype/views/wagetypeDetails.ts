@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
-import { UniForm, UniFieldLayout } from '../../../../../framework/uniForm';
+import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';

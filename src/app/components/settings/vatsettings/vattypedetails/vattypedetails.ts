@@ -3,7 +3,7 @@ import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} fr
 import {Observable} from 'rxjs/Rx';
 
 import {FieldType, VatReportReference} from '../../../../unientities';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 
 import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService, AccountService, VatPostService} from '../../../../services/services';

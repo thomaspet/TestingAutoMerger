@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
 import {AltinnIntegrationService} from '../../../../../app/services/services';
 import {ErrorService} from '../../../../services/common/ErrorService';
