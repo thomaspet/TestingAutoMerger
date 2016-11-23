@@ -89,7 +89,7 @@ export class TradeItemTable {
                 return (vatType) ? `${vatType.VatPercent}% - ${vatType.Name}` : '';
             })
             .setEditorOptions({
-                itemTemplate: item => `${item.Name} - ${item.VatPercent}%`,
+                itemTemplate: item => `${item.VatCode} - ${item.Name} - ${item.VatPercent}%`,
                 lookupFunction: (searchValue) => {
                     const query = searchValue.toLowerCase();
                     let filtered = this.vatTypes.filter((vatType) => {

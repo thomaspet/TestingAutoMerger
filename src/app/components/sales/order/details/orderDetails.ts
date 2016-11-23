@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -15,6 +15,8 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {TradeItemTable} from '../../common/tradeItemTable';
+import {TofHead} from '../../common/tofHead';
 import {
     Address,
     CustomerOrder,
@@ -56,6 +58,12 @@ export class OrderDetails {
     @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
+
+    @ViewChild(TofHead)
+    private tofHead: TofHead;
+
+    @ViewChild(TradeItemTable)
+    private tradeItemTable: TradeItemTable;
 
     @Input()
     public orderID: any;
@@ -155,6 +163,18 @@ export class OrderDetails {
                 );
             }
         });
+    }
+
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+        if (key === 34) {
+            event.preventDefault();
+            this.tradeItemTable.focusFirstRow();
+        } else if (key === 33) {
+            event.preventDefault();
+            this.tofHead.focus();
+        }
     }
 
     private refreshOrder(order: CustomerOrder) {

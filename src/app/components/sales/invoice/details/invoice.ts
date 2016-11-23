@@ -371,8 +371,7 @@ export class InvoiceDetails {
 
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
             const message = 'En eller flere varelinjer mangler produkt';
-            this.toastService.addToast(message, ToastType.bad, 10);
-            return Observable.throw('message');
+            return Observable.throw(message);
         }
 
         return (this.invoice.ID > 0)
@@ -427,12 +426,15 @@ export class InvoiceDetails {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
                     this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
-                        .subscribe(res => this.refreshInvoice(res));
+                        .subscribe(
+                            res => this.refreshInvoice(res),
+                            this.errorService.handle
+                        );
                 }
                 done('Lagring fullført');
             },
             (err) => {
-                done('Noe gikk galt under lagring');
+                done('Lagring feilet');
                 this.errorService.handle(err);
             }
         );

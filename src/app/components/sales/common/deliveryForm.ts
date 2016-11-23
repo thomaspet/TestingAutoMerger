@@ -85,7 +85,7 @@ export class TofDeliveryForm {
                     this.forms.last.readMode();
                 } else {
                     this.forms.last.editMode();
-                    if (this.entity.Customer) {
+                    if (this.entity && this.entity.Customer) {
                         this.forms.first.editMode();
                     } else {
                         this.forms.first.readMode();
