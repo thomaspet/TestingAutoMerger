@@ -313,8 +313,7 @@ export class AMeldingView implements OnInit {
 
     private getDataFromFeedback(amelding, typeData): any {
         let mottakObject: any;
-
-        if (amelding.hasOwnProperty('feedBack')) {
+        if (amelding && amelding.hasOwnProperty('feedBack')) {
             if (amelding.feedBack !== null) {
                 let alleMottak = amelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
@@ -339,7 +338,7 @@ export class AMeldingView implements OnInit {
 
     private checkMottattPeriode(mottak, typeData): any {
         let anyObject: any = {};
-        if (mottak.hasOwnProperty('mottattPeriode')) {
+        if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
             switch (typeData) {
                 case 0:
                     this.getTotalAGAAndFtrekk(mottak.mottattPeriode);
@@ -359,7 +358,7 @@ export class AMeldingView implements OnInit {
     }
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
-        if (mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+        if (mottattPeriode && mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
             
             this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
             this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
