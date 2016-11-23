@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, ISortInfo} from 'unitable-ng2/main';
 import {AmeldingData} from '../../../../unientities';
 
 declare var moment;
@@ -14,8 +14,10 @@ export class AmeldingReceiptView {
     @Input() public aMeldingerInPeriod: AmeldingData[];
     private mottattLeveranserIPerioden: any[] = [];
     private alleAvvikNoder: any[] = [];
+    private allAvvikGroupedByPeriod: any[] = [];
     private mottattLeveranserIPeriodenConfig: UniTableConfig;
     private showFeedback: boolean;
+    private periods: any[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
     constructor() {
         this.setupMottakTable();
@@ -36,12 +38,14 @@ export class AmeldingReceiptView {
         this.alleAvvikNoder[index].collapsed = !this.alleAvvikNoder[index].collapsed;
     }
 
-    private setMottattLeveranser(leveranser) {
+    private setMottattLeveranser(leveranser, period) {
         if (leveranser instanceof Array) {
             leveranser.forEach(leveranse => {
+                leveranse.periode = period;
                 this.mottattLeveranserIPerioden.push(leveranse);
             });
         } else {
+            leveranser.periode = period;
             this.mottattLeveranserIPerioden.push(leveranser);
         }
     }
@@ -55,19 +59,22 @@ export class AmeldingReceiptView {
                 let alleMottak = this.currentAMelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
                     alleMottak.forEach(mottak => {
-                        this.setMottattLeveranser(mottak.mottattLeveranse);
                         const pr = mottak.kalendermaaned;
-                        if ((parseInt(pr.split('-').pop()) === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                            this.getAvvikRec(mottak);
+                        const period = parseInt(pr.split('-').pop());
+                        this.setMottattLeveranser(mottak.mottattLeveranse, period); 
+                        if (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year) {
+                            this.getAvvikRec(mottak, period);
                         }
                     });
                 } else {
-                    this.setMottattLeveranser(alleMottak.mottattLeveranse);
                     const pr = alleMottak.kalendermaaned;
-                    if ((parseInt(pr.split('-').pop()) === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                        this.getAvvikRec(alleMottak);
+                    const period = parseInt(pr.split('-').pop()); 
+                    this.setMottattLeveranser(alleMottak.mottattLeveranse, period);
+                    if (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year) {
+                        this.getAvvikRec(alleMottak, period);
                     }
                 }
+                this.groupAvvik();
                 this.showFeedback = true;
             } else {
                 this.showFeedback = false;
@@ -75,7 +82,7 @@ export class AmeldingReceiptView {
         }
     }
 
-    private getAvvikRec(obj) {
+    private getAvvikRec(obj, period) {
         for (var propname in obj) {
             if (propname === 'avvik') {
                 if (obj[propname] instanceof Array) {
@@ -86,6 +93,7 @@ export class AmeldingReceiptView {
                         if (obj.hasOwnProperty('yrke')) {
                             avvik.yrke = obj['yrke'];
                         }
+                        avvik.belongsToPeriod = period;
                         this.alleAvvikNoder.push(avvik);
                     });
                 } else {
@@ -93,14 +101,29 @@ export class AmeldingReceiptView {
                     if (obj.hasOwnProperty('arbeidsforholdId')) {
                         avvik.arbeidsforholdId = obj['arbeidsforholdId'];
                     }
+                    avvik.belongsToPeriod = period;
                     this.alleAvvikNoder.push(avvik);
                 }
             } else {
                 if (typeof obj[propname] === 'object' && obj[propname] !== null) {
-                    this.getAvvikRec(obj[propname]);
+                    this.getAvvikRec(obj[propname], period);
                 }
             }
         }
+    }
+
+    private groupAvvik() {
+        this.periods.forEach(period => {
+            let periodAvvik = {periode: period, periodeAvvik: []};
+            this.alleAvvikNoder.forEach(avvik => {
+                if (period === avvik.belongsToPeriod) {
+                    periodAvvik.periodeAvvik.push(avvik);
+                }
+            });
+            if (periodAvvik.periodeAvvik.length) {
+                this.allAvvikGroupedByPeriod.push(periodAvvik);
+            }
+        });
     }
 
     private setupMottakTable() {
@@ -133,8 +156,12 @@ export class AmeldingReceiptView {
             });
         let agaCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Aga', UniTableColumnType.Money);
         let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money);
+        let periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
 
-        this.mottattLeveranserIPeriodenConfig = new UniTableConfig(false, true, 15)
-        .setColumns([meldingCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol]);
+        let orderBy: ISortInfo = {field: 'meldingsId', direction: -1};
+
+        this.mottattLeveranserIPeriodenConfig = new UniTableConfig(false, false)
+        .setColumns([meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol]);
+        this.mottattLeveranserIPeriodenConfig.defaultOrderBy = orderBy;
     }
 }

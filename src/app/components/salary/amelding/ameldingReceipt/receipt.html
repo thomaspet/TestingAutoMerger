@@ -1,36 +1,46 @@
 <section *ngIf="showFeedback">
-    <uni-table [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
-
+    <h1 *ngIf="allAvvikGroupedByPeriod.length > 0">Avvik</h1>
     <ul>
-        <h1 *ngIf="alleAvvikNoder.length > 0"> Avvik </h1>
-        <li *ngFor="let avvik of alleAvvikNoder; let index = index" class="amelding_summaryview collapsable" [ngClass]="{'-is-open':avvik.expanded}">
-            <h4 (click)="avvik.expanded = !avvik.expanded">{{avvik.id}}</h4>
-            <table class="collapsable-content">
-                <tr>
-                    <th>Avvikstype</th>
-                    <td>{{avvik.id}}</td>
-                </tr>
-                <tr>
-                    <th>Alvorlighetsgrad</th>
-                    <td>{{avvik.alvorlighetsgrad}}</td>
-                </tr>
-                <tr>
-                    <th>Navn</th>
-                    <td colspan="3">{{avvik.navn}}</td>
-                </tr>
-                <tr *ngIf="avvik.arbeidsforholdId">
-                    <th>ArbeidsforholdID</th>
-                    <td>{{avvik.arbeidsforholdId}}</td>
-                </tr>
-                <tr *ngIf="avvik.yrke">
-                    <th>Stillingskode</th>
-                    <td>{{avvik.yrke}}</td>
-                </tr>
-                <tr>
-                    <th>Detaljer</th>
-                    <td colspan="3">{{avvik.detaljer}}</td>
-                </tr>
-            </table>
-        </li>
+        <section *ngFor="let avvik of allAvvikGroupedByPeriod">
+            <h4>Periode {{avvik.periode}}</h4>
+
+            <li *ngFor="let periodeavvik of avvik.periodeAvvik; let index = index" class="amelding_summaryview collapsable" [ngClass]="{'-is-open':periodeavvik.expanded}">
+                <h4 (click)="periodeavvik.expanded = !periodeavvik.expanded">{{periodeavvik.id}}</h4>
+                <table class="collapsable-content">
+                    <tr>
+                        <th>Avvikstype</th>
+                        <td>{{periodeavvik.id}}</td>
+                    </tr>
+                    <tr>
+                        <th>Periode</th>
+                        <td>{{periodeavvik.belongsToPeriod}}</td>
+                    </tr>
+                    <tr>
+                        <th>Alvorlighetsgrad</th>
+                        <td>{{periodeavvik.alvorlighetsgrad}}</td>
+                    </tr>
+                    <tr>
+                        <th>Navn</th>
+                        <td colspan="3">{{periodeavvik.navn}}</td>
+                    </tr>
+                    <tr *ngIf="periodeavvik.arbeidsforholdId">
+                        <th>ArbeidsforholdID</th>
+                        <td>{{periodeavvik.arbeidsforholdId}}</td>
+                    </tr>
+                    <tr *ngIf="periodeavvik.yrke">
+                        <th>Stillingskode</th>
+                        <td>{{periodeavvik.yrke}}</td>
+                    </tr>
+                    <tr>
+                        <th>Detaljer</th>
+                        <td colspan="3">{{periodeavvik.detaljer}}</td>
+                    </tr>
+                </table>
+            </li>
+        </section>
     </ul>
+
+    <h1>Leveranser (a-meldinger)</h1>
+
+    <uni-table [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
 </section>

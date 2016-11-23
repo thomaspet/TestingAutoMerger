@@ -68,10 +68,10 @@ export class WorkItem {
     public UpdatedBy: string;
     public WorkRelationID: number;
     public WorkTypeID: number;
+    public Dimensions: Dimensions;
     public WorkRelation: WorkRelation;
     public Worktype: WorkType;
     public CustomerOrder: CustomerOrder;
-    public Dimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -1771,7 +1771,7 @@ export class AGACalculation {
     public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public foreignerWithAmount: Array<ForeignerWithAmount>;
-    public payrollRun: Array<PayrollRun>;
+    public payrollRun: PayrollRun;
     public CustomFields: any;
 }
 
@@ -2487,6 +2487,7 @@ export class CompanySettings {
     public DefaultAddressID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
+    public DefaultSalesAccountID: number;
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
     public ID: number;
@@ -2516,6 +2517,7 @@ export class CompanySettings {
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
+    public DefaultSalesAccount: Account;
     public CustomFields: any;
 }
 
@@ -2810,6 +2812,91 @@ export class Transition {
     public MethodName: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class TransitionThreshold {
+    public static RelativeUrl = 'thresholds';
+    public static EntityType = 'TransitionThreshold';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Disabled: boolean;
+    public ID: number;
+    public Operation: OperationType;
+    public Operator: Operator;
+    public PropertyName: string;
+    public SharedRoleId: number;
+    public SharedTransitionId: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public CustomFields: any;
+}
+
+
+export class TransitionThresholdApproval {
+    public static RelativeUrl = '';
+    public static EntityType = 'TransitionThresholdApproval';
+
+    public ApprovalID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Operation: OperationType;
+    public Operator: Operator;
+    public PropertyName: string;
+    public SharedRoleId: number;
+    public SharedTransitionId: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public Approval: Approval;
+    public CustomFields: any;
+}
+
+
+export class Approval {
+    public static RelativeUrl = 'approvals';
+    public static EntityType = 'Approval';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public SharedRoleId: number;
+    public StatusCode: number;
+    public TaskID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Thresholds: Array<TransitionThresholdApproval>;
+    public Task: Task;
+    public CustomFields: any;
+}
+
+
+export class Task {
+    public static RelativeUrl = 'tasks';
+    public static EntityType = 'Task';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ID: number;
+    public SharedRoleId: number;
+    public SharedTransitionId: number;
+    public StatusCode: number;
+    public Type: TaskType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public Approvals: Array<Approval>;
+    public User: User;
     public CustomFields: any;
 }
 
@@ -4312,6 +4399,47 @@ export class SalaryTransactionPeriodSums {
 }
 
 
+export class OcrResult {
+    public language: string;
+    public MaxTop: number;
+    public MaxWidth: number;
+    public orientation: string;
+    public regions: string;
+    public textAngle: string;
+    public regions: Array<Region>;
+    public OcrInvoiceReport: OcrInvoiceReport;
+}
+
+
+export class OcrInvoiceReport {
+    public SupplierID: number;
+    public Orgno: SuggestedValue;
+    public Kid: SuggestedValue;
+    public BankAccount: SuggestedValue;
+    public InvoiceDate: SuggestedValue;
+    public DueDate: SuggestedValue;
+    public DeliveryDate: SuggestedValue;
+    public Amount: SuggestedValue;
+    public InvoiceNumber: SuggestedValue;
+}
+
+
+export class SuggestedValue {
+    public Candidates: string;
+    public Candidates: Array<HitWord>;
+    public Value: HitWord;
+}
+
+
+export class HitWord {
+    public boundingBox: string;
+    public DateValue: Date;
+    public Hit: string;
+    public text: string;
+    public value: string;
+}
+
+
 export class AltinnAuthChallenge {
     public Message: string;
     public Status: string;
@@ -4779,28 +4907,6 @@ export enum StatusCategoryCode{
 }
 
 
-export enum TypeOfLogin{
-	none = 0,
-	AltinnPin = 1,
-	SMSPin = 2,
-	TaxPin = 3,
-}
-
-
-export enum ValidationLevel{
-	Info = 1,
-	Warning = 20,
-	Error = 30,
-}
-
-
-export enum OnConflict{
-	Replace = 0,
-	Ignore = 1,
-	ManualResolve = 2,
-}
-
-
 export enum OperationType{
 	Create = 10,
 	Update = 20,
@@ -4821,6 +4927,34 @@ export enum Operator{
 	Equals = 8,
 	NotEquals = 9,
 	RegExp = 10,
+}
+
+
+export enum TaskType{
+	Task = 0,
+	Approval = 1,
+}
+
+
+export enum TypeOfLogin{
+	none = 0,
+	AltinnPin = 1,
+	SMSPin = 2,
+	TaxPin = 3,
+}
+
+
+export enum ValidationLevel{
+	Info = 1,
+	Warning = 20,
+	Error = 30,
+}
+
+
+export enum OnConflict{
+	Replace = 0,
+	Ignore = 1,
+	ManualResolve = 2,
 }
 
 
@@ -4878,6 +5012,20 @@ export enum InternalAmeldingStatus{
 	GENERATED = 1,
 	SENT = 2,
 	STATUS_FROM_ALTINN_RECEIVED = 3,
+}
+
+
+export enum ApprovalStatus{
+	Active = 50120,
+	Approved = 50130,
+	Rejected = 50140,
+}
+
+
+export enum TaskStatus{
+	Active = 50020,
+	Complete = 50030,
+	Pending = 50040,
 }
 
 
