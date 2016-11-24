@@ -307,11 +307,26 @@ export class OrderDetails {
     }
 
     private updateToolbar() {
+        let orderText = '';
+        if (this.order.OrderNumber) {
+            orderText = 'Ordrenummer. ' + this.order.OrderNumber;
+        } else {
+            orderText = (this.order.ID) ? 'Ordre (kladd)' : 'Ny ordre';
+        }
+
+        let customerText = (this.order.Customer)
+            ? this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name
+            : '';
+
+        let netSumText = (this.itemsSummaryData)
+            ? 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'
+            : 'Netto kr ' + this.order.TaxExclusiveAmount + '.';
+
         this.toolbarconfig = {
-            title: this.order.Customer ? (this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name) : this.order.CustomerName,
+            title: orderText,
             subheads: [
-                {title: this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber + '.' : ''},
-                {title: !this.itemsSummaryData ? 'Netto kr ' + this.order.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'},
+                {title: customerText},
+                {title: netSumText},
                 {title: GetPrintStatusText(this.order.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),

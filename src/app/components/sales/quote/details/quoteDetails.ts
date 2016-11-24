@@ -259,10 +259,6 @@ export class QuoteDetails {
         return statustrack;
     }
 
-    public addQuote() {
-        this.router.navigateByUrl('/sales/quotes/0');
-    }
-
     public nextQuote() {
         this.customerQuoteService.getNextID(this.quote.ID).subscribe(
             id => this.router.navigateByUrl('/sales/quotes/' + id),
@@ -284,18 +280,33 @@ export class QuoteDetails {
 
 
     private updateToolbar() {
+        let quoteText = '';
+        if (this.quote.QuoteNumber) {
+            quoteText = 'Tilbudsnr. ' + this.quote.QuoteNumber;
+        } else {
+            quoteText = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
+        }
+
+        let customerText = (this.quote.Customer)
+            ? this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name
+            : '';
+
+        let netSumText = (this.itemsSummaryData)
+            ? 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'
+            : 'Netto kr ' + this.quote.TaxExclusiveAmount + '.';
+
         this.toolbarconfig = {
-            title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
+            title: quoteText,
             subheads: [
-                { title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : '' },
-                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' },
+                { title: customerText},
+                { title: netSumText},
                 { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
-                add: this.addQuote.bind(this)
+                add: () => this.router.navigateByUrl('/sales/quotes/0')
             },
             contextmenu: this.contextMenuItems
         };
