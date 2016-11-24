@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {PayrollRun, FieldType, VacationPayInfo} from '../../../unientities';
+import {PayrollRun, FieldType, VacationPayInfo, TaxDrawFactor} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/ErrorService';
 
@@ -312,13 +312,13 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: '',
+                    Property: 'taxdrawfactor',
                     Placement: 3,
-                    Hidden: true,
+                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Valg for skattetrekk',
+                    Label: 'Skattetrekk',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
@@ -329,24 +329,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Legend: '',
                     Options: {
                         source: [
-                            {Indx: 0, Name: 'Ordinært skattetrekk'}, 
-                            {Indx: 1, Name: 'Halv skatt'},
-                            {Indx: 2, Name: 'Ingen skattetrekk'}],
+                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'}, 
+                            {Indx: TaxDrawFactor.Half, Name: 'Halv skatt'},
+                            {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    }
                 },
                 {
                     ComponentLayoutID: 1,
@@ -462,7 +450,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'FreeText',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.TEXTAREA,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fritekst til lønnslipp',
