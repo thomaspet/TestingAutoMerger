@@ -7,7 +7,7 @@ import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, Fie
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {checkGuid} from '../../../../services/common/dimensionservice';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';

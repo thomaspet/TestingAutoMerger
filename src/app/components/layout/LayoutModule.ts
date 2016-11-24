@@ -13,6 +13,7 @@ import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropd
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {TabService} from './navbar/tabstrip/tabService';
+import {UniFormModule} from 'uniform-ng2/main';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {TabService} from './navbar/tabstrip/tabService';
         HttpModule,
         RouterModule,
         UniFrameworkModule,
-        AppPipesModule
+        AppPipesModule,
+        UniFormModule
     ],
     declarations: [
         UniTabs,

@@ -2,7 +2,7 @@ import { Component, ViewChild, Output, EventEmitter, Type, AfterViewInit, Input 
 import { UniModal } from '../../../../framework/modals/modal';
 import { SalaryTransaction, SalaryTransactionSupplement, Valuetype, FieldType } from '../../../unientities';
 
-import { UniFieldLayout, UniForm } from '../../../../framework/uniform';
+import { UniFieldLayout, UniForm } from 'uniform-ng2/main';
 
 @Component({
     selector: 'sal-trans-supplements-modal-content',

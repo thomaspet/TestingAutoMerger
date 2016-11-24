@@ -1,7 +1,7 @@
 import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Account, VatType, FieldType, AccountGroup} from '../../../../unientities';
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 import {AccountGroupService} from '../../../../services/Accounting/AccountGroupService';

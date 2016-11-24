@@ -4,7 +4,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
-import {UniFieldLayout} from '../../../../framework/uniform/index';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({

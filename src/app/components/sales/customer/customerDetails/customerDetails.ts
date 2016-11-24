@@ -8,7 +8,7 @@ import {DepartmentService, ProjectService, CustomerService, PhoneService, Addres
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 
 import {ComponentLayout, Customer, Email, Phone, Address, FieldType} from '../../../../unientities';
 

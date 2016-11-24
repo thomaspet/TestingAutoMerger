@@ -3,9 +3,9 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
-import {UniForm} from '../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../framework/uniform/index';
-import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
+import {UniForm} from 'uniform-ng2/main';
+import {UniFieldLayout} from 'uniform-ng2/main';
+import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {
     CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account,
@@ -19,7 +19,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {CompanyService} from '../../../services/common/CompanyService';
 import {AuthService} from '../../../../framework/core/authService';
-import {UniField} from '../../../../framework/uniform/unifield';
+import {UniField} from 'uniform-ng2/main';
 import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const _;

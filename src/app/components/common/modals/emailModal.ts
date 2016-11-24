@@ -1,6 +1,6 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm} from '../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {Email, FieldType} from '../../../unientities';
 import {EmailService} from '../../../services/services';
 

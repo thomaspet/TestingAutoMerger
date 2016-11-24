@@ -7,7 +7,7 @@ import {FinancialYearService} from '../../../../../services/services';
 import {UserService} from '../../../../../services/services';
 
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
-import {ISelectConfig} from '../../../../../../framework/uniform/controls/select/select';
+import {ISelectConfig} from 'uniform-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationService} from '../../../../../services/common/AltinnAuthenticationService';
 import {ErrorService} from '../../../../../services/common/ErrorService';

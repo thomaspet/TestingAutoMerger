@@ -1,11 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniForm } from '../../../../../framework/uniform';
+import { UniForm } from 'uniform-ng2/main';
 import { OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal, SubEntity } from '../../../../unientities';
 import { EmployeeService, MunicipalService } from '../../../../services/services';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
-import { UniFieldLayout } from '../../../../../framework/uniform/index';
+import { UniFieldLayout } from 'uniform-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';

@@ -8,7 +8,7 @@ import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
 import {Supplier, Email, Phone, Address, FieldType, BankAccount} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';

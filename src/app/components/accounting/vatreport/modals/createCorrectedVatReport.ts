@@ -1,6 +1,6 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm} from '../../../../../framework/uniForm';
+import {UniForm} from 'uniform-ng2/main';
 import {FieldLayout, Period, VatReport, FieldType} from '../../../../../app/unientities';
 import {VatReportService} from '../../../../services/Accounting/VatReportService';
 import {PeriodService} from '../../../../services/Accounting/PeriodService';

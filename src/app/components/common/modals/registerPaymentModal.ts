@@ -1,6 +1,6 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm} from '../../../../framework/uniForm';
+import {UniForm} from 'uniform-ng2/main';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
 import {FieldType} from '../../../unientities';
 

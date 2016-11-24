@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import {Department, Project, VatType, Account, FieldType} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 
-import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {AccountService, JournalEntryService, CustomerInvoiceService} from '../../../../../services/services';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ErrorService} from '../../../../../services/common/ErrorService';

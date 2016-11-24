@@ -10,6 +10,7 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {COMPILER_PROVIDERS} from '@angular/compiler';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 
@@ -67,6 +68,9 @@ class UniErrorHandler implements ErrorHandler {
 
         // UNITABLE
         UniTableModule,
+
+        // UNIFORM
+        UniFormModule,
 
         // FRAMEWORK MODULE
         UniFrameworkModule,

@@ -16,6 +16,7 @@ import {PhoneForm} from './modals/phoneModal';
 import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {AddressModal} from './modals/addressModal';
 import {EmailModal} from './modals/emailModal';
 import {PhoneModal} from './modals/phoneModal';
@@ -46,7 +47,8 @@ import {UniAttachments} from './attacments/uniAttachements';
         RouterModule,
         UniFrameworkModule,
         UniTableModule,
-        AppCommonRoutes
+        AppCommonRoutes,
+        UniFormModule
     ],
     declarations: [
         UniDimensions,

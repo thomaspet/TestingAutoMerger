@@ -1,7 +1,7 @@
 import {Component, ViewChild, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {FieldType, Address} from '../../../unientities';
 import {AddressService, BusinessRelationService} from '../../../services/services';
-import {UniForm} from '../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {AddressModal} from '../../common/modals/modals';
 import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;

@@ -1,6 +1,6 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Phone, FieldType} from '../../../unientities';
 import {PhoneService} from '../../../services/services';
 

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from 'unitable-ng2/main';
 import { Employee, WageType, PayrollRun, SalaryTransaction, WageTypeSupplement, SalaryTransactionSupplement, Account } from '../../../unientities';
 import { SalaryTransactionService, AccountService, ReportDefinitionService, UniCacheService } from '../../../services/services';
-import { UniForm } from '../../../../framework/uniform';
+import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 import { ErrorService } from '../../../services/common/ErrorService';
 

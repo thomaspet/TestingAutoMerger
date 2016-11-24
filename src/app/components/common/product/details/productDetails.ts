@@ -7,7 +7,7 @@ import {ProductService, AccountService, VatTypeService, ProjectService, Departme
 
 import {Product, Account, VatType, FieldType} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
 import {Project} from '../../../../unientities';
 import {Department} from '../../../../unientities';
 import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';

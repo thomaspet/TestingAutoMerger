@@ -28,6 +28,7 @@ import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
 
 import {InvoiceDetails} from './invoice/details/invoice';
@@ -49,6 +50,9 @@ import {TradeItemTable} from './common/tradeitemTable';
 
         // Unitable
         UniTableModule,
+
+        // UniForm
+        UniFormModule,
 
         // Framework
         UniFrameworkModule,

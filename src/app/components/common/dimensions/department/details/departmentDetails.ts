@@ -5,7 +5,7 @@ import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {DepartmentService} from '../../../../../services/common/DepartmentService';
-import {UniFieldLayout} from "../../../../../../framework/uniform/interfaces";
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SubEntity} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {CONTROLS_ENUM} from '../../../framework/uniform/controls/index';
+import {CONTROLS_ENUM} from 'uniform-ng2/main';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()

@@ -1,6 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {UniForm} from '../../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
 import {FieldType, CompanyVacationRate, Account} from '../../../../unientities';
