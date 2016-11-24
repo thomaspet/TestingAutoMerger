@@ -21,6 +21,7 @@ import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     CustomerQuoteService,
     CustomerQuoteItemService,
@@ -46,9 +47,13 @@ export class QuoteDetails {
     @ViewChild(TradeItemTable)
     private tradeItemTable: TradeItemTable;
 
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
     @Input()
     public quoteID: number;
 
+    private isDirty: boolean;
     private quote: CustomerQuote;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
@@ -155,7 +160,50 @@ export class QuoteDetails {
         }
     }
 
-    private refreshQuote(quote: CustomerQuote) {
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+            return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Ønsker du å lagre tilbudet før du fortsetter?',
+                'Ulagrede endringer',
+                true
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    if (!this.quote.StatusCode) {
+                        this.quote.StatusCode = StatusCode.Draft;
+                    }
+                    this.saveQuote().subscribe(
+                        (res) => {
+                            this.isDirty = false;
+                            resolve(true);
+                        },
+                        (err) => {
+                            this.errorService.handle(err);
+                            resolve(false);
+                        }
+                    );
+                } else if (action === ConfirmActions.REJECT) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                    this.setTabTitle();
+                }
+            });
+        });
+    }
+
+    private refreshQuote(quote?: CustomerQuote) {
+        if (!quote) {
+            this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe(
+                res => this.refreshQuote(res),
+                this.errorService.handle
+            );
+            return;
+        }
+
         this.onQuoteChange(quote);
         this.readonly = quote.StatusCode && (
             quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
@@ -164,12 +212,14 @@ export class QuoteDetails {
         );
 
         this.quote = _.cloneDeep(quote);
+        this.isDirty = false;
         this.setTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
     }
 
     public onQuoteChange(quote: CustomerQuote) {
+        this.isDirty = true;
         if (quote.QuoteDate && !quote.ValidUntilDate) {
             quote.ValidUntilDate = moment(quote.QuoteDate).add(1, 'month').toDate();
         }
@@ -251,27 +301,55 @@ export class QuoteDetails {
         };
     }
 
+    public recalcItemSums(quoteItems: any) {
+        if (!quoteItems || !quoteItems.length) {
+            return;
+        }
+        this.quote.Items = quoteItems;
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+        this.updateToolbar();
+        this.setSums();
+    }
+
     private updateSaveActions() {
         this.actions = [];
-
-        this.actions.push({
-            label: 'Lagre',
-            action: (done) => this.saveQuote(done),
-            disabled: this.quote.ID === 0,
-            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
-        });
-
-        this.actions.push({
-            label: 'Lagre og skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: this.quote.ID === 0
-        });
 
         this.actions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
             disabled: this.IsTransferToRegisterDisabled(),
             main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
+        });
+
+        this.actions.push({
+            label: 'Lagre',
+            action: (done) => {
+                this.saveQuote().subscribe(
+                    (res) => {
+                        done('Lagring fullført');
+                        this.quoteID = res.ID;
+                        this.refreshQuote();
+                    },
+                    (err) => {
+                        done('Lagring feilet');
+                        this.errorService.handle(err);
+                    }
+                );
+            },
+            disabled: this.quote.ID === 0,
+            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
+        });
+
+        this.actions.push({
+            label: 'Lagre som kladd',
+            action: (done) => this.saveQuoteAsDraft(done),
+            disabled: (this.quote.ID > 0)
+        });
+
+        this.actions.push({
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: this.quote.ID === 0
         });
 
         // TODO: Add a actions for shipToCustomer,customerAccept
@@ -293,11 +371,6 @@ export class QuoteDetails {
             action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
 
-        });
-        this.actions.push({
-            label: 'Lagre som kladd',
-            action: (done) => this.saveQuoteAsDraft(done),
-            disabled: (this.quote.ID > 0)
         });
 
         this.actions.push({
@@ -342,58 +415,7 @@ export class QuoteDetails {
         return true;
     }
 
-    private deleteQuote(done) {
-        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
-        done('Slett tilbud avbrutt');
-    }
-
-    public recalcItemSums(quoteItems: any) {
-        if (!quoteItems || !quoteItems.length) {
-            return;
-        }
-        this.quote.Items = quoteItems;
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
-        this.updateToolbar();
-        this.setSums();
-    }
-
-    private saveQuoteAsRegistered(done: any) {
-        if (this.quote.ID > 0) {
-            this.saveQuoteTransition(done, 'register', 'Registrert');
-        } else {
-            this.saveQuote(done);
-        }
-    }
-
-    private saveQuoteAsDraft(done: any) {
-        this.quote.StatusCode = StatusCode.Draft;
-        this.saveQuote(done);
-    }
-
-    private saveQuoteTransition(done: any, transition: string, doneText: string) {
-        this.saveQuote(done, (quote) => {
-            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition)
-                .subscribe((transitionData: any) => {
-                    done(doneText);
-                    if (transition === 'toOrder') {
-                        this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
-                    } else if (transition === 'toInvoice') {
-                        this.router.navigateByUrl('/sales/invoices/' + transitionData.CustomerInvoiceID);
-                    } else {
-                        this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                            .subscribe(
-                                res => this.refreshQuote(res),
-                                this.errorService.handle
-                        );
-                    }
-                }, (err) => {
-                    done('Noe gikk galt under lagring');
-                    this.errorService.handle(err);
-                });
-        });
-    }
-
-    private saveQuote(done: any, next: any = null) {
+    private saveQuote(): Observable<CustomerQuote> {
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         this.quote.Items.forEach(item => {
@@ -404,46 +426,96 @@ export class QuoteDetails {
 
         // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-            if (done) {
-                done('Lagring feilet. En eller flere varelinjer mangler produkt.');
-            }
-            return;
+            const message = 'En eller flere varelinjer mangler produkt';
+            return Observable.throw(message);
         }
 
+        return (this.quote.ID > 0)
+            ? this.customerQuoteService.Put(this.quote.ID, this.quote)
+            : this.customerQuoteService.Post(this.quote);
+    }
+
+    private saveQuoteAsRegistered(done: any) {
         if (this.quote.ID > 0) {
-            this.customerQuoteService.Put(this.quote.ID, this.quote).subscribe(
-                (quoteSaved) => {
-                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quote => {
-                        if (next) {
-                            next(quote);
-                        } else {
-                            done('Tilbud lagret');
-                            this.refreshQuote(quote);
-                        }
-                    });
-                },
-                (err) => {
-                    done('Lagring feilet');
-                    this.errorService.handle(err);
-                }
-            );
+            this.saveQuoteTransition(done, 'register', 'Registrert');
         } else {
-            this.customerQuoteService.Post(this.quote).subscribe(
-                (quoteSaved) => {
-                    if (next) {
-                        next(quoteSaved);
-                    } else {
-                        done('Tilbud lagret');
-                    }
-
-                    this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
+            this.saveQuote().subscribe(
+                (res) => {
+                    done('Registrering fullført');
+                    this.quoteID = res.ID;
+                    this.refreshQuote();
                 },
                 (err) => {
-                    done('Lagring feilet');
+                    done('Registrering feilet');
                     this.errorService.handle(err);
                 }
             );
         }
+    }
+
+    private saveQuoteAsDraft(done: any) {
+        this.quote.StatusCode = StatusCode.Draft;
+        this.saveQuote().subscribe(
+            (res) => {
+                done('Lagring fullført');
+                this.quoteID = res.ID;
+                this.refreshQuote();
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
+    }
+
+    private saveQuoteTransition(done: any, transition: string, doneText: string) {
+        this.saveQuote().subscribe(
+            (quote) => {
+                this.isDirty = false;
+                this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
+                    (res) => {
+                        done(doneText);
+                        if (transition === 'toOrder') {
+                            this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                        } else if (transition === 'toInvoice') {
+                            this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                        } else {
+                            this.quoteID = res.ID;
+                            this.refreshQuote();
+                        }
+                    }
+                );
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
+    }
+
+    private saveAndPrint(done) {
+        this.saveQuote().subscribe(
+            (res) => {
+                this.isDirty = false;
+                this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
+                    if (report) {
+                        this.previewModal.openWithId(report, res.ID);
+                        done('Viser utskrift');
+                    } else {
+                        done('Rapport mangler');
+                    }
+                });
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
+    }
+
+    private deleteQuote(done) {
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
+        done('Slett tilbud avbrutt');
     }
 
     private setSums() {
@@ -469,18 +541,5 @@ export class QuoteDetails {
                 value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
                 title: 'Totalsum',
             }];
-    }
-
-    private saveAndPrint(done) {
-        this.saveQuote(done, (quote) => {
-            this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-                if (report) {
-                    this.previewModal.openWithId(report, quote.ID);
-                    done('Utskrift');
-                } else {
-                    done('Rapport mangler');
-                }
-            });
-        });
     }
 }

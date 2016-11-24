@@ -22,6 +22,7 @@ import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
@@ -42,6 +43,9 @@ declare const moment;
     templateUrl: 'app/components/sales/invoice/details/invoice.html'
 })
 export class InvoiceDetails {
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
     @ViewChild(RegisterPaymentModal)
     public registerPaymentModal: RegisterPaymentModal;
 
@@ -60,6 +64,7 @@ export class InvoiceDetails {
     @Input()
     public invoiceID: any;
 
+    private isDirty: boolean;
     private invoice: CustomerInvoice;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
@@ -177,6 +182,47 @@ export class InvoiceDetails {
             event.preventDefault();
             this.tofHead.focus();
         }
+    }
+
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+            return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Ønsker du å lagre fakturaen før du fortsetter?',
+                'Ulagrede endringer',
+                true
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    if (!this.invoice.StatusCode) {
+                        this.invoice.StatusCode = StatusCode.Draft;
+                    }
+                    this.saveInvoice().subscribe(
+                        (res) => {
+                            this.isDirty = false;
+                            resolve(true);
+                        },
+                        (err) => {
+                            this.errorService.handle(err);
+                            resolve(false);
+                        }
+                    );
+                } else if (action === ConfirmActions.REJECT) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                    this.updateTabTitle();
+                }
+            });
+        });
+    }
+
+    public onInvoiceChange(invoice) {
+        this.isDirty = true;
+        this.invoice = _.cloneDeep(invoice);
+        this.recalcDebouncer.next(invoice);
     }
 
     public invoiceItemsChange(invoice) {
@@ -353,7 +399,7 @@ export class InvoiceDetails {
         }
     }
 
-    private saveInvoice(refreshOnSuccess?: boolean): Observable<CustomerInvoice> {
+    private saveInvoice(): Observable<CustomerInvoice> {
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         // Prep new orderlines for complex put
@@ -390,6 +436,7 @@ export class InvoiceDetails {
 
         this.saveInvoice().subscribe(
             (invoice) => {
+                this.isDirty = false;
                 if (!isDraft) {
                     done(doneText);
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
@@ -424,6 +471,7 @@ export class InvoiceDetails {
 
         this.saveInvoice().subscribe(
             (invoice) => {
+                this.isDirty = false;
                 if (requiresPageRefresh) {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
@@ -449,6 +497,7 @@ export class InvoiceDetails {
 
         this.saveInvoice().subscribe(
             (invoice) => {
+                this.isDirty = false;
                 this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     this.previewModal.openWithId(report, invoice.ID);
                     done('Lagring fullført');
@@ -508,6 +557,7 @@ export class InvoiceDetails {
     private deleteInvoice(done) {
         this.customerInvoiceService.Remove(this.invoice.ID, null).subscribe(
             (res) => {
+                this.isDirty = false;
                 this.router.navigateByUrl('/sales/invoices');
             },
             (err) => {

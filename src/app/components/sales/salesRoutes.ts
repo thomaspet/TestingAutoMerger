@@ -1,6 +1,7 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from '../../authGuard';
+import {CanDeactivateGuard} from '../../candeactivateGuard';
 
 import {Customer} from './customer/customer';
 import {routes as CustomerRoutes} from './customer/customerRoutes';
@@ -40,7 +41,8 @@ export const childRoutes = [
     },
     {
         path: 'quotes/:id',
-        component: QuoteDetails
+        component: QuoteDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
 
     {
@@ -49,7 +51,8 @@ export const childRoutes = [
     },
     {
         path: 'invoices/:id',
-        component: InvoiceDetails
+        component: InvoiceDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'orders',
@@ -57,7 +60,8 @@ export const childRoutes = [
     },
     {
         path: 'orders/:id',
-        component: OrderDetails
+        component: OrderDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
 
 ];

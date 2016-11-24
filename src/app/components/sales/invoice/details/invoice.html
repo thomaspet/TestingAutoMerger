@@ -2,14 +2,15 @@
 
 <uni-tof-head [readonly]="readonly"
               [entityName]="'CustomerInvoice'"
-              [(data)]="invoice">
+              [data]="invoice"
+              (dataChange)="onInvoiceChange($event)">
 </uni-tof-head>
 
 <section class="application">
     <uni-tradeitem-table *ngIf="invoice"
                          [readonly]="readonly"
                          [entity]="invoice"
-                         (entityChange)="invoiceItemsChange($event)">
+                         (entityChange)="onInvoiceChange($event)">
     </uni-tradeitem-table>
 
     <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
@@ -17,6 +18,7 @@
 
 <uni-save [actions]="saveActions"></uni-save>
 
+<uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>
 <register-payment-modal></register-payment-modal>
 <report-preview-modal></report-preview-modal>

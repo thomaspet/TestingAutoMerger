@@ -17,6 +17,7 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     Address,
     CustomerOrder,
@@ -59,6 +60,9 @@ export class OrderDetails {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
     @ViewChild(TofHead)
     private tofHead: TofHead;
 
@@ -68,6 +72,7 @@ export class OrderDetails {
     @Input()
     public orderID: any;
 
+    private isDirty: boolean;
     private order: CustomerOrderExt;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
@@ -81,7 +86,7 @@ export class OrderDetails {
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     // New
-    private recalcDeboucer: EventEmitter<any> = new EventEmitter();
+    private recalcDebouncer: EventEmitter<CustomerOrder> = new EventEmitter<CustomerOrder>();
     private readonly: boolean;
 
     constructor(
@@ -132,9 +137,9 @@ export class OrderDetails {
         }];
 
         // Subscribe and debounce recalc on table changes
-        this.recalcDeboucer.debounceTime(500).subscribe((orderItems) => {
-            if (orderItems.length) {
-                this.recalcItemSums(orderItems);
+        this.recalcDebouncer.debounceTime(500).subscribe((order) => {
+            if (order && order.Items.length) {
+                this.recalcItemSums(order.Items);
             }
         });
 
@@ -177,7 +182,54 @@ export class OrderDetails {
         }
     }
 
-    private refreshOrder(order: CustomerOrder) {
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+            return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Ønsker du å lagre ordren før du fortsetter?',
+                'Ulagrede endringer',
+                true
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    this.saveOrder().subscribe(
+                        (res) => {
+                            this.isDirty = false;
+                            resolve(true);
+                        },
+                        (err) => {
+                            this.errorService.handle(err);
+                            resolve(false);
+                        }
+                    );
+                } else if (action === ConfirmActions.REJECT) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                    this.setTabTitle();
+                }
+            });
+        });
+    }
+
+
+    public onOrderChange(order) {
+        this.isDirty = true;
+        this.order = _.cloneDeep(order);
+        this.recalcDebouncer.next(order);
+    }
+
+    private refreshOrder(order?: CustomerOrder) {
+        if (!order) {
+            this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
+                res => this.refreshOrder(res),
+                this.errorService.handle
+            );
+            return;
+        }
+
         if (!order.CreditDays) {
             if (order.Customer && order.Customer.CreditDays) {
                 order.CreditDays = order.Customer.CreditDays;
@@ -189,10 +241,11 @@ export class OrderDetails {
         this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
 
         this.order = _.cloneDeep(order);
+        this.isDirty = false;
         this.setTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
-        this.recalcDeboucer.next(order.Items);
+        this.recalcDebouncer.next(order);
     }
 
     private getStatustrackConfig() {
@@ -276,7 +329,19 @@ export class OrderDetails {
 
         this.actions.push({
             label: 'Lagre',
-            action: (done) => this.saveOrderManual(done),
+            action: (done) => {
+                this.saveOrder().subscribe(
+                    (res) => {
+                        done('Lagring fullført');
+                        this.orderID = res.ID;
+                        this.refreshOrder();
+                    },
+                    (err) => {
+                        done('Lagring feilet');
+                        this.errorService.handle(err);
+                    }
+                );
+            },
             main: true,
             disabled: this.IsSaveDisabled()
         });
@@ -335,11 +400,6 @@ export class OrderDetails {
         return true;
     }
 
-    private deleteOrder(done) {
-        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
-        done('Slett ordre avbrutt');
-    }
-
     private recalcItemSums(orderItems: any) {
         if (!orderItems || !orderItems.length) {
             return;
@@ -351,8 +411,24 @@ export class OrderDetails {
         this.setSums();
     }
 
-    private saveOrderManual(done: any) {
-        this.saveOrder(done);
+    private saveOrder(): Observable<CustomerOrder> {
+        this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+
+        this.order.Items.forEach(item => {
+            if (item.Dimensions && item.Dimensions.ID === 0) {
+                item.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
+            }
+        });
+
+        // Save only lines with products from product list
+        if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
+            const message = 'En eller flere varelinjer mangler produkt';
+            return Observable.throw(message);
+        }
+
+        return (this.order.ID > 0)
+            ? this.customerOrderService.Put(this.order.ID, this.order)
+            : this.customerOrderService.Post(this.order);
     }
 
     private saveAndTransferToInvoice(done: any) {
@@ -380,89 +456,64 @@ export class OrderDetails {
         }
 
         // save order and open modal to select what to transfer to invoice
-        this.saveOrder(done, order => {
-            this.oti.openModal(this.order);
-            done('Ordre lagret');
-        });
+        this.saveOrder().subscribe(
+            (res) => {
+                done('Ordre lagret');
+                this.isDirty = false;
+                this.oti.openModal(this.order);
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
     }
 
     private saveOrderTransition(done: any, transition: string, doneText: string) {
-        this.saveOrder(done, (order) => {
-            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
-                console.log('== TRANSITION OK ' + transition + ' ==');
-                done(doneText);
-
-                this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
-                    this.order = data;
-                    this.addressService.setAddresses(this.order);
-                    this.updateSaveActions();
-                    this.updateToolbar();
-                    this.setTabTitle();
-                });
-            }, (err) => {
+        this.saveOrder().subscribe(
+            (res) => {
+                this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(
+                    (order) => {
+                        done(doneText);
+                        this.orderID = order.ID;
+                        this.refreshOrder();
+                    },
+                    (err) => {
+                        done('Lagring feilet');
+                        this.errorService.handle(err);
+                    }
+                );
+            },
+            (err) => {
+                done('Lagring feilet');
                 this.errorService.handle(err);
-                done('Feilet');
-            });
-        });
+            }
+        );
     }
 
-    private saveOrder(done: any, next: any = null) {
-        this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-
-        this.order.Items.forEach(item => {
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerOrderItemService.getNewGuid();
-            }
-        });
-
-
-        // Save only lines with products from product list
-        if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
-            if (done) {
-                done('Lagring feilet. En eller flere varelinjer mangler produkt.');
-            }
-            return;
-        }
-
-        if (this.orderID > 0) {
-            this.customerOrderService.Put(this.order.ID, this.order).subscribe(
-                (orderSaved) => {
-                    this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
-                        this.order = orderGet;
-                        this.addressService.setAddresses(this.order);
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
-
-                        if (next) {
-                            next(this.order);
-                        } else {
-                            done('Ordre lagret');
-                        }
-                    });
-                },
-                (err) => {
-                    this.errorService.handle(err);
-                    done('Feil oppsto ved lagring');
-                }
-            );
-        } else {
-            this.customerOrderService.Post(this.order).subscribe(
-                (orderSaved) => {
-                    if (next) {
-                        next(this.order);
+    private saveAndPrint(done) {
+        this.saveOrder().subscribe(
+            (res) => {
+                this.isDirty = false;
+                this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
+                    if (report) {
+                        this.previewModal.openWithId(report, res.ID);
+                        done('Viser utskrift');
                     } else {
-                        done('Ordre lagret');
+                        done('Rapport mangler');
                     }
+                });
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
+    }
 
-                    this.router.navigateByUrl('/sales/orders/' + orderSaved.ID);
-                },
-                (err) => {
-                    this.errorService.handle(err);
-                    done('Feil oppsto ved lagring');
-                }
-            );
-        }
+    private deleteOrder(done) {
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
+        done('Slett ordre avbrutt');
     }
 
     private setSums() {
@@ -488,18 +539,5 @@ export class OrderDetails {
                 value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
                 title: 'Totalsum',
             }];
-    }
-
-    private saveAndPrint(done) {
-        this.saveOrder(done, (order) => {
-            this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-                if (report) {
-                    this.previewModal.openWithId(report, order.ID);
-                    done('Utskrift startet');
-                } else {
-                    done('Rapport mangler');
-                }
-            }, this.errorService.handle);
-        });
     }
 }
