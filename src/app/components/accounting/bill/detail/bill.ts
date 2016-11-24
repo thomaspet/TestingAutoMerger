@@ -59,7 +59,7 @@ export class BillView {
 
     private files: Array<any>;
     private supplierIsReadOnly: boolean = false;
-    private defaultPath: string;    
+    private defaultPath: string;
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
@@ -67,7 +67,7 @@ export class BillView {
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
-    private tabLabel: string;    
+    private tabLabel: string;
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true},
         { label: lang.tab_document, name: 'docs', isSelected: true},
@@ -86,14 +86,14 @@ export class BillView {
         ];
 
     constructor(
-        private tabService: TabService, 
-        private supplierInvoiceService: SupplierInvoiceService, 
-        private toast: ToastService, 
+        private tabService: TabService,
+        private supplierInvoiceService: SupplierInvoiceService,
+        private toast: ToastService,
         private route: ActivatedRoute,
         private cache: UniCacheService,
         private vatTypeService: VatTypeService,
         private supplierService: SupplierService,
-        private router: Router, 
+        private router: Router,
         private location: Location,
         private errorService: ErrorService
     ) {
@@ -101,26 +101,26 @@ export class BillView {
     }
 
     public ngOnInit() {
-        this.initForm();        
-        this.initFromRoute();    
+        this.initForm();
+        this.initFromRoute();
     }
 
     public canDeactivate() {
         return this.checkSave();
-    }    
+    }
 
     private initFromRoute() {
         this.route.params.subscribe( (params: any) => {
             var id = params.id;
             if (safeInt(id) > 0) {
-                this.updateTabInfo(id);                
+                this.updateTabInfo(id);
                 this.fetchInvoice(id, true);
             } else {
                 this.newInvoice(true);
                 this.checkPath();
             }
         });
-        
+
     }
 
     private updateTabInfo(id?: number | string, label?: string) {
@@ -161,12 +161,12 @@ export class BillView {
         var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
         sumCol.Options = {
             events: {
-                enter: () => {                      
-                    this.focusJournalEntries(); 
+                enter: () => {
+                    this.focusJournalEntries();
                 }
             },
             decimalLength: 2
-        };        
+        };
 
         var list = [
             supIdCol,
@@ -175,7 +175,7 @@ export class BillView {
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             createFormField('BankAccount', lang.col_bank, ControlTypes.TextInput, FieldSize.Double),
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
-            sumCol 
+            sumCol
         ];
 
         this.fields = list;
@@ -183,7 +183,7 @@ export class BillView {
 
     private focusJournalEntries() {
         // todo: ask Jorge how to fetch new value from the damned "TaxInclusiveAmount" ?
-        this.simpleJournalentry.focus();        
+        this.simpleJournalentry.focus();
     }
 
     public onFormReady(event) {
@@ -191,11 +191,11 @@ export class BillView {
     }
 
 
-    /// ============================= 
+    /// =============================
 
-    ///     FILES AND OCR    
+    ///     FILES AND OCR
 
-    /// ============================= 
+    /// =============================
 
     public onFileListReady(files: Array<any>) {
         this.files = files;
@@ -221,7 +221,7 @@ export class BillView {
                 }, (err) => {
                     this.errorService.handle(err);
                     resolve(false);
-                });        
+                });
             }
         });
     }
@@ -232,7 +232,7 @@ export class BillView {
                 var orgNo = filterInput(ocr.Orgno);
                 this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info']).subscribe( (result: Supplier[]) => {
                     if (result && result.length > 0) {
-                        this.setSupplier(result[0]);                    
+                        this.setSupplier(result[0]);
                     } else {
                         this.findSupplierViaPhonebook(orgNo, true);
                     }
@@ -253,7 +253,7 @@ export class BillView {
                 var item = x.Data.entries[0];
                 var title = `${lang.create_supplier} '${item.navn}' ?`;
                 var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
-                this.toast.clear(); 
+                this.toast.clear();
                 if (askUser) {
                     this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found}, ).then( (userChoice: ConfirmActions) => {
                         if (userChoice === ConfirmActions.ACCEPT) {
@@ -271,27 +271,27 @@ export class BillView {
         var sup = new Supplier();
         sup.OrgNumber = orgNo;
         if (bankAccount) {
-            sup.DefaultBankAccount = <any>{ AccountNumber: bankAccount };
+            sup.Info.DefaultBankAccount = <any>{ AccountNumber: bankAccount };
         }
-        sup.Info = <any>{ 
-            Name: name, 
+        sup.Info = <any>{
+            Name: name,
             ShippingAddress: {
                 AddressLine1: address || '',
                 City: city || '',
                 PostalCode: postalCode || '',
                 Country: 'NORGE',
                 CountryCode: 'NO'
-            }   
+            }
         };
         this.supplierService.Post(sup).subscribe( x => {
             this.setSupplier(x);
         }, this.errorService.handle);
-        
+
     }
 
 
     private setFormValue(colName: string, value: any, callInputChange = false) {
-        this.current[colName] = value;        
+        this.current[colName] = value;
         var fld: any = this.uniForm.field(colName);
         fld.control.setValue(value, { emitEvent: true });
         if (callInputChange) {
@@ -305,9 +305,9 @@ export class BillView {
 
     public onSaveDraftForImage() {
         this.save((msg) => {
-            this.userMsg(lang.add_image_now, lang.fyi, 3, true);            
+            this.userMsg(lang.add_image_now, lang.fyi, 3, true);
         });
-    }    
+    }
 
     public onFormChange(model: SupplierInvoice) {
         this.current = model;
@@ -337,7 +337,7 @@ export class BillView {
             this.current.SupplierID = result.ID;
         }
         if (updateCombo) {
-            this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));                
+            this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));
         }
         this.setupToolbar();
     }
@@ -354,11 +354,11 @@ export class BillView {
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
-        this.hasUnsavedChanges = false;        
+        this.hasUnsavedChanges = false;
         this.currentFileID = 0;
         this.files = undefined;
         this.busy = false;
-        if (!isInitial) { 
+        if (!isInitial) {
             this.hasStartupFileID = false;
             this.uniForm.field('SupplierID').control.setValue(0);
         }
@@ -370,7 +370,7 @@ export class BillView {
         this.flagActionBar(actionBar.save, !reset);
         if (!reset) {
             this.actions.forEach( x => x.main = false );
-            this.actions[actionBar.save].main = true;            
+            this.actions[actionBar.save].main = true;
         }
         this.hasUnsavedChanges = !reset;
     }
@@ -404,7 +404,7 @@ export class BillView {
 
         for (key in linkNode) {
             if (linkNode.hasOwnProperty(key)) {
-                
+
                 isFiltered = filters ? (filters.findIndex( x => x === key ) >= 0) : false;
                 if (!isFiltered) {
                     ix++;
@@ -415,7 +415,7 @@ export class BillView {
                         if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
                             ixFound = ixPri;
                             setAsMain = true;
-                        }                     
+                        }
                     }
                     // reset main?
                     if (setAsMain) { list.forEach( x => x.main = false); }
@@ -424,13 +424,13 @@ export class BillView {
                     let label = this.mapActionLabel(itemKey);
                     let href = linkNode[key].href;
 
-                    list.push({ 
-                        label: label, 
+                    list.push({
+                        label: label,
                         action: (done) => {
                             this.handleAction(itemKey, label, href, done);
-                        }, 
-                        main: setAsMain, 
-                        disabled: false  
+                        },
+                        main: setAsMain,
+                        disabled: false
                     });
                 }
             }
@@ -451,11 +451,11 @@ export class BillView {
 
         switch (key) {
             case 'journal':
-                this.confirmModal.confirm(                    
+                this.confirmModal.confirm(
                     lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?',
-                    lang.ask_journal_title + this.current.Supplier.Info.Name, false, 
+                    lang.ask_journal_title + this.current.Supplier.Info.Name, false,
                     { warning: lang.warning_action_not_reversable }).then( (result: ConfirmActions) => {
-                    
+
                     if (result === ConfirmActions.ACCEPT) {
                         this.busy = true;
                         this.tryJournal(href).then((status: ILocalValidation) => {
@@ -538,11 +538,11 @@ export class BillView {
                     reject(err);
                 });
 
-            
+
             }).catch((err: ILocalValidation) => {
                 reject( err );
             });
-            
+
         });
     }
 
@@ -575,7 +575,7 @@ export class BillView {
                 this.errorService.handle(err);
                 reject(err);
             });
-        });              
+        });
     }
 
     private checkLockStatus() {
@@ -602,16 +602,16 @@ export class BillView {
                     this.uniForm.field('PaymentDueDate').editMode();
                     this.uniForm.field('BankAccount').editMode();
                     this.uniForm.field('PaymentID').editMode();
-                    return;               
+                    return;
 
                 case StatusCodeSupplierInvoice.ForApproval:
                     this.uniForm.readMode();
                     this.supplierIsReadOnly = false;
                     this.uniForm.field('PaymentID').editMode();
                     this.uniForm.field('PaymentDueDate').editMode();
-                    return;     
+                    return;
             }
-        } 
+        }
 
         this.uniForm.editMode();
         this.supplierIsReadOnly = false;
@@ -624,7 +624,7 @@ export class BillView {
     public tryDelete(done) {
         this.confirmModal.confirm(lang.ask_delete + (this.current.InvoiceNumber  || '') + '?', this.getSupplierName()).then( x => {
             if (x === ConfirmActions.ACCEPT) {
-                return this.delete(done); 
+                return this.delete(done);
             } else {
                 done(lang.delete_canceled);
             }
@@ -634,7 +634,7 @@ export class BillView {
     public delete(done) {
         var obs: any;
         if (this.current.ID) {
-            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);                
+            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);
         } else {
             done(lang.delete_nothing_todo);
         }
@@ -657,22 +657,22 @@ export class BillView {
     public save(done?): Promise<ILocalValidation> {
         this.preSave();
         return new Promise((resolve, reject) => {
-            
+
             var reload = () => {
                 this.fetchInvoice(this.currentSupplierID, (!!done) )
                 .then(() => {
-                    resolve({ success: true}); 
-                    if (done) { done(lang.save_success); }                
+                    resolve({ success: true});
+                    if (done) { done(lang.save_success); }
                 })
                 .catch((msg) => {
                     reject( { success: false, errorMessage: msg });
                     if (done) { done(msg); }
-                });                
+                });
             };
 
             var obs: any;
             if (this.current.ID) {
-                obs = this.supplierInvoiceService.Put(this.current.ID, this.current);                
+                obs = this.supplierInvoiceService.Put(this.current.ID, this.current);
             } else {
                 obs = this.supplierInvoiceService.Post(this.current);
             }
@@ -685,11 +685,11 @@ export class BillView {
                         //  this.flagFileAsUsed(this.currentFileID, 40001);
                         this.hasStartupFileID = false;
                         this.currentFileID = 0;
-                        reload(); 
+                        reload();
                     });
                 } else {
                     reload();
-                }                
+                }
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
@@ -708,7 +708,7 @@ export class BillView {
 
         var changesMade = false;
 
-        // Ensure dates are set        
+        // Ensure dates are set
         if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
             this.current.JournalEntry.DraftLines.forEach( x => {
                 let orig = x.FinancialDate;
@@ -716,10 +716,10 @@ export class BillView {
                 if (x.FinancialDate !== orig) {
                     changesMade = true;
                 }
-            });     
+            });
         }
 
-        // Auto-set "paymentinformation" from invoicenumber (if kid not set): 
+        // Auto-set "paymentinformation" from invoicenumber (if kid not set):
         if ((!this.current.PaymentID) && (!this.current.PaymentInformation)) {
             if (this.current.InvoiceNumber) {
                 this.current.PaymentInformation = lang.headliner_invoice + this.current.InvoiceNumber;
@@ -740,7 +740,7 @@ export class BillView {
                     item.Amount = this.current.TaxInclusiveAmount * -1;
                     item.Description = item.Description || (lang.headliner_invoice + ' ' + this.current.InvoiceNumber);
                     if (addToList) {
-                         this.current.JournalEntry.DraftLines.push(item);                         
+                         this.current.JournalEntry.DraftLines.push(item);
                     }
                     this.save().then(x => resolve(x)).catch( x => reject(x));
                 } else {
@@ -752,12 +752,12 @@ export class BillView {
                 var supplierId = safeInt(this.current.Supplier.SupplierNumber);
                 var item: JournalEntryLineDraft;
                 let items = this.current.JournalEntry.DraftLines;
-                item = items.find( x => x.Account ? x.Account.AccountNumber === this.current.Supplier.SupplierNumber : false ); 
+                item = items.find( x => x.Account ? x.Account.AccountNumber === this.current.Supplier.SupplierNumber : false );
                 if (!item) {
                     item = new JournalEntryLineDraft();
-                    checkGuid(item); 
+                    checkGuid(item);
                     this.supplierInvoiceService.getStatQuery(`?model=account&select=ID as AccountID&filter=AccountNumber eq ${supplierId}`).subscribe( result => {
-                        item.AccountID = result[0].AccountID;                         
+                        item.AccountID = result[0].AccountID;
                         completeAccount(item, true);
                         return;
                     }, (err) => {
@@ -765,7 +765,7 @@ export class BillView {
                         reject({ success: false, errorMessage: lang.err_supplieraccount_not_found});
                     });
                     return;
-                }             
+                }
                 completeAccount(item);
                 return;
             }
@@ -799,7 +799,7 @@ export class BillView {
         this.registerPaymentModal.openModal(this.current.ID, title, invoiceData);
 
         done('');
-    }    
+    }
 
 
     private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
@@ -816,7 +816,7 @@ export class BillView {
             sum = roundTo(sum);
             if (sum === 0 && (maxSum || minSum)) {
                 return { success: true };
-            }            
+            }
             if (sum !== 0) {
                 msg = lang.err_diff;
             }
@@ -837,8 +837,8 @@ export class BillView {
         /*
         if (tab.activate) {
             tab.activate(this.timeSheet, this.currentFilter);
-        } 
-        */       
+        }
+        */
     }
 
     private checkSave(): Promise<boolean> {
@@ -865,7 +865,7 @@ export class BillView {
             });
         });
 
-    }    
+    }
 
     public onEntryChange(details: { rowIndex: number, item: JournalEntryLineDraft, extra: any }) {
         this.flagUnsavedChanged();
@@ -894,20 +894,20 @@ export class BillView {
             }
         });
         return statustrack;
-    }    
+    }
 
     private setupToolbar() {
         var doc: SupplierInvoice = this.current;
         var stConfig = this.getStatustrackConfig();
         var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new, 
+            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new,
             subheads: [
                 {title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : ''},
                 {title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : ''},
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined 
+                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined
                 }
             ],
             statustrack: stConfig,
@@ -915,11 +915,11 @@ export class BillView {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
                 add: () => {
-                    this.newInvoice(false); 
-                    this.router.navigateByUrl('/accounting/bill/0'); 
+                    this.newInvoice(false);
+                    this.router.navigateByUrl('/accounting/bill/0');
                 }
             },
-        };        
+        };
     }
 
     private navigateTo(direction = 'next') {
@@ -965,7 +965,7 @@ export class BillView {
         }).catch((err) => {
             // self-link to file already exists.. ignore..
             this.currentFileID = <number>fileID;
-        });        
+        });
     }
 
     private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
@@ -992,7 +992,7 @@ export class BillView {
                 });
             }
             this.defaultPath = this.defaultPath.substr(0, ix);
-        } 
+        }
     }
 
 
@@ -1024,7 +1024,7 @@ export class BillView {
                 var dropDown = btn.nextSibling;
                 btn.parentElement.insertBefore(sibling, dropDown);
             }
-            // Create keyboard-shortcut (F3) 
+            // Create keyboard-shortcut (F3)
             el = frm.elementRef.nativeElement.getElementsByTagName('input');
             if (el && el.length > 0) {
                 el[0].addEventListener('keydown', (event) => {

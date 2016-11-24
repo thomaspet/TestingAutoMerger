@@ -51,7 +51,7 @@ export class SupplierDetails implements OnInit {
     public reportLinks: IReference[];
     public showReportWithID: number;
 
-    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'DefaultBankAccount'];
+    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'Info.DefaultBankAccount', 'Info.BankAccounts', 'Info.BankAccounts.Bank'];
 
     private formIsInitialized: boolean = false;
 
@@ -190,7 +190,6 @@ export class SupplierDetails implements OnInit {
                 this.emptyBankAccount = response[6];
 
                 let supplier = response[2];
-                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
                 this.supplier = supplier;
 
                 this.setTabTitle();
@@ -212,7 +211,6 @@ export class SupplierDetails implements OnInit {
                 )
             ).subscribe(response => {
                 let supplier = response[0];
-                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
                 this.supplier = supplier;
                 this.setTabTitle();
 
@@ -416,14 +414,13 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        let defaultBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultBankAccount');
         defaultBankAccount.Options = {
-            allowAddValue: false,
             entity: 'BankAccount',
-            listProperty: 'BankAccounts',
+            listProperty: 'Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'DefaultBankAccountID',
+            storeResultInProperty: 'Info.DefaultBankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
@@ -498,16 +495,28 @@ export class SupplierDetails implements OnInit {
             this.supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (this.supplier.DefaultBankAccount && (!this.supplier.DefaultBankAccount.AccountNumber || this.supplier.DefaultBankAccount.AccountNumber === '')) {
-            this.supplier.DefaultBankAccount = null;
+        if (this.supplier.Info.DefaultBankAccount && (!this.supplier.Info.DefaultBankAccount.AccountNumber || this.supplier.Info.DefaultBankAccount.AccountNumber === '')) {
+            this.supplier.Info.DefaultBankAccount = null;
         }
 
-        if (this.supplier.DefaultBankAccount !== null && (!this.supplier.DefaultBankAccount.ID || this.supplier.DefaultBankAccount.ID === 0)) {
-            this.supplier.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
+        if (this.supplier.Info.DefaultBankAccount !== null && (!this.supplier.Info.DefaultBankAccount.ID || this.supplier.Info.DefaultBankAccount.ID === 0)) {
+            this.supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (this.supplier.DefaultBankAccount) {
-            this.supplier.DefaultBankAccount.BankAccountType = 'supplier';
+        if (this.supplier.Info.BankAccounts) {
+            this.supplier.Info.BankAccounts.forEach(bankaccount => {
+                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                }
+            });
+
+            if (this.supplier.Info.DefaultBankAccount) {
+                this.supplier.Info.BankAccounts = this.supplier.Info.BankAccounts.filter(x => x !== this.supplier.Info.DefaultBankAccount);
+            }
+        }
+
+        if (this.supplier.Info.DefaultBankAccount) {
+            this.supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
         }
 
         if (this.supplierID > 0) {
@@ -759,7 +768,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'DefaultBankAccount',
+                    Property: 'Info.DefaultBankAccount',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
