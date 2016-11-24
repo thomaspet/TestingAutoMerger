@@ -59,29 +59,38 @@ export class VacationpaySettingModalContent {
 
     }
 
+    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
+    private fixTimezone(date): Date {
+        if (typeof date === 'string') {
+            return new Date(date);
+        }
+
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+
     public saveSettings() {
         // save uniform
         if (this.companysalaryModel.ID > 0) {
             this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
-            .subscribe((formresponse) => {
-                this.done('Firmalønn oppdatert');
-            }, this.errorService.handle);
+                .subscribe((formresponse) => {
+                    this.done('Firmalønn oppdatert');
+                }, this.errorService.handle);
         }
-        
+
         // save unitable
         this.changedVacationRates = this.table.getTableData();
         this.changedVacationRates.forEach(vacationRate => {
             if (vacationRate.ID > 0) {
                 this._companyvacationRateService.Put(vacationRate.ID, vacationRate)
-                .subscribe((response) => {
-                    this.done('Feriepengesats oppdatert');
-                },
+                    .subscribe((response) => {
+                        this.done('Feriepengesats oppdatert');
+                    },
                     this.errorService.handle);
             } else {
                 this._companyvacationRateService.Post(vacationRate)
-                .subscribe((response) => {
-                    this.done('Feriepengesats lagret: ');
-                },
+                    .subscribe((response) => {
+                        this.done('Feriepengesats lagret: ');
+                    },
                     this.errorService.handle);
             }
         });
@@ -144,15 +153,14 @@ export class VacationpaySettingModalContent {
             });
 
         this.tableConfig = new UniTableConfig(true)
-        .setColumns([rateCol, rate60Col, dateCol])
-        .setPageable(this.vacationRates.length > 10)
-        .setChangeCallback((event) => {
-            let row = event.rowModel;
-            if (event.field === 'FromDate') {
-                let newDate = new Date(row.FromDate, 0, 1, 12);
-                row.FromDate = newDate;
-                return row;
-            }
-        });
+            .setColumns([rateCol, rate60Col, dateCol])
+            .setPageable(this.vacationRates.length > 10)
+            .setChangeCallback((event) => {
+                let row = event.rowModel;
+                if (event.field === 'FromDate') {
+                    row.FromDate = this.fixTimezone(new Date(row.FromDate, 0, 1));
+                    return row;
+                }
+            });
     }
 }
