@@ -76,7 +76,7 @@ export class OrderDetails {
     private order: CustomerOrderExt;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
-    private actions: IUniSaveAction[];
+    private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
@@ -302,8 +302,18 @@ export class OrderDetails {
     }
 
     private setTabTitle() {
-        let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)';
-        this.tabService.addTab({ url: '/sales/orders/' + this.order.ID, name: tabTitle, active: true, moduleID: UniModules.Orders });
+        let tabTitle = '';
+        if (this.order.OrderNumber) {
+            tabTitle = 'Ordrenr. ' + this.order.OrderNumber;
+        } else {
+            tabTitle = (this.order.ID) ? 'Ordre (kladd)' : 'Ny ordre';
+        }
+        this.tabService.addTab({
+            url: '/sales/orders/' + this.order.ID,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Orders
+        });
     }
 
     private updateToolbar() {
@@ -340,9 +350,8 @@ export class OrderDetails {
     }
 
     private updateSaveActions() {
-        this.actions = [];
-
-        this.actions.push({
+        this.saveActions = [];
+        this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
                 this.saveOrder().subscribe(
@@ -361,29 +370,29 @@ export class OrderDetails {
             disabled: this.IsSaveDisabled()
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og skriv ut',
             action: (done) => this.saveAndPrint(done),
             disabled: false
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveAndTransferToInvoice(done),
             disabled: this.IsTransferToInvoiceDisabled()
         });
-        this.actions.push({
+        this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveOrderTransition(done, 'register', 'Registrert'),
             disabled: (this.order.StatusCode !== StatusCodeCustomerOrder.Draft)
         });
-        this.actions.push({
+        this.saveActions.push({
             label: 'Avslutt ordre',
             action: (done) => this.saveOrderTransition(done, 'complete', 'Ordre avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteOrder(done),
             disabled: true

@@ -284,16 +284,11 @@ export class InvoiceDetails {
     }
 
     private updateTabTitle() {
-        var tabTitle;
-        if (this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
-            tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
+        let tabTitle = '';
+        if (this.invoice.InvoiceNumber) {
+            tabTitle = 'Fakturanr. ' + this.invoice.InvoiceNumber;
         } else {
-            if (this.invoice.InvoiceNumber) {
-                tabTitle = 'Fakturanr. ' + this.invoice.InvoiceNumber;
-            } else {
-                tabTitle = (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft)
-                    ? 'Faktura (kladd)' : 'Ny faktura';
-            }
+            tabTitle = (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
         }
         this.tabService.addTab({ url: '/sales/invoices/' + this.invoice.ID, name: tabTitle, active: true, moduleID: UniModules.Invoices });
     }

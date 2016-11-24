@@ -57,7 +57,7 @@ export class QuoteDetails {
     private quote: CustomerQuote;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
-    private actions: IUniSaveAction[];
+    private saveActions: IUniSaveAction[] = [];
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
 
@@ -274,8 +274,18 @@ export class QuoteDetails {
     }
 
     private setTabTitle() {
-        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud';
-        this.tabService.addTab({ url: '/sales/quotes/' + this.quote.ID, name: tabTitle, active: true, moduleID: UniModules.Quotes });
+        let tabTitle = '';
+        if (this.quote.QuoteNumber) {
+            tabTitle = 'Tilbudsnr. ' + this.quote.QuoteNumber;
+        } else {
+            tabTitle = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
+        }
+        this.tabService.addTab({
+            url: '/sales/quotes/' + this.quote.ID,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Quotes
+        });
     }
 
 
@@ -323,16 +333,15 @@ export class QuoteDetails {
     }
 
     private updateSaveActions() {
-        this.actions = [];
-
-        this.actions.push({
+        this.saveActions = [];
+        this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
             disabled: this.IsTransferToRegisterDisabled(),
             main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
                 this.saveQuote().subscribe(
@@ -351,13 +360,13 @@ export class QuoteDetails {
             main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre som kladd',
             action: (done) => this.saveQuoteAsDraft(done),
             disabled: (this.quote.ID > 0)
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og skriv ut',
             action: (done) => this.saveAndPrint(done),
             disabled: this.quote.ID === 0
@@ -365,26 +374,26 @@ export class QuoteDetails {
 
         // TODO: Add a actions for shipToCustomer,customerAccept
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og overfør til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder', 'Overført til ordre'),
             disabled: this.IsTransferToOrderDisabled()
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice', 'Overført til faktura'),
             disabled: this.IsTransferToInvoiceDisabled()
 
         });
-        this.actions.push({
+        this.saveActions.push({
             label: 'Avslutt tilbud',
             action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
 
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteQuote(done),
             disabled: true
