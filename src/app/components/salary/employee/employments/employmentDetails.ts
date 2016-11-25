@@ -66,7 +66,7 @@ export class EmploymentDetails implements OnChanges {
             this.fields = layout.Fields;
             let jobCodeField = this.fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
-                getDefaultData: () =>  Observable.of([ this.employment ? {styrk: this.employment.JobCode, tittel: this.employment.JobName} : {styrk: '', tittel: ''}]),
+                getDefaultData: () => Observable.of([this.employment ? { styrk: this.employment.JobCode, tittel: this.employment.JobName } : { styrk: '', tittel: '' }]),
                 template: (obj) => obj ? `${obj.styrk} - ${obj.tittel}` : '',
                 search: (query: string) => this.statisticsService.GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or startswith(tittel,'${query}')`).map(x => x.Data),
                 displayProperty: 'styrk',
@@ -82,8 +82,11 @@ export class EmploymentDetails implements OnChanges {
                 }
             };
             let ledgerAccountField = this.fields.find(field => field.Property === 'LedgerAccount');
+            let accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
+                ? this.accountService.GetAll(`filter=AccountNumber eq ${this.employment.LedgerAccount}` + '&top=1')
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
             ledgerAccountField.Options = {
-                source: this.accountService,
+                getDefaultData: () => accountObs,
                 search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
                 displayProperty: 'AccountName',
                 valueProperty: 'AccountNumber',
