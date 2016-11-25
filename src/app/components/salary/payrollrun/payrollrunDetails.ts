@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType } from '../../../unientities';
+import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, Employment } from '../../../unientities';
 import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService, ReportDefinitionService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -53,6 +53,7 @@ export class PayrollrunDetails extends UniView {
     private employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
     private wagetypes: WageType[];
+    private employments: Employment[];
 
     constructor(
         private route: ActivatedRoute,
@@ -147,6 +148,8 @@ export class PayrollrunDetails extends UniView {
 
             super.getStateSubject('employees').subscribe((employees: Employee[]) => {
                 this.employees = employees;
+                this.employments = [];
+                employees.map(x => x.Employments.concat(this.employments));
             });
 
             super.getStateSubject('salaryTransactions').subscribe((salaryTransactions: SalaryTransaction[]) => {
@@ -227,7 +230,12 @@ export class PayrollrunDetails extends UniView {
 
     private getSalaryTransactions() {
         let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
-        this._salaryTransactionService.GetAll('filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC', ['Supplements.WageTypeSupplement']).subscribe((response) => {
+        this._salaryTransactionService.GetAll('filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC', ['WageType', 'employment', 'Supplements.WageTypeSupplement']).subscribe((response) => {
+            response.map(x => {
+                let account = new Account();
+                account.AccountNumber = x.Account;
+                x['_Account'] = account;
+            });
             super.updateState('salaryTransactions', response, false);
         }, this.errorService.handle);
     }
@@ -444,7 +452,7 @@ export class PayrollrunDetails extends UniView {
                 this.uniform.section(1).toggle();
                 this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
                 this.uniform.field('Description').focus();
-            } else {
+            } else if (this.selectionList) {
                 this.selectionList.focusRow();
             }
         }
@@ -459,6 +467,9 @@ export class PayrollrunDetails extends UniView {
     private saveAll(done?: (message: string) => void) {
         this.setEditableOnChildren(false);
         this.savePayrollrun().finally(() => this.setEditableOnChildren(true)).subscribe((payrollRun: PayrollRun) => {
+            if (this.selectionList) {
+                this.selectionList.updateSums();
+            }
 
             this.payrollrun = payrollRun;
             this.setSection();
@@ -477,8 +488,17 @@ export class PayrollrunDetails extends UniView {
             newTranses.map(trans => {
                 let index = this.salaryTransactions.findIndex(x => x.ID === trans.ID);
                 if (index > 0) {
+                    let oldTrans = this.salaryTransactions[index];
                     this.salaryTransactions[index] = trans;
+                    this.salaryTransactions[index].Wagetype = oldTrans.Wagetype;
+                    this.salaryTransactions[index].employment = oldTrans.employment;
                 } else {
+                    if (this.wagetypes && !trans.Wagetype) {
+                        trans.Wagetype = this.wagetypes.find(x => x.ID === trans.WageTypeID);
+                    }
+                    if (this.employees && !trans.employment) {
+                        trans.employment = this.employments.find(x => x.ID === trans.EmploymentID);
+                    }
                     this.salaryTransactions.push(trans);
                 }
             });
@@ -507,7 +527,9 @@ export class PayrollrunDetails extends UniView {
     }
 
     private setEditableOnChildren(isEditable: boolean) {
-        this.selectionList.setEditable(isEditable);
+        if (this.selectionList) {
+            this.selectionList.setEditable(isEditable);
+        }
     }
 
     public changeFilter(filter: string) {
@@ -523,25 +545,25 @@ export class PayrollrunDetails extends UniView {
         this.payrollrun.ToDate = this.fixTimezone(this.payrollrun.ToDate);
 
         if (this.payrollrun.ID > 0) {
-            this.payrollrun.transactions = this.salaryTransactions
-                .filter(x => x['_isDirty'] || x.Deleted)
-                .map((trans: SalaryTransaction) => {
-                    if (!trans.Deleted) {
-                        if (!trans.ID) {
-                            trans['_createguid'] = this._salaryTransactionService.getNewGuid();
-                        }
-                        if (trans.Supplements) {
-                            trans.Supplements
-                                .filter(x => !x.ID)
-                                .forEach((supplement: SalaryTransactionSupplement) => {
-                                    supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
-                                });
-                        }
+            this.payrollrun.transactions = _.cloneDeep(this.salaryTransactions
+                .filter(x => x['_isDirty'] || x.Deleted));
+            this.payrollrun.transactions.map((trans: SalaryTransaction) => {
+                if (!trans.Deleted) {
+                    if (!trans.ID) {
+                        trans['_createguid'] = this._salaryTransactionService.getNewGuid();
                     }
-                    trans.Wagetype = null;
-                    trans.Employee = null;
-                    return trans;
-                });
+                    if (trans.Supplements) {
+                        trans.Supplements
+                            .filter(x => !x.ID)
+                            .forEach((supplement: SalaryTransactionSupplement) => {
+                                supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
+                            });
+                    }
+                }
+                trans.Wagetype = null;
+                trans.Employee = null;
+                return trans;
+            });
             retObs = this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun);
         } else {
             retObs = this.payrollrunService.Post(this.payrollrun);

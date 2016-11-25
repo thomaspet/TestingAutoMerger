@@ -18,8 +18,8 @@ declare var _;
 
 export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
     private salarytransSelectionTableConfig: UniTableConfig;
-    private employeeList: Employee[];
-    private selectedIndex: number;
+    private employeeList: Employee[] = [];
+    private selectedIndex: number = 0;
     private agaZone: AGAZone;
     private payrollRunID: number;
 
@@ -51,11 +51,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             this.payrollRunID = +param['id'];
             super.updateCacheKey(router.url);
             super.getStateSubject('employees').subscribe((employees: Employee[]) => {
+                
+                this.selectedIndex = 0;
                 this.employeeList = employees || [];
 
                 this.focusRow(0);
-
-                this.selectedIndex = 0;
 
                 if (this.employeeList && this.employeeList.length) {
                     this.getAga();
@@ -221,6 +221,10 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     public hasDirty(): boolean {
         return this.transList ? this.transList.hasDirty() : false;
+    }
+
+    public updateSums() {
+        this.setSummarySource();
     }
 
     public setEditable(isEditable: boolean) {
