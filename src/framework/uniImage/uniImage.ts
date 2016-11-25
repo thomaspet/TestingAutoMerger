@@ -60,6 +60,9 @@ export class UniImage {
     public entityID: number;
 
     @Input()
+    public uploadWithoutEntity: boolean = false;
+
+    @Input()
     public size: UniImageSize;
 
     @Input()
@@ -73,6 +76,9 @@ export class UniImage {
 
     @Input()
     public showFileID: number;
+
+    @Input()
+    public fileIDs: number[] = [];
 
     @Output()
     public fileListReady: EventEmitter<File[]> = new EventEmitter<File[]>();
@@ -126,6 +132,8 @@ export class UniImage {
 
         if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
             this.refreshFiles();
+        } else if (changes['fileIDs']) {
+            this.refreshFiles();
         } else if (changes['showFileID'] && this.files && this.files.length) {
             this.currentFileIndex = this.getChosenFileIndex();
             this.loadImage();
@@ -136,22 +144,45 @@ export class UniImage {
     }
 
     public refreshFiles() {
-        this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${this.entity}/${this.entityID}`)
-            .send()
-            .subscribe((res) => {
-                this.files = res.json();
-                this.fileListReady.emit(this.files);
-                if (this.files.length) {
-                    this.currentPage = 1;
-                    this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
-                    this.loadImage();
-                    if (!this.singleImage) {
-                        this.loadThumbnails();
+        if (this.fileIDs && this.fileIDs.length > 0) {
+            let requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
+
+            this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint(`files?filter=${requestFilter}`)
+                .send()
+                .subscribe((res) => {
+                    this.files = res.json();
+                    this.fileListReady.emit(this.files);
+                    if (this.files.length) {
+                        this.currentPage = 1;
+                        this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
+                        this.loadImage();
+                        if (!this.singleImage) {
+                            this.loadThumbnails();
+                        }
                     }
-                }
-            }, this.errorService.handle);
+                }, this.errorService.handle);
+        } else if (this.entity && this.entityID) {
+            this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint(`files/${this.entity}/${this.entityID}`)
+                .send()
+                .subscribe((res) => {
+                    this.files = res.json();
+                    this.fileListReady.emit(this.files);
+                    if (this.files.length) {
+                        this.currentPage = 1;
+                        this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
+                        this.loadImage();
+                        if (!this.singleImage) {
+                            this.loadThumbnails();
+                        }
+                    }
+                }, this.errorService.handle);
+        } else {
+             this.files = [];
+        }
     }
 
     private getChosenFileIndex() {
@@ -248,9 +279,9 @@ export class UniImage {
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
 
-        if (!this.entity || !this.isDefined(this.entityID)) {
+        if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {
             throw new Error(`Tried to upload a picture with either entity (${this.entity})`
-                 + ` or entityID (${this.entityID}) being null`);
+                 + ` or entityID (${this.entityID}) being null, and uploadWithoutEntity being false`);
         }
 
         if (source.files && source.files.length) {
@@ -258,7 +289,7 @@ export class UniImage {
             const newFile = source.files[0];
             source.value = '';
 
-            if (this.singleImage && this.files.length) {
+            if (this.singleImage && this.files.length && !this.uploadWithoutEntity) {
                 const oldFileID = this.files[0].ID;
                 this.http.asDELETE()
                     .usingBusinessDomain()
@@ -277,8 +308,12 @@ export class UniImage {
         let data = new FormData();
         data.append('Token', this.token);
         data.append('CompanyKey', this.activeCompany.Key);
-        data.append('EntityType', this.entity);
-        data.append('EntityID', this.entityID);
+        if (this.entity) {
+            data.append('EntityType', this.entity);
+        }
+        if (this.entityID) {
+            data.append('EntityID', this.entityID);
+        }
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);
 

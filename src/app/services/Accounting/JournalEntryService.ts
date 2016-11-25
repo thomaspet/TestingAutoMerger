@@ -50,7 +50,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getSessionData(mode: number): Array<JournalEntryData> {
-        let previousSessionData = this.storageService.sessionGet(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`);
+        let previousSessionData = this.storageService.sessionGet(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, true);
 
         if (previousSessionData) {
             let data = JSON.parse(previousSessionData);
@@ -61,7 +61,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public setSessionData(mode: number, data: Array<JournalEntryData>) {
-        this.storageService.sessionSave(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, JSON.stringify(data));
+        this.storageService.sessionSave(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, JSON.stringify(data), true);
     }
 
     public getLastJournalEntryNumber(): Observable<any> {

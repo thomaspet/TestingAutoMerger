@@ -1,5 +1,7 @@
+
 <uni-table [resource]="journalEntryLines"
             [config]="journalEntryTableConfig"
             (rowChanged)="rowChanged($event)"
+            (rowSelected)="rowSelected($event)"
             *ngIf="journalEntryTableConfig">
 </uni-table>

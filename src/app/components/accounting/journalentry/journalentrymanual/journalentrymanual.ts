@@ -33,6 +33,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
     private journalEntryMode: string;
+    private doShowImage: boolean = false;
+    private showImagesForJournalEntryNo: string = '';
+    private currentJournalEntryImages: number[] = [];
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
 
@@ -44,6 +47,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
             label: 'Lagre og bokfør',
             action: (completeEvent) => this.postJournalEntryData(completeEvent),
             main: true,
+            disabled: false
+        },
+        {
+            label: 'Slett alle bilag i listen',
+            action: (completeEvent) => this.removeJournalEntryData(completeEvent),
+            main: false,
             disabled: false
         }
     ];
@@ -124,6 +133,52 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 }
             }
         });
+    }
+
+    private onShowImageChanged(showImage: boolean) {
+        this.doShowImage = showImage;
+    }
+
+    private onShowImageForJournalEntry(journalEntry: JournalEntryData) {
+        if (this.showImagesForJournalEntryNo !== journalEntry.JournalEntryNo) {
+            this.showImagesForJournalEntryNo = journalEntry.JournalEntryNo;
+            this.currentJournalEntryImages = journalEntry.FileIDs;
+        }
+    }
+
+    private onFileListReady(files) {
+        let fileIds: number[] = [];
+
+        files.forEach(file => {
+            fileIds.push(parseInt(file.ID));
+        });
+
+        let didChangeAnything: boolean = false;
+        let data = this.getJournalEntryData();
+
+        data.forEach(entry => {
+            if (entry.JournalEntryNo === this.showImagesForJournalEntryNo) {
+                if (!entry.FileIDs) {
+                    entry.FileIDs = fileIds;
+                    didChangeAnything = true;
+                } else {
+                    fileIds.forEach(id => {
+                        if (!entry.FileIDs.find(x => x === id)) {
+                            entry.FileIDs.push(id);
+                            didChangeAnything = true;
+                        }
+                    });
+                }
+            }
+        });
+
+        if (didChangeAnything) {
+            // something was updated, update datasource for unitable
+            this.setJournalEntryData(data);
+
+            // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
+            this.journalEntryService.setSessionData(this.mode, data);
+        }
     }
 
     public addJournalEntryData(data: JournalEntryData) {
@@ -243,11 +298,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    private removeJournalEntryData(event) {
+    private removeJournalEntryData(completeCallback) {
         if (this.journalEntrySimple) {
-            this.journalEntrySimple.removeJournalEntryData();
+            this.journalEntrySimple.removeJournalEntryData(completeCallback);
         } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.removeJournalEntryData();
+            this.journalEntryProfessional.removeJournalEntryData(completeCallback);
         }
     }
 

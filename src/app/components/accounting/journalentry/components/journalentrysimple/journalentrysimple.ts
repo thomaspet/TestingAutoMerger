@@ -183,9 +183,13 @@ export class JournalEntrySimple implements OnInit {
         };
     }
 
-    public removeJournalEntryData() {
+    public removeJournalEntryData(completeCallback) {
         if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
             this.journalEntryLines = new Array<JournalEntryData>();
+            this.dataChanged.emit(this.journalEntryLines);
+            completeCallback('Listen er tømt');
+        } else {
+            completeCallback('');
         }
     }
 

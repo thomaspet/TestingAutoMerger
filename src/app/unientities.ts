@@ -1279,7 +1279,6 @@ export class Customer {
     public CreatedBy: string;
     public CreditDays: number;
     public CustomerNumber: number;
-    public DefaultBankAccountID: number;
     public Deleted: boolean;
     public DimensionsID: number;
     public ID: number;
@@ -1289,7 +1288,6 @@ export class Customer {
     public UpdatedBy: string;
     public WebUrl: string;
     public Info: BusinessRelation;
-    public DefaultBankAccount: BankAccount;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1607,7 +1605,6 @@ export class Supplier {
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreditDays: number;
-    public DefaultBankAccountID: number;
     public Deleted: boolean;
     public DimensionsID: number;
     public ID: number;
@@ -1618,7 +1615,6 @@ export class Supplier {
     public UpdatedBy: string;
     public WebUrl: string;
     public Info: BusinessRelation;
-    public DefaultBankAccount: BankAccount;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1676,6 +1672,7 @@ export class BusinessRelation {
 
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DefaultBankAccountID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
     public Deleted: boolean;
@@ -1689,10 +1686,12 @@ export class BusinessRelation {
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
 
@@ -1952,6 +1951,48 @@ export class AmeldingLog {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class SalaryTransactionSupplement {
+    public static RelativeUrl = '';
+    public static EntityType = 'SalaryTransactionSupplement';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public SalaryTransactionID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValueBool: boolean;
+    public ValueDate: Date;
+    public ValueMoney: number;
+    public ValueString: string;
+    public WageTypeSupplementID: number;
+    public WageTypeSupplement: WageTypeSupplement;
+    public CustomFields: any;
+}
+
+
+export class WageTypeSupplement {
+    public static RelativeUrl = '';
+    public static EntityType = 'WageTypeSupplement';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public SuggestedValue: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValueType: Valuetype;
+    public WageTypeID: number;
     public CustomFields: any;
 }
 
@@ -2262,26 +2303,6 @@ export class WageType {
 }
 
 
-export class WageTypeSupplement {
-    public static RelativeUrl = '';
-    public static EntityType = 'WageTypeSupplement';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public ID: number;
-    public Name: string;
-    public StatusCode: number;
-    public SuggestedValue: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public ValueType: Valuetype;
-    public WageTypeID: number;
-    public CustomFields: any;
-}
-
-
 export class SalaryTransaction {
     public static RelativeUrl = 'salarytrans';
     public static EntityType = 'SalaryTransaction';
@@ -2319,28 +2340,6 @@ export class SalaryTransaction {
     public Wagetype: WageType;
     public employment: Employment;
     public Supplements: Array<SalaryTransactionSupplement>;
-    public CustomFields: any;
-}
-
-
-export class SalaryTransactionSupplement {
-    public static RelativeUrl = '';
-    public static EntityType = 'SalaryTransactionSupplement';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public SalaryTransactionID: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public ValueBool: boolean;
-    public ValueDate: Date;
-    public ValueMoney: number;
-    public ValueString: string;
-    public WageTypeSupplementID: number;
-    public WageTypeSupplement: WageTypeSupplement;
     public CustomFields: any;
 }
 
@@ -3908,6 +3907,7 @@ export class BankAccount {
     public AccountNumber: string;
     public BankAccountType: string;
     public BankID: number;
+    public BusinessRelationID: number;
     public CompanySettingsID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3920,6 +3920,7 @@ export class BankAccount {
     public UpdatedBy: string;
     public Bank: Bank;
     public Account: Account;
+    public BusinessRelation: BusinessRelation;
     public CustomFields: any;
 }
 
@@ -4761,6 +4762,14 @@ export enum SalaryRegistry{
 }
 
 
+export enum Valuetype{
+	IsString = 1,
+	IsDate = 2,
+	IsBool = 3,
+	IsMoney = 4,
+}
+
+
 export enum CompanySalaryPaymentInterval{
 	Monthly = 0,
 	Pr14Days = 1,
@@ -4817,9 +4826,9 @@ export enum WorkingHoursScheme{
 
 
 export enum TaxDrawFactor{
-	Standard = 0,
-	Half = 1,
-	None = 2,
+	Standard = 1,
+	Half = 2,
+	None = 3,
 }
 
 
@@ -4879,14 +4888,6 @@ export enum TaxType{
 	Tax_Table = 1,
 	Tax_Percent = 2,
 	Tax_0 = 3,
-}
-
-
-export enum Valuetype{
-	IsString = 1,
-	IsDate = 2,
-	IsBool = 3,
-	IsMoney = 4,
 }
 
 

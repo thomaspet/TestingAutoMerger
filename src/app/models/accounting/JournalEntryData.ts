@@ -38,5 +38,7 @@ export class JournalEntryData {
 
     JournalEntryDraftIDs: number[];
 
+    FileIDs: number[];
+
     SameOrNew: string;
 }

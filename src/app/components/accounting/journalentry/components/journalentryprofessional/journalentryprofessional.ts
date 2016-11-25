@@ -11,6 +11,7 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
+const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({
     selector: 'journal-entry-professional',
@@ -29,6 +30,8 @@ export class JournalEntryProfessional implements OnInit {
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+    @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
     private projects: Project[];
     private departments: Department[];
@@ -41,6 +44,9 @@ export class JournalEntryProfessional implements OnInit {
 
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
+
+    private doShowImage: boolean = false;
+    private lastImageDisplayFor: string = '';
 
     constructor(
         private uniHttpService: UniHttp,
@@ -119,6 +125,12 @@ export class JournalEntryProfessional implements OnInit {
             // update alternatives, this will change when new numbers are used. Do this after datasource is updated, using setTimeout
             // because we need the updated alternatives to reuse the same method
             this.setupSameNewAlternatives();
+
+            // if we are working with images and the journalentrynumber has changed we need to notify
+            // the observers
+            if (this.doShowImage) {
+                this.showImageForJournalEntry.emit(newRow);
+            }
         });
     }
 
@@ -234,7 +246,7 @@ export class JournalEntryProfessional implements OnInit {
 
     private setupUniTable() {
 
-        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('6%')
+        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('80px')
             .setEditorOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
@@ -248,7 +260,7 @@ export class JournalEntryProfessional implements OnInit {
                 return item.JournalEntryNo ? item.JournalEntryNo : '';
             });
 
-        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth('7%');
+        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth('80px');
 
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Fakturanr', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
@@ -273,7 +285,7 @@ export class JournalEntryProfessional implements OnInit {
                 }
                 return '';
             })
-            .setWidth('15%')
+            .setWidth('10%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
@@ -314,7 +326,7 @@ export class JournalEntryProfessional implements OnInit {
                 }
                 return '';
             })
-            .setWidth('15%')
+            .setWidth('10%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
@@ -343,8 +355,8 @@ export class JournalEntryProfessional implements OnInit {
                 }
             });
 
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('7%');
-        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('7%').setSkipOnEnterKeyNavigation(true);
+        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('90px');
+        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('90px').setSkipOnEnterKeyNavigation(true);
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth('8%')
@@ -384,6 +396,13 @@ export class JournalEntryProfessional implements OnInit {
 
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
 
+        let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
+                    .setTemplate(line => line.FileIDs ? PAPERCLIP : '')
+                    .setWidth('30px')
+                    .setFilterable(false)
+                    .setSkipOnEnterKeyNavigation(true)
+                    .setOnCellClick(line => this.toggleImageVisibility(line));
+
         let defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
@@ -419,7 +438,7 @@ export class JournalEntryProfessional implements OnInit {
         } else {
 
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
-                projectCol, departmentCol, descriptionCol];
+                projectCol, departmentCol, descriptionCol, fileCol];
         }
 
         this.journalEntryTableConfig = new UniTableConfig(!this.disabled, false, 100)
@@ -434,11 +453,36 @@ export class JournalEntryProfessional implements OnInit {
                 }
             ])
             .setDefaultRowData(defaultRowData)
+            .setColumnMenuVisible(true)
+            .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
 
                 if (event.field === 'SameOrNewDetails' || !newRow.JournalEntryNo) {
+                    let originalJournalEntryNo = newRow.JournalEntryNo;
+
                     this.setJournalEntryNumberProperties(newRow);
+
+
+                    // Set FileIDs based on journalentryno - if it is the same as an existing, use that,
+                    // if it has files but the journalentryno changed, and other journalentries still exists for the
+                    // old journalentryno, clear the FileIDs for this journalentry
+                    if (originalJournalEntryNo && originalJournalEntryNo !== newRow.JournalEntryNo && newRow.FileIDs) {
+                        // JournalEntryNo has changed - clear FileIDs
+                        newRow.FileIDs = null;
+                    }
+
+                    // if FileIDs is null, see any other journalentrydata with the same number has any files attached
+                    if (!newRow.FileIDs) {
+                        let data = this.table.getTableData();
+                        let dataFound: boolean = false;
+                        for (let i = 0; i < data.length && !dataFound; i++) {
+                            if (newRow.JournalEntryNo === data[i].JournalEntryNo) {
+                                newRow.FileIDs = data[i].FileIDs;
+                                dataFound = true;
+                            }
+                        }
+                    }
                 }
 
                 if (event.field === 'Amount') {
@@ -562,6 +606,12 @@ export class JournalEntryProfessional implements OnInit {
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
 
+                // hide uploader
+                if (this.doShowImage) {
+                    this.doShowImage = false;
+                    this.showImageChanged.emit(this.doShowImage);
+                }
+
                 setTimeout(() => {
                     this.setupSameNewAlternatives();
                     this.table.focusRow(0);
@@ -576,9 +626,24 @@ export class JournalEntryProfessional implements OnInit {
 
     }
 
-    public removeJournalEntryData() {
+    public removeJournalEntryData(completeCallback) {
         if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
             this.journalEntryLines = new Array<JournalEntryData>();
+            this.dataChanged.emit(this.journalEntryLines);
+
+            // hide uploader
+            if (this.doShowImage) {
+                this.doShowImage = false;
+                this.showImageChanged.emit(this.doShowImage);
+            }
+
+            setTimeout(() => {
+                this.setupSameNewAlternatives();
+            });
+
+            completeCallback('Listen er tømt');
+        } else {
+            completeCallback('');
         }
     }
 
@@ -603,9 +668,29 @@ export class JournalEntryProfessional implements OnInit {
         this.dataChanged.emit(this.journalEntryLines);
     }
 
+    private toggleImageVisibility(journalEntry: JournalEntryData) {
+        if (this.doShowImage && this.lastImageDisplayFor === journalEntry.JournalEntryNo) {
+            this.doShowImage = false;
+            this.showImageChanged.emit(this.doShowImage);
+        } else if (this.doShowImage) {
+            this.showImageForJournalEntry.emit(journalEntry);
+        } else if (!this.doShowImage) {
+            this.doShowImage = true;
+            this.showImageChanged.emit(this.doShowImage);
+            this.showImageForJournalEntry.emit(journalEntry);
+        }
+
+        this.lastImageDisplayFor = journalEntry.JournalEntryNo;
+    }
+
+    private rowSelected(event) {
+        if (this.doShowImage) {
+            this.showImageForJournalEntry.emit(event.rowModel);
+        }
+    }
+
     private rowChanged(event) {
         var tableData = this.table.getTableData();
-
         this.dataChanged.emit(tableData);
     }
 
