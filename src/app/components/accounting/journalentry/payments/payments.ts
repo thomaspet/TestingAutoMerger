@@ -21,6 +21,9 @@ export class Payments {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;
+    private toolbarConfig = {
+        title: 'Registrering av innbetalinger'
+    }
 
     constructor(
         private tabService: TabService,
