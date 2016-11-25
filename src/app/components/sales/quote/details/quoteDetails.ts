@@ -333,12 +333,16 @@ export class QuoteDetails {
     }
 
     private updateSaveActions() {
+        const transitions = (this.quote['_links'] || {}).transitions;
+        // const links = this.quote['_links'];
         this.saveActions = [];
+
         this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
-            disabled: this.IsTransferToRegisterDisabled(),
-            main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
+            disabled: transitions && !transitions['register'],
+            main: !transitions || transitions['register']
+            // main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
         });
 
         this.saveActions.push({
@@ -356,20 +360,22 @@ export class QuoteDetails {
                     }
                 );
             },
-            disabled: this.quote.ID === 0,
+            disabled: !this.quote.ID,
             main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
 
-        this.saveActions.push({
-            label: 'Lagre som kladd',
-            action: (done) => this.saveQuoteAsDraft(done),
-            disabled: (this.quote.ID > 0)
-        });
+        if (!this.quote.ID) {
+            this.saveActions.push({
+                label: 'Lagre som kladd',
+                action: (done) => this.saveQuoteAsDraft(done),
+                disabled: (this.quote.ID > 0)
+            });
+        }
 
         this.saveActions.push({
-            label: 'Lagre og skriv ut',
+            label: 'Skriv ut',
             action: (done) => this.saveAndPrint(done),
-            disabled: this.quote.ID === 0
+            disabled: !this.quote.ID
         });
 
         // TODO: Add a actions for shipToCustomer,customerAccept
@@ -377,62 +383,26 @@ export class QuoteDetails {
         this.saveActions.push({
             label: 'Lagre og overfør til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder', 'Overført til ordre'),
-            disabled: this.IsTransferToOrderDisabled()
+            disabled: !transitions || !transitions['toOrder']
         });
 
         this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice', 'Overført til faktura'),
-            disabled: this.IsTransferToInvoiceDisabled()
+            disabled: !transitions || !transitions['toInvoice']
 
         });
         this.saveActions.push({
             label: 'Avslutt tilbud',
             action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
-            disabled: this.IsTransferToCompleteDisabled()
-
+            disabled: !transitions || !transitions['complete'],
         });
 
         this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteQuote(done),
-            disabled: true
+            disabled: this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
-    }
-
-    private IsTransferToRegisterDisabled() {
-        if (this.quote.ID > 0 &&
-            this.quote.StatusCode !== StatusCodeCustomerQuote.Draft) {
-            return true;
-        }
-        return false;
-    }
-
-    private IsTransferToOrderDisabled() {
-        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted) {
-            return false;
-        }
-        return true;
-    }
-    private IsTransferToInvoiceDisabled() {
-        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder) {
-            return false;
-        }
-        return true;
-    }
-    private IsTransferToCompleteDisabled() {
-        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder) {
-            return false;
-        }
-        return true;
     }
 
     private saveQuote(): Observable<CustomerQuote> {
@@ -463,7 +433,8 @@ export class QuoteDetails {
                 (res) => {
                     done('Registrering fullført');
                     this.quoteID = res.ID;
-                    this.refreshQuote();
+                    this.isDirty = false;
+                    this.router.navigateByUrl('/sales/quotes/' + res.ID);
                 },
                 (err) => {
                     done('Registrering feilet');
@@ -475,11 +446,17 @@ export class QuoteDetails {
 
     private saveQuoteAsDraft(done: any) {
         this.quote.StatusCode = StatusCode.Draft;
+        const navigateOnSuccess = !this.quote.ID;
         this.saveQuote().subscribe(
             (res) => {
+                this.isDirty = false;
                 done('Lagring fullført');
-                this.quoteID = res.ID;
-                this.refreshQuote();
+                if (navigateOnSuccess) {
+                    this.router.navigateByUrl('/sales/quotes/' + res.ID);
+                } else {
+                    this.quoteID = res.ID;
+                    this.refreshQuote();
+                }
             },
             (err) => {
                 done('Lagring feilet');
@@ -500,7 +477,7 @@ export class QuoteDetails {
                         } else if (transition === 'toInvoice') {
                             this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
                         } else {
-                            this.quoteID = res.ID;
+                            this.quoteID = quote.ID;
                             this.refreshQuote();
                         }
                     }
@@ -534,8 +511,16 @@ export class QuoteDetails {
     }
 
     private deleteQuote(done) {
-        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
-        done('Slett tilbud avbrutt');
+        this.customerQuoteService.Remove(this.quote.ID, null).subscribe(
+            (success) => {
+                this.isDirty = false;
+                this.router.navigateByUrl('/sales/quotes');
+            },
+            (err) => {
+                this.errorService.handle(err);
+                done('Sletting feilet');
+            }
+        );
     }
 
     private setSums() {

@@ -339,41 +339,51 @@ export class InvoiceDetails {
     // Save actions
     private updateSaveActions() {
         this.saveActions = [];
-
-        const payActionDisabled = this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced
-            && this.invoice.StatusCode !== StatusCodeCustomerInvoice.PartlyPaid;
-
+        const transitions = (this.invoice['_links'] || {}).transitions;
+        const id = this.invoice.ID;
         const status = this.invoice.StatusCode;
 
+        if (!this.invoice.ID) {
+            this.saveActions.push({
+                label: 'Lagre som kladd',
+                action: done => this.saveAsDraft(done),
+                disabled: false
+            });
+        }
+
         this.saveActions.push({
-            label: 'Lagre som kladd',
-            action: done => this.saveAsDraft(done),
-            disabled: status && status !== StatusCodeCustomerInvoice.Draft
+            label: 'Skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: !this.invoice.ID,
         });
+
+        if (this.invoice.InvoiceType === InvoiceTypes.Invoice) {
+            this.saveActions.push({
+                label: 'Krediter faktura',
+                action: (done) => this.creditInvoice(done),
+                disabled: !status || status === StatusCodeCustomerInvoice.Draft,
+                main: status === StatusCodeCustomerInvoice.Paid
+            });
+        }
 
         this.saveActions.push({
             label: 'Krediter faktura',
             action: (done) => this.creditInvoice(done),
-            disabled: !status || status === StatusCodeCustomerInvoice.Draft
+            main: status === StatusCodeCustomerInvoice.Paid
         });
 
         this.saveActions.push({
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
             action: done => this.transition(done),
-            disabled: (!this.invoice.TaxExclusiveAmount) &&
-                (!this.itemsSummaryData || !this.itemsSummaryData.SumTotalIncVat)
-        });
-
-        this.saveActions.push({
-            label: 'Lagre og skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: false
+            disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
+            main: !id || transitions['invoice'] || transitions['credit']
         });
 
         this.saveActions.push({
             label: 'Registrer betaling',
             action: (done) => this.payInvoice(done),
-            disabled: payActionDisabled
+            disabled: !transitions || !transitions['pay'],
+            main: id > 0 && transitions['pay']
         });
 
         this.saveActions.push({
@@ -381,17 +391,6 @@ export class InvoiceDetails {
             action: (done) => this.deleteInvoice(done),
             disabled: status !== StatusCodeCustomerInvoice.Draft
         });
-
-        // Set main save action
-        if (!status || status === StatusCodeCustomerInvoice.Draft) {
-            this.saveActions[2].main = true; // transition
-        } else {
-            if (payActionDisabled) {
-                this.saveActions[1].main = true; // credit
-            } else {
-                this.saveActions[4].main = true; // register payment
-            }
-        }
     }
 
     private saveInvoice(): Observable<CustomerInvoice> {

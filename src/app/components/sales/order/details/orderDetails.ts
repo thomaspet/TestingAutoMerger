@@ -17,6 +17,7 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
+import {StatusCode} from '../../salesHelper/salesEnums';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     Address,
@@ -350,7 +351,16 @@ export class OrderDetails {
     }
 
     private updateSaveActions() {
+        const transitions = (this.order['_links'] || {}).transitions;
         this.saveActions = [];
+
+        this.saveActions.push({
+            label: 'Registrer',
+            action: (done) => this.saveOrderTransition(done, 'register', 'Registrert'),
+            disabled: transitions && !transitions['register'],
+            main: !transitions || transitions['register']
+        });
+
         this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
@@ -367,61 +377,54 @@ export class OrderDetails {
                 );
             },
             main: true,
-            disabled: this.IsSaveDisabled()
+            disabled: !this.order.ID
         });
 
+        if (!this.order.ID) {
+            this.saveActions.push({
+                label: 'Lagre som kladd',
+                action: (done) => {
+                    this.order.StatusCode = StatusCode.Draft;
+                    this.saveOrder().subscribe(
+                        (res) => {
+                            done('Lagring fullført');
+                            this.isDirty = false;
+                            this.router.navigateByUrl('/sales/orders/' + res.ID);
+                        },
+                        (err) => {
+                            done('Lagring feilet');
+                            this.errorService.handle(err);
+                        }
+                    );
+                },
+                disabled: false
+            });
+        }
+
+
         this.saveActions.push({
-            label: 'Lagre og skriv ut',
+            label: 'Skriv ut',
             action: (done) => this.saveAndPrint(done),
-            disabled: false
+            disabled: !this.order.ID
         });
 
         this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveAndTransferToInvoice(done),
-            disabled: this.IsTransferToInvoiceDisabled()
+            disabled: !transitions || !transitions['toInvoice']
         });
-        this.saveActions.push({
-            label: 'Registrer',
-            action: (done) => this.saveOrderTransition(done, 'register', 'Registrert'),
-            disabled: (this.order.StatusCode !== StatusCodeCustomerOrder.Draft)
-        });
+
         this.saveActions.push({
             label: 'Avslutt ordre',
             action: (done) => this.saveOrderTransition(done, 'complete', 'Ordre avsluttet'),
-            disabled: this.IsTransferToCompleteDisabled()
+            disabled: !transitions || !transitions['complete']
         });
 
         this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteOrder(done),
-            disabled: true
+            disabled: this.order.StatusCode !== StatusCodeCustomerOrder.Draft
         });
-    }
-
-    private IsTransferToInvoiceDisabled() {
-        if (this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
-            this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
-            return false;
-        }
-        return true;
-    }
-
-    private IsTransferToCompleteDisabled() {
-        if (this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
-            this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
-            return false;
-        }
-        return true;
-    }
-    private IsSaveDisabled() {
-        if (!this.order.StatusCode ||
-            this.order.StatusCode === StatusCodeCustomerOrder.Draft ||
-            this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
-            this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
-            return false;
-        }
-        return true;
     }
 
     private recalcItemSums(orderItems: any) {
@@ -494,13 +497,19 @@ export class OrderDetails {
     }
 
     private saveOrderTransition(done: any, transition: string, doneText: string) {
+        const navigateOnSuccess = !this.order.ID;
         this.saveOrder().subscribe(
-            (res) => {
-                this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(
-                    (order) => {
+            (order) => {
+                this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
+                    (res) => {
                         done(doneText);
-                        this.orderID = order.ID;
-                        this.refreshOrder();
+                        if (navigateOnSuccess) {
+                            this.isDirty = false;
+                            this.router.navigateByUrl('/sales/orders/' + order.ID);
+                        } else {
+                            this.orderID = res.ID;
+                            this.refreshOrder();
+                        }
                     },
                     (err) => {
                         done('Lagring feilet');
@@ -536,8 +545,16 @@ export class OrderDetails {
     }
 
     private deleteOrder(done) {
-        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
-        done('Slett ordre avbrutt');
+        this.customerOrderService.Remove(this.order.ID, null).subscribe(
+            (success) => {
+                this.isDirty = false;
+                this.router.navigateByUrl('/sales/orders');
+            },
+            (err) => {
+                this.errorService.handle(err);
+                done('Sletting feilet');
+            }
+        );
     }
 
     private setSums() {
