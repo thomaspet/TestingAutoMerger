@@ -143,11 +143,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
         this.summary = [{
             value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.percentTax),
-            title: 'Prosenttrekk',
+            title: `Prosenttrekk` + (this.employeeList[this.selectedIndex] ? ` (${this.employeeList[this.selectedIndex].TaxPercentage}%)` : ''),
             description: this.employeeTotals && this.employeeTotals.basePercentTax ? `av ${this.numberFormat.asMoney(this.employeeTotals.basePercentTax)}` : null
         }, {
             value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.tableTax),
-            title: 'Tabelltrekk',
+            title: 'Tabelltrekk' + (this.employeeList[this.selectedIndex] ? ` (${this.employeeList[this.selectedIndex].TaxTable})` : ''),
             description: this.employeeTotals && this.employeeTotals.baseTableTax ? `av ${this.numberFormat.asMoney(this.employeeTotals.baseTableTax)}` : null
         }, {
             title: 'Utbetalt beløp',
@@ -156,7 +156,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             title: 'Beregnet AGA',
             value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.calculatedAGA) : null
         }, {
-            title: 'Grunnlag feriepenger',
+            title: 'Gr.lag feriepenger',
             value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.baseVacation) : null
         }];
     }

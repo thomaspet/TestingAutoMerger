@@ -65,7 +65,16 @@ section.salarytrans-filter
 
     h1
         @extend h2
-        margin: 0 0 .5rem
+        display: flex
+        align-items: baseline
+        flex-grow: 1
+        order: 4
+        font-weight: 300
+        line-height: 100%
+        small
+            @extend p
+            flex-basis: fit-content
+            margin: 0 0 0 1rem
 
 .detail_header_info_tableForm
     color: $uni-color-scale3
