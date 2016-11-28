@@ -9,6 +9,8 @@ type CatchHandler = (err: any, caught: Observable<any>) => ObservableInput<any>
 
 @Injectable()
 export class ErrorService {
+    private previousToast: {when: number, message: string};
+
     constructor(
         private logger: Logger,
         private toastService: ToastService
@@ -24,10 +26,6 @@ export class ErrorService {
     };
 
     public handleWithMessage(error: any, toastMsg: string) {
-        if (error.status === 401) {
-            return;
-        }
-
         const message = toastMsg
             || error.message
             || error.Message
@@ -38,6 +36,19 @@ export class ErrorService {
             error.customMessage = toastMsg;
         }
         this.logger.exception(error);
+        this.addToast(message);
+    }
+
+    private addToast(message: string) {
+        if (this.previousToast && this.previousToast.message === message) {
+            // Prevent toasts with equal messages from popping up more than
+            // once every second
+            if (this.previousToast.when - performance.now() < 1000) {
+                return;
+            }
+        }
+
+        this.previousToast = {message: message, when: performance.now()};
         this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
     }
 
