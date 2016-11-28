@@ -205,9 +205,11 @@ export class BillSimpleJournalEntryView {
                 },
 
                 onCopyCell: (details: ICopyEventDetails) => {
+                    debugger;
                     if (details.position.row <= 0) { return; }
                     var row = this.costItems[details.position.row];
                     var rowAbove = this.costItems[details.position.row - 1];
+                    this.enrollNewRow(row);
                     switch (details.columnDefinition.name) {
                         case 'Account.AccountNumber':
                             row.Account = rowAbove.Account;
@@ -280,15 +282,33 @@ export class BillSimpleJournalEntryView {
         if (actualRowIndex >= 0 && (actualRowIndex !== undefined)) {
             line.Deleted = true;
             this.raiseUpdateEvent(rowIndex, line, { action: 'deleted' });
+            if (!line.ID) {
+                this.current.JournalEntry.DraftLines.splice(actualRowIndex, 1);
+                this.costItems.forEach( x => { if (x['_rowIndex'] > actualRowIndex ) { x['_rowIndex']--; } } );
+            }
         }
         this.ensureWeHaveSingleEntry();
         this.calcRemainder();
     }    
 
+    private enrollNewRow(row: JournalEntryLineDraft) {
+        var actualRowIndex = row['_rowIndex'];
+        if (actualRowIndex === undefined) {
+            this.current.JournalEntry = this.current.JournalEntry || new JournalEntry();
+            this.current.JournalEntry.DraftLines = this.current.JournalEntry.DraftLines || []; 
+            this.current.JournalEntry.DraftLines.push(row);    
+            actualRowIndex = this.current.JournalEntry.DraftLines.length - 1;
+            row['_rowIndex'] = actualRowIndex;
+            checkGuid(this.current.JournalEntry);           
+            checkGuid(row);
+            this.checkJournalYear(this.current.JournalEntry);
+        }
+        return actualRowIndex;        
+    }
+
     private updateChange(change: IChangeEvent) {
         var line: JournalEntryLineDraft;
 
-        var actualRowIndex = -1;
         var isLastRow = change.row >= this.costItems.length - 1;
 
         if (change.row > this.costItems.length - 1 ) {
@@ -297,18 +317,7 @@ export class BillSimpleJournalEntryView {
             line = this.costItems[change.row];
         }
 
-        // New row ?
-        actualRowIndex = line['_rowIndex'];
-        if (actualRowIndex === undefined) {
-            this.current.JournalEntry = this.current.JournalEntry || new JournalEntry();
-            this.current.JournalEntry.DraftLines = this.current.JournalEntry.DraftLines || []; 
-            this.current.JournalEntry.DraftLines.push(line);    
-            actualRowIndex = this.current.JournalEntry.DraftLines.length - 1;
-            line['_rowIndex'] = actualRowIndex;
-            checkGuid(this.current.JournalEntry);           
-            checkGuid(line);
-            this.checkJournalYear(this.current.JournalEntry);
-        }
+        this.enrollNewRow(line);
 
         switch (change.columnDefinition.name) {
             case 'Account.AccountNumber':
