@@ -1,5 +1,4 @@
 import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Customer} from '../../../../unientities';
 import {CustomerDetails} from './customerDetails';
 
 @Component({
@@ -7,7 +6,7 @@ import {CustomerDetails} from './customerDetails';
     template: `
         <dialog class="uniModal" [attr.open]="isOpen">
             <button (click)="close()" class="closeBtn"></button>
-            <article class="modal-content" *ngIf"isOpen">
+            <article class="modal-content" *ngIf="isOpen">
                 <customer-details [modalMode]="true" (customerUpdated)="onCustomerUpdated($event)"></customer-details>
             </article>
         </dialog>
