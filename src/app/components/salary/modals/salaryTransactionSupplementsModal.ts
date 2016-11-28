@@ -32,6 +32,10 @@ export class SalaryTransactionSupplementsModalContent {
         let fields: UniFieldLayout[] = [];
         if (this.salaryTransaction.Supplements) {
             this.salaryTransaction.Supplements.forEach((supplement: SalaryTransactionSupplement, index) => {
+                
+                supplement.WageTypeSupplement = 
+                    supplement.WageTypeSupplement 
+                    || this.salaryTransaction.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID);
 
                 if (supplement.WageTypeSupplement) {
                     switch (supplement.WageTypeSupplement.ValueType) {

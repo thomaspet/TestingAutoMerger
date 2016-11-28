@@ -230,7 +230,7 @@ export class PayrollrunDetails extends UniView {
 
     private getSalaryTransactions() {
         let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
-        this._salaryTransactionService.GetAll('filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC', ['WageType', 'employment', 'Supplements.WageTypeSupplement']).subscribe((response) => {
+        this._salaryTransactionService.GetAll('filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC', ['WageType.SupplementaryInformations', 'employment', 'Supplements']).subscribe((response) => {
             response.map(x => {
                 let account = new Account();
                 account.AccountNumber = x.Account;
