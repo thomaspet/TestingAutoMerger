@@ -162,7 +162,7 @@ export class BillSimpleJournalEntryView {
                 new Column('Account.AccountNumber', '', ColumnType.Integer, 
                     { 
                         route: 'accounts', 
-                        select: 'AccountNumber,AccountName,ID', visualKey: 'AccountNumber', 
+                        select: 'AccountNumber,AccountName,ID,VatTypeID', visualKey: 'AccountNumber', 
                         blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999 and setornull(visible)',
                         model: 'account',
                         expand: 'VatType', filter: 'setornull(visible)' 
@@ -317,11 +317,22 @@ export class BillSimpleJournalEntryView {
                     line.AccountID = change.lookupValue.ID;
                     line.VatTypeID = change.lookupValue.VatTypeID;
                     line.VatType = change.lookupValue.VatType;
-                    this.checkRowSum(line, change.row);
+                    if ((!line.VatType) && line.VatTypeID ) {
+                        this.lookup.getSingle<VatType>('vattypes', line.VatTypeID).subscribe( x => {
+                            line.VatType = x;
+                            line.VatPercent = x.VatPercent;
+                            this.checkRowSum(line, change.row);
+                            this.calcRemainder();
+                            this.editable.reloadCellValue();    
+                        });
+                    } else {
+                        this.checkRowSum(line, change.row);
+                    }
                 } else {
                     this.toast.addToast('no lookupvalue: ' + change.value, ToastType.warn, 4);
                 }
                 break;
+
             case 'VatTypeID':
                 if (change.lookupValue) {
                     line.VatType = change.lookupValue;
@@ -329,9 +340,11 @@ export class BillSimpleJournalEntryView {
                     line.VatPercent = change.lookupValue.VatPercent;
                 }
                 break;
+
             case 'Description':
                 line.Description = change.value;
-                break;                
+                break;
+
             case 'Amount':
                 if (typeof(change.value) === 'object') {
                     line.Amount = change.value.sum;

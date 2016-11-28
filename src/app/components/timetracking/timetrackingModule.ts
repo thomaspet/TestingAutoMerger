@@ -14,8 +14,6 @@ import {routes as TimetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
-import {ProjectDetailview} from './project/project';
-import {ProjectListview} from './project/projects';
 import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 import {RegtimeTools} from './timeentry/tools/tools';
@@ -63,8 +61,6 @@ import {WorktypeListview} from './worktype/worktypes';
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        ProjectDetailview,
-        ProjectListview,
         RegisterTime,
         TimeEntry,
         RegtimeTools,
@@ -89,8 +85,6 @@ import {WorktypeListview} from './worktype/worktypes';
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        ProjectDetailview,
-        ProjectListview,
         RegisterTime,
         TimeEntry,
         RegtimeTools,

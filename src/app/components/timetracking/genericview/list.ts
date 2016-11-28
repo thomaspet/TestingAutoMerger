@@ -41,7 +41,7 @@ export class GenericListView {
     public label: string;
 
     private lookupFunction: (value: any) => {};
-
+    public toolbarConfig: any = { title: '' };
     constructor(
         private tabService: TabService,
         private router: Router,
@@ -50,6 +50,7 @@ export class GenericListView {
         private errorService: ErrorService
     ) {
     }
+    
 
     public ngOnInit() {
         if (this.viewconfig) {
@@ -60,6 +61,7 @@ export class GenericListView {
             };
             var tab = this.viewconfig.tab;
             this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
+            this.toolbarConfig = { title: this.label };
         }
     }
 

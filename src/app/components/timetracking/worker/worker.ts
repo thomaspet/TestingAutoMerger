@@ -26,6 +26,10 @@ export class WorkerDetailview {
         this.viewconfig = this.createFormConfig();
     }
 
+    public canDeactivate() {
+        return this.detailForm.canDeactivate();
+    }
+
     public onItemChanged(item: Worker) {
         this.currentId = item.ID;
         this.hasRelationChanges = false;

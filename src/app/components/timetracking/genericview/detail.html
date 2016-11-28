@@ -1,24 +1,6 @@
-<div class='cornerspinner' [attr.aria-busy]="busy">&nbsp;</div>
+<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
 
-<header>    
-    <article class="poster_toolbar">
-        <section>
-            <h1>{{title}}&nbsp;</h1>
-            <p>{{subTitle}}</p>
-        </section>
-            
-        <nav class="poster_toolbar_tools">
-            <a *ngIf="viewconfig.detail.routeBackToList" (click)="onShowList()" class="search" title="Oversikt/søk (tilbake til listen)">Lukk</a>
-            <a (click)="onNavigate('prev')" class="previous" title="Forrige" >Forrige</a>
-            <a (click)="onNavigate('next')" class="next" title="Neste">Neste</a>
-            <a (click)="onDelete()"  class="trash" title="Slett">Slett</a>
-            <a (click)="onCreateNew()"  class="new" title="Opprett ny">Ny</a>
-        </nav>         
-    </article>       
-
-</header>
-
-<section class="application" >
+<section [attr.aria-busy]="busy" class="application" >
     <uni-form
             [config]="config"
             [fields]="fields"
@@ -28,3 +10,5 @@
     </uni-form>
     <uni-save [actions]="actions"></uni-save>
 </section>
+
+<uni-confirm-modal></uni-confirm-modal>

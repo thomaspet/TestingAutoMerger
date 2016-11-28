@@ -55,6 +55,10 @@ export class TimeEntry {
             // { name: 'offtime', label: 'Fravær', counter: 4 },
             ];
 
+    public toolbarConfig: any = {
+        title: 'Registrering av timer',
+        omitFinalCrumb: true             
+    };
 
     public filters: Array<IFilter>;
 
@@ -359,17 +363,6 @@ export class TimeEntry {
             }
             resolve(true);
         });
-    }
-
-    private showErrMsg(msg: string, lookForMsg = false): string {
-        var txt = msg;
-        if (lookForMsg) {
-            if (msg.indexOf('"Message":') > 0) {
-                txt = msg.substr(msg.indexOf('"Message":') + 12, 80) + '..';
-            }
-        }
-        alert(txt);
-        return txt;
     }
 
 }

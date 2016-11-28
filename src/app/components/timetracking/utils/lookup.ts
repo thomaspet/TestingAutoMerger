@@ -109,8 +109,11 @@ export class Lookupservice {
                     }
                     this.getSingle<any>(lookupDef.route, filter, lookupDef.expand).subscribe((rows: any) => {
                         if (rows === undefined || rows === null || rows.length === 0) {
-                            if (failure) { failure(event); }
-                            reject('Not found');
+                            if (failure) { 
+                                failure(event); 
+                            } else { 
+                                reject('Not found'); 
+                            }
                         } else {
                             var item = (rows && rows.length > 0) ? rows[0] : {};
                             event.value = item[lookupDef.colToSave || 'ID'];                        
@@ -119,8 +122,11 @@ export class Lookupservice {
                             resolve(item);
                         }
                     }, (err) => {
-                        if (failure) { failure(event); }
-                        reject(err.statusText);
+                        if (failure) { 
+                            failure(event); 
+                        } else { 
+                            reject(err.statusText); 
+                        }                    
                     });
                 });
                 event.updateCell = false;

@@ -249,7 +249,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
     }
 
-    private reloadCellValue() {
+    public reloadCellValue() {
         setTimeout(() => {
             this.onResize();
             this.loadTextIntoEditor();

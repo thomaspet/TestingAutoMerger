@@ -124,8 +124,7 @@ export class HamburgerMenu {
                     {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles', moduleID: UniModules.WorkProfiles},
                     {componentName: 'Personer', componentUrl: '/timetracking/workers', moduleID: UniModules.Workers},
                     {componentName: 'Timearter', componentUrl: '/timetracking/worktypes', moduleID: UniModules.WorkTypes},
-                    {componentName: 'Timer', componentUrl: '/timetracking', moduleID: UniModules.Timesheets},
-                    {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'}
+                    {componentName: 'Timer', componentUrl: '/timetracking', moduleID: UniModules.Timesheets}
                 ]
             },
             {

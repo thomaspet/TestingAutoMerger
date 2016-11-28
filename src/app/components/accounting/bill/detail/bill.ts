@@ -236,7 +236,7 @@ export class BillView {
                     } else {
                         this.findSupplierViaPhonebook(orgNo, true);
                     }
-                },this.errorService.handle);
+                }, this.errorService.handle);
             }
         }
         this.setFormValue('PaymentID', ocr.PaymentID);
@@ -534,7 +534,7 @@ export class BillView {
                     this.userMsg(lang.journaled_ok, null, 6, true);
 
                 }, (err) => {
-                    this.errorService.handle(err)
+                    this.errorService.handle(err);
                     reject(err);
                 });
 
