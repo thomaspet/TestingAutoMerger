@@ -7,7 +7,7 @@ import {CustomerDetails} from './customerDetails';
     template: `
         <dialog class="uniModal" [attr.open]="isOpen">
             <button (click)="close()" class="closeBtn"></button>
-            <article class="modal-content">
+            <article class="modal-content" *ngIf"isOpen">
                 <customer-details [modalMode]="true" (customerUpdated)="onCustomerUpdated($event)"></customer-details>
             </article>
         </dialog>
