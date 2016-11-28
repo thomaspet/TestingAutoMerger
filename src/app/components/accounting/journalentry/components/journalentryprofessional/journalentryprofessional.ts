@@ -515,7 +515,15 @@ export class JournalEntryProfessional implements OnInit {
 
         setTimeout(() => {
             this.setupSameNewAlternatives();
-            this.table.focusRow(0);
+
+            if (!this.table) {
+                // if for some reason unitable has not loaded yet, wait 100 ms and try again one last time
+                setTimeout(() => {
+                    this.table.focusRow(0);
+                }, 100);
+            } else {
+                this.table.focusRow(0);
+            }
         });
 
     }
