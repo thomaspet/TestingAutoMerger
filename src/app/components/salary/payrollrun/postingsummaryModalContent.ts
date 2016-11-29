@@ -40,7 +40,7 @@ export class PostingsummaryModalContent {
         .subscribe((response: any) => {
             this.summary = response;         
             this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
     
     

@@ -136,7 +136,7 @@ export class RegisterTime {
 
         this.workerService.queryWithUrlParams().subscribe((result: Array<WorkType>) => {
             this.worktypes = result;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
     }
 

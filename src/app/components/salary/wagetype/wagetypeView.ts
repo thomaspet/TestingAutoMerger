@@ -90,7 +90,7 @@ export class WageTypeView extends UniView {
                 }
 
                 this.checkDirty();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
             if (this.wageType && this.wageType.ID === +params['id']) {
                 super.updateState('wagetype', this.wageType, false);
             } else {
@@ -146,7 +146,7 @@ export class WageTypeView extends UniView {
         this.wageTypeService.getWageType(this.wagetypeID).subscribe((wageType: WageType) => {
             this.wageType = wageType;
             super.updateState('wagetype', wageType, false);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public previousWagetype() {
@@ -162,7 +162,7 @@ export class WageTypeView extends UniView {
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     public nextWagetype() {
@@ -177,7 +177,7 @@ export class WageTypeView extends UniView {
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     public newWagetype() {
@@ -191,6 +191,6 @@ export class WageTypeView extends UniView {
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
             }
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }

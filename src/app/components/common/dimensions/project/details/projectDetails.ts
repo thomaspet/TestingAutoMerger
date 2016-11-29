@@ -45,7 +45,7 @@ export class ProjectDetails implements OnInit {
                 this.projectService.Get(projectID)
                     .subscribe(
                         project => this.setProject(project),
-                        this.errorService.handle
+                        err => this.errorService.handle(err)
                     );
             } else {
                 this.setProject(new Project);
@@ -70,7 +70,7 @@ export class ProjectDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere prosjekt etter denne');
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -84,7 +84,7 @@ export class ProjectDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere prosjekt før denne');
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -114,7 +114,7 @@ export class ProjectDetails implements OnInit {
                         this.router.navigateByUrl('/dimensions/project/' + newProject.ID);
                         done('Prosjekt lagret');
                     },
-                    this.errorService.handle);
+                    err => this.errorService.handle(err));
         }
     }
 

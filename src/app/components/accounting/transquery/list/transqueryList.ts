@@ -56,7 +56,7 @@ export class TransqueryList {
 
         if (account) {
             this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             this.periods$.subscribe((data) => {
                this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null;
             });

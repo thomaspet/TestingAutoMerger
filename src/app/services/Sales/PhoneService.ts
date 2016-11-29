@@ -29,7 +29,7 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Type = PhoneTypeEnum.PtPhone;
                             
                 resolve(phone); 
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });  
     }
     
@@ -46,7 +46,7 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Type = PhoneTypeEnum.PtMobile;
                         
                 resolve(phone); 
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });        
     }        
 }

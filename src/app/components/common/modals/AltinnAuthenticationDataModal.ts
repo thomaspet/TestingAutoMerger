@@ -183,7 +183,7 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
                             // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
                             this.errorService.handleWithMessage(error, 'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows');
                         });
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         }
 
         return new Promise((resolve, reject) => {
@@ -195,7 +195,7 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
             return this.userSubmittedPin
                     .subscribe(() => {
                         resolve(this.userLoginData);
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
             });
     }
 
@@ -274,6 +274,6 @@ export class AltinnAuthenticationDataModal {
                     .then(this.storeAuthenticationDataInLocalstorage)
                     .then(this.closeThisModal);
             }
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }

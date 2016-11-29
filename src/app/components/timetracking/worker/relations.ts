@@ -161,7 +161,7 @@ export class View {
                     this.onItemClicked(items[0]);
                 }
                 this.busy = false; 
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         } else {
             this.items.length = 0;
         }

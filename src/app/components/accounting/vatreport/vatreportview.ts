@@ -116,10 +116,10 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public ngOnInit() {
         this.companySettingsService.Get(1, ['CompanyBankAccount'])
-            .subscribe(settings => this.companySettings = settings, this.errorService.handle);
+            .subscribe(settings => this.companySettings = settings, err => this.errorService.handle(err));
 
         this.spinner(this.vatReportService.getCurrentPeriod())
-            .subscribe(vatReport => this.setVatreport(vatReport), this.errorService.handle);
+            .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
 
 
         this.subs.push(
@@ -135,7 +135,7 @@ export class VatReportView implements OnInit, OnDestroy {
                     .vatReportService
                     .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
-                .subscribe(null, this.errorService.handle)
+                .subscribe(null, err => this.errorService.handle(err))
         );
 
         this.subs.push(
@@ -151,10 +151,10 @@ export class VatReportView implements OnInit, OnDestroy {
                     .vatReportService
                     .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
-                .subscribe(null, this.errorService.handle)
+                .subscribe(null, err => this.errorService.handle(err))
         );
 
-        this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, this.errorService.handle);
+        this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, err => this.errorService.handle(err));
     }
 
     private updateSaveActions() {
@@ -246,21 +246,21 @@ export class VatReportView implements OnInit, OnDestroy {
                     this.isHistoricData = data[0].IsHistoricData;
                 }
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
 
         this.reportSummaryPerPost = null;
         this.vatReportService.getVatReportSummaryPerPost(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
             data => this.reportSummaryPerPost = data,
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
 
         this.reportMessages = null;
         this.vatReportService.getVatReportMessages(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
             data => this.reportMessages = data,
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
         this.updateStatusText();
         this.getVatReportsInPeriod();
@@ -272,7 +272,7 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.GetAll('filter=TerminPeriodID eq ' + this.currentVatReport.TerminPeriodID)
             .subscribe((response: VatReport[]) => {
                 this.vatReportsInPeriod = response;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
     private updateStatusText() {
         this.statusText = this.vatReportService.getStatusText(this.currentVatReport.StatusCode);
@@ -482,7 +482,7 @@ export class VatReportView implements OnInit, OnDestroy {
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
                         },
-                        this.errorService.handle);
+                        err => this.errorService.handle(err));
                 }
 
                 done('Endringsmelding opprettet');
@@ -530,7 +530,7 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe(vatreport => {
                 this.setVatreport(vatreport);
             },
-            this.errorService.handle);
+            err => this.errorService.handle(err));
 
     }
 }

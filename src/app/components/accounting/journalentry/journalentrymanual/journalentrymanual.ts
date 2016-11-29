@@ -73,14 +73,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.setJournalEntryData(data);
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         } else if (this.journalEntryID > 0) {
             this.mode = JournalEntryMode.JournalEntryView;
 
             this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
                 .subscribe((data: Array<JournalEntryData>) => {
                     this.setJournalEntryData(data);
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         } else {
             let data = this.journalEntryService.getSessionData(this.mode);
 

@@ -60,7 +60,7 @@ export class ExternalSearch {
                                 this.fullSearchResult = [];
                             }
                         },
-                        this.errorService.handle
+                        err => this.errorService.handle(err)
                     );
         }
     }

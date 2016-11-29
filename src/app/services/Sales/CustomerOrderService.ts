@@ -43,7 +43,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                 order.OrderDate = moment().toDate();
 
                 resolve(order);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 

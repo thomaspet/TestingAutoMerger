@@ -65,7 +65,7 @@ export class InvoiceList implements OnInit {
             // this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
             this.table.refreshTableData();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private setupInvoiceTable() {
@@ -79,7 +79,7 @@ export class InvoiceList implements OnInit {
             }
 
             return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Context menu
@@ -99,7 +99,7 @@ export class InvoiceList implements OnInit {
                     .subscribe((data) => {
                         this.router.navigateByUrl('/sales/invoices/' + data.ID);
                     },
-                        this.errorService.handle
+                        err => this.errorService.handle(err)
                     );
             },
             disabled: (rowModel) => {
@@ -137,7 +137,7 @@ export class InvoiceList implements OnInit {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
                     this.table.refreshTableData();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
@@ -156,7 +156,7 @@ export class InvoiceList implements OnInit {
                     console.log('== kreditnota Kreditert OK ==');
                     alert('Kreditnota kreditert  OK');
                     this.table.refreshTableData();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {

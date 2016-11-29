@@ -117,7 +117,7 @@ export class QuoteDetails {
 
         this.companySettingsService.Get(1).subscribe(
             settings => this.companySettings = settings,
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         // Subscribe to route param changes and update invoice data
@@ -141,7 +141,7 @@ export class QuoteDetails {
                         quote.ValidUntilDate = null;
                         this.refreshQuote(quote);
                     },
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
             }
 
@@ -199,7 +199,7 @@ export class QuoteDetails {
         if (!quote) {
             this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe(
                 res => this.refreshQuote(res),
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
             return;
         }
@@ -262,14 +262,14 @@ export class QuoteDetails {
     public nextQuote() {
         this.customerQuoteService.getNextID(this.quote.ID).subscribe(
             id => this.router.navigateByUrl('/sales/quotes/' + id),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
     public previousQuote() {
         this.customerQuoteService.getPreviousID(this.quote.ID).subscribe(
             id => this.router.navigateByUrl('/sales/quotes/' + id),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

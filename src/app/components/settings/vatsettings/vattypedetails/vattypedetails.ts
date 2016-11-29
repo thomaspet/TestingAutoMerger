@@ -66,7 +66,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
 
                 this.extendFormConfig();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

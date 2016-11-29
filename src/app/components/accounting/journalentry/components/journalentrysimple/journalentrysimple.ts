@@ -54,7 +54,7 @@ export class JournalEntrySimple implements OnInit {
             this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber', ['VatType'])
         ).subscribe(response => {
             this.dropdownData = response;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public checkIfFormsHaveChanges() {

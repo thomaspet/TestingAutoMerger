@@ -91,7 +91,7 @@ export class EmployeeCategoryButtons implements OnChanges {
             });
 
             this.busy = false;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public filterCategories(tag: string) {
@@ -114,7 +114,7 @@ export class EmployeeCategoryButtons implements OnChanges {
                 this.categories.splice(index, 1);
             }
             this.filteredCategories = this.categories;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public removeCategory(category: EmployeeCategory, index: number) {

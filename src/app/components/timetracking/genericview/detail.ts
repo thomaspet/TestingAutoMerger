@@ -219,7 +219,7 @@ export class GenericDetailview {
                 this.busy = false;
                 this.initToolbar(this.title, this.subTitle);
             },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
         } else {
             this.ID = 0;

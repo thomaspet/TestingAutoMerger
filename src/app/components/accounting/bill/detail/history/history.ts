@@ -78,7 +78,7 @@ export class BillHistoryView {
             this.listOfInvoices = list;
             this.tableConfig = this.createTableConfig();
         },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
         
     }

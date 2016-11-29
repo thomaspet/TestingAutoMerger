@@ -53,7 +53,7 @@ export class PostingJournalReportFilterForm implements OnInit {
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
             this.model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
             this.model = _.cloneDeep(this.model);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -183,7 +183,7 @@ export class PostingJournalReportFilterModal {
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }
 

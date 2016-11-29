@@ -416,7 +416,7 @@ export class BillSimpleJournalEntryView {
         } else {
             this.financialYearService.GetAll(null).subscribe((response) => {
                 this.financialYears = response;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 

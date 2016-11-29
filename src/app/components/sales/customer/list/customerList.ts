@@ -60,7 +60,8 @@ export class CustomerList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
-            return this.customerService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+            return this.customerService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

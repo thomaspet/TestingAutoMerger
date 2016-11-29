@@ -47,7 +47,7 @@ export class VacationpaySettingModalContent {
             this.setFormFields();
             this.setTableConfig();
             this.busy = false;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public ready(value) {
@@ -73,7 +73,7 @@ export class VacationpaySettingModalContent {
             this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
                 .subscribe((formresponse) => {
                     this.done('Firmalønn oppdatert');
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         }
 
         // save unitable
@@ -84,13 +84,13 @@ export class VacationpaySettingModalContent {
                     .subscribe((response) => {
                         this.done('Feriepengesats oppdatert');
                     },
-                    this.errorService.handle);
+                    err => this.errorService.handle(err));
             } else {
                 this._companyvacationRateService.Post(vacationRate)
                     .subscribe((response) => {
                         this.done('Feriepengesats lagret: ');
                     },
-                    this.errorService.handle);
+                    err => this.errorService.handle(err));
             }
         });
     }

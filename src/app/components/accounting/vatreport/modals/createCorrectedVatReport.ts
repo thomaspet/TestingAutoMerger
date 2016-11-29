@@ -218,6 +218,6 @@ export class CreateCorrectedVatReportModal {
                     modalContent.title = 'Opprett endringsmelding for termin: ' + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
                 });
             },
-            this.errorService.handle);
+            err => this.errorService.handle(err));
     }
 }

@@ -129,7 +129,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 // call ready to set readonly fields if needed
                 this.ready(null);
             },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -161,7 +161,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             this.setTabTitle();
 
             this.buildForm();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private updateToolbar() {
@@ -218,7 +218,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             console.log('== TRANSITION OK ' + transition + ' ==');
             this.refreshFormData(this.supplierInvoice);
             done(doneText);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private payInvoice(done: any) {
@@ -535,7 +535,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                         this.supplierInvoice.Dimensions = _.cloneDeep(supplier.Dimensions);
                         this.supplierInvoice = _.cloneDeep(this.supplierInvoice);
                         this.updateToolbar();
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
                 }
              });
     }

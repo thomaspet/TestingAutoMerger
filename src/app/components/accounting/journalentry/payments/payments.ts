@@ -44,9 +44,9 @@ export class Payments {
                             if (accounts && accounts.length > 0) {
                                 this.defaultBankAccount = accounts[0];
                             }
-                        }, this.errorService.handle);
+                        }, err => this.errorService.handle(err));
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
         this.setupInvoiceTable();
     }
@@ -119,7 +119,7 @@ export class Payments {
             }
 
             return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

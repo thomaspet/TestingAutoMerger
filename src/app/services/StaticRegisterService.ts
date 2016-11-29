@@ -24,7 +24,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
                     this.postStaticRegisterDataset(entity);
                 }
             });
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
     }
 
@@ -37,7 +37,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .subscribe((response) => {
             localStorage.setItem(entity.Registry + 'Data', JSON.stringify(response));
             localStorage.setItem(entity.Registry + 'Stamp', entity.stamp);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public getStaticRegisterDataset(registry: string) {

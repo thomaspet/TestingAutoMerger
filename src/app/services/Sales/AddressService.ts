@@ -37,7 +37,7 @@ export class AddressService extends BizHttp<Address> {
                 address.Country = selectedSearchInfo.forradrland;
 
                 resolve(address);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 
@@ -58,7 +58,7 @@ export class AddressService extends BizHttp<Address> {
                 address.Country = selectedSearchInfo.ppostland;
 
                 resolve(address);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 

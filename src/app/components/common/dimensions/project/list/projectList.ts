@@ -37,7 +37,8 @@ export class ProjectList {
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            return this.projectService.GetAllByUrlSearchParams(urlParams).catch(this.errorService.handleRxCatch);
+            return this.projectService.GetAllByUrlSearchParams(urlParams)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         this.tableConfig = new UniTableConfig(false, true, 25)

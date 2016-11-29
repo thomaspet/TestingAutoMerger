@@ -71,7 +71,7 @@ export class ReadTaxCard {
 
     public getReceipts() {
         this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderby=ID DESC&filter=Form eq \'RF-1211\'')
-            .catch(this.errorService.handleRxCatch);
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public updateReceipts() {

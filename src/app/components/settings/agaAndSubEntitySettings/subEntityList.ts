@@ -51,7 +51,7 @@ export class SubEntityList implements OnInit {
             this.createTableConfig();
             this.refreshList();
             this.busy = false;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
         this._subEntityService.getMainOrganization().subscribe(response => {
             this.mainOrg = response[0];
@@ -85,7 +85,7 @@ export class SubEntityList implements OnInit {
                         if (rowModel['ID']) {
                             this._subEntityService.delete(rowModel.ID).subscribe(response => {
                                 this.removeSubEntity(rowModel, false);
-                            }, this.errorService.handle);
+                            }, err => this.errorService.handle(err));
                         } else {
                             this.removeSubEntity(rowModel, true);
                         }
@@ -195,7 +195,7 @@ export class SubEntityList implements OnInit {
                         .subscribe(saveResponse => {
                             this.busy = false;
                             this.refreshList();
-                        }, this.errorService.handle);
+                        }, err => this.errorService.handle(err));
                 } else {
                     this.busy = false;
                 }

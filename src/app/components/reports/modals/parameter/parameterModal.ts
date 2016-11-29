@@ -105,12 +105,12 @@ export class ParameterModal {
 
                     this.modalConfig.report.parameters = params;
                     this.modal.open();        
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             } else {
                 this.modalConfig.report.parameters = params;
                 this.modal.open();        
             }
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }
 

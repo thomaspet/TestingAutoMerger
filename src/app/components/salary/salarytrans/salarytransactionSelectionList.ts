@@ -128,7 +128,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 .Get(employee.SubEntity.AgaZone)
                 .subscribe((agaResponse: AGAZone) => {
                     this.agaZone = agaResponse;
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         } else if (!employee.SubEntity) {
             this.agaZone = new AGAZone();
         }
@@ -164,7 +164,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                     this.employeeTotals = response;
                     this.setSums();
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 

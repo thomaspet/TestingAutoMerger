@@ -68,7 +68,7 @@ export class Users {
             .withEndPoint('users')
             .send()
             .map(response => response.json())
-            .subscribe(response => this.users = response, this.errorService.handle);
+            .subscribe(response => this.users = response, err => this.errorService.handle(err));
     }
 
     private sendInvite(user?) {
@@ -100,7 +100,7 @@ export class Users {
 
                     this.refreshUsers();
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -112,7 +112,7 @@ export class Users {
                 .withEndPoint('users/' + user.ID)
                 .send({action: 'activate'})
                 .map(response => response.json())
-                .subscribe(response => this.refreshUsers(), this.errorService.handle);
+                .subscribe(response => this.refreshUsers(), err => this.errorService.handle(err));
         }
         // If user has not responded to invite
         else {
@@ -127,7 +127,7 @@ export class Users {
             .withEndPoint('users/' + user.ID)
             .send({ action: 'inactivate' })
             .map(response => response.json())
-            .subscribe(response => this.refreshUsers(), this.errorService.handle);
+            .subscribe(response => this.refreshUsers(), err => this.errorService.handle(err));
     }
     
     private getStatusCodeText(statusCode: number): string {

@@ -46,7 +46,7 @@ export class SubEntityDetails {
                     displayProperty: 'ZoneName',
                     debounceTime: 500,
                 };
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
             this._agaZoneService.getAgaRules().subscribe(agaRules => {
                 agaRuleField.Options = {
@@ -55,7 +55,7 @@ export class SubEntityDetails {
                     displayProperty: 'Sector',
                     debounceTime: 500,
                 };
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
 
             postalCode.Options = {
@@ -79,9 +79,9 @@ export class SubEntityDetails {
                     debounceTime: 200,
                     template: (obj: Municipal) => obj && obj.MunicipalityName ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase() + obj.MunicipalityName.slice(1).toLowerCase()}` : ''
                 };
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private findByProperty(fields, name) {
@@ -108,7 +108,7 @@ export class SubEntityDetails {
                             this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City = postalCodeArr[0].City;
                             this.currentSubEntity = _.cloneDeep(this.currentSubEntity);
                         }
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
             }
         }
     }

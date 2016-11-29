@@ -117,7 +117,7 @@ export class WagetypeDetail extends UniView {
 
                     this.setup();
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 
@@ -152,7 +152,7 @@ export class WagetypeDetail extends UniView {
                 this.updateUniformFields();
                 this.checkAmeldingInfo();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -399,7 +399,7 @@ export class WagetypeDetail extends UniView {
                         this.setPackagesFilteredByDescription();
                     }
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     private setBenefitAndDescriptionSource(selectedType: string) {

@@ -21,6 +21,7 @@ import {AppPipesModule} from './pipes/appPipesModule';
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AppServicesModule} from './services/servicesModule';
 import {AuthGuard} from './authGuard';
+import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
 import {AccountingModule} from './components/accounting/accountingModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
@@ -34,7 +35,6 @@ import {SalesModule} from './components/sales/salesModule';
 import {SettingsModule} from './components/settings/settingsModule';
 import {TimetrackingModule} from './components/timetracking/timetrackingModule';
 import {BankModule} from './components/bank/bankModule';
-import {ErrorService} from './services/common/ErrorService';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -44,17 +44,6 @@ declare var window;
 if (window.ENV === 'production') {
     enableProdMode();
 }
-
-class UniErrorHandler implements ErrorHandler {
-    private errorService: ErrorService;
-    public handleError (error: any) {
-        this.errorService.handle(error);
-    }
-    constructor(@Inject(ErrorService) errorService) {
-        this.errorService = errorService;
-    }
-}
-
 
 @NgModule({
     imports: [
@@ -103,9 +92,10 @@ class UniErrorHandler implements ErrorHandler {
         AuthGuard,
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
-        {provide: ErrorHandler, useClass: UniErrorHandler}
+        {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
     ]
 })
-export class AppModule {}
+export class AppModule {
+}
 
 platformBrowserDynamic().bootstrapModule(AppModule);

@@ -63,7 +63,7 @@ export class SupplierInvoiceList implements OnInit {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set('expand', 'JournalEntry,Supplier.Info,Dimensions.Department,Dimensions.Project');
             return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         this.onFiltersChange('');
@@ -80,7 +80,7 @@ export class SupplierInvoiceList implements OnInit {
                 (supplierinvoice) => {
                     this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + supplierinvoice.ID);
                 },
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
         });
     }
@@ -99,7 +99,7 @@ export class SupplierInvoiceList implements OnInit {
         this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             this.table.refreshTableData();
 
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private setupTableCfg(): UniTableConfig {
@@ -219,10 +219,10 @@ export class SupplierInvoiceList implements OnInit {
                                                 );
                                         }
                                     },
-                                        this.errorService.handle
+                                        err => this.errorService.handle(err)
                                     )
                             },
-                                this.errorService.handle
+                                err => this.errorService.handle(err)
                             );
 
                     },
@@ -242,7 +242,7 @@ export class SupplierInvoiceList implements OnInit {
                                 console.log('== TRANSITION OK sendForPayment ==');
                                 this.registerPayment(supplierInvoice)
                             },
-                                this.errorService.handle
+                                err => this.errorService.handle(err)
                             );
                         }
                         else {
@@ -262,7 +262,7 @@ export class SupplierInvoiceList implements OnInit {
                 {
                     label: 'Slett',
                     action: supplierInvoice => this.supplierInvoiceService.Remove(supplierInvoice.ID, supplierInvoice)
-                        .subscribe(() => alert('Successful'), this.errorService.handle),
+                        .subscribe(() => alert('Successful'), err => this.errorService.handle(err)),
                     disabled: supplierInvoice => !supplierInvoice._links.actions.delete
                 }
             ]);

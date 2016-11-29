@@ -187,7 +187,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             journalentrytoday.FinancialDate = moment().toDate();
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
                 this.addJournalEntry(event, next);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         } else {
             let oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
 
@@ -313,7 +313,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                             }
                         }
                     },
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
         }
     }

@@ -4,9 +4,6 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {Observable} from 'rxjs/Rx';
 import {ObservableInput} from 'rxjs/Observable';
 
-type ObservableErrorHandler = (err: any) => void
-type CatchHandler = (err: any, caught: Observable<any>) => ObservableInput<any>
-
 @Injectable()
 export class ErrorService {
     constructor(
@@ -14,42 +11,33 @@ export class ErrorService {
         private toastService: ToastService
     ) {}
 
-    public handle: ObservableErrorHandler = (error: any) => {
+    public handle(error: any) {
         this.handleWithMessage(error, null);
     };
 
-    public handleRxCatch: CatchHandler = (error: any) => {
-        this.handleWithMessage(error, null);
+    public handleRxCatch(err: any, caught: Observable<any>): ObservableInput<any> {
+        this.handleWithMessage(err, null);
         return Observable.empty();
     };
 
     public handleWithMessage(error: any, toastMsg: string) {
-        const message = toastMsg
-            || error.message
-            || error.Message
-            || this.extractMessage(error)
-            || error.statusText
-            || error;
+        const message = this.extractMessage(error);
+
         if (toastMsg) {
             error.customMessage = toastMsg;
         }
+
         this.logger.exception(error);
-        this.addToast(message);
-    }
 
-    private addToast(message: string) {
-        const duplicate = this.toastService.getToasts()
-            .find(toast => toast.message === message);
-
-        if (duplicate) {
-            this.toastService.removeToast(duplicate.id);
-        }
-
-        this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
+        this.addErrorToast(toastMsg || message);
     }
 
     public extractMessage(error: any): string {
-        if (error && error._body) {
+        if (error.message) {
+            return error.message;
+        } else if (error.Message) {
+            return error.Message;
+        } else if (error._body) {
             let errContent = JSON.parse(error._body);
             if (errContent && errContent.Messages && errContent.Messages.length > 0) {
                 return errContent.Messages.map(m => m.Message).join('.\n') + '.\n';
@@ -58,6 +46,21 @@ export class ErrorService {
             } else {
                 return error._body;
             }
+        } else if (error.statusText) {
+            return error.statusText;
+        } else {
+            return error.toString();
         }
+    }
+
+    public addErrorToast(message: string) {
+        const duplicate = this.toastService.getToasts()
+            .find(toast => toast.message === message);
+
+        if (duplicate) {
+            this.toastService.removeToast(duplicate.id);
+        }
+
+        this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
     }
 }

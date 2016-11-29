@@ -30,7 +30,7 @@ export class WagetypeList implements OnInit {
     public ngOnInit() {
 
         this.wageTypes$ = this._wageTypeService.GetAll('orderBy=WageTypeNumber ASC')
-            .catch(this.errorService.handleRxCatch);
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');

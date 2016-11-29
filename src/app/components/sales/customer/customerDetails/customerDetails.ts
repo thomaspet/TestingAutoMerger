@@ -113,7 +113,7 @@ export class CustomerDetails {
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
-                    .subscribe(links => this.reportLinks = links, this.errorService.handle);
+                    .subscribe(links => this.reportLinks = links, err => this.errorService.handle(err));
             });
         }
     }
@@ -138,7 +138,7 @@ export class CustomerDetails {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -151,7 +151,7 @@ export class CustomerDetails {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -220,7 +220,7 @@ export class CustomerDetails {
                    this.ready();
                 });
 
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         } else {
 
             Observable.forkJoin(
@@ -234,7 +234,7 @@ export class CustomerDetails {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 

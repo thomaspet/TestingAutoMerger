@@ -104,7 +104,7 @@ export class UniQueryDetails {
 
             return this.statisticsService
                 .GetAllByUrlSearchParams(params)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
     }
 
@@ -135,7 +135,7 @@ export class UniQueryDetails {
                         // query was deleted, navigate to overview
                         this.router.navigateByUrl('/uniqueries/overview');
                     },
-                        this.errorService.handle
+                        err => this.errorService.handle(err)
                 );
             } else {
                 // query has never been saved, so just redirect to overview without doing anything
@@ -197,7 +197,7 @@ export class UniQueryDetails {
                     this.updateContextMenu();
                     this.updateToolbarConfig();
                 },
-                this.errorService.handle);
+                err => this.errorService.handle(err));
         } else {
             this.tabService.addTab({ name: 'Nytt uttrekk', url: '/uniqueries/details/0', moduleID: UniModules.UniQuery, active: true });
 
@@ -223,7 +223,7 @@ export class UniQueryDetails {
                 this.setDefaultExpandedModels();
                 this.filterModels();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -450,7 +450,7 @@ export class UniQueryDetails {
                     // download file so the user can open it
                     saveAs(blob, 'export.csv');
                 },
-                this.errorService.handle);
+                err => this.errorService.handle(err));
 
         completeEvent('Eksport kjørt');
     }

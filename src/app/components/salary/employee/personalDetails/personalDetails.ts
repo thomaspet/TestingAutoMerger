@@ -54,13 +54,13 @@ export class PersonalDetails extends UniView {
             super.updateCacheKey(router.url);
             super.getStateSubject('employee').subscribe(
                 employee => this.employee = employee,
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
 
             super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
                 this.subEntities = subEntity;
                 this.getLayout();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 
@@ -90,7 +90,7 @@ export class PersonalDetails extends UniView {
                 this.extendFormConfig();
 
             }
-            , this.errorService.handle
+            , err => this.errorService.handle(err)
         );
     }
 
@@ -237,7 +237,7 @@ export class PersonalDetails extends UniView {
                 template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
             };
             this.fields = _.cloneDeep(this.fields);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
 
 
@@ -291,7 +291,7 @@ export class PersonalDetails extends UniView {
                 this.employee.MunicipalityNo = employee.MunicipalityNo;
                 this.employee.NotMainEmployer = employee.NotMainEmployer;
                 this.updateState('employee', employee);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 }

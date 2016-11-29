@@ -51,7 +51,7 @@ export class AccountDetails implements OnInit {
                 this.accountGroups = dataset[2].filter(x => x.GroupNumber != null && x.GroupNumber.toString().length === 3);
                 this.extendFormConfig();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -67,7 +67,7 @@ export class AccountDetails implements OnInit {
                     dataset => {
                         this.account = dataset;
                     },
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
         }
     }

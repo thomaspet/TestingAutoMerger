@@ -26,7 +26,7 @@ export class AltinnResponseModalContent {
         this._altinnService.readTaxCard(authData, receiptID).subscribe((responseMessage: string) => {
             this.responseMessage = responseMessage;
             this.config.update();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public close() {

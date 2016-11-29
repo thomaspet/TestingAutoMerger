@@ -54,7 +54,7 @@ export class AccountList {
 
             params.set('expand', 'AccountGroup,VatType');
 
-            return this.accountService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+            return this.accountService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

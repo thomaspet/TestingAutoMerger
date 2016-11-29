@@ -55,7 +55,7 @@ export class PaymentList implements OnInit {
                 this.account = this.paymentList[0].CompanyAccount;
                 this.buildTableConfigs();
                 this.busy = false;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
         });
 

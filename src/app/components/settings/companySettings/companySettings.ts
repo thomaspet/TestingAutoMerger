@@ -114,7 +114,7 @@ export class CompanySettingsComponent implements OnInit {
         this.getDataAndSetupForm();
         this.companyService.Get(this.authService.activeCompany.ID).subscribe(
             company => this.onlyCompanyModel = company,
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -177,7 +177,7 @@ export class CompanySettingsComponent implements OnInit {
                 });
 
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
     }
 
@@ -267,7 +267,7 @@ export class CompanySettingsComponent implements OnInit {
                     complete('Innstillinger lagret');
                 });
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
     }
 
@@ -278,7 +278,7 @@ export class CompanySettingsComponent implements OnInit {
                     this.company['MunicipalityName'] = data[0].MunicipalityName;
                     this.company = _.cloneDeep(this.company);
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     private extendFormConfig() {
@@ -509,7 +509,7 @@ export class CompanySettingsComponent implements OnInit {
         this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
             .subscribe(
                 company => this.onlyCompanyModel = company,
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -1092,7 +1092,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 console.log('Kontoplan synkronisert for AS');
             },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -1104,7 +1104,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 console.log('VatTypes synkronisert');
             },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -1115,7 +1115,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 alert('Valuta lasted ned');
             },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 

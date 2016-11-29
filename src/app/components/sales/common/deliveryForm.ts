@@ -149,7 +149,7 @@ export class TofDeliveryForm {
         this.businessRelationService.Put(this.entity.Customer.Info.ID, this.entity.Customer.Info).subscribe((info) => {
             this.entity.Customer.Info = info;
             resolve(info.Addresses[idx]);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private initFormLayout() {
@@ -207,7 +207,7 @@ export class TofDeliveryForm {
                     } else {
                         resolve(address);
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);

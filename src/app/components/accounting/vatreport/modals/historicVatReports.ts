@@ -43,7 +43,7 @@ export class HistoricVatReportTable implements OnInit {
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
         this.lookupFunction = (urlParams: URLSearchParams) =>
-            this.getTableData(urlParams).catch(this.errorService.handleRxCatch);
+            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
     }
 

@@ -97,7 +97,7 @@ export class EmploymentDetails implements OnChanges {
             subEntityField.Options.source = this.subEntities;
 
             this.formReady = true;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private updateTitle(styrk) {
@@ -113,7 +113,7 @@ export class EmploymentDetails implements OnChanges {
                             this.form.field('WorkPercent').focus();
                         }, 50);
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         }
     }
 

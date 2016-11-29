@@ -236,7 +236,7 @@ export class BillView {
                     } else {
                         this.findSupplierViaPhonebook(orgNo, true);
                     }
-                }, this.errorService.handle);
+                },err => this.errorService.handle(err));
             }
         }
         this.setFormValue('PaymentID', ocr.PaymentID);
@@ -264,7 +264,7 @@ export class BillView {
                     this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
                 }
             }
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
@@ -285,7 +285,7 @@ export class BillView {
         };
         this.supplierService.Post(sup).subscribe( x => {
             this.setSupplier(x);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
     }
 
@@ -971,7 +971,7 @@ export class BillView {
     private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
         var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
         if (flagFileStatus === 0 || flagFileStatus) {
-            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe(null, this.errorService.handle);
+            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe(null, err => this.errorService.handle(err));
         }
         return this.supplierInvoiceService.send(route).toPromise();
     }

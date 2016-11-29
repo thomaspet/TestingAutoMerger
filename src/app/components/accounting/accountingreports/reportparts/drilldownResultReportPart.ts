@@ -210,7 +210,7 @@ export class DrilldownResultReportPart implements OnChanges {
             // manipulate to show drilldown data
             this.treeSummaryList = treeSummaryList;
             this.flattenedTreeSummaryList = treeSummaryList.concat();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private calculateTreeAmounts(treeList: ResultSummaryData[]) {

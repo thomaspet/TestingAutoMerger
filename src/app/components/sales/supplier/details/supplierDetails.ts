@@ -97,7 +97,7 @@ export class SupplierDetails implements OnInit {
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
                     links => this.reportLinks = links,
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
             });
         }
@@ -117,7 +117,7 @@ export class SupplierDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
                     }
                 },
-                this.errorService.handle);
+                err => this.errorService.handle(err));
     }
 
     public previousSupplier() {
@@ -129,7 +129,7 @@ export class SupplierDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
                     }
                 },
-                this.errorService.handle);
+                err => this.errorService.handle(err));
     }
 
     public addSupplier() {
@@ -200,7 +200,7 @@ export class SupplierDetails implements OnInit {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
         } else {
             Observable.forkJoin(
@@ -217,7 +217,7 @@ export class SupplierDetails implements OnInit {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 

@@ -53,13 +53,13 @@ export class PreviewModal {
         this.companySettingsService.getCached(1)
             .subscribe(
                 settings => this.companySettings = settings,
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
 
         this.userService.getCurrentUser()
             .subscribe(
                 user => this.user = user,
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
 
         this.modalConfig = {

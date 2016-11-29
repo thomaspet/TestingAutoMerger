@@ -120,7 +120,7 @@ export class TimeEntry {
         if (workerId) {
             this.service.getByID(workerId, 'workers', 'Info').subscribe( (worker: Worker) => {
                 this.userName = worker.Info.Name;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         } else {
             this.userName = this.service.user.name;
         }
@@ -178,7 +178,7 @@ export class TimeEntry {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
             this.loadItems();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private loadItems() {
@@ -188,7 +188,7 @@ export class TimeEntry {
                 this.timeSheet.ensureRowCount(itemCount + 1);
                 this.flagUnsavedChanged(true);
                 this.busy = false;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         } else {
             alert('Current worker/user has no workrelations!');
         }

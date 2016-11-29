@@ -53,7 +53,7 @@ export class TransqueryDetails implements OnInit {
             const unitableFilter = this.generateUnitableFilters(params);
             this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
             this.lookupFunction = (urlParams: URLSearchParams) =>
-                this.getTableData(urlParams).catch(this.errorService.handleRxCatch);
+                this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         });
     }
 
@@ -94,7 +94,7 @@ export class TransqueryDetails implements OnInit {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
                 this.setSums();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         } else {
             this.summaryData = null;
         }

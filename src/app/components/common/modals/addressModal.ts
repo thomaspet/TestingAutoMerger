@@ -72,7 +72,7 @@ export class AddressForm implements OnChanges {
 
                     this.extendFormConfig();
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
         }
     }
@@ -109,7 +109,7 @@ export class AddressForm implements OnChanges {
                                 }
                             });
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         });
     }
 
@@ -122,7 +122,7 @@ export class AddressForm implements OnChanges {
                         model.CountryCode = data[0].CountryCode;
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
         }
     }

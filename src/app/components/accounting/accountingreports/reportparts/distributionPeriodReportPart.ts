@@ -146,7 +146,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                     ]);
 
                 this.setupDistributionPeriodChart();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 

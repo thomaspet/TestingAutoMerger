@@ -48,7 +48,7 @@ export class RecurringPost extends UniView {
                 if (this.recurringPosts) {
                     this.mapWageTypes();
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
             const employmentSubject = super.getStateSubject('employments');
@@ -66,7 +66,7 @@ export class RecurringPost extends UniView {
                     this.unsavedEmployments = this.employments.length !== employments.length;
 
                     this.buildTableConfig();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         });
     }
 

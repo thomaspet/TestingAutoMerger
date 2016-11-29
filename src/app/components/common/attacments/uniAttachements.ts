@@ -88,7 +88,7 @@ export class UniAttachments {
                 .map(res => res.json())
                 .subscribe(
                     files => this.files = files,
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
         }
     }
@@ -132,6 +132,6 @@ export class UniAttachments {
                 this.uploading = false;
                 this.files.push(res);
                 this.imageModal.refreshImages();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 }

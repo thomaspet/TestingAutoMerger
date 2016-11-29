@@ -66,7 +66,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
                 quote.ValidUntilDate = moment().add(1, 'month').toDate();
 
                 resolve(quote);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 

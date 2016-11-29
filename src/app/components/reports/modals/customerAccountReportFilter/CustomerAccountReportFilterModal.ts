@@ -199,7 +199,7 @@ export class CustomerAccountReportFilterModal {
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }
 

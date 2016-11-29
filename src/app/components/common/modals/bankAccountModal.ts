@@ -59,7 +59,7 @@ export class BankAccountForm {
                         this.lookupBankAccountNumber(bankaccount);
                     })
             );
-       }, this.errorService.handle);
+       }, err => this.errorService.handle(err));
 
     }
 

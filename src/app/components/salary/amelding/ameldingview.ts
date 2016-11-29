@@ -92,7 +92,7 @@ export class AMeldingView implements OnInit {
                 this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
                 this.getAMeldingForPeriod();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     public prevPeriod() {
@@ -135,7 +135,7 @@ export class AMeldingView implements OnInit {
                     a.dispatchEvent(e);
                     a.remove();
 
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         }
     }
 
@@ -186,7 +186,7 @@ export class AMeldingView implements OnInit {
             this.updateToolbar();
             this.updateSaveActions();
             this.setStatusForPeriod();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getSumsInPeriod() {
@@ -209,7 +209,7 @@ export class AMeldingView implements OnInit {
 
             this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
             this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private updateToolbar() {
@@ -308,7 +308,7 @@ export class AMeldingView implements OnInit {
             }
             
             this.legalEntityNo = response.LegalEntityNo;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getDataFromFeedback(amelding, typeData): any {
@@ -416,7 +416,7 @@ export class AMeldingView implements OnInit {
                     this.updateToolbar();
                     this.updateSaveActions();
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     private setStatusForPeriod() {
@@ -530,7 +530,7 @@ export class AMeldingView implements OnInit {
                             this.showView = 'receipt';
                             done('tilbakemelding hentet');
                         }
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
             });
 
     }
@@ -545,7 +545,7 @@ export class AMeldingView implements OnInit {
                 }
                 done('A-melding sendt inn');
             }
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private openAmeldingTypeModal(done) {

@@ -75,7 +75,7 @@ export class AltinnSettings implements OnInit {
                         this.formConfig = layout.Fields;
                     });
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     public saveAltinn(done) {

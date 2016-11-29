@@ -60,7 +60,7 @@ export class OrderList {
             }
 
             return this.customerOrderService.GetAllByUrlSearchParams(params)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Context menu
@@ -108,7 +108,7 @@ export class OrderList {
                     console.log('== order Transistion OK ==');
                     alert('Overgang til -Avslutt- OK');
                     this.table.refreshTableData();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.complete;
@@ -127,7 +127,7 @@ export class OrderList {
                     if (report) {
                         this.previewModal.openWithId(report, order.ID);
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return false;

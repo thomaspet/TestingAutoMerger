@@ -177,6 +177,6 @@ export class SendEmailModal {
 
             this.modalConfig.model = sendemail;    
             this.modal.open();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }

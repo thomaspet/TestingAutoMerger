@@ -37,7 +37,7 @@ export class GrantsModalContent {
             });
             this.allSubEntities = subs;
             this.setTableConfig();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public saveData() {

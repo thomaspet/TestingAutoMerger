@@ -50,7 +50,7 @@ export class VacationpayModalContent {
             this.createTableConfig();
             
             this.busy = false;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void}) {
@@ -75,7 +75,7 @@ export class VacationpayModalContent {
         .finally(() => this.busy = false)
         .subscribe((response) => {
             this.config.submit();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public openVacationpaySettings() {
@@ -99,7 +99,7 @@ export class VacationpayModalContent {
             }
             this.updatetotalPay();
             this.basicamountBusy = false;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
     }
 

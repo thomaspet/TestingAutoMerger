@@ -277,7 +277,7 @@ export class UniTableDemoNew {
             .withEndPoint('employments')
             .send({top: 10})
             .map(response => response.json())
-            .catch(this.errorService.handleRxCatch);
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         let jobNameCol = new UniTableColumn('JobName', 'Job name');
         let startDateCol = new UniTableColumn('StartDate', 'Start date', UniTableColumnType.Date);
@@ -318,7 +318,7 @@ export class UniTableDemoNew {
                 .usingBusinessDomain()
                 .withEndPoint('employments')
                 .send({}, urlParams)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             // return this.http.get('https://devapi.unieconomy.no/api/biz/employments', {search: urlParams});
         };
 

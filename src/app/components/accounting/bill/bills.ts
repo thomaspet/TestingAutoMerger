@@ -153,7 +153,7 @@ export class BillsView {
             this.busy = false;
 
             this.QueryInboxTotals();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
         if (refreshTotals) {
             this.refreshTotals();
         }
@@ -192,7 +192,7 @@ export class BillsView {
             if (filter && data && data.length > 0) {
                 filter.count = data[0].countid;
             }
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getInboxFilter(): IFilter {
@@ -245,7 +245,7 @@ export class BillsView {
             this.filters[ixAll].count = count;
             this.filters[ixAll].total = total;
             this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private createTableConfig(filter: IFilter): UniTableConfig {

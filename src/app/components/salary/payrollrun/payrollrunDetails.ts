@@ -219,7 +219,7 @@ export class PayrollrunDetails extends UniView {
                                         } else {
                                             this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
                                         }
-                                    }, this.errorService.handle);
+                                }, err => this.errorService.handle(err));
                             }
                         }
                     }
@@ -260,7 +260,7 @@ export class PayrollrunDetails extends UniView {
                 x['_Account'] = account;
             });
             super.updateState('salaryTransactions', response, false);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getPayrollRun() {
@@ -297,7 +297,7 @@ export class PayrollrunDetails extends UniView {
 
                 this.updateState('payrollRun', payroll, false);
 
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 
@@ -360,7 +360,7 @@ export class PayrollrunDetails extends UniView {
     private getEmployees() {
         this._employeeService.GetAll('filter=' + this.filter, ['Employments', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']).subscribe(response => {
             this.updateState('employees', response, false);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getWageTypes() {
@@ -459,7 +459,7 @@ export class PayrollrunDetails extends UniView {
                     this.setSection();
                     this.router.navigateByUrl(this.url + previous.ID);
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     public nextPayrollrun() {
@@ -475,7 +475,7 @@ export class PayrollrunDetails extends UniView {
                     this.setSection();
                     this.router.navigateByUrl(this.url + next.ID);
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     public runSettling(done?: (message: string) => void) {
@@ -527,7 +527,7 @@ export class PayrollrunDetails extends UniView {
                     this.getSalaryTransactions();
                 }
             },
-            this.errorService.handle);
+            err => this.errorService.handle(err));
     }
 
     private findByProperty(fields, name) {

@@ -48,7 +48,7 @@ export class ProductList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
                         
-            return this.productService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+            return this.productService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

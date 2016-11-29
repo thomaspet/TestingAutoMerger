@@ -38,7 +38,7 @@ export class DepartmentList {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             return this.departmentService.GetAllByUrlSearchParams(urlParams)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         this.tableConfig = new UniTableConfig(false, true, 25)

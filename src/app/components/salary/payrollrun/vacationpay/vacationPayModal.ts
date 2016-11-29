@@ -46,6 +46,6 @@ export class VacationpayModal implements AfterViewInit {
         this.modal.getContent().then((component: VacationpayModalContent) => {
             this.modal.open();
             component.load();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 }

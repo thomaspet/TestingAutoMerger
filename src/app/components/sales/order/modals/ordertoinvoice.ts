@@ -147,7 +147,7 @@ export class OrderToInvoiceModal {
                 this.modalConfig.model = data[0];
                 this.modal.open();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
     }
 }

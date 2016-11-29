@@ -41,7 +41,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                 invoice.InvoiceDate = moment().toDate();
 
                 resolve(invoice);                
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
     

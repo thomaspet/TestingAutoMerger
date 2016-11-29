@@ -171,8 +171,8 @@ export class ControlModalContent {
         this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
             this.getData().subscribe((data) => {
                 this.setData(data);
-            }, this.errorService.handle);
-        }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
+        }, err => this.errorService.handle(err));
     }
 
     public showPaymentList() {
@@ -220,7 +220,7 @@ export class ControlModal implements AfterViewInit {
                                 this.updatePayrollRun.emit(true);
                                 content.showPaymentList();
                             }
-                        }, this.errorService.handle);
+                        }, err => this.errorService.handle(err));
                     });
                 }
             }]

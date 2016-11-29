@@ -48,7 +48,7 @@ export class FreeamountModalContent {
 
             this.setTableConfig();
             this.setFormConfig();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private setTableConfig() {

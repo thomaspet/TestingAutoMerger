@@ -50,7 +50,7 @@ export class VatTypeList {
             
             params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost,VatReportReferences.Account');
             
-            return this.vatTypeService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+            return this.vatTypeService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
         
         

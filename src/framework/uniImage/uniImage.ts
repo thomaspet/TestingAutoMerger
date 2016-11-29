@@ -162,7 +162,7 @@ export class UniImage {
                             this.loadThumbnails();
                         }
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         } else if (this.entity && this.entityID) {
             this.http.asGET()
                 .usingBusinessDomain()
@@ -179,7 +179,7 @@ export class UniImage {
                             this.loadThumbnails();
                         }
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         } else {
              this.files = [];
         }
@@ -297,7 +297,7 @@ export class UniImage {
                     .send()
                     .subscribe((res) => {
                         this.uploadFile(newFile);
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
             } else {
                 this.uploadFile(newFile);
             }
@@ -328,6 +328,6 @@ export class UniImage {
                 if (!this.singleImage) {
                     this.loadThumbnails();
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 }

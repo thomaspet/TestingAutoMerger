@@ -99,7 +99,7 @@ export class WorkerService extends BizHttp<Worker> {
                         }
                     }
                 } 
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
     

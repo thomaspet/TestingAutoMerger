@@ -174,7 +174,7 @@ export class RegtimeTools {
                     this.showData([{'label': result.Message}]);
                 }
             } 
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private createArg(name: string, value: string): string {

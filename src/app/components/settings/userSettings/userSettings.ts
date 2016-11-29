@@ -35,7 +35,7 @@ export class UserSettings {
 
     private getDataAndSetupForm() {
         this.getFormLayout();
-        this.userService.getCurrentUser().subscribe(user => this.user = user, this.errorService.handle);
+        this.userService.getCurrentUser().subscribe(user => this.user = user, err => this.errorService.handle(err));
     }
 
     public saveSettings(complete) {

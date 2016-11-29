@@ -59,11 +59,11 @@ export class ReceiptVat {
                                             this.toastService.addToast('Kvitteringsdata hentet fra Altinn', ToastType.good);
                                             this.busy = false;
                                         },
-                                        this.errorService.handle
+                                        err => this.errorService.handle(err)
                                     );
                             }
                         },
-                        this.errorService.handle
+                        err => this.errorService.handle(err)
                     );
                 }
             );

@@ -58,7 +58,7 @@ export class App {
             .map(response => response.json())
             .subscribe(
                 response => localStorage.setItem('companySettings', JSON.stringify(response[0])),
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
 
         // Check if company needs to be initialized
@@ -71,7 +71,7 @@ export class App {
                 if (!isActive) {
                     this.companySyncModal.open();
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
         // KE: For now, don't load static registers - these are slow because of to much data in local storage
         // this.staticRegisterService.checkForStaticRegisterUpdate();

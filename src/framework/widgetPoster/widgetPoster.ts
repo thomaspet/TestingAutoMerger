@@ -120,7 +120,7 @@ export class WidgetPoster {
                     } else {
                         this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         }
     }
 
@@ -133,7 +133,7 @@ export class WidgetPoster {
 
         this.userService.getCurrentUser().subscribe((data) => {
             this.currentUser = data;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
         /*  THESE SHOULD NOT BE HERE.. SHOULD BE REMOVED
             GETS THE NUMBER OF SUBENTITIES AND NUMBER OF ACTIVE USERS   */
@@ -145,7 +145,7 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfBusinesses = data.Data[0].countid;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
         this.http
             .asGET()
@@ -155,7 +155,7 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfActiveUsers = data.Data[0].countid;
-            }, this.errorService.handle)
+            }, err => this.errorService.handle(err))
         setTimeout(() => {
             this.hasImage = document.querySelectorAll('.poster_tease_widget_2 uni-image article picture').length !== 0;
         }, 1200)

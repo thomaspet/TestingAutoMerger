@@ -45,7 +45,7 @@ export class DepartmentDetails implements OnInit {
                 this.departmentService.Get(departmentID)
                     .subscribe(
                         department => this.setDepartment(department),
-                        err => this.errorService.handle
+                        err => err => this.errorService.handle(err)
                     );
             } else {
                 this.setDepartment(new Department);
@@ -70,7 +70,7 @@ export class DepartmentDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger etter denne');
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -84,7 +84,7 @@ export class DepartmentDetails implements OnInit {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger før denne');
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -114,7 +114,7 @@ export class DepartmentDetails implements OnInit {
                         this.router.navigateByUrl('/dimensions/department/' + newDepartment.ID);
                         done('Avdeling lagret');
                     },
-                    this.errorService.handle);
+                    err => this.errorService.handle(err));
         }
     }
 

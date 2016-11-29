@@ -85,7 +85,7 @@ export class AgaAndSubEntitySettings implements OnInit {
                 this.mainOrganization['_AgaSoneLink'] = this.agaSoneOversiktUrl;
 
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
             );
     }
 
@@ -310,7 +310,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             this.mainOrganization = response[2];
             done('Sist lagret: ');
         },
-            this.errorService.handle,
+            err => this.errorService.handle(err),
             () => this.saveactions[0].disabled = false);
     }
 

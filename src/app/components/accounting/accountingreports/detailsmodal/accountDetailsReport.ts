@@ -40,7 +40,8 @@ export class AccountDetailsReport {
 
     public ngOnInit() {
         this.transactionsLookupFunction =
-            (urlParams: URLSearchParams) => this.getTableData(urlParams).catch(this.errorService.handleRxCatch);
+            (urlParams: URLSearchParams) => this.getTableData(urlParams)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     // modal is reused if multiple accounts are viewed, and the loadData will be called from the accountDetailsReportModal

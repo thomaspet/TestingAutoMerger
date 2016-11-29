@@ -100,7 +100,7 @@ export class UniCompanyDropdown {
 
         this.userService.getCurrentUser().subscribe((user) => {
             this.username = user.DisplayName;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
 
         this.http.asGET()
             .usingInitDomain()
@@ -110,7 +110,7 @@ export class UniCompanyDropdown {
             .subscribe((response) => {
                 this.availableCompanies = response;
                 this.selectCompanyConfig.searchable = response.length >= 8;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
 
         this.selectCompanyConfig = {
             displayProperty: 'Name'
@@ -135,7 +135,7 @@ export class UniCompanyDropdown {
         this.companySettingsService.Get(1, ['DefaultPhone']).subscribe((company) => {
             this.company = company;
             this.getFinancialYear();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private getFinancialYear() {
@@ -143,7 +143,7 @@ export class UniCompanyDropdown {
         this.financialYearService.GetAll(null).subscribe((response) => {
             this.financialYears = response;
             this.setActiveYear();
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private setActiveYear() {

@@ -125,7 +125,7 @@ export class Overview {
             }
 
             this.reportCategories.sort((a, b) => a.priority - b.priority);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private priorityByCategoryName(name: string): number {

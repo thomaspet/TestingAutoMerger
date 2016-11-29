@@ -181,7 +181,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
             // expand top level groups
             this.expandRow(this.flattenedTreeSummaryList[1]);
             this.expandRow(this.flattenedTreeSummaryList[0]);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     private calculateTreeAmounts(treeList: BalanceSummaryData[]) {

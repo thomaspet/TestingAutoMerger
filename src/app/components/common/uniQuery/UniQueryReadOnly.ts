@@ -63,7 +63,7 @@ export class UniQueryReadOnly implements OnChanges {
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+                .GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
     }
 
@@ -116,7 +116,7 @@ export class UniQueryReadOnly implements OnChanges {
 
                         this.setupTableConfig();
                     },
-                    this.errorService.handle);
+                    err => this.errorService.handle(err));
         } else {
             this.queryDefinition = new UniQueryDefinition();
             this.queryDefinition.ID = 0;

@@ -215,7 +215,7 @@ export class NavbarSearch implements AfterViewInit {
                 });
                 this.searchResults = results;
                 this.isExpanded = true;
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     private TOFLookup(query: string, module: string) {
@@ -240,7 +240,7 @@ export class NavbarSearch implements AfterViewInit {
                     this.searchResults = results;
                     this.isExpanded = true;
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 }

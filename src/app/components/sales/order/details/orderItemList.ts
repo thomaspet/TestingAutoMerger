@@ -63,7 +63,7 @@ export class OrderItemList {
 
                     this.itemsLoaded.emit(this.items);
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
          }
     }

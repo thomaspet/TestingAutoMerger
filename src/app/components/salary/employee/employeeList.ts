@@ -27,7 +27,7 @@ export class EmployeeList {
     ) {
 
         this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
-            .catch(this.errorService.handleRxCatch);
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         var idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
 

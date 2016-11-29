@@ -161,15 +161,15 @@ export class InvoiceDetails {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
                     this.refreshInvoice(invoice);
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             } else {
                 this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
                     this.refreshInvoice(invoice);
                     this.recalcItemSums(invoice);
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             }
 
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     @HostListener('keydown', ['$event'])
@@ -472,7 +472,7 @@ export class InvoiceDetails {
                     this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
                         .subscribe(
                             res => this.refreshInvoice(res),
-                            this.errorService.handle
+                            err => this.errorService.handle(err)
                         );
                 }
                 done('Lagring fullført');
@@ -564,14 +564,14 @@ export class InvoiceDetails {
     public nextInvoice() {
         this.customerInvoiceService.getNextID(this.invoice.ID).subscribe(
             id => this.router.navigateByUrl('/sales/invoices/' + id),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
     public previousInvoice() {
         this.customerInvoiceService.getPreviousID(this.invoice.ID).subscribe(
             id => this.router.navigateByUrl('/sales/invoices/' + id),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

@@ -138,7 +138,7 @@ export class TaxCardRequest {
             this.exitButton = 'OK';
             this.busy = false;
         },
-            this.errorService.handle);
+            err => this.errorService.handle(err));
     }
 
     public ready(value) {

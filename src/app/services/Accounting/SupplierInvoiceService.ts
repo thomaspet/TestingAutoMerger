@@ -101,7 +101,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
                 invoice.CurrencyCode = 'NOK';
           
                 resolve(invoice);                
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 

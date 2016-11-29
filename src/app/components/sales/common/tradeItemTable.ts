@@ -45,7 +45,7 @@ export class TradeItemTable {
                 this.vatTypes = vattypes;
                 this.initTableConfig();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -73,7 +73,7 @@ export class TradeItemTable {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
                         ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
-                    ).catch(this.errorService.handleRxCatch);
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
 
@@ -125,7 +125,7 @@ export class TradeItemTable {
                 lookupFunction: (query) => {
                     return this.projectService.GetAll(
                         `filter=startswith(ProjectNumber,'${query}') or contains(Name,'${query}')&top=30`
-                    ).catch(this.errorService.handleRxCatch);
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
 
@@ -148,7 +148,7 @@ export class TradeItemTable {
                 lookupFunction: (query) => {
                     return this.departmentService.GetAll(
                         `filter=startswith(DepartmentNumber,'${query}') or contains(Name,'${query}')&top=30`
-                    ).catch(this.errorService.handleRxCatch);
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
 

@@ -59,7 +59,7 @@ export class QuoteList {
             }
 
             return this.customerQuoteService.GetAllByUrlSearchParams(params)
-                .catch(this.errorService.handleRxCatch);
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Context menu
@@ -86,7 +86,7 @@ export class QuoteList {
                     console.log('== Quote Transistion OK ==');
                     alert('-- Overført til ordre-- OK');
                     this.table.refreshTableData();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.toOrder;
@@ -100,7 +100,7 @@ export class QuoteList {
                     console.log('== Quote Transistion OK ==');
                     alert('-- Overført til faktura-- OK');
                     this.table.refreshTableData();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.toInvoice;
@@ -114,7 +114,7 @@ export class QuoteList {
                     console.log('== Quote Transistion OK ==');
                     alert('Overgang til -Avslutt- OK');
                     this.table.refreshTableData();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.complete;
@@ -133,7 +133,7 @@ export class QuoteList {
                     if (report) {
                         this.previewModal.openWithId(report, quote.ID);
                     }
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return false;
@@ -155,7 +155,7 @@ export class QuoteList {
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                     this.sendEmailModal.Changed.subscribe((email) => {
                         this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
                 }
             }
         });

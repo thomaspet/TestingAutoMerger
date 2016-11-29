@@ -45,7 +45,7 @@ export class Dashboard {
 
         this.getCompany().subscribe(
             (data) => { this.current = data[0]; },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -53,26 +53,26 @@ export class Dashboard {
 
         this.getInvoicedData().subscribe(
             data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
         this.getOrdreData().subscribe(
             (data) => this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getQuoteData().subscribe(
             (data) => this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getOperatingData().subscribe(
             (data) => this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getLastJournalEntry().subscribe(
             (data) => this.generateLastTenList(data, true),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getMyUserInfo().subscribe(
@@ -83,22 +83,22 @@ export class Dashboard {
                     (data) => { this.generateLastTenList(data.Data, false, true) }
                     )
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getTransactions().subscribe(
             (data) => this.generateLastTenList(data.Data, false),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getAssets().subscribe(
             (data) => this.chartGenerator('assets_chart', this.assetsChartData(data.Data)),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
 
         this.getMail().subscribe(
             (data) => this.fixInboxItems(data.Data),
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

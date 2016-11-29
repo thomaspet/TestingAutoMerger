@@ -181,7 +181,7 @@ export class TofCustomerCard {
                 this.entity.Customer = customer;
                 this.entityChange.next(_.cloneDeep(this.entity));
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -267,7 +267,7 @@ export class TofCustomerCard {
             this.selectedIndex = (this.control.value) ? 0 : -1;
             this.expanded = true;
             this.busy = false;
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public onKeydown(event: KeyboardEvent) {

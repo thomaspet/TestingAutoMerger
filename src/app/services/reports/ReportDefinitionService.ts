@@ -91,7 +91,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                 this.target = null;
                 this.sendemail = sendemail;
                 this.generateReport();
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 
@@ -106,7 +106,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                 this.report.templateJson = template;
                 this.onTemplateLoaded();
             },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
     }
 
@@ -117,7 +117,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                   this.report.dataSources = dataSources;
                   this.onDataSourcesLoaded();
               },
-                  this.errorService.handle
+                  err => this.errorService.handle(err)
               );
     }
 
@@ -142,7 +142,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         }
 
         Observable.forkJoin(observableBatch)
-            .subscribe(data => this.onDataFetched(data), this.errorService.handle);
+            .subscribe(data => this.onDataFetched(data), err => this.errorService.handle(err));
     }
 
     private onDataFetched(data: any) {
@@ -177,7 +177,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
                 this.toastService.removeToast(this.emailtoast);
                 this.toastService.addToast('Epost sendt', ToastType.good, 3);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         }
     }
 

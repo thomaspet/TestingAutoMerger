@@ -34,7 +34,7 @@ export class PostingsummaryModal implements AfterViewInit {
                                 this.updatePayrollRun.emit(true);
                                 content.showResponseReceipt(success);
                             }
-                        }, this.errorService.handle,
+                        }, err => this.errorService.handle(err),
                         () => content.busy = false);
                     });
                 }

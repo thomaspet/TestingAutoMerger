@@ -101,7 +101,7 @@ export class JournalEntryProfessional implements OnInit {
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

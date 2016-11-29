@@ -153,6 +153,6 @@ export class DimensionsOverviewReportPart {
                         new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money).setCls('amount'),
                         new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage')
                     ]);
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 }

@@ -35,7 +35,7 @@ export class EmployeeService extends BizHttp<Employee> {
     public refreshEmployeeID(id: number) {
         this.Get(id, this.defaultExpands).subscribe((emp: Employee) => {
             this.employee.next(emp);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     public getEmployeeCategories(employeeID: number) {

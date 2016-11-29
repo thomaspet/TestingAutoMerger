@@ -228,7 +228,7 @@ export class SaveQueryDefinitionModal {
                                 this.saved.emit(res);
                                 return false;
                             },
-                        this.errorService.handle);
+                        err => this.errorService.handle(err));
                     }
                 },
                 {

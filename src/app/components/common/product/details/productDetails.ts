@@ -99,7 +99,7 @@ export class ProductDetails {
                     this.formIsInitialized = true;
 
                     this.loadProduct();
-                }, this.errorService.handle);
+                }, err => this.errorService.handle(err));
         } else {
             this.loadProduct();
         }
@@ -129,7 +129,7 @@ export class ProductDetails {
                 isDisabled: (!this.productId || parseInt(this.productId) === 0),
                 disableMessage: 'Produkt må lagres før bilde kan lastes opp'
             };
-        } , this.errorService.handle);
+        } , err => this.errorService.handle(err));
     }
 
     private setTabTitle() {
@@ -184,7 +184,7 @@ export class ProductDetails {
 
                 this.product = _.cloneDeep(this.product);
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -203,7 +203,7 @@ export class ProductDetails {
                 } else {
                     alert('Ingen flere produkter før denne!')
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     private nextProduct() {
@@ -214,7 +214,7 @@ export class ProductDetails {
                 } else {
                     alert('Ingen flere produkter etter denne!')
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
     }
 
     private addProduct() {

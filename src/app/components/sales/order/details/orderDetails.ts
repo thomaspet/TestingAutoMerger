@@ -151,7 +151,7 @@ export class OrderDetails {
             if (this.orderID) {
                 this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
                     res => this.refreshOrder(res),
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
             } else {
                 Observable.forkJoin(
@@ -165,7 +165,7 @@ export class OrderDetails {
                         order.DeliveryDate = new Date();
                         this.refreshOrder(order);
                     },
-                    this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
             }
         });
@@ -226,7 +226,7 @@ export class OrderDetails {
         if (!order) {
             this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
                 res => this.refreshOrder(res),
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
             return;
         }
@@ -285,7 +285,7 @@ export class OrderDetails {
                     this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
                 }
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -298,7 +298,7 @@ export class OrderDetails {
                     this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
                 }
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

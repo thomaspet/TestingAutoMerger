@@ -35,7 +35,7 @@ export class StatusService {
                         } else {
                             reject('Could not get statuses from API');
                         }
-                    }, this.errorService.handle);
+                    }, err => this.errorService.handle(err));
             }
 
             resolve(true);

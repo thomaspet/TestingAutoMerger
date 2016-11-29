@@ -42,8 +42,8 @@ export class Employments extends UniView {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
 
-            super.getStateSubject('subEntities').subscribe( subEntities => this.subEntities = subEntities, this.errorService.handle);
-            super.getStateSubject('employee').subscribe(employee => this.employee = employee, this.errorService.handle);
+            super.getStateSubject('subEntities').subscribe( subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
+            super.getStateSubject('employee').subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments || [];
 
@@ -60,7 +60,7 @@ export class Employments extends UniView {
                     }
                     this.selectedIndex = focusIndex;
                 }
-            }, this.errorService.handle);
+            }, err => this.errorService.handle(err));
         });
     }
 
@@ -91,7 +91,7 @@ export class Employments extends UniView {
             this.employments.push(newEmployment);
             this.table.addRow(newEmployment);
             this.table.focusRow(this.employments.length - 1);
-        }, this.errorService.handle);
+        }, err => this.errorService.handle(err));
     }
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
