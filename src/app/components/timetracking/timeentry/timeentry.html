@@ -43,13 +43,6 @@
 
         <section [hidden]="!tabs[0].isSelected">
 
-            <header class="regtimetitle">
-                <span>Registrere timer for {{userName}}</span>
-                <select (change)="onWorkrelationChange($event)">
-                    <option *ngFor="let item of workRelations" [value]="item.ID" >{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
-                </select>
-            </header>
-
             <aside class="regtime_filters no-print">
 
                 <footer>
@@ -113,3 +106,4 @@
 
 </section>
 
+<uni-confirm-modal></uni-confirm-modal>

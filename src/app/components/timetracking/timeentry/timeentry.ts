@@ -4,7 +4,7 @@ import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker} from '../../../unientities';
 import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
+import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe} from '../utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -14,6 +14,7 @@ import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/common/ErrorService';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 declare var moment;
 
@@ -42,6 +43,7 @@ export class TimeEntry {
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
@@ -103,7 +105,7 @@ export class TimeEntry {
 
         this.filters = service.getIntervalItems();
 
-        this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
+        this.initTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
             if (item.workerId) {
@@ -116,10 +118,14 @@ export class TimeEntry {
 
     }
 
+    private initTab() {
+        this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
+    }
+
     private init(workerId?: number) {
         if (workerId) {
             this.service.getByID(workerId, 'workers', 'Info').subscribe( (worker: Worker) => {
-                this.userName = worker.Info.Name;
+                this.updateToolbar(worker.Info.Name);
             }, err => this.errorService.handle(err));
         } else {
             this.userName = this.service.user.name;
@@ -128,11 +134,16 @@ export class TimeEntry {
         this.initWorker(workerId);
     }
 
-    public onWorkrelationChange(event: any) {
+    public onWorkrelationChange(event: any) {        
         var id = (event && event.target ? safeInt(event.target.value) : 0);
+        this.setWorkRelationById(id);
+    }
+
+    private setWorkRelationById(id: number) {
         this.checkSave().then( (value) => {
-            if (value && id) {
+            if (id) {
                 this.timeSheet.currentRelationId = id;
+                this.updateToolbar();
                 this.loadItems();
             }
         });
@@ -154,22 +165,26 @@ export class TimeEntry {
     }
 
     public reset() {
-        if (this.hasUnsavedChanges()) {
-            if (confirm('Nullstille alle endringer uten å lagre ?')) {
-                this.loadItems();
-            }
-        }
+        this.checkSave().then( (x: boolean) => {
+            if (x) { this.loadItems(); }
+        });
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
         this.editable.closeEditor();
         this.timeSheet.removeRow(rowIndex);
         this.flagUnsavedChanged();
-
     }
 
     public canDeactivate() {
-        return this.checkSave();
+        return new Promise((resolve, reject) => {
+            this.checkSave().then( (success: boolean) => {
+                resolve(success);
+                if (!success) { 
+                    this.initTab(); 
+                } 
+            });
+        });
     }
 
     private initWorker(workerid?: number) {
@@ -178,7 +193,42 @@ export class TimeEntry {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
             this.loadItems();
+            this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
         }, err => this.errorService.handle(err));
+    }
+
+    private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
+        
+        this.userName = name || this.userName;
+        
+        var contextMenus = [];
+        var list = workRelations || this.workRelations;
+        if (list && list.length > 1) {
+            list.forEach( x => {
+                var label = `Stilling: ${x.Description} ${x.WorkPercentage}%`;
+                contextMenus.push( { label: label, action: () => this.setWorkRelationById(x.ID) });
+            });
+        }
+
+        var subTitle = '';
+        if (this.timeSheet && this.timeSheet.currentRelation) {
+            let ts = this.timeSheet.currentRelation;
+            subTitle = `${ts.Description} ${ts.WorkPercentage}%`;
+        }
+
+        this.toolbarConfig = {
+            title: trimLength(this.userName, 20),
+            subheads: [
+                { title: subTitle }
+            ],
+            omitFinalCrumb: true,
+            navigation: {
+                add: () => {
+                    this.onAddNew();
+                }
+            },
+            contextmenu: contextMenus
+        };
     }
 
     private loadItems() {
@@ -194,15 +244,17 @@ export class TimeEntry {
         }
     }
 
-    private save(done?: any) {
-
-        if (!this.validate()) {
-            if (done) { done('Feil ved validering'); }
-            return;
-        }
-
-        if (this.busy) { return; }
+    private save(done?: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
+
+            if (this.busy) { resolve(false); return; }
+
+            if (!this.validate()) {
+                if (done) { done('Feil ved validering'); }
+                resolve(false);
+                return;
+            }
+
             this.busy = true;
             var counter = 0;
             this.timeSheet.saveItems().subscribe((item: WorkItem) => {
@@ -299,13 +351,11 @@ export class TimeEntry {
         if (!details.value) {
             switch (name) {
                 case 'Date':
-                    // debugger;
                     details.value = moment(this.getDefaultDate()).format('l'); 
                     details.flagChanged = true;
                     break;
 
                 case 'StartTime':
-                    // debugger;
                     if (row > 0) {
                         let d1 = this.timeSheet.items[row].Date;
                         let d2 = this.timeSheet.items[row - 1].Date;
@@ -397,11 +447,26 @@ export class TimeEntry {
     private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
-                var result = confirm('Fortsette uten å lagre? Du vil miste alle endringer som du har lagt inn dersom du fortsetter !');
-                resolve(result);
-                return;
+                this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true).then( (userChoice: ConfirmActions) => {                    
+                    switch (userChoice) {
+                        case ConfirmActions.ACCEPT:
+                            this.save().then( x => {
+                                resolve(x);
+                            });
+                            break;
+
+                        case ConfirmActions.CANCEL:
+                            resolve(false);
+                            break;
+
+                        default:
+                            resolve(true);
+                            break;
+                    }
+                });
+            } else {
+                resolve(true);
             }
-            resolve(true);
         });
     }
 
