@@ -55,13 +55,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 this.selectedIndex = 0;
                 this.employeeList = employees || [];
 
-                this.focusRow(0);
-
                 if (this.employeeList && this.employeeList.length) {
-                    this.getAga();
-                    this.employeeTotals = null;
-                    this.setSums();
-                    this.setSummarySource();
+                    this.focusRow(0);
                 }
             });
         });
@@ -162,13 +157,15 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     private setSummarySource() {
-        this._employeeService.getTotals(this.payrollRunID, this.employeeList[this.selectedIndex].ID)
+        if (this.payrollRunID > 0) {
+            this._employeeService.getTotals(this.payrollRunID, this.employeeList[this.selectedIndex].ID)
             .subscribe((response) => {
                 if (response) {
                     this.employeeTotals = response;
                     this.setSums();
                 }
             }, this.errorService.handle);
+        }
     }
 
     public goToNextEmployee() {

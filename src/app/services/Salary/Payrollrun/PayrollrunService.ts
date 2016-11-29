@@ -24,9 +24,27 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
     }
+
+    public get(id: number | string, expand: string[] = null) {
+        if (id === 0) {
+            if (expand) {
+                return super.GetNewEntity(expand);
+            }
+            return super.GetNewEntity([''], this.relativeURL);
+        } else {
+            if (expand) {
+                return super.Get(id, expand);
+            }
+            return super.Get(id);
+        }
+    }
       
-    public getStatus(payrollRun: PayrollRun) {        
-        return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode); 
+    public getStatus(payrollRun: PayrollRun) {
+        if (payrollRun) {
+            return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
+        } else {
+            return this.payStatusTable.find(x => x.ID === null);
+        }
     }
 
     public getLatestSettledPeriod(id: number, yr: number) {
@@ -44,6 +62,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     
     public getNext(ID: number) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID ASC`).map(resultSet => resultSet[0]);
+    }
+
+    public getLatest() {
+        return super.GetAll(`filter=ID gt 0&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
     }
     
     public runSettling(ID: number) {
@@ -116,16 +138,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-from-vacationpayinfo-list&year=' + year)
             .withBody(payList)
             .send();
-    }
-    
-    public getEmptyPayrollrunDates() {
-        var dates: Date[] = [];
-        
-        dates.push(this.getFirstDayOfNextMonth());
-        dates.push(this.getLastDayOfNextMonth());
-        dates.push(this.getPaydateOfNextMonth());
-        
-        return dates;
     }
     
     public layout(layoutID: string) {
@@ -467,22 +479,4 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             ]
         }]);
     }
-    
-    private getFirstDayOfNextMonth() {
-        var date = new Date();
-        var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-        return firstDay;
-    }
-    
-    private getLastDayOfNextMonth() {
-        var date = new Date();
-        var lastDay = new Date(date.getFullYear(), date.getMonth() + 2, 0);
-        return lastDay;
-    }
-    
-    private getPaydateOfNextMonth() {
-        var date = new Date();
-        var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 15);
-        return firstDay;
-    } 
 }

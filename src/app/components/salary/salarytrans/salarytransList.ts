@@ -81,7 +81,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             payrollRunSubject.subscribe(payrollRun => {
                 this.payrollRun = payrollRun;
                 if (this.salarytransEmployeeTableConfig) {
-                    let isOpenRun = this.payrollRun.StatusCode < 1;
+                    let isOpenRun = this.payrollRun ? this.payrollRun.StatusCode < 1 : false;
                     this.setEditable(isOpenRun);
                     this.salarytransEmployeeTableConfig.setDeleteButton(isOpenRun ? this.deleteButton : false);
                 }
@@ -223,7 +223,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
                 transtypeCol, payoutCol
             ])
-            .setDeleteButton(this.payrollRun.StatusCode < 1 ? this.deleteButton : false)
+            .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
             .setChangeCallback((event) => {
                 let row = event.rowModel;
@@ -355,7 +355,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public openSuplementaryInformationModal(row: SalaryTransaction) {
-        this.supplementModal.openModal(row, this.payrollRun.StatusCode > 0);
+        if (this.payrollRun) {
+            this.supplementModal.openModal(row, this.payrollRun.StatusCode > 0);
+        }
     }
 
     public updateSingleSalaryTransaction(trans: SalaryTransaction) {

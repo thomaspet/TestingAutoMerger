@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
@@ -45,20 +45,8 @@ export class PayrollrunList implements OnInit {
         this.tabSer.addTab({ name: 'Lønnsavregninger', url: 'salary/payrollrun', moduleID: UniModules.Payrollrun, active: true });
     }
 
-    public createPayrollrun() {
-        this.busy = true;
-        var createdPayrollrun = new PayrollRun();
-        var dates: any[] = this.payrollService.getEmptyPayrollrunDates();
-        createdPayrollrun.FromDate = dates[0];
-        createdPayrollrun.ToDate = dates[1];
-        createdPayrollrun.PayDate = dates[2];
-        this.payrollService.Post(createdPayrollrun)
-        .subscribe((response) => {
-
-            this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
-            this.busy = false;
-        },
-        this.errorService.handle);
+    public newPayrollrun() {
+        this.router.navigateByUrl('/salary/payrollrun/' + 0);
     }
 
     public rowSelected(event) {
