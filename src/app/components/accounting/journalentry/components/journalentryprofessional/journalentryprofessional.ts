@@ -2,8 +2,8 @@ import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angula
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice} from '../../../../../unientities';
-import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService} from '../../../../../services/services';
+import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings} from '../../../../../unientities';
+import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService, CompanySettingsService} from '../../../../../services/services';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
@@ -36,7 +36,6 @@ export class JournalEntryProfessional implements OnInit {
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-    private accounts: Account[];
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -48,6 +47,8 @@ export class JournalEntryProfessional implements OnInit {
     private doShowImage: boolean = false;
     private lastImageDisplayFor: string = '';
 
+    private defaultAccountPayments: Account = null;
+
     constructor(
         private uniHttpService: UniHttp,
         private vatTypeService: VatTypeService,
@@ -57,7 +58,8 @@ export class JournalEntryProfessional implements OnInit {
         private projectService: ProjectService,
         private customerInvoiceService: CustomerInvoiceService,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService
     ) {
 
     }
@@ -74,18 +76,29 @@ export class JournalEntryProfessional implements OnInit {
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
-            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber', ['VatType']),
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday),
+            this.accountService.GetAll('filter=AccountNumber eq 1920'),
+            this.companySettingsService.getAllCached()
         ).subscribe(
             (data) => {
                 this.departments = data[0];
                 this.projects = data[1];
                 this.vattypes = data[2];
-                this.accounts = data[3];
-                this.firstAvailableJournalEntryNumber = data[4];
+                this.firstAvailableJournalEntryNumber = data[3];
+
+                let companySettings: CompanySettings = null;
+                if (data[5]) {
+                    companySettings = data[5][0];
+                }
+                if (companySettings && companySettings[0] && companySettings[0].CompanyBankAccount && companySettings[0].CompanyBankAccount.Account) {
+                    this.defaultAccountPayments = companySettings[0].CompanyBankAccount.Account;
+                } else {
+                    if (data[4]) {
+                        this.defaultAccountPayments = data[4];
+                    }
+                }
 
                 this.setupUniTable();
-
                 this.dataLoaded.emit(this.journalEntryLines);
             },
             this.errorService.handle
@@ -232,10 +245,9 @@ export class JournalEntryProfessional implements OnInit {
                         rowModel.CreditAccount = line.Account;
                     }
 
-                    let defaultBankAccount = this.accounts.find(x => x.AccountNumber === 1920);
-                    if (defaultBankAccount) {
-                        rowModel.DebitAccount = defaultBankAccount;
-                        rowModel.DebitAccountID = defaultBankAccount.ID;
+                    if (this.defaultAccountPayments) {
+                        rowModel.DebitAccount = this.defaultAccountPayments;
+                        rowModel.DebitAccountID = this.defaultAccountPayments.ID;
                     }
 
                     break;
@@ -291,7 +303,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
+                    return this.accountSearch(searchValue);
                 }
             });
 
@@ -332,7 +344,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
+                    return this.accountSearch(searchValue);
                 }
             });
 
@@ -526,6 +538,27 @@ export class JournalEntryProfessional implements OnInit {
             }
         });
 
+    }
+
+    private accountSearch(searchValue: string): Observable<any> {
+
+        let filter = '';
+        if (searchValue === '') {
+            filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+        } else {
+            let copyPasteFilter = '';
+
+            if (searchValue.indexOf(':') > 0) {
+                let accountNumberPart = searchValue.split(':')[0].trim();
+                let accountNamePart =  searchValue.split(':')[1].trim();
+
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+            }
+
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+        }
+
+        return this.journalEntryService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
     private deleteLine(line) {

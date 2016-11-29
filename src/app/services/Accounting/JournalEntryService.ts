@@ -5,6 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry, ValidationResult, ValidationMessage} from '../../unientities';
+import {StatisticsService} from '../common/StatisticsService';
 import {BrowserStorageService} from '../BrowserStorageService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
@@ -24,7 +25,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
 
 
-    constructor(http: UniHttp, private storageService: BrowserStorageService) {
+    constructor(http: UniHttp, private storageService: BrowserStorageService, private statisticsService: StatisticsService) {
         super(http);
         this.relativeURL = JournalEntry.RelativeUrl;
         this.entityType = JournalEntry.EntityType;
@@ -310,6 +311,42 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withEndPoint(this.relativeURL + '?action=calculate-journal-entry-summary')
             .send()
             .map(response => response.json());
+    }
+
+    public searchAccounts(filter: string, top: number = 500) {
+        filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
+
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter} &orderby=AccountNumber&expand=VatType&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID`)
+            .map(x => x.Data ? x.Data : [])
+            .map(x => this.mapStatisticsToAccountObjects(x));
+    }
+
+    private mapStatisticsToAccountObjects(statisticsData: any[]): Account[] {
+
+        let accounts = [];
+
+        statisticsData.forEach(data => {
+            let account: Account = new Account();
+            account.ID = data.AccountID;
+            account.AccountNumber = data.AccountAccountNumber;
+            account.AccountName = data.AccountAccountName;
+            account.VatTypeID = data.VatTypeID;
+
+            if (data.VatTypeID) {
+                account.VatType = new VatType();
+                account.VatType.ID = data.VatTypeID;
+                account.VatType.VatCode = data.VatTypeVatCode;
+                account.VatType.Name = data.VatTypeName;
+                account.VatType.VatPercent = data.VatTypeVatPercent;
+                account.VatType.ReversedTaxDutyVat = data.VatTypeReversedTaxDutyVat;
+                account.VatType.IncomingAccountID = data.VatTypeIncomingAccountID;
+                account.VatType.OutgoingAccountID = data.VatTypeOutgoingAccountID;
+            }
+
+            accounts.push(account);
+        });
+
+        return accounts;
     }
 
     public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = "") {
