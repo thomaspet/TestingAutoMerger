@@ -32,6 +32,10 @@ export enum UniModules {
     AccountingReports = 307,
     Suppliers       = 308,
 
+    Bank            = 350,
+    Payment         = 351,
+    PaymentBatches  = 352,
+
     Employees       = 400,
     Wagetypes       = 401,
     Payrollrun      = 402,

@@ -66,7 +66,7 @@ export class BankAccountForm {
     public ready(value) {
     }
 
-    private lookupBankAccountNumber(bankaccount) {
+    public lookupBankAccountNumber(bankaccount) {
         if (bankaccount.AccountNumber && bankaccount.AccountNumber.length == 11) {
             this.busy = true;
             this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn, 5);
@@ -268,5 +268,10 @@ export class BankAccountModal {
         this.modalConfig.model = bankaccount;
         this.modalConfig.accountVisible = accountVisible;
         this.modal.open();
+        this.modal.getContent().then((form: BankAccountForm) => {
+            if (!bankaccount.IBAN && bankaccount.AccountNumber && bankaccount.AccountNumber.length === 11) {
+                form.lookupBankAccountNumber(bankaccount);
+            }
+        })
     }
 }

@@ -1,0 +1,26 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
+<section class="application">
+    <label class="payment_filter_type">Type:
+        <select [(ngModel)]="paymentCodeFilterValue" (change)="onPaymentCodeFilterChange($event.target.value)">
+            <option *ngFor="let code of paymentCodes" [value]="code.ID">{{code.Name}}</option>
+        </select>
+    </label>
+    <uni-table
+               [resource]="pendingPayments"
+               [config]="paymentTableConfig"
+               (rowSelectionChanged)="onRowSelected($event)"
+               (rowChanged)="onRowChanged($event)">
+    </uni-table>
+    <uni-summary *ngIf="summaryData" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+</section>
+
+<payment-relations-modal></payment-relations-modal>
+<bankaccount-modal></bankaccount-modal>
+<uni-confirm-modal></uni-confirm-modal>
+
+<footer class="full-footer">
+    <section class="application" *ngIf="actions">
+        <uni-save [actions]="actions"></uni-save>
+    </section>
+</footer>

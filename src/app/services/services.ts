@@ -75,3 +75,6 @@ export * from './Salary/AMelding/AMeldingService';
 export * from './common/settingsservice';
 export * from './common/PageStateService';
 export * from './common/ErrorService';
+export * from './accounting/PaymentCodeService';
+export * from './accounting/PaymentService';
+export * from './accounting/PaymentBatchService';

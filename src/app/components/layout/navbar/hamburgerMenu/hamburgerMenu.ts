@@ -106,6 +106,15 @@ export class HamburgerMenu {
                 ]
             },
             {
+                componentListName: 'Bank',
+                componentListHeader: 'Bank',
+                componentListUrl: '/bank',
+                componentList: [
+                    {componentName: 'Betalinger', componentUrl: '/bank/payments', moduleID: UniModules.Payment},
+                    {componentName: 'Betalingsbunter', componentUrl: '/bank/batches', moduleID: UniModules.Payment}
+                ]
+            },
+            {
                 componentListName: 'Lønn',
                 componentListHeader: 'Lønn og personal',
                 componentListUrl: '/salary',

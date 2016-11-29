@@ -33,6 +33,7 @@ import {InitModule} from './components/init/initModule';
 import {SalesModule} from './components/sales/salesModule';
 import {SettingsModule} from './components/settings/settingsModule';
 import {TimetrackingModule} from './components/timetracking/timetrackingModule';
+import {BankModule} from './components/bank/bankModule';
 import {ErrorService} from './services/common/ErrorService';
 
 // Set moment locale
@@ -90,7 +91,8 @@ class UniErrorHandler implements ErrorHandler {
         SalesModule,
         SettingsModule,
         TimetrackingModule,
-        UniQueryModule
+        UniQueryModule,
+        BankModule
     ],
     declarations: [
         App,

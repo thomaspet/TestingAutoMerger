@@ -19,6 +19,9 @@ import {VatReportService} from './VatReportService';
 import {VatTypeService} from './VatTypeService';
 import {AccountVisibilityGroupService} from './AccountVisibilityGroupService';
 import {FinancialYearService} from './FinancialYearService';
+import {PaymentCodeService} from './PaymentCodeService';
+import {PaymentService} from './PaymentService';
+import {PaymentBatchService} from './PaymentBatchService';
 
 @NgModule({
     providers: [
@@ -41,7 +44,10 @@ import {FinancialYearService} from './FinancialYearService';
         VatReportService,
         VatTypeService,
         AccountVisibilityGroupService,
-        FinancialYearService
+        FinancialYearService,
+        PaymentCodeService,
+        PaymentService,
+        PaymentBatchService
     ]
 })
 export class AccountingServicesModule {

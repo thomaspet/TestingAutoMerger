@@ -3452,7 +3452,8 @@ export class PaymentBatch {
 export class Payment {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
-
+    public PaymentDate: Date;
+    public DueDate: Date;
     public Amount: number;
     public AutoJournal: boolean;
     public BusinessRelationID: number;
@@ -3461,13 +3462,11 @@ export class Payment {
     public CurrencyID: number;
     public Deleted: boolean;
     public Description: string;
-    public DueDate: Date;
     public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
     public PaymentBatchID: number;
     public PaymentCodeID: number;
-    public PaymentDate: Date;
     public PaymentID: string;
     public ReconcilePayment: boolean;
     public StatusCode: number;
@@ -4459,7 +4458,6 @@ export class SuggestedValue {
     public Candidates: Array<HitWord>;
     public Value: HitWord;
 }
-
 
 export class HitWord {
     public boundingBox: string;
