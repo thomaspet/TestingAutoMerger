@@ -1,16 +1,4 @@
-<header class="uniquery_poster" *ngIf="queryDefinition">
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="queryDefinition?.ID > 0">{{queryDefinition.Name}}</h1>
-            <p *ngIf="queryDefinition?.ID > 0">{{queryDefinition.Description}}</p>
-            <h1 *ngIf="queryDefinition?.ID == 0">Nytt uttrekk</h1>
-        </section>
-        <nav class="poster_toolbar_tools">
-            <a (click)="newUniQuery()" class="new">Nytt uttrekk</a>
-            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
-        </nav>
-    </article>
-</header>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class="application uni-query-application" *ngIf="queryDefinition">
     <section *ngIf="models">
@@ -48,9 +36,10 @@
                 <li><b>:currentuserid</b> - hvis du sammenligner med f.eks. CreatedBy får du opp entiteter opprettet av pålogget bruker</li>
                 <li><b>:externalid</b> - brukes når UniQuery kjøres i en annen context, f.eks. i et kundedetaljbildet. ":externalid" byttes da ut med f.eks. kundeid</li>
             </ul>
-            <p>... så kommer det litt mer senere her :-)</p>
         </div>
-
+        <label *ngIf="showExternalID && !externalID" class="uniquery-externalid-specification">Angi evt. verdi for :externalid her:
+            <input type="text" [(ngModel)]="customExternalID" (change)="customExternalIdChanged()"/>
+        </label>
         <section [ngClass]="{'table-container': !hideModel, 'table-container-full': hideModel}" *ngIf="tableConfig && fields.length > 0">
             <uni-table
                 [resource]="lookupFunction"
