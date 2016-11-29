@@ -59,7 +59,7 @@
                         <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
                         <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
                     </td>
-                    <td>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
+                    <td [hidden]="!(timeSheet && timeSheet.totals.Minutes)">Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
                     </tr></table>
                 </footer>
 

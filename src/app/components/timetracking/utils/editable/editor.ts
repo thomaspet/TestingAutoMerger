@@ -71,7 +71,7 @@ export class Editor implements IEditor {
         }
     }
     
-    public startEdit(value: any, cell: IJQItem, pos: IPos, showButton = false) {
+    public startEdit(value: any, cell: IJQItem, pos: IPos, showButton = false, flagChange = false) {
         this.resetTyping = true;
         this.showButton = showButton;
         if (!this.rootElement) {
@@ -79,8 +79,8 @@ export class Editor implements IEditor {
         }
         this.position = pos;
         var styles = cell.css(cloneCss);
-        this.inputBox.css(styles);        
-        this.originalValue = value;
+        this.inputBox.css(styles);
+        this.originalValue = flagChange ? '' : value;
         this.inputBox.val(value);
         this.moveTo(cell);
         if (!this.rootElement.is(':visible')) {

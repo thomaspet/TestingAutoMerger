@@ -2,8 +2,8 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker} from '../../../unientities';
-import {WorkerService, IFilter} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
+import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerservice';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
 import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe} from '../utils/pipes';
@@ -16,6 +16,8 @@ import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var moment;
+
+type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' | 'Dimensions.ProjectID' | 'CustomerOrderID';
 
 export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
@@ -84,7 +86,8 @@ export class TimeEntry {
                     this.editable = instance;
                 },
                 onTypeSearch: (details: ITypeSearch) => this.lookup.onTypeSearch(details),
-                onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details)
+                onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details),
+                onStartEdit: (details: IStartEdit) => this.onStartEdit(details)
             }
     };
 
@@ -269,7 +272,7 @@ export class TimeEntry {
                         let d1 = this.timeSheet.items[row].Date;
                         let d2 = this.timeSheet.items[row - 1].Date;
                         if (d1 && d2) {
-                            if (isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
+                            if (this.isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
                                 details.valueToSet = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
                                 details.copyAbove = false;
                             }
@@ -287,15 +290,52 @@ export class TimeEntry {
                 details.copyAbove = false;
             }
         }
-
-        function isSameDate(d1: any, d2: any): boolean {
-            if (d1 === d2) { return true; }
-            if ((d1.length && d1.length >= 10) && (d2.length && d2.length >= 10)) {
-                return d1.substr(0, 10) === d2.substr(0, 10);
-            }
-            return false;
-        }
         
+    }
+
+    private onStartEdit(details: IStartEdit) {
+        var name: colName = <colName>details.columnDefinition.name;
+        var row = details.row;
+        if (!details.value) {
+            switch (name) {
+                case 'Date':
+                    // debugger;
+                    details.value = moment(this.getDefaultDate()).format('l'); 
+                    details.flagChanged = true;
+                    break;
+
+                case 'StartTime':
+                    // debugger;
+                    if (row > 0) {
+                        let d1 = this.timeSheet.items[row].Date;
+                        let d2 = this.timeSheet.items[row - 1].Date;
+                        if (d1 && d2) {
+                            if (this.isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
+                                details.value = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
+                                details.flagChanged = true;
+                            }
+                        }
+                    } else {
+                        details.value = '08:00';
+                        details.flagChanged = true;
+                    }                
+                    break;
+            }
+        }
+    }
+
+    private getDefaultDate(): Date {
+        switch (this.currentFilter.interval) {
+
+            case ItemInterval.yesterday:
+                return moment(new Date()).subtract(1, 'days').toDate();
+
+            case ItemInterval.today:
+                return moment(new Date()).toDate();
+
+            default:
+                return moment(new Date()).toDate();
+        }          
     }
 
     private validate(): boolean {
@@ -311,7 +351,7 @@ export class TimeEntry {
         return true;
     }
 
-    private asyncValidationFailed(event: IChangeEvent) {
+    private asyncValidationFailed(event: IChangeEvent) {        
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
         if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
@@ -365,4 +405,12 @@ export class TimeEntry {
         });
     }
 
+
+    private isSameDate(d1: any, d2: any): boolean {
+        if (d1 === d2) { return true; }
+        if ((d1.length && d1.length >= 10) && (d2.length && d2.length >= 10)) {
+            return d1.substr(0, 10) === d2.substr(0, 10);
+        }
+        return false;
+    }
 }

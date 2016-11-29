@@ -131,15 +131,17 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
 
         var txt = el.text();
+        var flagAsChanged = false;
 
         if (this.config && this.config.events && this.config.events.onStartEdit) {
-            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt }; 
+            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt, flagChanged: flagAsChanged }; 
             this.raiseEvent('onStartEdit', startDetails);
             if (startDetails.cancel) {
                 return;
             }
             if (startDetails.value !== txt) {
                 txt = startDetails.value;
+                flagAsChanged = startDetails.flagChanged;
             }
         }
 
@@ -148,7 +150,7 @@ export class Editable implements AfterViewInit, OnDestroy {
 
         this.createEditorIfMissing();
         var showButton = col ? !!col.lookup : false;
-        this.current.editor.startEdit(txt, el, this.getCellPosition(el), showButton);
+        this.current.editor.startEdit(txt, el, this.getCellPosition(el), showButton, flagAsChanged);
     }
 
     private setupTimeoutForFastNavigation(ms = 250) {

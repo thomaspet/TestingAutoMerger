@@ -16,6 +16,7 @@ export interface IStartEdit {
     cancel: boolean;
     columnDefinition: ICol;
     value: string;
+    flagChanged: boolean;
 }
 
 export interface IPos {
@@ -79,7 +80,7 @@ export interface IEditor {
     moveTo(cell: IJQItem);
     focus();
     close(cancel: boolean);
-    startEdit(value: any, cell: IJQItem, pos: IPos, showButton?: boolean);
+    startEdit(value: any, cell: IJQItem, pos: IPos, showButton?: boolean, flagChange?: boolean);
     setValue(value: any, flagChange?: boolean);
     finalizeEdit(cancel: boolean, value?: string, src?: string): boolean;
     hasChanges(): boolean;
