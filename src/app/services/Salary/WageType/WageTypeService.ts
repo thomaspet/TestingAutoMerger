@@ -475,5 +475,35 @@ export class WageTypeService extends BizHttp<WageType> {
                 }
             ]
         }]);
-    };
+    }
+
+    public specialSettingsLayout(layoutID: string) {
+        return Observable.from([{
+            Name: layoutID,
+            BaseEntity: 'wagetype',
+            Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'FixedSalaryHolidayDeduction',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.MULTISELECT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fastlønn og trekk i lønn for ferie',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                }
+            ]
+        }]);
+    }
 }
