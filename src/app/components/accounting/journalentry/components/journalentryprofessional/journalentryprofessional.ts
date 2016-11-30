@@ -558,7 +558,7 @@ export class JournalEntryProfessional implements OnInit {
             filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
         }
 
-        return this.journalEntryService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
     private deleteLine(line) {
