@@ -43,6 +43,7 @@ System.config({
         'stimulsoft.reports.js': {
             format: 'global',
             exports: 'Stimulsoft'
-        }
+        },
+        '*.js': { crossOrigin: 'anonymous' }
     }
 });
