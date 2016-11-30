@@ -25,6 +25,7 @@ export class VacationpayModalContent {
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: any;
     private vacationBaseYear: number;
+    private rowSelectionCount: number;
 
     constructor(
         private _salarytransService: SalaryTransactionService,
@@ -90,6 +91,15 @@ export class VacationpayModalContent {
         // console.log('vacationpay modal form ready');
     }
 
+    public rowChanged(event) {
+        this.updatetotalPay();
+    }
+
+    public onRowSelectionChange(event) {
+        this.rowSelectionCount = this.table.getSelectedRows().length;
+        this.updatetotalPay();
+    }
+
     private getVacationpayData() {
         this.basicamountBusy = true;
         this._payrollrunService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
@@ -105,8 +115,9 @@ export class VacationpayModalContent {
 
     private updatetotalPay() {
         this.totalPayout = 0;
-        if (this.vacationpayBasis) {
-            this.vacationpayBasis.forEach(vacationpayLine => {
+        let selectedRows = this.table.getSelectedRows();
+        if (selectedRows.length > 0) {
+            selectedRows.forEach(vacationpayLine => {
                 this.totalPayout += vacationpayLine.Withdrawal;
             });
         }
@@ -175,14 +186,14 @@ export class VacationpayModalContent {
     }
 
     private createTableConfig() {
-        var nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Number, false);
+        var nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Number, false).setWidth('4rem');
         var nameCol = new UniTableColumn('Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
-        var systemGrunnlagCol = new UniTableColumn('SystemVacationPayBase', 'Feriegrunnlag (system)', UniTableColumnType.Money, false);
-        var manuellGrunnlagCol = new UniTableColumn('ManualVacationPayBase', 'Feriegrunnlag manuelt', UniTableColumnType.Money);
-        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money, false);
-        var vacationPayCol = new UniTableColumn('VacationPay', 'Feriepenger', UniTableColumnType.Money, false);
-        var earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false);
-        var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money);
+        var systemGrunnlagCol = new UniTableColumn('SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false).setWidth('8rem');
+        var manuellGrunnlagCol = new UniTableColumn('ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money).setWidth('8rem');
+        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money, false).setWidth('4rem');
+        var vacationPayCol = new UniTableColumn('VacationPay', 'Feriepenger', UniTableColumnType.Money, false).setWidth('7rem');
+        var earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false).setWidth('7rem');
+        var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
         this.tableConfig = new UniTableConfig()
         .setColumns([nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, rateCol, vacationPayCol, earlierPayCol, payoutCol])
@@ -194,7 +205,6 @@ export class VacationpayModalContent {
         })
         .setChangeCallback((event) => {
             let row = event.rowModel;
-
             if (event.field === 'ManualVacationPayBase') {
                 this.calcWithdrawal(row);
             }

@@ -35,8 +35,8 @@ export class VacationpaySettingModalContent {
     public loadData() {
         this.busy = true;
         Observable.forkJoin(
-            this._companysalaryService.getCompanySalary()
-            , this._companyvacationRateService.GetAll('')
+            this._companysalaryService.getCompanySalary(),
+            this._companyvacationRateService.GetAll('')
         ).subscribe((response: any) => {
             var [compsal, rates] = response;
             this.companysalaryModel = compsal[0];
@@ -100,13 +100,15 @@ export class VacationpaySettingModalContent {
     }
 
     private setFormFields() {
-
         var mainAccountCostVacation = new UniFieldLayout();
+        let cosVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountCostVacation
+                ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountCostVacation}` + '&top=1')
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';
         mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
         mainAccountCostVacation.Options = {
-            source: this._accountService,
+            getDefaultData: () => cosVacAccountObs,
             search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
             displayProperty: 'AccountName',
             valueProperty: 'AccountNumber',
@@ -114,11 +116,14 @@ export class VacationpaySettingModalContent {
         };
         
         var mainAccountAllocatedVacation = new UniFieldLayout();
+        let allVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountAllocatedVacation
+                ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
         mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
         mainAccountAllocatedVacation.Options = {
-            source: this._accountService,
+            getDefaultData: () => allVacAccountObs,
             search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
             displayProperty: 'AccountName',
             valueProperty: 'AccountNumber',
@@ -145,8 +150,8 @@ export class VacationpaySettingModalContent {
 
     private setTableConfig() {
         var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Percent);
-        var rate60Col = new UniTableColumn('Rate60', 'Sats over 60', UniTableColumnType.Percent);
-        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Number)
+        var rate60Col = new UniTableColumn('Rate60', 'Tilleggssats over 60 år', UniTableColumnType.Percent);
+        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Text)
             .setTemplate((rowModel) => {
                 return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';
             });
