@@ -6,7 +6,7 @@ import { Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, W
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import { ErrorService } from '../../../../services/common/ErrorService';
 
 declare var _;
 
@@ -41,32 +41,53 @@ export class RecurringPost extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+            this.employmentsMapped = false;
 
             // TODO: cache this?
-            this.wagetypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
-                this.wagetypes = wagetypes;
-                if (this.recurringPosts) {
-                    this.mapWageTypes();
-                }
-            }, err => this.errorService.handle(err));
+            if (!this.wagetypes) {
+                this.wagetypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
+                    this.wagetypes = wagetypes;
+                    if (this.recurringPosts) {
+                        this.mapWageTypes();
+                    }
+                }, this.errorService.handle);
+            }
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
             const employmentSubject = super.getStateSubject('employments');
 
-            Observable.combineLatest(recurringPostSubject, employmentSubject).take(1)
-                .subscribe((res) => {
-                    let [recurring, employments] = res;
-                    this.employments = (employments || []).filter(emp => emp.ID > 0);
-                    this.recurringPosts = recurring;
-                    if (!this.employmentsMapped) {
-                        this.mapEmployments();
-                    }
+            recurringPostSubject.subscribe(posts => {
+                this.recurringPosts = posts;
+                this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
+                if (this.uniTable) {
+                    this.uniTable.refreshTableData();
+                }
+            });
 
-                    this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
-                    this.unsavedEmployments = this.employments.length !== employments.length;
+            employmentSubject.subscribe( employments => {
+                this.employments = (employments || []).filter(emp => emp.ID > 0);
+                this.unsavedEmployments = this.employments.length !== employments.length;
+                if (this.tableConfig && !this.employmentsMapped) {
+                    this.mapEmployments();
+                }
+            });
 
-                    this.buildTableConfig();
-                }, err => this.errorService.handle(err));
+            if (!this.tableConfig) {
+                Observable.combineLatest(recurringPostSubject, employmentSubject).take(1)
+                    .subscribe((res) => {
+                        let [recurring, employments] = res;
+                        this.employments = (employments || []).filter(emp => emp.ID > 0);
+                        this.recurringPosts = recurring;
+                        if (!this.employmentsMapped) {
+                            this.mapEmployments();
+                        }
+
+                        this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
+                        this.unsavedEmployments = this.employments.length !== employments.length;
+
+                        this.buildTableConfig();
+                    }, this.errorService.handle);
+            }
         });
     }
 
@@ -117,7 +138,7 @@ export class RecurringPost extends UniView {
             return;
         }
 
-        let deletedIndex = event.rowModel['_originalIndex'];
+        let deletedIndex = this.recurringPosts.findIndex(x => x['_originalIndex'] === event.rowModel['_originalIndex']);
         let hasDirtyRow: boolean = true;
 
         if (this.recurringPosts[deletedIndex].ID) {
@@ -127,6 +148,7 @@ export class RecurringPost extends UniView {
             // Check if there are other rows in the array that are dirty
             hasDirtyRow = this.recurringPosts.some(post => post['_isDirty']);
         }
+        this.recurringPosts[deletedIndex]['_originalIndex'] = null;
         super.updateState('recurringPosts', this.recurringPosts, hasDirtyRow);
     }
 
@@ -255,7 +277,7 @@ export class RecurringPost extends UniView {
                     rateObservable.subscribe(rate => {
                         row['Rate'] = rate;
                         this.calcItem(row);
-                        this.updateAndCacheSalaryTransactionRow(row);
+                        this.updateAndCacheSalaryTransactionRow(row, true);
                     });
                 } else {
                     this.updateAndCacheSalaryTransactionRow(row);
@@ -265,10 +287,14 @@ export class RecurringPost extends UniView {
             });
     }
 
-    private updateAndCacheSalaryTransactionRow(row) {
+    private updateAndCacheSalaryTransactionRow(row, updateTable = false) {
         row['_isDirty'] = true;
         this.recurringPosts[row['_originalIndex']] = row;
-        this.uniTable.updateRow(row['_originalIndex'], row);
+
+        if (updateTable) {
+            this.uniTable.updateRow(row['_originalIndex'], row);
+        }
+        
         super.updateState('recurringPosts', this.recurringPosts, true);
     }
 

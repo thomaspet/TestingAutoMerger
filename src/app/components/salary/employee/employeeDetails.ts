@@ -10,7 +10,7 @@ import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 
 import { UniView } from '../../../../framework/core/uniView';
-import {ErrorService} from '../../../services/common/ErrorService';
+import { ErrorService } from '../../../services/common/ErrorService';
 declare var _; // lodash
 
 @Component({
@@ -279,7 +279,7 @@ export class EmployeeDetails extends UniView {
     private checkForSaveDone() {
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
-                this.saveComponent.manualSaveComplete('Lagring feilet');
+                this.saveComponent.manualSaveComplete('Feil ved lagring');
             } else {
                 this.saveComponent.manualSaveComplete('Lagring fullført');
                 this.saveActions[0].disabled = true;
@@ -293,7 +293,7 @@ export class EmployeeDetails extends UniView {
 
                 if (!this.employeeID) {
                     super.updateState('employee', this.employee, false);
-                    
+
                     if (done) {
                         done('Lagring fullført');
                     } else {
@@ -345,9 +345,9 @@ export class EmployeeDetails extends UniView {
             },
             (error) => {
                 if (done) {
-                    done('Lagring feilet');
+                    done('Feil ved lagring');
                 } else {
-                    this.saveComponent.manualSaveComplete('Lagring feilet');
+                    this.saveComponent.manualSaveComplete('Feil ved lagring');
                 }
                 this.errorService.handle(error);
             }
@@ -455,51 +455,54 @@ export class EmployeeDetails extends UniView {
             let hasErrors = false;
 
             recurringPosts
-                .filter(post => post['_isDirty'] || post.Deleted)
                 .forEach((post, index) => {
-                    changeCount++;
+                    if (post['_isDirty'] || post.Deleted) {
+                        changeCount++;
 
-                    post.IsRecurringPost = true;
-                    post.EmployeeID = this.employee.ID;
-                    post.EmployeeNumber = this.employee.EmployeeNumber;
+                        post.IsRecurringPost = true;
+                        post.EmployeeID = this.employee.ID;
+                        post.EmployeeNumber = this.employee.EmployeeNumber;
 
-                    if (post.Supplements) {
-                        post.Supplements
-                            .filter(x => !x.ID)
-                            .forEach((supplement: SalaryTransactionSupplement) => {
-                                supplement['_createguid'] = this.salaryTransService.getNewGuid();
-                            });
-                    }
+                        if (post.Supplements) {
+                            post.Supplements
+                                .filter(x => !x.ID)
+                                .forEach((supplement: SalaryTransactionSupplement) => {
+                                    supplement['_createguid'] = this.salaryTransService.getNewGuid();
+                                });
+                        }
 
-                    let source = (post.ID > 0)
-                        ? this.salaryTransService.Put(post.ID, post)
-                        : this.salaryTransService.Post(post);
+                        let source = (post.ID > 0)
+                            ? this.salaryTransService.Put(post.ID, post)
+                            : this.salaryTransService.Post(post);
 
-                    source.finally(() => {
-                        if (saveCount === changeCount) {
-                            this.saveStatus.completeCount++;
-                            if (hasErrors) {
-                                this.saveStatus.hasErrors = true;
-                            } else {
+                        source.finally(() => {
+                            if (saveCount === changeCount) {
+                                this.saveStatus.completeCount++;
+                                if (hasErrors) {
+                                    this.saveStatus.hasErrors = true;
+                                }
+
                                 super.updateState('recurringPosts', recurringPosts.filter(x => !x.Deleted), false);
+
+                                this.checkForSaveDone();
                             }
-                            this.checkForSaveDone();
-                        }
-                    })
-                        .subscribe(
-                        (res: SalaryTransaction) => {
-                            saveCount++;
-                            recurringPosts[index] = res;
-                        },
-                        (err) => {
-                            hasErrors = true;
-                            saveCount++;
-                            console.log(err);
-                            let toastHeader = `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                            let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                            this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                        }
-                        );
+                        })
+                            .subscribe(
+                            (res: SalaryTransaction) => {
+                                saveCount++;
+                                recurringPosts[index] = res;
+                            },
+                            (err) => {
+                                hasErrors = true;
+                                saveCount++;
+                                console.log(err);
+                                recurringPosts[index].Deleted = false;
+                                let toastHeader = `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                                let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                            }
+                            );
+                    }
                 });
         }, err => this.errorService.handle(err));
     }
