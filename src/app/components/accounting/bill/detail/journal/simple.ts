@@ -365,6 +365,9 @@ export class BillSimpleJournalEntryView {
                     this.calcRemainder();
                     this.autoBalanceFirstRow();
                 }
+                if (line.Amount !== this.current.TaxInclusiveAmount) {
+                    line['_setByUser'] = true;
+                }                
                 break;
         }
 
@@ -377,11 +380,16 @@ export class BillSimpleJournalEntryView {
         this.raiseUpdateFromCostIndex(change.row, change);
     }
 
+
     private autoBalanceFirstRow() {
         if (this.sumRemainder) {
-            var sum = this.costItems[0].Amount || 0;
-            this.costItems[0].Amount = roundTo(sum + (this.sumRemainder || 0));
-            this.calcRemainder();
+            let line = this.costItems[0];
+            var sum = line.Amount || 0;
+            let adjustedValue = roundTo(sum + (this.sumRemainder || 0));
+            if (!line['_setByUser']) {
+                line.Amount = adjustedValue;
+                this.calcRemainder();
+            }
         }
     }
 

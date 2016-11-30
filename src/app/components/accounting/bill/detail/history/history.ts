@@ -50,6 +50,18 @@ export class BillHistoryView {
         }                
     }
 
+    public getNumberOfInvoices(supplierId: number, excludeCurrentId?: number) {
+        let query = `?model=supplierinvoice&select=count(id)&filter=isnull(deleted,0) eq 0 and supplierId eq ${supplierId}`;
+        if (excludeCurrentId) {
+            query += ` and ( not id eq ${excludeCurrentId} )`;
+        }
+        return this.supplierInvoiceService.getStatQuery(query).map( x => {
+            if (x && x.length > 0) {
+                return x[0].countid;
+            } 
+        });
+    }
+
     private refreshList() {
 
         // No change?

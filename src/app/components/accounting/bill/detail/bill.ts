@@ -17,6 +17,8 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import {PageStateService} from '../../../../services/common/PageStateService';
+import {BillHistoryView} from './history/history';
 
 declare const moment;
 
@@ -56,16 +58,19 @@ export class BillView {
     public hasUnsavedChanges: boolean = false;
     public currentFileID: number = 0;
     public hasStartupFileID: boolean = false;
+    public historyCount: number = 0;
 
     private files: Array<any>;
+    private fileIds: Array<number> = [];
+    private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
-    private defaultPath: string;
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
@@ -95,8 +100,8 @@ export class BillView {
         private supplierService: SupplierService,
         private router: Router,
         private location: Location,
-        private errorService: ErrorService
-    ) {
+        private errorService: ErrorService,
+        private pageStateService: PageStateService) {
             this.actions = this.rootActions;
     }
 
@@ -197,11 +202,28 @@ export class BillView {
 
     /// =============================
 
-    public onFileListReady(files: Array<any>) {
+    public onFileListReady(files: Array<any>) {      
         this.files = files;
-        if (files && files.length) {
+        if (files && files.length) {            
             if (!this.hasValidSupplier()) {
                 this.runOcr(files);
+            }
+            this.checkNewFiles(files);
+        }
+    }
+
+    private checkNewFiles(files: Array<any>) {
+
+        if ((!files) || files.length === 0) {
+            return;
+        }
+        let firstFile = files[0];
+        if (!this.current.ID) {
+            if (this.unlinkedFiles.findIndex( x => x === firstFile.ID ) < 0) {
+                this.unlinkedFiles.push(firstFile.ID);
+                if (this.hasStartupFileID !== firstFile.ID) {
+                    this.tagFileStatus(firstFile.ID, 0);
+                }
             }
         }
     }
@@ -212,9 +234,10 @@ export class BillView {
 
     private runOcr(files: Array<any>): Promise<boolean> {
         return new Promise( (resolve, reject) => {
-            if (this.files && this.files.length > 0) {
+            if (files && files.length > 0) {
+                let firstFile = files[0];
                 this.userMsg(lang.ocr_running, null, null, true);
-                this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
+                this.supplierInvoiceService.fetch(`files/${firstFile.ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
                     this.toast.clear();
                     this.handleOcrResult( new OcrValuables(result) );
                     resolve(true);
@@ -236,7 +259,7 @@ export class BillView {
                     } else {
                         this.findSupplierViaPhonebook(orgNo, true);
                     }
-                },err => this.errorService.handle(err));
+                }, err => this.errorService.handle(err));
             }
         }
         this.setFormValue('PaymentID', ocr.PaymentID);
@@ -340,6 +363,30 @@ export class BillView {
             this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));
         }
         this.setupToolbar();
+        this.fetchHistoryCount(this.currentSupplierID);
+    }
+
+    private fetchHistoryCount(supplierId: number) {
+        if (this.current.StatusCode >= StatusCodeSupplierInvoice.Payed ) {
+            return;
+        }        
+        if (!supplierId) {
+            this.setHistoryCounter(0);
+            return;
+        }
+        if (this.historyView) {
+            let tab = this.tabs.find( x => x.name === 'history');
+            if (tab) {
+                this.historyView.getNumberOfInvoices(supplierId, this.current.ID).subscribe( x => this.setHistoryCounter(x) );
+            }
+        }
+    }
+
+    private setHistoryCounter(value: number) {
+        let tab = this.tabs.find( x => x.name === 'history');
+        if (tab) {
+            tab.count = value;
+        }
     }
 
     private newInvoice(isInitial: boolean) {
@@ -356,7 +403,10 @@ export class BillView {
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
         this.currentFileID = 0;
+        this.fileIds = [];
+        this.unlinkedFiles = [];
         this.files = undefined;
+        this.setHistoryCounter(0);
         this.busy = false;
         if (!isInitial) {
             this.hasStartupFileID = false;
@@ -387,6 +437,11 @@ export class BillView {
             var hasBilag = (!!(this.current.JournalEntry && this.current.JournalEntry.JournalEntryNumber));
             let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
+            if (it._links.actions && it._links.actions.smartbooking) {
+                if (it.StatusCode < StatusCodeSupplierInvoice.Journaled ) {
+                    list.push(this.newAction(workflowLabels.smartbooking, 'smartbooking', it._links.actions.smartbooking.href, false));
+                }
+            }
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -395,6 +450,17 @@ export class BillView {
 
     private initDefaultActions() {
         this.actions = this.rootActions;
+    }
+
+    private newAction(label: string, itemKey: string, href: string, asMain = false): any {
+        return {
+            label: label,
+            action: (done) => {
+                this.handleAction(itemKey, label, href, done);
+            },
+            main: asMain,
+            disabled: false
+        };
     }
 
     private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[], filters?: string[]) {
@@ -423,15 +489,7 @@ export class BillView {
                     let itemKey = key;
                     let label = this.mapActionLabel(itemKey);
                     let href = linkNode[key].href;
-
-                    list.push({
-                        label: label,
-                        action: (done) => {
-                            this.handleAction(itemKey, label, href, done);
-                        },
-                        main: setAsMain,
-                        disabled: false
-                    });
+                    list.push(this.newAction(label, itemKey, href, setAsMain));
                 }
             }
         }
@@ -559,6 +617,7 @@ export class BillView {
         if (flagBusy) { this.busy = true; }
         this.currentFileID = 0;
         this.files = undefined;
+        this.setHistoryCounter(0);
         return new Promise( (resolve, reject) => {
             this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
@@ -569,7 +628,8 @@ export class BillView {
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
-                this.checkLockStatus();
+                this.checkLockStatus();                
+                this.fetchHistoryCount(this.current.SupplierID);
                 resolve('');
             }, (err) => {
                 this.errorService.handle(err);
@@ -679,12 +739,11 @@ export class BillView {
             obs.subscribe((result) => {
                 this.currentSupplierID = result.ID;
                 this.hasUnsavedChanges = false;
-                // Post-file-linking?
-                if (this.hasStartupFileID && this.currentFileID) {
-                    this.linkFile(this.currentSupplierID, this.currentFileID, 'SupplierInvoice', 40001).then( () => {
-                        //  this.flagFileAsUsed(this.currentFileID, 40001);
+                if (this.unlinkedFiles.length > 0) {
+                    this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then( () => {
                         this.hasStartupFileID = false;
                         this.currentFileID = 0;
+                        this.unlinkedFiles = [];
                         reload();
                     });
                 } else {
@@ -834,11 +893,6 @@ export class BillView {
             if (t.name !== tab.name) { t.isSelected = false; }
         });
         tab.isSelected = true;
-        /*
-        if (tab.activate) {
-            tab.activate(this.timeSheet, this.currentFilter);
-        }
-        */
     }
 
     private checkSave(): Promise<boolean> {
@@ -960,41 +1014,32 @@ export class BillView {
 
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
-        this.linkFile(fileID, fileID, 'file').then( (result) => {
-            this.currentFileID = <number>fileID;
-        }).catch((err) => {
-            // self-link to file already exists.. ignore..
-            this.currentFileID = <number>fileID;
+        this.fileIds = [safeInt(fileID)];        
+        this.currentFileID = safeInt(fileID);
+    }
+
+    private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
+        return new Promise( (resolve, reject) => {
+            fileIDs.forEach( fileID => {
+                var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
+                if (flagFileStatus) {
+                    this.tagFileStatus(fileID, flagFileStatus);
+                }
+                this.supplierInvoiceService.send(route).subscribe( x => resolve(x) );
+            });
         });
     }
 
-    private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
-        var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
-        if (flagFileStatus === 0 || flagFileStatus) {
-            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe(null, err => this.errorService.handle(err));
-        }
-        return this.supplierInvoiceService.send(route).toPromise();
-    }
-
     private checkPath() {
-        this.defaultPath = this.location.path(true);
-        var ix = this.defaultPath.indexOf('?');
-        if (ix > 0) {
-            var params = this.defaultPath.substr(ix + 1).split('&');
-            if (params && params.length > 0) {
-                params.forEach(element => {
-                    var parts = element.split('=');
-                    if (parts.length > 1) {
-                        if (parts[0] === 'fileid') {
-                            this.loadFromFileID(parts[1]);
-                        }
-                    }
-                });
-            }
-            this.defaultPath = this.defaultPath.substr(0, ix);
+        var pageParams = this.pageStateService.getPageState();
+        if (pageParams.fileid) {
+            this.loadFromFileID(pageParams.fileid);
         }
     }
 
+    private tagFileStatus(fileID: number, flagFileStatus: number, tag = 'incomingmail') {
+        this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe(null, err => this.errorService.handle(err));
+    }
 
     private showErrMsg(msg: string, lookForMsg = false): string {
         var txt = msg;

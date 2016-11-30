@@ -6,7 +6,10 @@
             <a (click)="onTabClick(tabs[0])" [ngClass]="{'router-link-active': tabs[0].isSelected}" >{{tabs[0].label}}</a> 
         </li>
         <li *ngFor="let tab of tabs" [hidden]="tab.isHidden" >
-            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}<span *ngIf="tab.count" class="tab_counter">{{tab.count}}</span></a> 
+            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >
+                {{tab.label}}
+                <span *ngIf="tab.count" class="tab_counter">{{tab.count}}</span>
+            </a> 
         </li>
     </ul>    
 </aside>
@@ -36,15 +39,14 @@
 
         <div [hidden]="!tabs[1].isSelected">
 
-            <div *ngIf="!hasStartupFileID && !current?.ID" class="application">
-                <button class="good" (click)="onSaveDraftForImage($event)">Start med dokument/bilde</button>
+            <div *ngIf="!current?.ID">
+                <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
+                    (fileListReady)="onFileListReady($event)">
+                </uni-image>
             </div>
             <uni-image *ngIf="current?.ID" [entity]="'SupplierInvoice'" [entityID]="current?.ID"
-                (fileListReady)="onFileListReady($event)" ></uni-image> 
-            
-            <uni-image *ngIf="currentFileID" [readonly]="true" [singleImage]="true" 
-                [entity]="'file'" [entityID]="currentFileID"
-                (fileListReady)="onFileListReady($event)" ></uni-image>
+                (fileListReady)="onFileListReady($event)" >
+            </uni-image>
 
         </div>
 

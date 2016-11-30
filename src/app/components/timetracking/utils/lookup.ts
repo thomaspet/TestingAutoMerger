@@ -7,7 +7,10 @@ import {safeInt} from './utils';
 @Injectable()
 export class Lookupservice {
 
-    constructor(private http: UniHttp) {}
+    constructor(
+        private http: UniHttp) {
+
+        }
 
     public getSingle<T>(route: string, id: any, expand = ''): Observable<T> {
         var pfx = typeof(id) === 'string' ? (id.indexOf('?') >= 0 ? '&' : '?') : '?';
@@ -48,7 +51,7 @@ export class Lookupservice {
         return outArr.join(',');
     }
 
-    private userInput(value: string): { iKey: number, key: any, label: string, isBlank: boolean } {
+    private analyzeUserInput(value: string): { iKey: number, key: any, label: string, isBlank: boolean } {
         var result = {
             iKey: 0, key: undefined, label: '', isBlank: true
         };
@@ -81,7 +84,7 @@ export class Lookupservice {
             var lookupDef = event.columnDefinition.lookup;
 
             // Remove "label" from key-value ?          
-            var validation = this.userInput(event.value);
+            var validation = this.analyzeUserInput(event.value);
             var colType = (lookupDef.visualKeyType === 0 && event.userTypedValue) ? ColumnType.Text : event.columnDefinition.columnType;
             var key = (colType === ColumnType.Integer) ? validation.iKey : validation.key;
 
