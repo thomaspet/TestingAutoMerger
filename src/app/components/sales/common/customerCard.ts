@@ -186,7 +186,9 @@ export class TofCustomerCard {
     }
 
     public openCustomerModal() {
-        this.customerDetailsModal.open(this.entity.CustomerID);
+        if (!this.readonly) {
+            this.customerDetailsModal.open(this.entity.CustomerID);
+        }
     }
 
     public openAddressModal() {

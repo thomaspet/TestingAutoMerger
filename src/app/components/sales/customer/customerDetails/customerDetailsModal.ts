@@ -38,8 +38,10 @@ export class CustomerDetailsModal {
     }
 
     public open(customerID: number) {
-        this.customerDetails.openInModalMode(customerID);
         this.isOpen = true;
+        setTimeout(() => {
+            this.customerDetails.openInModalMode(customerID);
+        });
     }
 
     public close() {
