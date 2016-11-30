@@ -20,7 +20,7 @@ export class VacationpayModalContent {
     private fields: any[] = [];
     private basicamounts: BasicAmount[] = [];
     private tableConfig: UniTableConfig;
-    private totalPayout: number;
+    private totalPayout: number = 0;
     @ViewChild(VacationpaySettingModal) private vacationpaySettingModal: VacationpaySettingModal;
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: any;
@@ -88,7 +88,7 @@ export class VacationpayModalContent {
     }
 
     public ready(value) {
-        // console.log('vacationpay modal form ready');
+        
     }
 
     public rowChanged(event) {
@@ -107,7 +107,6 @@ export class VacationpayModalContent {
             if (vpBasis) {
                 this.vacationpayBasis = vpBasis.VacationPay;
             }
-            this.updatetotalPay();
             this.basicamountBusy = false;
         }, err => this.errorService.handle(err));
 
