@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../common/ErrorService';
 
@@ -25,52 +26,51 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt(Kreditnota)' },
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
     ];
-    
-    constructor(http: UniHttp, private errorService: ErrorService) {
-        super(http);       
+
+    constructor(http: UniHttp, authService: AuthService, private errorService: ErrorService) {
+        super(http, authService);
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.entityType = CustomerInvoice.EntityType;
         this.DefaultOrderBy = null;
         this.defaultExpand = ['Customer'];
-    }    
-  
-    public newCustomerInvoice(): Promise<CustomerInvoice>
-    {       
+    }
+
+    public newCustomerInvoice(): Promise<CustomerInvoice> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerInvoice.EntityType).subscribe((invoice: CustomerInvoice) => {
                 invoice.InvoiceDate = moment().toDate();
 
-                resolve(invoice);                
+                resolve(invoice);
             }, err => this.errorService.handle(err));
         });
     }
-    
-    public calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {        
-        return this.http 
+
+    public calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {
+        return this.http
             .asPOST()
             .usingBusinessDomain()
             .withBody(invoiceItems)
-            .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary') 
+            .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary')
             .send()
             .map(response => response.json());
-    } 
+    }
 
-    public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {        
+    public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {
         return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount']);
     }
 
-    public getInvoiceSummary(odatafilter: string): Observable<any> {        
-        return this.http 
+    public getInvoiceSummary(odatafilter: string): Observable<any> {
+        return this.http
             .asGET()
-            .usingBusinessDomain()            
-            .withEndPoint(this.relativeURL + '?action=get-customer-invoice-summary&odataFilter=' + odatafilter) 
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=get-customer-invoice-summary&odataFilter=' + odatafilter)
             .send()
             .map(response => response.json());
-    } 
+    }
 
     public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
-    } 
+    }
 
     public getStatusText(statusCode: number, invoiceType: number): string {
         var text = '';
@@ -92,5 +92,5 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             });
         }
         return text;
-    };  
+    };
 }

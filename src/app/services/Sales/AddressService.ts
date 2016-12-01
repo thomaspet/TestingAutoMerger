@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Address} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {AuthService} from '../../../framework/core/authService';
 import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
 import {ErrorService} from '../common/ErrorService';
 
@@ -10,8 +11,8 @@ declare var _;
 @Injectable()
 export class AddressService extends BizHttp<Address> {
 
-    constructor(http: UniHttp, private errorService: ErrorService) {
-        super(http);
+    constructor(http: UniHttp, authService: AuthService, private errorService: ErrorService) {
+        super(http, authService);
 
         this.relativeURL = 'addresses'; // TODO: missing Address.RelativeUrl;
 

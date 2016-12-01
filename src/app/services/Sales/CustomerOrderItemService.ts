@@ -1,18 +1,18 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerOrder, CustomerOrderItem} from '../../unientities';
+import {CustomerOrderItem} from '../../unientities';
 import {StatusCodeCustomerOrderItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
+import {AuthService} from '../../../framework/core/authService';
 
 export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
-    
-    constructor(http: UniHttp) {        
-        super(http);       
+
+    constructor(http: UniHttp, authService: AuthService) {
+        super(http, authService);
         this.relativeURL = CustomerOrderItem.RelativeUrl;
         this.entityType = CustomerOrderItem.EntityType;
         this.DefaultOrderBy = null;
     }
-    
+
     // TODO: To be retrieved from database schema shared.Status instead?
     // TODO: Sett opp gyldige statuser her
     private statusTypes: Array<any> = [

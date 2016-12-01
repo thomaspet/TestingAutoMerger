@@ -50,7 +50,7 @@ export class PreviewModal {
         private errorService: ErrorService
     ) {
 
-        this.companySettingsService.getCached(1)
+        this.companySettingsService.Get(1)
             .subscribe(
                 settings => this.companySettings = settings,
                 err => this.errorService.handle(err)

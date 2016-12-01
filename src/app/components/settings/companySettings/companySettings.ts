@@ -128,7 +128,7 @@ export class CompanySettingsComponent implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
-            this.companySettingsService.getCached(1),
+            this.companySettingsService.Get(1),
             this.municipalService.GetAll(null),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
@@ -259,7 +259,7 @@ export class CompanySettingsComponent implements OnInit {
             .Put(this.company.ID, this.company)
             .subscribe(
             (response) => {
-                this.companySettingsService.getCached(1).subscribe(company => {
+                this.companySettingsService.Get(1).subscribe(company => {
                     this.company = this.setupCompanySettingsData(company);
                     this.showExternalSearch = this.company.OrganizationNumber === '-';
 

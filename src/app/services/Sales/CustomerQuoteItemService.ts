@@ -1,16 +1,13 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
+import {CustomerQuoteItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
+import {AuthService} from '../../../framework/core/authService';
 
 export class CustomerQuoteItemService extends BizHttp<CustomerQuoteItem> {
-    
-    constructor(http: UniHttp) {        
-        super(http);       
+    constructor(http: UniHttp, authService: AuthService) {
+        super(http, authService);
         this.relativeURL = CustomerQuoteItem.RelativeUrl;
         this.entityType = CustomerQuoteItem.EntityType;
         this.DefaultOrderBy = null;
-    }    
-    
-    
+    }
 }
