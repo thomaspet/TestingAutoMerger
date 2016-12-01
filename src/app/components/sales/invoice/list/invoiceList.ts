@@ -243,8 +243,9 @@ export class InvoiceList implements OnInit {
 
         var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
             .setWidth('8%').setFilterOperator('eq')
-            .setConditionalCls((item) => {
-                return (moment(item.PaymentDueDate).isAfter(moment()))
+            .setConditionalCls((item: CustomerInvoice) => {
+                const paid = item.StatusCode === StatusCodeCustomerInvoice.Paid;
+                return (paid || moment(item.PaymentDueDate).isAfter(moment()))
                     ? 'date-good' : 'date-bad';
             });
 
