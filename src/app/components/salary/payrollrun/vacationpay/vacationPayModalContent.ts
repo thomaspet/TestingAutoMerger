@@ -2,9 +2,11 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {FieldType, BasicAmount, VacationPayInfo, VacationPayLine} from '../../../../unientities';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {SalaryTransactionService, BasicAmountService, PayrollrunService} from '../../../../../app/services/services';
+import {SalaryTransactionService, BasicAmountService, PayrollrunService, VacationpayLineService} from '../../../../../app/services/services';
 import {VacationpaySettingModal} from './vacationPaySettingModal';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {Observable} from 'rxjs/Observable';
 
 declare var _;
 
@@ -31,6 +33,8 @@ export class VacationpayModalContent {
         private _salarytransService: SalaryTransactionService,
         private _basicamountService: BasicAmountService,
         private _payrollrunService: PayrollrunService,
+        private _vacationpaylineService: VacationpayLineService,
+        private _toastService: ToastService,
         private errorService: ErrorService
     ) {
         
@@ -56,6 +60,24 @@ export class VacationpayModalContent {
 
     public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void}) {
         this.config = newConfig;
+    }
+
+    public saveVacationpayLines() {
+        this.busy = true;
+        this.vacationpayBasis = this.table.getTableData();
+        let saveObservables: Observable<any>[] = [];
+        this.vacationpayBasis.forEach(vacationpayLine => {
+            vacationpayLine.ID > 0 ? 
+            saveObservables.push(this._vacationpaylineService.Put(vacationpayLine.ID, vacationpayLine)) :
+            saveObservables.push(this._vacationpaylineService.Post(vacationpayLine));
+
+        });
+
+        Observable.forkJoin(saveObservables)
+            .finally(() => this.busy = false)
+            .subscribe(allSavedResponse => {
+                this._toastService.addToast('Feriepengelinjer lagret', ToastType.good, 4);
+            }, err => this.errorService.handle(err));
     }
 
     public createVacationPayments() {

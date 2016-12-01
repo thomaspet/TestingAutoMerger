@@ -1977,6 +1977,31 @@ export class SalaryTransactionSupplement {
 }
 
 
+export class VacationPayLine {
+    public static RelativeUrl = 'VacationPayLines';
+    public static EntityType = 'VacationPayLine';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EmployeeID: number;
+    public ID: number;
+    public IsInCollection: boolean;
+    public ManualVacationPayBase: number;
+    public PaidVacationPay: number;
+    public Rate: number;
+    public StatusCode: number;
+    public SystemVacationPayBase: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public VacationPay: number;
+    public Withdrawal: number;
+    public Year: number;
+    public Employee: Employee;
+    public CustomFields: any;
+}
+
+
 export class WageTypeSupplement {
     public static RelativeUrl = '';
     public static EntityType = 'WageTypeSupplement';
@@ -2275,6 +2300,7 @@ export class WageType {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public FixedSalaryHolidayDeduction: boolean;
     public GetRateFrom: GetRateFrom;
     public HideFromPaycheck: boolean;
     public ID: number;
@@ -3435,6 +3461,7 @@ export class PaymentBatch {
     public CreatedBy: string;
     public Deleted: boolean;
     public ID: number;
+    public NumberOfPayments: number;
     public PaymentFileID: number;
     public PaymentReceiptFileID: number;
     public PaymentReferenceID: string;
@@ -3452,8 +3479,7 @@ export class PaymentBatch {
 export class Payment {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
-    public PaymentDate: Date;
-    public DueDate: Date;
+
     public Amount: number;
     public AutoJournal: boolean;
     public BusinessRelationID: number;
@@ -3462,11 +3488,13 @@ export class Payment {
     public CurrencyID: number;
     public Deleted: boolean;
     public Description: string;
+    public DueDate: Date;
     public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
     public PaymentBatchID: number;
     public PaymentCodeID: number;
+    public PaymentDate: Date;
     public PaymentID: string;
     public ReconcilePayment: boolean;
     public StatusCode: number;
@@ -4335,18 +4363,6 @@ export class VacationPayList {
 }
 
 
-export class VacationPayLine {
-    public IsInCollection: boolean;
-    public ManualVacationPayBase: number;
-    public PaidVacationPay: number;
-    public Rate: number;
-    public SystemVacationPayBase: number;
-    public VacationPay: number;
-    public Withdrawal: number;
-    public Employee: Employee;
-}
-
-
 export class VacationPayInfo {
     public EmployeeID: number;
     public ManualVacationPayBase: number;
@@ -4458,6 +4474,7 @@ export class SuggestedValue {
     public Candidates: Array<HitWord>;
     public Value: HitWord;
 }
+
 
 export class HitWord {
     public boundingBox: string;

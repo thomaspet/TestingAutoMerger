@@ -6,6 +6,7 @@
     <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
     <footer>
         <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
+        <button class="good" (click)="saveVacationpayLines()">Lagre</button>
         <button class="good" [disabled]="!rowSelectionCount" (click)="createVacationPayments()">Generer poster</button>
         <button class="bad" *ngIf="config.hasCancelButton" (click)="config.cancel()">Lukk</button>
     </footer>

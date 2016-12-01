@@ -12,6 +12,7 @@ import {SalaryTransactionService} from './SalaryTransaction/SalaryTransactionSer
 import {InntektService} from './WageType/InntektService';
 import {WageTypeService} from './WageType/WageTypeService';
 import {GrantService} from './Grants/GrantService';
+import {VacationpayLineService} from './Payrollrun/VacationpayLineService';
 
 @NgModule({
     providers: [
@@ -27,7 +28,8 @@ import {GrantService} from './Grants/GrantService';
         SalaryTransactionService,
         InntektService,
         WageTypeService,
-        GrantService
+        GrantService,
+        VacationpayLineService
     ]
 })
 export class SalaryServicesModule { }
