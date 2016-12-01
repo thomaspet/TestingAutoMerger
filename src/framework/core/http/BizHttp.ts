@@ -115,10 +115,9 @@ export class BizHttp<T> {
                 .asGET()
                 .withEndPoint(this.relativeURL + '/' + ID)
                 .send({expand: expandStr})
-                .catch(err => Observable.throw(err))
-                .switchMap((res) => {
+                .map((res) => {
                     this.storeInCache(hash, res.json());
-                    return Observable.of(res.json());
+                    return res.json();
                 });
         }
     }
@@ -173,10 +172,9 @@ export class BizHttp<T> {
                 .asGET()
                 .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
                 .send({expand: expandStr})
-                .catch(err => Observable.throw(err))
-                .switchMap((res) => {
+                .map((res) => {
                     this.storeInCache(hash, res.json());
-                    return Observable.of(res.json());
+                    return res.json();
                 });
         }
     }
