@@ -552,6 +552,7 @@ export class WagetypeDetail extends UniView {
                             if (obj.hasOwnProperty(prop)) {
                                 let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                 wtSupp.Name = prop;
+                                wtSupp.Description = key;
                                 wtSupp.SuggestedValue = obj[prop];
                                 wtSupp.WageTypeID = this.wageType.ID;
                                 wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -561,6 +562,7 @@ export class WagetypeDetail extends UniView {
                     } else if (obj !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
+                        wtSupp.Description = key;
                         wtSupp.SuggestedValue = obj;
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -575,6 +577,7 @@ export class WagetypeDetail extends UniView {
                 if (spesiObj.hasOwnProperty(props)) {
                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                     wtSupp.Name = props;
+                    wtSupp.Description = props;
                     wtSupp.SuggestedValue = spesiObj[props];
                     wtSupp.WageTypeID = this.wageType.ID;
                     wtSupp['_createguid'] = this.wageService.getNewGuid();
