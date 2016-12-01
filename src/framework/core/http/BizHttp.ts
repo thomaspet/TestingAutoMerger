@@ -5,10 +5,15 @@ import {AuthService} from '../authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/concatMap';
 
+interface IHttpCacheEntry<T> {
+    hash: number;
+    timestamp: number;
+    data: T | T[];
+}
+
 @Injectable()
 export class BizHttp<T> {
-    protected cachedEntity: T;
-    protected cachedEntities: T[];
+    protected cache: IHttpCacheEntry<T>[] = [];
 
     protected BaseURL: string;
     protected LogAll: boolean;
@@ -24,46 +29,61 @@ export class BizHttp<T> {
         this.LogAll = true;
 
         if (this.authService) {
-            this.authService.authentication$.subscribe((authChange) => {
-                this.cachedEntity = undefined;
-                this.cachedEntities = undefined;
-            } /* don't need error handling*/ );
+            this.authService.authentication$.subscribe(change => this.invalidateCache());
         }
     }
 
-    public invalidateCache(): void {
-        this.cachedEntity = undefined;
-        this.cachedEntities = undefined;
-    }
+    /**
+     * Calculate a 32 bit FNV-1a hash
+     * Used for converting endpoint + odata string to a smaller hash
+     * that is used as key for the result cache.
+     * Ref: https://gist.github.com/vaiorabbit/5657561
+     *      http://isthe.com/chongo/tech/comp/fnv/
+     */
+    protected hashFnv32a(input: string): number {
+        /* tslint:disable:no-bitwise */
+        let i, l,
+            hval = 0x811c9dc5;
 
-    public getCached(id): Observable<T> {
-        if (!this.authService) {
-            return Observable.throw('Cache disabled. You need to pass AuthService to BizHttp constructor (from your service of choice)');
+        for (i = 0, l = input.length; i < l; i++) {
+            hval ^= input.charCodeAt(i);
+            hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
         }
 
-        if (this.cachedEntity && (<any> this.cachedEntity).ID === id) {
-            return Observable.of(this.cachedEntity);
-        } else {
-            return this.Get(id).switchMap((res) => {
-                this.cachedEntity = res;
-                return Observable.of(res);
+        return hval >>> 0;
+    }
+
+    protected getFromCache(hash: number): T|T[] {
+        if (this.authService && this.cache.length) {
+            const index = this.cache.findIndex(x => x.hash === hash);
+            if (index >= 0) {
+                const entry = this.cache[index];
+                // Verify that entry is not older than 30 seconds (default timeout)
+                if (performance.now() - entry.timestamp < 30000) {
+                    return entry.data;
+                } else {
+                    this.cache.splice(index, 1);
+                }
+            }
+        }
+    }
+
+    protected storeInCache(hash: number, data: T|T[]) {
+        if (this.authService) {
+            if (this.cache.length >= 5) {
+                this.cache.pop();
+            }
+
+            this.cache.push({
+                hash: hash,
+                timestamp: performance.now(),
+                data: data
             });
         }
     }
 
-    public getAllCached(): Observable<T[]> {
-        if (!this.authService) {
-            return Observable.throw('Cache disabled. You need to pass AuthService to BizHttp constructor (from your service of choice)');
-        }
-
-        if (this.cachedEntities) {
-            return Observable.of(this.cachedEntities);
-        } else {
-            return this.GetAll(null).switchMap((res) => {
-                this.cachedEntities = res;
-                return Observable.of(res);
-            });
-        }
+    protected invalidateCache(): void {
+        this.cache = [];
     }
 
     public Get<T>(ID: number|string, expand?: string[]): Observable<any> {
@@ -76,14 +96,23 @@ export class BizHttp<T> {
         if (!ID) {
             ID = 'new';
         }
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID)
-            .send({
-                expand: expandStr
-            })
-            .map(response => response.json());
+
+        const hash = this.hashFnv32a(this.relativeURL + expandStr);
+        const cached = this.getFromCache(hash);
+        if (cached) {
+            return Observable.of(cached);
+        } else {
+            return this.http
+                .usingBusinessDomain()
+                .asGET()
+                .withEndPoint(this.relativeURL + '/' + ID)
+                .send({expand: expandStr})
+                .catch(err => Observable.throw(err))
+                .switchMap((res) => {
+                    this.storeInCache(hash, res.json());
+                    return Observable.of(res.json());
+                });
+        }
     }
 
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
@@ -125,14 +154,32 @@ export class BizHttp<T> {
             expandStr = this.defaultExpand.join(',');
         }
 
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
-            .send({
-                expand: expandStr
-            })
-            .map(response => response.json());
+        const hash = this.hashFnv32a(this.relativeURL + query + expandStr);
+        const cached = this.getFromCache(hash);
+
+        if (cached) {
+            return Observable.of(cached);
+        } else {
+            return this.http
+                .usingBusinessDomain()
+                .asGET()
+                .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
+                .send({expand: expandStr})
+                .catch(err => Observable.throw(err))
+                .switchMap((res) => {
+                    this.storeInCache(hash, res.json());
+                    return Observable.of(res.json());
+                });
+        }
+
+        // return this.http
+        //     .usingBusinessDomain()
+        //     .asGET()
+        //     .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
+        //     .send({
+        //         expand: expandStr
+        //     })
+        //     .map(response => response.json());
     }
 
     public Post<T>(entity: T): Observable<any> {
@@ -160,6 +207,7 @@ export class BizHttp<T> {
     public Remove<T>(ID: number, entity: T): Observable<any> {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
+        this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .asDELETE()
@@ -168,6 +216,7 @@ export class BizHttp<T> {
     }
 
     public Transition<T>(ID: number, entity: T, transitionName: string): Observable<any> {
+        this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .asPOST()
@@ -178,6 +227,7 @@ export class BizHttp<T> {
     }
 
     public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {
+        this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .as(method)
@@ -187,6 +237,7 @@ export class BizHttp<T> {
     }
 
     public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put, parameters: string = null): Observable<any> {
+        this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .as(method)
