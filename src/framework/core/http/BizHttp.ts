@@ -11,9 +11,15 @@ interface IHttpCacheEntry<T> {
     data: T | T[];
 }
 
+interface IHttpCacheSettings {
+    timeout?: number;
+    maxEntries?: number;
+}
+
 @Injectable()
 export class BizHttp<T> {
     protected cache: IHttpCacheEntry<T>[] = [];
+    protected cacheSettings: IHttpCacheSettings = {};
 
     protected BaseURL: string;
     protected LogAll: boolean;
@@ -58,8 +64,10 @@ export class BizHttp<T> {
             const index = this.cache.findIndex(x => x.hash === hash);
             if (index >= 0) {
                 const entry = this.cache[index];
-                // Verify that entry is not older than 30 seconds (default timeout)
-                if (performance.now() - entry.timestamp < 30000) {
+
+                // Verify that entry is not older than timeout (30 sec default)
+                const timeout = this.cacheSettings.timeout || 30000;
+                if (performance.now() - entry.timestamp < timeout) {
                     return entry.data;
                 } else {
                     this.cache.splice(index, 1);
@@ -70,7 +78,7 @@ export class BizHttp<T> {
 
     protected storeInCache(hash: number, data: T|T[]) {
         if (this.authService) {
-            if (this.cache.length >= 5) {
+            if (this.cache.length >= (this.cacheSettings.maxEntries || 50)) {
                 this.cache.pop();
             }
 
@@ -171,15 +179,6 @@ export class BizHttp<T> {
                     return Observable.of(res.json());
                 });
         }
-
-        // return this.http
-        //     .usingBusinessDomain()
-        //     .asGET()
-        //     .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
-        //     .send({
-        //         expand: expandStr
-        //     })
-        //     .map(response => response.json());
     }
 
     public Post<T>(entity: T): Observable<any> {
