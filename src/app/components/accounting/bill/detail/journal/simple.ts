@@ -129,7 +129,7 @@ export class BillSimpleJournalEntryView {
             // Extract 'non-supplier' items
             lines.forEach((x, index) => {
                 let acc = x.Account ? x.Account.AccountNumber : 0;
-                if ((acc !== 0) && (acc !== invoice.Supplier.SupplierNumber)) {
+                if (acc !== invoice.Supplier.SupplierNumber) {
                     numberOfCostAccounts++;
                     if (numberOfCostAccounts === 1) {
                         firstLine = lines[index];
