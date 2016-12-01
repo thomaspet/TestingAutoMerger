@@ -2,11 +2,14 @@
     "name": "angular2-unieconomy-frontend",
     "version": "0.0.1",
     "scripts": {
-        "start": "gulp build.dev.watch",
-        "serve": "lite-server -c bs.config.json",
-        "build.dev": "gulp build.dev",
-        "build": "gulp build",
-        "clean": "gulp clean.all"
+        "start":        "gulp build.dev.watch",
+        "start.local":  "gulp build.local.watch",
+        "start.custom":  "gulp build.customConfig.watch",
+        "serve":        "lite-server -c bs.config.json",
+        "build":        "gulp build.prod",
+        "build.prod":   "gulp build.prod",
+        "build.pilot":  "gulp build.pilot",
+        "clean":        "gulp clean.all"
     },
     "dependencies": {
         "@angular/common": "2.1.0",

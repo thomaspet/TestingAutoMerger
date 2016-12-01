@@ -15,6 +15,12 @@ gulp.task('app-config-dev', function() {
         .pipe(gulp.dest(DIST, {overwrite: true}));
 });
 
+gulp.task('app-config-local', function() {
+    return gulp.src('./src/app/AppConfig-local.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest(DIST, {overwrite: true}));
+});
+
 gulp.task('app-config-pilot', function() {
     return gulp.src('./src/app/AppConfig-pilot.ts')
         .pipe(rename('AppConfig.ts'))
