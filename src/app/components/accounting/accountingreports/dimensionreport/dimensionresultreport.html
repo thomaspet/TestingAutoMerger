@@ -1,6 +1,6 @@
-<section class="application">
-    <h1>{{pageTitle}}</h1>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
+<section class="application">
     <section class="period-setup">
         Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
     </section>
