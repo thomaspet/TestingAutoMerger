@@ -32,13 +32,15 @@ export class HistoricVatReportTable implements OnInit {
 
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+    private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(
-        public periodDateFormat: PeriodDateFormatPipe,
         private vatReportService: VatReportService,
         private toastService: ToastService,
         private errorService: ErrorService
-    ) {}
+    ) {
+        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
+    }
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
@@ -100,8 +102,7 @@ export class HistoricVatReportModal {
 
     constructor(
         private periodService: PeriodService,
-        private toastService: ToastService,
-        public periodDateFormat: PeriodDateFormatPipe
+        private toastService: ToastService
     ) {
         const self = this;
 

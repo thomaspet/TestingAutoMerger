@@ -51,6 +51,7 @@ export class VatReportView implements OnInit, OnDestroy {
     private vatReportsInPeriod: VatReport[];
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
+    private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(
         private tabService: TabService,
@@ -59,9 +60,9 @@ export class VatReportView implements OnInit, OnDestroy {
         private vatTypeService: VatTypeService,
         private toastService: ToastService,
         private altinnAuthenticationService: AltinnAuthenticationService,
-        private errorService: ErrorService,
-        private periodDateFormat: PeriodDateFormatPipe
+        private errorService: ErrorService
     ) {
+        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
     
         this.contextMenuItems = [

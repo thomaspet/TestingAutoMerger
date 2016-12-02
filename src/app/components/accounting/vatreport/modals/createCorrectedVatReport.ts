@@ -171,12 +171,13 @@ export class CreateCorrectedVatReportModal {
     private periodID: number;
     private period: Period;
     public type: Type<any> = CreateCorrectedVatReportForm;
+    private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(
         private periodService: PeriodService,
         private errorService: ErrorService,
-        public periodDateFormat: PeriodDateFormatPipe
     ) {
+        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         const self = this;
 
         self.modalConfig = {
