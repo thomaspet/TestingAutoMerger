@@ -9,8 +9,9 @@
 <section class="application">
     <uni-tradeitem-table *ngIf="quote"
                          [readonly]="readonly"
-                         [entity]="quote"
-                         (entityChange)="onQuoteChange($event)">
+                         [defaultTradeItem]="newQuoteItem"
+                         [(items)]="quoteItems"
+                         (itemsChange)="recalcDebouncer.next($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>

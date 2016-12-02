@@ -23,8 +23,9 @@ import {
 export class TradeItemTable {
     @ViewChild(UniTable) private table: UniTable;
     @Input() public readonly: boolean;
-    @Input() public entity: any;
-    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
+    @Input() public defaultTradeItem: any;
+    @Input() public items: any;
+    @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
     private tableConfig: UniTableConfig;
@@ -50,8 +51,8 @@ export class TradeItemTable {
     }
 
     public ngOnChanges(changes) {
-        if (changes['entity'] && this.entity) {
-            this.tableData = this.entity.Items.filter(item => !item.Deleted);
+        if (changes['items'] && this.items) {
+            this.tableData = this.items.filter(item => !item.Deleted);
         }
 
         if (changes['readonly'] && this.table) {
@@ -169,7 +170,7 @@ export class TradeItemTable {
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
             ])
             .setColumnMenuVisible(true)
-            .setDefaultRowData(this.tradeItemHelper.getDefaultTradeItemData(this.entity))
+            .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
             .setChangeCallback((rowModel) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel);
@@ -180,23 +181,23 @@ export class TradeItemTable {
                 const index = updatedRow['_originalIndex'];
 
                 if (index >= 0) {
-                    this.entity.Items[index] = updatedRow;
+                    this.items[index] = updatedRow;
                 } else {
-                    this.entity.Items.push(updatedRow);
+                    this.items.push(updatedRow);
                 }
 
-                this.entityChange.next(this.entity);
+                this.itemsChange.next(this.items);
                 return updatedRow;
             });
     }
 
     public onRowDeleted(row) {
         if (row.ID) {
-            this.entity.Items[row['_originalIndex']].Deleted = true;
+            this.items[row['_originalIndex']].Deleted = true;
         } else {
-            this.entity.Items.splice(row['_originalIndex'], 1);
+            this.items.splice(row['_originalIndex'], 1);
         }
 
-        this.entityChange.next(this.entity);
+        this.itemsChange.next(this.items);
     }
 }

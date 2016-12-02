@@ -9,8 +9,9 @@
 <section class="application">
     <uni-tradeitem-table *ngIf="invoice"
                          [readonly]="readonly"
-                         [entity]="invoice"
-                         (entityChange)="onInvoiceChange($event)">
+                         [(items)]="invoiceItems"
+                         [defaultTradeItem]="newInvoiceItem"
+                         (itemsChange)="recalcDebouncer.next($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
 </section>

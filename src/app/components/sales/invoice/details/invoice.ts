@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -66,11 +66,13 @@ export class InvoiceDetails {
 
     private isDirty: boolean;
     private invoice: CustomerInvoice;
+    private invoiceItems: CustomerInvoiceItem[];
+    private newInvoiceItem: CustomerInvoiceItem;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
 
-    private recalcDebouncer: EventEmitter<CustomerInvoice> = new EventEmitter<CustomerInvoice>();
+    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
@@ -112,9 +114,9 @@ export class InvoiceDetails {
         ];
 
         // Subscribe and debounce recalc on table changes
-        this.recalcDebouncer.debounceTime(500).subscribe((invoice) => {
-            if (invoice.Items.length) {
-                this.recalcItemSums(invoice);
+        this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
+            if (invoiceItems.length) {
+                this.recalcItemSums(invoiceItems);
             }
         });
 
@@ -165,7 +167,6 @@ export class InvoiceDetails {
             } else {
                 this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
                     this.refreshInvoice(invoice);
-                    this.recalcItemSums(invoice);
                 }, err => this.errorService.handle(err));
             }
 
@@ -222,12 +223,6 @@ export class InvoiceDetails {
     public onInvoiceChange(invoice) {
         this.isDirty = true;
         this.invoice = _.cloneDeep(invoice);
-        this.recalcDebouncer.next(invoice);
-    }
-
-    public invoiceItemsChange(invoice) {
-        this.invoice = _.cloneDeep(invoice);
-        this.recalcDebouncer.next(invoice);
     }
 
     private getStatustrackConfig() {
@@ -275,9 +270,11 @@ export class InvoiceDetails {
             }
         }
 
+        this.newInvoiceItem = <any> this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+        this.invoiceItems = invoice.Items;
         this.invoice = _.cloneDeep(invoice);
-        this.recalcDebouncer.next(invoice);
+        this.recalcDebouncer.next(invoice.Items);
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
@@ -343,7 +340,7 @@ export class InvoiceDetails {
         const id = this.invoice.ID;
         const status = this.invoice.StatusCode;
 
-        if (!this.invoice.ID) {
+        if (!this.invoice.InvoiceNumber) {
             this.saveActions.push({
                 label: 'Lagre som kladd',
                 action: done => this.saveAsDraft(done),
@@ -395,6 +392,7 @@ export class InvoiceDetails {
 
     private saveInvoice(): Observable<CustomerInvoice> {
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+        this.invoice.Items = this.invoiceItems;
 
         // Prep new orderlines for complex put
         this.invoice.Items.forEach(item => {
@@ -527,6 +525,7 @@ export class InvoiceDetails {
         // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
+                console.log('modalData.invoice', modalData.invoice);
                 this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
                     done('Betaling registrert');
@@ -576,12 +575,12 @@ export class InvoiceDetails {
     }
 
     // Summary
-    public recalcItemSums(invoice: CustomerInvoice) {
-        if (!invoice || !invoice.Items) {
+    public recalcItemSums(invoiceItems) {
+        if (!invoiceItems) {
             return;
         }
 
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoice.Items);
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
         this.updateSaveActions();
         this.updateToolbar();
 

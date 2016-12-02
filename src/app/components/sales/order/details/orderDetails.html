@@ -9,8 +9,9 @@
 <section class="application">
     <uni-tradeitem-table *ngIf="order"
                          [readonly]="readonly"
-                         [entity]="order"
-                         (entityChange)="onOrderChange($event)">
+                         [defaultTradeItem]="newOrderItem"
+                         [(items)]="orderItems"
+                         (itemsChange)="recalcDebouncer.next($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="order" [configs]="summary"></uni-summary>
 </section>

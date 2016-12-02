@@ -22,6 +22,7 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {
     Address,
     CustomerOrder,
+    CustomerOrderItem,
     StatusCodeCustomerOrder,
     CompanySettings
 } from '../../../../unientities';
@@ -75,6 +76,8 @@ export class OrderDetails {
 
     private isDirty: boolean;
     private order: CustomerOrderExt;
+    private orderItems: CustomerOrderItem[];
+    private newOrderItem: CustomerOrderItem;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
     private saveActions: IUniSaveAction[] = [];
@@ -87,7 +90,7 @@ export class OrderDetails {
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     // New
-    private recalcDebouncer: EventEmitter<CustomerOrder> = new EventEmitter<CustomerOrder>();
+    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private readonly: boolean;
 
     constructor(
@@ -108,11 +111,7 @@ export class OrderDetails {
         private numberFormat: NumberFormat,
         private tradeItemHelper: TradeItemHelper,
         private errorService: ErrorService
-    ) {
-
-        // this.tabService.addTab({ url: '/sales/orders/', name: 'Ordre', active: true, moduleID: UniModules.Orders });
-
-    }
+    ) {}
 
     public ngOnInit() {
         this.setSums();
@@ -138,9 +137,9 @@ export class OrderDetails {
         }];
 
         // Subscribe and debounce recalc on table changes
-        this.recalcDebouncer.debounceTime(500).subscribe((order) => {
-            if (order && order.Items.length) {
-                this.recalcItemSums(order.Items);
+        this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
+            if (orderItems.length) {
+                this.recalcItemSums(orderItems);
             }
         });
 
@@ -219,7 +218,6 @@ export class OrderDetails {
     public onOrderChange(order) {
         this.isDirty = true;
         this.order = _.cloneDeep(order);
-        this.recalcDebouncer.next(order);
     }
 
     private refreshOrder(order?: CustomerOrder) {
@@ -240,13 +238,14 @@ export class OrderDetails {
         }
 
         this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
-
+        this.newOrderItem = <any> this.tradeItemHelper.getDefaultTradeItemData(order);
+        this.orderItems = order.Items;
         this.order = _.cloneDeep(order);
         this.isDirty = false;
         this.setTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
-        this.recalcDebouncer.next(order);
+        this.recalcDebouncer.next(order.Items);
     }
 
     private getStatustrackConfig() {
@@ -440,6 +439,7 @@ export class OrderDetails {
 
     private saveOrder(): Observable<CustomerOrder> {
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+        this.order.Items = this.orderItems;
 
         this.order.Items.forEach(item => {
             if (item.Dimensions && item.Dimensions.ID === 0) {

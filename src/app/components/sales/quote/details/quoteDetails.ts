@@ -55,6 +55,8 @@ export class QuoteDetails {
 
     private isDirty: boolean;
     private quote: CustomerQuote;
+    private quoteItems: CustomerQuoteItem[];
+    private newQuoteItem: CustomerQuoteItem;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private companySettings: CompanySettings;
     private saveActions: IUniSaveAction[] = [];
@@ -211,8 +213,12 @@ export class QuoteDetails {
             || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
         );
 
-        this.quote = _.cloneDeep(quote);
+        this.newQuoteItem = <any> this.tradeItemHelper.getDefaultTradeItemData(quote);
         this.isDirty = false;
+        this.quoteItems = quote.Items;
+
+        this.quote = _.cloneDeep(quote);
+        this.recalcItemSums(quote.Items);
         this.setTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
@@ -233,7 +239,6 @@ export class QuoteDetails {
         }
 
         this.quote = _.cloneDeep(quote);
-        this.recalcDebouncer.next(quote.Items);
     }
 
     private getStatustrackConfig() {
@@ -323,10 +328,10 @@ export class QuoteDetails {
     }
 
     public recalcItemSums(quoteItems: any) {
-        if (!quoteItems || !quoteItems.length) {
+        if (!quoteItems) {
             return;
         }
-        this.quote.Items = quoteItems;
+
         this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
         this.updateToolbar();
         this.setSums();
@@ -334,7 +339,6 @@ export class QuoteDetails {
 
     private updateSaveActions() {
         const transitions = (this.quote['_links'] || {}).transitions;
-        // const links = this.quote['_links'];
         this.saveActions = [];
 
         this.saveActions.push({
@@ -342,7 +346,6 @@ export class QuoteDetails {
             action: (done) => this.saveQuoteAsRegistered(done),
             disabled: transitions && !transitions['register'],
             main: !transitions || transitions['register']
-            // main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
         });
 
         this.saveActions.push({
@@ -407,6 +410,7 @@ export class QuoteDetails {
 
     private saveQuote(): Observable<CustomerQuote> {
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+        this.quote.Items = this.quoteItems;
 
         this.quote.Items.forEach(item => {
             if (item.Dimensions && item.Dimensions.ID === 0) {
