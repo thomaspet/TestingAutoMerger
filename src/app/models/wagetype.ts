@@ -54,6 +54,7 @@ export class WageTypeModel implements WageType {
 	GetRateFrom: GetRateFrom = GetRateFrom.WageType;
 	SpecialAgaRule: SpecialAgaRule = SpecialAgaRule.Regular;
 	SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
+	FixedSalaryHolidayDeduction: any;
     
     static createFromObject(data: any){
         let instance = new WageTypeModel();
