@@ -158,6 +158,8 @@ export class JournalEntryProfessional implements OnInit {
             } else {
                 rowModel.NetAmount = rowModel.Amount;
             }
+        } else {
+            rowModel.NetAmount = null;
         }
     }
 
@@ -170,8 +172,10 @@ export class JournalEntryProfessional implements OnInit {
                 let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
                 rowModel.Amount = calc.amountGross;
             } else {
-                rowModel.NetAmount = rowModel.Amount;
+                rowModel.Amount = rowModel.NetAmount;
             }
+        } else {
+            rowModel.Amount = null;
         }
     }
 
@@ -262,7 +266,7 @@ export class JournalEntryProfessional implements OnInit {
             .setEditorOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0 || (searchValue === '+' && alternative.ID === this.SAME_OR_NEW_NEW))]);
+                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0 || (alternative.ID === this.SAME_OR_NEW_NEW))]);
                 },
                 itemTemplate: (item) => {
                     return item ? item.Name : '';
@@ -653,18 +657,27 @@ export class JournalEntryProfessional implements OnInit {
                     this.showImageChanged.emit(this.doShowImage);
                 }
 
-                setTimeout(() => {
-                    this.setupSameNewAlternatives();
-                    this.table.focusRow(0);
-                });
+                let journalentrytoday: JournalEntryData = new JournalEntryData();
+                journalentrytoday.FinancialDate = moment().toDate();
+                this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                    .subscribe(data => {
+                        this.firstAvailableJournalEntryNumber = data;
+                        this.setupSameNewAlternatives();
+
+                        if (this.table) {
+                            this.table.focusRow(0);
+                        }
+                    },
+                    err => this.errorService.handle
+                );
 
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
                 completeCallback('Lagring feilet');
                 this.errorService.handle(err);
-            });
-
+            }
+        );
     }
 
     public removeJournalEntryData(completeCallback) {
@@ -678,9 +691,15 @@ export class JournalEntryProfessional implements OnInit {
                 this.showImageChanged.emit(this.doShowImage);
             }
 
-            setTimeout(() => {
-                this.setupSameNewAlternatives();
-            });
+            let journalentrytoday: JournalEntryData = new JournalEntryData();
+            journalentrytoday.FinancialDate = moment().toDate();
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                .subscribe(data => {
+                    this.firstAvailableJournalEntryNumber = data;
+                    this.setupSameNewAlternatives();
+                },
+                err => this.errorService.handle
+            );
 
             completeCallback('Listen er tømt');
         } else {

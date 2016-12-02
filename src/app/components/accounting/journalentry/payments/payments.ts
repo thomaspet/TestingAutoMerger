@@ -32,7 +32,7 @@ export class Payments {
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService
     ) {
-        this.tabService.addTab({ name: 'Betalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
+        this.tabService.addTab({ name: 'Innbetalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
 
         this.companySettingsService.Get(1, ['CompanyBankAccount', 'CompanyBankAccount.Account'])
             .subscribe((data: CompanySettings) => {

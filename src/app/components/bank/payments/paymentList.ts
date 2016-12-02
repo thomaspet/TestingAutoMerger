@@ -459,11 +459,6 @@ export class PaymentList {
 
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
 
-        let relationsCol = new UniTableColumn('ID', 'Relasjoner', UniTableColumnType.Text, false)
-            .setFilterable(false)
-            .setTemplate(() => 'Vis relasjoner')
-            .setOnCellClick((data) => this.paymentRelationsModal.openModal(data.ID));
-
         // Setup table
         this.paymentTableConfig = new UniTableConfig(true, true, 25)
             .setColumns([
@@ -475,14 +470,20 @@ export class PaymentList {
                 amountCol,
                 dueDateCol,
                 paymentCodeCol,
-                descriptionCol,
-                relationsCol
+                descriptionCol
             ])
             .setChangeCallback((event) => {
                 return this.paymentChangeCallback(event);
             })
+            .setContextMenu([
+                {
+                    action: (item) => this.paymentRelationsModal.openModal(item.ID),
+                    disabled: (item) => false,
+                    label: 'Vis relasjoner'
+                }
+            ])
             .setMultiRowSelect(true)
-            .setDeleteButton(true)
+            .setDeleteButton(false)
             .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
             .setSearchable(true);
