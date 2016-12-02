@@ -11,9 +11,10 @@ Uni Economy Angular2 version
 3. Update entities `gulp entities`
 
 4. Deploy app and watch for changes 
-- `npm run start` will start and watch with AppConfig-dev
-- `npm run start.local` will start and watch AppConfig-local
-- `npm run start.custom` will start and watch without changing your AppConfig
+
+`npm run start` will start and watch with AppConfig-dev </br>
+`npm run start.local` will start and watch AppConfig-local </br>
+`npm run start.custom` will start and watch without changing your AppConfig </br>
 
 5. Open a server that syncs with dist folder: `npm run serve`
 
