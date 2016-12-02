@@ -78,7 +78,7 @@ export class JournalEntryProfessional implements OnInit {
             this.vatTypeService.GetAll('orderby=VatCode'),
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
-            this.companySettingsService.getAllCached()
+            this.companySettingsService.GetAll(null)
         ).subscribe(
             (data) => {
                 this.departments = data[0];
