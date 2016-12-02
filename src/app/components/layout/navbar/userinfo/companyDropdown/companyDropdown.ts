@@ -7,8 +7,10 @@ import {FinancialYearService} from '../../../../../services/services';
 import {UserService} from '../../../../../services/services';
 
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
-import {ISelectConfig} from '../../../../../../framework/uniform/controls/select/select';
+import {ISelectConfig} from 'uniform-ng2/main';
 import {Observable} from 'rxjs/Observable';
+import {AltinnAuthenticationService} from '../../../../../services/common/AltinnAuthenticationService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -86,16 +88,19 @@ export class UniCompanyDropdown {
     private activeYearHdr: string = '';
 
     constructor(
+        private _altInnService : AltinnAuthenticationService,        
         private _router: Router,
         private _authService: AuthService,
         private userService: UserService,
         private http: UniHttp,
         private companySettingsService: CompanySettingsService,
-        private financialYearService: FinancialYearService) {
+        private financialYearService: FinancialYearService,
+        private errorService: ErrorService
+    ) {
 
         this.userService.getCurrentUser().subscribe((user) => {
             this.username = user.DisplayName;
-        });
+        }, err => this.errorService.handle(err));
 
         this.http.asGET()
             .usingInitDomain()
@@ -105,7 +110,7 @@ export class UniCompanyDropdown {
             .subscribe((response) => {
                 this.availableCompanies = response;
                 this.selectCompanyConfig.searchable = response.length >= 8;
-            });
+            }, err => this.errorService.handle(err));
 
         this.selectCompanyConfig = {
             displayProperty: 'Name'
@@ -126,10 +131,11 @@ export class UniCompanyDropdown {
     }
 
     private loadCompanyData() {
+        this._altInnService.clearAltinnAuthenticationDataFromLocalstorage();
         this.companySettingsService.Get(1, ['DefaultPhone']).subscribe((company) => {
             this.company = company;
             this.getFinancialYear();
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getFinancialYear() {
@@ -137,7 +143,7 @@ export class UniCompanyDropdown {
         this.financialYearService.GetAll(null).subscribe((response) => {
             this.financialYears = response;
             this.setActiveYear();
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private setActiveYear() {
@@ -165,6 +171,7 @@ export class UniCompanyDropdown {
 
     private companySelected(selectedCompany): void {
         this.close();
+        if(this.activeCompany === selectedCompany) {return;}
         this.activeCompany = selectedCompany;
         this._authService.setActiveCompany(selectedCompany);
         this.loadCompanyData();

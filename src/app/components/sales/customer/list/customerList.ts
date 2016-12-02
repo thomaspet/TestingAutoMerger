@@ -7,6 +7,7 @@ import {URLSearchParams} from '@angular/http';
 import {CustomerService} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Customer} from '../../../../unientities';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -25,7 +26,13 @@ export class CustomerList {
         omitFinalCrumb: true
     };
 
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService, private tabService: TabService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private customerService: CustomerService,
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Kunder', url: '/sales/customer', moduleID: UniModules.Customers, active: true });
         this.setupCustomerTable();
     }
@@ -53,16 +60,17 @@ export class CustomerList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
-            return this.customerService.GetAllByUrlSearchParams(params);
+            return this.customerService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table
         let numberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         let nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
         let orgNoCol = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
-        let departmentCol = new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+        let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Customer) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
-        let projectCol = new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+        let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Customer) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
 
         // Setup table

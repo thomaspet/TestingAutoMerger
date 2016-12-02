@@ -6,6 +6,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService} from '../../../../services/services';
 import {Product} from '../../../../unientities';
 import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -17,7 +18,13 @@ export class ProductList {
     private productTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private tabService: TabService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private productService: ProductService,
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.setupProductTable();
         this.tabService.addTab({ name: "Produkter", url: "/products", active: true, moduleID: UniModules.Products });
     }
@@ -41,7 +48,7 @@ export class ProductList {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
                         
-            return this.productService.GetAllByUrlSearchParams(params);
+            return this.productService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table
@@ -56,9 +63,9 @@ export class ProductList {
                             .setFormat('{0:n}')
                             .setCls('column-align-right');
 
-        let departmentCol = new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+        let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
-        let projectCol = new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+        let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
                                                     
         // Setup table

@@ -7,13 +7,15 @@ import {ProductService, AccountService, VatTypeService, ProjectService, Departme
 
 import {Product, Account, VatType, FieldType} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
 import {Project} from '../../../../unientities';
 import {Department} from '../../../../unientities';
 import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../../services/common/ErrorService';
+import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 
-declare var _; // lodash
+declare const _; // lodash
 
 @Component({
     selector: 'product-details',
@@ -30,7 +32,6 @@ export class ProductDetails {
     private showImageComponent: boolean = true;  // template variable
     private imageUploadConfig: IUploadConfig;
 
-    private accounts: Account[];
     private vatTypes: VatType[];
     private projects: Project[];
     private departments: Department[];
@@ -47,7 +48,8 @@ export class ProductDetails {
     private calculateGrossPriceBasedOnNetPriceField: UniField;
     private formIsInitialized: boolean = false;
 
-    private expandOptions: Array<string> = ['Dimensions'];
+    private expandOptions: Array<string> = ['Dimensions', 'Account', 'VatType'];
+    private toolbarconfig: IToolbarConfig;
 
     private saveactions: IUniSaveAction[] = [
          {
@@ -58,8 +60,17 @@ export class ProductDetails {
          }
     ];
 
-    constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router,
-    private route: ActivatedRoute, private tabService: TabService, private projectService: ProjectService, private departmentService: DepartmentService) {
+    constructor(
+        private productService: ProductService,
+        private accountService: AccountService,
+        private vatTypeService: VatTypeService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService,
+        private errorService: ErrorService
+    ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
             this.setupForm();
@@ -73,26 +84,36 @@ export class ProductDetails {
             this.fields = this.getComponentLayout().Fields;
 
             Observable.forkJoin(
-                    this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
                     this.vatTypeService.GetAll(null),
                     this.projectService.GetAll(null),
                     this.departmentService.GetAll(null)
                     )
                 .subscribe((response: Array<any>) => {
-                    this.accounts = response[0];
-                    this.vatTypes = response[1];
-                    this.projects = response[2];
-                    this.departments = response[3];
+                    this.vatTypes = response[0];
+                    this.projects = response[1];
+                    this.departments = response[2];
 
                     this.extendFormConfig();
 
                     this.formIsInitialized = true;
 
                     this.loadProduct();
-                });
+                }, err => this.errorService.handle(err));
         } else {
             this.loadProduct();
         }
+    }
+
+    private setupToolbar() {
+        this.toolbarconfig = {
+            title: this.productId > 0 ? 'Produkt' : 'Nytt produkt',
+            subheads: this.productId > 0 ? [{title: 'Produktnr. ' + this.product.PartName}] : [],
+            navigation: {
+                prev: () => this.previousProduct(),
+                next: () => this.nextProduct(),
+                add: () => this.addProduct()
+            }
+        };
     }
 
     public loadProduct() {
@@ -109,6 +130,7 @@ export class ProductDetails {
             this.product = response[0];
 
             this.setTabTitle();
+            this.setupToolbar();
             this.showHidePriceFields(this.product);
 
             if (response.length > 1 && response[1] !== null) {
@@ -119,9 +141,7 @@ export class ProductDetails {
                 isDisabled: (!this.productId || parseInt(this.productId) === 0),
                 disableMessage: 'Produkt må lagres før bilde kan lastes opp'
             };
-        } , (err) => {
-            console.log('Error retrieving data: ', err);
-        });
+        } , err => this.errorService.handle(err));
     }
 
     private setTabTitle() {
@@ -134,22 +154,25 @@ export class ProductDetails {
     }
 
     private saveProduct(completeEvent) {
-
-        if (this.product.Dimensions && (!this.product.DimensionsID || this.product.DimensionsID === 0)) {
+        if (this.product.Dimensions && (!this.product.Dimensions.ID || this.product.Dimensions.ID === 0)) {
             this.product.Dimensions['_createguid'] = this.productService.getNewGuid();
         }
+
+        // clear Account and VatType, IDs are used when saving
+        this.product.Account = null;
+        this.product.VatType = null;
 
         if (this.productId > 0) {
             this.productService.Put(this.product.ID, this.product)
                 .subscribe(
                     (updatedValue) => {
                         completeEvent('Produkt lagret');
-                        this.product = updatedValue;
+                        this.loadProduct();
                         this.setTabTitle();
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
-                        console.log('Feil oppsto ved lagring', err);
+                        this.errorService.handle(err);
                     }
                 );
         } else {
@@ -157,27 +180,19 @@ export class ProductDetails {
                 .subscribe(
                     (newProduct) => {
                         completeEvent('Produkt lagret');
-                        console.log('Product created, redirect to new ID, ' + newProduct.ID);
                         this.router.navigateByUrl('/products/' + newProduct.ID);
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
-                        console.log('Feil oppsto ved lagring', err);
+                        this.errorService.handle(err);
                     }
                 );
         }
     }
 
     private calculateAndUpdatePrice() {
-        this.productService.calculatePrice(this.product)
-            .subscribe((data) => {
-                this.product.PriceIncVat = data.PriceIncVat;
-                this.product.PriceExVat = data.PriceExVat;
-
-                this.product = _.cloneDeep(this.product);
-            },
-            (err) => console.log('Feil ved kalkulering av pris', err)
-        );
+        this.productService.calculatePriceLocal(this.product);
+        this.product = _.cloneDeep(this.product);
     }
 
     private showHidePriceFields(model: Product) {
@@ -188,21 +203,25 @@ export class ProductDetails {
     }
 
     private previousProduct() {
-        this.productService.previous(this.product.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/products/' + data.ID);
+        this.productService.getPreviousID(this.product.ID)
+            .subscribe((ID) => {
+                if (ID) {
+                    this.router.navigateByUrl('/products/' + ID);
+                } else {
+                    alert('Ingen flere produkter før denne!')
                 }
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private nextProduct() {
-        this.productService.next(this.product.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/products/' + data.ID);
+        this.productService.getNextID(this.product.ID)
+            .subscribe((ID) => {
+                if (ID) {
+                    this.router.navigateByUrl('/products/' + ID);
+                } else {
+                    alert('Ingen flere produkter etter denne!')
                 }
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private addProduct() {
@@ -237,17 +256,30 @@ export class ProductDetails {
             valueProperty: 'ID',
             displayProperty: 'VatCode',
             debounceTime: 100,
-            search: (searchValue: string) => Observable.from([this.vatTypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
-            template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
+            search: (searchValue: string) => Observable.from([this.vatTypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` === searchValue)]),
+            template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : '',
+            events: {
+                    select: (model: Product) => {
+                        this.updateVatType(model);
+                    }
+                }
         };
 
         let accountField: UniFieldLayout = this.fields.find(x => x.Property === 'AccountID');
         accountField.Options = {
-            source: this.accounts,
+            getDefaultData: () => this.getDefaultAccountData(),
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
+            search: (searchValue: string) => this.accountSearch(searchValue),
+            template: (account: Account) => {
+                return account && account.ID !== 0 ? `${account.AccountNumber} ${account.AccountName }` : '';
+            },
+            events: {
+                    select: (model: Product) => {
+                        this.updateAccount(model);
+                    }
+                }
         };
 
         let typeField: UniFieldLayout = this.fields.find(x => x.Property === 'Type');
@@ -263,28 +295,70 @@ export class ProductDetails {
         this.calculateGrossPriceBasedOnNetPriceField = this.fields.find(x => x.Property === 'CalculateGrossPriceBasedOnNetPrice');
     }
 
-    private setupSubscriptions(event) {
+    private getDefaultAccountData() {
+        if (this.product && this.product.Account ) {
+            return Observable.of([this.product.Account]);
+        } else {
+            return Observable.of([]);
+        }
+    }
 
-        this.form.field('VatTypeID')
-                .changeEvent
-                .subscribe((data) => {
-                    // recalculate when vattype changes also
-                    this.calculateAndUpdatePrice();
-                });
+    private updateAccount(model: Product) {
+        if (model && model.AccountID) {
+            this.accountService.Get(model.AccountID, ['VatType'])
+                .subscribe(account => {
+                    if (account) {
+                        this.product.Account = account;
+                        if (this.product.Account.VatTypeID !== null) {
+                            this.product.VatTypeID = this.product.Account.VatTypeID;
+                            this.product.VatType = this.product.Account.VatType;
+                            this.calculateAndUpdatePrice();
 
-        this.form.field('AccountID')
-                .changeEvent
-                .subscribe((data) => {
-                    if (this.product.AccountID) {
-                        // set vattypeid based on account
-                        let account = this.accounts.find(x => x.ID === data.AccountID);
-                        if (account !== null && account.VatTypeID !== null) {
-                            this.product.VatTypeID = account.VatTypeID;
                             this.product = _.cloneDeep(this.product);
                         }
                     }
-                });
+                },
+                this.errorService.handle
+            );
+        }
+    }
 
+    private updateVatType(model: Product) {
+        if (model && model.VatTypeID) {
+            this.vatTypeService.Get(model.VatTypeID)
+                .subscribe(vattype => {
+                    if (vattype) {
+                        this.product.VatType = vattype;
+                        this.calculateAndUpdatePrice();
+                    }
+                },
+                this.errorService.handle
+            );
+        }
+    }
+
+    private accountSearch(searchValue: string): Observable<any> {
+
+        let filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+        if (searchValue === '') {
+            filter += ' and AccountNumber ge 3000';
+        } else {
+            let copyPasteFilter = '';
+
+            if (searchValue.indexOf(':') > 0) {
+                let accountNumberPart = searchValue.split(':')[0].trim();
+                let accountNamePart =  searchValue.split(':')[1].trim();
+
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+            }
+
+            filter += ` and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+        }
+
+        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+    }
+
+    private setupSubscriptions(event) {
         if (this.form.field('PriceExVat')) {
             this.form.field('PriceExVat')
                 .changeEvent

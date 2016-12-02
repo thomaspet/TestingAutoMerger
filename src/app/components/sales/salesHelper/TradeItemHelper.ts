@@ -21,8 +21,6 @@ export class TradeItemHelper  {
             }
         }
         if (numberFailed > 0) {
-            let line: string = (numberFailed > 1) ? 'linjer' : 'linje'
-            alert('Det er ' + numberFailed + ' ' + line + ' du ikke har valgt produkt på. Velg produkt og forsøk å lagre på nytt');
             return false;
         }
         return true;
@@ -63,7 +61,11 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'Product') {
-            this.mapProductToQuoteItem(newRow);
+            if (newRow['Product']) {
+                this.mapProductToQuoteItem(newRow);
+            } else {
+                newRow['ProductID'] = null;
+            }
         }
 
         if (event.field === 'VatType') {
@@ -137,9 +139,6 @@ export class TradeItemHelper  {
 
     public mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
-        if (!product) {
-            return;
-        }
 
         rowModel.AccountID = product.AccountID;
         rowModel.ProductID = product.ID;

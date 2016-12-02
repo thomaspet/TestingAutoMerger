@@ -1,8 +1,9 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Address, FieldType, Country, PostalCode} from '../../../unientities';
 import {AddressService, CountryService, PostalCodeService} from '../../../services/services';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const _; // lodash
 
@@ -38,7 +39,11 @@ export class AddressForm implements OnChanges {
 
     private countries: Array<Country>;
 
-    constructor(private countryService: CountryService, private postalCodeService: PostalCodeService) {
+    constructor(
+        private countryService: CountryService,
+        private postalCodeService: PostalCodeService,
+        private errorService: ErrorService
+    ) {
 
     }
 
@@ -67,7 +72,7 @@ export class AddressForm implements OnChanges {
 
                     this.extendFormConfig();
                 },
-                err => console.log('Error retrieving countries:', err)
+                err => this.errorService.handle(err)
             );
         }
     }
@@ -104,7 +109,7 @@ export class AddressForm implements OnChanges {
                                 }
                             });
                     }
-                });
+                }, err => this.errorService.handle(err));
         });
     }
 
@@ -117,7 +122,7 @@ export class AddressForm implements OnChanges {
                         model.CountryCode = data[0].CountryCode;
                     }
                 },
-                err => console.log('Error setting countrycode based on country ', err)
+                err => this.errorService.handle(err)
             );
         }
     }

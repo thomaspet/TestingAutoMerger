@@ -3,9 +3,9 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
-import {UniForm} from '../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../framework/uniform/index';
-import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
+import {UniForm} from 'uniform-ng2/main';
+import {UniFieldLayout} from 'uniform-ng2/main';
+import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {
     CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account,
@@ -19,7 +19,8 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {CompanyService} from '../../../services/common/CompanyService';
 import {AuthService} from '../../../../framework/core/authService';
-import {UniField} from '../../../../framework/uniform/unifield';
+import {UniField} from 'uniform-ng2/main';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const _;
 
@@ -104,7 +105,8 @@ export class CompanySettingsComponent implements OnInit {
         private toastService: ToastService,
         private accountVisibilityGroupService: AccountVisibilityGroupService,
         private companyService: CompanyService,
-        private authService: AuthService
+        private authService: AuthService,
+        private errorService: ErrorService
     ) {
     }
 
@@ -112,7 +114,7 @@ export class CompanySettingsComponent implements OnInit {
         this.getDataAndSetupForm();
         this.companyService.Get(this.authService.activeCompany.ID).subscribe(
             company => this.onlyCompanyModel = company,
-            err => console.log('Error while getting company info:', err)
+            err => this.errorService.handle(err)
         );
     }
 
@@ -175,7 +177,7 @@ export class CompanySettingsComponent implements OnInit {
                 });
 
             },
-            error => this.toastService.addToast('Feil ved henting av data', ToastType.bad)
+            err => this.errorService.handle(err)
             );
     }
 
@@ -265,11 +267,8 @@ export class CompanySettingsComponent implements OnInit {
                     complete('Innstillinger lagret');
                 });
             },
-            (error) => {
-                complete('Feil oppsto ved lagring');
-                this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, null, JSON.stringify(error.json()));
-            }
-        );
+            err => this.errorService.handle(err)
+            );
     }
 
     private updateMunicipalityName() {
@@ -279,7 +278,7 @@ export class CompanySettingsComponent implements OnInit {
                     this.company['MunicipalityName'] = data[0].MunicipalityName;
                     this.company = _.cloneDeep(this.company);
                 }
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private extendFormConfig() {
@@ -510,7 +509,7 @@ export class CompanySettingsComponent implements OnInit {
         this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
             .subscribe(
                 company => this.onlyCompanyModel = company,
-                err => console.log('Error while getting company information:', err)
+                err => this.errorService.handle(err)
             );
     }
 
@@ -1093,7 +1092,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 console.log('Kontoplan synkronisert for AS');
             },
-            (error: any) => console.log(error)
+                err => this.errorService.handle(err)
             );
     }
 
@@ -1105,7 +1104,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 console.log('VatTypes synkronisert');
             },
-            (error: any) => console.log(error)
+                err => this.errorService.handle(err)
             );
     }
 
@@ -1116,7 +1115,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 alert('Valuta lasted ned');
             },
-            (error: any) => console.log(error)
+                err => this.errorService.handle(err)
             );
     }
 

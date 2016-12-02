@@ -5,6 +5,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
+import {ErrorService} from '../common/ErrorService';
 
 declare var moment;
 
@@ -25,7 +26,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: 90001, Text: 'Avvist', isPrimary: false }
     ];
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         
         this.relativeURL = SupplierInvoice.RelativeUrl;
@@ -100,7 +101,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
                 invoice.CurrencyCode = 'NOK';
           
                 resolve(invoice);                
-            });               
+            }, err => this.errorService.handle(err));
         });
     }
 

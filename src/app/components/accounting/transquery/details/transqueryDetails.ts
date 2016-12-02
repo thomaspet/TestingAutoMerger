@@ -13,6 +13,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -35,7 +36,15 @@ export class TransqueryDetails implements OnInit {
     @ViewChild(ImageModal)
     private imageModal: ImageModal;
 
-    constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService, private statisticsService: StatisticsService, private toastService: ToastService, private numberFormat: NumberFormat) {
+    constructor(
+        private route: ActivatedRoute,
+        private journalEntryLineService: JournalEntryLineService,
+        private tabService: TabService,
+        private statisticsService: StatisticsService,
+        private toastService: ToastService,
+        private numberFormat: NumberFormat,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ 'name': 'Forespørsel bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
 
@@ -43,7 +52,8 @@ export class TransqueryDetails implements OnInit {
         this.route.params.subscribe(params => {
             const unitableFilter = this.generateUnitableFilters(params);
             this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
-            this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
+            this.lookupFunction = (urlParams: URLSearchParams) =>
+                this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         });
     }
 
@@ -84,7 +94,7 @@ export class TransqueryDetails implements OnInit {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
                 this.setSums();
-            });
+            }, err => this.errorService.handle(err));
         } else {
             this.summaryData = null;
         }

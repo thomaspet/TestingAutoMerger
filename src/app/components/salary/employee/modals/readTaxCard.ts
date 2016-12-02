@@ -7,6 +7,7 @@ import {AltinnReceiptService, EmployeeService} from '../../../../../app/services
 import {AltinnResponseModal} from './altinnResponseModal';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({
@@ -29,7 +30,11 @@ export class ReadTaxCard {
 
     @Output() public updateTax: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
-    constructor(private _altinnReceiptService: AltinnReceiptService, private _employeeService: EmployeeService) {
+    constructor(
+        private _altinnReceiptService: AltinnReceiptService,
+        private _employeeService: EmployeeService,
+        private errorService: ErrorService
+    ) {
 
         let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.Date).setFormat('DD.MM.YYYY HH:mm');
         let receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
@@ -65,7 +70,8 @@ export class ReadTaxCard {
     }
 
     public getReceipts() {
-        this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderby=ID DESC&filter=Form eq \'RF-1211\'');
+        this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderby=ID DESC&filter=Form eq \'RF-1211\'')
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public updateReceipts() {

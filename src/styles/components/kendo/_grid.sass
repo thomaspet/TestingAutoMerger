@@ -1,7 +1,7 @@
 .uni-table-header
     @include unigrid(3, 3, 2, 1)
     float: right
-    z-index: 9
+    z-index: map-get($zindex, picker)
     position: relative
     top: .8rem
 
@@ -40,7 +40,7 @@
         @include uni-button($uni-color-action)
 
         &.k-grid-add
-            @include uni-button($uni-color-Good)
+            @include uni-button($uni-color-good)
 
     .k-button-icontext span.k-icon
         display: none
@@ -153,7 +153,7 @@
 
 .k-pager-numbers
     .k-state-selected
-        border-bottom: pxToRem(2) $uni-color-C2A solid
+        border-bottom: pxToRem(2) $uni-color-c2a solid
         font-weight: 600
         border-radius: 0
         background: transparentize($uni-color-scale9, .5)
@@ -172,7 +172,7 @@
 //
 //    &:after
 //      content: ''
-//      background: transparentize($uni-color-C2A, .9)
+//      background: transparentize($uni-color-c2a, .9)
 //      height: 200vh
 //      top: -100vh
 //      left: 0

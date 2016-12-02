@@ -4,6 +4,7 @@ import {CustomerOrder, CustomerOrderItem} from '../../unientities';
 import {StatusCodeCustomerOrder} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../common/ErrorService';
 
 declare var moment;
 
@@ -19,7 +20,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         { Code: StatusCodeCustomerOrder.Completed, Text: 'Avsluttet' }
     ];
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = CustomerOrder.RelativeUrl;
         this.entityType = CustomerOrder.EntityType;
@@ -42,7 +43,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                 order.OrderDate = moment().toDate();
 
                 resolve(order);
-            });
+            }, err => this.errorService.handle(err));
         });
     }
 

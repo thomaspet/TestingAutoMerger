@@ -9,11 +9,8 @@
         right: 1rem
 
     a
-        &:first-of-type li
-            border-left: none
-
-        &:last-of-type li
-            border-right: none
+        &:not(:first-of-type) li
+            border-left: .1rem solid transparentize($navbarActive, .8)
 
         &.router-link-active li
             background: $uni-color-negative
@@ -32,8 +29,6 @@
         text-align: center
         max-width: pxToRem(200)
         padding-right: 2.2rem
-        border-left: .1rem solid transparentize($navbarTextColor, .8)
-        border-right: .1rem solid transparentize(contrasting($navbarTextColor), .8)
         white-space: nowrap
         display: inline-block
         overflow: hidden
@@ -41,11 +36,12 @@
         position: relative
         flex-shrink: 1
 
+
         &.router-tab-active,
         &.router-tab-active:hover,
         &.router-tab-active:focus
-            background: $uni-color-negative
-            color: $navbarBackground
+            background: $navbarActive
+            color: $navbarTextColor
 
             .close
                 border: pxToRem(1) solid mix($navbarBackground, $navbarBackground, 70%)

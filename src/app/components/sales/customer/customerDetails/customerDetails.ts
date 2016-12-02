@@ -8,7 +8,7 @@ import {DepartmentService, ProjectService, CustomerService, PhoneService, Addres
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 
 import {ComponentLayout, Customer, Email, Phone, Address, FieldType} from '../../../../unientities';
 
@@ -18,6 +18,7 @@ import {IReference} from '../../../../models/iReference';
 import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
 
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 
 declare var _; // lodash
@@ -29,7 +30,7 @@ declare var _; // lodash
 export class CustomerDetails {
     @Input() public customerID: any;
     @Input() public modalMode: boolean;
-    @Output() public customerCreated: EventEmitter<Customer> = new EventEmitter<Customer>();
+    @Output() public customerUpdated: EventEmitter<number> = new EventEmitter<number>();
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -89,18 +90,21 @@ export class CustomerDetails {
          }
     ];
 
-    constructor(private uniQueryDefinitionService: UniQueryDefinitionService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private customerService: CustomerService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private phoneService: PhoneService,
-                private emailService: EmailService,
-                private addressService: AddressService,
-                private businessRealtionService: BusinessRelationService,
-                private tabService: TabService,
-                private toastService: ToastService) {}
+    constructor(
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private customerService: CustomerService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private phoneService: PhoneService,
+        private emailService: EmailService,
+        private addressService: AddressService,
+        private businessRealtionService: BusinessRelationService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         if (!this.modalMode) {
@@ -109,7 +113,7 @@ export class CustomerDetails {
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
-                    .subscribe(links => this.reportLinks = links);
+                    .subscribe(links => this.reportLinks = links, err => this.errorService.handle(err));
             });
         }
     }
@@ -133,7 +137,8 @@ export class CustomerDetails {
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
                     }
-                }
+                },
+                err => this.errorService.handle(err)
             );
     }
 
@@ -145,7 +150,8 @@ export class CustomerDetails {
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
                     }
-                }
+                },
+                err => this.errorService.handle(err)
             );
     }
 
@@ -172,6 +178,11 @@ export class CustomerDetails {
 
     public reset() {
         this.customerID = null;
+        this.setup();
+    }
+
+    public openInModalMode(id?: number) {
+        this.customerID = id;
         this.setup();
     }
 
@@ -209,9 +220,7 @@ export class CustomerDetails {
                    this.ready();
                 });
 
-            }, (err) => {
-                alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, err => this.errorService.handle(err));
         } else {
 
             Observable.forkJoin(
@@ -225,9 +234,7 @@ export class CustomerDetails {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, (err) => {
-                alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, err => this.errorService.handle(err));
         }
     }
 
@@ -481,36 +488,38 @@ export class CustomerDetails {
         }
 
         if (this.customerID > 0) {
-            this.customerService.Put(this.customer.ID, this.customer)
-                .subscribe(
-                    (customer) => {
-                        completeEvent('Kunde lagret');
+            this.customerService.Put(this.customer.ID, this.customer).subscribe(
+                (customer) => {
+                    completeEvent('Kunde lagret');
+                    if (this.modalMode) {
+                        this.customerUpdated.next(this.customer.ID);
+                    } else {
                         this.customerService.Get(this.customer.ID, this.expandOptions).subscribe(customer => {
                             this.customer = customer;
                             this.setTabTitle();
                         });
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
                     }
-                );
+                },
+                (err) => {
+                    completeEvent('Feil ved lagring');
+                    this.errorService.handle(err);
+                }
+            );
         } else {
-            this.customerService.Post(this.customer)
-                .subscribe(
-                    (newCustomer) => {
-                        completeEvent('Kunde lagret');
-                        if (this.modalMode) {
-                            this.customerCreated.next(newCustomer);
-                        } else {
-                            this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
-                        }
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+            this.customerService.Post(this.customer).subscribe(
+                (newCustomer) => {
+                    completeEvent('Kunde lagret');
+                    if (this.modalMode) {
+                        this.customerUpdated.next(newCustomer.ID);
+                    } else {
+                        this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
                     }
-                );
+                },
+                (err) => {
+                    completeEvent('Feil ved lagring');
+                    this.errorService.handle(err);
+                }
+            );
         }
     }
 

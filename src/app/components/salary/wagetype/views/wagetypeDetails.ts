@@ -1,13 +1,14 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
-import { UniForm, UniFieldLayout } from '../../../../../framework/uniForm';
+import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -93,7 +94,9 @@ export class WagetypeDetail extends UniView {
         private wageService: WageTypeService,
         private accountService: AccountService,
         private inntektService: InntektService,
-        public cacheService: UniCacheService) {
+        public cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
@@ -114,7 +117,7 @@ export class WagetypeDetail extends UniView {
 
                     this.setup();
                 }
-            });
+            }, err => this.errorService.handle(err));
         });
     }
 
@@ -149,10 +152,8 @@ export class WagetypeDetail extends UniView {
                 this.updateUniformFields();
                 this.checkAmeldingInfo();
             },
-            (err) => {
-                this.log('Feil ved henting av lønnsart', err);
-            }
-            );
+            err => this.errorService.handle(err)
+        );
     }
 
     private extendFields() {
@@ -207,16 +208,7 @@ export class WagetypeDetail extends UniView {
         getRateFrom.Options = {
             source: this.getRateFrom,
             displayProperty: 'Name',
-            valueProperty: 'ID',
-            events: {
-                shift_tab: (event) => {
-                    if (this.wageType.Base_Payment) {
-                        this.uniform.field('StandardWageTypeFor').focus();
-                    } else {
-                        this.uniform.field('AccountNumber_balance').focus();
-                    }
-                }
-            }
+            valueProperty: 'ID'
         };
 
         let standardWageTypeFor = this.fields.find(x => x.Property === 'StandardWageTypeFor');
@@ -244,31 +236,7 @@ export class WagetypeDetail extends UniView {
             source: this.specialTaxAndContributionsRule,
             displayProperty: 'Name',
             valueProperty: 'ID',
-            debounceTime: 500,
-            events: {
-                tab: (event) => {
-                    if (this.supplementPackages.length > 0) {
-                        this.uniform.field('_uninavn').focus();
-                    }else {
-                        this.uniform.field('WageTypeNumber').focus();
-                    }
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('Description').focus();
-                }
-            }
-        };
-
-        let uninavnField = this.fields.find(x => x.Property === '_uninavn');
-        uninavnField.Options = {
-            events: {
-                tab: (event) => {
-                    this.uniform.field('WageTypeNumber').focus();
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('SpecialTaxAndContributionsRule').focus();
-                }
-            }
+            debounceTime: 500
         };
     }
 
@@ -319,9 +287,6 @@ export class WagetypeDetail extends UniView {
                     this.filterSupplementPackages(model.IncomeType, true, false, false);
                     this.showBenefitAndDescriptionAsReadonly = false;
                     this.uniform.field('Benefit').focus();
-                },
-                tab: (event) => {
-                    this.uniform.field('Benefit').focus();
                 }
             }
         };
@@ -339,7 +304,9 @@ export class WagetypeDetail extends UniView {
                     this.findByProperty('_uninavn').Hidden = true;
                     this.filterSupplementPackages('', false, true, false);
                     this.setDescriptionDataSource();
-                    this.uniform.field('Description').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('IncomeType').focus();
                 }
             }
         };
@@ -356,6 +323,10 @@ export class WagetypeDetail extends UniView {
                 select: (model) => {
                     this.filterSupplementPackages('', false, true, true);
                     this.findByProperty('_uninavn').Hidden = false;
+                    this.uniform.field('SpecialTaxAndContributionsRule').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('Benefit').focus();
                 }
             }
         };
@@ -398,7 +369,7 @@ export class WagetypeDetail extends UniView {
                         this.setPackagesFilteredByDescription();
                     }
                 }
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private setBenefitAndDescriptionSource(selectedType: string) {
@@ -551,6 +522,7 @@ export class WagetypeDetail extends UniView {
                             if (obj.hasOwnProperty(prop)) {
                                 let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                 wtSupp.Name = prop;
+                                // wtSupp.Description = key;
                                 wtSupp.SuggestedValue = obj[prop];
                                 wtSupp.WageTypeID = this.wageType.ID;
                                 wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -560,6 +532,7 @@ export class WagetypeDetail extends UniView {
                     } else if (obj !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
+                        // wtSupp.Description = key;
                         wtSupp.SuggestedValue = obj;
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -574,6 +547,7 @@ export class WagetypeDetail extends UniView {
                 if (spesiObj.hasOwnProperty(props)) {
                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                     wtSupp.Name = props;
+                    // wtSupp.Description = props;
                     wtSupp.SuggestedValue = spesiObj[props];
                     wtSupp.WageTypeID = this.wageType.ID;
                     wtSupp['_createguid'] = this.wageService.getNewGuid();

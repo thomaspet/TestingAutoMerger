@@ -5,9 +5,10 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry, ValidationResult, ValidationMessage} from '../../unientities';
+import {StatisticsService} from '../common/StatisticsService';
+import {BrowserStorageService} from '../BrowserStorageService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
-
 
 class JournalEntryLineCalculation {
     amountGross: number;
@@ -20,9 +21,11 @@ declare var moment;
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
-    private JOURNALENTRYMODE_LOCALSTORAGE_KEY: string;
+    private JOURNALENTRYMODE_LOCALSTORAGE_KEY: string = 'PreferredJournalEntryMode';
+    private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
 
-    constructor(http: UniHttp) {
+
+    constructor(http: UniHttp, private storageService: BrowserStorageService, private statisticsService: StatisticsService) {
         super(http);
         this.relativeURL = JournalEntry.RelativeUrl;
         this.entityType = JournalEntry.EntityType;
@@ -30,7 +33,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getJournalEntryMode(): string {
-        let mode = localStorage.getItem(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY);
+        let mode = this.storageService.get(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY);
 
         if (!mode) {
             mode = 'PROFESSIONAL';
@@ -44,7 +47,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public setJournalEntryMode(newMode: string) {
-        localStorage.setItem(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY, newMode);
+        this.storageService.save(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY, newMode);
+    }
+
+    public getSessionData(mode: number): Array<JournalEntryData> {
+        let previousSessionData = this.storageService.sessionGet(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, true);
+
+        if (previousSessionData) {
+            let data = JSON.parse(previousSessionData);
+            return data;
+        }
+
+        return null;
+    }
+
+    public setSessionData(mode: number, data: Array<JournalEntryData>) {
+        this.storageService.sessionSave(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, JSON.stringify(data), true);
     }
 
     public getLastJournalEntryNumber(): Observable<any> {

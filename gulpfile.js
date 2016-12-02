@@ -120,6 +120,31 @@ var tasks = {
         'system.config',
         'ts-source'
     ],
+    local: [
+        'app-config-local',
+        'index.html.dev',
+        'apidoc.html',
+        'angular2',
+        'dependencies',
+        'stimulsoft',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config',
+        'ts-source'
+    ],
+    customConfig: [
+        'index.html.dev',
+        'apidoc.html',
+        'angular2',
+        'dependencies',
+        'stimulsoft',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config',
+        'ts-source'
+    ],
     pilot: [
         'app-config-pilot',
         'index.html.pilot',
@@ -135,9 +160,16 @@ var tasks = {
     ]
 };
 
-gulp.task('build.prod', ['build']); // alias
-gulp.task('build', function(done) {
+gulp.task('build.prod', function(done) {
     runSequence(tasks.prod, done);
+});
+
+gulp.task('build.local', function(done) {
+    runSequence(tasks.local, done);
+});
+
+gulp.task('build.customConfig', function(done) {
+    runSequence(tasks.customConfig, done);
 });
 
 gulp.task('build.dev', function(done) {
@@ -149,5 +181,13 @@ gulp.task('build.pilot', function(done) {
 });
 
 gulp.task('build.dev.watch', function(done) {
-    runSequence(tasks.dev, 'watch', done);
+    runSequence('build.dev', 'watch', done);
+});
+
+gulp.task('build.local.watch', function(done) {
+    runSequence('build.local', 'watch', done);
+});
+
+gulp.task('build.customConfig.watch', function(done) {
+    runSequence('build.customConfig', 'watch', done);
 });

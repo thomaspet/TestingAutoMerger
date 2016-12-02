@@ -5,6 +5,7 @@ import {URLSearchParams} from '@angular/http';
 import {CustomerInvoiceService, AccountService, CompanySettingsService} from '../../../../services/services';
 import {CustomerInvoice, JournalEntryData, Account, CompanySettings} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -20,9 +21,18 @@ export class Payments {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;
+    private toolbarConfig = {
+        title: 'Registrering av innbetalinger'
+    }
 
-    constructor(private tabService: TabService, private customerInvoiceService: CustomerInvoiceService, private accountService: AccountService, private companySettingsService: CompanySettingsService) {
-        this.tabService.addTab({ name: 'Betalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
+    constructor(
+        private tabService: TabService,
+        private customerInvoiceService: CustomerInvoiceService,
+        private accountService: AccountService,
+        private companySettingsService: CompanySettingsService,
+        private errorService: ErrorService
+    ) {
+        this.tabService.addTab({ name: 'Innbetalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
 
         this.companySettingsService.Get(1, ['CompanyBankAccount', 'CompanyBankAccount.Account'])
             .subscribe((data: CompanySettings) => {
@@ -34,9 +44,9 @@ export class Payments {
                             if (accounts && accounts.length > 0) {
                                 this.defaultBankAccount = accounts[0];
                             }
-                        });
+                        }, err => this.errorService.handle(err));
                 }
-            });
+            }, err => this.errorService.handle(err));
 
         this.setupInvoiceTable();
     }
@@ -108,7 +118,8 @@ export class Payments {
                 urlParams.set('filter', urlParams.get('filter') + ignoreFilterString);
             }
 
-            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams);
+            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

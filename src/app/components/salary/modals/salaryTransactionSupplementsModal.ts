@@ -2,7 +2,7 @@ import { Component, ViewChild, Output, EventEmitter, Type, AfterViewInit, Input 
 import { UniModal } from '../../../../framework/modals/modal';
 import { SalaryTransaction, SalaryTransactionSupplement, Valuetype, FieldType } from '../../../unientities';
 
-import { UniFieldLayout } from '../../../../framework/uniform';
+import { UniFieldLayout, UniForm } from 'uniform-ng2/main';
 
 @Component({
     selector: 'sal-trans-supplements-modal-content',
@@ -10,8 +10,11 @@ import { UniFieldLayout } from '../../../../framework/uniform';
 })
 export class SalaryTransactionSupplementsModalContent {
 
+    @ViewChild(UniForm) private uniform: UniForm;
     @Input('config') private config: { cancel: () => void, submit: (trans: SalaryTransaction) => void };
     private salaryTransaction: SalaryTransaction;
+    private readOnly: boolean;
+    
 
     private fields: UniFieldLayout[] = [];
 
@@ -19,8 +22,9 @@ export class SalaryTransactionSupplementsModalContent {
 
     }
 
-    public open(trans: SalaryTransaction) {
+    public open(trans: SalaryTransaction, readOnly: boolean) {
         this.salaryTransaction = trans;
+        this.readOnly = readOnly;
         this.load();
     }
 
@@ -28,6 +32,10 @@ export class SalaryTransactionSupplementsModalContent {
         let fields: UniFieldLayout[] = [];
         if (this.salaryTransaction.Supplements) {
             this.salaryTransaction.Supplements.forEach((supplement: SalaryTransactionSupplement, index) => {
+                
+                supplement.WageTypeSupplement = 
+                    supplement.WageTypeSupplement 
+                    || this.salaryTransaction.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID);
 
                 if (supplement.WageTypeSupplement) {
                     switch (supplement.WageTypeSupplement.ValueType) {
@@ -97,6 +105,7 @@ export class SalaryTransactionSupplementsModalContent {
         field.FieldType = type;
         field.Property = property;
         field.LineBreak = true;
+        field.ReadOnly = this.readOnly;
 
         return field;
     }
@@ -133,9 +142,9 @@ export class SalaryTransactionSupplementsModal implements AfterViewInit {
         setTimeout(() => this.modal.createContent());
     }
 
-    public openModal(trans: SalaryTransaction) {
+    public openModal(trans: SalaryTransaction, readOnly: boolean) {
         this.modal.getContent().then((content: SalaryTransactionSupplementsModalContent) => {
-            content.open(trans);
+            content.open(trans, readOnly);
             this.modal.open();
         });
     }

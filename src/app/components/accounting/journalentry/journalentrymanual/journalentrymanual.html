@@ -2,37 +2,56 @@
     <button *ngIf="journalEntryMode == 'PROFESSIONAL'" (click)="setJournalEntryMode('SIMPLE')">Vis forenklet registrering...</button>
     <button *ngIf="journalEntryMode == 'SIMPLE'" (click)="setJournalEntryMode('PROFESSIONAL')">Vis proff registrering...</button>
 </section>
-<journal-entry-professional (dataLoaded)="onDataLoaded($event)"
-                            [runAsSubComponent]="runAsSubComponent"
-                            [disabled]="disabled"
-                            [mode]="mode"
-                            [supplierInvoice]="supplierInvoice"
+
+<section [ngClass]="{'journalentry-input-area-full': !doShowImage, 'journalentry-input-area': doShowImage}">
+    <div class="journalentry-input-components">
+        <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
+                                    (showImageChanged)="onShowImageChanged($event)"
+                                    (showImageForJournalEntry)="onShowImageForJournalEntry($event)"
+                                    [runAsSubComponent]="runAsSubComponent"
+                                    [disabled]="disabled"
+                                    [mode]="mode"
+                                    [supplierInvoice]="supplierInvoice"
+                                    [journalEntryID]="journalEntryID"
+                                    *ngIf="journalEntryMode == 'PROFESSIONAL'">
+        </journal-entry-professional>
+
+        <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
+
+        <p *ngIf="validationResult && validationResult.Messages.length > 0">
+            <strong class="journalEntry_validation validation error"
+                    *ngFor="let message of validationResult.Messages"
+                    [ngClass]="{
+                    simplemode: journalEntryMode === 'SIMPLE',
+                    promode: journalEntryMode != 'SIMPLE',
+                    runassubcomponent: runAsSubComponent
+                }">
+                {{message.Message}}
+            </strong>
+        </p>
+
+        <journal-entry-simple [supplierInvoice]="supplierInvoice"
                             [journalEntryID]="journalEntryID"
-                            *ngIf="journalEntryMode == 'PROFESSIONAL'">
-</journal-entry-professional>
+                            [runAsSubComponent]="runAsSubComponent"
+                            [mode]="mode"
+                            [disabled]="disabled"
+                            (dataLoaded)="onDataLoaded($event)"
+                            *ngIf="journalEntryMode == 'SIMPLE'">
+        </journal-entry-simple>
+    </div>
+</section>
 
-<uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
+<section *ngIf="doShowImage" class="journalentry-image-area">
+    <span *ngIf="showImagesForJournalEntryNo">
+        Vedlegg for bilagsnr {{showImagesForJournalEntryNo}}
 
-<p *ngIf="validationResult && validationResult.Messages.length > 0">
-    <strong class="journalEntry_validation validation error"
-            *ngFor="let message of validationResult.Messages"
-            [ngClass]="{
-            simplemode: journalEntryMode === 'SIMPLE',
-            promode: journalEntryMode != 'SIMPLE',
-            runassubcomponent: runAsSubComponent
-        }">
-        {{message.Message}}
-    </strong>
-</p>
-
-<journal-entry-simple [supplierInvoice]="supplierInvoice"
-                      [journalEntryID]="journalEntryID"
-                      [runAsSubComponent]="runAsSubComponent"
-                      [mode]="mode"
-                      [disabled]="disabled"
-                      (dataLoaded)="onDataLoaded($event)"
-                      *ngIf="journalEntryMode == 'SIMPLE'">
-</journal-entry-simple>
+        <uni-image [uploadWithoutEntity]="'true'" [fileIDs]="currentJournalEntryImages"
+                    (fileListReady)="onFileListReady($event)"></uni-image>
+    </span>
+    <span *ngIf="!showImagesForJournalEntryNo">
+        Du må velge et bilagsnr (nytt eller eksisterende) før du kan laste opp en fil
+    </span>
+</section>
 
 <section class="application" *ngIf="!runAsSubComponent && saveactions">
     <uni-save [actions]="saveactions"></uni-save>

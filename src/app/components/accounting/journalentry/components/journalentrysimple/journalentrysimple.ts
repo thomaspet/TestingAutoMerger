@@ -12,6 +12,7 @@ import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {JournalEntrySimpleForm} from './journalentrysimpleform';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'journal-entry-simple',
@@ -32,13 +33,16 @@ export class JournalEntrySimple implements OnInit {
     public journalEntryLines: Array<JournalEntryData>;
     public dropdownData: any;
 
-    constructor(private journalEntryService: JournalEntryService,
+    constructor(
+        private journalEntryService: JournalEntryService,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
         private vattypeService: VatTypeService,
         private accountService: AccountService,
         private router: Router,
-        private toastService: ToastService) {
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {
         this.journalEntryLines = new Array<JournalEntryData>();
     }
 
@@ -50,7 +54,7 @@ export class JournalEntrySimple implements OnInit {
             this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber', ['VatType'])
         ).subscribe(response => {
             this.dropdownData = response;
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public checkIfFormsHaveChanges() {
@@ -148,8 +152,7 @@ export class JournalEntrySimple implements OnInit {
             },
             err => {
                 completeCallback('Lagring feilet');
-                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, JSON.stringify(err._body));
-                console.log('error in postJournalEntryData: ', err);
+                this.errorService.handle(err);
             });
     }
 
@@ -180,9 +183,13 @@ export class JournalEntrySimple implements OnInit {
         };
     }
 
-    public removeJournalEntryData() {
+    public removeJournalEntryData(completeCallback) {
         if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
             this.journalEntryLines = new Array<JournalEntryData>();
+            this.dataChanged.emit(this.journalEntryLines);
+            completeCallback('Listen er tømt');
+        } else {
+            completeCallback('');
         }
     }
 

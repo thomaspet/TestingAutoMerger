@@ -8,6 +8,7 @@ import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportMod
 import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {DimensionsOverviewReportPart} from '../reportparts/dimensionsOverviewReportPart';
 import {DimensionTypes} from '../../../../services/common/DimensionService';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 
 declare const moment;
 declare const _; // lodash
@@ -47,6 +48,10 @@ export class ResultReport {
 
     private activeDistributionElement: string = 'Resultat';
     private distributionPeriodAccountIDs: Array<number> = [];
+
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Resultat'
+    };
 
     constructor(private router: Router,
                 private statisticsService: StatisticsService,

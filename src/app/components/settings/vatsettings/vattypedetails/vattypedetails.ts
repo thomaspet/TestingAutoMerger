@@ -3,12 +3,13 @@ import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} fr
 import {Observable} from 'rxjs/Rx';
 
 import {FieldType, VatReportReference} from '../../../../unientities';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 
 import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService, AccountService, VatPostService} from '../../../../services/services';
 
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 
 @Component({
@@ -30,10 +31,13 @@ export class VatTypeDetails implements OnChanges, OnInit {
     private uniTableConfig: UniTableConfig;
     private deletedVatReportReferences: VatReportReference[] = [];
 
-    constructor(private vatTypeService: VatTypeService,
-                private accountService: AccountService,
-                private vatCodeGroupService: VatCodeGroupService,
-                private vatPostService: VatPostService) {
+    constructor(
+        private vatTypeService: VatTypeService,
+        private accountService: AccountService,
+        private vatCodeGroupService: VatCodeGroupService,
+        private vatPostService: VatPostService,
+        private errorService: ErrorService
+    ) {
         this.uniTableConfig = this.generateUniTableConfig();
     }
 
@@ -62,7 +66,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
 
                 this.extendFormConfig();
             },
-            (error) => console.log(error)
+            err => this.errorService.handle(err)
         );
     }
 
@@ -82,8 +86,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     },
                     error => {
                         completeEvent('Feil ved lagring');
-                        console.log('error in vatdetails.submitEvent: ', error);
-                        alert('Feil ved lagring: ' + JSON.stringify(error.json()));
+                        this.errorService.handle(error);
                     }
                 );
         } else {
@@ -96,8 +99,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     },
                     error => {
                         completeEvent('Feil ved lagring');
-                        console.log('error in vatdetails.submitEvent: ', error);
-                        alert('Feil ved lagring: ' + JSON.stringify(error.json()));
+                        this.errorService.handle(error);
                     }
                 );
         }

@@ -2,6 +2,7 @@ import {Component, ViewChildren, Input, Output, SimpleChange, EventEmitter} from
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {BusinessRelationService} from '../../../services/services';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'external-search',
@@ -21,7 +22,11 @@ export class ExternalSearch {
     private searchResult: any[];
     private fullSearchResult: any[];
 
-    constructor(private http: UniHttp, private businessRelationService: BusinessRelationService) {
+    constructor(
+        private http: UniHttp,
+        private businessRelationService: BusinessRelationService,
+        private errorService: ErrorService
+    ) {
 
     }
 
@@ -55,7 +60,7 @@ export class ExternalSearch {
                                 this.fullSearchResult = [];
                             }
                         },
-                        (err) => console.log('Feil ved søk:', err)
+                        err => this.errorService.handle(err)
                     );
         }
     }

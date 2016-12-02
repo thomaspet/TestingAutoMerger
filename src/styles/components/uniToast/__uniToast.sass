@@ -1,11 +1,10 @@
 uni-toast-list
-    z-index: 999
-    position: absolute
+    position: fixed
     top: 0
     right: 0
-    z-index: 2000
+    z-index: map-get($zindex, modal)
 
-    & ol.toast-list 
+    & ol.toast-list
         margin: 0
         padding: 0
 
@@ -15,7 +14,7 @@ uni-toast-list
             padding: 0
             &:before
                 content: ' '
-        
+
 uni-toast
     display: inline-block
     cursor: pointer
@@ -31,7 +30,7 @@ uni-toast
 
     &:hover
         box-shadow: 0 0 1rem rgba(161,170,188,.6)
-    
+
     &:focus
         color: red
 
@@ -42,17 +41,17 @@ uni-toast
         margin: 0 .5rem 0 .25rem
 
     &.good
-        background-color: transparentize($uni-color-Good, .1)
+        background-color: transparentize($uni-color-good, .1)
         &:before
             content: '\2713'
 
     &.bad
-        background-color: transparentize($uni-color-Bad, .1)
+        background-color: transparentize($uni-color-bad, .1)
         &:before
             content: '\2A09'
 
     &.warn
-        background-color: transparentize($uni-color-Warn, .1)
+        background-color: transparentize($uni-color-warn, .1)
         &:before
             content: '\26A0'
 

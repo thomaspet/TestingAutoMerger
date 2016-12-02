@@ -3,19 +3,21 @@
 <header class="poster" [attr.aria-busy]="busy">
     <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
-        <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>
-        <vacationpay-modal></vacationpay-modal>
-        <report-preview-modal></report-preview-modal>
+        <postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
+        <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()"></vacationpay-modal>
     </section>
 
 </header>
 <section class="application" [attr.aria-busy]="busy">
-    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="payrollrun" (readyEvent)="ready($event)" (toggleEvent)="toggle($event)"></uni-form>
+    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="payrollrun" (changeEvent)="change($event)" (readyEvent)="ready($event)" (toggleEvent)="toggle($event)"></uni-form>
 </section>
-<section *ngIf="formIsReady">
-    <section [attr.aria-busy]="busy">
-        <salarytrans *ngIf="!uniform.section(1).isOpen" (salaryTransSelectionListReady)="salarytransReady($value)"></salarytrans>
+<section *ngIf="formIsReady && uniform">
+    <section [attr.aria-busy]="busy" [hidden]="uniform.section(1).isOpen">
+        <section class="salarytrans-filter">
+            <salarytrans-filter [isDisabled]="disableFilter" (filtStringChange)="changeFilter($event)"></salarytrans-filter>
+        </section>
+        <salarytrans></salarytrans>
     </section>
-
-    <uni-save *ngIf="uniform.section(1).isOpen" [actions]="saveactions"></uni-save>
 </section>
+<report-preview-modal></report-preview-modal>
+<uni-save [actions]="saveactions"></uni-save>

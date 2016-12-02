@@ -6,6 +6,7 @@ import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {ChangeMap} from '../utils/changeMap';
 import {Observable} from 'rxjs/Rx';
 import {IResult} from '../genericview/detail';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'workrelations',
@@ -31,7 +32,7 @@ export class View {
 
     private changeMap: ChangeMap = new ChangeMap();
 
-    constructor(private workerService: WorkerService, private router: Router) {
+    constructor(private workerService: WorkerService, private router: Router, private errorService: ErrorService) {
         this.layout = this.createLayout();
     }
 
@@ -160,7 +161,7 @@ export class View {
                     this.onItemClicked(items[0]);
                 }
                 this.busy = false; 
-            });
+            }, err => this.errorService.handle(err));
         } else {
             this.items.length = 0;
         }

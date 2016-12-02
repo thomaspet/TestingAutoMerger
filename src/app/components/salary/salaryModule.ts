@@ -5,6 +5,7 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -73,6 +74,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         // UniTable
         UniTableModule,
+
+        // UniForm
+        UniFormModule,
 
         // Framework
         UniFrameworkModule,

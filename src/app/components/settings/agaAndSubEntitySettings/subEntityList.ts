@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { SubEntityService, AgaZoneService, MunicipalService } from '../../../services/services';
 import { SubEntity, Municipal, AGAZone } from '../../../unientities';
 import { SubEntityDetails } from './subEntityDetails';
+import { ErrorService } from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({
@@ -33,7 +34,9 @@ export class SubEntityList implements OnInit {
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalService: MunicipalService,
-        private _toastService: ToastService) {
+        private _toastService: ToastService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -48,7 +51,7 @@ export class SubEntityList implements OnInit {
             this.createTableConfig();
             this.refreshList();
             this.busy = false;
-        });
+        }, err => this.errorService.handle(err));
 
         this._subEntityService.getMainOrganization().subscribe(response => {
             this.mainOrg = response[0];
@@ -56,7 +59,13 @@ export class SubEntityList implements OnInit {
     }
 
     private createTableConfig() {
-        let name = new UniTableColumn('BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
+        let name = new UniTableColumn('', 'Virksomhet', UniTableColumnType.Text).setTemplate((row: SubEntity) => {
+            if (!row.BusinessRelationInfo) {
+                return;
+            }
+
+            return row.BusinessRelationInfo.Name;
+        });
         let orgnr = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text);
         let municipal = new UniTableColumn('MunicipalityNo', 'Kommune', UniTableColumnType.Text).setTemplate((rowModel) => {
             let municipalObj = this.municipalities.find(x => x.MunicipalityNo === rowModel['MunicipalityNo']);
@@ -73,23 +82,43 @@ export class SubEntityList implements OnInit {
                 deleteHandler: (rowModel) => {
                     if (isNaN(rowModel.ID)) { return true; }
                     if (confirm(`Vil du slette ${rowModel.BusinessRelationInfo ? rowModel.BusinessRelationInfo.Name : 'denne virksomheten'}?`)) {
-                        this._subEntityService.delete(rowModel.ID).subscribe(response => {
-                            this.table.removeRow(rowModel['_originalIndex']);
-                        }, error => {
-                            let body = error['_body'] ? JSON.parse(error['_body']) : null;
-                            if (body && body.Messages) {
-                                body.Messages.forEach((message) => {
-                                    this._toastService.addToast('Valideringsfeil', ToastType.bad, 10, message.Message);
-                                });
-                            } else {
-                                this._toastService.addToast('Valideringsfeil', ToastType.bad, 10, error['_body'] ? error['_body'] : error);
-                            }
+                        if (rowModel['ID']) {
+                            this._subEntityService.delete(rowModel.ID).subscribe(response => {
+                                this.removeSubEntity(rowModel, false);
+                            }, err => this.errorService.handle(err));
+                        } else {
+                            this.removeSubEntity(rowModel, true);
+                        }
 
-                        });
                     }
                 }
             })
             .setPageable(false);
+    }
+
+    private removeSubEntity(rowModel: SubEntity, isLocalOnly: boolean = false) {
+        let resetSelected: boolean = false;
+        let index: number = 0;
+
+        if (isLocalOnly) {
+            resetSelected = rowModel['ID'] === this.currentSubEntity.ID;
+            index = this.allSubEntities.findIndex(x => x.ID === rowModel['ID']);
+        } else {
+            resetSelected = rowModel['_guid'] === this.currentSubEntity['_guid'];
+            index = this.allSubEntities.findIndex(x => x['_guid'] === rowModel['_guid']);
+        }
+
+        if (index) {
+            this.allSubEntities = [...this.allSubEntities.slice(0, index), ...this.allSubEntities.slice(index + 1)];
+        }
+
+        this.table.removeRow(rowModel['_originalIndex']);
+        if (resetSelected) {
+            this.currentSubEntity = this.allSubEntities[0];
+            if (this.allSubEntities.length) {
+                this.table.focusRow(0);
+            }
+        }
     }
 
     public refreshList(update: boolean = false) {
@@ -105,7 +134,7 @@ export class SubEntityList implements OnInit {
     }
 
     public rowSelected(event) {
-        this.currentSubEntity = event.rowModel;
+        this.currentSubEntity = this.allSubEntities[event.rowModel['_originalIndex']];
     }
 
     public onNewSubEntity(action) {
@@ -113,10 +142,19 @@ export class SubEntityList implements OnInit {
     }
 
     public addNewSubEntity() {
-        let subEntity = new SubEntity();
-        subEntity.AgaRule = 1;
-        subEntity.AgaZone = 1;
-        this.currentSubEntity = subEntity;
+        this._subEntityService.GetNewEntity([], 'SubEntity').subscribe((response: SubEntity) => {
+
+            let subEntity = response;
+            subEntity.AgaRule = 1;
+            subEntity.AgaZone = 1;
+            subEntity['_isDirty'] = true;
+
+            this.allSubEntities.push(subEntity);
+            this.table.addRow(this.allSubEntities[this.allSubEntities.length - 1]);
+            this.currentSubEntity = this.allSubEntities[this.allSubEntities.length - 1];
+            this.table.focusRow(this.allSubEntities.length - 1);
+
+        });
     }
 
     public addSubEntitiesFromExternal() {
@@ -152,14 +190,12 @@ export class SubEntityList implements OnInit {
 
                     });
 
-                    Observable.forkJoin(saveObservable).subscribe(saveResponse => {
-                        this.busy = false;
-                        this.saveIsDisabled.emit(false);
-                        this.refreshList();
-                    }, error => {
-                        this.saveIsDisabled.emit(false);
-                        this._toastService.addToast('Fikk feil ved innlesing av virksomheter', ToastType.bad, 10, error);
-                    });
+                    Observable.forkJoin(saveObservable)
+                        .finally(() => this.saveIsDisabled.emit(false))
+                        .subscribe(saveResponse => {
+                            this.busy = false;
+                            this.refreshList();
+                        }, err => this.errorService.handle(err));
                 } else {
                     this.busy = false;
                 }
@@ -172,6 +208,14 @@ export class SubEntityList implements OnInit {
     }
 
     public saveSubEntity() {
-        return this.subEntityDetails.saveSubentities();
+        return this.subEntityDetails.saveSubentities().map(x => {
+            let index = this.currentSubEntity['_originalIndex'];
+            this.allSubEntities[index] = x;
+            this.allSubEntities[index]['_originalIndex'] = index;
+            this.currentSubEntity = this.allSubEntities[index];
+            this.table.updateRow(index, this.allSubEntities[index]);
+            this.table.focusRow(index);
+            return x;
+        });
     }
 }

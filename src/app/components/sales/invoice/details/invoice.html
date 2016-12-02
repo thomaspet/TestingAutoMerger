@@ -1,47 +1,23 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
-<!-- Tabstrip -->
-<section class="horizontal_nav">
-    <ul>
-        <li *ngFor="let tab of tabs; let idx = index">
-            <a (click)="activeTabIndex = idx" [ngClass]="{'router-link-active': activeTabIndex === idx}">
-                {{tab}}
-            </a>
-        </li>
-    </ul>
-</section>
+<uni-tof-head [readonly]="readonly"
+              [entityName]="'CustomerInvoice'"
+              [data]="invoice"
+              (dataChange)="onInvoiceChange($event)">
+</uni-tof-head>
 
 <section class="application">
-    <article class="invoice-head">
-        <tof-customer-card [entity]="invoice"
-                           [readonly]="readonly"
-                           (entityChange)="onCustomerChange()"></tof-customer-card>
-
-        <tof-details-form *ngIf="activeTabIndex === 0"
-                          [(entity)]="invoice"
-                          [entityType]="'CustomerInvoice'"
-                          [readonly]="readonly">
-        </tof-details-form>
-
-        <tof-delivery-form *ngIf="activeTabIndex === 1"
-                           [(entity)]="invoice"
-                           [entityType]="'CustomerInvoice'"
-                           [readonly]="readonly">
-        </tof-delivery-form>
-		<uni-attachments  *ngIf="activeTabIndex === 2" [entity]="'CustomerInvoice'" [entityID]="invoice?.ID"></uni-attachments>
-    </article>
-
-    <!-- Invoice items and summary -->
-    <uni-invoice-items *ngIf="invoice"
-                       [(invoice)]="invoice"
-                       (invoiceChange)="invoiceItemsChange($event)"
-                       [readonly]="readonly">
-    </uni-invoice-items>
+    <uni-tradeitem-table *ngIf="invoice"
+                         [readonly]="readonly"
+                         [entity]="invoice"
+                         (entityChange)="onInvoiceChange($event)">
+    </uni-tradeitem-table>
     <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
 </section>
 
 <uni-save [actions]="saveActions"></uni-save>
 
+<uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>
 <register-payment-modal></register-payment-modal>
 <report-preview-modal></report-preview-modal>

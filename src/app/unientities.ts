@@ -1036,22 +1036,6 @@ export class STYRKCode {
 }
 
 
-export class TracelinkType {
-    public static RelativeUrl = 'tracelinktypes';
-    public static EntityType = 'TracelinkType';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public ID: number;
-    public Name: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
 export class VatCodeGroupSetup {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroupSetup';
@@ -1295,7 +1279,6 @@ export class Customer {
     public CreatedBy: string;
     public CreditDays: number;
     public CustomerNumber: number;
-    public DefaultBankAccountID: number;
     public Deleted: boolean;
     public DimensionsID: number;
     public ID: number;
@@ -1305,7 +1288,6 @@ export class Customer {
     public UpdatedBy: string;
     public WebUrl: string;
     public Info: BusinessRelation;
-    public DefaultBankAccount: BankAccount;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1623,7 +1605,6 @@ export class Supplier {
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreditDays: number;
-    public DefaultBankAccountID: number;
     public Deleted: boolean;
     public DimensionsID: number;
     public ID: number;
@@ -1634,7 +1615,6 @@ export class Supplier {
     public UpdatedBy: string;
     public WebUrl: string;
     public Info: BusinessRelation;
-    public DefaultBankAccount: BankAccount;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1692,6 +1672,7 @@ export class BusinessRelation {
 
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DefaultBankAccountID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
     public Deleted: boolean;
@@ -1705,10 +1686,12 @@ export class BusinessRelation {
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
 
@@ -1771,7 +1754,7 @@ export class AGACalculation {
     public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public foreignerWithAmount: Array<ForeignerWithAmount>;
-    public payrollRun: Array<PayrollRun>;
+    public payrollRun: PayrollRun;
     public CustomFields: any;
 }
 
@@ -1968,6 +1951,73 @@ export class AmeldingLog {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class SalaryTransactionSupplement {
+    public static RelativeUrl = '';
+    public static EntityType = 'SalaryTransactionSupplement';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public SalaryTransactionID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValueBool: boolean;
+    public ValueDate: Date;
+    public ValueMoney: number;
+    public ValueString: string;
+    public WageTypeSupplementID: number;
+    public WageTypeSupplement: WageTypeSupplement;
+    public CustomFields: any;
+}
+
+
+export class VacationPayLine {
+    public static RelativeUrl = 'VacationPayLines';
+    public static EntityType = 'VacationPayLine';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EmployeeID: number;
+    public ID: number;
+    public IsInCollection: boolean;
+    public ManualVacationPayBase: number;
+    public PaidVacationPay: number;
+    public Rate: number;
+    public StatusCode: number;
+    public SystemVacationPayBase: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public VacationPay: number;
+    public Withdrawal: number;
+    public Year: number;
+    public Employee: Employee;
+    public CustomFields: any;
+}
+
+
+export class WageTypeSupplement {
+    public static RelativeUrl = '';
+    public static EntityType = 'WageTypeSupplement';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public SuggestedValue: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValueType: Valuetype;
+    public WageTypeID: number;
     public CustomFields: any;
 }
 
@@ -2204,6 +2254,7 @@ export class PayrollRun {
     public PayDate: Date;
     public SettlementDate: Date;
     public StatusCode: number;
+    public taxdrawfactor: TaxDrawFactor;
     public ToDate: Date;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -2249,6 +2300,7 @@ export class WageType {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public FixedSalaryHolidayDeduction: boolean;
     public GetRateFrom: GetRateFrom;
     public HideFromPaycheck: boolean;
     public ID: number;
@@ -2273,26 +2325,6 @@ export class WageType {
     public WageTypeName: string;
     public WageTypeNumber: number;
     public SupplementaryInformations: Array<WageTypeSupplement>;
-    public CustomFields: any;
-}
-
-
-export class WageTypeSupplement {
-    public static RelativeUrl = '';
-    public static EntityType = 'WageTypeSupplement';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public ID: number;
-    public Name: string;
-    public StatusCode: number;
-    public SuggestedValue: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public ValueType: Valuetype;
-    public WageTypeID: number;
     public CustomFields: any;
 }
 
@@ -2334,28 +2366,6 @@ export class SalaryTransaction {
     public Wagetype: WageType;
     public employment: Employment;
     public Supplements: Array<SalaryTransactionSupplement>;
-    public CustomFields: any;
-}
-
-
-export class SalaryTransactionSupplement {
-    public static RelativeUrl = '';
-    public static EntityType = 'SalaryTransactionSupplement';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public SalaryTransactionID: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public ValueBool: boolean;
-    public ValueDate: Date;
-    public ValueMoney: number;
-    public ValueString: string;
-    public WageTypeSupplementID: number;
-    public WageTypeSupplement: WageTypeSupplement;
     public CustomFields: any;
 }
 
@@ -2417,6 +2427,24 @@ export class BankAccountSalary {
     public ID: number;
     public LandCode: string;
     public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class StatusLog {
+    public static RelativeUrl = 'statuslogs';
+    public static EntityType = 'StatusLog';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public FromStatus: number;
+    public ID: number;
+    public ToStatus: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -2487,6 +2515,7 @@ export class CompanySettings {
     public DefaultAddressID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
+    public DefaultSalesAccountID: number;
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
     public ID: number;
@@ -2516,6 +2545,7 @@ export class CompanySettings {
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
+    public DefaultSalesAccount: Account;
     public CustomFields: any;
 }
 
@@ -2608,13 +2638,11 @@ export class Tracelink {
     public CreatedBy: string;
     public Date: Date;
     public Deleted: boolean;
-    public DestinationID: number;
-    public DestinationTypeID: number;
+    public DestinationEntityName: string;
+    public DestinationInstanceID: number;
     public ID: number;
-    public RootID: number;
-    public RootTypeID: number;
-    public SourceID: number;
-    public SourceTypeID: number;
+    public SourceEntityName: string;
+    public SourceInstanceID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -2810,6 +2838,91 @@ export class Transition {
     public MethodName: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class TransitionThreshold {
+    public static RelativeUrl = 'thresholds';
+    public static EntityType = 'TransitionThreshold';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Disabled: boolean;
+    public ID: number;
+    public Operation: OperationType;
+    public Operator: Operator;
+    public PropertyName: string;
+    public SharedRoleId: number;
+    public SharedTransitionId: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public CustomFields: any;
+}
+
+
+export class TransitionThresholdApproval {
+    public static RelativeUrl = '';
+    public static EntityType = 'TransitionThresholdApproval';
+
+    public ApprovalID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Operation: OperationType;
+    public Operator: Operator;
+    public PropertyName: string;
+    public SharedRoleId: number;
+    public SharedTransitionId: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public Approval: Approval;
+    public CustomFields: any;
+}
+
+
+export class Approval {
+    public static RelativeUrl = 'approvals';
+    public static EntityType = 'Approval';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public SharedRoleId: number;
+    public StatusCode: number;
+    public TaskID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Thresholds: Array<TransitionThresholdApproval>;
+    public Task: Task;
+    public CustomFields: any;
+}
+
+
+export class Task {
+    public static RelativeUrl = 'tasks';
+    public static EntityType = 'Task';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ID: number;
+    public SharedRoleId: number;
+    public SharedTransitionId: number;
+    public StatusCode: number;
+    public Type: TaskType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public Approvals: Array<Approval>;
+    public User: User;
     public CustomFields: any;
 }
 
@@ -3340,30 +3453,60 @@ export class JournalEntryLineDraft {
 }
 
 
+export class PaymentBatch {
+    public static RelativeUrl = 'paymentbatches';
+    public static EntityType = 'PaymentBatch';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public NumberOfPayments: number;
+    public PaymentFileID: number;
+    public PaymentReceiptFileID: number;
+    public PaymentReferenceID: string;
+    public ReceiptDate: Date;
+    public StatusCode: number;
+    public TotalAmount: number;
+    public TransferredDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Payments: Array<Payment>;
+    public CustomFields: any;
+}
+
+
 export class Payment {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
 
     public Amount: number;
     public AutoJournal: boolean;
-    public BankAccountID: number;
-    public BankAccountNumberTarget: string;
+    public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyID: number;
-    public CustomerID: number;
     public Deleted: boolean;
+    public Description: string;
+    public DueDate: Date;
+    public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
-    public IsPaymentToSupplier: boolean;
+    public PaymentBatchID: number;
+    public PaymentCodeID: number;
+    public PaymentDate: Date;
     public PaymentID: string;
     public ReconcilePayment: boolean;
     public StatusCode: number;
+    public ToBankAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccount: BankAccount;
-    public Customer: Customer;
+    public PaymentBatch: PaymentBatch;
+    public BusinessRelation: BusinessRelation;
+    public FromBankAccount: BankAccount;
+    public ToBankAccount: BankAccount;
     public Currency: Currency;
+    public PaymentCode: PaymentCode;
     public CustomFields: any;
 }
 
@@ -3639,7 +3782,8 @@ export class JournalEntrySourceSerie {
     public CreatedBy: string;
     public Deleted: boolean;
     public ID: number;
-    public JournalEntrySourceID: number;
+    public JournalEntrySourceEntityName: string;
+    public JournalEntrySourceInstanceID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -3790,6 +3934,7 @@ export class BankAccount {
     public AccountNumber: string;
     public BankAccountType: string;
     public BankID: number;
+    public BusinessRelationID: number;
     public CompanySettingsID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3802,6 +3947,7 @@ export class BankAccount {
     public UpdatedBy: string;
     public Bank: Bank;
     public Account: Account;
+    public BusinessRelation: BusinessRelation;
     public CustomFields: any;
 }
 
@@ -4217,18 +4363,6 @@ export class VacationPayList {
 }
 
 
-export class VacationPayLine {
-    public IsInCollection: boolean;
-    public ManualVacationPayBase: number;
-    public PaidVacationPay: number;
-    public Rate: number;
-    public SystemVacationPayBase: number;
-    public VacationPay: number;
-    public Withdrawal: number;
-    public Employee: Employee;
-}
-
-
 export class VacationPayInfo {
     public EmployeeID: number;
     public ManualVacationPayBase: number;
@@ -4309,6 +4443,45 @@ export class SalaryTransactionPeriodSums {
     public ToPeriod: number;
     public Year: number;
     public Sums: SalaryTransactionSums;
+}
+
+
+export class OcrResult {
+    public language: string;
+    public MaxTop: number;
+    public MaxWidth: number;
+    public orientation: string;
+    public textAngle: string;
+    public regions: Array<Region>;
+    public OcrInvoiceReport: OcrInvoiceReport;
+}
+
+
+export class OcrInvoiceReport {
+    public SupplierID: number;
+    public Orgno: SuggestedValue;
+    public Kid: SuggestedValue;
+    public BankAccount: SuggestedValue;
+    public InvoiceDate: SuggestedValue;
+    public DueDate: SuggestedValue;
+    public DeliveryDate: SuggestedValue;
+    public Amount: SuggestedValue;
+    public InvoiceNumber: SuggestedValue;
+}
+
+
+export class SuggestedValue {
+    public Candidates: Array<HitWord>;
+    public Value: HitWord;
+}
+
+
+export class HitWord {
+    public boundingBox: string;
+    public DateValue: Date;
+    public Hit: string;
+    public text: string;
+    public value: string;
 }
 
 
@@ -4604,6 +4777,14 @@ export enum SalaryRegistry{
 }
 
 
+export enum Valuetype{
+	IsString = 1,
+	IsDate = 2,
+	IsBool = 3,
+	IsMoney = 4,
+}
+
+
 export enum CompanySalaryPaymentInterval{
 	Monthly = 0,
 	Pr14Days = 1,
@@ -4656,6 +4837,13 @@ export enum WorkingHoursScheme{
 	SemiContinousShiftAndRotaWork = 3,
 	ContinuousShiftAndOtherSchemes = 4,
 	ShiftWork = 5,
+}
+
+
+export enum TaxDrawFactor{
+	Standard = 1,
+	Half = 2,
+	None = 3,
 }
 
 
@@ -4718,14 +4906,6 @@ export enum TaxType{
 }
 
 
-export enum Valuetype{
-	IsString = 1,
-	IsDate = 2,
-	IsBool = 3,
-	IsMoney = 4,
-}
-
-
 export enum StdSystemType{
 	None = 0,
 	PercentTaxDeduction = 1,
@@ -4779,28 +4959,6 @@ export enum StatusCategoryCode{
 }
 
 
-export enum TypeOfLogin{
-	none = 0,
-	AltinnPin = 1,
-	SMSPin = 2,
-	TaxPin = 3,
-}
-
-
-export enum ValidationLevel{
-	Info = 1,
-	Warning = 20,
-	Error = 30,
-}
-
-
-export enum OnConflict{
-	Replace = 0,
-	Ignore = 1,
-	ManualResolve = 2,
-}
-
-
 export enum OperationType{
 	Create = 10,
 	Update = 20,
@@ -4821,6 +4979,34 @@ export enum Operator{
 	Equals = 8,
 	NotEquals = 9,
 	RegExp = 10,
+}
+
+
+export enum TaskType{
+	Task = 0,
+	Approval = 1,
+}
+
+
+export enum TypeOfLogin{
+	none = 0,
+	AltinnPin = 1,
+	SMSPin = 2,
+	TaxPin = 3,
+}
+
+
+export enum ValidationLevel{
+	Info = 1,
+	Warning = 20,
+	Error = 30,
+}
+
+
+export enum OnConflict{
+	Replace = 0,
+	Ignore = 1,
+	ManualResolve = 2,
 }
 
 
@@ -4878,6 +5064,20 @@ export enum InternalAmeldingStatus{
 	GENERATED = 1,
 	SENT = 2,
 	STATUS_FROM_ALTINN_RECEIVED = 3,
+}
+
+
+export enum ApprovalStatus{
+	Active = 50120,
+	Approved = 50130,
+	Rejected = 50140,
+}
+
+
+export enum TaskStatus{
+	Active = 50020,
+	Complete = 50030,
+	Pending = 50040,
 }
 
 

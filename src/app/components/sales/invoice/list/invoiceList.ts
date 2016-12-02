@@ -15,6 +15,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import moment from 'moment';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'invoice-list',
@@ -30,13 +31,16 @@ export class InvoiceList implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private summaryConfig: ISummaryConfig[];
 
-    constructor(private uniHttpService: UniHttp,
-                private router: Router,
-                private customerInvoiceService: CustomerInvoiceService,
-                private reportDefinitionService: ReportDefinitionService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private numberFormat: NumberFormat) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private customerInvoiceService: CustomerInvoiceService,
+        private reportDefinitionService: ReportDefinitionService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private numberFormat: NumberFormat,
+        private errorService: ErrorService
+    ) {
 
         this.setupInvoiceTable();
         this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -45,10 +49,6 @@ export class InvoiceList implements OnInit {
             {title: 'Restsum', value: this.numberFormat.asMoney(0)},
             {title: 'Sum krediter', value: this.numberFormat.asMoney(0)},
         ];
-    }
-
-    private log(err) {
-        alert(err._body);
     }
 
     public ngOnInit() {
@@ -65,10 +65,7 @@ export class InvoiceList implements OnInit {
             // this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
             this.table.refreshTableData();
-        }, (err) => {
-            console.log('Error registering payment: ', err);
-            this.log(err);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private setupInvoiceTable() {
@@ -81,7 +78,8 @@ export class InvoiceList implements OnInit {
                 urlParams.set('orderby', 'ID desc');
             }
 
-            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams);
+            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Context menu
@@ -101,10 +99,7 @@ export class InvoiceList implements OnInit {
                     .subscribe((data) => {
                         this.router.navigateByUrl('/sales/invoices/' + data.ID);
                     },
-                    (err) => {
-                        console.log('Error creating credit note: ', err);
-                        this.log(err);
-                    }
+                        err => this.errorService.handle(err)
                     );
             },
             disabled: (rowModel) => {
@@ -142,10 +137,7 @@ export class InvoiceList implements OnInit {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('Error fakturerer: ', err);
-                    this.log(err);
-                });
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
@@ -164,10 +156,7 @@ export class InvoiceList implements OnInit {
                     console.log('== kreditnota Kreditert OK ==');
                     alert('Kreditnota kreditert  OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('Error fakturerer: ', err);
-                    this.log(err);
-                });
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
@@ -254,8 +243,9 @@ export class InvoiceList implements OnInit {
 
         var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
             .setWidth('8%').setFilterOperator('eq')
-            .setConditionalCls((item) => {
-                return (moment(item.PaymentDueDate).isBefore(moment()))
+            .setConditionalCls((item: CustomerInvoice) => {
+                const paid = item.StatusCode === StatusCodeCustomerInvoice.Paid;
+                return (paid || moment(item.PaymentDueDate).isAfter(moment()))
                     ? 'date-good' : 'date-bad';
             });
 

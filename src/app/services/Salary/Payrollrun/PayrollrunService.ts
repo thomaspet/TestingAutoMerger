@@ -1,16 +1,12 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {PayrollRun, FieldType, VacationPayInfo} from '../../../unientities';
+import {PayrollRun, FieldType, VacationPayInfo, TaxDrawFactor} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {ErrorService} from '../../common/ErrorService';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
-
-    private payrollRun: Subject<PayrollRun> = new Subject<PayrollRun>();
-
-    public refreshPayrollRun$: Observable<PayrollRun> = this.payrollRun.asObservable();
     
     public payStatusTable: any = [
         {ID: null, text: 'Opprettet'},
@@ -23,24 +19,32 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         {ID: 6, text: 'Slettet'}
     ];
     
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
     }
 
-    public refreshPayrun(payRun: PayrollRun) {
-        return this.payrollRun.next(payRun);
-    }
-
-    public refreshPayrunID(ID: number) {
-        this.Get(ID).subscribe((payRun: PayrollRun) => {
-            this.payrollRun.next(payRun);
-        });
+    public get(id: number | string, expand: string[] = null) {
+        if (id === 0) {
+            if (expand) {
+                return super.GetNewEntity(expand);
+            }
+            return super.GetNewEntity([''], this.relativeURL);
+        } else {
+            if (expand) {
+                return super.Get(id, expand);
+            }
+            return super.Get(id);
+        }
     }
       
-    public getStatus(payrollRun: PayrollRun) {        
-        return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode); 
+    public getStatus(payrollRun: PayrollRun) {
+        if (payrollRun) {
+            return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
+        } else {
+            return this.payStatusTable.find(x => x.ID === null);
+        }
     }
 
     public getLatestSettledPeriod(id: number, yr: number) {
@@ -53,21 +57,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
     
     public getPrevious(ID: number) {
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=previous&RunID=' + ID)
-            .send()
-            .map(response => response.json());
+        return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
     }
     
     public getNext(ID: number) {
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=next&RunID=' + ID)
-            .send()
-            .map(response => response.json());
+        return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID ASC`).map(resultSet => resultSet[0]);
+    }
+
+    public getLatest() {
+        return super.GetAll(`filter=ID gt 0&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
     }
     
     public runSettling(ID: number) {
@@ -140,16 +138,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-from-vacationpayinfo-list&year=' + year)
             .withBody(payList)
             .send();
-    }
-    
-    public getEmptyPayrollrunDates() {
-        var dates: Date[] = [];
-        
-        dates.push(this.getFirstDayOfNextMonth());
-        dates.push(this.getLastDayOfNextMonth());
-        dates.push(this.getPaydateOfNextMonth());
-        
-        return dates;
     }
     
     public layout(layoutID: string) {
@@ -336,13 +324,13 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: '',
+                    Property: 'taxdrawfactor',
                     Placement: 3,
-                    Hidden: true,
+                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Valg for skattetrekk',
+                    Label: 'Skattetrekk',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
@@ -353,24 +341,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Legend: '',
                     Options: {
                         source: [
-                            {Indx: 0, Name: 'Ordinært skattetrekk'}, 
-                            {Indx: 1, Name: 'Halv skatt'},
-                            {Indx: 2, Name: 'Ingen skattetrekk'}],
+                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'}, 
+                            {Indx: TaxDrawFactor.Half, Name: 'Halv skatt'},
+                            {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    }
                 },
                 {
                     ComponentLayoutID: 1,
@@ -486,7 +462,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'FreeText',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.TEXTAREA,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fritekst til lønnslipp',
@@ -503,22 +479,4 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             ]
         }]);
     }
-    
-    private getFirstDayOfNextMonth() {
-        var date = new Date();
-        var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-        return firstDay;
-    }
-    
-    private getLastDayOfNextMonth() {
-        var date = new Date();
-        var lastDay = new Date(date.getFullYear(), date.getMonth() + 2, 0);
-        return lastDay;
-    }
-    
-    private getPaydateOfNextMonth() {
-        var date = new Date();
-        var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 15);
-        return firstDay;
-    } 
 }

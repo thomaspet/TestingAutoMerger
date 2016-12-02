@@ -2,6 +2,7 @@ import {Component, AfterViewInit, QueryList, ViewChildren, Type, Output, EventEm
 import {UniModal} from '../../../../framework/modals/modal';
 import {ActivatedRoute} from '@angular/router';
 import {PostingsummaryModalContent} from './postingsummaryModalContent';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'postingsummary-modal',
@@ -15,7 +16,7 @@ export class PostingsummaryModal implements AfterViewInit {
     private modalConfig: any;
     public type: Type<any> = PostingsummaryModalContent;
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private route: ActivatedRoute, private errorService: ErrorService) {
 
         this.modalConfig = {
             title: 'Konteringssammendrag',
@@ -33,11 +34,8 @@ export class PostingsummaryModal implements AfterViewInit {
                                 this.updatePayrollRun.emit(true);
                                 content.showResponseReceipt(success);
                             }
-                            content.busy = false;
-                        }, error => {
-                            content.busy = false;
-                            content.log(error);
-                        });
+                        }, err => this.errorService.handle(err),
+                        () => content.busy = false);
                     });
                 }
             }]

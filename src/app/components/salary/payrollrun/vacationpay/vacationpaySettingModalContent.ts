@@ -1,11 +1,11 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {UniForm} from '../../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../../framework/uniform/index';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
 import {FieldType, CompanyVacationRate, Account} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import moment from 'moment';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
@@ -23,15 +23,20 @@ export class VacationpaySettingModalContent {
     private changedVacationRates: CompanyVacationRate[] = [];
     private infoText: string;
 
-    constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService, private _accountService: AccountService) {
+    constructor(
+        private _companysalaryService: CompanySalaryService,
+        private _companyvacationRateService: CompanyVacationRateService,
+        private _accountService: AccountService,
+        private errorService: ErrorService
+    ) {
         
     }
 
     public loadData() {
         this.busy = true;
         Observable.forkJoin(
-            this._companysalaryService.getCompanySalary()
-            , this._companyvacationRateService.GetAll('')
+            this._companysalaryService.getCompanySalary(),
+            this._companyvacationRateService.GetAll('')
         ).subscribe((response: any) => {
             var [compsal, rates] = response;
             this.companysalaryModel = compsal[0];
@@ -42,7 +47,7 @@ export class VacationpaySettingModalContent {
             this.setFormFields();
             this.setTableConfig();
             this.busy = false;
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public ready(value) {
@@ -53,34 +58,39 @@ export class VacationpaySettingModalContent {
 
     }
 
+    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
+    private fixTimezone(date): Date {
+        if (typeof date === 'string') {
+            return new Date(date);
+        }
+
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+
     public saveSettings() {
         // save uniform
         if (this.companysalaryModel.ID > 0) {
             this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
-            .subscribe((formresponse) => {
-                this.done('Firmalønn oppdatert');
-            });
+                .subscribe((formresponse) => {
+                    this.done('Firmalønn oppdatert');
+                }, err => this.errorService.handle(err));
         }
-        
+
         // save unitable
         this.changedVacationRates = this.table.getTableData();
         this.changedVacationRates.forEach(vacationRate => {
             if (vacationRate.ID > 0) {
                 this._companyvacationRateService.Put(vacationRate.ID, vacationRate)
-                .subscribe((response) => {
-                    this.done('Feriepengesats oppdatert');
-                },
-                (error) => {
-                    this.done('Feil ved oppdatering av feriepengepost: ' + error);
-                });
+                    .subscribe((response) => {
+                        this.done('Feriepengesats oppdatert');
+                    },
+                    err => this.errorService.handle(err));
             } else {
                 this._companyvacationRateService.Post(vacationRate)
-                .subscribe((response) => {
-                    this.done('Feriepengesats lagret: ');
-                },
-                (error) => {
-                    this.done('Feil ved lagring av feriepengepost: ' + error);
-                });
+                    .subscribe((response) => {
+                        this.done('Feriepengesats lagret: ');
+                    },
+                    err => this.errorService.handle(err));
             }
         });
     }
@@ -90,13 +100,15 @@ export class VacationpaySettingModalContent {
     }
 
     private setFormFields() {
-
         var mainAccountCostVacation = new UniFieldLayout();
+        let cosVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountCostVacation
+                ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountCostVacation}` + '&top=1')
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';
         mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
         mainAccountCostVacation.Options = {
-            source: this._accountService,
+            getDefaultData: () => cosVacAccountObs,
             search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
             displayProperty: 'AccountName',
             valueProperty: 'AccountNumber',
@@ -104,11 +116,14 @@ export class VacationpaySettingModalContent {
         };
         
         var mainAccountAllocatedVacation = new UniFieldLayout();
+        let allVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountAllocatedVacation
+                ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
         mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
         mainAccountAllocatedVacation.Options = {
-            source: this._accountService,
+            getDefaultData: () => allVacAccountObs,
             search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
             displayProperty: 'AccountName',
             valueProperty: 'AccountNumber',
@@ -135,22 +150,21 @@ export class VacationpaySettingModalContent {
 
     private setTableConfig() {
         var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Percent);
-        var rate60Col = new UniTableColumn('Rate60', 'Sats over 60', UniTableColumnType.Percent);
-        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Number)
+        var rate60Col = new UniTableColumn('Rate60', 'Tilleggssats over 60 år', UniTableColumnType.Percent);
+        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Text)
             .setTemplate((rowModel) => {
                 return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';
             });
 
         this.tableConfig = new UniTableConfig(true)
-        .setColumns([rateCol, rate60Col, dateCol])
-        .setPageable(this.vacationRates.length > 10)
-        .setChangeCallback((event) => {
-            let row = event.rowModel;
-            if (event.field === 'FromDate') {
-                let newDate = new Date(row.FromDate, 0, 1, 12);
-                row.FromDate = newDate;
-                return row;
-            }
-        });
+            .setColumns([rateCol, rate60Col, dateCol])
+            .setPageable(this.vacationRates.length > 10)
+            .setChangeCallback((event) => {
+                let row = event.rowModel;
+                if (event.field === 'FromDate') {
+                    row.FromDate = this.fixTimezone(new Date(row.FromDate, 0, 1));
+                    return row;
+                }
+            });
     }
 }

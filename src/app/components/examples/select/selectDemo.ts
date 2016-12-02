@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {UniSelect, ISelectConfig} from '../../../../framework/uniform/controls/select/select';
+import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 

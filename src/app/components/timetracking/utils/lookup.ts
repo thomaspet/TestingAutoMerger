@@ -7,7 +7,10 @@ import {safeInt} from './utils';
 @Injectable()
 export class Lookupservice {
 
-    constructor(private http: UniHttp) {}
+    constructor(
+        private http: UniHttp) {
+
+        }
 
     public getSingle<T>(route: string, id: any, expand = ''): Observable<T> {
         var pfx = typeof(id) === 'string' ? (id.indexOf('?') >= 0 ? '&' : '?') : '?';
@@ -48,7 +51,7 @@ export class Lookupservice {
         return outArr.join(',');
     }
 
-    private userInput(value: string): { iKey: number, key: any, label: string, isBlank: boolean } {
+    private analyzeUserInput(value: string): { iKey: number, key: any, label: string, isBlank: boolean } {
         var result = {
             iKey: 0, key: undefined, label: '', isBlank: true
         };
@@ -81,11 +84,12 @@ export class Lookupservice {
             var lookupDef = event.columnDefinition.lookup;
 
             // Remove "label" from key-value ?          
-            var validation = this.userInput(event.value);
-            var key = event.columnDefinition.columnType === ColumnType.Integer ? validation.iKey : validation.key;
+            var validation = this.analyzeUserInput(event.value);
+            var colType = (lookupDef.visualKeyType === 0 && event.userTypedValue) ? ColumnType.Text : event.columnDefinition.columnType;
+            var key = (colType === ColumnType.Integer) ? validation.iKey : validation.key;
 
             // No key value (clear current value) ?
-            if (!key) {
+            if (!(validation.iKey || validation.key)) {
                 if (validation.key && failure) {
                     failure(event);
                     return;
@@ -99,17 +103,25 @@ export class Lookupservice {
 
             // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
             if (event.userTypedValue && lookupDef.visualKey) {                
-                p = new Promise((resolve, reject) => {
-                    var filter = `?filter=${lookupDef.visualKey} eq ${key}`;
+                p = new Promise((resolve, reject) => {                    
+                    var filter = `?filter=${lookupDef.visualKey} eq `;
+                    if (lookupDef.visualKeyType === ColumnType.Text) {
+                        filter += `'${key}'`;
+                    } else {
+                        filter += key;
+                    }
                     this.getSingle<any>(lookupDef.route, filter, lookupDef.expand).subscribe((rows: any) => {
-                        var item = (rows && rows.length > 0) ? rows[0] : {};
-                        event.value = item[lookupDef.colToSave || 'ID'];
-                        event.lookupValue = item;
-                        success(event);
-                        resolve(item);
+                        if (rows === undefined || rows === null || rows.length === 0) {
+                            if (failure) { failure(event); } else { reject('not found'); }
+                        } else {
+                            var item = (rows && rows.length > 0) ? rows[0] : {};
+                            event.value = item[lookupDef.colToSave || 'ID'];                        
+                            event.lookupValue = item;
+                            success(event);
+                            resolve(item);
+                        }
                     }, (err) => {
-                        if (failure) { failure(event); }
-                        reject(err.statusText);
+                        if (failure) { failure(event); } else { reject(err.statusText); }                    
                     });
                 });
                 event.updateCell = false;
@@ -124,8 +136,7 @@ export class Lookupservice {
                     success(event);
                     resolve(item);
                 }, (err) => {
-                    if (failure) { failure(event); }                    
-                    reject(err.statusText);
+                    if (failure) { failure(event); } else { reject(err.statusText); }   
                 });
             });
             event.updateCell = false;

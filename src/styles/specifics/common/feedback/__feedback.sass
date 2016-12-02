@@ -3,7 +3,7 @@ uni-feedback
     position: fixed
     bottom: 1.5rem
     left: 0
-    z-index: 999
+    z-index: map-get($zindex, hamburger)
     width: auto
 
     .uniFeedback_toggle
@@ -16,7 +16,7 @@ uni-feedback
         color: transparent
         box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
         transition: all 300ms ease
-        background: $uni-color-C2A unicon-bug() left .5rem center no-repeat
+        background: $uni-color-c2a unicon-bug() left .5rem center no-repeat
         background-size: 1.5rem
         white-space: nowrap
 
@@ -38,7 +38,7 @@ uni-feedback
             display: block
 
         &.-is-successful
-            background: $uni-color-Good
+            background: $uni-color-good
             position: relative
 
             &:before

@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
@@ -16,9 +16,14 @@ var defaultSystemType = 1; // 1 - Hours (default)
     template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
 })
 export class WorktypeDetailview {
+    @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
     private viewconfig: IViewConfig;
     constructor() {
         this.viewconfig = this.createLayout();
+    }
+
+    public canDeactivate() {
+        return this.genericDetail.canDeactivate();
     }
 
     private createLayout(): IViewConfig {

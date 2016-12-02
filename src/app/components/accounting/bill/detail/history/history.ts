@@ -3,6 +3,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/m
 import {SupplierInvoiceService} from '../../../../../services/Accounting/SupplierinvoiceService';
 import {StatisticsService} from '../../../../../services/services';
 import {URLSearchParams} from '@angular/http';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -33,7 +34,9 @@ export class BillHistoryView {
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
-        private statisticsService: StatisticsService) {
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService
+    ) {
 
     }
 
@@ -45,6 +48,18 @@ export class BillHistoryView {
         if (this._isActive) {
             this.refreshList();
         }                
+    }
+
+    public getNumberOfInvoices(supplierId: number, excludeCurrentId?: number) {
+        let query = `?model=supplierinvoice&select=count(id)&filter=isnull(deleted,0) eq 0 and supplierId eq ${supplierId}`;
+        if (excludeCurrentId) {
+            query += ` and ( not id eq ${excludeCurrentId} )`;
+        }
+        return this.supplierInvoiceService.getStatQuery(query).map( x => {
+            if (x && x.length > 0) {
+                return x[0].countid;
+            } 
+        });
     }
 
     private refreshList() {
@@ -67,15 +82,16 @@ export class BillHistoryView {
         var params = new URLSearchParams();
         params.set('filter', 'SupplierID eq ' + this.currentID);
         params.set('top', '40');
-        this.supplierInvoiceService.getInvoiceList(params).subscribe( list => {
-            this.busy = false;
+        this.supplierInvoiceService.getInvoiceList(params)
+            .finally(() => this.busy = false)
+            .subscribe( list => {
             this.removeSelfFromList(list);
             this.sumList(list);
             this.listOfInvoices = list;
             this.tableConfig = this.createTableConfig();
-        }, (err) => {
-            this.busy = false;
-        });
+        },
+            err => this.errorService.handle(err)
+        );
         
     }
 

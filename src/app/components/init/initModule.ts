@@ -16,6 +16,7 @@ import {Signup} from './signup/signup';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
+import {UniFormModule} from 'uniform-ng2/main';
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
 
         // Framework
         UniFrameworkModule,
+        UniFormModule,
 
         // App Modules
         LayoutModule,

@@ -1,5 +1,5 @@
+<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
 <section class='application'>
-    <h2>{{label}}</h2>
     <button class="new-button" (click)="createNew()">Opprett ny</button>
     <uni-table [resource]="lookupFunction"
         [config]="viewconfig.tableConfig"

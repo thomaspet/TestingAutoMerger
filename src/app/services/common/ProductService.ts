@@ -15,9 +15,9 @@ export class ProductService extends BizHttp<Product> {
         this.entityType = Product.EntityType;
 
         this.DefaultOrderBy = 'PartName';
-    }   
-        
-    public calculatePrice(product: Product): Observable<any> {        
+    }
+
+    public calculatePrice(product: Product): Observable<any> {
         return this.http
             .usingBusinessDomain()
             .asPOST()
@@ -26,27 +26,45 @@ export class ProductService extends BizHttp<Product> {
             .send()
             .map(response => response.json());
     }
-    
+
+    public calculatePriceLocal(product: Product): Product {
+        if (product.VatType) {
+            if (product.CalculateGrossPriceBasedOnNetPrice) {
+                product.PriceExVat = product.PriceIncVat / ((100 + product.VatType.VatPercent) / 100);
+            } else {
+                product.PriceIncVat = (product.PriceExVat * (100 + product.VatType.VatPercent)) / 100;
+            }
+        } else {
+            if (product.CalculateGrossPriceBasedOnNetPrice) {
+                product.PriceExVat = product.PriceIncVat;
+            } else {
+                product.PriceIncVat = product.PriceExVat;
+            }
+        }
+
+        return product;
+    }
+
     public getNewPartname(): Observable<string> {
         return super.GetAction(null, 'getnewpartname');
     }
-    
+
     public getStatusText(statusCode: number): string {
-        let statusText = ''; 
+        let statusText = '';
         if (!statusCode) {
             statusText = 'Kladd';
         } else {
             statusText = 'Aktiv';
         }
-        
+
         return statusText;
     }
-    
+
     public next(currentID: number): Observable<Product>
     {
         return super.GetAction(currentID, 'next');
     }
-    
+
     public previous(currentID: number): Observable<Product>
     {
         return super.GetAction(currentID, 'previous');

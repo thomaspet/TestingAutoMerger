@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Account} from '../../unientities';
+import {Account, VatType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {StatisticsService} from '../common/StatisticsService';
 
 @Injectable()
 export class AccountService extends BizHttp<Account> {
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 
         //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..               
@@ -16,6 +17,42 @@ export class AccountService extends BizHttp<Account> {
 
         //set this property if you want a default sort order from the API, e.g. AccountNumber
         this.DefaultOrderBy = 'AccountNumber';
+    }
+
+    public searchAccounts(filter: string, top: number = 500) {
+        filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
+
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter} &orderby=AccountNumber&expand=VatType&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID`)
+            .map(x => x.Data ? x.Data : [])
+            .map(x => this.mapStatisticsToAccountObjects(x));
+    }
+
+    private mapStatisticsToAccountObjects(statisticsData: any[]): Account[] {
+
+        let accounts = [];
+
+        statisticsData.forEach(data => {
+            let account: Account = new Account();
+            account.ID = data.AccountID;
+            account.AccountNumber = data.AccountAccountNumber;
+            account.AccountName = data.AccountAccountName;
+            account.VatTypeID = data.VatTypeID;
+
+            if (data.VatTypeID) {
+                account.VatType = new VatType();
+                account.VatType.ID = data.VatTypeID;
+                account.VatType.VatCode = data.VatTypeVatCode;
+                account.VatType.Name = data.VatTypeName;
+                account.VatType.VatPercent = data.VatTypeVatPercent;
+                account.VatType.ReversedTaxDutyVat = data.VatTypeReversedTaxDutyVat;
+                account.VatType.IncomingAccountID = data.VatTypeIncomingAccountID;
+                account.VatType.OutgoingAccountID = data.VatTypeOutgoingAccountID;
+            }
+
+            accounts.push(account);
+        });
+
+        return accounts;
     }
 
     /*    

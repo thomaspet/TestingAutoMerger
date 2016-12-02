@@ -4,6 +4,7 @@ import {PayrollrunService} from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionPay, SalaryTransactionPayLine} from '../../../unientities';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'payrollrun-paymentlist',
@@ -25,7 +26,12 @@ export class PaymentList implements OnInit {
     // private withholding: UniTableBuilder;
     private withholdingConfig: UniTableConfig;
 
-    constructor(private _route: ActivatedRoute, private _payrollrunService: PayrollrunService, private _tabService: TabService) {
+    constructor(
+        private _route: ActivatedRoute,
+        private _payrollrunService: PayrollrunService,
+        private _tabService: TabService,
+        private errorService: ErrorService
+    ) {
 
     }
 
@@ -49,7 +55,7 @@ export class PaymentList implements OnInit {
                 this.account = this.paymentList[0].CompanyAccount;
                 this.buildTableConfigs();
                 this.busy = false;
-            });
+            }, err => this.errorService.handle(err));
 
         });
 

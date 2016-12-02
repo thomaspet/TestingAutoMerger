@@ -1,12 +1,13 @@
 import {Component, ViewChild} from '@angular/core';
 import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
 import {UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {Router} from '@angular/router';
 import {AccountService, JournalEntryService} from '../../../../services/services';
 import {Account, FieldType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 declare var moment;
@@ -30,10 +31,13 @@ export class TransqueryList {
         title: 'Ny kontoforespørsel'
     };
 
-    constructor(private router: Router,
-                private accountService: AccountService,
-                private journalEntryService: JournalEntryService,
-                private tabService: TabService) {
+    constructor(
+        private router: Router,
+        private accountService: AccountService,
+        private journalEntryService: JournalEntryService,
+        private tabService: TabService,
+        private errorService: ErrorService
+    ) {
         this.setupPeriodeTable();
         this.tabService.addTab({ name: 'Forspørsel konto', url: '/accounting/transquery/list', moduleID: UniModules.Transquery, active: true });
     }
@@ -51,7 +55,8 @@ export class TransqueryList {
         this.account = account;
 
         if (account) {
-            this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID);
+            this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             this.periods$.subscribe((data) => {
                this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null;
             });

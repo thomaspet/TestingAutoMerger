@@ -8,6 +8,7 @@ import {Employee} from '../../../unientities';
 
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {EmployeeService} from '../../../services/services';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'employee-list',
@@ -18,9 +19,15 @@ export class EmployeeList {
     private employeeTableConfig: UniTableConfig;
     private employees$: Observable<Employee>;
 
-    constructor(private router: Router, private tabService: TabService, private _employeeService: EmployeeService) {
+    constructor(
+        private router: Router,
+        private tabService: TabService,
+        private _employeeService: EmployeeService,
+        private errorService: ErrorService
+    ) {
 
-        this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo']);
+        this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         var idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
 

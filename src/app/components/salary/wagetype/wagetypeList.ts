@@ -7,6 +7,7 @@ import {Observable} from 'rxjs/Observable';
 
 import {WageType} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'wagetypes',
@@ -17,13 +18,19 @@ export class WagetypeList implements OnInit {
     private tableConfig: UniTableConfig;
     private wageTypes$: Observable<WageType>;
 
-    constructor(private _router: Router, private tabSer: TabService, private _wageTypeService: WageTypeService) {
+    constructor(
+        private _router: Router,
+        private tabSer: TabService,
+        private _wageTypeService: WageTypeService,
+        private errorService: ErrorService
+    ) {
         this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true });
     }
 
     public ngOnInit() {
 
-        this.wageTypes$ = this._wageTypeService.GetAll('orderBy=WageTypeNumber ASC');
+        this.wageTypes$ = this._wageTypeService.GetAll('orderBy=WageTypeNumber ASC')
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');

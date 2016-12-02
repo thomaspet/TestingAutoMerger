@@ -105,6 +105,15 @@ export class HamburgerMenu {
                     {componentName: 'Leverandører', componentUrl: '/sales/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },
+            /*{
+                componentListName: 'Bank',
+                componentListHeader: 'Bank',
+                componentListUrl: '/bank',
+                componentList: [
+                    {componentName: 'Betalinger', componentUrl: '/bank/payments', moduleID: UniModules.Payment},
+                    {componentName: 'Betalingsbunter', componentUrl: '/bank/batches', moduleID: UniModules.Payment}
+                ]
+            },*/
             {
                 componentListName: 'Lønn',
                 componentListHeader: 'Lønn og personal',
@@ -124,8 +133,7 @@ export class HamburgerMenu {
                     {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles', moduleID: UniModules.WorkProfiles},
                     {componentName: 'Personer', componentUrl: '/timetracking/workers', moduleID: UniModules.Workers},
                     {componentName: 'Timearter', componentUrl: '/timetracking/worktypes', moduleID: UniModules.WorkTypes},
-                    {componentName: 'Timer', componentUrl: '/timetracking', moduleID: UniModules.Timesheets},
-                    {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'}
+                    {componentName: 'Timer', componentUrl: '/timetracking', moduleID: UniModules.Timesheets}
                 ]
             },
             {

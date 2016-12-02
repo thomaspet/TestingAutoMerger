@@ -1,0 +1,37 @@
+<section class="horizontal_nav">
+    <ul>
+        <li *ngFor="let tab of tabs; let idx = index">
+            <a (click)="activeTabIndex = idx" [ngClass]="{'router-link-active': activeTabIndex === idx}">
+                {{tab}}
+            </a>
+        </li>
+    </ul>
+</section>
+
+<section class="application">
+    <article class="tof-head">
+        <tof-customer-card [readonly]="readonly"
+                           [entity]="data"
+                           (entityChange)="onDataChange($event)">
+        </tof-customer-card>
+
+        <tof-details-form *ngIf="activeTabIndex === 0"
+                          [entity]="data"
+                          (entityChange)="onDataChange($event)"
+                          [entityType]="entityName"
+                          [readonly]="readonly">
+        </tof-details-form>
+
+        <tof-delivery-form *ngIf="activeTabIndex === 1"
+                           [entity]="data"
+                           (entityChange)="onDataChange($event)"
+                           [entityType]="entityName"
+                           [readonly]="readonly">
+        </tof-delivery-form>
+
+        <uni-attachments *ngIf="activeTabIndex === 2"
+                         [entity]="entityName"
+                         [entityID]="data?.ID">
+        </uni-attachments>
+    </article>
+</section>

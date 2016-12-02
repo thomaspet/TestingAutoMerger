@@ -23,20 +23,22 @@ import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
 import {QuoteDetails} from './quote/details/quoteDetails';
-import {QuoteItemList} from './quote/details/quoteItemList';
 import {QuoteList} from './quote/list/quoteList';
 import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
 
 import {InvoiceDetails} from './invoice/details/invoice';
-import {InvoiceItems} from './invoice/details/invoiceitems';
 
+import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
+import {TofHelper} from './salesHelper/tofHelper';
+import {TradeItemTable} from './common/tradeitemTable';
 
 @NgModule({
     imports: [
@@ -48,6 +50,9 @@ import {TofDeliveryForm} from './common/deliveryForm';
 
         // Unitable
         UniTableModule,
+
+        // UniForm
+        UniFormModule,
 
         // Framework
         UniFrameworkModule,
@@ -69,13 +74,14 @@ import {TofDeliveryForm} from './common/deliveryForm';
         CustomerDetails,
         CustomerList,
 
+        TofHead,
         TofCustomerCard,
         TofDetailsForm,
         TofDeliveryForm,
+        TradeItemTable,
 
         InvoiceList,
         InvoiceDetails,
-        InvoiceItems,
 
         OrderItemList,
         OrderDetails,
@@ -84,7 +90,6 @@ import {TofDeliveryForm} from './common/deliveryForm';
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
         QuoteDetails,
-        QuoteItemList,
         QuoteList,
         SupplierDetailsModal,
         SupplierDetails,
@@ -95,7 +100,8 @@ import {TofDeliveryForm} from './common/deliveryForm';
         OrderToInvoiceTable
     ],
     providers: [
-        TradeItemHelper
+        TradeItemHelper,
+        TofHelper
     ],
     exports: [
         UniSales,
@@ -112,7 +118,6 @@ import {TofDeliveryForm} from './common/deliveryForm';
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
         QuoteDetails,
-        QuoteItemList,
         QuoteList,
         SupplierDetailsModal,
         SupplierDetails,

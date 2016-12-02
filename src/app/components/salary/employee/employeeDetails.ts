@@ -10,6 +10,7 @@ import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 
 import { UniView } from '../../../../framework/core/uniView';
+import { ErrorService } from '../../../services/common/ErrorService';
 declare var _; // lodash
 
 @Component({
@@ -46,7 +47,9 @@ export class EmployeeDetails extends UniView {
         private toastService: ToastService,
         private router: Router,
         private tabService: TabService,
-        cacheService: UniCacheService) {
+        cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
@@ -79,7 +82,7 @@ export class EmployeeDetails extends UniView {
                 this.datachecks = this.boolChecks(employee);
                 this.employee = employee;
                 this.posterEmployee.employee = employee;
-                this.posterEmployee.employments = this.employments;
+                this.posterEmployee = _.cloneDeep(this.posterEmployee);
                 this.toolbarConfig = {
                     title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
                     subheads: [{
@@ -92,27 +95,28 @@ export class EmployeeDetails extends UniView {
                     }
                 };
                 this.checkDirty();
-            });
+            }, err => this.errorService.handle(err));
 
             super.getStateSubject('employments').subscribe((employments) => {
                 this.employments = employments;
                 this.posterEmployee.employments = employments;
+                this.posterEmployee = _.cloneDeep(this.posterEmployee);
                 this.checkDirty();
-            });
+            }, err => this.errorService.handle(err));
 
             super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
                 this.recurringPosts = recurringPosts;
                 this.checkDirty();
-            });
+            }, err => this.errorService.handle(err));
 
             super.getStateSubject('employeeLeave').subscribe((employeeLeave) => {
                 this.employeeLeave = employeeLeave;
                 this.checkDirty();
-            });
+            }, err => this.errorService.handle(err));
 
             super.getStateSubject('subEntities').subscribe((subEntities: SubEntity[]) => {
                 this.subEntities = subEntities;
-            });
+            }, err => this.errorService.handle(err));
 
 
             // If employee ID was changed by next/prev button clicks employee has been
@@ -126,7 +130,7 @@ export class EmployeeDetails extends UniView {
             // Update navbar tabs
             if (this.employeeID) {
                 this.tabService.addTab({
-                    name: 'Ansattnr. ' + this.employeeID,
+                    name: 'Ansattnr. ' + (this.employee ? this.employee.EmployeeNumber : this.employeeID),
                     url: this.url + this.employeeID,
                     moduleID: UniModules.Employees,
                     active: true
@@ -183,13 +187,13 @@ export class EmployeeDetails extends UniView {
         }
     }
 
-    //Dummy check to see is user has Tax Card, social security number and account number
+    // Dummy check to see is user has Tax Card, social security number and account number
     private boolChecks(employee: Employee) {
         return {
             hasTaxCard: employee.TaxPercentage || employee.TaxTable,
             hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
             hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
-        }
+        };
     }
 
     public nextEmployee() {
@@ -197,15 +201,17 @@ export class EmployeeDetails extends UniView {
             return;
         }
 
+        // TODO: this should use BizHttp.getNextID()
         this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
             if (next) {
                 this.employee = next;
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
             }
-        });
+        }, err => this.errorService.handle(err));
     }
 
+    // TODO: this should use BizHttp.getPreviousID()
     public previousEmployee() {
         if (!super.canDeactivate()) {
             return;
@@ -217,7 +223,7 @@ export class EmployeeDetails extends UniView {
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
             }
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public newEmployee() {
@@ -228,28 +234,27 @@ export class EmployeeDetails extends UniView {
             this.employee = emp;
             let childRoute = this.router.url.split('/').pop();
             this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getEmployee() {
         this.employeeService.get(this.employeeID).subscribe((employee: Employee) => {
             this.employee = employee;
             super.updateState('employee', employee, false);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getEmployments() {
         this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID).subscribe((employments) => {
-            this.posterEmployee.employments = employments;
             super.updateState('employments', employments, false);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getRecurringPosts() {
         let filter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
         this.salaryTransService.GetAll('filter=' + filter, ['Supplements.WageTypeSupplement']).subscribe((response) => {
             super.updateState('recurringPosts', response, false);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getEmployeeLeave() {
@@ -262,19 +267,19 @@ export class EmployeeDetails extends UniView {
 
         this.employeeLeaveService.GetAll(`filter=${filterParts.join(' or ')}`).subscribe((response) => {
             super.updateState('employeeLeave', response, false);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getSubEntities() {
         this.subEntityService.GetAll(null, ['BusinessRelationInfo']).subscribe((response: SubEntity[]) => {
             super.updateState('subEntities', response.length > 1 ? response.filter(x => x.SuperiorOrganizationID > 0) : response, false);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private checkForSaveDone() {
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
-                this.saveComponent.manualSaveComplete('Lagring feilet');
+                this.saveComponent.manualSaveComplete('Feil ved lagring');
             } else {
                 this.saveComponent.manualSaveComplete('Lagring fullført');
                 this.saveActions[0].disabled = true;
@@ -288,7 +293,7 @@ export class EmployeeDetails extends UniView {
 
                 if (!this.employeeID) {
                     super.updateState('employee', this.employee, false);
-                    
+
                     if (done) {
                         done('Lagring fullført');
                     } else {
@@ -340,13 +345,11 @@ export class EmployeeDetails extends UniView {
             },
             (error) => {
                 if (done) {
-                    done('Lagring feilet');
+                    done('Feil ved lagring');
                 } else {
-                    this.saveComponent.manualSaveComplete('Lagring feilet');
+                    this.saveComponent.manualSaveComplete('Feil ved lagring');
                 }
-                let toastHeader = 'Noe gikk galt ved lagring av persondetaljer';
-                let toastBody = (error.json().Messages) ? error.json().Messages[0].Message : '';
-                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                this.errorService.handle(error);
             }
         );
     }
@@ -442,7 +445,7 @@ export class EmployeeDetails extends UniView {
                     this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                 }
                 );
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private saveRecurringPosts() {
@@ -452,53 +455,56 @@ export class EmployeeDetails extends UniView {
             let hasErrors = false;
 
             recurringPosts
-                .filter(post => post['_isDirty'] || post.Deleted)
                 .forEach((post, index) => {
-                    changeCount++;
+                    if (post['_isDirty'] || post.Deleted) {
+                        changeCount++;
 
-                    post.IsRecurringPost = true;
-                    post.EmployeeID = this.employee.ID;
-                    post.EmployeeNumber = this.employee.EmployeeNumber;
+                        post.IsRecurringPost = true;
+                        post.EmployeeID = this.employee.ID;
+                        post.EmployeeNumber = this.employee.EmployeeNumber;
 
-                    if (post.Supplements) {
-                        post.Supplements
-                            .filter(x => !x.ID)
-                            .forEach((supplement: SalaryTransactionSupplement) => {
-                                supplement['_createguid'] = this.salaryTransService.getNewGuid();
-                            });
-                    }
+                        if (post.Supplements) {
+                            post.Supplements
+                                .filter(x => !x.ID)
+                                .forEach((supplement: SalaryTransactionSupplement) => {
+                                    supplement['_createguid'] = this.salaryTransService.getNewGuid();
+                                });
+                        }
 
-                    let source = (post.ID > 0)
-                        ? this.salaryTransService.Put(post.ID, post)
-                        : this.salaryTransService.Post(post);
+                        let source = (post.ID > 0)
+                            ? this.salaryTransService.Put(post.ID, post)
+                            : this.salaryTransService.Post(post);
 
-                    source.finally(() => {
-                        if (saveCount === changeCount) {
-                            this.saveStatus.completeCount++;
-                            if (hasErrors) {
-                                this.saveStatus.hasErrors = true;
-                            } else {
+                        source.finally(() => {
+                            if (saveCount === changeCount) {
+                                this.saveStatus.completeCount++;
+                                if (hasErrors) {
+                                    this.saveStatus.hasErrors = true;
+                                }
+
                                 super.updateState('recurringPosts', recurringPosts.filter(x => !x.Deleted), false);
+
+                                this.checkForSaveDone();
                             }
-                            this.checkForSaveDone();
-                        }
-                    })
-                        .subscribe(
-                        (res: SalaryTransaction) => {
-                            saveCount++;
-                            recurringPosts[index] = res;
-                        },
-                        (err) => {
-                            hasErrors = true;
-                            saveCount++;
-                            console.log(err);
-                            let toastHeader = `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                            let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                            this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                        }
-                        );
+                        })
+                            .subscribe(
+                            (res: SalaryTransaction) => {
+                                saveCount++;
+                                recurringPosts[index] = res;
+                            },
+                            (err) => {
+                                hasErrors = true;
+                                saveCount++;
+                                console.log(err);
+                                recurringPosts[index].Deleted = false;
+                                let toastHeader = `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                                let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                            }
+                            );
+                    }
                 });
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private saveEmployeeLeave() {
@@ -544,7 +550,7 @@ export class EmployeeDetails extends UniView {
                         );
                 }
             });
-        });
+        }, err => this.errorService.handle(err));
     }
 
 }

@@ -1,7 +1,7 @@
 /// <reference path='../../typings/browser/ambient/es6-shim/es6-shim.d.ts'/>
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts'/>
 
-import {enableProdMode, NgModule} from '@angular/core';
+import {enableProdMode, NgModule, ErrorHandler, Inject} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 import {BrowserModule} from '@angular/platform-browser';
@@ -10,6 +10,7 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {COMPILER_PROVIDERS} from '@angular/compiler';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 
@@ -20,6 +21,7 @@ import {AppPipesModule} from './pipes/appPipesModule';
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AppServicesModule} from './services/servicesModule';
 import {AuthGuard} from './authGuard';
+import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
 import {AccountingModule} from './components/accounting/accountingModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
@@ -32,6 +34,7 @@ import {InitModule} from './components/init/initModule';
 import {SalesModule} from './components/sales/salesModule';
 import {SettingsModule} from './components/settings/settingsModule';
 import {TimetrackingModule} from './components/timetracking/timetrackingModule';
+import {BankModule} from './components/bank/bankModule';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -56,6 +59,9 @@ if (window.ENV === 'production') {
         // UNITABLE
         UniTableModule,
 
+        // UNIFORM
+        UniFormModule,
+
         // FRAMEWORK MODULE
         UniFrameworkModule,
 
@@ -74,7 +80,8 @@ if (window.ENV === 'production') {
         SalesModule,
         SettingsModule,
         TimetrackingModule,
-        UniQueryModule
+        UniQueryModule,
+        BankModule
     ],
     declarations: [
         App,
@@ -84,9 +91,11 @@ if (window.ENV === 'production') {
     providers: [
         AuthGuard,
         COMPILER_PROVIDERS,
-        {provide: LocationStrategy, useClass: HashLocationStrategy}
+        {provide: LocationStrategy, useClass: HashLocationStrategy},
+        {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
     ]
 })
-export class AppModule {}
+export class AppModule {
+}
 
 platformBrowserDynamic().bootstrapModule(AppModule);

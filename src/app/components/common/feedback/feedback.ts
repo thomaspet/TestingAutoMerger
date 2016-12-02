@@ -4,6 +4,7 @@ import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
 import moment from 'moment';
 import {AppConfig} from '../../../AppConfig';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare var APP_VERSION;
 
 @Component({
@@ -20,7 +21,7 @@ export class UniFeedback {
     private titleControl: FormControl;
     private descriptionControl: FormControl;
 
-    constructor(private http: Http, private authService: AuthService) {
+    constructor(private http: Http, private authService: AuthService, private errorService: ErrorService) {
         this.initForm();
         this.headers = new Headers();
         this.headers.append('Content-Type', 'application/json');
@@ -89,6 +90,7 @@ export class UniFeedback {
                 setSuccessClass();
             },
             (error) => {
+                this.errorService.handle(error);
                 this.error = true;
                 this.busy = false;
             }

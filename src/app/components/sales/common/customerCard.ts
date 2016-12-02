@@ -5,6 +5,7 @@ import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsM
 import {AddressModal} from '../../common/modals/modals';
 import {AddressService, CustomerService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;
 
 @Component({
@@ -54,9 +55,8 @@ declare const _;
         </label>
 
         <section *ngIf="entity?.Customer" class="addressCard"
-                 [attr.aria-readonly]="readonly"
-                 (click)="openAddressModal()">
-            <span class="edit-btn" (click)="openAddressModal()"></span>
+                 [attr.aria-readonly]="readonly">
+            <span class="edit-btn" (click)="openCustomerModal()"></span>
             <strong>{{entity.Customer?.Info?.Name}}</strong>
             <br><span *ngIf="entity.InvoiceAddressLine1">
                 {{entity.InvoiceAddressLine1}}
@@ -75,7 +75,7 @@ declare const _;
             Ny kunde
         </a>
 
-        <customer-details-modal (newCustomer)="newCustomerFromModal($event)"></customer-details-modal>
+        <customer-details-modal (customerUpdated)="refreshCustomer($event)"></customer-details-modal>
         <address-modal></address-modal>
     `
 })
@@ -109,9 +109,11 @@ export class TofCustomerCard {
     private lookupResults: Customer[] = [];
     private busy: boolean;
 
-    constructor(private addressService: AddressService,
-                private customerService: CustomerService) {
-    }
+    constructor(
+        private addressService: AddressService,
+        private customerService: CustomerService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
         this.control.valueChanges.switchMap((input) => {
@@ -120,6 +122,10 @@ export class TofCustomerCard {
         })
         .debounceTime(200)
         .subscribe(value => this.performLookup(value));
+    }
+
+    public ngAfterViewInit() {
+        this.searchInput.nativeElement.focus();
     }
 
     public ngOnChanges(changes) {
@@ -155,8 +161,34 @@ export class TofCustomerCard {
         this.entity.CustomerID = customer.ID;
         this.entity.CustomerName = info.Name;
         this.entity.Customer = customer;
-
+        this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
         this.entityChange.next(_.cloneDeep(this.entity));
+    }
+
+    public refreshCustomer(customerID: number) {
+        this.customerService.Get(
+            customerID,
+            ['Info', 'Info.Addresses', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
+        ).subscribe(
+            (customer) => {
+                const info: any = customer.Info || {};
+                this.addressService.addressToShipping(this.entity, info.ShippingAddress);
+                this.addressService.addressToInvoice(this.entity, info.InvoiceAddress);
+
+                this.control.setValue(info.Name, {emitEvent: false});
+                this.entity.CustomerID = customer.ID;
+                this.entity.CustomerName = info.Name;
+                this.entity.Customer = customer;
+                this.entityChange.next(_.cloneDeep(this.entity));
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    public openCustomerModal() {
+        if (!this.readonly) {
+            this.customerDetailsModal.open(this.entity.CustomerID);
+        }
     }
 
     public openAddressModal() {
@@ -210,6 +242,7 @@ export class TofCustomerCard {
         }
 
         this.entity.Customer = customer;
+        this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
         this.entityChange.next(_.cloneDeep(this.entity));
     }
 
@@ -236,7 +269,7 @@ export class TofCustomerCard {
             this.selectedIndex = (this.control.value) ? 0 : -1;
             this.expanded = true;
             this.busy = false;
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public onKeydown(event: KeyboardEvent) {

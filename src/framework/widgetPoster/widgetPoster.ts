@@ -1,6 +1,7 @@
 import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { UniHttp } from '../core/http/http';
 import { UserService, NumberFormat } from '../../app/services/services';
+import {ErrorService} from '../../app/services/common/ErrorService';
 declare var Chart;
 
 @Component({
@@ -16,7 +17,7 @@ export class WidgetPoster {
     private cdr: any;
     private defaultEmailAddress: string;
     private defaultPhoneNumber: string;
-    private netPaidThisYear: string | number = 0;
+    private netPaidThisYear: string = '0';
     private defaultEmployment: any = {};
     private defaultSettings: any = {}
     private currentUser: any = {};
@@ -24,7 +25,13 @@ export class WidgetPoster {
     private numberOfActiveUsers: number = 0;
     private hasImage: boolean = true;
 
-    constructor(cdr: ChangeDetectorRef, private userService: UserService, private http: UniHttp, private numberFormatter: NumberFormat) {
+    constructor(
+        cdr: ChangeDetectorRef,
+        private userService: UserService,
+        private http: UniHttp,
+        private numberFormatter: NumberFormat,
+        private errorService: ErrorService
+    ) {
         this.cdr = cdr;
     }
 
@@ -70,8 +77,11 @@ export class WidgetPoster {
             var standarIndex = 0;
             var actives = 0;
             for (var i = 0; i < this.model.employments.length; i++) {
-                if (this.model.employments[i].Standard) {
+                if (!this.model.employments[i].EndDate) {
                     actives++;
+                }
+                if(this.model.employments[i].Standard) {
+                    standarIndex = i;
                 }
             }
 
@@ -84,6 +94,8 @@ export class WidgetPoster {
                 this.defaultEmployment.workPercent = this.model.employments[standarIndex].WorkPercent;
                 //Counts up to workpercent (Recounts every time something is changed)
             }
+        } else {
+            this.defaultEmployment = {};
         }
         /*OBS!! HARD CODED YEAR*/
         if (this.model.employee.ID) {
@@ -95,10 +107,11 @@ export class WidgetPoster {
                 .map(response => response.json())
                 .subscribe((data) => {
                     if (data.netPayment) {
-                        this.netPaidThisYear = 0;
                         var add = Math.floor(data.netPayment / 80);
+                        let netPaidThisYear: number = 0;
                         var interval = setInterval(() => {
-                            this.netPaidThisYear = +this.netPaidThisYear + add;
+                            netPaidThisYear += add;
+                            this.netPaidThisYear = netPaidThisYear.toString();
                             if (this.netPaidThisYear >= data.netPayment) {
                                 clearInterval(interval);
                                 this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
@@ -107,7 +120,7 @@ export class WidgetPoster {
                     } else {
                         this.netPaidThisYear = this.numberFormatter.asMoney(data.netPayment);
                     }
-                });
+                }, err => this.errorService.handle(err));
         }
     }
 
@@ -120,7 +133,7 @@ export class WidgetPoster {
 
         this.userService.getCurrentUser().subscribe((data) => {
             this.currentUser = data;
-        })
+        }, err => this.errorService.handle(err));
 
         /*  THESE SHOULD NOT BE HERE.. SHOULD BE REMOVED
             GETS THE NUMBER OF SUBENTITIES AND NUMBER OF ACTIVE USERS   */
@@ -132,7 +145,7 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfBusinesses = data.Data[0].countid;
-            });
+            }, err => this.errorService.handle(err));
 
         this.http
             .asGET()
@@ -142,7 +155,7 @@ export class WidgetPoster {
             .map(response => response.json())
             .subscribe((data) => {
                 this.numberOfActiveUsers = data.Data[0].countid;
-            })
+            }, err => this.errorService.handle(err))
         setTimeout(() => {
             this.hasImage = document.querySelectorAll('.poster_tease_widget_2 uni-image article picture').length !== 0;
         }, 1200)

@@ -6,6 +6,7 @@ import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 
 declare const moment;
 
@@ -17,6 +18,10 @@ export class BalanceReport {
     @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;
     private periodFilter1: PeriodFilter;
     private periodFilter2: PeriodFilter;
+
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Balanse'
+    };
 
     constructor(private router: Router,
                 private statisticsService: StatisticsService,

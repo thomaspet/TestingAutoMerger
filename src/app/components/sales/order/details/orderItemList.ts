@@ -8,6 +8,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
 import {CustomerOrder, CustomerOrderItem, Product, VatType, StatusCodeCustomerOrderItem} from '../../../../unientities';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'order-item-list',
@@ -33,7 +34,9 @@ export class OrderItemList {
         private productService: ProductService,
         private vatTypeService: VatTypeService,
         private customerOrderItemService: CustomerOrderItemService,
-        private tradeItemHelper: TradeItemHelper) {
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -60,7 +63,7 @@ export class OrderItemList {
 
                     this.itemsLoaded.emit(this.items);
                 },
-                (err) => console.log('Error retrieving data: ', err)
+                err => this.errorService.handle(err)
             );
          }
     }

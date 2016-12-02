@@ -12,6 +12,7 @@ import {UniSave} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {NumberFormat} from '../../../services/common/NumberFormatService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var moment;
 
@@ -59,7 +60,8 @@ export class AMeldingView implements OnInit {
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
         private _salarytransService: SalaryTransactionService,
-        private numberformat: NumberFormat
+        private numberformat: NumberFormat,
+        private errorService: ErrorService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -90,7 +92,7 @@ export class AMeldingView implements OnInit {
                 this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
                 this.getAMeldingForPeriod();
-            });
+            }, err => this.errorService.handle(err));
     }
 
     public prevPeriod() {
@@ -133,9 +135,7 @@ export class AMeldingView implements OnInit {
                     a.dispatchEvent(e);
                     a.remove();
 
-                }, err => {
-                    this.onError(err);
-                });
+                }, err => this.errorService.handle(err));
         }
     }
 
@@ -150,6 +150,7 @@ export class AMeldingView implements OnInit {
             this._toastService.addToast('A-melding generert', ToastType.good, 4);
         },
         (err) => {
+            this.errorService.handle(err);
             this.saveStatus.completeCount++;
             this.saveStatus.hasErrors = true;
         });
@@ -185,7 +186,7 @@ export class AMeldingView implements OnInit {
             this.updateToolbar();
             this.updateSaveActions();
             this.setStatusForPeriod();
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getSumsInPeriod() {
@@ -208,7 +209,7 @@ export class AMeldingView implements OnInit {
 
             this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
             this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private updateToolbar() {
@@ -295,19 +296,24 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-            let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
-            if (statusTextObject) {
-                this.currentSumUp._sumupStatusText = statusTextObject.statusText;
+            if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length -1].ID) {
+                let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
+                if (statusTextObject) {
+                    this.currentSumUp._sumupStatusText = statusTextObject.statusText;
+                } else {
+                    this.currentSumUp._sumupStatusText = 'Status altinn';
+                }
             } else {
-                this.currentSumUp._sumupStatusText = 'Status altinn';
+                this.currentSumUp._sumupStatusText = this.periodStatus;
             }
+            
             this.legalEntityNo = response.LegalEntityNo;
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getDataFromFeedback(amelding, typeData): any {
         let mottakObject: any;
-        if (amelding.hasOwnProperty('feedBack')) {
+        if (amelding && amelding.hasOwnProperty('feedBack')) {
             if (amelding.feedBack !== null) {
                 let alleMottak = amelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
@@ -332,7 +338,7 @@ export class AMeldingView implements OnInit {
 
     private checkMottattPeriode(mottak, typeData): any {
         let anyObject: any = {};
-        if (mottak.hasOwnProperty('mottattPeriode')) {
+        if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
             switch (typeData) {
                 case 0:
                     this.getTotalAGAAndFtrekk(mottak.mottattPeriode);
@@ -352,7 +358,7 @@ export class AMeldingView implements OnInit {
     }
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
-        if (mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+        if (mottattPeriode && mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
             
             this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
             this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
@@ -365,6 +371,7 @@ export class AMeldingView implements OnInit {
     private findAndSetStatusFromFeedback(mottattPeriode): string {
         let statusText = '';
         let statusSet: boolean = false;
+        this.alleAvvikStatuser = [];
 
         this.getAvvikRec(mottattPeriode);
 
@@ -397,31 +404,47 @@ export class AMeldingView implements OnInit {
     }
 
     private getAMeldingForPeriod() {
+        
+        this.periodStatus = 'Ingen A-meldinger i perioden';
+
         this.spinner(this._ameldingService.getAMeldingForPeriod(this.currentPeriod))
             .subscribe((ameldinger: AmeldingData[]) => {
                 this.aMeldingerInPeriod = ameldinger;
-                this.periodStatus = 'Venter på tilbakemelding';
                 if (this.aMeldingerInPeriod.length > 0) {
                     this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                 } else {
                     this.updateToolbar();
                     this.updateSaveActions();
                 }
-            }, error => {
-                this.onError(error);
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private setStatusForPeriod() {
         // Only the last (highest ID) amelding for the period can set this status
         if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-            if (this.currentAMelding.altinnStatus !== 'avvist') {
-                let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
-                if (statusTextObject) {
-                    this.periodStatus = statusTextObject.statusText;
-                }
-            } else {
-                this.periodStatus = 'Avvist';
+            
+            switch (this.currentAMelding.status) {
+                case 1, 0, null:
+                    this.periodStatus = 'Ikke innsendt';
+                    break;
+                
+                case 2:
+                    this.periodStatus = 'Tilbakemelding må hentes';
+                    break;
+
+                case 3:
+                    if (this.currentAMelding.altinnStatus !== 'avvist') {
+                        let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
+                        if (statusTextObject) {
+                            this.periodStatus = statusTextObject.statusText;
+                        }
+                    } else {
+                        this.periodStatus = 'Avvist';
+                    }
+                    break;
+
+                default:
+                    break;
             }
         }
     }
@@ -507,7 +530,7 @@ export class AMeldingView implements OnInit {
                             this.showView = 'receipt';
                             done('tilbakemelding hentet');
                         }
-                    });
+                    }, err => this.errorService.handle(err));
             });
 
     }
@@ -522,7 +545,7 @@ export class AMeldingView implements OnInit {
                 }
                 done('A-melding sendt inn');
             }
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private openAmeldingTypeModal(done) {
@@ -540,18 +563,5 @@ export class AMeldingView implements OnInit {
     private spinner<T>(source: Observable<T>): Observable<T> {
         this.busy = true;
         return <Observable<T>>source.finally(() => this.busy = false);
-    }
-
-    private onError(error, optionalDoneHandler?: (error) => void) {
-        let errorMsg = 'Det har oppstått en feil';
-        let errorBody = error.json();
-        if (errorBody && errorBody.Message) {
-            errorMsg += ': ' + errorBody.Message;
-        }
-        this._toastService.addToast('Error', ToastType.bad, 0, errorMsg);
-
-        if (optionalDoneHandler) {
-            optionalDoneHandler('Det har oppstått en feil, forsøk igjen senere');
-        }
     }
 }

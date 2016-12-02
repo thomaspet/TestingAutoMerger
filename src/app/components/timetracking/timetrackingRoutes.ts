@@ -13,9 +13,6 @@ import {WorkprofileDetailview} from './workprofile/workprofile';
 import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 
-import {ProjectListview} from './project/projects';
-import {ProjectDetailview} from './project/project';
-
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTimetracking} from './timetracking';
 import {AuthGuard} from '../../authGuard';
@@ -32,7 +29,8 @@ export const childRoutes: Routes = [
     },
     {
         path: 'workprofiles/:id',
-        component: WorkprofileDetailview
+        component: WorkprofileDetailview,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'workers',
@@ -40,7 +38,8 @@ export const childRoutes: Routes = [
     },
     {
         path: 'workers/:id',
-        component: WorkerDetailview
+        component: WorkerDetailview,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'worktypes',
@@ -48,15 +47,8 @@ export const childRoutes: Routes = [
     },
     {
         path: 'worktypes/:id',
-        component: WorktypeDetailview
-    },
-    {
-        path: 'projects',
-        component: ProjectListview
-    },
-    {
-        path: 'projects/:id',
-        component: ProjectDetailview
+        component: WorktypeDetailview,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'timeentry',

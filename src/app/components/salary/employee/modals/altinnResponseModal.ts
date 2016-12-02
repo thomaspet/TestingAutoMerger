@@ -2,6 +2,7 @@ import {Component, Type, ViewChild, Input, AfterViewInit, OnChanges, Output, Eve
 import {UniModal} from '../../../../../framework/modals/modal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
 import {AltinnIntegrationService} from '../../../../../app/services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 @Component({
@@ -17,7 +18,7 @@ export class AltinnResponseModalContent {
 
     public busy: boolean;
 
-    constructor(private _altinnService: AltinnIntegrationService) {
+    constructor(private _altinnService: AltinnIntegrationService, private errorService: ErrorService) {
 
     }
 
@@ -25,7 +26,7 @@ export class AltinnResponseModalContent {
         this._altinnService.readTaxCard(authData, receiptID).subscribe((responseMessage: string) => {
             this.responseMessage = responseMessage;
             this.config.update();
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public close() {

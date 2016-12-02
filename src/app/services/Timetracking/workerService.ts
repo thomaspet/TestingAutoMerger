@@ -3,10 +3,10 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
-import {AuthService} from '../../../framework/core/authService';
+import {UserService} from '../../services/services';
 import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/timetracking/utils/utils';
-import {AppConfig} from '../../appConfig';
+import {ErrorService} from '../common/ErrorService';
 
 declare var moment;
 
@@ -29,7 +29,7 @@ export interface IFilter {
 
 @Injectable()
 export class WorkerService extends BizHttp<Worker> {
-            
+
     public user: { id: number, guid: string, name: string, email: string, company: string } = {
         id: 0,
         guid: '',
@@ -38,17 +38,12 @@ export class WorkerService extends BizHttp<Worker> {
         company: ''
     };    
     
-    constructor(http: UniHttp, authService: AuthService) {
+    constructor(http: UniHttp, private userService: UserService, private errorService: ErrorService) {
         super(http);
         this.relativeURL = Worker.RelativeUrl;
         this.entityType = Worker.EntityType;
-        this.DefaultOrderBy = null;
-        
-        this.user.name = authService.jwtDecoded.unique_name;
-        this.user.id = authService.jwtDecoded.userId;
-        this.user.guid = authService.jwtDecoded.nameid;
-        this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
-        
+        this.DefaultOrderBy = null;        
+        this.getCurrentUserId();
     }
     
     
@@ -78,28 +73,17 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     public getCurrentUserId(): Promise<number> {
-        var localDebug = AppConfig.BASE_URL.indexOf('localhost') > 0;
-        return new Promise(resolve => {
-            if (this.user.id) {
-                resolve(this.user.id);
-                return;
-            } 
-            // todo: when authService includes userid this can be removed:
-            var guid = this.user.guid;
-            this.GET('users').subscribe((result) => {
-                if (result.length > 0) {
-                    for (var i = 0; i < result.length; i++) {
-                        var item = result[i];
-                        if (item.GlobalIdentity === guid || localDebug) {
-                            this.user.id = item.ID;
-                            this.user.email = item.Email;
-                            resolve(item.ID);
-                            return;
-                        }
-                    }
-                } 
-            });            
-        });
+        return new Promise( (resolve, reject) => {
+            this.userService.getCurrentUser().subscribe( usr => {
+                this.user.name = usr.DisplayName;
+                this.user.id = usr.ID;
+                this.user.guid = usr.GlobalIdentity;
+                this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
+                resolve(usr.ID);
+            }, err => {
+                reject(err.statusText);
+            });
+        });        
     }
     
     public getWorkerFromUser(userid: number): Observable<Worker> {

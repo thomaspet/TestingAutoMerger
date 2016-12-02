@@ -12,6 +12,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'quote-list',
@@ -30,18 +31,17 @@ export class QuoteList {
         omitFinalCrumb: true
     };
 
-    constructor(private router: Router,
+    constructor(
+        private router: Router,
         private customerQuoteService: CustomerQuoteService,
         private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService,
-        private toastService: ToastService) {
+        private toastService: ToastService,
+        private errorService: ErrorService
+    ) {
 
         this.tabService.addTab({ name: 'Tilbud', url: '/sales/quotes', active: true, moduleID: UniModules.Quotes });
         this.setupQuoteTable();
-    }
-
-    private log(err) {
-        alert(err._body);
     }
 
     public createQuote() {
@@ -58,7 +58,8 @@ export class QuoteList {
                 params.set('orderby', 'QuoteDate desc');
             }
 
-            return this.customerQuoteService.GetAllByUrlSearchParams(params);
+            return this.customerQuoteService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Context menu
@@ -85,10 +86,7 @@ export class QuoteList {
                     console.log('== Quote Transistion OK ==');
                     alert('-- Overført til ordre-- OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
-                    this.log(err);
-                });
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.toOrder;
@@ -102,10 +100,7 @@ export class QuoteList {
                     console.log('== Quote Transistion OK ==');
                     alert('-- Overført til faktura-- OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
-                    this.log(err);
-                });
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.toInvoice;
@@ -119,10 +114,7 @@ export class QuoteList {
                     console.log('== Quote Transistion OK ==');
                     alert('Overgang til -Avslutt- OK');
                     this.table.refreshTableData();
-                }, (err) => {
-                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
-                    this.log(err);
-                });
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.complete;
@@ -141,7 +133,7 @@ export class QuoteList {
                     if (report) {
                         this.previewModal.openWithId(report, quote.ID);
                     }
-                });
+                }, err => this.errorService.handle(err));
             },
             disabled: (rowModel) => {
                 return false;
@@ -163,7 +155,7 @@ export class QuoteList {
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                     this.sendEmailModal.Changed.subscribe((email) => {
                         this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
-                    });
+                    }, err => this.errorService.handle(err));
                 }
             }
         });

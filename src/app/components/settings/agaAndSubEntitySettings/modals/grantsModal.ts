@@ -4,6 +4,7 @@ import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from 'unit
 import {GrantService, SubEntityService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'grants-modal-content',
@@ -19,7 +20,9 @@ export class GrantsModalContent {
 
     constructor(
         private _grantService: GrantService, 
-        private _subentityService: SubEntityService) {
+        private _subentityService: SubEntityService,
+        private errorService: ErrorService
+    ) {
     }
 
     public loadData() {
@@ -34,7 +37,7 @@ export class GrantsModalContent {
             });
             this.allSubEntities = subs;
             this.setTableConfig();
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public saveData() {
@@ -45,6 +48,7 @@ export class GrantsModalContent {
                 this.done('Tilskudd lagret');
             },
             (err) => {
+                this.errorService.handle(err);
                 this.done(`Feil ved lagring av tilskudd: ${err}`);
             });
         });
@@ -55,6 +59,12 @@ export class GrantsModalContent {
     }
 
     private setTableConfig() {
+        let yesNo: any[] = 
+        [
+            {Text: 'Ja', Value: true},
+            {Text: 'Nei', Value: false}
+        ];
+
         let subentCol = new UniTableColumn('_Subentity', 'Virksomhet', UniTableColumnType.Lookup)
         .setTemplate((rowModel) => {
             let subEntity = rowModel['_Subentity'];
@@ -81,7 +91,7 @@ export class GrantsModalContent {
         let dateCol = new UniTableColumn('FromDate', 'Dato', UniTableColumnType.Date);
         let descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        let agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Select)
+        let agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Lookup)
         .setTemplate((rowModel) => {
             if (rowModel['AffectsAGA'] !== null) {
                 if (rowModel['AffectsAGA'] === true) {
@@ -93,11 +103,15 @@ export class GrantsModalContent {
             return '';
         })
         .setEditorOptions({
-            resource: [
-                {Text: 'Ja', Value: true},
-                {Text: 'Nei', Value: false}
-            ],
-            displayField: 'Text'
+            lookupFunction: (searchValue: string) => {
+                return yesNo.filter((affect) => {
+                    let text = (affect.Text || '').toLowerCase();
+                    return (text.indexOf(searchValue.toLowerCase()) > - 1);
+                }); 
+            },
+            itemTemplate: (selectedItem) => {
+                return selectedItem ? selectedItem.Text : '';
+            }
         });
 
         this.grantTableConfig = new UniTableConfig(true, true, 15)

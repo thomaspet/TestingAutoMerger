@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
@@ -13,6 +13,7 @@ export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailvie
     template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
 })
 export class WorkprofileDetailview {
+    @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
     private viewconfig: IViewConfig;
     constructor() {
         this.viewconfig = this.createLayout();
@@ -41,4 +42,7 @@ export class WorkprofileDetailview {
         return layout;
     }
 
+    public canDeactivate() {
+        return this.genericDetail.canDeactivate();
+    }
 }

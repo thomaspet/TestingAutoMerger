@@ -11,7 +11,7 @@
         height: 1.8rem
         text-overflow: ellipsis
         width: 100%
-    
+
     .search_results
         text-align: left
         background: $uni-color-negative
@@ -27,7 +27,7 @@
         overflow-x: auto
         list-style: none
         margin-top: 0
-        z-index: 999
+        z-index: map-get($zindex, picker)
         border: 0
 
         &[aria-expanded=false]
@@ -38,5 +38,5 @@
 
             &[aria-selected=true]
                 font-weight: 400
-                background: $uni-color-C2A
+                background: $uni-color-c2a
                 color: $uni-color-negative

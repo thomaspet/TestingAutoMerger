@@ -1,8 +1,9 @@
-import { Component, Input, ViewChild, EventEmitter } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService } from '../../../services/services';
 import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
-import { UniForm, UniFieldLayout } from '../../../../framework/uniform';
+import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
+import { ErrorService } from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({
@@ -18,33 +19,16 @@ export class SubEntityDetails {
     public fields: UniFieldLayout[] = [];
     public config: any = {};
     public busy: boolean;
-    public refreshList: EventEmitter<any> = new EventEmitter<any>(true);
     private formReady: boolean = false;
 
     constructor(
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalityService: MunicipalService,
-        private _statisticsService: StatisticsService
+        private _statisticsService: StatisticsService,
+        private errorService: ErrorService
     ) {
-
-    }
-
-    public ngAfterViewInit() {
-        this.busy = true;
-
-        Observable.forkJoin(
-            this._agaZoneService.GetAll(''),
-            this._agaZoneService.getAgaRules(),
-            this._municipalityService.GetAll('')
-        ).subscribe((response: any) => {
-            let [agaZoneList, agaRuleList, municipalities] = response;
-            this.agaZones = agaZoneList;
-            this.agaRules = agaRuleList;
-            this.municipalities = municipalities;
-            this.createForm();
-            this.busy = false;
-        });
+        this.createForm();
     }
 
     private createForm() {
@@ -55,19 +39,24 @@ export class SubEntityDetails {
             let postalCode: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode');
             let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
 
-            agaZoneField.Options = {
-                source: this.agaZones,
-                valueProperty: 'ID',
-                displayProperty: 'ZoneName',
-                debounceTime: 500,
-            };
+            this._agaZoneService.GetAll('').subscribe(agazones => {
+                agaZoneField.Options = {
+                    source: agazones,
+                    valueProperty: 'ID',
+                    displayProperty: 'ZoneName',
+                    debounceTime: 500,
+                };
+            }, err => this.errorService.handle(err));
 
-            agaRuleField.Options = {
-                source: this.agaRules,
-                valueProperty: 'SectorID',
-                displayProperty: 'Sector',
-                debounceTime: 500,
-            };
+            this._agaZoneService.getAgaRules().subscribe(agaRules => {
+                agaRuleField.Options = {
+                    source: agaRules,
+                    valueProperty: 'SectorID',
+                    displayProperty: 'Sector',
+                    debounceTime: 500,
+                };
+            }, err => this.errorService.handle(err));
+
 
             postalCode.Options = {
                 getDefaultData: () => this.getDefaultPostalCodeData(),
@@ -75,31 +64,24 @@ export class SubEntityDetails {
                 valueProperty: 'Code',
                 displayProperty: 'Code',
                 debounceTime: 200,
-                template: (obj: PostalCode) => obj ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}` : '',
+                template: (obj: PostalCode) => obj && obj.City ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}` : '',
                 events: {
                     select: (model: SubEntity) => {
                         this.updateCity();
                     }
                 }
             };
+            this._municipalityService.GetAll('').subscribe(municipalities => {
+                municipality.Options = {
+                    source: municipalities,
+                    valueProperty: 'MunicipalityNo',
+                    displayProperty: 'MunicipalityNo',
+                    debounceTime: 200,
+                    template: (obj: Municipal) => obj && obj.MunicipalityName ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase() + obj.MunicipalityName.slice(1).toLowerCase()}` : ''
+                };
+            }, err => this.errorService.handle(err));
 
-            municipality.Options = {
-                source: this.municipalities,
-                valueProperty: 'MunicipalityNo',
-                displayProperty: 'MunicipalityNo',
-                debounceTime: 200,
-                template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase() + obj.MunicipalityName.slice(1).toLowerCase()}` : ''
-            };
-
-            this._agaZoneService.getAgaRules().subscribe((response: AGASector[]) => {
-                this.agaRules = response;
-            });
-
-
-            this.fields = _.cloneDeep(this.fields);
-
-
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private findByProperty(fields, name) {
@@ -109,7 +91,7 @@ export class SubEntityDetails {
 
     private getDefaultPostalCodeData() {
         if (this.currentSubEntity && this.currentSubEntity.BusinessRelationInfo && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress) {
-            return Observable.of([{Code: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode, City: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City }]);
+            return Observable.of([{ Code: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode, City: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City }]);
         } else {
             return Observable.of([]);
         }
@@ -126,33 +108,37 @@ export class SubEntityDetails {
                             this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City = postalCodeArr[0].City;
                             this.currentSubEntity = _.cloneDeep(this.currentSubEntity);
                         }
-                    });
+                    }, err => this.errorService.handle(err));
             }
         }
     }
 
     public ready(event) {
         this.formReady = true;
+    }
 
-        this.form.field('MunicipalityNo').changeEvent.subscribe((value) => {
-            this.refreshList.emit(true);
-        });
+    public change(event) {
+        this.currentSubEntity['_isDirty'] = true;
     }
 
     public saveSubentities() {
+        if (this.currentSubEntity['_isDirty']) {
+            if (this.currentSubEntity.BusinessRelationInfo) {
+                if (!this.currentSubEntity.BusinessRelationID) {
+                    this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
+                }
+                if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress && !this.currentSubEntity.BusinessRelationInfo.InvoiceAddressID) {
+                    this.currentSubEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService.getNewGuid();
+                }
+            }
+            let saveObservable = this.currentSubEntity.ID ?
+                this._subEntityService.Put(this.currentSubEntity.ID, this.currentSubEntity) :
+                this._subEntityService.Post(this.currentSubEntity);
 
-        if (this.currentSubEntity.BusinessRelationInfo) {
-            if (!this.currentSubEntity.BusinessRelationID) {
-                this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
-            }
-            if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress && !this.currentSubEntity.BusinessRelationInfo.InvoiceAddressID) {
-                this.currentSubEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService.getNewGuid();
-            }
+            return saveObservable.map(x => { this.currentSubEntity = x; return x; });
+        } else {
+            return Observable.of(this.currentSubEntity);
         }
-        let saveObservable = this.currentSubEntity.ID ?
-            this._subEntityService.Put(this.currentSubEntity.ID, this.currentSubEntity) :
-            this._subEntityService.Post(this.currentSubEntity);
 
-        return saveObservable.map(x => this.currentSubEntity = x);
     }
 }

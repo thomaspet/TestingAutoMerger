@@ -3,11 +3,11 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
-import {safeInt, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {checkGuid} from '../../../../services/common/dimensionservice';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -16,6 +16,9 @@ import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
+import {ErrorService} from '../../../../services/common/ErrorService';
+import {PageStateService} from '../../../../services/common/PageStateService';
+import {BillHistoryView} from './history/history';
 
 declare const moment;
 
@@ -55,18 +58,21 @@ export class BillView {
     public hasUnsavedChanges: boolean = false;
     public currentFileID: number = 0;
     public hasStartupFileID: boolean = false;
+    public historyCount: number = 0;
 
     private files: Array<any>;
+    private fileIds: Array<number> = [];
+    private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
-    private defaultPath: string;    
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
 
-    private tabLabel: string;    
+    private tabLabel: string;
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true},
         { label: lang.tab_document, name: 'docs', isSelected: true},
@@ -85,39 +91,41 @@ export class BillView {
         ];
 
     constructor(
-        private tabService: TabService, 
-        private supplierInvoiceService: SupplierInvoiceService, 
-        private toast: ToastService, 
+        private tabService: TabService,
+        private supplierInvoiceService: SupplierInvoiceService,
+        private toast: ToastService,
         private route: ActivatedRoute,
         private cache: UniCacheService,
         private vatTypeService: VatTypeService,
         private supplierService: SupplierService,
-        private router: Router, 
-        private location: Location) {
+        private router: Router,
+        private location: Location,
+        private errorService: ErrorService,
+        private pageStateService: PageStateService) {
             this.actions = this.rootActions;
     }
 
     public ngOnInit() {
-        this.initForm();        
-        this.initFromRoute();    
+        this.initForm();
+        this.initFromRoute();
     }
 
     public canDeactivate() {
         return this.checkSave();
-    }    
+    }
 
     private initFromRoute() {
         this.route.params.subscribe( (params: any) => {
             var id = params.id;
             if (safeInt(id) > 0) {
-                this.updateTabInfo(id);                
+                this.updateTabInfo(id);
                 this.fetchInvoice(id, true);
             } else {
                 this.newInvoice(true);
                 this.checkPath();
             }
         });
-        
+
     }
 
     private updateTabInfo(id?: number | string, label?: string) {
@@ -158,12 +166,12 @@ export class BillView {
         var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
         sumCol.Options = {
             events: {
-                enter: () => {                      
-                    this.focusJournalEntries(); 
+                enter: () => {
+                    this.focusJournalEntries();
                 }
             },
             decimalLength: 2
-        };        
+        };
 
         var list = [
             supIdCol,
@@ -172,7 +180,7 @@ export class BillView {
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             createFormField('BankAccount', lang.col_bank, ControlTypes.TextInput, FieldSize.Double),
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
-            sumCol 
+            sumCol
         ];
 
         this.fields = list;
@@ -180,7 +188,7 @@ export class BillView {
 
     private focusJournalEntries() {
         // todo: ask Jorge how to fetch new value from the damned "TaxInclusiveAmount" ?
-        this.simpleJournalentry.focus();        
+        this.simpleJournalentry.focus();
     }
 
     public onFormReady(event) {
@@ -188,17 +196,34 @@ export class BillView {
     }
 
 
-    /// ============================= 
+    /// =============================
 
-    ///     FILES AND OCR    
+    ///     FILES AND OCR
 
-    /// ============================= 
+    /// =============================
 
-    public onFileListReady(files: Array<any>) {
+    public onFileListReady(files: Array<any>) {      
         this.files = files;
-        if (files && files.length) {
+        if (files && files.length) {            
             if (!this.hasValidSupplier()) {
                 this.runOcr(files);
+            }
+            this.checkNewFiles(files);
+        }
+    }
+
+    private checkNewFiles(files: Array<any>) {
+
+        if ((!files) || files.length === 0) {
+            return;
+        }
+        let firstFile = files[0];
+        if (!this.current.ID) {
+            if (this.unlinkedFiles.findIndex( x => x === firstFile.ID ) < 0) {
+                this.unlinkedFiles.push(firstFile.ID);
+                if (this.hasStartupFileID !== firstFile.ID) {
+                    this.tagFileStatus(firstFile.ID, 0);
+                }
             }
         }
     }
@@ -209,17 +234,17 @@ export class BillView {
 
     private runOcr(files: Array<any>): Promise<boolean> {
         return new Promise( (resolve, reject) => {
-            if (this.files && this.files.length > 0) {
+            if (files && files.length > 0) {
+                let firstFile = files[0];
                 this.userMsg(lang.ocr_running, null, null, true);
-                this.supplierInvoiceService.fetch(`files/${files[0].ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
+                this.supplierInvoiceService.fetch(`files/${firstFile.ID}?action=ocranalyse`).subscribe( (result: IOcrServiceResult) => {
                     this.toast.clear();
                     this.handleOcrResult( new OcrValuables(result) );
                     resolve(true);
                 }, (err) => {
-                    this.toast.clear();
-                    this.showHttpError(err);
+                    this.errorService.handle(err);
                     resolve(false);
-                });        
+                });
             }
         });
     }
@@ -230,11 +255,11 @@ export class BillView {
                 var orgNo = filterInput(ocr.Orgno);
                 this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info']).subscribe( (result: Supplier[]) => {
                     if (result && result.length > 0) {
-                        this.setSupplier(result[0]);                    
+                        this.setSupplier(result[0]);
                     } else {
                         this.findSupplierViaPhonebook(orgNo, true);
                     }
-                });
+                }, err => this.errorService.handle(err));
             }
         }
         this.setFormValue('PaymentID', ocr.PaymentID);
@@ -251,7 +276,7 @@ export class BillView {
                 var item = x.Data.entries[0];
                 var title = `${lang.create_supplier} '${item.navn}' ?`;
                 var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
-                this.toast.clear(); 
+                this.toast.clear();
                 if (askUser) {
                     this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found}, ).then( (userChoice: ConfirmActions) => {
                         if (userChoice === ConfirmActions.ACCEPT) {
@@ -262,36 +287,34 @@ export class BillView {
                     this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
                 }
             }
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
         var sup = new Supplier();
         sup.OrgNumber = orgNo;
         if (bankAccount) {
-            sup.DefaultBankAccount = <any>{ AccountNumber: bankAccount };
+            sup.Info.DefaultBankAccount = <any>{ AccountNumber: bankAccount };
         }
-        sup.Info = <any>{ 
-            Name: name, 
+        sup.Info = <any>{
+            Name: name,
             ShippingAddress: {
                 AddressLine1: address || '',
                 City: city || '',
                 PostalCode: postalCode || '',
                 Country: 'NORGE',
                 CountryCode: 'NO'
-            }   
+            }
         };
         this.supplierService.Post(sup).subscribe( x => {
             this.setSupplier(x);
-        }, (err) => {
-            this.showHttpError(err);
-        });
-        
+        }, err => this.errorService.handle(err));
+
     }
 
 
     private setFormValue(colName: string, value: any, callInputChange = false) {
-        this.current[colName] = value;        
+        this.current[colName] = value;
         var fld: any = this.uniForm.field(colName);
         fld.control.setValue(value, { emitEvent: true });
         if (callInputChange) {
@@ -305,9 +328,9 @@ export class BillView {
 
     public onSaveDraftForImage() {
         this.save((msg) => {
-            this.userMsg(lang.add_image_now, lang.fyi, 3, true);            
+            this.userMsg(lang.add_image_now, lang.fyi, 3, true);
         });
-    }    
+    }
 
     public onFormChange(model: SupplierInvoice) {
         this.current = model;
@@ -337,9 +360,33 @@ export class BillView {
             this.current.SupplierID = result.ID;
         }
         if (updateCombo) {
-            this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));                
+            this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));
         }
         this.setupToolbar();
+        this.fetchHistoryCount(this.currentSupplierID);
+    }
+
+    private fetchHistoryCount(supplierId: number) {
+        if (this.current.StatusCode >= StatusCodeSupplierInvoice.Payed ) {
+            return;
+        }        
+        if (!supplierId) {
+            this.setHistoryCounter(0);
+            return;
+        }
+        if (this.historyView) {
+            let tab = this.tabs.find( x => x.name === 'history');
+            if (tab) {
+                this.historyView.getNumberOfInvoices(supplierId, this.current.ID).subscribe( x => this.setHistoryCounter(x) );
+            }
+        }
+    }
+
+    private setHistoryCounter(value: number) {
+        let tab = this.tabs.find( x => x.name === 'history');
+        if (tab) {
+            tab.count = value;
+        }
     }
 
     private newInvoice(isInitial: boolean) {
@@ -354,11 +401,14 @@ export class BillView {
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
-        this.hasUnsavedChanges = false;        
+        this.hasUnsavedChanges = false;
         this.currentFileID = 0;
+        this.fileIds = [];
+        this.unlinkedFiles = [];
         this.files = undefined;
+        this.setHistoryCounter(0);
         this.busy = false;
-        if (!isInitial) { 
+        if (!isInitial) {
             this.hasStartupFileID = false;
             this.uniForm.field('SupplierID').control.setValue(0);
         }
@@ -370,7 +420,7 @@ export class BillView {
         this.flagActionBar(actionBar.save, !reset);
         if (!reset) {
             this.actions.forEach( x => x.main = false );
-            this.actions[actionBar.save].main = true;            
+            this.actions[actionBar.save].main = true;
         }
         this.hasUnsavedChanges = !reset;
     }
@@ -387,6 +437,11 @@ export class BillView {
             var hasBilag = (!!(this.current.JournalEntry && this.current.JournalEntry.JournalEntryNumber));
             let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
+            if (it._links.actions && it._links.actions.smartbooking) {
+                if (it.StatusCode < StatusCodeSupplierInvoice.Journaled ) {
+                    list.push(this.newAction(workflowLabels.smartbooking, 'smartbooking', it._links.actions.smartbooking.href, false));
+                }
+            }
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -397,6 +452,17 @@ export class BillView {
         this.actions = this.rootActions;
     }
 
+    private newAction(label: string, itemKey: string, href: string, asMain = false): any {
+        return {
+            label: label,
+            action: (done) => {
+                this.handleAction(itemKey, label, href, done);
+            },
+            main: asMain,
+            disabled: false
+        };
+    }
+
     private addActions(linkNode: any, list: any[], mainFirst = false, priorities?: string[], filters?: string[]) {
         var ix = 0, setAsMain = false, isFiltered = false, key: string;
         var ixFound = -1;
@@ -404,7 +470,7 @@ export class BillView {
 
         for (key in linkNode) {
             if (linkNode.hasOwnProperty(key)) {
-                
+
                 isFiltered = filters ? (filters.findIndex( x => x === key ) >= 0) : false;
                 if (!isFiltered) {
                     ix++;
@@ -415,7 +481,7 @@ export class BillView {
                         if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
                             ixFound = ixPri;
                             setAsMain = true;
-                        }                     
+                        }
                     }
                     // reset main?
                     if (setAsMain) { list.forEach( x => x.main = false); }
@@ -423,15 +489,7 @@ export class BillView {
                     let itemKey = key;
                     let label = this.mapActionLabel(itemKey);
                     let href = linkNode[key].href;
-
-                    list.push({ 
-                        label: label, 
-                        action: (done) => {
-                            this.handleAction(itemKey, label, href, done);
-                        }, 
-                        main: setAsMain, 
-                        disabled: false  
-                    });
+                    list.push(this.newAction(label, itemKey, href, setAsMain));
                 }
             }
         }
@@ -451,11 +509,11 @@ export class BillView {
 
         switch (key) {
             case 'journal':
-                this.confirmModal.confirm(                    
+                this.confirmModal.confirm(
                     lang.ask_journal_msg + this.current.TaxInclusiveAmount.toFixed(2) + '?',
-                    lang.ask_journal_title + this.current.Supplier.Info.Name, false, 
+                    lang.ask_journal_title + this.current.Supplier.Info.Name, false,
                     { warning: lang.warning_action_not_reversable }).then( (result: ConfirmActions) => {
-                    
+
                     if (result === ConfirmActions.ACCEPT) {
                         this.busy = true;
                         this.tryJournal(href).then((status: ILocalValidation) => {
@@ -478,8 +536,8 @@ export class BillView {
                     this.userMsg(JSON.stringify(result));
                     done('ok');
                 }, (err) => {
-                    var msg = this.showHttpError(err);
-                    done(msg);
+                    this.errorService.handle(err);
+                    done(err);
                 });
                 return true;
 
@@ -504,15 +562,15 @@ export class BillView {
 
     private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string ): boolean {
         this.busy = true;
-        this.supplierInvoiceService.PostAction(this.current.ID, action).subscribe( () => {
-            this.busy = false;
+        this.supplierInvoiceService.PostAction(this.current.ID, action)
+        .finally(() => this.busy = false)
+        .subscribe( () => {
             this.fetchInvoice(this.current.ID, true);
             if (done) { done(successMsg); }
         }, (err) => {
-            this.busy = false;
-            var msg = this.showHttpError(err);
-            done(msg);            
-        });        
+            this.errorService.handle(err);
+            done(err);
+        });
         return true;
     }
 
@@ -534,28 +592,19 @@ export class BillView {
                     this.userMsg(lang.journaled_ok, null, 6, true);
 
                 }, (err) => {
-                    var msg = this.showHttpError(err);
-                    reject(msg);
+                    this.errorService.handle(err);
+                    reject(err);
                 });
 
-            
+
             }).catch((err: ILocalValidation) => {
                 reject( err );
             });
-            
+
         });
     }
 
-    private showHttpError(error: any): string {
-        var msg = error.statusText;
-        if (error._body) {
-            msg = error._body;
-        }             
-        this.showErrMsg(msg, true);
-        return msg;
-    }
-
-    private mapActionLabel(key: string): string {        
+    private mapActionLabel(key: string): string {
         var label = workflowLabels[key];
         if (!label) {
             return key;
@@ -568,6 +617,7 @@ export class BillView {
         if (flagBusy) { this.busy = true; }
         this.currentFileID = 0;
         this.files = undefined;
+        this.setHistoryCounter(0);
         return new Promise( (resolve, reject) => {
             this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
@@ -578,13 +628,14 @@ export class BillView {
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
-                this.checkLockStatus();
+                this.checkLockStatus();                
+                this.fetchHistoryCount(this.current.SupplierID);
                 resolve('');
             }, (err) => {
-                var msg = this.showHttpError(err);
-                reject(msg);
+                this.errorService.handle(err);
+                reject(err);
             });
-        });              
+        });
     }
 
     private checkLockStatus() {
@@ -611,16 +662,16 @@ export class BillView {
                     this.uniForm.field('PaymentDueDate').editMode();
                     this.uniForm.field('BankAccount').editMode();
                     this.uniForm.field('PaymentID').editMode();
-                    return;               
+                    return;
 
                 case StatusCodeSupplierInvoice.ForApproval:
                     this.uniForm.readMode();
                     this.supplierIsReadOnly = false;
                     this.uniForm.field('PaymentID').editMode();
                     this.uniForm.field('PaymentDueDate').editMode();
-                    return;     
+                    return;
             }
-        } 
+        }
 
         this.uniForm.editMode();
         this.supplierIsReadOnly = false;
@@ -633,7 +684,7 @@ export class BillView {
     public tryDelete(done) {
         this.confirmModal.confirm(lang.ask_delete + (this.current.InvoiceNumber  || '') + '?', this.getSupplierName()).then( x => {
             if (x === ConfirmActions.ACCEPT) {
-                return this.delete(done); 
+                return this.delete(done);
             } else {
                 done(lang.delete_canceled);
             }
@@ -643,7 +694,7 @@ export class BillView {
     public delete(done) {
         var obs: any;
         if (this.current.ID) {
-            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);                
+            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(this.current.ID, this.current);
         } else {
             done(lang.delete_nothing_todo);
         }
@@ -666,39 +717,38 @@ export class BillView {
     public save(done?): Promise<ILocalValidation> {
         this.preSave();
         return new Promise((resolve, reject) => {
-            
+
             var reload = () => {
                 this.fetchInvoice(this.currentSupplierID, (!!done) )
                 .then(() => {
-                    resolve({ success: true}); 
-                    if (done) { done(lang.save_success); }                
+                    resolve({ success: true});
+                    if (done) { done(lang.save_success); }
                 })
                 .catch((msg) => {
                     reject( { success: false, errorMessage: msg });
                     if (done) { done(msg); }
-                });                
+                });
             };
 
             var obs: any;
             if (this.current.ID) {
-                obs = this.supplierInvoiceService.Put(this.current.ID, this.current);                
+                obs = this.supplierInvoiceService.Put(this.current.ID, this.current);
             } else {
                 obs = this.supplierInvoiceService.Post(this.current);
             }
             obs.subscribe((result) => {
                 this.currentSupplierID = result.ID;
                 this.hasUnsavedChanges = false;
-                // Post-file-linking?
-                if (this.hasStartupFileID && this.currentFileID) {
-                    this.linkFile(this.currentSupplierID, this.currentFileID, 'SupplierInvoice', 40001).then( () => {
-                        //  this.flagFileAsUsed(this.currentFileID, 40001);
+                if (this.unlinkedFiles.length > 0) {
+                    this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then( () => {
                         this.hasStartupFileID = false;
                         this.currentFileID = 0;
-                        reload(); 
+                        this.unlinkedFiles = [];
+                        reload();
                     });
                 } else {
                     reload();
-                }                
+                }
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
@@ -717,7 +767,7 @@ export class BillView {
 
         var changesMade = false;
 
-        // Ensure dates are set        
+        // Ensure dates are set
         if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
             this.current.JournalEntry.DraftLines.forEach( x => {
                 let orig = x.FinancialDate;
@@ -725,10 +775,10 @@ export class BillView {
                 if (x.FinancialDate !== orig) {
                     changesMade = true;
                 }
-            });     
+            });
         }
 
-        // Auto-set "paymentinformation" from invoicenumber (if kid not set): 
+        // Auto-set "paymentinformation" from invoicenumber (if kid not set):
         if ((!this.current.PaymentID) && (!this.current.PaymentInformation)) {
             if (this.current.InvoiceNumber) {
                 this.current.PaymentInformation = lang.headliner_invoice + this.current.InvoiceNumber;
@@ -749,7 +799,7 @@ export class BillView {
                     item.Amount = this.current.TaxInclusiveAmount * -1;
                     item.Description = item.Description || (lang.headliner_invoice + ' ' + this.current.InvoiceNumber);
                     if (addToList) {
-                         this.current.JournalEntry.DraftLines.push(item);                         
+                         this.current.JournalEntry.DraftLines.push(item);
                     }
                     this.save().then(x => resolve(x)).catch( x => reject(x));
                 } else {
@@ -761,19 +811,20 @@ export class BillView {
                 var supplierId = safeInt(this.current.Supplier.SupplierNumber);
                 var item: JournalEntryLineDraft;
                 let items = this.current.JournalEntry.DraftLines;
-                item = items.find( x => x.Account ? x.Account.AccountNumber === this.current.Supplier.SupplierNumber : false ); 
+                item = items.find( x => x.Account ? x.Account.AccountNumber === this.current.Supplier.SupplierNumber : false );
                 if (!item) {
                     item = new JournalEntryLineDraft();
-                    checkGuid(item); 
+                    checkGuid(item);
                     this.supplierInvoiceService.getStatQuery(`?model=account&select=ID as AccountID&filter=AccountNumber eq ${supplierId}`).subscribe( result => {
-                        item.AccountID = result[0].AccountID;                         
+                        item.AccountID = result[0].AccountID;
                         completeAccount(item, true);
                         return;
                     }, (err) => {
+                        this.errorService.handle(err);
                         reject({ success: false, errorMessage: lang.err_supplieraccount_not_found});
                     });
                     return;
-                }             
+                }
                 completeAccount(item);
                 return;
             }
@@ -788,13 +839,13 @@ export class BillView {
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
                 this.busy = true;
-                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
+                .finally(() => this.busy = false)
+                .subscribe((journalEntry) => {
                     this.fetchInvoice(this.current.ID, true);
                     this.userMsg(lang.payment_ok, null, null, true);
-                    this.busy = false;
                 }, (error) => {
-                    this.showHttpError(error);
-                    this.busy = false;
+                    this.errorService.handle(error);
                 });
             });
         }
@@ -807,7 +858,7 @@ export class BillView {
         this.registerPaymentModal.openModal(this.current.ID, title, invoiceData);
 
         done('');
-    }    
+    }
 
 
     private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
@@ -821,6 +872,7 @@ export class BillView {
                 minSum = itemSum < minSum ? itemSum : minSum;
                 sum += x.Amount;
             });
+            sum = roundTo(sum);
             if (sum === 0 && (maxSum || minSum)) {
                 return { success: true };
             }
@@ -841,11 +893,6 @@ export class BillView {
             if (t.name !== tab.name) { t.isSelected = false; }
         });
         tab.isSelected = true;
-        /*
-        if (tab.activate) {
-            tab.activate(this.timeSheet, this.currentFilter);
-        } 
-        */       
     }
 
     private checkSave(): Promise<boolean> {
@@ -872,7 +919,7 @@ export class BillView {
             });
         });
 
-    }    
+    }
 
     public onEntryChange(details: { rowIndex: number, item: JournalEntryLineDraft, extra: any }) {
         this.flagUnsavedChanged();
@@ -901,20 +948,20 @@ export class BillView {
             }
         });
         return statustrack;
-    }    
+    }
 
     private setupToolbar() {
         var doc: SupplierInvoice = this.current;
         var stConfig = this.getStatustrackConfig();
         var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new, 
+            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new,
             subheads: [
                 {title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : ''},
                 {title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : ''},
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined 
+                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined
                 }
             ],
             statustrack: stConfig,
@@ -922,11 +969,11 @@ export class BillView {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
                 add: () => {
-                    this.newInvoice(false); 
-                    this.router.navigateByUrl('/accounting/bill/0'); 
+                    this.newInvoice(false);
+                    this.router.navigateByUrl('/accounting/bill/0');
                 }
             },
-        };        
+        };
     }
 
     private navigateTo(direction = 'next') {
@@ -947,6 +994,7 @@ export class BillView {
             resultFld = 'maxid';
         }
 
+        // TODO: should use BizHttp.getNextID() / BizHttp.getPreviousID()
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.getStatQuery(params).subscribe((items) => {
                 if (items && items.length > 0) {
@@ -966,41 +1014,32 @@ export class BillView {
 
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
-        this.linkFile(fileID, fileID, 'file').then( (result) => {
-            this.currentFileID = <number>fileID;
-        }).catch((err) => {
-            // self-link to file already exists.. ignore..
-            this.currentFileID = <number>fileID;
-        });        
+        this.fileIds = [safeInt(fileID)];        
+        this.currentFileID = safeInt(fileID);
     }
 
-    private linkFile(ID: any, fileID: any, entityType: string, flagFileStatus?: any): Promise<any> {
-        var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
-        if (flagFileStatus === 0 || flagFileStatus) {
-            this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe();    
-        }
-        return this.supplierInvoiceService.send(route).toPromise();
+    private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
+        return new Promise( (resolve, reject) => {
+            fileIDs.forEach( fileID => {
+                var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
+                if (flagFileStatus) {
+                    this.tagFileStatus(fileID, flagFileStatus);
+                }
+                this.supplierInvoiceService.send(route).subscribe( x => resolve(x) );
+            });
+        });
     }
 
     private checkPath() {
-        this.defaultPath = this.location.path(true);
-        var ix = this.defaultPath.indexOf('?');
-        if (ix > 0) {
-            var params = this.defaultPath.substr(ix + 1).split('&');
-            if (params && params.length > 0) {
-                params.forEach(element => {
-                    var parts = element.split('=');
-                    if (parts.length > 1) {
-                        if (parts[0] === 'fileid') {
-                            this.loadFromFileID(parts[1]);
-                        }
-                    }
-                });
-            }
-            this.defaultPath = this.defaultPath.substr(0, ix);
-        } 
+        var pageParams = this.pageStateService.getPageState();
+        if (pageParams.fileid) {
+            this.loadFromFileID(pageParams.fileid);
+        }
     }
 
+    private tagFileStatus(fileID: number, flagFileStatus: number, tag = 'incomingmail') {
+        this.supplierInvoiceService.send(`filetags/${fileID}`, undefined , undefined, { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus } ).subscribe(null, err => this.errorService.handle(err));
+    }
 
     private showErrMsg(msg: string, lookForMsg = false): string {
         var txt = msg;
@@ -1030,7 +1069,7 @@ export class BillView {
                 var dropDown = btn.nextSibling;
                 btn.parentElement.insertBefore(sibling, dropDown);
             }
-            // Create keyboard-shortcut (F3) 
+            // Create keyboard-shortcut (F3)
             el = frm.elementRef.nativeElement.getElementsByTagName('input');
             if (el && el.length > 0) {
                 el[0].addEventListener('keydown', (event) => {

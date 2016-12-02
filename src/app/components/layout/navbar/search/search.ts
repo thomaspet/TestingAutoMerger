@@ -7,6 +7,7 @@ import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-navbar-search',
@@ -58,7 +59,12 @@ export class NavbarSearch implements AfterViewInit {
     private focusPositionTop: number = 0;
     private componentLookupSource: {componentName: string, componentUrl: string}[] = [];
 
-    constructor(private http: UniHttp, public router: Router, private renderer: Renderer) {
+    constructor(
+        private http: UniHttp,
+        public router: Router,
+        private renderer: Renderer,
+        private errorService: ErrorService
+    ) {
         let componentSections = HamburgerMenu.getAvailableComponents();
         componentSections.forEach((section) => {
             this.componentLookupSource.push(...section.componentList);
@@ -209,7 +215,7 @@ export class NavbarSearch implements AfterViewInit {
                 });
                 this.searchResults = results;
                 this.isExpanded = true;
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private TOFLookup(query: string, module: string) {
@@ -234,7 +240,7 @@ export class NavbarSearch implements AfterViewInit {
                     this.searchResults = results;
                     this.isExpanded = true;
                 },
-                (error) => { }
+                err => this.errorService.handle(err)
             );
     }
 }

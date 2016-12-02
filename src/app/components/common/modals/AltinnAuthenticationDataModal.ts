@@ -1,11 +1,11 @@
 import {Component, Type, ViewChild, Input, EventEmitter, ElementRef, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout} from '../../../../framework/uniform';
+import {UniFieldLayout, KeyCodes} from 'uniform-ng2/main';
 import {FieldType, AltinnAuthRequest} from '../../../unientities';
 import {AltinnAuthenticationService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {KeyCodes} from '../../../../framework/uniform/interfaces';
+import {ToastService} from '../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,
@@ -67,15 +67,13 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
         new EventEmitter<AltinnAuthenticationData>();
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
-    private onError: (err: string) => void = (err) => {
-        this.busy = false;
-        console.log('An error occured in the Altinn login modal:', err);
-    };
+
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
         private toastService: ToastService,
-        private elementRef: ElementRef
+        private elementRef: ElementRef,
+        private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
@@ -183,15 +181,9 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
                             this.formState = LoginState.Pin;
                         }, error => {
                             // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
-                            this.toastService.addToast(
-                                'ERROR',
-                                ToastType.bad,
-                                null,
-                                'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows'
-                            );
-                            this.onError(error);
+                            this.errorService.handleWithMessage(error, 'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows');
                         });
-                }, this.onError);
+                }, err => this.errorService.handle(err));
         }
 
         return new Promise((resolve, reject) => {
@@ -203,7 +195,7 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
             return this.userSubmittedPin
                     .subscribe(() => {
                         resolve(this.userLoginData);
-                    }, this.onError);
+                    }, err => this.errorService.handle(err));
             });
     }
 
@@ -243,7 +235,7 @@ export class AltinnAuthenticationDataModal {
             return authData;
         };
 
-    constructor(private altinnAuthService: AltinnAuthenticationService) {
+    constructor(private altinnAuthService: AltinnAuthenticationService, private errorService: ErrorService) {
         this.config = {
             close: () => {
                 this.modal.getContent().then((component: AltinnAuthenticationDataModalContent) => {
@@ -275,12 +267,13 @@ export class AltinnAuthenticationDataModal {
                 return Promise.resolve(authorizationData);
 
             } else {
+                this.altinnAuthService.clearAltinnAuthenticationDataFromLocalstorage();
                 // should be opened here instead of the start of this function
                 // this.modal.open();
                 return component.completeAltinnAuthenticationData(authorizationData)
                     .then(this.storeAuthenticationDataInLocalstorage)
                     .then(this.closeThisModal);
             }
-        }, (error) => console.log('altinnmodalerror: ' + error));
+        }, err => this.errorService.handle(err));
     }
 }

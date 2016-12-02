@@ -11,6 +11,7 @@ import {DimensionTypes} from '../../../../services/common/DimensionService';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
 import {ResultSummaryData} from '../resultreport/resultreport';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 
 declare const moment;
 declare const _; // lodash
@@ -41,6 +42,8 @@ export class DimensionResultReport {
     private activeDistributionElement: string = 'Resultat';
     private distributionPeriodAccountIDs: Array<number> = [];
 
+    private toolbarconfig: IToolbarConfig;
+
     constructor(private router: Router,
                 private route: ActivatedRoute,
                 private statisticsService: StatisticsService,
@@ -70,6 +73,10 @@ export class DimensionResultReport {
         } else {
             this.pageTitle += `Posteringer uten definert ${this.dimensionDisplayName.toLowerCase()}`;
         }
+
+        this.toolbarconfig = {
+            title: this.pageTitle
+        };
     }
 
     public ngOnInit() {

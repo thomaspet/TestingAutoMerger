@@ -6,6 +6,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {DimensionService, DimensionTypes} from '../../../../services/common/DimensionService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 declare const _; // lodash
@@ -44,8 +45,11 @@ export class DimensionsOverviewReportPart {
     private dimensionDataList: Array<DimensionSummaryData> = [];
     private uniTableConfigDimension: UniTableConfig;
 
-    constructor(private router: Router,
-                private statisticsService: StatisticsService) {
+    constructor(
+        private router: Router,
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService
+    ) {
 
     }
 
@@ -149,6 +153,6 @@ export class DimensionsOverviewReportPart {
                         new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money).setCls('amount'),
                         new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage')
                     ]);
-            });
+            }, err => this.errorService.handle(err));
     }
 }

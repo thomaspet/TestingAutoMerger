@@ -5,6 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 declare const _; // lodash
@@ -40,7 +41,11 @@ export class DrilldownBalanceReportPart implements OnChanges {
     private treeSummaryList: BalanceSummaryData[] = [];
     private flattenedTreeSummaryList: BalanceSummaryData[] = [];
 
-    constructor(private statisticsService: StatisticsService, private accountGroupService: AccountGroupService) {
+    constructor(
+        private statisticsService: StatisticsService,
+        private accountGroupService: AccountGroupService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnChanges() {
@@ -176,7 +181,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
             // expand top level groups
             this.expandRow(this.flattenedTreeSummaryList[1]);
             this.expandRow(this.flattenedTreeSummaryList[0]);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private calculateTreeAmounts(treeList: BalanceSummaryData[]) {

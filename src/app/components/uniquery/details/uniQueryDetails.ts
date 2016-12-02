@@ -13,6 +13,9 @@ import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../services/common/ErrorService';
+import {IToolbarConfig} from './../../common/toolbar/toolbar';
+
 
 declare const saveAs; // filesaver.js
 declare const _; // lodash
@@ -28,7 +31,7 @@ export class UniQueryDetails {
     // externalID is used when using this report from another component, e.g. as a sub component
     // in the customerDetails view. This way it is easy to set that the context of the uniquery
     // is a specific ID, this customers ID in this case
-    @Input() public externalID: number;
+    @Input() public externalID: string;
 
     private models: any;
     private visibleModels: any;
@@ -47,21 +50,28 @@ export class UniQueryDetails {
     private queryDefinitionID: number;
     private editMode: boolean = false;
     private hideModel: boolean = true;
+    private showExternalID: boolean = false;
+    private customExternalID: string;
 
     private currentUserGlobalIdentity: string = '';
+
+    private toolbarconfig: IToolbarConfig = {};
 
     private contextMenuItems: IContextMenuItem[] = [];
     private saveactions: IUniSaveAction[] = [];
 
-    constructor(private uniHttpService: UniHttp,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private statisticsService: StatisticsService,
-                private uniQueryDefinitionService: UniQueryDefinitionService,
-                private toastService: ToastService,
-                private authService: AuthService,
-                private statusService: StatusService) {
+    constructor(
+        private uniHttpService: UniHttp,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private statisticsService: StatisticsService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private toastService: ToastService,
+        private authService: AuthService,
+        private statusService: StatusService,
+        private errorService: ErrorService
+    ) {
 
         this.route.params.subscribe(params => {
             this.queryDefinitionID = +params['id'];
@@ -93,8 +103,22 @@ export class UniQueryDetails {
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params);
+                .GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
+    }
+
+    private updateToolbarConfig() {
+        if (this.queryDefinition) {
+            this.toolbarconfig = {
+                title: this.queryDefinition.ID > 0 ? this.queryDefinition.Name : 'Nytt uttrekk',
+                subheads: [{title: this.queryDefinition.ID > 0 ? this.queryDefinition.Description : ''}],
+                navigation: {
+                    add: () => this.newUniQuery()
+                },
+                contextmenu: this.contextMenuItems
+            };
+        }
     }
 
     private newUniQuery() {
@@ -111,9 +135,7 @@ export class UniQueryDetails {
                         // query was deleted, navigate to overview
                         this.router.navigateByUrl('/uniqueries/overview');
                     },
-                    err => {
-                        console.log('Error deleting query', err);
-                    }
+                        err => this.errorService.handle(err)
                 );
             } else {
                 // query has never been saved, so just redirect to overview without doing anything
@@ -173,11 +195,9 @@ export class UniQueryDetails {
                     this.setDefaultExpandedModels();
                     this.updateSaveActions();
                     this.updateContextMenu();
+                    this.updateToolbarConfig();
                 },
-                err => {
-                    console.log('error loading querydef', err);
-                    this.toastService.addToast('Feil ved henting av uttrekk, se logg for mer informasjon', ToastType.bad);
-                });
+                err => this.errorService.handle(err));
         } else {
             this.tabService.addTab({ name: 'Nytt uttrekk', url: '/uniqueries/details/0', moduleID: UniModules.UniQuery, active: true });
 
@@ -203,7 +223,7 @@ export class UniQueryDetails {
                 this.setDefaultExpandedModels();
                 this.filterModels();
             },
-            err => console.log('Error getting models:', err)
+            err => this.errorService.handle(err)
         );
     }
 
@@ -312,12 +332,27 @@ export class UniQueryDetails {
             }
         ];
 
+        // show editor for externalid if externalID is not set and a filter using :externalid is specified
+        if (!this.externalID && this.filters.find(x => x.value === ':externalid')) {
+            this.showExternalID = true;
+            if (!this.customExternalID) {
+                this.customExternalID = '1';
+            }
+        }
+
         // if externalID is supplied (when using uniquery as a sub component), send the expressionfiltervalue
         if (this.externalID) {
             expressionFilterValues.push(
                 {
                     expression: 'externalid',
                     value: this.externalID.toString()
+                }
+            );
+        } else if (this.customExternalID) {
+            expressionFilterValues.push(
+                {
+                    expression: 'externalid',
+                    value: this.customExternalID.toString()
                 }
             );
         } else {
@@ -415,9 +450,7 @@ export class UniQueryDetails {
                     // download file so the user can open it
                     saveAs(blob, 'export.csv');
                 },
-                err => {
-                    console.log('Error exporting data', err);
-                });
+                err => this.errorService.handle(err));
 
         completeEvent('Eksport kjørt');
     }
@@ -485,8 +518,20 @@ export class UniQueryDetails {
         setTimeout(() => {
             if (this.table) {
                 this.filters = this.table.getAdvancedSearchFilters();
+
+                // show editor for externalid if externalID is not set and a filter using :externalid is specified
+                if (!this.externalID && this.filters.find(x => x.value === ':externalid')) {
+                    this.showExternalID = true;
+                    if (!this.customExternalID) {
+                        this.customExternalID = '1';
+                    }
+                }
             }
         });
+    }
+
+    private customExternalIdChanged() {
+        this.setupTableConfig();
     }
 
     private editQuery(completeEvent) {
@@ -495,6 +540,7 @@ export class UniQueryDetails {
 
         this.updateSaveActions();
         this.updateContextMenu();
+        this.updateToolbarConfig();
         this.setupTableConfig();
 
         completeEvent('');
@@ -503,6 +549,7 @@ export class UniQueryDetails {
     private showHideModel() {
         this.hideModel = !this.hideModel;
         this.updateContextMenu();
+        this.updateToolbarConfig();
     }
 
     private showHideAllModels() {
@@ -691,10 +738,9 @@ export class UniQueryDetails {
         }
 
         if (model.Name !== this.queryDefinition.MainModelName) {
-            alert(`Du kan ikke legge til felter fra ${model.Name}, du har valgt ${this.queryDefinition.MainModelName} som hovedmodellen din\n\n
-Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes ut via relasjoner til ${this.queryDefinition.MainModelName}
-eller du må velge ${model.Name} som hovedmodell ved å kun hente felter som ligger under den modellen`);
+            alert(`Du kan ikke legge til felter fra ${model.Name}, du har valgt ${this.queryDefinition.MainModelName} som hovedmodellen din
 
+Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes ut via relasjoner til ${this.queryDefinition.MainModelName} eller du må velge ${model.Name} som hovedmodell ved å kun hente felter som ligger under den modellen`);
             return;
         } else {
             model.Selected = true;

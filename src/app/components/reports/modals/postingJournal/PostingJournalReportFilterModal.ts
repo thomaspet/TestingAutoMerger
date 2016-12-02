@@ -4,7 +4,8 @@ import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../.
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from '../../../../../framework/uniform/interfaces';
+import {UniFieldLayout} from 'uniform-ng2/main';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({
@@ -44,7 +45,7 @@ export class PostingJournalReportFilterForm implements OnInit {
         { ID: 'onlyCorrections', Label: 'med KUN korrigeringer' }
     ];
 
-    constructor(private journalEntryService: JournalEntryService) {
+    constructor(private journalEntryService: JournalEntryService, private errorService: ErrorService) {
     }
 
     public ngOnInit() {
@@ -52,7 +53,7 @@ export class PostingJournalReportFilterForm implements OnInit {
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
             this.model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
             this.model = _.cloneDeep(this.model);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -119,7 +120,10 @@ export class PostingJournalReportFilterModal {
 
     private previewModal: PreviewModal;
 
-    constructor(private reportDefinitionParameterService: ReportDefinitionParameterService) {
+    constructor(
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private errorService: ErrorService
+    ) {
         this.modalConfig = {
             title: 'Parametre',
             model: null,
@@ -179,7 +183,7 @@ export class PostingJournalReportFilterModal {
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
-        });
+        }, err => this.errorService.handle(err));
     }
 }
 

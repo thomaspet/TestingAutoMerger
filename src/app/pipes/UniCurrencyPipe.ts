@@ -1,15 +1,22 @@
 import {Pipe, PipeTransform} from '@angular/core';
+import {ErrorService} from '../services/common/ErrorService';
 
 @Pipe({name: 'unicurrency'})
 export class UniCurrencyPipe implements PipeTransform {
+
+    constructor(private errorService: ErrorService) {}
     public transform(value: number, numberOfDecimalPlaces?: number): string {
-        const nrOfDecimal = numberOfDecimalPlaces || 2;
-        const THOUSAND_SEPARATOR = ' ';
-        const DECIMAL_SEPARATOR = ',';
-        const roundedNumber = this.round10(value, nrOfDecimal);
-        const decimalCorrect = this.enforceDecimalPlaces(roundedNumber, nrOfDecimal);
-        const thousandSeparatedNumber = this.insertThousandSeparator(decimalCorrect, THOUSAND_SEPARATOR, DECIMAL_SEPARATOR);
-        return thousandSeparatedNumber;
+        try {
+            const nrOfDecimal = numberOfDecimalPlaces || 2;
+            const THOUSAND_SEPARATOR = ' ';
+            const DECIMAL_SEPARATOR = ',';
+            const roundedNumber = this.round10(value, nrOfDecimal);
+            const decimalCorrect = this.enforceDecimalPlaces(roundedNumber, nrOfDecimal);
+            const thousandSeparatedNumber = this.insertThousandSeparator(decimalCorrect, THOUSAND_SEPARATOR, DECIMAL_SEPARATOR);
+            return thousandSeparatedNumber;
+        } catch (err) {
+            this.errorService.handle(err);
+        }
     }
 
     private round10(value: any, exp: number): number {

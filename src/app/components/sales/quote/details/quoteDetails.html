@@ -1,38 +1,22 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
-<section class="quote-detail">
 
-    <header class="quote_poster" *ngIf="quote">
-        <!-- Widget poster -->
-        <section class="poster_overview">
-            <uni-widget-poster [model]="quote">
-                <section class="application"></section>
-            </uni-widget-poster>
-        </section>
-    </header>
+<uni-tof-head [readonly]="readonly"
+              [entityName]="'CustomerQuote'"
+              [data]="quote"
+              (dataChange)="onQuoteChange($event)">
+</uni-tof-head>
 
-    <section class="application">
-        <uni-form *ngIf="quote"
-                  [config]="config"
-                  [fields]="fields"
-                  [model]="quote"
-                  (readyEvent)="ready($event)">
-        </uni-form>
-        <address-modal question="Lagre på kundekort?"></address-modal>
-
-        <quote-item-list *ngIf="quote && dropdownData" [quote]="quote" [departments]="dropdownData[0]" [projects]="dropdownData[1]" (itemsUpdated)="recalcItemSums($event)" (itemDeleted)="deleteItem($event)" (itemsLoaded)="recalcItemSums($event)"></quote-item-list>
-        <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
-    </section>
+<section class="application">
+    <uni-tradeitem-table *ngIf="quote"
+                         [readonly]="readonly"
+                         [entity]="quote"
+                         (entityChange)="onQuoteChange($event)">
+    </uni-tradeitem-table>
+    <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
 
-<article class="application">
-    <uni-image [entity]="'quote'" [entityID]="quote?.ID"></uni-image>
-</article>
+<uni-save [actions]="saveActions"></uni-save>
 
+<uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>
 <report-preview-modal></report-preview-modal>
-
-<footer class="full-footer">
-    <section class="application" *ngIf="actions">
-        <uni-save [actions]="actions"></uni-save>
-    </section>
-</footer>

@@ -1,5 +1,6 @@
-$navbarBackground: $uni-color-C2A
+$navbarBackground: $uni-color-c2a
 $navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color-positive, 60)
+$navbarActive: $uni-color-toolbar
 
 @import 'hamburger'
 @import 'tabs'
@@ -26,6 +27,15 @@ $navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color
     flex-wrap: wrap
 
 // Layout
+body
+    padding-top: #{2.5rem + 5.5rem} // Main nav plus toolbar
+
+.navbar
+    position: fixed
+    top: 0
+    z-index: map-get($zindex, hamburger) // The container needs the higher
+    // burger-z-index, since fixed elements create their own stacking context
+
 uni-hamburger-menu
     flex-grow: 0
 

@@ -1,5 +1,4 @@
 import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Customer} from '../../../../unientities';
 import {CustomerDetails} from './customerDetails';
 
 @Component({
@@ -7,8 +6,8 @@ import {CustomerDetails} from './customerDetails';
     template: `
         <dialog class="uniModal" [attr.open]="isOpen">
             <button (click)="close()" class="closeBtn"></button>
-            <article class="modal-content">
-                <customer-details [modalMode]="true" (customerCreated)="onCustomerCreated($event)"></customer-details>
+            <article class="modal-content" *ngIf="isOpen">
+                <customer-details [modalMode]="true" (customerUpdated)="onCustomerUpdated($event)"></customer-details>
             </article>
         </dialog>
     `
@@ -17,7 +16,7 @@ export class CustomerDetailsModal {
     @ViewChild(CustomerDetails)
     private customerDetails: CustomerDetails;
 
-    @Output() public newCustomer: EventEmitter<Customer> = new EventEmitter<Customer>();
+    @Output() public customerUpdated: EventEmitter<number> = new EventEmitter<number>();
     @Output() public cancel: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     public isOpen: boolean = false;
@@ -33,14 +32,16 @@ export class CustomerDetailsModal {
         });
     }
 
-    public onCustomerCreated(customer: Customer) {
-        this.newCustomer.emit(customer);
+    public onCustomerUpdated(customerID: number) {
+        this.customerUpdated.emit(customerID);
         this.isOpen = false;
     }
 
-    public open() {
-        this.customerDetails.reset();
+    public open(customerID: number) {
         this.isOpen = true;
+        setTimeout(() => {
+            this.customerDetails.openInModalMode(customerID);
+        });
     }
 
     public close() {

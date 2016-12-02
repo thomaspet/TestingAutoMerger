@@ -1,7 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
+import {ErrorService} from '../../services/common/ErrorService';
+import {AuthService} from '../../../framework/core/authService';
+import {Company} from '../../unientities';
 
 declare var Chart;
 declare var moment;
@@ -29,63 +32,90 @@ export class Dashboard {
     public inboxList = [];
     public emptyInboxMessage = '';
     public user: any;
-    public current: any = {};
+    public current: Company;
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
+    private loadReload: EventEmitter<Company> = new EventEmitter<Company>();
 
-    constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
+    constructor(
+        private tabService: TabService,
+        private http: UniHttp,
+        private router: Router,
+        private errorService: ErrorService,
+        private authService: AuthService
+    ) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
         Chart.defaults.global.maintainAspectRatio = false;
 
         this.getCompany().subscribe(
             (data) => { this.current = data[0]; },
-            (error) => { console.log(error); }
+            err => this.errorService.handle(err)
+        );
+
+        this.authService.companyChange.subscribe(
+            company => this.loadReload.emit(company)
+            /* No error handling neccesary */
         );
     }
 
     public ngAfterViewInit() {
+        this.loadReload.subscribe(company => {
 
-        this.getInvoicedData().subscribe(
-            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount'))
-        );
-        this.getOrdreData().subscribe(
-            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) }
-        );
+            this.getInvoicedData().subscribe(
+                data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
+                err => this.errorService.handle(err)
+            );
+            this.getOrdreData().subscribe(
+                (data) => this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')),
+                err => this.errorService.handle(err)
+            );
 
-        this.getQuoteData().subscribe(
-            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) }
-        );
+            this.getQuoteData().subscribe(
+                (data) => this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')),
+                err => this.errorService.handle(err)
+            );
 
-        this.getOperatingData().subscribe(
-            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) }
-        );
+            this.getOperatingData().subscribe(
+                (data) => this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)),
+                err => this.errorService.handle(err)
+            );
 
-        this.getLastJournalEntry().subscribe(
-            (data) => { this.generateLastTenList(data, true); }
-        );
+            this.getLastJournalEntry().subscribe(
+                (data) => this.generateLastTenList(data, true),
+                err => this.errorService.handle(err)
+            );
 
-        this.getMyUserInfo().subscribe(
-            (data) => {
-                this.user = data;
-                this.getMyTransactions()
-                    .subscribe(
-                    (data) => { this.generateLastTenList(data.Data, false, true) }
-                    )
-            },
-            error => console.log(error)
-        );
+            this.getMyUserInfo().subscribe(
+                (data) => {
+                    this.user = data;
+                    this.getMyTransactions()
+                        .subscribe(
+                            (data) => this.generateLastTenList(data.Data, false, true),
+                            err => this.errorService.handle(err)
+                        );
+                },
+                err => this.errorService.handle(err)
+            );
 
-        this.getTransactions().subscribe(
-            (data) => { this.generateLastTenList(data.Data, false) }
-        );
+            this.getTransactions().subscribe(
+                (data) => this.generateLastTenList(data.Data, false),
+                err => this.errorService.handle(err)
+            );
 
-        this.getAssets().subscribe(
-            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data.Data)) }
-        );
+            this.getAssets().subscribe(
+                (data) => this.chartGenerator('assets_chart', this.assetsChartData(data.Data)),
+                err => this.errorService.handle(err)
+            );
 
-        this.getMail().subscribe(
-            (data) => { this.fixInboxItems(data.Data); }
-        );
+            this.getMail().subscribe(
+                (data) => this.fixInboxItems(data.Data),
+                err => this.errorService.handle(err)
+            );
+
+        });
+
+        // First load is manual, the following times it is done by authService.companyChange event
+        this.loadReload.emit(this.current);
     }
 
     public hideWelcome() {
@@ -201,7 +231,7 @@ export class Dashboard {
                 myColors.push(this.colors[i]);
             }
         }
-        
+
 
         return {
             label: '',
@@ -233,8 +263,8 @@ export class Dashboard {
     }
 
     /***********************
-        HELP METHODS
-    ************************/
+     HELP METHODS
+     ************************/
 
     //Dummy temp switch that adds better name and url to list items
     private findModuleDisplayNameAndURL(data: any) {
@@ -341,12 +371,12 @@ export class Dashboard {
         var n = num.toString(), p = n.indexOf('.');
         return n.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, function ($0, i) {
             return p < 0 || i < p ? ($0 + ' ') : $0;
-    });
-}
+        });
+    }
 
     /********************************************************************
-        SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES
-    *********************************************************************/
+     SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES
+     *********************************************************************/
 
     //Gets 10 last transactions
     public getTransactions() {
@@ -354,7 +384,7 @@ export class Dashboard {
             .asGET()
             .usingEmptyDomain()
             .withEndPoint(
-            "/api/statistics?model=AuditLog&select=id,entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
+                "/api/statistics?model=AuditLog&select=id,entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
             )
             .send()
             .map(response => response.json());
@@ -366,9 +396,9 @@ export class Dashboard {
             .asGET()
             .usingEmptyDomain()
             .withEndPoint(
-            "/api/statistics?model=AuditLog&select=id,entitytype,field,entityid,User.displayname,createdat,updatedat&filter=createdby eq '"
-            + this.user.GlobalIdentity
-            + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
+                "/api/statistics?model=AuditLog&select=id,entitytype,field,entityid,User.displayname,createdat,updatedat&filter=createdby eq '"
+                + this.user.GlobalIdentity
+                + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
             )
             .send()
             .map(response => response.json());

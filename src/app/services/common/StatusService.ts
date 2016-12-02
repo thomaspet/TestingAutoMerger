@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Rx';
 import {StatisticsService} from './StatisticsService';
+import {ErrorService} from './ErrorService';
 
 @Injectable()
 export class StatusService {
     private statusDictionary: {[StatusCode: number]: string};
 
-    constructor(private statisticsService: StatisticsService) {
+    constructor(private statisticsService: StatisticsService, private errorService: ErrorService) {
 
     }
 
@@ -34,7 +35,7 @@ export class StatusService {
                         } else {
                             reject('Could not get statuses from API');
                         }
-                    });
+                    }, err => this.errorService.handle(err));
             }
 
             resolve(true);

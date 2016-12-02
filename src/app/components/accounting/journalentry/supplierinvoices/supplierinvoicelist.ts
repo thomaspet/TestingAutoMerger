@@ -13,6 +13,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {SupplierInvoice, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -39,7 +40,9 @@ export class SupplierInvoiceList implements OnInit {
         private supplierInvoiceService: SupplierInvoiceService,
         private router: Router,
         private tabService: TabService,
-        private journalEntryService: JournalEntryService) {
+        private journalEntryService: JournalEntryService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices', moduleID: UniModules.Accounting, active: true });
     }
 
@@ -59,7 +62,8 @@ export class SupplierInvoiceList implements OnInit {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set('expand', 'JournalEntry,Supplier.Info,Dimensions.Department,Dimensions.Project');
-            return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams);
+            return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         this.onFiltersChange('');
@@ -76,9 +80,7 @@ export class SupplierInvoiceList implements OnInit {
                 (supplierinvoice) => {
                     this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + supplierinvoice.ID);
                 },
-                (err) => {
-                    console.log('Error creating invoice: ', err);
-                }
+                    err => this.errorService.handle(err)
                 );
         });
     }
@@ -97,9 +99,7 @@ export class SupplierInvoiceList implements OnInit {
         this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             this.table.refreshTableData();
 
-        }, (error) => {
-            this.setError(error);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private setupTableCfg(): UniTableConfig {
@@ -150,9 +150,9 @@ export class SupplierInvoiceList implements OnInit {
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
-        let departmentCol = new UniTableColumn('Dimensions.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+        let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: SupplierInvoice) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
-        let projectCol = new UniTableColumn('Dimensions.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
+        let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: SupplierInvoice) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
     
 
@@ -219,14 +219,10 @@ export class SupplierInvoiceList implements OnInit {
                                                 );
                                         }
                                     },
-                                    (error) => {
-                                        this.setError(error);
-                                    }
+                                        err => this.errorService.handle(err)
                                     )
                             },
-                            (error) => {
-                                this.setError(error);
-                            }
+                                err => this.errorService.handle(err)
                             );
 
                     },
@@ -246,9 +242,8 @@ export class SupplierInvoiceList implements OnInit {
                                 console.log('== TRANSITION OK sendForPayment ==');
                                 this.registerPayment(supplierInvoice)
                             },
-                                (error) => {
-                                    this.setError(error);
-                                });
+                                err => this.errorService.handle(err)
+                            );
                         }
                         else {
                             this.registerPayment(supplierInvoice);
@@ -267,7 +262,7 @@ export class SupplierInvoiceList implements OnInit {
                 {
                     label: 'Slett',
                     action: supplierInvoice => this.supplierInvoiceService.Remove(supplierInvoice.ID, supplierInvoice)
-                        .subscribe(() => alert('Successful'), error => alert(`An error occurred: ${error}`)),
+                        .subscribe(() => alert('Successful'), err => this.errorService.handle(err)),
                     disabled: supplierInvoice => !supplierInvoice._links.actions.delete
                 }
             ]);
@@ -280,7 +275,7 @@ export class SupplierInvoiceList implements OnInit {
                 this.summaryData = summary;
             },
             (err) => {
-                console.log('Error retrieving summarydata:', err);
+                this.errorService.handle(err);
                 this.summaryData = null;
             });
     }

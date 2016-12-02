@@ -2,6 +2,7 @@ import {Component, ViewChild, Output, EventEmitter, Type, AfterViewInit} from '@
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
+import {ErrorService} from '../../../../services/common/ErrorService';
 declare var _;
 
 @Component({
@@ -10,16 +11,20 @@ declare var _;
 })
 export class VacationpayModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
-    private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number };
+    private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number , submit: () => void};
     
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public type: Type<any> = VacationpayModalContent;
 
-    constructor(private router: ActivatedRoute) {
+    constructor(private router: ActivatedRoute, private errorService: ErrorService) {
         this.router.params.subscribe((params) => {
             this.modalConfig = {
                 hasCancelButton: true,
                 cancel: () => {
+                    this.modal.close();
+                },
+                submit: () => {
+                    this.updatePayrollRun.emit(true);
                     this.modal.close();
                 },
                 payrollRunID: +params['id']
@@ -41,6 +46,6 @@ export class VacationpayModal implements AfterViewInit {
         this.modal.getContent().then((component: VacationpayModalContent) => {
             this.modal.open();
             component.load();
-        }, (error) => console.log('error: ' + error));
+        }, err => this.errorService.handle(err));
     }
 }

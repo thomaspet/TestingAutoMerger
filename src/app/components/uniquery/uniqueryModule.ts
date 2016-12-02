@@ -9,6 +9,7 @@ import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
@@ -32,6 +33,9 @@ import {UniQueries} from './uniQueries';
 
         // UniTable
         UniTableModule,
+
+        // UniForm
+        UniFormModule,
 
         // Framework
         UniFrameworkModule,

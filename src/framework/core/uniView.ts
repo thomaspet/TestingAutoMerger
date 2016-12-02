@@ -1,6 +1,6 @@
-import {UniCacheService} from '../../app/services/cacheService';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {Observable} from 'rxjs/Observable';
+import { UniCacheService } from '../../app/services/cacheService';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observable } from 'rxjs/Observable';
 
 export class UniView {
     protected cacheService: UniCacheService;
@@ -33,9 +33,11 @@ export class UniView {
         let pageCache = this.cacheService.getPageCache(this.cacheKey);
         let stateVariable = pageCache.state[key];
 
-        stateVariable.isDirty = isDirty;
-        stateVariable.updatedAt = new Date();
-        stateVariable.subject.next(data);
+        if (stateVariable) {
+            stateVariable.isDirty = isDirty;
+            stateVariable.updatedAt = new Date();
+            stateVariable.subject.next(data);
+        }
 
         this.cacheService.updatePageCache(this.cacheKey, pageCache);
     }
@@ -67,7 +69,7 @@ export class UniView {
     }
 
 
-    public canDeactivate(): Observable<boolean>|Promise<boolean>|boolean {
+    public canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
         // Update from cache
         let cache = this.cacheService.getPageCache(this.cacheKey);
         let canDeactivate = !cache.isDirty || this.getUserPermission();

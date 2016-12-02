@@ -1,6 +1,6 @@
 import {Component, Type, ViewChild, Input, Output, OnChanges, AfterViewInit, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {TaxCardRequest} from './taxCardRequest';
 import {ReadTaxCard} from './readTaxCard';
 

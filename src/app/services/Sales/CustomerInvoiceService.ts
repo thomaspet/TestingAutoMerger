@@ -4,6 +4,7 @@ import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../common/ErrorService';
 
 declare var moment;
 
@@ -25,7 +26,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
     ];
     
-    constructor(http: UniHttp) {        
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);       
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.entityType = CustomerInvoice.EntityType;
@@ -40,7 +41,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                 invoice.InvoiceDate = moment().toDate();
 
                 resolve(invoice);                
-            });               
+            }, err => this.errorService.handle(err));
         });
     }
     

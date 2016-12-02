@@ -2,11 +2,12 @@ import {BizHttp} from '../../framework/core/http/BizHttp';
 import {StaticRegister} from '../unientities';
 import {UniHttp} from '../../framework/core/http/http';
 import {Injectable} from '@angular/core';
+import {ErrorService} from './common/ErrorService';
 
 @Injectable()
 export class StaticRegisterService extends BizHttp<StaticRegister> {
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
     }
 
@@ -23,7 +24,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
                     this.postStaticRegisterDataset(entity);
                 }
             });
-        });
+        }, err => this.errorService.handle(err));
 
     }
 
@@ -36,7 +37,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .subscribe((response) => {
             localStorage.setItem(entity.Registry + 'Data', JSON.stringify(response));
             localStorage.setItem(entity.Registry + 'Stamp', entity.stamp);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public getStaticRegisterDataset(registry: string) {

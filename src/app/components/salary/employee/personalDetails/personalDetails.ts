@@ -1,14 +1,15 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniForm } from '../../../../../framework/uniform';
+import { UniForm } from 'uniform-ng2/main';
 import { OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal, SubEntity } from '../../../../unientities';
 import { EmployeeService, MunicipalService } from '../../../../services/services';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
-import { UniFieldLayout } from '../../../../../framework/uniform/index';
+import { UniFieldLayout } from 'uniform-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 declare var _;
 
 @Component({
@@ -42,21 +43,24 @@ export class PersonalDetails extends UniView {
         private router: Router,
         private municipalService: MunicipalService,
         route: ActivatedRoute,
-        cacheService: UniCacheService) {
+        cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
 
         super(router.url, cacheService);
 
         // Update cache key and (re)subscribe when param changes (different employee)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
-            super.getStateSubject('employee').subscribe((employee) => {
-                this.employee = employee;
-            });
+            super.getStateSubject('employee').subscribe(
+                employee => this.employee = employee,
+                err => this.errorService.handle(err)
+            );
 
             super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
                 this.subEntities = subEntity;
                 this.getLayout();
-            });
+            }, err => this.errorService.handle(err));
         });
     }
 
@@ -86,10 +90,7 @@ export class PersonalDetails extends UniView {
                 this.extendFormConfig();
 
             }
-            , (error: any) => {
-                console.error(error);
-                this.log(error);
-            }
+            , err => this.errorService.handle(err)
         );
     }
 
@@ -236,7 +237,7 @@ export class PersonalDetails extends UniView {
                 template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
             };
             this.fields = _.cloneDeep(this.fields);
-        });
+        }, err => this.errorService.handle(err));
 
 
 
@@ -290,11 +291,7 @@ export class PersonalDetails extends UniView {
                 this.employee.MunicipalityNo = employee.MunicipalityNo;
                 this.employee.NotMainEmployer = employee.NotMainEmployer;
                 this.updateState('employee', employee);
-            });
+            }, err => this.errorService.handle(err));
         }
-    }
-
-    public log(err) {
-        alert(err._body);
     }
 }

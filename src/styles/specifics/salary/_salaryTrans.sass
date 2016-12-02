@@ -14,7 +14,7 @@ uni-salary
                 content: ''
                 display: inline-block
                 position: absolute
-                background: transparent unicon-warning($uni-color-Bad) top center no-repeat
+                background: transparent unicon-warning($uni-color-bad) top center no-repeat
                 background-size: 1rem
                 margin: .3rem .4rem 0 0
                 height: 1rem
@@ -65,7 +65,16 @@ section.salarytrans-filter
 
     h1
         @extend h2
-        margin: 0 0 .5rem
+        display: flex
+        align-items: baseline
+        flex-grow: 1
+        order: 4
+        font-weight: 300
+        line-height: 100%
+        small
+            @extend p
+            flex-basis: fit-content
+            margin: 0 0 0 1rem
 
 .detail_header_info_tableForm
     color: $uni-color-scale3
@@ -135,7 +144,7 @@ uni-salary .detail_tables
 
 .summarytable
     display: block
-    background: transparentize($uni-color-Good, .9)
+    background: transparentize($uni-color-good, .9)
     border-top: pxToRem(3) double $uni-color-scale9
     border-bottom: pxToRem(1) solid $uni-color-scale9
     pointer-events: none

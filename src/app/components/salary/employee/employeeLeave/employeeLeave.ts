@@ -5,6 +5,7 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/m
 import {UniCacheService} from '../../../../services/services';
 
 import {UniView} from '../../../../../framework/core/uniView';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'employee-permision',
@@ -24,21 +25,26 @@ export class EmployeeLeave extends UniView {
         { typeID: '2', text: 'Permittering' }
     ];
 
-    constructor(router: Router, route: ActivatedRoute, cacheService: UniCacheService) {
+    constructor(
+        router: Router,
+        route: ActivatedRoute,
+        cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
         super(router.url, cacheService);
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
 
-            super.getStateSubject('employee').subscribe(employee => this.employee = employee);
-            super.getStateSubject('employeeLeave').subscribe(employeeleave => this.employeeleaveItems = employeeleave);
+            super.getStateSubject('employee').subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
+            super.getStateSubject('employeeLeave').subscribe(employeeleave => this.employeeleaveItems = employeeleave, err => this.errorService.handle(err));
 
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
                 this.employments = (employments || []).filter(emp => emp.ID > 0);
                 this.unsavedEmployments = this.employments.length !== employments.length;
                 this.buildTableConfig();
-            });
+            }, err => this.errorService.handle(err));
         });
     }
 

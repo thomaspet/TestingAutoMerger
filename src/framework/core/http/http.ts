@@ -226,7 +226,9 @@ export class UniHttp {
         return this.http.request(new Request(options)).catch((err) => {
             if (err.status === 401) {
                 this.authService.clearAuthAndGotoLogin();
+                return Observable.empty();
             }
+
             return Observable.throw(err);
         });
     }

@@ -1,12 +1,13 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {Email, FieldType, CompanySettings, User, Customer} from '../../../unientities';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
+import {Email, FieldType, CompanySettings} from '../../../unientities';
 import {EmailService, CustomerService, UserService} from '../../../services/services';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {Observable} from 'rxjs/Rx';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 // Reusable email form
 @Component({
@@ -113,11 +114,14 @@ export class SendEmailModal {
 
     private type: Type<any> = SendEmailForm;
 
-    constructor(private emailService: EmailService,
-                private toastService: ToastService,
-                private customerService: CustomerService,
-                private userService: UserService,
-                private companySettingsService: CompanySettingsService) {
+    constructor(
+        private emailService: EmailService,
+        private toastService: ToastService,
+        private customerService: CustomerService,
+        private userService: UserService,
+        private companySettingsService: CompanySettingsService,
+        private errorService: ErrorService
+    ) {
     }
     
     public ngOnInit() {    
@@ -173,6 +177,6 @@ export class SendEmailModal {
 
             this.modalConfig.model = sendemail;    
             this.modal.open();
-        });    
+        }, err => this.errorService.handle(err));
     }
 }

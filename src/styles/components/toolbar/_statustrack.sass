@@ -10,20 +10,21 @@ uni-statustrack > ol
     background: $statustrack-background
     box-sizing: border-box
     height: $statustrack-height + $statustrack-border
-    margin: .5rem 0
+    margin: .5rem 0 0
 
     & > li
         position: relative
         padding: 0 1.5rem
         line-height: $statustrack-height
+        color: $uni-color-positive
 
         &.future
             color: $uni-color-scale5
 
         &.active,
         &.obsolete
-            z-index: 2
-            background: $uni-color-C2A
+            z-index: #{map-get($zindex, toolbar) + 2}
+            background: $uni-color-c2a
             color: $uni-color-negative
             font-weight: 600
 
@@ -34,7 +35,7 @@ uni-statustrack > ol
                 border-radius: 0 pxToRem(2) pxToRem(2) 0
 
         &.obsolete
-            background: $uni-color-Warn
+            background: $uni-color-warn
 
         &:not(:last-of-type)
             &:after
@@ -44,10 +45,10 @@ uni-statustrack > ol
                 border-left-color: $uni-color-scale7
 
             &.active:after
-                border-left-color: $uni-color-C2A
+                border-left-color: $uni-color-c2a
 
             &.obsolete:after
-                border-left-color: $uni-color-Warn
+                border-left-color: $uni-color-warn
 
             &.active:before,
             & + .active:before
@@ -66,11 +67,11 @@ uni-statustrack > ol
             border-width: (($statustrack-height/2) + $statustrack-border) 0 (($statustrack-height/2)+$statustrack-border) .5rem
 
         &:before
-            z-index: 1
+            z-index: #{map-get($zindex, toolbar) + 1}
             right: -.5625rem
 
         &:after
-            z-index: 3
+            z-index: #{map-get($zindex, toolbar) + 3}
             right: -.5rem
 
 .statustrack_title[data-badge]:after
@@ -85,7 +86,7 @@ uni-statustrack > ol
     line-height: 1.2rem
     font-size: .9rem
     text-align: center
-    z-index: 4
+    z-index: #{map-get($zindex, toolbar) + 4}
 
 .statustrack_substati
     @extend %popover
@@ -110,7 +111,7 @@ uni-statustrack > ol
             color: $uni-color-scale5
 
         &:hover
-            background: $uni-color-C2A
+            background: $uni-color-c2a
             color: $uni-color-negative
             width: 100%
             margin-left: -1rem
@@ -142,4 +143,4 @@ uni-statustrack > ol
             &:hover:after
                 right: 1rem
                 background: $uni-color-negative
-                color: $uni-color-C2A
+                color: $uni-color-c2a

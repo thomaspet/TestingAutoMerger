@@ -1,8 +1,9 @@
 import {Component, ViewChild, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {FieldType, Address} from '../../../unientities';
 import {AddressService, BusinessRelationService} from '../../../services/services';
-import {UniForm} from '../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {AddressModal} from '../../common/modals/modals';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;
 
 @Component({
@@ -11,12 +12,12 @@ declare const _;
         <section class="shippingAddress">
             <uni-form [fields]="[multivalueField]"
                       [model]="entity"
-                      [config]="{autofocus: true}"
+                      [config]="{}"
                       (readyEvent)="onLeftFormReady($event)"
                       (changeEvent)="onLeftFormChange($event)">
             </uni-form>
 
-            <section *ngIf="entity?.Customer && entity.ShippingAddressLine1"
+            <section *ngIf="entity?.Customer?.Info?.ShippingAddressID"
                      class="addressCard"
                      [attr.aria-readonly]="readonly">
                 <strong>{{entity.Customer?.Info?.Name}}</strong>
@@ -68,16 +69,15 @@ export class TofDeliveryForm {
     private multivalueField: any;
     private address$: any;
 
-    constructor(private addressService: AddressService,
-                private businessRelationService: BusinessRelationService) {
+    constructor(
+        private addressService: AddressService,
+        private businessRelationService: BusinessRelationService,
+        private errorService: ErrorService
+    ) {
         this.initFormLayout();
     }
 
     public ngOnChanges(changes) {
-        if (changes['entity'] && this.entity) {
-            this.entity = _.cloneDeep(this.entity);
-        }
-
         if (changes['readonly'] && this.forms) {
             setTimeout(() => {
                 if (this.readonly) {
@@ -85,13 +85,25 @@ export class TofDeliveryForm {
                     this.forms.last.readMode();
                 } else {
                     this.forms.last.editMode();
-                    if (this.entity.Customer) {
+                    if (this.entity && this.entity.Customer) {
                         this.forms.first.editMode();
                     } else {
                         this.forms.first.readMode();
                     }
                 }
             });
+        }
+
+        if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
+            const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
+                return addr.AddressLine1 === this.entity.ShippingAddressLine1
+                    && addr.PostalCode === this.entity.ShippingPostalCode
+                    && addr.City === this.entity.ShippingCity
+                    && addr.Country === this.entity.ShippingCountry;
+            });
+            if (shippingAddress) {
+                this.entity['_shippingAddressID'] = shippingAddress.ID;
+            }
         }
     }
 
@@ -108,8 +120,8 @@ export class TofDeliveryForm {
     }
 
     public onLeftFormChange(model) {
+        this.addressService.addressToShipping(model, model['_ShippingAddress']);
         this.entity = model;
-        this.addressService.addressToShipping(this.entity, model['_ShippingAddress']);
         this.entityChange.next(model);
     }
 
@@ -137,7 +149,7 @@ export class TofDeliveryForm {
         this.businessRelationService.Put(this.entity.Customer.Info.ID, this.entity.Customer.Info).subscribe((info) => {
             this.entity.Customer.Info = info;
             resolve(info.Addresses[idx]);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private initFormLayout() {
@@ -176,7 +188,7 @@ export class TofDeliveryForm {
             listProperty: 'Customer.Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Customer.Info.ShippingAddressID',
+            storeResultInProperty: '_shippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -195,7 +207,7 @@ export class TofDeliveryForm {
                     } else {
                         resolve(address);
                     }
-                });
+                }, err => this.errorService.handle(err));
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);

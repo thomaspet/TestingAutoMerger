@@ -1,10 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'payrollrun-list',
@@ -16,13 +17,16 @@ export class PayrollrunList implements OnInit {
     private payrollRuns$: Observable<PayrollRun>;
     public busy: boolean;
 
-    constructor(private router: Router, private tabSer: TabService, private payrollService: PayrollrunService) {
-
-    }
+    constructor(
+        private router: Router,
+        private tabSer: TabService,
+        private payrollService: PayrollrunService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
 
-        this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc');
+        this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc').catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
         .setWidth('5rem');
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
@@ -41,35 +45,11 @@ export class PayrollrunList implements OnInit {
         this.tabSer.addTab({ name: 'Lønnsavregninger', url: 'salary/payrollrun', moduleID: UniModules.Payrollrun, active: true });
     }
 
-    public createPayrollrun() {
-        this.busy = true;
-        var createdPayrollrun = new PayrollRun();
-        var dates: any[] = this.payrollService.getEmptyPayrollrunDates();
-        createdPayrollrun.FromDate = dates[0];
-        createdPayrollrun.ToDate = dates[1];
-        createdPayrollrun.PayDate = dates[2];
-        this.payrollService.Post(createdPayrollrun)
-        .subscribe((response) => {
-
-            this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
-            this.busy = false;
-        },
-        (err) => {
-            this.log(err);
-            console.log('Error creating payrollrun: ', err)
-        });
+    public newPayrollrun() {
+        this.router.navigateByUrl('/salary/payrollrun/' + 0);
     }
 
     public rowSelected(event) {
         this.router.navigateByUrl('/salary/payrollrun/' + event.rowModel.ID);
     }
-
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
-        }
-    }
-
 }

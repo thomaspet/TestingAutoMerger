@@ -4,6 +4,7 @@ import { UniHttp } from '../../../../framework/core/http/http';
 import { Employee, FieldType, Operator, SalaryTransaction, EmployeeCategory, SubEntity } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import {ErrorService} from '../../common/ErrorService';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
@@ -20,7 +21,7 @@ export class EmployeeService extends BizHttp<Employee> {
     ];
     public debounceTime: number = 500;
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
@@ -34,7 +35,7 @@ export class EmployeeService extends BizHttp<Employee> {
     public refreshEmployeeID(id: number) {
         this.Get(id, this.defaultExpands).subscribe((emp: Employee) => {
             this.employee.next(emp);
-        });
+        }, err => this.errorService.handle(err));
     }
 
     public getEmployeeCategories(employeeID: number) {
@@ -79,6 +80,7 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     public get(id: number | string, expand: string[] = null) {
+        console.log('new entity from get, id is ', id);
         if (id === 0) {
             if (expand) {
                 return super.GetNewEntity(expand);

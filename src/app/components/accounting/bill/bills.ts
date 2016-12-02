@@ -1,15 +1,17 @@
 import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
 import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/SupplierinvoiceService';
 import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {URLSearchParams} from '@angular/http';
-import {Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {safeInt} from '../../timetracking/utils/utils';
+import {ErrorService} from '../../../services/common/ErrorService';
+import {PageStateService} from '../../../services/common/PageStateService';
 
 declare const moment;
 
@@ -35,7 +37,7 @@ interface IFilter {
 export class BillsView {
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    // @ViewChild(UniTable) private unitable: UniTable;
+    @ViewChild(UniTable) private unitable: UniTable;
     private searchControl: FormControl = new FormControl('');
 
     public tableConfig: UniTableConfig;
@@ -45,12 +47,12 @@ export class BillsView {
     public searchTotals: { grandTotal: number, count: number } = { grandTotal: 0, count: 0 };
     public currentFilter: IFilter;
     private preSearchFilter: IFilter;
-    private defaultPath: string;
     private viewSettings: ViewSettings;
 
     private hasQueriedInboxCount: boolean = false;
     private startupWithSearchText: string;
     private hasQueriedTotals: boolean = false;
+    private startupPage: number = 0;
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
@@ -71,10 +73,12 @@ export class BillsView {
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
         private toast: ToastService,
-        private location: Location,
         private route: ActivatedRoute,
         private router: Router,
-        settingsService: SettingsService) {
+        settingsService: SettingsService,
+        private errorService: ErrorService,
+        private pageStateService: PageStateService
+    ) {
 
             this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
             tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
@@ -100,7 +104,7 @@ export class BillsView {
 
     private refreshWihtSearchText(value: string) {
         var allFilter = this.filters.find( x => x.name === 'All');
-        if (value) {
+        if (value || value === '') {
             var sFilter = this.createFilters(value, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber', 'ID');
             if (this.currentFilter.name !== allFilter.name ) { this.preSearchFilter = this.currentFilter; }
             this.onFilterClick(allFilter, sFilter);
@@ -149,9 +153,17 @@ export class BillsView {
             this.busy = false;
 
             this.QueryInboxTotals();
-        });
+        }, err => this.errorService.handle(err));
         if (refreshTotals) {
             this.refreshTotals();
+        }
+
+        // Set initial page ?
+        if (this.startupPage > 1) {
+            setTimeout(() => {
+                this.unitable.goToPage(this.startupPage);
+                this.startupPage = 0;                
+            }, 200);
         }
     }
 
@@ -180,7 +192,7 @@ export class BillsView {
             if (filter && data && data.length > 0) {
                 filter.count = data[0].countid;
             }
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private getInboxFilter(): IFilter {
@@ -233,7 +245,7 @@ export class BillsView {
             this.filters[ixAll].count = count;
             this.filters[ixAll].total = total;
             this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private createTableConfig(filter: IFilter): UniTableConfig {
@@ -286,22 +298,8 @@ export class BillsView {
         }
     }
 
-    /*
-    private deleteFileTags(fileId: number): Promise<boolean> {
-        return new Promise( (resolve, reject) => {
-        this.supplierInvoiceService.getStatQuery('?model=filetag&select=id&filter=fileid eq ' + fileId).subscribe( (tags) => {
-
-            }).subscribe(()=> {
-
-            });
-        });
-    }
-    */
-
     public onPageChange(page) {
-        // console.log('active page is now ' + page);
-        // for å skifte page:
-        // this.unitable.goToPage(1);
+        this.pageStateService.setPageState('page', page);
     }
 
     public onRowDeleted(row) {
@@ -314,8 +312,7 @@ export class BillsView {
                         this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe( (result) => {
                             this.toast.addToast('Filen er slettet', ToastType.good, 2);
                         }, (err) => {
-                            var msg = (err._body ? JSON.parse(err._body).Message : err.statusText) || err.statusText;
-                            this.toast.addToast(msg, ToastType.bad, 5);
+                            this.errorService.handle(err);
                             this.refreshList(this.currentFilter);
                         });
                     } else {
@@ -335,34 +332,30 @@ export class BillsView {
         this.refreshList(filter, !this.hasQueriedTotals , searchFilter);
         filter.isSelected = true;
         if (searchFilter) {
-            this.location.replaceState(this.defaultPath + '?search=' + this.startupWithSearchText);
+            this.pageStateService.setPageState('search', this.startupWithSearchText);
         } else {
-            this.location.replaceState(this.defaultPath + '?filter=' + filter.name);
+            this.pageStateService.setPageState('filter', filter.name);
             this.viewSettings.setProp('defaultFilter', filter.name );
         }
     }
 
+  
+
     private checkPath() {
-        this.defaultPath = this.location.path(true);
-        var ix = this.defaultPath.indexOf('?');
-        if (ix > 0) {
-            var params = this.defaultPath.substr(ix + 1).split('&');
-            if (params && params.length > 0) {
-                params.forEach(element => {
-                    var parts = element.split('=');
-                    if (parts.length > 1) {
-                        if (parts[0] === 'filter') {
-                            this.currentFilter = this.filters.find(x => x.name === parts[1]);
-                            this.filters.forEach(x => x.isSelected = false);
-                            this.currentFilter.isSelected = true;
-                        }
-                        if (parts[0] === 'search') {
-                            this.startupWithSearchText = parts[1];
-                        }
-                    }
-                });
+        var params = this.pageStateService.getPageState();
+        if (params.filter) {
+            this.currentFilter = this.filters.find( x => x.name === params.filter);
+            if (this.currentFilter) {
+                this.filters.forEach(x => x.isSelected = false);
+                this.currentFilter.isSelected = true;                
             }
-            this.defaultPath = this.defaultPath.substr(0, ix);
+        }
+        if (params.search) {
+            this.startupWithSearchText = params.search;
+            this.searchControl.setValue(this.startupWithSearchText, { emitEvent: false});
+        }
+        if (params.page) {
+            this.startupPage = safeInt(params.page);
         }
 
         // Default-filter?

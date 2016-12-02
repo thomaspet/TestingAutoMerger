@@ -1,7 +1,8 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {UniForm} from '../../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
 import {AltinnIntegrationService} from '../../../../../app/services/services';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _;
 @Component({
@@ -32,7 +33,8 @@ export class TaxCardRequest {
     public uniform: UniForm;
 
     constructor(
-        private _altinnService: AltinnIntegrationService
+        private _altinnService: AltinnIntegrationService,
+        private errorService: ErrorService
     ) {
         this.initialize();
     }
@@ -117,7 +119,18 @@ export class TaxCardRequest {
         this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn-forespørsel';
-                this.error = 'Feilmelding fra Altinn: ' + response.ErrorText;
+                if (response.ErrorText === 'An error occurred') {
+                    this.error = 
+                    ` Feilmelding fra Altinn: ${response.ErrorText}`
+                    + '\n Forslag:' 
+                    + '\n\t 1. Sjekk at systempålogging stemmer' 
+                    + '\n\t     (trykk "sjekk login info" på innstillinger under Altinn)'
+                    + '\n'
+                    + '\n\t 2. Gå til innstillinger og sjekk at orgnr stemmer overens'
+                    + '\n\t     med Altinn systempålogging';
+                } else {
+                    this.error = 'Feilmelding fra Altinn: ' + response.ErrorText;
+                }
             } else {
                 this.title = 'Skatteforespørsel er sendt';
                 this.newReceipt.emit(true);
@@ -125,7 +138,7 @@ export class TaxCardRequest {
             this.exitButton = 'OK';
             this.busy = false;
         },
-            error => console.log(error));
+            err => this.errorService.handle(err));
     }
 
     public ready(value) {

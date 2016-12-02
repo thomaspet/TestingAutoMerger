@@ -1,12 +1,13 @@
 import {Component, Type, ViewChild, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout} from '../../../../framework/uniform';
+import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -32,7 +33,9 @@ export class ControlModalContent {
         private _payrollRunService: PayrollrunService,
         private _employeeService: EmployeeService,
         private _router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        private errorService: ErrorService
+    ) {
         this.route.params.subscribe(params => {
             this.payrollRunID = +params['id'];
         });
@@ -42,7 +45,7 @@ export class ControlModalContent {
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
-            this._salaryTransactionService.GetAll('filter: PayrollRunID eq ' + this.payrollRunID),
+            this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true'),
             this._employeeService.getTotals(this.payrollRunID),
             this._payrollRunService.getPaymentList(this.payrollRunID),
             this._payrollRunService.Get(this.payrollRunID)
@@ -168,8 +171,8 @@ export class ControlModalContent {
         this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
             this.getData().subscribe((data) => {
                 this.setData(data);
-            }, error => console.log(error));
-        }, error => console.log(error));
+            }, err => this.errorService.handle(err));
+        }, err => this.errorService.handle(err));
     }
 
     public showPaymentList() {
@@ -198,7 +201,7 @@ export class ControlModal implements AfterViewInit {
     private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[] };
     public type: Type<any> = ControlModalContent;
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private route: ActivatedRoute, private errorService: ErrorService) {
         
         this.modalConfig = {
             hasCancelButton: true,
@@ -217,7 +220,7 @@ export class ControlModal implements AfterViewInit {
                                 this.updatePayrollRun.emit(true);
                                 content.showPaymentList();
                             }
-                        });
+                        }, err => this.errorService.handle(err));
                     });
                 }
             }]

@@ -8,6 +8,7 @@ import {JournalEntryService} from '../../../../services/services';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 export enum JournalEntryMode {
     Manual,
@@ -32,6 +33,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
     private journalEntryMode: string;
+    private doShowImage: boolean = false;
+    private showImagesForJournalEntryNo: string = '';
+    private currentJournalEntryImages: number[] = [];
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
 
@@ -44,11 +48,20 @@ export class JournalEntryManual implements OnChanges, OnInit {
             action: (completeEvent) => this.postJournalEntryData(completeEvent),
             main: true,
             disabled: false
+        },
+        {
+            label: 'Slett alle bilag i listen',
+            action: (completeEvent) => this.removeJournalEntryData(completeEvent),
+            main: false,
+            disabled: false
         }
     ];
 
-    constructor(private journalEntryService: JournalEntryService,
-                private numberFormat: NumberFormat) {
+    constructor(
+        private journalEntryService: JournalEntryService,
+        private numberFormat: NumberFormat,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -60,14 +73,24 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.setJournalEntryData(data);
-                });
+                }, err => this.errorService.handle(err));
         } else if (this.journalEntryID > 0) {
             this.mode = JournalEntryMode.JournalEntryView;
 
             this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
                 .subscribe((data: Array<JournalEntryData>) => {
                     this.setJournalEntryData(data);
+                }, err => this.errorService.handle(err));
+        } else {
+            let data = this.journalEntryService.getSessionData(this.mode);
+
+            if (data && data.length > 0) {
+                // if we have any unsaved data in our sessionStorage, show this data. This needs to happen after a setTimeout
+                // to let Angular create the child components first
+                setTimeout(() => {
+                    this.setJournalEntryData(data);
                 });
+            }
         }
 
         this.setSums();
@@ -110,6 +133,52 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 }
             }
         });
+    }
+
+    private onShowImageChanged(showImage: boolean) {
+        this.doShowImage = showImage;
+    }
+
+    private onShowImageForJournalEntry(journalEntry: JournalEntryData) {
+        if (this.showImagesForJournalEntryNo !== journalEntry.JournalEntryNo) {
+            this.showImagesForJournalEntryNo = journalEntry.JournalEntryNo;
+            this.currentJournalEntryImages = journalEntry.FileIDs;
+        }
+    }
+
+    private onFileListReady(files) {
+        let fileIds: number[] = [];
+
+        files.forEach(file => {
+            fileIds.push(parseInt(file.ID));
+        });
+
+        let didChangeAnything: boolean = false;
+        let data = this.getJournalEntryData();
+
+        data.forEach(entry => {
+            if (entry.JournalEntryNo === this.showImagesForJournalEntryNo) {
+                if (!entry.FileIDs) {
+                    entry.FileIDs = fileIds;
+                    didChangeAnything = true;
+                } else {
+                    fileIds.forEach(id => {
+                        if (!entry.FileIDs.find(x => x === id)) {
+                            entry.FileIDs.push(id);
+                            didChangeAnything = true;
+                        }
+                    });
+                }
+            }
+        });
+
+        if (didChangeAnything) {
+            // something was updated, update datasource for unitable
+            this.setJournalEntryData(data);
+
+            // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
+            this.journalEntryService.setSessionData(this.mode, data);
+        }
     }
 
     public addJournalEntryData(data: JournalEntryData) {
@@ -159,6 +228,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private onDataChanged(data: JournalEntryData[]) {
         if (data.length <= 0) {
             this.itemsSummaryData = null;
+            this.journalEntryService.setSessionData(this.mode, null);
             return;
         }
 
@@ -166,6 +236,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
             data.forEach((x) => {
                 x.Amount = x.Amount || 0;
             });
+
+            // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
+            this.journalEntryService.setSessionData(this.mode, data);
 
             this.validateJournalEntryData(data);
             this.calculateItemSums(data);
@@ -225,11 +298,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    private removeJournalEntryData(event) {
+    private removeJournalEntryData(completeCallback) {
         if (this.journalEntrySimple) {
-            this.journalEntrySimple.removeJournalEntryData();
+            this.journalEntrySimple.removeJournalEntryData(completeCallback);
         } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.removeJournalEntryData();
+            this.journalEntryProfessional.removeJournalEntryData(completeCallback);
         }
     }
 

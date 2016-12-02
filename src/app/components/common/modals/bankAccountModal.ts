@@ -1,11 +1,12 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm} from '../../../../framework/uniform';
+import {UniForm} from 'uniform-ng2/main';
 import {BankAccount, FieldType, Account} from '../../../unientities';
 import {BankService, AccountService, AddressService} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BankData} from '../../../models/models';
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var _;
 
@@ -34,10 +35,13 @@ export class BankAccountForm {
     private busy: boolean = false;
     private accounts: Account[] = [];
 
-    constructor(private bankService: BankService,
-                private toastService: ToastService,
-                private accountService: AccountService,
-                private addressService: AddressService) {
+    constructor(
+        private bankService: BankService,
+        private toastService: ToastService,
+        private accountService: AccountService,
+        private addressService: AddressService,
+        private errorService: ErrorService
+    ) {
     }
 
     public ngOnInit() {
@@ -55,32 +59,33 @@ export class BankAccountForm {
                         this.lookupBankAccountNumber(bankaccount);
                     })
             );
-       });
+       }, err => this.errorService.handle(err));
 
     }
 
     public ready(value) {
     }
 
-    private lookupBankAccountNumber(bankaccount) {
+    public lookupBankAccountNumber(bankaccount) {
         if (bankaccount.AccountNumber && bankaccount.AccountNumber.length == 11) {
             this.busy = true;
             this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn, 5);
-            this.bankService.getIBANUpsertBank(bankaccount.AccountNumber).subscribe((bankdata: BankData) => {
+            this.bankService.getIBANUpsertBank(bankaccount.AccountNumber)
+            .finally(() => this.busy = false)
+            .subscribe((bankdata: BankData) => {
                 this.config.model.IBAN = bankdata.IBAN;
                 this.config.model.Bank = bankdata.Bank;
                 this.config.model.BankID = bankdata.Bank.ID;
 
                 this.config.model = _.cloneDeep(this.config.model);
-                this.busy = false;
                 if (this.form.field('AccountID')) {
                     this.form.field('AccountID').focus();
                 }
                 this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
-            }, (error) => {
-                this.busy = false;
-                this.toastService.addToast('Kunne ikke slå opp kontonummer ' + bankaccount.AccountNumber, ToastType.bad, 10);
-            });
+            },
+            (error) => this.errorService.handleWithMessage(
+                error, 'Kunne ikke slå opp kontonummer ' + bankaccount.AccountNumber
+            ));
         } else {
             this.toastService.addToast('Kontonummer må ha 11 siffer', ToastType.warn, 10);
         }
@@ -263,5 +268,10 @@ export class BankAccountModal {
         this.modalConfig.model = bankaccount;
         this.modalConfig.accountVisible = accountVisible;
         this.modal.open();
+        this.modal.getContent().then((form: BankAccountForm) => {
+            if (!bankaccount.IBAN && bankaccount.AccountNumber && bankaccount.AccountNumber.length === 11) {
+                form.lookupBankAccountNumber(bankaccount);
+            }
+        })
     }
 }

@@ -8,13 +8,14 @@ import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
 import {Supplier, Email, Phone, Address, FieldType, BankAccount} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
 import {BankAccountModal} from '../../../common/modals/modals';
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -50,7 +51,7 @@ export class SupplierDetails implements OnInit {
     public reportLinks: IReference[];
     public showReportWithID: number;
 
-    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'DefaultBankAccount'];
+    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'Info.DefaultBankAccount', 'Info.BankAccounts', 'Info.BankAccounts.Bank'];
 
     private formIsInitialized: boolean = false;
 
@@ -72,18 +73,20 @@ export class SupplierDetails implements OnInit {
         }
     };
 
-    constructor(private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private supplierService: SupplierService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private phoneService: PhoneService,
-                private emailService: EmailService,
-                private addressService: AddressService,
-                private bankaccountService: BankAccountService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private uniQueryDefinitionService: UniQueryDefinitionService
+    constructor(
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private supplierService: SupplierService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private phoneService: PhoneService,
+        private emailService: EmailService,
+        private addressService: AddressService,
+        private bankaccountService: BankAccountService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
@@ -94,7 +97,7 @@ export class SupplierDetails implements OnInit {
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
                     links => this.reportLinks = links,
-                    err => console.log('Error loading queries:', err)
+                    err => this.errorService.handle(err)
                 );
             });
         }
@@ -106,25 +109,27 @@ export class SupplierDetails implements OnInit {
     }
 
     public nextSupplier() {
-        this.supplierService.NextSupplier(this.supplier.ID)
-            .subscribe((data) => {
-                    this.router.navigateByUrl('/sales/suppliers/' + data.ID);
+        this.supplierService.getNextID(this.supplier.ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
+                    }
                 },
-                (err) => {
-                    console.log('Error getting next supplier: ', err);
-                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
-                });
+                err => this.errorService.handle(err));
     }
 
     public previousSupplier() {
         this.supplierService.PreviousSupplier(this.supplier.ID)
-            .subscribe((data) => {
-                    this.router.navigateByUrl('/sales/suppliers/' + data.ID);
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/sales/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+                    }
                 },
-                (err) => {
-                    console.log('Error getting previous supplier: ', err);
-                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
-                });
+                err => this.errorService.handle(err));
     }
 
     public addSupplier() {
@@ -185,7 +190,6 @@ export class SupplierDetails implements OnInit {
                 this.emptyBankAccount = response[6];
 
                 let supplier = response[2];
-                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
                 this.supplier = supplier;
 
                 this.setTabTitle();
@@ -196,10 +200,7 @@ export class SupplierDetails implements OnInit {
                 setTimeout(() => {
                     this.ready();
                 });
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, err => this.errorService.handle(err));
 
         } else {
             Observable.forkJoin(
@@ -210,17 +211,13 @@ export class SupplierDetails implements OnInit {
                 )
             ).subscribe(response => {
                 let supplier = response[0];
-                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
                 this.supplier = supplier;
                 this.setTabTitle();
 
                 setTimeout(() => {
                     this.ready();
                 });
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('Error', ToastType.bad, 0, 'En feil oppsto ved henting av data: ' + JSON.stringify(err));
-            });
+            }, err => this.errorService.handle(err));
         }
     }
 
@@ -417,14 +414,13 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        let defaultBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultBankAccount');
         defaultBankAccount.Options = {
-            allowAddValue: false,
             entity: 'BankAccount',
-            listProperty: 'BankAccounts',
+            listProperty: 'Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'DefaultBankAccountID',
+            storeResultInProperty: 'Info.DefaultBankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
@@ -499,16 +495,28 @@ export class SupplierDetails implements OnInit {
             this.supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (this.supplier.DefaultBankAccount && (!this.supplier.DefaultBankAccount.AccountNumber || this.supplier.DefaultBankAccount.AccountNumber === '')) {
-            this.supplier.DefaultBankAccount = null;
+        if (this.supplier.Info.DefaultBankAccount && (!this.supplier.Info.DefaultBankAccount.AccountNumber || this.supplier.Info.DefaultBankAccount.AccountNumber === '')) {
+            this.supplier.Info.DefaultBankAccount = null;
         }
 
-        if (this.supplier.DefaultBankAccount !== null && (!this.supplier.DefaultBankAccount.ID || this.supplier.DefaultBankAccount.ID === 0)) {
-            this.supplier.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
+        if (this.supplier.Info.DefaultBankAccount !== null && (!this.supplier.Info.DefaultBankAccount.ID || this.supplier.Info.DefaultBankAccount.ID === 0)) {
+            this.supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (this.supplier.DefaultBankAccount) {
-            this.supplier.DefaultBankAccount.BankAccountType = 'supplier';
+        if (this.supplier.Info.BankAccounts) {
+            this.supplier.Info.BankAccounts.forEach(bankaccount => {
+                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                }
+            });
+
+            if (this.supplier.Info.DefaultBankAccount) {
+                this.supplier.Info.BankAccounts = this.supplier.Info.BankAccounts.filter(x => x !== this.supplier.Info.DefaultBankAccount);
+            }
+        }
+
+        if (this.supplier.Info.DefaultBankAccount) {
+            this.supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
         }
 
         if (this.supplierID > 0) {
@@ -525,7 +533,7 @@ export class SupplierDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+                        this.errorService.handle(err);
                     }
                 );
         } else {
@@ -541,7 +549,7 @@ export class SupplierDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        this.toastService.addToast('Feil oppsto ved lagring', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+                        this.errorService.handle(err);
                     }
                 );
         }
@@ -760,7 +768,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'DefaultBankAccount',
+                    Property: 'Info.DefaultBankAccount',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,

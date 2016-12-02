@@ -1,19 +1,6 @@
-<header class="product_poster" *ngIf="product">
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="productId > 0">{{product.Name}}</h1>
-            <p *ngIf="productId > 0">Produktnr. {{product.PartName}}</p>
-            <h1 *ngIf="productId == 0">Nytt produkt</h1>
-            <p *ngIf="productId == 0">&nbsp;</p>
-        </section>
+<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"></uni-toolbar>
 
-        <nav class="poster_toolbar_tools">
-            <a (click)="previousProduct()"  class="previous">Forrige</a>
-            <a (click)="nextProduct()"  class="next">Neste</a>
-            <a (click)="addProduct()"  class="new">Nytt produkt</a>
-        </nav>
-    </article>
-
+<header class="product_poster" *ngIf="product">    
      <!-- Widget poster -->
     <section class="poster_overview">
         <uni-widget-poster [model]="product">

@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
 import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
+import {ErrorService} from '../../../../services/common/ErrorService';
 
 interface IStatSource {
     name: string;
@@ -27,7 +28,11 @@ export class RegtimeTotals {
 
     private sources: Array<IStatSource>;
 
-    constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  
+    constructor(
+        private workerService: WorkerService,
+        private timesheetService: TimesheetService,
+        private errorService: ErrorService
+    ) {
         this.filters = workerService.getIntervalItems();
     }
 
@@ -163,7 +168,7 @@ export class RegtimeTotals {
                     this.showData([{'label': result.Message}]);
                 }
             } 
-        });
+        }, err => this.errorService.handle(err));
     }
 
     private createArg(name: string, value: string): string {

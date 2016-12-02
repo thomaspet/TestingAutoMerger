@@ -11,6 +11,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {ReportDefinitionDataSourceService, EmailService} from '../services';
 import {SendEmail} from '../../models/sendEmail';
 import {AuthService} from '../../../framework/core/authService';
+import {ErrorService} from '../common/ErrorService';
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
@@ -41,7 +42,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         private reportGenerator: StimulsoftReportWrapper,
         private emailService: EmailService,
         private toastService: ToastService,
-        authService: AuthService) {
+        authService: AuthService,
+        private errorService: ErrorService
+    ) {
 
         super(uniHttp, authService);
         this.baseHttp = this.uniHttp.http;
@@ -88,7 +91,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                 this.target = null;
                 this.sendemail = sendemail;
                 this.generateReport();
-            });
+            }, err => this.errorService.handle(err));
         }
     }
 
@@ -103,7 +106,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                 this.report.templateJson = template;
                 this.onTemplateLoaded();
             },
-            err => this.onError('Cannot load report template.\n\n' + err)
+                err => this.errorService.handle(err)
             );
     }
 
@@ -114,7 +117,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                   this.report.dataSources = dataSources;
                   this.onDataSourcesLoaded();
               },
-              err => this.onError('Cannot get data sources.\n\m' + err)
+                  err => this.errorService.handle(err)
               );
     }
 
@@ -139,8 +142,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         }
 
         Observable.forkJoin(observableBatch)
-            .subscribe(data => this.onDataFetched(data),
-            err => this.onError('Cannot load report data.\n\n' + err));
+            .subscribe(data => this.onDataFetched(data), err => this.errorService.handle(err));
     }
 
     private onDataFetched(data: any) {
@@ -175,7 +177,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
                 this.toastService.removeToast(this.emailtoast);
                 this.toastService.addToast('Epost sendt', ToastType.good, 3);
-            });
+            }, err => this.errorService.handle(err));
         }
     }
 
@@ -194,10 +196,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         logoKeyParam.Name = 'LogoUrl';
         logoKeyParam.value = AppConfig.BASE_URL_FILES + '/image/?key=' + this.authService.getCompanyKey() + '&id=logo';
         this.report.parameters.push(logoKeyParam);
-    }
-
-    private onError(message: string) {
-        alert(message);
     }
 }
 

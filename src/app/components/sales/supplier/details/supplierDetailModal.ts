@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter, ViewChild, OnDestroy, Renderer} from '@angular/core';
 import {Supplier} from '../../../../unientities';
 import {SupplierDetails} from './supplierDetails';
-import {KeyCodes} from '../../../../../framework/uniform/interfaces';
+import {KeyCodes} from 'uniform-ng2/main';
 
 @Component({
     selector: 'supplier-detail-modal',

@@ -4,6 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniTableModule} from 'unitable-ng2/main';
+import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -13,8 +14,6 @@ import {routes as TimetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
-import {ProjectDetailview} from './project/project';
-import {ProjectListview} from './project/projects';
 import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 import {RegtimeTools} from './timeentry/tools/tools';
@@ -43,6 +42,9 @@ import {WorktypeListview} from './worktype/worktypes';
         // UniTable
         UniTableModule,
 
+        // UniForm
+        UniFormModule,
+
         // Framework
         UniFrameworkModule,
 
@@ -59,8 +61,6 @@ import {WorktypeListview} from './worktype/worktypes';
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        ProjectDetailview,
-        ProjectListview,
         RegisterTime,
         TimeEntry,
         RegtimeTools,
@@ -85,8 +85,6 @@ import {WorktypeListview} from './worktype/worktypes';
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        ProjectDetailview,
-        ProjectListview,
         RegisterTime,
         TimeEntry,
         RegtimeTools,

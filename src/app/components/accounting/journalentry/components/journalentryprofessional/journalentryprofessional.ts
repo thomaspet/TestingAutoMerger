@@ -2,14 +2,16 @@ import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angula
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice} from '../../../../../unientities';
-import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService} from '../../../../../services/services';
+import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings} from '../../../../../unientities';
+import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService, CompanySettingsService} from '../../../../../services/services';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 declare const _;
 declare const moment;
+const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({
     selector: 'journal-entry-professional',
@@ -28,11 +30,12 @@ export class JournalEntryProfessional implements OnInit {
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+    @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-    private accounts: Account[];
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -41,14 +44,23 @@ export class JournalEntryProfessional implements OnInit {
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
 
-    constructor(private uniHttpService: UniHttp,
-            private vatTypeService: VatTypeService,
-            private accountService: AccountService,
-            private journalEntryService: JournalEntryService,
-            private departmentService: DepartmentService,
-            private projectService: ProjectService,
-            private customerInvoiceService: CustomerInvoiceService,
-            private toastService: ToastService) {
+    private doShowImage: boolean = false;
+    private lastImageDisplayFor: string = '';
+
+    private defaultAccountPayments: Account = null;
+
+    constructor(
+        private uniHttpService: UniHttp,
+        private vatTypeService: VatTypeService,
+        private accountService: AccountService,
+        private journalEntryService: JournalEntryService,
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private customerInvoiceService: CustomerInvoiceService,
+        private toastService: ToastService,
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService
+    ) {
 
     }
 
@@ -64,21 +76,32 @@ export class JournalEntryProfessional implements OnInit {
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
-            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber', ['VatType']),
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday),
+            this.accountService.GetAll('filter=AccountNumber eq 1920'),
+            this.companySettingsService.getAllCached()
         ).subscribe(
             (data) => {
                 this.departments = data[0];
                 this.projects = data[1];
                 this.vattypes = data[2];
-                this.accounts = data[3];
-                this.firstAvailableJournalEntryNumber = data[4];
+                this.firstAvailableJournalEntryNumber = data[3];
+
+                let companySettings: CompanySettings = null;
+                if (data[5]) {
+                    companySettings = data[5][0];
+                }
+                if (companySettings && companySettings[0] && companySettings[0].CompanyBankAccount && companySettings[0].CompanyBankAccount.Account) {
+                    this.defaultAccountPayments = companySettings[0].CompanyBankAccount.Account;
+                } else {
+                    if (data[4]) {
+                        this.defaultAccountPayments = data[4];
+                    }
+                }
 
                 this.setupUniTable();
-
                 this.dataLoaded.emit(this.journalEntryLines);
             },
-            (err) => console.log('Error retrieving data: ', err)
+            err => this.errorService.handle(err)
         );
     }
 
@@ -115,6 +138,12 @@ export class JournalEntryProfessional implements OnInit {
             // update alternatives, this will change when new numbers are used. Do this after datasource is updated, using setTimeout
             // because we need the updated alternatives to reuse the same method
             this.setupSameNewAlternatives();
+
+            // if we are working with images and the journalentrynumber has changed we need to notify
+            // the observers
+            if (this.doShowImage) {
+                this.showImageForJournalEntry.emit(newRow);
+            }
         });
     }
 
@@ -129,6 +158,8 @@ export class JournalEntryProfessional implements OnInit {
             } else {
                 rowModel.NetAmount = rowModel.Amount;
             }
+        } else {
+            rowModel.NetAmount = null;
         }
     }
 
@@ -141,8 +172,10 @@ export class JournalEntryProfessional implements OnInit {
                 let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
                 rowModel.Amount = calc.amountGross;
             } else {
-                rowModel.NetAmount = rowModel.Amount;
+                rowModel.Amount = rowModel.NetAmount;
             }
+        } else {
+            rowModel.Amount = null;
         }
     }
 
@@ -216,10 +249,9 @@ export class JournalEntryProfessional implements OnInit {
                         rowModel.CreditAccount = line.Account;
                     }
 
-                    let defaultBankAccount = this.accounts.find(x => x.AccountNumber === 1920);
-                    if (defaultBankAccount) {
-                        rowModel.DebitAccount = defaultBankAccount;
-                        rowModel.DebitAccountID = defaultBankAccount.ID;
+                    if (this.defaultAccountPayments) {
+                        rowModel.DebitAccount = this.defaultAccountPayments;
+                        rowModel.DebitAccountID = this.defaultAccountPayments.ID;
                     }
 
                     break;
@@ -230,11 +262,11 @@ export class JournalEntryProfessional implements OnInit {
 
     private setupUniTable() {
 
-        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('6%')
+        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('80px')
             .setEditorOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0 || (searchValue === '+' && alternative.ID === this.SAME_OR_NEW_NEW))]);
+                    return Observable.from([this.journalEntryNumberAlternatives.filter((alternative) => alternative.Name.indexOf(searchValue.toLowerCase()) >= 0 || (alternative.ID === this.SAME_OR_NEW_NEW))]);
                 },
                 itemTemplate: (item) => {
                     return item ? item.Name : '';
@@ -244,7 +276,7 @@ export class JournalEntryProfessional implements OnInit {
                 return item.JournalEntryNo ? item.JournalEntryNo : '';
             });
 
-        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth('7%');
+        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth('80px');
 
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Fakturanr', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
@@ -265,22 +297,17 @@ export class JournalEntryProfessional implements OnInit {
                     let account = rowModel.DebitAccount;
                     return account.AccountNumber
                         + ': '
-                        + account.AccountName
-                            .replace('Kundereskontro ', '')
-                            .replace('Leverandørreskontro ', '');
+                        + account.AccountName;
                 }
                 return '';
             })
-            .setWidth('15%')
+            .setWidth('10%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
-                        .replace('Kundereskontro ', '')
-                        .replace('Leverandørreskontro ', '')
-                    );
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
+                    return this.accountSearch(searchValue);
                 }
             });
 
@@ -311,22 +338,17 @@ export class JournalEntryProfessional implements OnInit {
                     let account = rowModel.CreditAccount;
                     return account.AccountNumber
                         + ': '
-                        + account.AccountName
-                            .replace('Kundereskontro ', '')
-                            .replace('Leverandørreskontro ', '');
+                        + account.AccountName;
                 }
                 return '';
             })
-            .setWidth('15%')
+            .setWidth('10%')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName
-                            .replace('Kundereskontro ', '')
-                            .replace('Leverandørreskontro ', '')
-                    );
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${account.AccountNumber}: ${account.AccountName}`)]);
+                    return this.accountSearch(searchValue);
                 }
             });
 
@@ -349,8 +371,8 @@ export class JournalEntryProfessional implements OnInit {
                 }
             });
 
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('7%');
-        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('7%').setSkipOnEnterKeyNavigation(true);
+        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('90px');
+        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('90px').setSkipOnEnterKeyNavigation(true);
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth('8%')
@@ -366,7 +388,7 @@ export class JournalEntryProfessional implements OnInit {
                     return (item.ProjectNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.projects.filter((project) => project.ProjectNumber == searchValue || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
@@ -384,11 +406,18 @@ export class JournalEntryProfessional implements OnInit {
                     return (item.DepartmentNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.departments.filter((dep) => dep.DepartmentNumber == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                   return Observable.from([this.departments.filter((dep) => dep.DepartmentNumber.toString().startsWith(searchValue) || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
+
+        let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
+                    .setTemplate(line => line.FileIDs ? PAPERCLIP : '')
+                    .setWidth('30px')
+                    .setFilterable(false)
+                    .setSkipOnEnterKeyNavigation(true)
+                    .setOnCellClick(line => this.toggleImageVisibility(line));
 
         let defaultRowData = {
             Dimensions: {},
@@ -425,7 +454,7 @@ export class JournalEntryProfessional implements OnInit {
         } else {
 
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
-                projectCol, departmentCol, descriptionCol];
+                projectCol, departmentCol, descriptionCol, fileCol];
         }
 
         this.journalEntryTableConfig = new UniTableConfig(!this.disabled, false, 100)
@@ -440,11 +469,36 @@ export class JournalEntryProfessional implements OnInit {
                 }
             ])
             .setDefaultRowData(defaultRowData)
+            .setColumnMenuVisible(true)
+            .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
 
                 if (event.field === 'SameOrNewDetails' || !newRow.JournalEntryNo) {
+                    let originalJournalEntryNo = newRow.JournalEntryNo;
+
                     this.setJournalEntryNumberProperties(newRow);
+
+
+                    // Set FileIDs based on journalentryno - if it is the same as an existing, use that,
+                    // if it has files but the journalentryno changed, and other journalentries still exists for the
+                    // old journalentryno, clear the FileIDs for this journalentry
+                    if (originalJournalEntryNo && originalJournalEntryNo !== newRow.JournalEntryNo && newRow.FileIDs) {
+                        // JournalEntryNo has changed - clear FileIDs
+                        newRow.FileIDs = null;
+                    }
+
+                    // if FileIDs is null, see any other journalentrydata with the same number has any files attached
+                    if (!newRow.FileIDs) {
+                        let data = this.table.getTableData();
+                        let dataFound: boolean = false;
+                        for (let i = 0; i < data.length && !dataFound; i++) {
+                            if (newRow.JournalEntryNo === data[i].JournalEntryNo) {
+                                newRow.FileIDs = data[i].FileIDs;
+                                dataFound = true;
+                            }
+                        }
+                    }
                 }
 
                 if (event.field === 'Amount') {
@@ -477,9 +531,38 @@ export class JournalEntryProfessional implements OnInit {
 
         setTimeout(() => {
             this.setupSameNewAlternatives();
-            this.table.focusRow(0);
+
+            if (!this.table) {
+                // if for some reason unitable has not loaded yet, wait 100 ms and try again one last time
+                setTimeout(() => {
+                    this.table.focusRow(0);
+                }, 100);
+            } else {
+                this.table.focusRow(0);
+            }
         });
 
+    }
+
+    private accountSearch(searchValue: string): Observable<any> {
+
+        let filter = '';
+        if (searchValue === '') {
+            filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+        } else {
+            let copyPasteFilter = '';
+
+            if (searchValue.indexOf(':') > 0) {
+                let accountNumberPart = searchValue.split(':')[0].trim();
+                let accountNamePart =  searchValue.split(':')[1].trim();
+
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+            }
+
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+        }
+
+        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
     private deleteLine(line) {
@@ -560,7 +643,7 @@ export class JournalEntryProfessional implements OnInit {
                     this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
 
                 } else {
-                    this.toastService.addToast('Lagring var vellykket!', ToastType.good, 10);
+                    this.toastService.addToast('Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNo + (firstJournalEntry.JournalEntryNo !== lastJournalEntry.JournalEntryNo ? ' - ' + lastJournalEntry.JournalEntryNo : ''), ToastType.good, 10);
                 }
 
                 completeCallback('Lagret og bokført');
@@ -568,25 +651,59 @@ export class JournalEntryProfessional implements OnInit {
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
 
-                setTimeout(() => {
-                    this.setupSameNewAlternatives();
-                    this.table.focusRow(0);
-                });
+                // hide uploader
+                if (this.doShowImage) {
+                    this.doShowImage = false;
+                    this.showImageChanged.emit(this.doShowImage);
+                }
+
+                let journalentrytoday: JournalEntryData = new JournalEntryData();
+                journalentrytoday.FinancialDate = moment().toDate();
+                this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                    .subscribe(data => {
+                        this.firstAvailableJournalEntryNumber = data;
+                        this.setupSameNewAlternatives();
+
+                        if (this.table) {
+                            this.table.focusRow(0);
+                        }
+                    },
+                    err => this.errorService.handle
+                );
 
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
                 completeCallback('Lagring feilet');
-
-                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, this.toastService.parseErrorMessageFromError(err));
-                console.log('error in postJournalEntryData: ', err);
-            });
-
+                this.errorService.handle(err);
+            }
+        );
     }
 
-    public removeJournalEntryData() {
+    public removeJournalEntryData(completeCallback) {
         if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
             this.journalEntryLines = new Array<JournalEntryData>();
+            this.dataChanged.emit(this.journalEntryLines);
+
+            // hide uploader
+            if (this.doShowImage) {
+                this.doShowImage = false;
+                this.showImageChanged.emit(this.doShowImage);
+            }
+
+            let journalentrytoday: JournalEntryData = new JournalEntryData();
+            journalentrytoday.FinancialDate = moment().toDate();
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                .subscribe(data => {
+                    this.firstAvailableJournalEntryNumber = data;
+                    this.setupSameNewAlternatives();
+                },
+                err => this.errorService.handle
+            );
+
+            completeCallback('Listen er tømt');
+        } else {
+            completeCallback('');
         }
     }
 
@@ -611,9 +728,29 @@ export class JournalEntryProfessional implements OnInit {
         this.dataChanged.emit(this.journalEntryLines);
     }
 
+    private toggleImageVisibility(journalEntry: JournalEntryData) {
+        if (this.doShowImage && this.lastImageDisplayFor === journalEntry.JournalEntryNo) {
+            this.doShowImage = false;
+            this.showImageChanged.emit(this.doShowImage);
+        } else if (this.doShowImage) {
+            this.showImageForJournalEntry.emit(journalEntry);
+        } else if (!this.doShowImage) {
+            this.doShowImage = true;
+            this.showImageChanged.emit(this.doShowImage);
+            this.showImageForJournalEntry.emit(journalEntry);
+        }
+
+        this.lastImageDisplayFor = journalEntry.JournalEntryNo;
+    }
+
+    private rowSelected(event) {
+        if (this.doShowImage) {
+            this.showImageForJournalEntry.emit(event.rowModel);
+        }
+    }
+
     private rowChanged(event) {
         var tableData = this.table.getTableData();
-
         this.dataChanged.emit(tableData);
     }
 

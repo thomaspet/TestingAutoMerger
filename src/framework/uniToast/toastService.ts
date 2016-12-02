@@ -38,6 +38,10 @@ export class ToastService {
         this.toasts.length = 0;
     }
 
+    public getToasts(): IToast[] {
+        return this.toasts;
+    }
+
     public removeToast(id) {
         this.toasts = this.toasts.filter((toast) => {
             return toast.id !== id;

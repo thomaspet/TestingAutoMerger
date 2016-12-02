@@ -3,9 +3,10 @@ import {Observable} from 'rxjs/Observable';
 import {Department, Project, VatType, Account, FieldType} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 
-import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {AccountService, JournalEntryService, CustomerInvoiceService} from '../../../../../services/services';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
+import {ErrorService} from '../../../../../services/common/ErrorService';
 
 declare var _;
 declare var moment;
@@ -48,10 +49,13 @@ export class JournalEntrySimpleForm implements OnChanges {
 
     public isDirty: boolean;
 
-    constructor(private accountService: AccountService,
-                private journalEntryService: JournalEntryService,
-                private customerInvoiceService: CustomerInvoiceService,
-                private renderer: Renderer) {
+    constructor(
+        private accountService: AccountService,
+        private journalEntryService: JournalEntryService,
+        private customerInvoiceService: CustomerInvoiceService,
+        private renderer: Renderer,
+        private errorService: ErrorService
+    ) {
         this.isLoaded = false;
         this.isEditMode = false;
         this.departments = [];
@@ -183,7 +187,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             journalentrytoday.FinancialDate = moment().toDate();
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
                 this.addJournalEntry(event, next);
-            });
+            }, err => this.errorService.handle(err));
         } else {
             let oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
 
@@ -309,7 +313,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                             }
                         }
                     },
-                    (err) => console.log('Error retrieving information about invoice')
+                    err => this.errorService.handle(err)
                 );
         }
     }

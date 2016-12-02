@@ -1,10 +1,10 @@
-/* NEW SUPPLIER-INVOICE  */
+/* BILL (detail)  */
 
 .supplier-invoice-table-payment-overdue
-	color: $uni-color-Bad
+	color: $uni-color-bad
 
 .supplier-invoice-table-payment-ok
-	color: $uni-color-Good
+	color: $uni-color-good
 
 .supplier-invoice-table-plus
 	color: $uni-color-plus !important
@@ -14,7 +14,7 @@ supplier-invoice-table-minus
 
 .no-wrap
 	white-space: nowrap
-	display: inline-block 
+	display: inline-block
 
 .no-topmargin
 	margin-top: 0 !important
@@ -59,7 +59,7 @@ supplier-invoice-table-minus
 			border-radius: 0
 
 		uni-numeric-input
-			
+
 			input
 				text-align: right
 
@@ -96,9 +96,9 @@ bill-simple-journalentry
 	width: 100%
 
 .compact-journalentry-table
-	width: calc(100% - 1rem) !important 
+	width: calc(100% - 1rem) !important
     table-layout: fixed
-	word-break: break-word 
+	word-break: break-word
     border-collapse: collapse
 	border-spacing: 0
     cursor: pointer
@@ -111,7 +111,7 @@ bill-simple-journalentry
 	tbody tr td:first-of-type
 		border-left: 1px solid $border-color
 
-	tbody td		
+	tbody td
 		border-right: 1px solid $border-color
 		border-bottom: 1px solid $border-color
 		padding: pxToRem(4)
@@ -151,7 +151,7 @@ bill-simple-journalentry
 		margin: 0 0 0 pxToRem(2)
 		padding: 0 pxToRem(2) pxToRem(7) pxToRem(2)
 		background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
-		background-size: 0.9rem    
+		background-size: 0.9rem
 		box-shadow: none
 		height: 1em
 
@@ -160,7 +160,7 @@ bill-simple-journalentry
 	li
 		overflow-x: hidden
 		white-space: nowrap
-		
+
 .compact-summary
 	width: 100%
 	margin-top: 0.5rem
@@ -181,30 +181,36 @@ bill-simple-journalentry
 	font-weight: bold
 
 
-.supplierinvoice-listview li a
-		white-space: nowrap
-
-.supplierinvoice-listview header
-		margin-top: pxToRem(10) !important
-
 @media all and (max-width: 800px)
 	uni-bill .horizontal_nav ul
 		justify-content: flex-start
-		
-	uni-bills .horizontal_nav ul
-		justify-content: flex-start
 
 .toolbar
-	button	
+	button
 		margin: 0 0 pxToRem(7) pxToRem(7)
 
 	input
 		margin: 0
 		margin-bottom: pxToRem(7)
-			
-.tab_counter_passive    
-	background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 3%)
+
+
+
+/* BILLS (listview)  */
+
+@media all and (max-width: 800px)
+	uni-bills .horizontal_nav ul
+		justify-content: flex-start
+
+.tab_counter_passive
+	background: $navbarBackground
+	border: 1px solid darken(mix($uni-color-scale9, $navbarBackground, 40%), 15%)
 
 .tab_counter_hot
 	color: $navbarBackground
 	background: lighten($uni-color-scale9, 10%)
+
+.supplierinvoice-listview li a
+	white-space: nowrap
+
+.supplierinvoice-listview header:nth-of-type(2)
+	margin-top: pxToRem(10) !important

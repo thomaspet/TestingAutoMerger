@@ -1,17 +1,12 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
-import {ProjectService, DepartmentService, AddressService, ReportDefinitionService, UserService} from '../../../../services/services';
 import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {FieldType, CustomerQuote, Customer, User} from '../../../../unientities';
-import {Address, CustomerQuoteItem} from '../../../../unientities';
-import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
+import {CustomerQuote} from '../../../../unientities';
+import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -24,50 +19,48 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
-
+import {TofHead} from '../../common/tofHead';
+import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {
+    CustomerQuoteService,
+    CustomerQuoteItemService,
+    CustomerService,
+    ReportDefinitionService,
+    UserService,
+    ErrorService
+} from '../../../../services/services';
+import moment from 'moment';
 declare const _;
-declare const moment;
-
-class CustomerQuoteExt extends CustomerQuote {
-    public _InvoiceAddress: Address;
-    public _InvoiceAddresses: Array<Address>;
-    public _ShippingAddress: Address;
-    public _ShippingAddresses: Array<Address>;
-    public _InvoiceAddressID: number;
-    public _ShippingAddressID: number;
-}
 
 @Component({
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
 })
 export class QuoteDetails {
-    @Input() public quoteID: any;
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
-    public config: any = {autofocus: true};
-    public fields: any[] = [];
+    @ViewChild(TofHead)
+    private tofHead: TofHead;
 
-    private quote: CustomerQuoteExt;
-    private deletedItems: Array<CustomerQuoteItem>;
+    @ViewChild(TradeItemTable)
+    private tradeItemTable: TradeItemTable;
 
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
+    @Input()
+    public quoteID: number;
+
+    private isDirty: boolean;
+    private quote: CustomerQuote;
     private itemsSummaryData: TradeHeaderCalculationSummary;
-
-    private customers: Customer[];
-    private dropdownData: any;
-
-    private emptyAddress: Address;
-    private recalcTimeout: any;
-    private addressChanged: any;
-
     private companySettings: CompanySettings;
+    private saveActions: IUniSaveAction[] = [];
+    private readonly: boolean;
+    private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
 
-    private actions: IUniSaveAction[];
-
-    private formIsInitialized: boolean = false;
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
@@ -76,54 +69,171 @@ export class QuoteDetails {
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    constructor(private customerService: CustomerService,
-                private customerQuoteService: CustomerQuoteService,
-                private customerQuoteItemService: CustomerQuoteItemService,
-                private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private addressService: AddressService,
-                private businessRelationService: BusinessRelationService,
-                private reportDefinitionService: ReportDefinitionService,
-                private companySettingsService: CompanySettingsService,
-                private toastService: ToastService,
-                private userService: UserService,
-                private numberFormat: NumberFormat,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper) {
+    constructor(
+        private customerService: CustomerService,
+        private customerQuoteService: CustomerQuoteService,
+        private customerQuoteItemService: CustomerQuoteItemService,
+        private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private userService: UserService,
+        private numberFormat: NumberFormat,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService
+    ) {}
 
-        this.route.params.subscribe(params => {
-            this.quoteID = +params['id'];
-            this.setSums();
-            this.setup();
+    public ngOnInit() {
+        this.setSums();
+        this.contextMenuItems = [{
+            label: 'Send på epost',
+            action: () => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerQuote';
+                sendemail.EntityID = this.quote.ID;
+                sendemail.CustomerID = this.quote.CustomerID;
+                sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                    this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                    });
+                }
+            },
+            disabled: () => !this.quote.ID
+        }];
+
+        // Subscribe and debounce recalc on table changes
+        this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
+            if (quoteitems.length) {
+                this.recalcItemSums(quoteitems);
+            }
         });
 
-        this.contextMenuItems = [
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerQuote';
-                    sendemail.EntityID = this.quote.ID;
-                    sendemail.CustomerID = this.quote.CustomerID;
-                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+        this.companySettingsService.Get(1).subscribe(
+            settings => this.companySettings = settings,
+            err => this.errorService.handle(err)
+        );
 
-                    this.sendEmailModal.openModal(sendemail);
+        // Subscribe to route param changes and update invoice data
+        this.route.params.subscribe(params => {
+            this.quoteID = +params['id'];
 
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.quote.ID
+            if (this.quoteID) {
+                this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe((quote) => {
+                    this.refreshQuote(quote);
+                });
+            } else {
+                Observable.forkJoin(
+                    this.customerQuoteService.GetNewEntity([], CustomerQuote.EntityType),
+                    this.userService.getCurrentUser(),
+                ).subscribe(
+                    (dataset) => {
+                        let quote = <CustomerQuote> dataset[0];
+                        quote.OurReference = dataset[1].DisplayName;
+                        quote.QuoteDate = new Date();
+                        quote.DeliveryDate = new Date();
+                        quote.ValidUntilDate = null;
+                        this.refreshQuote(quote);
+                    },
+                    err => this.errorService.handle(err)
+                );
             }
-        ];
+
+        });
     }
-    private log(err) {
-        this.toastService.addToast('En feil oppsto:', ToastType.bad, 0, this.toastService.parseErrorMessageFromError(err));
+
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+        if (key === 34) {
+            event.preventDefault();
+            this.tradeItemTable.focusFirstRow();
+        } else if (key === 33) {
+            event.preventDefault();
+            this.tofHead.focus();
+        }
+    }
+
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+            return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Ønsker du å lagre tilbudet før du fortsetter?',
+                'Ulagrede endringer',
+                true
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    if (!this.quote.StatusCode) {
+                        this.quote.StatusCode = StatusCode.Draft;
+                    }
+                    this.saveQuote().subscribe(
+                        (res) => {
+                            this.isDirty = false;
+                            resolve(true);
+                        },
+                        (err) => {
+                            this.errorService.handle(err);
+                            resolve(false);
+                        }
+                    );
+                } else if (action === ConfirmActions.REJECT) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                    this.setTabTitle();
+                }
+            });
+        });
+    }
+
+    private refreshQuote(quote?: CustomerQuote) {
+        if (!quote) {
+            this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe(
+                res => this.refreshQuote(res),
+                err => this.errorService.handle(err)
+            );
+            return;
+        }
+
+        this.onQuoteChange(quote);
+        this.readonly = quote.StatusCode && (
+            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+        );
+
+        this.quote = _.cloneDeep(quote);
+        this.isDirty = false;
+        this.setTabTitle();
+        this.updateToolbar();
+        this.updateSaveActions();
+    }
+
+    public onQuoteChange(quote: CustomerQuote) {
+        this.isDirty = true;
+        if (quote.QuoteDate && !quote.ValidUntilDate) {
+            quote.ValidUntilDate = moment(quote.QuoteDate).add(1, 'month').toDate();
+        }
+
+        if (!quote.CreditDays) {
+            if (quote.Customer && quote.Customer.CreditDays) {
+                quote.CreditDays = quote.Customer.CreditDays;
+            } else if (this.companySettings) {
+                quote.CreditDays = this.companySettings.CustomerCreditDays;
+            }
+        }
+
+        this.quote = _.cloneDeep(quote);
+        this.recalcDebouncer.next(quote.Items);
     }
 
     private getStatustrackConfig() {
@@ -150,434 +260,152 @@ export class QuoteDetails {
     }
 
     public nextQuote() {
-        this.customerQuoteService.next(this.quote.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                }
-            },
-            (err) => {
-                console.log('Error getting next quote: ', err);
-                this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
-            }
-            );
+        this.customerQuoteService.getNextID(this.quote.ID).subscribe(
+            id => this.router.navigateByUrl('/sales/quotes/' + id),
+            err => this.errorService.handle(err)
+        );
     }
 
     public previousQuote() {
-        this.customerQuoteService.previous(this.quote.ID)
-            .subscribe((data) => {
-                if (data) {
-                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
-                }
-            },
-            (err) => {
-                console.log('Error getting previous quote: ', err);
-                this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
-            }
-            );
-    }
-
-    public addQuote() {
-        this.router.navigateByUrl('/sales/quotes/0');
-    }
-
-    public ready(event) {
-        this.setupSubscriptions(null);
-    }
-
-    private setupSubscriptions(event) {
-        Observable.merge(
-            this.form.field('CustomerID')
-                .changeEvent
-                .map(uniField => uniField['CustomerID']),
-            this.route.params
-                .filter(params => !!params['customerID'])
-                .map(params => +params['customerID'])
-        )
-            .subscribe(customerID => {
-                if (customerID) {
-                    this.quote.CustomerID = customerID;
-                    this.customerService.Get(customerID, this.customerExpandOptions).subscribe((customer: Customer) => {
-                        let keepEntityAddresses: boolean = true;
-                        if (this.quote.Customer && customerID !== this.quote.Customer.ID) {
-                            keepEntityAddresses = false;
-                        }
-
-                        this.quote.Customer = customer;
-                        this.addressService.setAddresses(this.quote, null, keepEntityAddresses);
-
-                        this.quote.CustomerName = customer.Info.Name;
-
-                        if (customer.CreditDays !== null) {
-                            this.quote.CreditDays = customer.CreditDays;
-                        } else {
-                            this.quote.CreditDays = this.companySettings.CustomerCreditDays;
-                        }
-
-                        this.quote = _.cloneDeep(this.quote);
-                        this.updateToolbar();
-                    });
-                }
-            });
-        this.form.field('QuoteDate')
-            .changeEvent
-            .subscribe((data) => {
-                if (data) {
-                    this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();
-
-                    this.quote = _.cloneDeep(this.quote);
-                    this.updateToolbar();
-                }
-            });
-    }
-
-    private setup() {
-        this.deletedItems = [];
-
-        this.companySettingsService.Get(1)
-            .subscribe(settings => this.companySettings = settings,
-            err => {
-                console.log('Error retrieving company settings data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
-            });
-
-        if (!this.formIsInitialized) {
-            this.fields = this.getComponentLayout().Fields;
-
-            Observable.forkJoin(
-                this.departmentService.GetAll(null),
-                this.projectService.GetAll(null),
-                (
-                    this.quoteID > 0 ?
-                        this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                        : this.customerQuoteService.newCustomerQuote()
-                ),
-                this.customerService.GetAll(null, ['Info']),
-                this.addressService.GetNewEntity(null, 'address'),
-                this.quoteID ? Observable.of(null) : this.userService.getCurrentUser()
-            ).subscribe(response => {
-                this.dropdownData = [response[0], response[1]];
-                this.quote = response[2];
-                this.customers = response[3];
-                this.emptyAddress = response[4];
-                const currentUser = response[5];
-
-                if (!this.quoteID) {
-                    this.quote.OurReference = currentUser.DisplayName;
-                }
-
-                // Add a blank item in the dropdown controls
-                this.customers.unshift(null);
-
-                this.addressService.setAddresses(this.quote);
-                this.setTabTitle();
-
-                this.updateSaveActions();
-                this.updateToolbar();
-                this.extendFormConfig();
-
-                this.formIsInitialized = true;
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-            });
-        } else {
-            const source = this.quoteID > 0 ?
-                this.customerQuoteService.Get(this.quoteID, this.expandOptions)
-                : Observable.fromPromise(this.customerQuoteService.newCustomerQuote());
-
-            source.subscribe(response => {
-                this.quote = response;
-                this.addressService.setAddresses(this.quote);
-                this.setTabTitle();
-                this.updateToolbar();
-                this.updateSaveActions();
-            }, (err) => {
-                console.log('Error retrieving data: ', err);
-                this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
-            });
-        }
+        this.customerQuoteService.getPreviousID(this.quote.ID).subscribe(
+            id => this.router.navigateByUrl('/sales/quotes/' + id),
+            err => this.errorService.handle(err)
+        );
     }
 
     private setTabTitle() {
-        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud';
-        this.tabService.addTab({ url: '/sales/quotes/' + this.quote.ID, name: tabTitle, active: true, moduleID: UniModules.Quotes });
-    }
-
-    private extendFormConfig() {
-        let self = this;
-
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
-        invoiceaddress.Options = {
-            entity: Address,
-            listProperty: '_InvoiceAddresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: '_InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value, !!!this.quote.CustomerID);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) {
-                        self.saveAddressOnCustomer(address, resolve);
-                    } else {
-                        resolve(address);
-                    }
-                });
-            }),
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === '_ShippingAddress');
-        shippingaddress.Options = {
-            entity: Address,
-            listProperty: '_ShippingAddresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: '_ShippingAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) {
-                        self.saveAddressOnCustomer(address, resolve);
-                    } else {
-                        resolve(address);
-                    }
-                });
-            }),
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
-        customer.Options = {
-            source: this.customers,
-            valueProperty: 'ID',
-            displayProperty: 'Info.Name',
-            debounceTime: 200
-        };
-    }
-
-    private saveAddressOnCustomer(address: Address, resolve) {
-        var idx = 0;
-
-        if (!address.ID || address.ID === 0) {
-            address['_createguid'] = this.addressService.getNewGuid();
-            this.quote.Customer.Info.Addresses.push(address);
-            idx = this.quote.Customer.Info.Addresses.length - 1;
+        let tabTitle = '';
+        if (this.quote.QuoteNumber) {
+            tabTitle = 'Tilbudsnr. ' + this.quote.QuoteNumber;
         } else {
-            idx = this.quote.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
-            this.quote.Customer.Info.Addresses[idx] = address;
+            tabTitle = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
         }
-
-        // remove entries with equal _createguid
-        this.quote.Customer.Info.Addresses = _.uniq(this.quote.Customer.Info.Addresses, '_createguid');
-
-        // this.quote.Customer.Info.ID
-        this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((info) => {
-            this.quote.Customer.Info = info;
-            resolve(info.Addresses[idx]);
+        this.tabService.addTab({
+            url: '/sales/quotes/' + this.quote.ID,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Quotes
         });
     }
 
+
     private updateToolbar() {
+        let quoteText = '';
+        if (this.quote.QuoteNumber) {
+            quoteText = 'Tilbudsnr. ' + this.quote.QuoteNumber;
+        } else {
+            quoteText = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
+        }
+
+        let customerText = (this.quote.Customer)
+            ? this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name
+            : '';
+
+        let netSumText = (this.itemsSummaryData)
+            ? 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'
+            : 'Netto kr ' + this.quote.TaxExclusiveAmount + '.';
+
         this.toolbarconfig = {
-            title: this.quote.Customer ? (this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name) : this.quote.CustomerName,
+            title: quoteText,
             subheads: [
-                { title: this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber + '.' : '' },
-                { title: !this.itemsSummaryData ? 'Netto kr ' + this.quote.TaxExclusiveAmount + '.' : 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.' },
+                { title: customerText},
+                { title: netSumText},
                 { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
-                add: this.addQuote.bind(this)
+                add: () => this.router.navigateByUrl('/sales/quotes/0')
             },
             contextmenu: this.contextMenuItems
         };
     }
 
-    private updateSaveActions() {
-        this.actions = [];
+    public recalcItemSums(quoteItems: any) {
+        if (!quoteItems || !quoteItems.length) {
+            return;
+        }
+        this.quote.Items = quoteItems;
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+        this.updateToolbar();
+        this.setSums();
+    }
 
-        this.actions.push({
+    private updateSaveActions() {
+        const transitions = (this.quote['_links'] || {}).transitions;
+        // const links = this.quote['_links'];
+        this.saveActions = [];
+
+        this.saveActions.push({
+            label: 'Registrer',
+            action: (done) => this.saveQuoteAsRegistered(done),
+            disabled: transitions && !transitions['register'],
+            main: !transitions || transitions['register']
+            // main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
+        });
+
+        this.saveActions.push({
             label: 'Lagre',
-            action: (done) => this.saveQuoteManual(done),
-            disabled: this.quote.ID === 0,
+            action: (done) => {
+                this.saveQuote().subscribe(
+                    (res) => {
+                        done('Lagring fullført');
+                        this.quoteID = res.ID;
+                        this.refreshQuote();
+                    },
+                    (err) => {
+                        done('Lagring feilet');
+                        this.errorService.handle(err);
+                    }
+                );
+            },
+            disabled: !this.quote.ID,
             main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
 
-        this.actions.push({
-            label: 'Lagre og skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: this.quote.ID === 0
-        });
+        if (!this.quote.ID) {
+            this.saveActions.push({
+                label: 'Lagre som kladd',
+                action: (done) => this.saveQuoteAsDraft(done),
+                disabled: (this.quote.ID > 0)
+            });
+        }
 
-        this.actions.push({
-            label: 'Registrer',
-            action: (done) => this.saveQuoteAsRegistered(done),
-            disabled: this.IsTransferToRegisterDisabled(),
-            main: this.quote.ID === 0 || this.quote.StatusCode === StatusCodeCustomerQuote.Draft
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: !this.quote.ID
         });
 
         // TODO: Add a actions for shipToCustomer,customerAccept
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og overfør til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder', 'Overført til ordre'),
-            disabled: this.IsTransferToOrderDisabled()
+            disabled: !transitions || !transitions['toOrder']
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice', 'Overført til faktura'),
-            disabled: this.IsTransferToInvoiceDisabled()
+            disabled: !transitions || !transitions['toInvoice']
 
         });
-        this.actions.push({
+        this.saveActions.push({
             label: 'Avslutt tilbud',
             action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
-            disabled: this.IsTransferToCompleteDisabled()
-
-        });
-        this.actions.push({
-            label: 'Lagre som kladd',
-            action: (done) => this.saveQuoteAsDraft(done),
-            disabled: (this.quote.ID > 0)
+            disabled: !transitions || !transitions['complete'],
         });
 
-        this.actions.push({
+        this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteQuote(done),
-            disabled: true
+            disabled: this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
     }
 
-    private IsTransferToRegisterDisabled() {
-        if (this.quote.ID > 0 &&
-            this.quote.StatusCode !== StatusCodeCustomerQuote.Draft) {
-            return true;
-        }
-        return false;
-    }
-
-    private IsTransferToOrderDisabled() {
-        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted) {
-            return false;
-        }
-        return true;
-    }
-    private IsTransferToInvoiceDisabled() {
-        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder) {
-            return false;
-        }
-        return true;
-    }
-    private IsTransferToCompleteDisabled() {
-        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted ||
-            this.quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder) {
-            return false;
-        }
-        return true;
-    }
-
-    private deleteQuote(done) {
-        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
-        done('Slett tilbud avbrutt');
-    }
-
-    public recalcItemSums(quoteItems: any) {
-        if (quoteItems === null || quoteItems === undefined) {
-            return;
-        }
-        this.quote.Items = quoteItems;
-
-        // Do recalc after 2 second to avoid to much requests
-        if (this.recalcTimeout) {
-            clearTimeout(this.recalcTimeout);
-        }
-
-        this.recalcTimeout = setTimeout(() => {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
-            this.updateToolbar();
-            this.setSums();
-        }, 500);
-    }
-
-    private deleteItem(item: CustomerQuoteItem) {
-        this.deletedItems.push(item);
-    }
-
-    private saveQuoteManual(done: any) {
-        this.saveQuote(done);
-    }
-
-    private saveQuoteAsRegistered(done: any) {
-        if (this.quote.ID > 0) {
-            this.saveQuoteTransition(done, 'register', 'Registrert');
-        } else {
-            this.saveQuote(done);
-        }
-    }
-
-    private saveQuoteAsDraft(done: any) {
-        this.quote.StatusCode = StatusCode.Draft;
-        this.saveQuote(done);
-    }
-
-    private saveQuoteTransition(done: any, transition: string, doneText: string) {
-        this.saveQuote(done, (quote) => {
-            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition)
-                .subscribe((transitionData: any) => {
-                    done(doneText);
-                    if (transition === 'toOrder') {
-                        this.router.navigateByUrl('/sales/orders/' + transitionData.CustomerOrderID);
-                    } else {
-                        this.setup();
-                    }
-                }, (err) => {
-                    console.log('Feil oppstod ved ' + transition + ' transition', err);
-                    done('Feilet');
-                    this.log(err);
-                });
-        });
-    }
-
-    private saveQuote(done: any, next: any = null) {
-        // Transform addresses to flat
-        this.addressService.addressToInvoice(this.quote, this.quote._InvoiceAddress);
-        this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
-
+    private saveQuote(): Observable<CustomerQuote> {
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         this.quote.Items.forEach(item => {
@@ -588,408 +416,135 @@ export class QuoteDetails {
 
         // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');
-            if (done) {
-                done('Lagring feilet');
-            }
-            return;
+            const message = 'En eller flere varelinjer mangler produkt';
+            return Observable.throw(message);
         }
 
-        // set deleted items as deleted on server as well, using soft delete / complex put
-        this.deletedItems.forEach((item: CustomerQuoteItem) => {
-            // don't send deleted items that has not been saved previously,
-            // because this can cause problems with validation
-            if (item.ID > 0) {
-                item.Deleted = true;
-                this.quote.Items.push(item);
-            }
-        });
+        return (this.quote.ID > 0)
+            ? this.customerQuoteService.Put(this.quote.ID, this.quote)
+            : this.customerQuoteService.Post(this.quote);
+    }
 
-        this.deletedItems = [];
-
+    private saveQuoteAsRegistered(done: any) {
         if (this.quote.ID > 0) {
-            this.customerQuoteService.Put(this.quote.ID, this.quote)
-                .subscribe(
-                (quoteSaved) => {
-                    this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(newQuoate => {
-                        this.quote = newQuoate;
-                        this.addressService.setAddresses(this.quote);
-                        this.updateSaveActions();
-                        this.updateToolbar();
-                        this.setTabTitle();
-                        this.ready(null);
-
-                        if (next) {
-                            next(this.quote);
-                        } else {
-                            done('Tilbud lagret');
-                        }
-                    });
-                },
-                (err) => {
-                    console.log('Feil oppsto ved lagring', err);
-                    this.log(err);
-                    done('Lagring feilet');
-                }
-                );
+            this.saveQuoteTransition(done, 'register', 'Registrert');
         } else {
-            this.customerQuoteService.Post(this.quote)
-                .subscribe(
-                (quoteSaved) => {
-                    if (next) {
-                        next(quoteSaved);
-                    } else {
-                        done('Tilbud lagret');
-                    }
-
-                    this.router.navigateByUrl('/sales/quotes/' + quoteSaved.ID);
+            this.saveQuote().subscribe(
+                (res) => {
+                    done('Registrering fullført');
+                    this.quoteID = res.ID;
+                    this.isDirty = false;
+                    this.router.navigateByUrl('/sales/quotes/' + res.ID);
                 },
                 (err) => {
-                    console.log('Feil oppsto ved lagring', err);
-                    this.log(err);
-                    done('Lagring feilet');
+                    done('Registrering feilet');
+                    this.errorService.handle(err);
                 }
             );
         }
     }
 
-    private setSums() {
-        this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
-                title: 'Avgiftsfritt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
-                title: 'Avgiftsgrunnlag',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
-                title: 'Sum rabatt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
-                title: 'Nettosum',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
-                title: 'Mva',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
-                title: 'Øreavrunding',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
-                title: 'Totalsum',
-            }];
+    private saveQuoteAsDraft(done: any) {
+        this.quote.StatusCode = StatusCode.Draft;
+        const navigateOnSuccess = !this.quote.ID;
+        this.saveQuote().subscribe(
+            (res) => {
+                this.isDirty = false;
+                done('Lagring fullført');
+                if (navigateOnSuccess) {
+                    this.router.navigateByUrl('/sales/quotes/' + res.ID);
+                } else {
+                    this.quoteID = res.ID;
+                    this.refreshQuote();
+                }
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
+    }
+
+    private saveQuoteTransition(done: any, transition: string, doneText: string) {
+        this.saveQuote().subscribe(
+            (quote) => {
+                this.isDirty = false;
+                this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
+                    (res) => {
+                        done(doneText);
+                        if (transition === 'toOrder') {
+                            this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                        } else if (transition === 'toInvoice') {
+                            this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                        } else {
+                            this.quoteID = quote.ID;
+                            this.refreshQuote();
+                        }
+                    }
+                );
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
     }
 
     private saveAndPrint(done) {
-        this.saveQuote(done, (quote) => {
-            this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-                if (report) {
-                    this.previewModal.openWithId(report, quote.ID);
-                    done('Utskrift');
-                } else {
-                    done('Rapport mangler');
-                }
-            });
-        });
+        this.saveQuote().subscribe(
+            (res) => {
+                this.isDirty = false;
+                this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
+                    if (report) {
+                        this.previewModal.openWithId(report, res.ID);
+                        done('Viser utskrift');
+                    } else {
+                        done('Rapport mangler');
+                    }
+                });
+            },
+            (err) => {
+                done('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        );
     }
 
-    private getComponentLayout(): any {
-        return {
-            Name: 'CustomerQuote',
-            BaseEntity: 'CustomerQuote',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'CustomerID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kunde',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'QuoteDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Tilbudsdato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'ValidUntilDate',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Gyldig til dato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'CreditDays',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kredittdager',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: '_InvoiceAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fakturaadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: '_ShippingAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Leveringsadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 6,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Vår referanse
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'OurReference',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Vår referanse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 10,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Deres referanse
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'YourReference',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Deres referanse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 11,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    // Rekvisisjon
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerInvoice',
-                    Property: 'Requisition',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Rekvisisjon',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 12,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'CustomerQuote',
-                    Property: 'FreeTxt',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXTAREA,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: '',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 1,
-                    Sectionheader: 'Fritekst',
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Fritekst',
-                    StatusCode: 0,
-                    ID: 30,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
-                    Classes: 'max-width'
-                }
-            ]
-        };
+    private deleteQuote(done) {
+        this.customerQuoteService.Remove(this.quote.ID, null).subscribe(
+            (success) => {
+                this.isDirty = false;
+                this.router.navigateByUrl('/sales/quotes');
+            },
+            (err) => {
+                this.errorService.handle(err);
+                done('Sletting feilet');
+            }
+        );
+    }
+
+    private setSums() {
+        this.summary = [{
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
+                title: 'Avgiftsfritt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
+                title: 'Avgiftsgrunnlag',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
+                title: 'Sum rabatt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
+                title: 'Nettosum',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
+                title: 'Mva',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
+                title: 'Øreavrunding',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
+                title: 'Totalsum',
+            }];
     }
 }

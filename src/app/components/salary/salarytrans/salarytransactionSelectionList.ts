@@ -1,11 +1,14 @@
-import { Component, ViewChild, OnInit, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { SalaryTransactionEmployeeList } from './salarytransList';
-import { SalarytransFilter } from './salarytransFilter';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { PayrollRun, Employee } from '../../../unientities';
-import { EmployeeService, PayrollrunService } from '../../../services/services';
-import { Observable } from 'rxjs/Observable';
+import { Employee, AGAZone, SalaryTransactionSums } from '../../../unientities';
+import { EmployeeService, PayrollrunService, UniCacheService, AgaZoneService, NumberFormat } from '../../../services/services';
+import { ISummaryConfig } from '../../common/summary/summary';
+
+import { UniView } from '../../../../framework/core/uniView';
+import {SalaryTransactionEmployeeList} from './salarytransList';
+import {ErrorService} from '../../../services/common/ErrorService';
 declare var _;
 
 @Component({
@@ -13,54 +16,60 @@ declare var _;
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
 })
 
-export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
+export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
     private salarytransSelectionTableConfig: UniTableConfig;
-    private selectedEmployeeID: number;
-    private employeeList: Employee[];
+    private employeeList: Employee[] = [];
+    private selectedIndex: number = 0;
+    private agaZone: AGAZone;
+    private payrollRunID: number;
+
+    private employeeTotals: SalaryTransactionSums;
+    private summary: ISummaryConfig[] = [];
+
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
-    private disableFilter: boolean;
-    public employees$: Observable<Employee[]>;
     public busy: boolean;
     @ViewChild(UniTable) private table: UniTable;
-    private disableEmployeeList: boolean;
-    private allReady: boolean;
+    @ViewChild(SalaryTransactionEmployeeList) private transList: SalaryTransactionEmployeeList;
     @Output() public salaryTransSelectionListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
-    private filter: string;
+    constructor(
+        private uniHttpService: UniHttp,
+        private _employeeService: EmployeeService,
+        private _payrollRunService: PayrollrunService,
+        private _agaZoneService: AgaZoneService,
+        private numberFormat: NumberFormat,
+        private route: ActivatedRoute,
+        private router: Router,
+        protected cacheService: UniCacheService,
+        private errorService: ErrorService
+    ) {
+        super(router.url, cacheService);
 
-    constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService, private _payrollRunService: PayrollrunService) {
         this.tableConfig();
-    }
+        
+        route.params.subscribe(param => {
+            this.payrollRunID = +param['id'];
+            super.updateCacheKey(router.url);
+            super.getStateSubject('employees').subscribe((employees: Employee[]) => {
+                
+                this.selectedIndex = 0;
+                this.employeeList = employees || [];
 
-    public ngOnInit() {
-        this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
-            payrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
+                if (this.employeeList && this.employeeList.length) {
+                    this.focusRow(0);
+                }
+            });
         });
-        this.filter = '';
     }
 
     public ngAfterViewInit() {
-        this.checkReady(true);
+        this.focusRow(0);
     }
 
-    public checkReady(value) {
-        if (this.allReady) {
-            this.salaryTransSelectionListReady.emit(true);
+    public focusRow(index = undefined) {
+        if (this.table) {
+            this.table.focusRow(index === undefined ? this.selectedIndex : index);
         }
-        this.allReady = true;
-    }
-
-    private getEmployees(update: boolean = true) {
-        this._employeeService.GetAll(this.filter ? 'filter=' + this.filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']).subscribe((employees) => {
-            this.employeeList = employees;
-            if (!update && this.employeeList) {
-                this.selectedEmployeeID = this.employeeList[0].ID;
-                this.table.focusRow(0);
-            }
-        }, (error: any) => {
-            this.log(error);
-            console.log(error);
-        });
     }
 
     private tableConfig() {
@@ -93,55 +102,129 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
             })
             .setWidth('2rem');
 
-        var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
         this.salarytransSelectionTableConfig = new UniTableConfig(false)
             .setColumnMenuVisible(false)
             .setColumns([
                 employeenumberCol,
                 nameCol,
-                // subEntityCol,
                 lockedCol
             ]);
-        
-        this.getEmployees(false);
     }
 
 
 
     public rowSelected(event) {
-        this.selectedEmployeeID = event.rowModel.ID;
+        this.selectedIndex = event.rowModel['_originalIndex'];
+        this.getAga();
+        this.employeeTotals = null;
+        this.setSums();
+        this.setSummarySource();
     }
 
-    public goToNextEmployee(id) {
-        var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
+    private getAga() {
+        let employee = this.employeeList[this.selectedIndex];
+        if (!this.agaZone || (employee.SubEntity && employee.SubEntity.AgaZone !== this.agaZone.ID) ) {
+            this._agaZoneService
+                .Get(employee.SubEntity.AgaZone)
+                .subscribe((agaResponse: AGAZone) => {
+                    this.agaZone = agaResponse;
+                }, err => this.errorService.handle(err));
+        } else if (!employee.SubEntity) {
+            this.agaZone = new AGAZone();
+        }
+    }
+
+    private setSums() {
+
+        this.summary = [{
+            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.percentTax),
+            title: `Prosenttrekk` + (this.employeeList[this.selectedIndex] ? ` (${this.employeeList[this.selectedIndex].TaxPercentage}%)` : ''),
+            description: this.employeeTotals && this.employeeTotals.basePercentTax ? `av ${this.numberFormat.asMoney(this.employeeTotals.basePercentTax)}` : null
+        }, {
+            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.tableTax),
+            title: 'Tabelltrekk' + (this.employeeList[this.selectedIndex] ? ` (${this.employeeList[this.selectedIndex].TaxTable})` : ''),
+            description: this.employeeTotals && this.employeeTotals.baseTableTax ? `av ${this.numberFormat.asMoney(this.employeeTotals.baseTableTax)}` : null
+        }, {
+            title: 'Utbetalt beløp',
+            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.netPayment)
+        }, {
+            title: 'Beregnet AGA',
+            value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.calculatedAGA) : null
+        }, {
+            title: 'Gr.lag feriepenger',
+            value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.baseVacation) : null
+        }];
+    }
+
+    private setSummarySource() {
+        if (this.payrollRunID > 0) {
+            this._employeeService.getTotals(this.payrollRunID, this.employeeList[this.selectedIndex].ID)
+            .subscribe((response) => {
+                if (response) {
+                    this.employeeTotals = response;
+                    this.setSums();
+                }
+            }, err => this.errorService.handle(err));
+        }
+    }
+
+    public goToNextEmployee() {
+        var index = _.findIndex(this.employeeList, x => x.ID === this.employeeList[this.selectedIndex].ID);
         if (index + 1 < this.employeeList.length) {
-            this.selectedEmployeeID = this.employeeList[index + 1].ID;
-            this.table.focusRow(this.table.getTableData().find(x => x.ID === this.selectedEmployeeID)['_originalIndex']);
+            this.selectedIndex = index + 1;
+            this.focusRow(this.selectedIndex);
         }
     }
 
-    public goToPreviousEmployee(id) {
-        var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
+    public goToPreviousEmployee() {
+        var index = _.findIndex(this.employeeList, x => x.ID === this.employeeList[this.selectedIndex].ID);
         if (index > 0) {
-            this.selectedEmployeeID = this.employeeList[index - 1].ID;
-            this.table.focusRow(this.table.getTableData().find(x => x.ID === this.selectedEmployeeID)['_originalIndex']);
+            this.selectedIndex = index - 1;
+            this.focusRow(this.selectedIndex);
         }
-    }
-
-    public changeFilter(filter: string) {
-        this.filter = filter;
-        this.getEmployees();
-        this.selectedEmployeeID = 0;
     }
 
     public saveRun(event: any) {
     }
 
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
+    public noActiveBankAccounts(): boolean {
+        return !this.employeeList[this.selectedIndex].BankAccounts.some(x => x.Active === true);
+    }
+
+    public generateErrorMessage(): string {
+        let employee: Employee = this.employeeList[this.selectedIndex];
+        let error = `Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet for ${employee.BusinessRelationInfo.Name}</a> for å legge inn `;
+        let noBankAccounts = (!employee.BankAccounts) || this.noActiveBankAccounts();
+        let noTax = !employee.TaxTable && !employee.TaxPercentage;
+
+        if (noBankAccounts && noTax) {
+            error = 'Skatteinfo og kontonummer mangler. ' + error + 'skatteinfo og kontonummer.';
+        } else if (noBankAccounts) {
+            error = 'Kontonummer mangler. ' + error + 'kontonummer.';
+        } else if (noTax) {
+            error = 'Skatteinfo mangler. ' + error + 'skatteinfo.';
         }
+
+        return error;
+    }
+
+    public hasError(): boolean {
+        let employee: Employee = this.employeeList[this.selectedIndex];
+        let noBankAccounts = (!employee.BankAccounts) || this.noActiveBankAccounts();
+        let noTax = !employee.TaxTable && !employee.TaxPercentage;
+
+        return noBankAccounts || noTax;
+    }
+
+    public hasDirty(): boolean {
+        return this.transList ? this.transList.hasDirty() : false;
+    }
+
+    public updateSums() {
+        this.setSummarySource();
+    }
+
+    public setEditable(isEditable: boolean) {
+        this.transList.setEditable(isEditable);
     }
 }
