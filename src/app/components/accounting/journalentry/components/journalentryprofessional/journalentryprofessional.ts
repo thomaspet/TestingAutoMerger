@@ -24,6 +24,7 @@ export class JournalEntryProfessional implements OnInit {
     @Input() public mode: number = JournalEntryMode.Manual;
     @Input() public disabled: boolean = false;
     @Input() public journalEntryLines: JournalEntryData[] = [];
+    @Input() public doShowImage: boolean = false;
 
     @ViewChild(UniTable) private table: UniTable;
     private journalEntryTableConfig: UniTableConfig;
@@ -44,7 +45,8 @@ export class JournalEntryProfessional implements OnInit {
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
 
-    private doShowImage: boolean = false;
+
+
     private lastImageDisplayFor: string = '';
 
     private defaultAccountPayments: Account = null;
@@ -413,7 +415,7 @@ export class JournalEntryProfessional implements OnInit {
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
 
         let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
-                    .setTemplate(line => line.FileIDs ? PAPERCLIP : '')
+                    .setTemplate(line => line.FileIDs && line.FileIDs.length > 0 ? PAPERCLIP : '')
                     .setWidth('30px')
                     .setFilterable(false)
                     .setSkipOnEnterKeyNavigation(true)
@@ -430,7 +432,8 @@ export class JournalEntryProfessional implements OnInit {
 
             // SameOrNew: this.journalEntryNumberAlternatives[this.journalEntryNumberAlternatives.length - 1].ID,
             // SameOrNewDetails: this.journalEntryNumberAlternatives[this.journalEntryNumberAlternatives.length - 1],
-            Description: ''
+            Description: '',
+            FileIDs: []
         };
 
         let columns: Array<UniTableColumn> = [];
@@ -450,7 +453,7 @@ export class JournalEntryProfessional implements OnInit {
             defaultRowData.Description = 'Innbetaling';
 
             columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
-                 descriptionCol];
+                 descriptionCol, fileCol];
         } else {
 
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
@@ -478,7 +481,6 @@ export class JournalEntryProfessional implements OnInit {
                     let originalJournalEntryNo = newRow.JournalEntryNo;
 
                     this.setJournalEntryNumberProperties(newRow);
-
 
                     // Set FileIDs based on journalentryno - if it is the same as an existing, use that,
                     // if it has files but the journalentryno changed, and other journalentries still exists for the
@@ -651,12 +653,6 @@ export class JournalEntryProfessional implements OnInit {
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
 
-                // hide uploader
-                if (this.doShowImage) {
-                    this.doShowImage = false;
-                    this.showImageChanged.emit(this.doShowImage);
-                }
-
                 let journalentrytoday: JournalEntryData = new JournalEntryData();
                 journalentrytoday.FinancialDate = moment().toDate();
                 this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
@@ -685,18 +681,16 @@ export class JournalEntryProfessional implements OnInit {
             this.journalEntryLines = new Array<JournalEntryData>();
             this.dataChanged.emit(this.journalEntryLines);
 
-            // hide uploader
-            if (this.doShowImage) {
-                this.doShowImage = false;
-                this.showImageChanged.emit(this.doShowImage);
-            }
-
             let journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = moment().toDate();
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
                 .subscribe(data => {
                     this.firstAvailableJournalEntryNumber = data;
                     this.setupSameNewAlternatives();
+
+                    if (this.table) {
+                        this.table.focusRow(0);
+                    }
                 },
                 err => this.errorService.handle
             );

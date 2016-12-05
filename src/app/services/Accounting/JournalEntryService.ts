@@ -17,13 +17,18 @@ class JournalEntryLineCalculation {
     incomingVatAmount: number;
 }
 
+export class JournalEntrySettings {
+    public AttachmentsVisible: boolean;
+    public DefaultVisibleFields: string[];
+}
+
 declare var moment;
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
     private JOURNALENTRYMODE_LOCALSTORAGE_KEY: string = 'PreferredJournalEntryMode';
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
-
+    private JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY: string = 'JournalEntrySettings';
 
     constructor(http: UniHttp, private storageService: BrowserStorageService, private statisticsService: StatisticsService) {
         super(http);
@@ -48,6 +53,24 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
     public setJournalEntryMode(newMode: string) {
         this.storageService.save(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY, newMode);
+    }
+
+    public getJournalEntrySettings(): JournalEntrySettings {
+        let settingsJson = this.storageService.get(this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY);
+        let settings: JournalEntrySettings;
+
+        if (!settingsJson) {
+            settings = new JournalEntrySettings();
+            settings.AttachmentsVisible = false;
+        } else {
+            settings = JSON.parse(settingsJson);
+        }
+
+        return settings;
+    }
+
+    public setJournalEntrySettings(settings: JournalEntrySettings) {
+        this.storageService.save(this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY, JSON.stringify(settings));
     }
 
     public getSessionData(mode: number): Array<JournalEntryData> {

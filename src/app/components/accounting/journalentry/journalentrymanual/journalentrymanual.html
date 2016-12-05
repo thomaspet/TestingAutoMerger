@@ -3,7 +3,7 @@
     <button *ngIf="journalEntryMode == 'SIMPLE'" (click)="setJournalEntryMode('PROFESSIONAL')">Vis proff registrering...</button>
 </section>
 
-<section [ngClass]="{'journalentry-input-area-full': !doShowImage, 'journalentry-input-area': doShowImage}">
+<section [ngClass]="{'journalentry-input-area-full': !journalEntrySettings.AttachmentsVisible, 'journalentry-input-area': journalEntrySettings.AttachmentsVisible}">
     <div class="journalentry-input-components">
         <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
                                     (showImageChanged)="onShowImageChanged($event)"
@@ -13,6 +13,7 @@
                                     [mode]="mode"
                                     [supplierInvoice]="supplierInvoice"
                                     [journalEntryID]="journalEntryID"
+                                    [doShowImage]="journalEntrySettings.AttachmentsVisible"
                                     *ngIf="journalEntryMode == 'PROFESSIONAL'">
         </journal-entry-professional>
 
@@ -41,15 +42,12 @@
     </div>
 </section>
 
-<section *ngIf="doShowImage" class="journalentry-image-area">
-    <span *ngIf="showImagesForJournalEntryNo">
-        Vedlegg for bilagsnr {{showImagesForJournalEntryNo}}
+<section *ngIf="journalEntrySettings && journalEntrySettings.AttachmentsVisible && this.mode !== 1" class="journalentry-image-area">
+    <span>
+        Vedlegg for bilagsnr {{showImagesForJournalEntryNo ? showImagesForJournalEntryNo : "(nytt bilag)"}}
 
         <uni-image [uploadWithoutEntity]="'true'" [fileIDs]="currentJournalEntryImages"
                     (fileListReady)="onFileListReady($event)"></uni-image>
-    </span>
-    <span *ngIf="!showImagesForJournalEntryNo">
-        Du må velge et bilagsnr (nytt eller eksisterende) før du kan laste opp en fil
     </span>
 </section>
 
