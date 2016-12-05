@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter, ViewChild, OnDestroy, Renderer} from '@angular/core';
 import {Supplier} from '../../../../unientities';
 import {SupplierDetails} from './supplierDetails';
-import {KeyCodes} from 'uniform-ng2/main';
+import {KeyCodes} from '../../../../services/common/KeyCodes';
 
 @Component({
     selector: 'supplier-detail-modal',
@@ -29,7 +29,7 @@ export class SupplierDetailsModal implements OnDestroy {
 
     constructor(private renderer: Renderer) {
         this.escListener = renderer.listenGlobal('document', 'keyup', (event: any) => {
-            if (event.keyCode === KeyCodes.ESC) {
+            if (event.keyCode === KeyCodes.ESCAPE) {
                 this.isOpen = false;
             }
         });
