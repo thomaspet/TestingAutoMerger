@@ -15,7 +15,9 @@ var CLIENT = process.env.UNI_CLIENT || 'jorgeas';
 module.export = gulp.task('entities', function(done) {
 
     if (!SERVER_URL) {
-        console.log('You need to specify the server url before the command `set SERVER_URL=https://devapi-unieconomy.azurewebsites.net&&gulp entities`');
+        console.log('You need to specify the server url before the command:')
+        console.log('windows:       `set SERVER_URL=https://devapi-unieconomy.azurewebsites.net&&gulp entities`');
+        console.log('git_bash/unix: `export SERVER_URL=https://devapi-unieconomy.azurewebsites.net && gulp entities`');
         process.exit(1);
     }
 
