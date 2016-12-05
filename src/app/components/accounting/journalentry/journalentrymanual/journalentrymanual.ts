@@ -1,10 +1,11 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice} from '../../../../unientities';
+import {SupplierInvoice, Dimensions} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
+import {JournalEntrySettings} from '../../../../services/accounting/JournalEntryService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
@@ -33,7 +34,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
     private journalEntryMode: string;
-    private doShowImage: boolean = false;
     private showImagesForJournalEntryNo: string = '';
     private currentJournalEntryImages: number[] = [];
 
@@ -41,6 +41,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public validationResult: any;
     public summary: ISummaryConfig[] = [];
+    public journalEntrySettings: JournalEntrySettings;
 
     private saveactions: IUniSaveAction[] = [
         {
@@ -66,6 +67,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public ngOnInit() {
         this.journalEntryMode = this.journalEntryService.getJournalEntryMode();
+        this.journalEntrySettings = this.journalEntryService.getJournalEntrySettings();
 
         if (this.supplierInvoice) {
             this.mode = JournalEntryMode.Supplier;
@@ -136,13 +138,19 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private onShowImageChanged(showImage: boolean) {
-        this.doShowImage = showImage;
+        this.journalEntrySettings.AttachmentsVisible = showImage;
+        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings);
     }
 
     private onShowImageForJournalEntry(journalEntry: JournalEntryData) {
-        if (this.showImagesForJournalEntryNo !== journalEntry.JournalEntryNo) {
-            this.showImagesForJournalEntryNo = journalEntry.JournalEntryNo;
-            this.currentJournalEntryImages = journalEntry.FileIDs;
+        if (journalEntry) {
+            if (this.showImagesForJournalEntryNo !== journalEntry.JournalEntryNo) {
+                this.showImagesForJournalEntryNo = journalEntry.JournalEntryNo;
+                this.currentJournalEntryImages = journalEntry.FileIDs;
+            }
+        } else {
+            this.showImagesForJournalEntryNo = null;
+            this.currentJournalEntryImages = [];
         }
     }
 
@@ -154,6 +162,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
 
         let didChangeAnything: boolean = false;
+        let didFindJournalEntry: boolean = false;
         let data = this.getJournalEntryData();
 
         data.forEach(entry => {
@@ -169,8 +178,19 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         }
                     });
                 }
+
+                didFindJournalEntry = true;
             }
         });
+
+        if (!didFindJournalEntry) {
+            let newJournalEntry = new JournalEntryData();
+            newJournalEntry.FileIDs = fileIds;
+            newJournalEntry.Dimensions = new Dimensions();
+            data.push(JSON.parse(JSON.stringify(newJournalEntry)));
+
+            didChangeAnything = true;
+        }
 
         if (didChangeAnything) {
             // something was updated, update datasource for unitable
@@ -295,6 +315,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
             }
         } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.postJournalEntryData(completeCallback);
+
+            this.onShowImageForJournalEntry(null);
         }
     }
 
@@ -304,6 +326,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.removeJournalEntryData(completeCallback);
         }
+
+        this.onShowImageForJournalEntry(null);
     }
 
     private useSimpleMode() {
