@@ -260,36 +260,38 @@ export class GenericDetailview {
             this.workerService.saveByID(this.current, this.viewconfig.data.route)
                 .finally(() => this.busy = false)
                 .subscribe((item) => {
-                this.current = item;
-                this.ID = item.ID;
-                this.updateTitle();
+                    this.current = item;
+                    this.ID = item.ID;
+                    this.updateTitle();
+                    this.flagDirty(false);
 
-                var details: IAfterSaveInfo = { entity: item, promise: undefined };
-                this.afterSave.emit(details);
+                    var details: IAfterSaveInfo = { entity: item, promise: undefined };
+                    this.afterSave.emit(details);
 
-                var postActions = () => {
-                    this.itemChanged.emit(this.current);
-                    if (done) { done(labels.msg_saved); }
-                    this.enableAction(IAction.Delete, true);
-                    resolve(true);
-                };
+                    var postActions = () => {
+                        this.itemChanged.emit(this.current);
+                        if (done) { done(labels.msg_saved); }
+                        this.enableAction(IAction.Delete, true);
+                        resolve(true);
+                        this.flagDirty(false);
+                    };
 
-                if (details.promise) {
-                    details.promise.then((result: IResult) => postActions()).catch((result: IResult) => {
-                        if (done) { done('Feil ved lagring'); }
-                        this.errorService.handle(result);
-                        resolve(false);
-                    });
-                } else {
-                    postActions();
-                }
+                    if (details.promise) {
+                        details.promise.then((result: IResult) => postActions()).catch((result: IResult) => {
+                            if (done) { done('Feil ved lagring'); }
+                            this.errorService.handle(result);
+                            resolve(false);
+                        });
+                    } else {
+                        postActions();
+                    }
 
-            }, (err) => {
-                this.errorService.handle(err);
-                if (done) { done(labels.err_save); }
-                resolve(false);
+                }, (err) => {
+                    this.errorService.handle(err);
+                    if (done) { done(labels.err_save); }
+                    resolve(false);
+                });
             });
-        });
     }
 
     private ensureEditCompleted() {

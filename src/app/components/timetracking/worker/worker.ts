@@ -38,6 +38,7 @@ export class WorkerDetailview {
 
     public onRelationvalueChanged(item: WorkRelation) {
         this.hasRelationChanges = true;
+        this.detailForm.flagDirty(true);
     }
 
     public afterWorkerSaved(info: IAfterSaveInfo) {

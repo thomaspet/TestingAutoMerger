@@ -6,11 +6,14 @@
 
             <table class='timeentry_toolbar'><tr>
                 <td>
-                    <button class="secondary-button" (click)="onAddNew()">Nytt oppsett</button>
-                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett</button>
+                    <button class="good" (click)="onAddNew()">Ny stilling</button>
+                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett stilling</button>
+                    &nbsp;&nbsp;
+                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="secondary-button" (click)="onRegisterHours()">Rediger timer</button>
+                </td>                
+                <td>                    
                 </td>
-                <td>
-                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="good" (click)="onRegisterHours()">Rediger timer</button>
+                <td>                    
                 </td>
             </tr></table>            
             

@@ -205,7 +205,7 @@ export class TimeEntry {
         var list = workRelations || this.workRelations;
         if (list && list.length > 1) {
             list.forEach( x => {
-                var label = `Stilling: ${x.Description} ${x.WorkPercentage}%`;
+                var label = `Stilling: ${x.Description || ''} ${x.WorkPercentage}%`;
                 contextMenus.push( { label: label, action: () => this.setWorkRelationById(x.ID) });
             });
         }
@@ -213,7 +213,7 @@ export class TimeEntry {
         var subTitle = '';
         if (this.timeSheet && this.timeSheet.currentRelation) {
             let ts = this.timeSheet.currentRelation;
-            subTitle = `${ts.Description} ${ts.WorkPercentage}%`;
+            subTitle = `${ts.Description || ''} ${ts.WorkPercentage}%`;
         }
 
         this.toolbarConfig = {
@@ -378,7 +378,8 @@ export class TimeEntry {
         switch (this.currentFilter.interval) {
 
             case ItemInterval.yesterday:
-                return moment(new Date()).subtract(1, 'days').toDate();
+                var dt = moment(new Date());
+                return dt.subtract( (dt.isoWeekday() === 1) ? 3 : 1, 'days').toDate();
 
             case ItemInterval.today:
                 return moment(new Date()).toDate();
