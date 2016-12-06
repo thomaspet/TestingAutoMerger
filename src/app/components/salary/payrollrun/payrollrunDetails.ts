@@ -79,13 +79,16 @@ export class PayrollrunDetails extends UniView {
 
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
+            console.log('new id set from params');
             super.updateCacheKey(this.router.url);
+            console.log('cache updated');
             this.employees = undefined;
             this.salaryTransactions = undefined;
 
             super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
 
                 this.payrollrun = payrollRun;
+                console.log('payrollrun set', this.payrollrun);
                 if (this.payrollrun && this.payrollrun.PayDate) {
                     this.payDate = new Date(this.payrollrun.PayDate.toString());
                 }
@@ -147,7 +150,7 @@ export class PayrollrunDetails extends UniView {
 
                 this.checkDirty();
 
-            });
+            }, err => this.errorService.handle(err));
 
             super.getStateSubject('employees').subscribe((employees: Employee[]) => {
                 this.employees = employees;
@@ -165,6 +168,7 @@ export class PayrollrunDetails extends UniView {
             });
 
             if (this.payrollrun && this.payrollrun.ID === +params['id']) {
+                console.log('er vi her');
                 super.updateState('payrollRun', this.payrollrun, false);
             } else {
                 this.payrollrun = undefined;
