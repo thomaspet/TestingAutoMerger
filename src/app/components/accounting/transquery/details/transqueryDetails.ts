@@ -59,23 +59,40 @@ export class TransqueryDetails implements OnInit {
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
-        const filters = ['isnull(FileEntityLink.EntityType,\'JournalEntry\') eq \'JournalEntry\''];
-
-        if (urlParams.get('filter')) {
-            if (!filters.find(x => x === urlParams.get('filter').toString())) {
-                filters.push(urlParams.get('filter'));
-            }
-        }
+        const filtersFromUniTable = urlParams.get('filter');
+        const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
         if (this.configuredFilter) {
             filters.push(this.configuredFilter);
         }
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', 'ID as ID,JournalEntryNumber,Account.AccountNumber,Account.AccountName,FinancialDate,VatDate,Description,VatType.VatCode,Amount,TaxBasisAmount,VatReportID,RestAmount,StatusCode,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,TerminPeriod.No,TerminPeriod.AccountYear,JournalEntryID as JournalEntryID,count(FileEntityLink.ID) as Attachments');
+        urlParams.set('select',
+            'ID as ID,' +
+            'JournalEntryNumber,' +
+            'Account.AccountNumber,' +
+            'Account.AccountName,' +
+            'FinancialDate,' +
+            'VatDate,' +
+            'Description,' +
+            'VatType.VatCode,' +
+            'Amount,' +
+            'TaxBasisAmount,' +
+            'VatReportID,' +
+            'RestAmount,' +
+            'StatusCode,' +
+            'Department.Name,' +
+            'Project.Name,' +
+            'Department.DepartmentNumber,' +
+            'Project.ProjectNumber,' +
+            'TerminPeriod.No,' +
+            'TerminPeriod.AccountYear,' +
+            'JournalEntryID as JournalEntryID,' +
+            'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
+        );
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
+        urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);

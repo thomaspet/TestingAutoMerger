@@ -72,27 +72,37 @@ export class AccountDetailsReport {
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
-        const filters = [];
-
-        if (urlParams.get('filter')) {
-            filters.push('(' + urlParams.get('filter') + ')');
-        }
+        const filtersFromUniTable = urlParams.get('filter');
+        const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
         filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
         filters.push(`Period.AccountYear eq ${this.periodFilter1.year}`);
         filters.push(`Period.No ge ${this.periodFilter1.fromPeriodNo}`);
         filters.push(`Period.No le ${this.periodFilter1.toPeriodNo}`);
-        filters.push('isnull(FileEntityLink.EntityType,\'JournalEntry\') eq \'JournalEntry\'');
 
         if (this.dimensionEntityName) {
             filters.push(`isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.config.dimensionId}`);
         }
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', 'ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate,Description as Description,VatType.VatCode,Amount as Amount,Department.Name,Project.Name,Department.DepartmentNumber,Project.ProjectNumber,count(FileEntityLink.ID) as Attachments,JournalEntryID as JournalEntryID');
+        urlParams.set('select',
+            'ID as ID,'
+            + 'JournalEntryNumber as JournalEntryNumber,'
+            + 'FinancialDate,'
+            + 'Description as Description,'
+            + 'VatType.VatCode,'
+            + 'Amount as Amount,'
+            + 'Department.Name,'
+            + 'Project.Name,'
+            + 'Department.DepartmentNumber,'
+            + 'Project.ProjectNumber,'
+            + 'count(FileEntityLink.ID) as Attachments,'
+            + 'JournalEntryID as JournalEntryID'
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
+        );
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and ').replace('))', ') )'));
+        urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
