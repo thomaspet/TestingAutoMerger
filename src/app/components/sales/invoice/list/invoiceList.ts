@@ -31,6 +31,14 @@ export class InvoiceList implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private summaryConfig: ISummaryConfig[];
 
+    private filterTabs: any[] = [
+        {label: 'Alle'},
+        {label: 'Kladd', statuscode: StatusCodeCustomerInvoice.Draft},
+        {label: 'Fakturert', statuscode: StatusCodeCustomerInvoice.Invoiced},
+        {label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid},
+    ];
+    private selectedFilterIndex: number = 0;
+
     constructor(
         private uniHttpService: UniHttp,
         private router: Router,
@@ -40,10 +48,19 @@ export class InvoiceList implements OnInit {
         private toastService: ToastService,
         private numberFormat: NumberFormat,
         private errorService: ErrorService
-    ) {
+    ) {}
 
+    public ngOnInit() {
         this.setupInvoiceTable();
-        this.tabService.addTab({ url: '/sales/invoices', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+        this.getGroupCounts();
+
+        this.tabService.addTab({
+            url: '/sales/invoices',
+            name: 'Faktura',
+            active: true,
+            moduleID: UniModules.Invoices
+        });
+
         this.summaryConfig = [
             {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
             {title: 'Restsum', value: this.numberFormat.asMoney(0)},
@@ -51,25 +68,72 @@ export class InvoiceList implements OnInit {
         ];
     }
 
-    public ngOnInit() {
-        this.setupInvoiceTable();
+    private refreshData() {
+        this.table.refreshTableData();
+        this.getGroupCounts();
+        this.getSummary();
+    }
+
+    private getGroupCounts() {
+        this.customerInvoiceService.getGroupCounts().subscribe((counts) => {
+            this.filterTabs.forEach((filter) => {
+                if (counts.hasOwnProperty(filter.statuscode)) {
+                    filter['count'] = counts[filter.statuscode];
+                }
+            });
+        });
+    }
+
+    private getSummary() {
+        this.customerInvoiceService.getInvoiceSummary('').subscribe(
+            (summary) => {
+                this.summaryConfig = [
+                    {title: 'Totalsum', value: this.numberFormat.asMoney(summary.SumTotalAmount)},
+                    {title: 'Restsum', value: this.numberFormat.asMoney(summary.SumRestAmount)},
+                    {title: 'Sum kreditert', value: this.numberFormat.asMoney(summary.SumCreditedAmount)},
+                ];
+            },
+            this.errorService.handle
+        );
     }
 
     public createInvoice() {
         this.router.navigateByUrl('/sales/invoices/0');
     }
 
+    public onFilterTabClick(filter, index) {
+        this.selectedFilterIndex = index;
+        if (filter.statuscode) {
+            this.table.setFilters([{
+                field: 'StatusCode',
+                operator: 'eq',
+                value: filter.statuscode,
+                group: 1
+            }]);
+        } else {
+            this.table.removeFilter('StatusCode');
+        }
+    }
+
     public onRegisteredPayment(modalData: any) {
-        this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-            // TODO: Decide what to do here. Popup message or navigate to journalentry ??
-            // this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
-            alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
-            this.table.refreshTableData();
-        }, err => this.errorService.handle(err));
+        this.toastService.addToast('Registrerer betaling', ToastType.warn);
+        this.customerInvoiceService
+            .ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
+            .subscribe(
+                (journalEntry) => {
+                    this.toastService.clear();
+                    const msg = 'Bilagsnummer: ' + journalEntry.JournalEntryNumber;
+                    this.toastService.addToast(`Faktura betalt`, ToastType.good, 10, msg);
+                    this.refreshData();
+                },
+                (err) => {
+                    this.toastService.clear();
+                    this.errorService.handle(err);
+                }
+            );
     }
 
     private setupInvoiceTable() {
-
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set('expand', 'Customer,InvoiceReference');
@@ -133,11 +197,16 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
+                this.toastService.addToast('Fakturerer', ToastType.warn);
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
-                    console.log('== Invoice TRANSITION OK ==');
-                    alert('Fakturert OK');
-                    this.table.refreshTableData();
-                }, err => this.errorService.handle(err));
+                    this.toastService.clear();
+                    this.toastService.addToast('Faktura fakturert', ToastType.good, 10);
+                    this.refreshData();
+                },
+                (err) => {
+                    this.toastService.clear();
+                    this.errorService.handle(err);
+                });
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
@@ -152,11 +221,16 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Krediter kreditnota',
             action: (rowModel) => {
+                this.toastService.addToast('Krediterer', ToastType.warn);
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
-                    console.log('== kreditnota Kreditert OK ==');
-                    alert('Kreditnota kreditert  OK');
-                    this.table.refreshTableData();
-                }, err => this.errorService.handle(err));
+                    this.toastService.clear();
+                    this.toastService.addToast('Kreditnota kreditert', ToastType.good, 10);
+                    this.refreshData();
+                },
+                (err) => {
+                    this.toastService.clear();
+                    this.errorService.handle(err);
+                });
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
@@ -304,16 +378,5 @@ export class InvoiceList implements OnInit {
 
     public onRowSelected(item) {
         this.router.navigateByUrl(`/sales/invoices/${item.ID}`);
-    }
-
-    public onFiltersChange(filter: string) {
-        this.customerInvoiceService.getInvoiceSummary(filter)
-            .subscribe((summary) => {
-                this.summaryConfig = [
-                    {title: 'Totalsum', value: this.numberFormat.asMoney(summary.SumTotalAmount)},
-                    {title: 'Restsum', value: this.numberFormat.asMoney(summary.SumRestAmount)},
-                    {title: 'Sum kreditert', value: this.numberFormat.asMoney(summary.SumCreditedAmount)},
-                ];
-            });
     }
 }

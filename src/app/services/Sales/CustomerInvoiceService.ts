@@ -35,6 +35,23 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         this.defaultExpand = ['Customer'];
     }
 
+    public getGroupCounts() {
+        const route = '?model=customerinvoice&select=count(id),statuscode&filter=isnull(deleted,0) eq 0';
+        return this.http.asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(route)
+            .send()
+            .map((res) => {
+                const data = (res.json() || {}).Data || [];
+                return data.reduce((counts, group) => {
+                    if (group.CustomerInvoiceStatusCode) {
+                        counts[group.CustomerInvoiceStatusCode] = group.countid;
+                    }
+                    return counts;
+                }, {});
+            });
+    }
+
     public newCustomerInvoice(): Promise<CustomerInvoice> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerInvoice.EntityType).subscribe((invoice: CustomerInvoice) => {
