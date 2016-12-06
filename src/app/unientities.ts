@@ -1079,6 +1079,7 @@ export class VatReportForm {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public Description: string;
     public ID: number;
     public Name: string;
     public UpdatedAt: Date;
