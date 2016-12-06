@@ -243,8 +243,10 @@ export class WagetypeDetail extends UniView {
     private checkAmeldingInfo() {
         if (this.wageType.SupplementaryInformations && this.wageType.SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
+            this.findByProperty('_uninavn').Hidden = false;
         } else {
             this.showSupplementaryInformations = false;
+            this.findByProperty('_uninavn').Hidden = true;
         }
 
         if (this.wageType.Benefit !== '') {
@@ -280,13 +282,16 @@ export class WagetypeDetail extends UniView {
             template: (obj) => obj ? `${obj.text}` : '',
             events: {
                 select: (model) => {
-                    this.wageType.Benefit = '';
-                    this.wageType.Description = '';
                     this.showSupplementaryInformations = false;
                     this.findByProperty('_uninavn').Hidden = true;
                     this.filterSupplementPackages(model.IncomeType, true, false, false);
                     this.showBenefitAndDescriptionAsReadonly = false;
+                    this.wageType.Description = '';
+                    this.wageType.Benefit = '';
                     this.uniform.field('Benefit').focus();
+                },
+                shift_tab: (event) => {
+                    this.uniform.field('RateFactor').focus();
                 }
             }
         };
@@ -302,8 +307,9 @@ export class WagetypeDetail extends UniView {
                 select: (model) => {
                     this.showSupplementaryInformations = false;
                     this.findByProperty('_uninavn').Hidden = true;
-                    this.filterSupplementPackages('', false, true, false);
+                    this.filterSupplementPackages(model.IncomeType, true, true, false);
                     this.setDescriptionDataSource();
+                    this.wageType.Description = '';
                 },
                 shift_tab: (event) => {
                     this.uniform.field('IncomeType').focus();
@@ -321,8 +327,10 @@ export class WagetypeDetail extends UniView {
             template: (obj) => obj ? `${obj.text}` : '',
             events: {
                 select: (model) => {
-                    this.filterSupplementPackages('', false, true, true);
-                    this.findByProperty('_uninavn').Hidden = false;
+                    this.filterSupplementPackages(model.IncomeType, true, true, true);
+                    if (this.supplementPackages.length > 0) {
+                        this.findByProperty('_uninavn').Hidden = false;
+                    }
                     this.uniform.field('SpecialTaxAndContributionsRule').focus();
                 },
                 shift_tab: (event) => {
@@ -567,10 +575,11 @@ export class WagetypeDetail extends UniView {
         selectedPackage.additions.forEach(addition => {
             supInfo.push(addition);
         });
-
+        
         this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
         if (this.wageType.SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
+            this.findByProperty('_uninavn').Hidden = false;
         }
     }
 
