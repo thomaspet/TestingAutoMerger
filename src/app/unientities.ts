@@ -2250,6 +2250,7 @@ export class PayrollRun {
     public ExcludeRecurringPosts: boolean;
     public FreeText: string;
     public FromDate: Date;
+    public HolidayPayDeduction: boolean;
     public ID: number;
     public needsRecalc: boolean;
     public PayDate: Date;
@@ -2345,6 +2346,7 @@ export class SalaryTransaction {
     public EmployeeNumber: number;
     public EmploymentID: number;
     public FromDate: Date;
+    public HolidayPayDeduction: boolean;
     public ID: number;
     public IsRecurringPost: boolean;
     public MunicipalityNo: string;

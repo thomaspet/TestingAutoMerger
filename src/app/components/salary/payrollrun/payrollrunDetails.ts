@@ -77,6 +77,47 @@ export class PayrollrunDetails extends UniView {
 
         this.saveactions = [];
 
+        this.contextMenuItems = [
+            {
+                label: 'Generer feriepenger',
+                action: () => {
+                    this.openVacationPayModal();
+                }
+            },
+            {
+                label: 'Nullstill lønnsavregning',
+                action: () => {
+                    if (this.payrollrun) {
+                        if (this.payrollrun.StatusCode < 1) {
+                            this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
+                        } else {
+                            if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+                                this.busy = true;
+                                this.payrollrunService.resetSettling(this.payrollrunID)
+                                    .finally(() => this.busy = false)
+                                    .subscribe((response: boolean) => {
+                                        if (response) {
+                                            this.getData();
+                                            this.getPayrollRun();
+                                        } else {
+                                            this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
+                                        }
+                                    }, err => this.errorService.handle(err));
+                            }
+                        }
+                    }
+                },
+                disabled: (rowModel) => {
+                    if (this.payrollrun) {
+                        return this.payrollrun.StatusCode < 1;
+                    } else {
+                        return true;
+                    }
+
+                }
+            }
+        ];
+
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
             super.updateCacheKey(this.router.url);
@@ -194,46 +235,6 @@ export class PayrollrunDetails extends UniView {
                 this.getData();
             }
         });
-
-        this.contextMenuItems = [
-            {
-                label: 'Generer feriepenger',
-                action: () => {
-                    this.openVacationPayModal();
-                }
-            },
-            {
-                label: 'Nullstill lønnsavregning',
-                action: () => {
-                    if (this.payrollrun) {
-                        if (this.payrollrun.StatusCode < 1) {
-                            this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
-                        } else {
-                            if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
-                                this.busy = true;
-                                this.payrollrunService.resetSettling(this.payrollrunID)
-                                    .finally(() => this.busy = false)
-                                    .subscribe((response: boolean) => {
-                                        if (response) {
-                                            this.getData();
-                                        } else {
-                                            this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
-                                        }
-                                }, err => this.errorService.handle(err));
-                            }
-                        }
-                    }
-                },
-                disabled: (rowModel) => {
-                    if (this.payrollrun) {
-                        return this.payrollrun.StatusCode < 1;
-                    } else {
-                        return true;
-                    }
-                    
-                }
-            }
-        ];
     }
 
     private getLayout() {
@@ -252,37 +253,50 @@ export class PayrollrunDetails extends UniView {
     }
 
     private getSalaryTransactions() {
+        this.getSalaryTransactionsObservable().subscribe((response) => {
+                response.map(x => {
+                    let account = new Account();
+                    account.AccountNumber = x.Account;
+                    x['_Account'] = account;
+                });
+                super.updateState('salaryTransactions', response, false);
+            }, err => this.errorService.handle(err));
+    }
+
+    private getSalaryTransactionsObservable(): Observable<any> {
         let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
-        this._salaryTransactionService.GetAll('filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC', ['WageType.SupplementaryInformations', 'employment', 'Supplements']).subscribe((response) => {
-            response.map(x => {
-                let account = new Account();
-                account.AccountNumber = x.Account;
-                x['_Account'] = account;
+        return this._salaryTransactionService
+            .GetAll(
+            'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
+            ['WageType.SupplementaryInformations', 'employment', 'Supplements'])
+            .map(transes => {
+                if (this.selectionList) {
+                    this.selectionList.updateSums();
+                }
+                return transes;
             });
-            super.updateState('salaryTransactions', response, false);
-        }, err => this.errorService.handle(err));
     }
 
     private getPayrollRun() {
         if (this.payrollrunID) {
             this.payrollrunService.get(this.payrollrunID).
-            subscribe((payroll: PayrollRun) => {
-                this.payrollrun = payroll;
-                if (this.payrollrun) {
-                    payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
-                }
+                subscribe((payroll: PayrollRun) => {
+                    this.payrollrun = payroll;
+                    if (this.payrollrun) {
+                        payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
+                    }
 
-                this.updateState('payrollRun', payroll, false);
-            }, this.errorService.handle);
+                    this.updateState('payrollRun', payroll, false);
+                }, this.errorService.handle);
         } else {
             Observable.forkJoin(
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
                 this._companySalaryService.getCompanySalary()
             ).subscribe((dataSet: any) => {
-                
+
                 let [payroll, last, salaries] = dataSet;
-                
+
                 this.payrollrun = payroll;
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
@@ -320,7 +334,7 @@ export class PayrollrunDetails extends UniView {
                     todate = new Date(currentYear, 0, 7);
                     this.payrollrun.ToDate = todate;
                     break;
-            
+
                 default: // Monthly
                     todate = new Date(currentYear, 0, 31);
                     this.payrollrun.ToDate = todate;
@@ -341,13 +355,13 @@ export class PayrollrunDetails extends UniView {
                     todateAsDate = new Date(lastTodate);
                     this.payrollrun.ToDate = todateAsDate;
                     break;
-                
+
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
                     todateAsDate = new Date(lastTodate);
                     this.payrollrun.ToDate = todateAsDate;
                     break;
-            
+
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
                     todateAsDate = new Date(lastTodate);
@@ -606,51 +620,37 @@ export class PayrollrunDetails extends UniView {
 
         this.setEditableOnChildren(false);
 
-        this.savePayrollrun().finally(() => this.setEditableOnChildren(true)).subscribe((payrollRun: PayrollRun) => {
-            if (this.selectionList) {
-                this.selectionList.updateSums();
-            }
+        this.savePayrollrun()
+            .flatMap((payrollRun: PayrollRun) => {
+                
+                this.payrollrun = payrollRun;
+                this.setSection();
+                super.updateState('payrollRun', this.payrollrun, false);
 
-            this.payrollrun = payrollRun;
-            this.setSection();
-            super.updateState('payrollRun', this.payrollrun, false);
-            
-            if (!this.payrollrunID) {
-                this.router.navigateByUrl(this.url + this.payrollrun.ID);
-            }
-
-            let newTranses = this.payrollrun.transactions.filter(x => !x.Deleted);
-
-            this.salaryTransactions = this.salaryTransactions
-                .filter(x => !x.Deleted && x.ID);
-
-            newTranses.map(trans => {
-                let index = this.salaryTransactions.findIndex(x => x.ID === trans.ID);
-                if (index > 0) {
-                    let oldTrans = this.salaryTransactions[index];
-                    this.salaryTransactions[index] = trans;
-                    this.salaryTransactions[index].Wagetype = oldTrans.Wagetype;
-                    this.salaryTransactions[index].employment = oldTrans.employment;
-                } else {
-                    if (this.wagetypes && !trans.Wagetype) {
-                        trans.Wagetype = this.wagetypes.find(x => x.ID === trans.WageTypeID);
-                    }
-                    if (this.employees && !trans.employment) {
-                        trans.employment = this.employments.find(x => x.ID === trans.EmploymentID);
-                    }
-                    this.salaryTransactions.push(trans);
+                if (!this.payrollrunID) {
+                    this.router.navigateByUrl(this.url + this.payrollrun.ID);
                 }
-            });
 
-            this.updateState('salaryTransactions', this.salaryTransactions, false);
+                return this.getSalaryTransactionsObservable();
 
-            if (done) {
-                done('Lagret');
-            } else {
-                this.saveComponent.manualSaveComplete('Lagret');
-            }
+            })
+            .finally(() => this.setEditableOnChildren(true))
+            .subscribe((salaryTransactions: SalaryTransaction[]) => {
 
-        },
+                salaryTransactions.map(x => {
+                    let account = new Account();
+                    account.AccountNumber = x.Account;
+                    x['_Account'] = account;
+                });
+
+                super.updateState('salaryTransactions', salaryTransactions, false);
+
+                if (done) {
+                    done('Lagret');
+                } else {
+                    this.saveComponent.manualSaveComplete('Lagret');
+                }
+            },
             (err) => {
                 if (done) {
                     done('Feil ved lagring');
