@@ -119,12 +119,16 @@ export class PayrollrunDetails extends UniView {
         ];
 
         this.route.params.subscribe(params => {
+
             this.payrollrunID = +params['id'];
             super.updateCacheKey(this.router.url);
             this.employees = undefined;
             this.salaryTransactions = undefined;
 
             super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
+                if (!payrollRun || payrollRun.ID !== this.payrollrunID) {
+                    this.getPayrollRun();
+                }
 
                 this.payrollrun = payrollRun;
                 if (this.payrollrun && this.payrollrun.PayDate) {
@@ -170,12 +174,19 @@ export class PayrollrunDetails extends UniView {
                 }
 
                 this.toolbarconfig = {
-                    title: this.payrollrun ? (this.payrollrun.Description ? this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID) : 'Ny lønnsavregning',
+                    title: this.payrollrun ? 
+                            (this.payrollrun.Description ? 
+                                this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID) 
+                            : 'Ny lønnsavregning',
                     subheads: [{
-                        title: this.payrollrun ? (this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : '') : ''
+                        title: this.payrollrun ? 
+                            (this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : '')
+                            : ''
                     },
                     {
-                        title: this.payDate ? 'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Utbetalingsdato ikke satt'
+                        title: this.payDate ?
+                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
+                            : 'Utbetalingsdato ikke satt'
                     }],
                     statustrack: this.getStatustrackConfig(),
                     navigation: {
@@ -188,7 +199,7 @@ export class PayrollrunDetails extends UniView {
 
                 this.checkDirty();
 
-            });
+            }, err => this.errorService.handle(err));
 
             super.getStateSubject('employees').subscribe((employees: Employee[]) => {
                 this.employees = employees;
@@ -204,12 +215,6 @@ export class PayrollrunDetails extends UniView {
             super.getStateSubject('wagetypes').subscribe((wagetypes) => {
                 this.wagetypes = wagetypes;
             });
-
-            if (this.payrollrun && this.payrollrun.ID === +params['id']) {
-                super.updateState('payrollRun', this.payrollrun, false);
-            } else {
-                this.payrollrun = undefined;
-            }
 
             if (this.payrollrunID) {
                 this.tabSer.addTab({
@@ -228,8 +233,6 @@ export class PayrollrunDetails extends UniView {
             }
         });
 
-        this.getWageTypes();
-
         this.router.events.subscribe((event: any) => {
             if (event.constructor.name === 'NavigationEnd') {
                 this.getData();
@@ -242,13 +245,9 @@ export class PayrollrunDetails extends UniView {
     }
 
     private getData() {
-
+        this.getWageTypes();
         this.getSalaryTransactions();
-
-        if (!this.payrollrun) {
-            this.getPayrollRun();
-        }
-
+        this.getPayrollRun();
         this.getEmployees();
     }
 
@@ -286,8 +285,13 @@ export class PayrollrunDetails extends UniView {
                         payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                     }
 
-                    this.updateState('payrollRun', payroll, false);
-                }, this.errorService.handle);
+
+                this.updateState('payrollRun', payroll, false);
+            }, err => {
+                this.payrollrunID = 0;
+                this._toastService.addToast('Lønnsavregning finnes ikke', ToastType.warn, 5);
+                this.router.navigateByUrl(this.url + 0);
+            });
         } else {
             Observable.forkJoin(
                 this.payrollrunService.get(this.payrollrunID),
@@ -311,7 +315,14 @@ export class PayrollrunDetails extends UniView {
 
                 this.updateState('payrollRun', payroll, false);
 
-            }, err => this.errorService.handle(err));
+            }, err => {
+                if (err.status === 404) {
+                    this.payrollrunID = 0;
+                    this._toastService.addToast('Lønnsavregning finnes ikke, sendes til ny', ToastType.warn, 5);
+                    this.router.navigateByUrl(this.url + 0);
+                }
+                this.errorService.handle(err);
+            });
         }
     }
 
