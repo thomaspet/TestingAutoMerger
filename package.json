@@ -38,7 +38,7 @@
         "reflect-metadata": "^0.1.3",
         "rxjs": "5.0.0-beta.12",
         "uniform-ng2": "0.0.17",
-        "unitable-ng2": "0.0.0-alpha080",
+        "unitable-ng2": "0.0.0-alpha081",
         "zone.js": "^0.6.21"
     },
     "devDependencies": {
