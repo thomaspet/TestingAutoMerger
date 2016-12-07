@@ -77,6 +77,7 @@ export class PayrollrunDetails extends UniView {
 
         this.saveactions = [];
 
+
         this.route.params.subscribe(params => {
 
             this.payrollrunID = +params['id'];
