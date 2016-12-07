@@ -1,16 +1,17 @@
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
-import {CustomerOrder, CompanySettings, User} from '../../../../unientities';
+import {CustomerOrder, StatusCodeCustomerOrder} from '../../../../unientities';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import moment from 'moment';
 
 declare var jQuery;
 
@@ -32,6 +33,15 @@ export class OrderList {
         omitFinalCrumb: true
     };
 
+    private filterTabs: any[] = [
+        {label: 'Alle'},
+        {label: 'Kladd', statuscode: StatusCodeCustomerOrder.Draft},
+        {label: 'Registrert', statuscode: StatusCodeCustomerOrder.Registered},
+        {label: 'Delvis overført faktura', statuscode: StatusCodeCustomerOrder.PartlyTransferredToInvoice},
+        {label: 'Overført faktura', statuscode: StatusCodeCustomerOrder.TransferredToInvoice}
+    ];
+    private selectedFilterIndex: number = 0;
+
     constructor(
         private router: Router,
         private customerOrderService: CustomerOrderService,
@@ -39,18 +49,47 @@ export class OrderList {
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService
-    ) {
+    ) {}
 
-        this.tabService.addTab({ name: 'Ordre', url: '/sales/orders', moduleID: UniModules.Orders, active: true });
+    public ngOnInit() {
+        this.tabService.addTab({
+            name: 'Ordre',
+            url: '/sales/orders',
+            moduleID: UniModules.Orders,
+            active: true
+        });
+
         this.setupOrderTable();
+        this.getGroupCounts();
     }
 
     public createOrder() {
         this.router.navigateByUrl('/sales/orders/0');
     }
 
-    private setupOrderTable() {
+    private getGroupCounts() {
+        this.customerOrderService.getGroupCounts().subscribe((counts) => {
+            this.filterTabs.forEach((filter) => {
+                filter['count'] = counts[filter.statuscode];
+            });
+        });
+    }
 
+    public onFilterTabClick(filter, index) {
+        this.selectedFilterIndex = index;
+        if (filter.statuscode) {
+            this.table.setFilters([{
+                field: 'StatusCode',
+                operator: 'eq',
+                value: filter.statuscode,
+                group: 1
+            }]);
+        } else {
+            this.table.removeFilter('StatusCode');
+        }
+    }
+
+    private setupOrderTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
             params.set('expand', 'Customer,Items');
@@ -73,11 +112,6 @@ export class OrderList {
             disabled: (rowModel) => {
                 return false;
             }
-        });
-
-        contextMenuItems.push({
-            label: '-------------',
-            action: () => { }
         });
 
         // TODO?
@@ -104,20 +138,21 @@ export class OrderList {
         contextMenuItems.push({
             label: 'Avslutt',
             action: (order: CustomerOrder) => {
+                const toastID = this.toastService.addToast('Avslutter ordre', ToastType.warn);
                 this.customerOrderService.Transition(order.ID, order, 'complete').subscribe(() => {
-                    console.log('== order Transistion OK ==');
-                    alert('Overgang til -Avslutt- OK');
+                    this.toastService.removeToast(toastID);
+                    this.toastService.addToast('Ordre avsluttet', ToastType.good, 10);
                     this.table.refreshTableData();
-                }, err => this.errorService.handle(err));
+                    this.getGroupCounts();
+                },
+                (err) => {
+                    this.toastService.removeToast(toastID);
+                    this.errorService.handle(err);
+                });
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.complete;
             }
-        });
-
-        contextMenuItems.push({
-            label: '-------------',
-            action: () => { }
         });
 
         contextMenuItems.push({
@@ -143,7 +178,7 @@ export class OrderList {
                     sendemail.CustomerID = order.CustomerID;
                     sendemail.Subject = 'Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Ordre ' + (order.OrderNumber ? 'nr. ' + order.OrderNumber : 'kladd');
-         
+
                     this.sendEmailModal.openModal(sendemail);
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -156,29 +191,47 @@ export class OrderList {
         );
 
         // Define columns to use in the table
-        var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text).setFilterOperator('contains');
-        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
+        const orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text)
+            .setWidth('10%')
+            .setFilterOperator('contains');
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+        const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            .setWidth('10%')
+            .setFilterOperator('contains');
+
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
+            .setFilterOperator('contains');
+
+        const orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date)
+            .setWidth('10%')
+            .setFilterOperator('eq');
+
+        const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
-            .setCls('column-align-right');
+            .setCls('column-align-right number-good');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
-        statusCol.setFilterable(false);
-        statusCol.setTemplate((dataItem) => {
-            return this.customerOrderService.getStatusText(dataItem.StatusCode);
-        });
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setWidth('15%')
+            .setFilterable(false)
+            .setTemplate((dataItem) => {
+                return this.customerOrderService.getStatusText(dataItem.StatusCode);
+            });
 
         // Setup table
         this.orderTable = new UniTableConfig(false, true)
             .setPageSize(25)
             .setSearchable(true)
-            .setColumns([orderNumberCol, customerNumberCol, customerNameCol, orderDateCol, taxInclusiveAmountCol, statusCol])
-            .setContextMenu(contextMenuItems);
+            .setContextMenu(contextMenuItems)
+            .setColumns([
+                orderNumberCol,
+                customerNumberCol,
+                 customerNameCol,
+                 orderDateCol,
+                 taxInclusiveAmountCol,
+                 statusCol
+            ]);
     }
 
     public onRowSelected(event) {

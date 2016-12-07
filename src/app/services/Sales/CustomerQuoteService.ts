@@ -71,6 +71,24 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         });
     }
 
+    public getGroupCounts() {
+        const route = '?model=customerquote&select=count(id),statuscode&filter=isnull(deleted,0) eq 0';
+        return this.http.asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(route)
+            .send()
+            .map((res) => {
+                const data = (res.json() || {}).Data || [];
+                return data.reduce((counts, group) => {
+                    if (group.CustomerQuoteStatusCode) {
+                        console.log(group);
+                        counts[group.CustomerQuoteStatusCode] = group.countid;
+                    }
+                    return counts;
+                }, {});
+            });
+    }
+
     public calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {
         return this.http
             .asPOST()
