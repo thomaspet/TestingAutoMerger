@@ -29,6 +29,13 @@ export class StatisticsService extends BizHttp<string> {
             .asGET()
             .withEndPoint(this.relativeURL + '?' + filter)
             .send({})
+            .map(response => {
+                const body = response.json();
+                if (!body.Success) {
+                    throw new Error(body.Message);
+                }
+                return response;
+            })
             .map(resp => resp.json());
     }
 
@@ -46,13 +53,23 @@ export class StatisticsService extends BizHttp<string> {
         // remove empty filters, causes problem on backend
         if (params.get('filter') === '') {
             params.delete('filter');
+        } else {
+            // this needs to be here because of an issue with the statistics api
+            params.set('filter', params.get('filter').replace('))', ') )'));
         }
 
         return this.http
             .usingRootDomain()
             .asGET()
             .withEndPoint(this.relativeURL)
-            .send({}, params);
+            .send({}, params)
+            .map(response => {
+                const body = response.json();
+                if (!body.Success) {
+                    throw new Error(body.Message);
+                }
+                return response;
+            });
     }
 
     public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string): Observable<any> {

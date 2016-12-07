@@ -396,8 +396,8 @@ export class CompanySettingsComponent implements OnInit {
         vatReportFormID.Options = {
             source: this.vatReportForms,
             valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
+            debounceTime: 200,
+            template: vatReportForm => `${vatReportForm.Name} ${vatReportForm.Description}`
         };
 
         this.currencies.unshift(null);

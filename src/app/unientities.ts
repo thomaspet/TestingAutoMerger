@@ -1079,6 +1079,7 @@ export class VatReportForm {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public Description: string;
     public ID: number;
     public Name: string;
     public UpdatedAt: Date;
@@ -2249,6 +2250,7 @@ export class PayrollRun {
     public ExcludeRecurringPosts: boolean;
     public FreeText: string;
     public FromDate: Date;
+    public HolidayPayDeduction: boolean;
     public ID: number;
     public needsRecalc: boolean;
     public PayDate: Date;
@@ -2344,6 +2346,7 @@ export class SalaryTransaction {
     public EmployeeNumber: number;
     public EmploymentID: number;
     public FromDate: Date;
+    public HolidayPayDeduction: boolean;
     public ID: number;
     public IsRecurringPost: boolean;
     public MunicipalityNo: string;

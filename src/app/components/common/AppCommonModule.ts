@@ -37,6 +37,7 @@ import {SendEmailForm, SendEmailModal} from './modals/sendEmailModal';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
+import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget} from './poster/poster';
 
 @NgModule({
     imports: [
@@ -82,8 +83,12 @@ import {UniAttachments} from './attacments/uniAttachements';
         UniSummary,
         ImageModal,
         ImageModalContent,
-        UniAttachments
-
+        UniAttachments,
+        UniPoster,
+        TextWidget,
+        ContactWidget,
+        TableWidget,
+        AlertsWidget
     ],
     entryComponents: [
         AddressForm,
@@ -95,7 +100,6 @@ import {UniAttachments} from './attacments/uniAttachements';
         SendEmailForm,
         SendEmailModal,
         ImageModalContent
-
     ],
     exports: [
         UniDimensions,
@@ -129,8 +133,12 @@ import {UniAttachments} from './attacments/uniAttachements';
         ImageModalContent,
         UniAttachments,
         SendEmailForm,
-        SendEmailModal
-
+        SendEmailModal,
+        UniPoster,
+        TextWidget,
+        ContactWidget,
+        TableWidget,
+        AlertsWidget
     ]
 })
 export class AppCommonModule {

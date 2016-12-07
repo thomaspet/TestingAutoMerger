@@ -60,6 +60,10 @@ export class TradeItemTable {
         }
     }
 
+    public blurTable() {
+        this.table.blur();
+    }
+
     public focusFirstRow() {
         this.table.focusRow(0);
     }

@@ -1,3 +1,4 @@
+import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -7,6 +8,8 @@ import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransac
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { UniSave, IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import { IPosterWidget } from '../../common/poster/poster';
+import { UniHttp } from '../../../../framework/core/http/http';
 
 
 import { UniView } from '../../../../framework/core/uniView';
@@ -37,6 +40,36 @@ export class EmployeeDetails extends UniView {
     private toolbarConfig: IToolbarConfig;
     private datachecks: any;
 
+    private employeeWidgets: IPosterWidget[] = [
+            {
+                type: 'contact',
+                config: {
+                    contacts: []
+                }
+            },
+            {
+                type: 'text',
+                size: 'small',
+                config: {
+                    mainText: { text: '' }
+                }
+            },
+            {
+                type: 'alerts',
+                config: {
+                    alerts: []
+                }
+            },
+            {
+                type: 'text',
+                size: 'small',
+                config: {
+                    mainText: { text: '' },
+                }
+            }
+        ];
+
+
     constructor(
         private route: ActivatedRoute,
         private employeeService: EmployeeService,
@@ -48,7 +81,9 @@ export class EmployeeDetails extends UniView {
         private router: Router,
         private tabService: TabService,
         cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private http: UniHttp,
+        private numberformat: NumberFormat
     ) {
 
         super(router.url, cacheService);
@@ -94,6 +129,7 @@ export class EmployeeDetails extends UniView {
                         add: this.newEmployee.bind(this)
                     }
                 };
+                this.updatePosterEmployee(employee);
                 this.checkDirty();
             }, err => this.errorService.handle(err));
 
@@ -102,6 +138,7 @@ export class EmployeeDetails extends UniView {
                 this.posterEmployee.employments = employments;
                 this.posterEmployee = _.cloneDeep(this.posterEmployee);
                 this.checkDirty();
+                this.updatePosterEmployments(employments);
             }, err => this.errorService.handle(err));
 
             super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
@@ -179,6 +216,172 @@ export class EmployeeDetails extends UniView {
                 }
             }
         });
+    }
+
+    public updatePosterEmployee(employee) {
+        if (employee.ID !== 0) {
+
+            // Scaffold our employee widgets
+            let posterContact = {
+                    type: 'contact',
+                    config: {
+                        contacts: []
+                    }
+                },
+                posterSalary = {
+                    type: 'text',
+                    config: {
+                        topText: [
+                            {text: 'Nettolønn', class: 'large'},
+                            {text: 'utbetalt hittil i år', class: 'small'}
+                        ],
+                        mainText: {text: ''}
+                    }
+            };
+
+            // Add email, if any
+            if (employee.BusinessRelationInfo.Emails && employee.BusinessRelationInfo.Emails[0]) {
+                posterContact.config.contacts.push({value: employee.BusinessRelationInfo.Emails[0].EmailAddress});
+            }
+            // Add phone number, if any
+            if (employee.BusinessRelationInfo.Phones && employee.BusinessRelationInfo.Phones[0]) {
+                posterContact.config.contacts.push({ value: employee.BusinessRelationInfo.Phones[0].Number });
+            }
+
+            // Activate the contact widget
+            this.employeeWidgets[0] = posterContact;
+
+            // Fetch the salary @FIXME: Hard coded year
+            if (employee.ID) {
+                this.http
+                    .asGET()
+                    .usingBusinessDomain()
+                    .withEndPoint('/salarytrans?action=yearly-sums&year=2016&empID=' + employee.ID)
+                    .send()
+                    .map(response => response.json())
+                    .subscribe((data) => {
+                        if (data.netPayment) {
+                            let add = Math.floor(data.netPayment / 80);
+                            let netPaidThisYear: number = 0;
+                            let interval = setInterval(() => {
+                                netPaidThisYear += add;
+                                posterSalary.config.mainText.text = netPaidThisYear.toString();
+                                if (posterSalary.config.mainText.text >= data.netPayment) {
+                                    clearInterval(interval);
+                                    posterSalary.config.mainText.text = this.numberformat.asMoney(data.netPayment);
+                                    this.employeeWidgets[1] = posterSalary;
+                                }
+                            }, 10);
+                        } else {
+                            posterSalary.config.mainText.text = this.numberformat.asMoney(data.netPayment);
+                            this.employeeWidgets[1] = posterSalary;
+                        }
+                    }, err => this.errorService.handle(err));
+            }
+        } else {
+            // If we're dealing with a new employee, just fire up an empty state poster
+            this.employeeWidgets = [
+                {
+                    type: 'contact',
+                    config: {
+                        contacts: [{value: 'Ny ansatt'}]
+                    }
+                },
+                {
+                    type: 'text',
+                    size: 'small',
+                    config: {
+                        topText: [{text: 'Ingen lønn utbetalt'}]
+                    }
+                },
+                {
+                    type: 'alerts',
+                    config: {
+                        alerts: []
+                    }
+                },
+                {
+                    type: 'text',
+                    size: 'small',
+                    config: {
+                        topText: [{text: 'Ingen aktive stillingsforhold'}]
+                    }
+                }
+            ];
+
+        }
+
+        // Check if the alerts are all a-OK!
+        this.updateAlerts();
+    }
+
+    private updatePosterEmployments(employments) {
+        // Scaffold the employments-widget
+        let employmentWidget = {
+            type: 'text',
+            config: {
+                topText: [{text: '', class: 'large'}],
+                mainText: {text: ''},
+                bottomText: [{text: ''}]
+            }
+        };
+
+        // Add employments
+        if (employments.length > 0) {
+            var standardIndex = 0;
+            var actives = 0;
+            for (var i = 0; i < employments.length; i++) {
+                let active = !employments[i].EndDate || new Date(employments[i].EndDate) > new Date();
+                if (active && employments[i].WorkPercent > 0) {
+                    actives++;
+                }
+                if (employments[i].Standard && employments[i].WorkPercent > 0) {
+                    standardIndex = i;
+                }
+            }
+            if (actives > 0) {
+                employmentWidget.config.topText[0].text = employments[standardIndex].JobName;
+
+                employmentWidget.config.mainText.text =
+                    this.numberformat.asPercentage(employments[standardIndex].WorkPercent);
+
+                if (actives > 1) {
+                    employmentWidget.config.bottomText[0].text = '+' + (actives - 1) +
+                        (actives > 2 ? ' stillinger' : ' stilling');
+                }
+            } else {
+                employmentWidget.config.bottomText[0].text = 'Ingen aktive stillingsforhold';
+            }
+
+        }
+
+        // Send the widget to the poster
+        this.employeeWidgets[3] = employmentWidget;
+    }
+
+    private updateAlerts() {
+        let alerts = [];
+        let checks = this.boolChecks(this.employee);
+
+        // Bank acct ok?
+        alerts.push({
+            text:  checks.hasAccountNumber ? 'Kontonummer ok' : 'Kontonummer mangler',
+            class: checks.hasAccountNumber ? 'success' : 'error'
+        });
+
+        // Tax info ok?
+        alerts.push({
+            text:  checks.hasTaxCard ? 'Skattekort ok' : 'Skattekort mangler',
+            class: checks.hasTaxCard ? 'success' : 'error'
+        });
+
+        // SSN ok?
+        alerts.push({
+            text:  checks.hasSSN ? 'Personnummer ok' : 'Personnummer mangler',
+            class: checks.hasSSN ? 'success' : 'error'
+        });
+
+        this.employeeWidgets[2].config.alerts = alerts;
     }
 
     private checkDirty() {

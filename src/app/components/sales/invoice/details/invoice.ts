@@ -181,6 +181,7 @@ export class InvoiceDetails {
             this.tradeItemTable.focusFirstRow();
         } else if (key === 33) {
             event.preventDefault();
+            this.tradeItemTable.blurTable();
             this.tofHead.focus();
         }
     }

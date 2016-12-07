@@ -1,0 +1,29 @@
+uni-widget-alerts
+    li
+        width: 100%
+        border-radius: pxToRem(3)
+        display: block
+        list-style: none
+        text-align: center
+        padding: .2rem 1rem
+        font-size: 1rem
+        color: $uni-color-scale5
+        border: pxToRem(2) solid $uni-color-scale5
+
+        &:not(:last-of-type)
+            margin-bottom: .5rem
+
+        &.success
+            color: $uni-color-good
+            border: pxToRem(2) solid $uni-color-good
+
+        &.error
+            color: $uni-color-bad
+            border: pxToRem(2) solid $uni-color-bad
+
+        &.warn
+            color: $uni-color-warn
+            border: pxToRem(2) solid $uni-color-warn
+
+        &[role=button]
+            cursor: pointer
