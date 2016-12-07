@@ -77,47 +77,6 @@ export class PayrollrunDetails extends UniView {
 
         this.saveactions = [];
 
-        this.contextMenuItems = [
-            {
-                label: 'Generer feriepenger',
-                action: () => {
-                    this.openVacationPayModal();
-                }
-            },
-            {
-                label: 'Nullstill lønnsavregning',
-                action: () => {
-                    if (this.payrollrun) {
-                        if (this.payrollrun.StatusCode < 1) {
-                            this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
-                        } else {
-                            if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
-                                this.busy = true;
-                                this.payrollrunService.resetSettling(this.payrollrunID)
-                                    .finally(() => this.busy = false)
-                                    .subscribe((response: boolean) => {
-                                        if (response) {
-                                            this.getData();
-                                            this.getPayrollRun();
-                                        } else {
-                                            this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
-                                        }
-                                    }, err => this.errorService.handle(err));
-                            }
-                        }
-                    }
-                },
-                disabled: (rowModel) => {
-                    if (this.payrollrun) {
-                        return this.payrollrun.StatusCode < 1;
-                    } else {
-                        return true;
-                    }
-
-                }
-            }
-        ];
-
         this.route.params.subscribe(params => {
 
             this.payrollrunID = +params['id'];
@@ -233,6 +192,46 @@ export class PayrollrunDetails extends UniView {
             }
         });
 
+        this.contextMenuItems = [
+            {
+                label: 'Generer feriepenger',
+                action: () => {
+                    this.openVacationPayModal();
+                }
+            },
+            {
+                label: 'Nullstill lønnsavregning',
+                action: () => {
+                    if (this.payrollrun) {
+                        if (this.payrollrun.StatusCode < 1) {
+                            this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
+                        } else {
+                            if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+                                this.busy = true;
+                                this.payrollrunService.resetSettling(this.payrollrunID)
+                                    .finally(() => this.busy = false)
+                                    .subscribe((response: boolean) => {
+                                        if (response) {
+                                            this.getData();
+                                        } else {
+                                            this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
+                                        }
+                                    }, err => this.errorService.handle(err));
+                            }
+                        }
+                    }
+                },
+                disabled: (rowModel) => {
+                    if (this.payrollrun) {
+                        return this.payrollrun.StatusCode < 1;
+                    } else {
+                        return true;
+                    }
+
+                }
+            }
+        ];
+
         this.router.events.subscribe((event: any) => {
             if (event.constructor.name === 'NavigationEnd') {
                 this.getData();
@@ -284,9 +283,7 @@ export class PayrollrunDetails extends UniView {
                     if (this.payrollrun) {
                         payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                     }
-
-
-                this.updateState('payrollRun', payroll, false);
+                    this.updateState('payrollRun', payroll, false);
             }, err => {
                 this.payrollrunID = 0;
                 this._toastService.addToast('Lønnsavregning finnes ikke', ToastType.warn, 5);
