@@ -116,18 +116,18 @@ export class InvoiceList implements OnInit {
     }
 
     public onRegisteredPayment(modalData: any) {
-        this.toastService.addToast('Registrerer betaling', ToastType.warn);
+        const warnToastID = this.toastService.addToast('Registrerer betaling', ToastType.warn);
         this.customerInvoiceService
             .ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
             .subscribe(
                 (journalEntry) => {
-                    this.toastService.clear();
+                    this.toastService.removeToast(warnToastID);
                     const msg = 'Bilagsnummer: ' + journalEntry.JournalEntryNumber;
                     this.toastService.addToast(`Faktura betalt`, ToastType.good, 10, msg);
                     this.refreshData();
                 },
                 (err) => {
-                    this.toastService.clear();
+                    this.toastService.removeToast(warnToastID);
                     this.errorService.handle(err);
                 }
             );
@@ -197,14 +197,14 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
-                this.toastService.addToast('Fakturerer', ToastType.warn);
+                const warnToastID = this.toastService.addToast('Fakturerer', ToastType.warn);
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
-                    this.toastService.clear();
+                    this.toastService.removeToast(warnToastID);
                     this.toastService.addToast('Faktura fakturert', ToastType.good, 10);
                     this.refreshData();
                 },
                 (err) => {
-                    this.toastService.clear();
+                    this.toastService.removeToast(warnToastID);
                     this.errorService.handle(err);
                 });
             },
@@ -221,14 +221,14 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Krediter kreditnota',
             action: (rowModel) => {
-                this.toastService.addToast('Krediterer', ToastType.warn);
+                const warnToastID = this.toastService.addToast('Krediterer', ToastType.warn);
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
-                    this.toastService.clear();
+                    this.toastService.removeToast(warnToastID);
                     this.toastService.addToast('Kreditnota kreditert', ToastType.good, 10);
                     this.refreshData();
                 },
                 (err) => {
-                    this.toastService.clear();
+                    this.toastService.removeToast(warnToastID);
                     this.errorService.handle(err);
                 });
             },
