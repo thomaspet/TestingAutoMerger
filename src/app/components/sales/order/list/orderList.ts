@@ -40,7 +40,7 @@ export class OrderList {
         {label: 'Delvis overført faktura', statuscode: StatusCodeCustomerOrder.PartlyTransferredToInvoice},
         {label: 'Overført faktura', statuscode: StatusCodeCustomerOrder.TransferredToInvoice}
     ];
-    private selectedFilterIndex: number = 0;
+    private activeTab: any = this.filterTabs[0];
 
     constructor(
         private router: Router,
@@ -75,13 +75,13 @@ export class OrderList {
         });
     }
 
-    public onFilterTabClick(filter, index) {
-        this.selectedFilterIndex = index;
-        if (filter.statuscode) {
+    public onFilterTabClick(tab) {
+        this.activeTab = tab;
+        if (tab.statuscode) {
             this.table.setFilters([{
                 field: 'StatusCode',
                 operator: 'eq',
-                value: filter.statuscode,
+                value: tab.statuscode,
                 group: 1
             }]);
         } else {

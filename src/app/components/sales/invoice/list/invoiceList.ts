@@ -37,7 +37,7 @@ export class InvoiceList implements OnInit {
         {label: 'Fakturert', statuscode: StatusCodeCustomerInvoice.Invoiced},
         {label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid},
     ];
-    private selectedFilterIndex: number = 0;
+    private activeTab: any = this.filterTabs[0];
 
     constructor(
         private uniHttpService: UniHttp,
@@ -101,13 +101,13 @@ export class InvoiceList implements OnInit {
         this.router.navigateByUrl('/sales/invoices/0');
     }
 
-    public onFilterTabClick(filter, index) {
-        this.selectedFilterIndex = index;
-        if (filter.statuscode) {
+    public onFilterTabClick(tab) {
+        this.activeTab = tab;
+        if (tab.statuscode) {
             this.table.setFilters([{
                 field: 'StatusCode',
                 operator: 'eq',
-                value: filter.statuscode,
+                value: tab.statuscode,
                 group: 1
             }]);
         } else {
