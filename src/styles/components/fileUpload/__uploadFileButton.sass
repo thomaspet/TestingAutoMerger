@@ -1,0 +1,12 @@
+uni-upload-file-button
+    .uni-upload-file-button
+        @extend button.good
+        padding-top: pxToRem(3)
+        padding-bottom: pxToRem(3)
+        padding-left: 1.5rem
+        padding-right: 1.5rem
+        white-space: nowrap
+
+        input[type=file]
+            // "visible" only for screen readers
+            @extend %visuallyHidden

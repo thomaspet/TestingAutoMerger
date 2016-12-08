@@ -19,6 +19,7 @@ import {routes as BankRoutes} from './bankRoutes';
 // specific imports
 import {BankComponent} from './bankComponent';
 import {PaymentList} from './payments/paymentList';
+import {PaymentBatchDetails} from './payments/paymentBatchDetails';
 import {PaymentBatches} from './payments/paymentBatches';
 import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationModal';
 
@@ -52,7 +53,8 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
         PaymentList,
         PaymentBatches,
         PaymentRelationsModal,
-        PaymentRelationsTable
+        PaymentRelationsTable,
+        PaymentBatchDetails
     ],
     entryComponents: [
         PaymentRelationsTable
@@ -61,7 +63,8 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
     ],
     exports: [
         PaymentList,
-        PaymentBatches
+        PaymentBatches,
+        PaymentBatchDetails
     ]
 })
 export class BankModule {

@@ -1,6 +1,30 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
-<section class="application">
-    <p>Her kommer en liste/splitview++</p>
+<section class=" application">
+    <section class="splitview">
+        <nav class="splitview_list">
+            <uni-table
+                [resource]="lookupFunction"
+                [config]="paymentBatchTableConfig"
+                (rowSelected)="onRowSelected($event)">
+            </uni-table>
+        </nav>
+        <main class="splitview_detail">
+            <payment-batch-details
+                *ngIf="selectedPaymentBatchID"
+                (paymentBatchUpdated)="paymentBatchUpdated($event)"
+                (paymentBatchNavigate)="paymentBatchNavigate($event)"
+                [paymentBatchID]="selectedPaymentBatchID"
+                (deletePaymentBatch)="deletePaymentBatch($event)">
+            </payment-batch-details>
+            <div *ngIf="!selectedPaymentBatchID">
+                <h2>Opplasting av kvitteringsfil</h2>
+                <p>
+                    For å ferdigstille en betaling må du laste opp en kvitteringsfil fra banken. Dette kan du gjøre ved å laste opp filen under,
+                    eller gå inn på den aktuelle betalingsbunten i listen til venstre og laste opp filen der.
+                </p>
+                <uni-attachments class="upload-no-batch" [showFileList]="false" [uploadWithoutEntity]="true" (fileUploaded)="fileUploaded($event)" [headerText]="'Last opp kvitteringsfil'"></uni-attachments>
+            </div>
+        </main>
+    </section>
 </section>
-

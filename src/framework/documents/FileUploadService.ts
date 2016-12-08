@@ -147,7 +147,7 @@ export class FileUploadService<T> {
         var self = this;
         return new Promise((resolve, reject) => {
             var fr: FileReader = new FileReader();
-            fr.readAsArrayBuffer(self.file);            
+            fr.readAsArrayBuffer(self.file);
             fr.onloadend = (event) => {
                 var r: XMLHttpRequest = new XMLHttpRequest();
                 r.open('PUT', metadata.UploadSlot, true);
@@ -170,7 +170,7 @@ export class FileUploadService<T> {
 
     private finalizeFile(response) {
         return this.$http
-            .withDefaultHeaders()            
+            .withDefaultHeaders()
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${this.entityID}/${this.slot.ID}?action=finalize`)

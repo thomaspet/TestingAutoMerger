@@ -105,7 +105,7 @@ export class HamburgerMenu {
                     {componentName: 'Leverandører', componentUrl: '/sales/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },
-            /*{
+            {
                 componentListName: 'Bank',
                 componentListHeader: 'Bank',
                 componentListUrl: '/bank',
@@ -113,7 +113,7 @@ export class HamburgerMenu {
                     {componentName: 'Betalinger', componentUrl: '/bank/payments', moduleID: UniModules.Payment},
                     {componentName: 'Betalingsbunter', componentUrl: '/bank/batches', moduleID: UniModules.Payment}
                 ]
-            },*/
+            },
             {
                 componentListName: 'Lønn',
                 componentListHeader: 'Lønn og personal',

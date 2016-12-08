@@ -25,6 +25,7 @@ export * from './common/currencyservice';
 export * from './common/CountryService';
 export * from './common/PostalCodeService';
 export * from './common/StatusService';
+export * from './common/FileService';
 export * from './BrowserStorageService';
 export * from './sales/phoneservice';
 export * from './common/productservice';

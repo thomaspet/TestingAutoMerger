@@ -1,0 +1,23 @@
+<div *ngIf="paymentBatchID && paymentBatch">
+    <header class="detail_header">
+        <h2>Detaljer betalingsbunt {{paymentBatchID}} - {{getFormattedDate(paymentBatch.CreatedAt)}}</h2>
+        <nav class="detail_header_navigation">
+            <a (click)="goToPreviousBatch()" class="previous">Forrige</a>
+            <a (click)="goToNextBatch()" class="next">Neste</a>
+            <a (click)="deleteBatch()" class="trash" *ngIf="!paymentBatch.PaymentReceiptFileID">Slett betalingsbunt</a>
+        </nav>
+        <span>Totalbeløp: {{paymentBatch.TotalAmount}}. Antall: {{paymentBatch.NumberOfPayments}}</span>
+        <div class="file-buttons">
+            <button (click)="createPaymentFile()" *ngIf="!paymentBatch.PaymentFileID">Opprett betalingsfil</button>
+            <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
+            <button (click)="downloadReceiptFile()" *ngIf="paymentBatch.PaymentReceiptFileID">Last ned kvitteringsfil</button>
+            <uni-upload-file-button [buttonText]="'Last opp kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && !paymentBatch.PaymentReceiptFileID"></uni-upload-file-button>
+        </div>
+    </header>
+     <uni-table *ngIf="paymentTableConfig"
+        [resource]="lookupFunction"
+        [config]="paymentTableConfig">
+     </uni-table>
+</div>
+
+<payment-relations-modal></payment-relations-modal>
