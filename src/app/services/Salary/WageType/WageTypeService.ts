@@ -439,8 +439,8 @@ export class WageTypeService extends BizHttp<WageType> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: 'packages',
-                    Property: '_uninavn',
+                    EntityType: 'wagetype',
+                    Property: 'ameldingType',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
