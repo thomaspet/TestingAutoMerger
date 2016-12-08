@@ -1,17 +1,7 @@
 <uni-toolbar [config]="toolbarConfig"></uni-toolbar>
 <uni-poster [widgets]="employeeWidgets" *ngIf="employeeWidgets"></uni-poster>
 
-
 <article [attr.aria-busy]="busy">
-    <!--<header class="poster">
-        <section class="poster_overview">
-            <uni-widget-poster *ngIf="employee" [model]="posterEmployee" [datachecks]="datachecks"></uni-widget-poster>
-        </section>
-    </header>-->
-    <!-- Child component navigation and outlet -->
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
-
     <router-outlet></router-outlet>
 </article>
-
-<uni-save [actions]="saveActions"></uni-save>

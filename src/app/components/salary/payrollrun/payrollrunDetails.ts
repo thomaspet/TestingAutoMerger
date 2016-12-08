@@ -43,7 +43,6 @@ export class PayrollrunDetails extends UniView {
     private isEditable: boolean;
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
-    private saveactions: IUniSaveAction[] = [];
     private formIsReady: boolean = false;
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
@@ -75,9 +74,6 @@ export class PayrollrunDetails extends UniView {
             submitText: ''
         };
 
-        this.saveactions = [];
-
-
         this.route.params.subscribe(params => {
 
             this.payrollrunID = +params['id'];
@@ -96,50 +92,17 @@ export class PayrollrunDetails extends UniView {
                 }
                 this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
 
-                this.saveactions = [
-                    {
-                        label: 'Lagre',
-                        action: this.saveAll.bind(this),
-                        main: this.payrollrun ? this.payrollrun.StatusCode < 1 : true,
-                        disabled: true
-                    },
-                    {
-                        label: 'Kontroller',
-                        action: this.openControlModal.bind(this),
-                        main: false,
-                        disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
-                    },
-                    {
-                        label: 'Avregn',
-                        action: this.runSettling.bind(this),
-                        main: false,
-                        disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
-                    },
-                    {
-                        label: 'Utbetalingsliste',
-                        action: this.showPaymentList.bind(this),
-                        main: this.payrollrun ? this.payrollrun.StatusCode > 1 : false,
-                        disabled: this.payrollrun ? this.payrollrun.StatusCode < 1 : true
-                    },
-                    {
-                        label: 'Bokfør',
-                        action: this.openPostingSummaryModal.bind(this),
-                        main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
-                        disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
-                    }
-                ];
-
                 if (this.formIsReady) {
                     this.setEditMode();
                 }
 
                 this.toolbarconfig = {
-                    title: this.payrollrun ? 
-                            (this.payrollrun.Description ? 
-                                this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID) 
+                    title: this.payrollrun ?
+                            (this.payrollrun.Description ?
+                                this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID)
                             : 'Ny lønnsavregning',
                     subheads: [{
-                        title: this.payrollrun ? 
+                        title: this.payrollrun ?
                             (this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : '')
                             : ''
                     },
@@ -154,6 +117,38 @@ export class PayrollrunDetails extends UniView {
                         next: this.nextPayrollrun.bind(this),
                         add: this.newPayrollrun.bind(this)
                     },
+                    saveactions: [
+                        {
+                            label: 'Lagre',
+                            action: this.saveAll.bind(this),
+                            main: this.payrollrun ? this.payrollrun.StatusCode < 1 : true,
+                            disabled: true
+                        },
+                        {
+                            label: 'Kontroller',
+                            action: this.openControlModal.bind(this),
+                            main: false,
+                            disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
+                        },
+                        {
+                            label: 'Avregn',
+                            action: this.runSettling.bind(this),
+                            main: false,
+                            disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
+                        },
+                        {
+                            label: 'Utbetalingsliste',
+                            action: this.showPaymentList.bind(this),
+                            main: this.payrollrun ? this.payrollrun.StatusCode > 1 : false,
+                            disabled: this.payrollrun ? this.payrollrun.StatusCode < 1 : true
+                        },
+                        {
+                            label: 'Bokfør',
+                            action: this.openPostingSummaryModal.bind(this),
+                            main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
+                            disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
+                        }
+                    ],
                     contextmenu: this.contextMenuItems,
                 };
 
@@ -393,11 +388,11 @@ export class PayrollrunDetails extends UniView {
     }
 
     private checkDirty() {
-        if (this.saveactions && this.saveactions.length) {
+        if (this.toolbarconfig && this.toolbarconfig.saveactions && this.toolbarconfig.saveactions.length) {
             if (super.isDirty()) {
-                this.saveactions[0].disabled = false;
+                this.toolbarconfig.saveactions[0].disabled = false;
             } else {
-                this.saveactions[0].disabled = true;
+                this.toolbarconfig.saveactions[0].disabled = true;
             }
         }
     }
@@ -501,37 +496,29 @@ export class PayrollrunDetails extends UniView {
             }, err => this.errorService.handle(err));
     }
 
-    public runSettling(done?: (message: string) => void) {
-        this.saveactions[0].disabled = true;
-        this.saveactions[0].main = false;
-        this.saveactions[2].main = true;
-        this.saveactions[2].disabled = true;
-        this.saveactions = _.cloneDeep(this.saveactions);
+    public runSettling(done: (message: string) => void) {
+        this.toolbarconfig.saveactions[0].disabled = true;
+        this.toolbarconfig.saveactions[0].main = false;
+        this.toolbarconfig.saveactions[2].main = true;
+        this.toolbarconfig.saveactions[2].disabled = true;
+        this.toolbarconfig.saveactions = _.cloneDeep(this.toolbarconfig.saveactions);
         this.payrollrunService.runSettling(this.payrollrunID)
             .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
                     this.getPayrollRun();
                     this.getSalaryTransactions();
-                    if (done) {
-                        done('Avregnet');
-                    } else {
-                        this.saveComponent.manualSaveComplete('Avregnet');
-                    }
+                    done('Avregnet');
                 }
             },
             (err) => {
-                if (done) {
-                    done('Feil ved avregning');
-                } else {
-                    this.saveComponent.manualSaveComplete('Feil ved avregning');
-                }
+                done('Feil ved avregning');
                 this.errorService.handle(err);
-                this.saveactions[2].main = false;
-                this.saveactions[2].disabled = false;
-                this.saveactions[0].main = true;
+                this.toolbarconfig.saveactions[2].main = false;
+                this.toolbarconfig.saveactions[2].disabled = false;
+                this.toolbarconfig.saveactions[0].main = true;
                 this.checkDirty();
-                this.saveactions = _.cloneDeep(this.saveactions);
+                this.toolbarconfig.saveactions = _.cloneDeep(this.toolbarconfig.saveactions);
             });
     }
 
@@ -618,7 +605,7 @@ export class PayrollrunDetails extends UniView {
         this.formIsReady = true;
     }
 
-    private saveAll(done?: (message: string) => void) {
+    private saveAll(done: (message: string) => void) {
 
         if (!this.payrollrun.PayDate) {
             this._toastService.addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Du må ha en utbetalingsdato før vi kan lagre');
@@ -631,7 +618,7 @@ export class PayrollrunDetails extends UniView {
 
         this.savePayrollrun()
             .flatMap((payrollRun: PayrollRun) => {
-                
+
                 this.payrollrun = payrollRun;
                 this.setSection();
                 super.updateState('payrollRun', this.payrollrun, false);
@@ -654,18 +641,10 @@ export class PayrollrunDetails extends UniView {
 
                 super.updateState('salaryTransactions', salaryTransactions, false);
 
-                if (done) {
-                    done('Lagret');
-                } else {
-                    this.saveComponent.manualSaveComplete('Lagret');
-                }
+                done('Lagret');
             },
             (err) => {
-                if (done) {
-                    done('Feil ved lagring');
-                } else {
-                    this.saveComponent.manualSaveComplete('Feil ved lagring');
-                }
+                done('Feil ved lagring');
                 this.errorService.handle(err);
             });
     }

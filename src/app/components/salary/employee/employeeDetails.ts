@@ -6,7 +6,7 @@ import { Employee, Employment, EmployeeLeave, SalaryTransaction, SubEntity, Sala
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { EmployeeService, EmploymentService, EmployeeLeaveService, SalaryTransactionService, UniCacheService, SubEntityService } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { UniSave, IUniSaveAction } from '../../../../framework/save/save';
+import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
@@ -21,8 +21,6 @@ declare var _; // lodash
     templateUrl: 'app/components/salary/employee/employeeDetails.html'
 })
 export class EmployeeDetails extends UniView {
-    @ViewChild(UniSave)
-    private saveComponent: UniSave;
 
     public busy: boolean;
     private url: string = '/salary/employees/';
@@ -95,13 +93,6 @@ export class EmployeeDetails extends UniView {
             { name: 'Permisjon', path: 'employee-leave' }
         ];
 
-        this.saveActions = [{
-            label: 'Lagre',
-            action: this.saveAll.bind(this),
-            main: true,
-            disabled: true
-        }];
-
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
 
@@ -127,7 +118,13 @@ export class EmployeeDetails extends UniView {
                         prev: this.previousEmployee.bind(this),
                         next: this.nextEmployee.bind(this),
                         add: this.newEmployee.bind(this)
-                    }
+                    },
+                    saveactions: [{
+                        label: 'Lagre',
+                        action: this.saveAll.bind(this),
+                        main: true,
+                        disabled: true
+                    }]
                 };
                 this.updatePosterEmployee(employee);
                 this.checkDirty();
@@ -386,7 +383,7 @@ export class EmployeeDetails extends UniView {
 
     private checkDirty() {
         if (super.isDirty()) {
-            this.saveActions[0].disabled = false;
+            this.toolbarConfig.saveactions[0].disabled = false;
         }
     }
 
@@ -479,29 +476,25 @@ export class EmployeeDetails extends UniView {
         }, err => this.errorService.handle(err));
     }
 
-    private checkForSaveDone() {
+    private checkForSaveDone(done) {
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
-                this.saveComponent.manualSaveComplete('Feil ved lagring');
+                done('Feil ved lagring');
             } else {
-                this.saveComponent.manualSaveComplete('Lagring fullført');
-                this.saveActions[0].disabled = true;
+                done('Lagring fullført');
+                this.toolbarConfig.saveactions[0].disabled = true;
             }
         }
     }
 
-    private saveAll(done?: (message: string) => void) {
+    private saveAll(done: (message: string) => void) {
         this.saveEmployee().subscribe(
             (employee) => {
 
                 if (!this.employeeID) {
                     super.updateState('employee', this.employee, false);
 
-                    if (done) {
-                        done('Lagring fullført');
-                    } else {
-                        this.saveComponent.manualSaveComplete('Lagring fullført');
-                    }
+                    done('Lagring fullført');
 
                     let childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute);
@@ -522,36 +515,28 @@ export class EmployeeDetails extends UniView {
                     };
 
                     if (super.isDirty('employments')) {
-                        this.saveEmployments();
+                        this.saveEmployments(done);
                         this.saveStatus.numberOfRequests++;
                     }
 
                     if (super.isDirty('recurringPosts')) {
-                        this.saveRecurringPosts();
+                        this.saveRecurringPosts(done);
                         this.saveStatus.numberOfRequests++;
                     }
 
                     if (super.isDirty('employeeLeave')) {
-                        this.saveEmployeeLeave();
+                        this.saveEmployeeLeave(done);
                         this.saveStatus.numberOfRequests++;
                     }
 
                     if (!this.saveStatus.numberOfRequests) {
-                        this.saveActions[0].disabled = true;
-                        if (done) {
-                            done('Lagring fullført');
-                        } else {
-                            this.saveComponent.manualSaveComplete('Lagring fullført');
-                        }
+                        this.toolbarConfig.saveactions[0].disabled = true;
+                        done('Lagring fullført');
                     }
                 });
             },
             (error) => {
-                if (done) {
-                    done('Feil ved lagring');
-                } else {
-                    this.saveComponent.manualSaveComplete('Feil ved lagring');
-                }
+                done('Feil ved lagring');
                 this.errorService.handle(error);
             }
         );
@@ -604,7 +589,7 @@ export class EmployeeDetails extends UniView {
             : this.employeeService.Post(this.employee);
     }
 
-    private saveEmployments() {
+    private saveEmployments(done) {
         super.getStateSubject('employments').take(1).subscribe((employments: Employment[]) => {
             let changes = [];
             let hasStandard = false;
@@ -633,7 +618,7 @@ export class EmployeeDetails extends UniView {
             employee.Employments = changes;
 
             this.employeeService.Put(employee.ID, employee)
-                .finally(() => this.checkForSaveDone())
+                .finally(() => this.checkForSaveDone(done))
                 .subscribe(
                 (res) => {
                     this.saveStatus.completeCount++;
@@ -651,7 +636,7 @@ export class EmployeeDetails extends UniView {
         }, err => this.errorService.handle(err));
     }
 
-    private saveRecurringPosts() {
+    private saveRecurringPosts(done) {
         super.getStateSubject('recurringPosts').take(1).subscribe((recurringPosts: SalaryTransaction[]) => {
             let changeCount = 0;
             let saveCount = 0;
@@ -687,7 +672,7 @@ export class EmployeeDetails extends UniView {
 
                                 super.updateState('recurringPosts', recurringPosts.filter(x => !x.Deleted), false);
 
-                                this.checkForSaveDone();
+                                this.checkForSaveDone(done);
                             }
                         })
                             .subscribe(
@@ -710,7 +695,7 @@ export class EmployeeDetails extends UniView {
         }, err => this.errorService.handle(err));
     }
 
-    private saveEmployeeLeave() {
+    private saveEmployeeLeave(done) {
         super.getStateSubject('employeeLeave').take(1).subscribe((employeeLeave: EmployeeLeave[]) => {
             let changeCount = 0;
             let saveCount = 0;
@@ -735,7 +720,7 @@ export class EmployeeDetails extends UniView {
                             } else {
                                 super.updateState('employeeLeave', employeeLeave, false);
                             }
-                            this.checkForSaveDone(); // check if all save functions are finished
+                            this.checkForSaveDone(done); // check if all save functions are finished
                         }
                     })
                         .subscribe(
