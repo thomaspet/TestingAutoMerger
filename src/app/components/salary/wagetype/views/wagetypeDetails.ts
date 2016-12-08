@@ -531,7 +531,7 @@ export class WagetypeDetail extends UniView {
                                 let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                 wtSupp.Name = prop;
                                 // wtSupp.Description = key;
-                                wtSupp.SuggestedValue = obj[prop];
+                                wtSupp.SuggestedValue = this.removeAndReturnValue(obj[prop]);
                                 wtSupp.WageTypeID = this.wageType.ID;
                                 wtSupp['_createguid'] = this.wageService.getNewGuid();
                                 additions.push(wtSupp);
@@ -541,7 +541,7 @@ export class WagetypeDetail extends UniView {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
                         // wtSupp.Description = key;
-                        wtSupp.SuggestedValue = obj;
+                        wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
                         additions.push(wtSupp);
@@ -556,7 +556,7 @@ export class WagetypeDetail extends UniView {
                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                     wtSupp.Name = props;
                     // wtSupp.Description = props;
-                    wtSupp.SuggestedValue = spesiObj[props];
+                    wtSupp.SuggestedValue = this.removeAndReturnValue(spesiObj[props]);
                     wtSupp.WageTypeID = this.wageType.ID;
                     wtSupp['_createguid'] = this.wageService.getNewGuid();
                     additions.push(wtSupp);
@@ -565,6 +565,28 @@ export class WagetypeDetail extends UniView {
         }
 
         return additions;
+    }
+
+    private removeAndReturnValue(value: string) {
+        
+        if (value !== null) {
+            switch (value.toString().toLowerCase()) {
+                case 'ja/nei':
+                    value = '';
+                    break;
+                case 'utfylt':
+                    value = '';
+                    break;
+                case '1':
+                    value = '';
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        
+        return value;
     }
 
     private showTilleggsPakker(model: any) {
