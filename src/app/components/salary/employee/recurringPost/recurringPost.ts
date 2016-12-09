@@ -221,7 +221,7 @@ export class RecurringPost extends UniView {
         const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
-                const wagetype: WageType = dataItem['_Wagetype'] || dataItem.Wagetype || this.wagetypes ? this.wagetypes.find(x => x.ID === dataItem.WageTypeID) : undefined;
+                const wagetype: WageType = dataItem['_Wagetype'] || dataItem.Wagetype;
 
                 if (!wagetype) {
                     return;
