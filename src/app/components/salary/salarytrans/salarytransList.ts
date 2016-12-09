@@ -91,6 +91,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
             projectSubject.subscribe(projects => {
                 this.projects = projects;
+                console.log('got projects: ', this.projects);
             });
 
             departmentSubject.subscribe(departments => {
@@ -427,7 +428,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
             rowModel['_Department'] = department || rowModel['_Department'];
 
-            let project = this.projects.find(x => x.ID === rowModel.Dimensions.ProjectID);
+            let project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
             rowModel['_Project'] = project || rowModel['_Project'];
 
             this.mapDepartmentToTrans(rowModel);

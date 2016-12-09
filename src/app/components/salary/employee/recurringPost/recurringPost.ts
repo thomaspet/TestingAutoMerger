@@ -422,7 +422,7 @@ export class RecurringPost extends UniView {
 
             rowModel['_Department'] = department || rowModel['_Department'];
 
-            let project = this.projects.find(x => x.ID === rowModel.Dimensions.ProjectID);
+            let project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
             rowModel['_Project'] = project || rowModel['_Project'];
 
             this.mapDepartmentToTrans(rowModel);
