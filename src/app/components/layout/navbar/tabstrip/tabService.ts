@@ -5,9 +5,10 @@ import {IUniTab} from './tabStrip';
 //      1×× - Core
 //      2×× - Sales
 //      3×× - Accounting
-//      4×× - Salary
-//      5×× - Timetracking
-//      6×× - Dimensions
+//      4×× - Bank
+//      5×× - Salary
+//      6×× - Timetracking
+//      7×× - Dimensions
 //      9×× - Discontinued
 export enum UniModules {
     Dashboard       = 100,
@@ -32,22 +33,22 @@ export enum UniModules {
     AccountingReports = 307,
     Suppliers       = 308,
 
-    Bank            = 350,
-    Payment         = 351,
-    PaymentBatches  = 352,
+    Bank            = 450,
+    Payment         = 451,
+    PaymentBatches  = 452,
 
-    Employees       = 400,
-    Wagetypes       = 401,
-    Payrollrun      = 402,
-    Amelding        = 403,
+    Employees       = 500,
+    Wagetypes       = 501,
+    Payrollrun      = 502,
+    Amelding        = 503,
 
-    WorkProfiles    = 500,
-    Workers         = 501,
-    WorkTypes       = 502,
-    Timesheets      = 503,
+    WorkProfiles    = 600,
+    Workers         = 601,
+    WorkTypes       = 602,
+    Timesheets      = 603,
 
-    Projects        = 600,
-    Departments     = 601,
+    Projects        = 700,
+    Departments     = 701,
 
     PaymentList     = 900
 }
