@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageType, ValidationLevel } from '../../../unientities';
+import { WageType, ValidationLevel, SpecialAgaRule, SpecialTaxAndContributionsRule, TaxType, StdWageType, GetRateFrom } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { WageTypeService, UniCacheService } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
@@ -145,8 +145,22 @@ export class WageTypeView extends UniView {
     private getWageType() {
         this.wageTypeService.getWageType(this.wagetypeID).subscribe((wageType: WageType) => {
             this.wageType = wageType;
+            if (this.wageType.ID === 0) {
+                this.setDefaultValues();
+            }
             super.updateState('wagetype', wageType, false);
         }, err => this.errorService.handle(err));
+    }
+
+    private setDefaultValues() {
+        this.wageType.WageTypeNumber = null;
+        this.wageType.SpecialAgaRule = SpecialAgaRule.Regular;
+        this.wageType.AccountNumber = 5000;
+        this.wageType.Base_Payment = true;
+        this.wageType.SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
+        this.wageType.taxtype = TaxType.Tax_None;
+        this.wageType.StandardWageTypeFor = StdWageType.None;
+        this.wageType.GetRateFrom = GetRateFrom.WageType;
     }
 
     public previousWagetype() {
@@ -188,6 +202,9 @@ export class WageTypeView extends UniView {
         this.wageTypeService.GetNewEntity().subscribe((response) => {
             if (response) {
                 this.wageType = response;
+                if (this.wageType.ID === 0) {
+                    this.setDefaultValues();
+                }
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
             }
