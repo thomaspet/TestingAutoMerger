@@ -28,7 +28,7 @@ export const billViewLanguage = {
 
     tool_save: 'Lagre endringer',
     tool_delete: 'Slett',
-    save_error: 'Feil ved lagring',    
+    save_error: 'Feil ved lagring',
     save_success: 'Lagret ok',
 
     delete_nothing_todo: 'Ingenting å slette',
@@ -61,12 +61,17 @@ export const billViewLanguage = {
     create_supplier: 'Opprette ny leverandør',
     org_number: 'Organisasjonsnr.',
 
+    create_bankaccount_accept: 'Opprett konto',
+    create_bankaccount_reject: 'Ikke opprett konto',
+    create_bankaccount_title: 'Vil du opprette bankkonto',
+    create_bankaccount_info: 'Kontonr er ikke registrert på leverandøren',
+
     warning: 'Advarsel',
     fyi: 'Til informasjon',
 
 };
 
-export const billStatusflowLabels = { 
+export const billStatusflowLabels = {
     'smartbooking': 'Foreslå kontering',
     'journal': 'Bokfør',
 

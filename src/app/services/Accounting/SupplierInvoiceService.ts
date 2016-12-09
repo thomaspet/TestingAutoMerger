@@ -28,9 +28,9 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
-        
+
         this.relativeURL = SupplierInvoice.RelativeUrl;
-        
+
         this.entityType = SupplierInvoice.EntityType;
 
         // set this property if you want a default sort order from the API
@@ -84,23 +84,23 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .send()
             .map(response => response.json());
     }
-    
-    public getInvoiceSummary(odatafilter: string): Observable<any> {        
-        return this.http 
+
+    public getInvoiceSummary(odatafilter: string): Observable<any> {
+        return this.http
             .asGET()
-            .usingBusinessDomain()            
-            .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter) 
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter)
             .send()
             .map(response => response.json());
     }
-    
-    public newSupplierInvoice(): Promise<SupplierInvoice> {       
+
+    public newSupplierInvoice(): Promise<SupplierInvoice> {
         return new Promise(resolve => {
             this.GetNewEntity([], SupplierInvoice.EntityType).subscribe((invoice: SupplierInvoice) => {
                 invoice.CreatedBy = '-';
                 invoice.CurrencyCode = 'NOK';
-          
-                resolve(invoice);                
+
+                resolve(invoice);
             }, err => this.errorService.handle(err));
         });
     }
@@ -108,19 +108,19 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     public getStatQuery(route: string): Observable<any> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
-        .map(response => response.json().Data);        
+        .map(response => response.json().Data);
     }
 
     public getInvoiceList(urlSearchParams: URLSearchParams): Observable<any> {
-        var flds = this.selectBuilder('ID', 'StatusCode', 
-            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate', 
-            'InvoiceNumber', 'BankAccount', 'PaymentInformation', 'TaxInclusiveAmount',
+        var flds = this.selectBuilder('ID', 'StatusCode',
+            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
+            'InvoiceNumber', 'BankAccount.AccountNumber', 'PaymentInformation', 'TaxInclusiveAmount',
             'PaymentID', 'JournalEntry.JournalEntryNumber',
-            'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name', 
+            'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber');
-        var route = '?model=SupplierInvoice' + 
-            '&select=' + flds + 
-            '&expand=supplier.info,journalentry,dimensions.project,dimensions.department' + 
+        var route = '?model=SupplierInvoice' +
+            '&select=' + flds +
+            '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount' +
             '&orderby=id desc' +
             '&filter=( isnull(deleted,0) eq 0 )';
 
@@ -162,12 +162,12 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
                 break;
             case 'DELETE':
                 ht = this.http.asDELETE();
-                break;            
+                break;
         }
         return ht.usingBusinessDomain()
         .withEndPoint(route).send( body ? { body: body } : undefined, urlSearchParams)
         .map(response => response.json());
-    }    
+    }
 
     private selectBuilder(...args: any[]): string {
         var select = '';
@@ -186,8 +186,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
 
 export interface IStatTotal {
-    countid: number; 
-    SupplierInvoiceStatusCode: number; 
-    sumTaxInclusiveAmount: number; 
-    sumRestAmount: number; 
+    countid: number;
+    SupplierInvoiceStatusCode: number;
+    sumTaxInclusiveAmount: number;
+    sumRestAmount: number;
 }

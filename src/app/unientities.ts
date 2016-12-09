@@ -3708,7 +3708,8 @@ export class SupplierInvoice {
 
     public AmountRegards: string;
     public Attachments: string;
-    public BankAccount: string;
+    public BankAccountID: number;
+    public BankAccount: BankAccount;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
