@@ -1271,6 +1271,28 @@ export class ReportDefinitionParameter {
 }
 
 
+export class Notification {
+    public static RelativeUrl = 'notifications';
+    public static EntityType = 'Notification';
+
+    public CompanyKey: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ID: number;
+    public Message: string;
+    public RecipientID: string;
+    public SourceEntityID: number;
+    public SourceEntityType: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class Customer {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
@@ -2158,6 +2180,7 @@ export class Employment {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DimensionsID: number;
     public EmployeeID: number;
     public EmployeeNumber: number;
     public EndDate: Date;
@@ -2188,6 +2211,7 @@ export class Employment {
     public WorkPercent: number;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -2342,6 +2366,7 @@ export class SalaryTransaction {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DimensionsID: number;
     public EmployeeID: number;
     public EmployeeNumber: number;
     public EmploymentID: number;
@@ -2368,6 +2393,7 @@ export class SalaryTransaction {
     public Employee: Employee;
     public Wagetype: WageType;
     public employment: Employment;
+    public Dimensions: Dimensions;
     public Supplements: Array<SalaryTransactionSupplement>;
     public CustomFields: any;
 }
@@ -2569,6 +2595,7 @@ export class User {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UserName: string;
     public CustomFields: any;
 }
 
@@ -3162,6 +3189,25 @@ export class Comment {
     public Text: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Mentioned: Array<Mentioned>;
+    public CustomFields: any;
+}
+
+
+export class Mentioned {
+    public static RelativeUrl = '';
+    public static EntityType = 'Mentioned';
+
+    public CommentID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public User: User;
     public CustomFields: any;
 }
 
@@ -3504,6 +3550,8 @@ export class Payment {
     public ToBankAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public XmlTagEndToEndIdReference: string;
+    public XmlTagPmtInfIdReference: string;
     public PaymentBatch: PaymentBatch;
     public BusinessRelation: BusinessRelation;
     public FromBankAccount: BankAccount;
@@ -4914,7 +4962,6 @@ export enum StdSystemType{
 	None = 0,
 	PercentTaxDeduction = 1,
 	HolidayPayBasisLastYear = 2,
-	ResidualHolidayPay = 3,
 	TableTaxDeduction = 4,
 	Holidaypay = 5,
 }
@@ -5018,6 +5065,13 @@ export enum AltinnGetVatReportDataFromAltinnStatus{
 	WaitingForAltinnResponse = 1,
 	RejectedByAltinn = 2,
 	ReportReceived = 3,
+}
+
+
+export enum NotificationStatus{
+	New = 900010,
+	Read = 900020,
+	Marked = 900030,
 }
 
 

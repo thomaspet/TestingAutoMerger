@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, Employment, CompanySalary, CompanySalaryPaymentInterval } from '../../../unientities';
-import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService, ReportDefinitionService, CompanySalaryService } from '../../../services/services';
+import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions } from '../../../unientities';
+import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService, ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
@@ -54,6 +54,8 @@ export class PayrollrunDetails extends UniView {
     private salaryTransactions: SalaryTransaction[];
     private wagetypes: WageType[];
     private employments: Employment[];
+    private projects: Project[];
+    private departments: Department[];
 
     constructor(
         private route: ActivatedRoute,
@@ -66,7 +68,9 @@ export class PayrollrunDetails extends UniView {
         private _wageTypeService: WageTypeService,
         private errorService: ErrorService,
         private _reportDefinitionService: ReportDefinitionService,
-        private _companySalaryService: CompanySalaryService
+        private _companySalaryService: CompanySalaryService,
+        private _projectService: ProjectService,
+        private _departmentService: DepartmentService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -98,9 +102,9 @@ export class PayrollrunDetails extends UniView {
 
                 this.toolbarconfig = {
                     title: this.payrollrun ?
-                            (this.payrollrun.Description ?
-                                this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID)
-                            : 'Ny lønnsavregning',
+                        (this.payrollrun.Description ?
+                            this.payrollrun.Description : 'Lønnsavregning ' + this.payrollrunID)
+                        : 'Ny lønnsavregning',
                     subheads: [{
                         title: this.payrollrun ?
                             (this.payrollrun.Description ? 'Lønnsavregning ' + this.payrollrunID : '')
@@ -171,6 +175,13 @@ export class PayrollrunDetails extends UniView {
                 this.wagetypes = wagetypes;
             });
 
+            super.getStateSubject('projects').subscribe((projects) => {
+                this.projects = projects;
+            });
+
+            super.getStateSubject('departments').subscribe((departments) => {
+                this.departments = departments;
+            });
             if (this.payrollrunID) {
                 this.tabSer.addTab({
                     name: 'Lønnsavregning ' + this.payrollrunID,
@@ -248,25 +259,46 @@ export class PayrollrunDetails extends UniView {
 
     private getSalaryTransactions() {
         this.getSalaryTransactionsObservable().subscribe((response) => {
-                response.map(x => {
-                    let account = new Account();
-                    account.AccountNumber = x.Account;
-                    x['_Account'] = account;
-                });
-                super.updateState('salaryTransactions', response, false);
-            }, err => this.errorService.handle(err));
+            response.map(x => {
+                let account = new Account();
+                account.AccountNumber = x.Account;
+                x['_Account'] = account;
+            });
+            super.updateState('salaryTransactions', response, false);
+        }, err => this.errorService.handle(err));
     }
 
     private getSalaryTransactionsObservable(): Observable<any> {
         let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
-        return this._salaryTransactionService
+        return Observable.forkJoin(this._salaryTransactionService
             .GetAll(
             'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
-            ['WageType.SupplementaryInformations', 'employment', 'Supplements'])
-            .map(transes => {
+            ['WageType.SupplementaryInformations', 'employment', 'Supplements'
+                , 'Dimensions']),
+            this.getProjectsObservable(),
+            this.getDepartmentsObservable()
+        )
+            .map((response: [SalaryTransaction[], Project[], Department[]]) => {
+                let [transes, projects, departments] = response;
+                transes
+                    .filter(x => !x.DimensionsID)
+                    .map(trans => trans.Dimensions = new Dimensions());
                 if (this.selectionList) {
                     this.selectionList.updateSums();
                 }
+
+                transes.map(trans => {
+
+                    trans['_Department'] = departments ? departments
+                        .find(x => x.ID === trans.Dimensions.DepartmentID) : undefined;
+
+                    trans['_Project'] = projects ? projects
+                        .find(x => x.ID === trans.Dimensions.ProjectID) : undefined;
+                });
+
+                super.updateState('projects', projects, false);
+                super.updateState('departments', departments, false);
+
                 return transes;
             });
     }
@@ -280,11 +312,11 @@ export class PayrollrunDetails extends UniView {
                         payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                     }
                     this.updateState('payrollRun', payroll, false);
-            }, err => {
-                this.payrollrunID = 0;
-                this._toastService.addToast('Lønnsavregning finnes ikke', ToastType.warn, 5);
-                this.router.navigateByUrl(this.url + 0);
-            });
+                }, err => {
+                    this.payrollrunID = 0;
+                    this._toastService.addToast('Lønnsavregning finnes ikke', ToastType.warn, 5);
+                    this.router.navigateByUrl(this.url + 0);
+                });
         } else {
             Observable.forkJoin(
                 this.payrollrunService.get(this.payrollrunID),
@@ -376,7 +408,7 @@ export class PayrollrunDetails extends UniView {
     }
 
     private getEmployees() {
-        this._employeeService.GetAll('filter=' + this.filter, ['Employments', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']).subscribe(response => {
+        this._employeeService.GetAll('filter=' + this.filter, ['Employments.Dimensions', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']).subscribe(response => {
             this.updateState('employees', response, false);
         }, err => this.errorService.handle(err));
     }
@@ -385,6 +417,14 @@ export class PayrollrunDetails extends UniView {
         this._wageTypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
             this.updateState('wagetypes', wagetypes, false);
         });
+    }
+
+    private getProjectsObservable() {
+        return this.projects ? Observable.of(this.projects) : this._projectService.GetAll('');
+    }
+
+    private getDepartmentsObservable() {
+        return this.departments ? Observable.of(this.departments) : this._departmentService.GetAll('');
     }
 
     private checkDirty() {
@@ -687,6 +727,9 @@ export class PayrollrunDetails extends UniView {
                             .forEach((supplement: SalaryTransactionSupplement) => {
                                 supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
                             });
+                    }
+                    if (!trans.DimensionsID && trans.Dimensions) {
+                        trans.Dimensions['_createguid'] = this._salaryTransactionService.getNewGuid();
                     }
                 }
                 trans.Wagetype = null;
