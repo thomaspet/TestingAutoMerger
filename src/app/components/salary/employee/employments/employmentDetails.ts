@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, ViewChild, OnChanges } from '@angular/core';
 import { EmploymentService, AccountService, StatisticsService } from '../../../../services/services';
-import { Employment, Account, SubEntity } from '../../../../unientities';
+import { Employment, Account, SubEntity, Project, Department } from '../../../../unientities';
 import { UniForm } from 'uniform-ng2/main';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
 import { Observable } from 'rxjs/Observable';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import { ErrorService } from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -32,6 +32,12 @@ export class EmploymentDetails implements OnChanges {
     @Input()
     private subEntities: SubEntity[];
 
+    @Input()
+    private projects: Project[];
+
+    @Input()
+    private departments: Department[];
+
     @Output()
     private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
@@ -45,12 +51,24 @@ export class EmploymentDetails implements OnChanges {
         private accountService: AccountService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService
-        ) {
+    ) {
     }
 
-    public ngOnChanges() {
-        if (!this.formReady && this.subEntities) {
+    public ngOnChanges(change) {
+        if (!this.formReady) {
             this.buildForm();
+        }
+
+        if (change['subEntities'] && change['subEntities'].currentValue) {
+            this.setSourceOn('SubEntityID', this.subEntities);
+        }
+
+        if (change['projects'] && change['projects'].currentValue) {
+            this.setSourceOn('Dimensions.ProjectID', this.projects);
+        }
+
+        if (change['departments'] && change['departments'].currentValue) {
+            this.setSourceOn('Dimensions.DepartmentID', this.departments);
         }
     }
 
@@ -93,11 +111,15 @@ export class EmploymentDetails implements OnChanges {
                 template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             };
 
-            const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
-            subEntityField.Options.source = this.subEntities;
-
             this.formReady = true;
         }, err => this.errorService.handle(err));
+    }
+
+    private setSourceOn(searchField: string, source: any) {
+        const currentField = this.fields.find(field => field.Property === searchField);
+        if (currentField) {
+            currentField.Options.source = source;
+        }
     }
 
     private updateTitle(styrk) {

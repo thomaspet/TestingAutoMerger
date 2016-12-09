@@ -1,38 +1,41 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {Employment, FieldType, TypeOfEmployment, RenumerationType, WorkingHoursScheme} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import { Injectable } from '@angular/core';
+import { BizHttp } from '../../../../framework/core/http/BizHttp';
+import { UniHttp } from '../../../../framework/core/http/http';
+import {
+    Employment, FieldType, TypeOfEmployment, RenumerationType,
+    WorkingHoursScheme, Department, Project
+} from '../../../unientities';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
 
     public subEntities: any[];
 
-    private typeOfEmployment: {ID: number, Name: string}[] = [
-        {ID: 0, Name: 'Ikke valgt'},
-        {ID: TypeOfEmployment.OrdinaryEmployment, Name: '1 - Ordinært arbeidsforhold'},
-        {ID: TypeOfEmployment.MaritimeEmployment, Name: '2 - Maritimt arbeidsforhold'},
-        {ID: TypeOfEmployment.FrilancerContratorFeeRecipient, Name: '3 - Frilanser, oppdragstager, honorar'},
-        {ID: TypeOfEmployment.PensionOrOtherNonEmployedBenefits, Name: '4 - Pensjon og annet uten ansettelse'}
+    private typeOfEmployment: { ID: number, Name: string }[] = [
+        { ID: 0, Name: 'Ikke valgt' },
+        { ID: TypeOfEmployment.OrdinaryEmployment, Name: '1 - Ordinært arbeidsforhold' },
+        { ID: TypeOfEmployment.MaritimeEmployment, Name: '2 - Maritimt arbeidsforhold' },
+        { ID: TypeOfEmployment.FrilancerContratorFeeRecipient, Name: '3 - Frilanser, oppdragstager, honorar' },
+        { ID: TypeOfEmployment.PensionOrOtherNonEmployedBenefits, Name: '4 - Pensjon og annet uten ansettelse' }
     ];
 
-    private renumerationType: {ID: number, Name: string}[] = [
-        {ID: 0, Name: 'Ikke valgt'},
-        {ID: RenumerationType.Salaried, Name: '1 - Fast lønnet'},
-        {ID: RenumerationType.HourlyPaid, Name: '2 - Timelønnet'},
-        {ID: RenumerationType.PaidOnCommission, Name: '3 - Provisjonslønnet'},
-        {ID: RenumerationType.Fees, Name: '4 - Honorar'},
-        {ID: RenumerationType.Piecework, Name: '5 - Akkord'}
+    private renumerationType: { ID: number, Name: string }[] = [
+        { ID: 0, Name: 'Ikke valgt' },
+        { ID: RenumerationType.Salaried, Name: '1 - Fast lønnet' },
+        { ID: RenumerationType.HourlyPaid, Name: '2 - Timelønnet' },
+        { ID: RenumerationType.PaidOnCommission, Name: '3 - Provisjonslønnet' },
+        { ID: RenumerationType.Fees, Name: '4 - Honorar' },
+        { ID: RenumerationType.Piecework, Name: '5 - Akkord' }
     ];
 
-    private workingHoursScheme: {ID: number, Name: string}[] = [
-        {ID: 0, Name: 'Ikke valgt'},
-        {ID: WorkingHoursScheme.NonShift, Name: '1 - Ikke skiftarbeid'},
-        {ID: WorkingHoursScheme.OffshoreWork, Name: '2 - Arbeid offshore'},
-        {ID: WorkingHoursScheme.SemiContinousShiftAndRotaWork, Name: '3 - Helkontinuerlig skiftarbeid'},
-        {ID: WorkingHoursScheme.ContinuousShiftAndOtherSchemes, Name: '4 - Døgnkontinuerlig skiftarbeid'},
-        {ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid'}
+    private workingHoursScheme: { ID: number, Name: string }[] = [
+        { ID: 0, Name: 'Ikke valgt' },
+        { ID: WorkingHoursScheme.NonShift, Name: '1 - Ikke skiftarbeid' },
+        { ID: WorkingHoursScheme.OffshoreWork, Name: '2 - Arbeid offshore' },
+        { ID: WorkingHoursScheme.SemiContinousShiftAndRotaWork, Name: '3 - Helkontinuerlig skiftarbeid' },
+        { ID: WorkingHoursScheme.ContinuousShiftAndOtherSchemes, Name: '4 - Døgnkontinuerlig skiftarbeid' },
+        { ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid' }
     ];
 
     // private shipType: {ID: number, Name: string}[] = [
@@ -134,24 +137,24 @@ export class EmploymentService extends BizHttp<Employment> {
                     ]
                 },
                 {
-                     ComponentLayoutID: 1,
-                     EntityType: 'Employment',
-                     Property: 'Standard',
-                     Placement: 4,
-                     Hidden: false,
-                     FieldType: FieldType.MULTISELECT,
-                     ReadOnly: false,
-                     LookupField: false,
-                     Label: 'Standard',
-                     Description: null,
-                     HelpText: null,
-                     FieldSet: 0,
-                     Section: 0,
-                     Placeholder: null,
-                     LineBreak: null,
-                     Combo: null,
-                     Sectionheader: '',
-                     IsLookUp: false,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'Standard',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.MULTISELECT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Standard',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
                 },
                 {
                     ComponentLayoutID: 1,
@@ -519,6 +522,56 @@ export class EmploymentService extends BizHttp<Employment> {
                     //         Operator: 7 // required
                     //     }
                     // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'Dimensions.ProjectID',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Prosjekt',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: {
+                        valueProperty: 'ID',
+                        template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : ''
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Dimensjoner',
+                    IsLookUp: false,
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'Dimensions.DepartmentID',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Avdeling',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: {
+                        valueProperty: 'ID',
+                        template: (department: Department) => department
+                            ? `${department.DepartmentNumber} - ${department.Name}`
+                            : ''
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
                 }
             ]
         }]);

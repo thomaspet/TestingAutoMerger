@@ -2,7 +2,9 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService } from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
-import { Employment, SalaryTransaction, WageType, SalaryTransactionSupplement, WageTypeSupplement, Account } from '../../../../unientities';
+import { 
+    Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
+    SalaryTransactionSupplement, WageTypeSupplement, Account } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
@@ -21,6 +23,8 @@ export class RecurringPost extends UniView {
     private filteredPosts: SalaryTransaction[];
     private employments: Employment[] = [];
     private wagetypes: WageType[];
+    private projects: Project[] = [];
+    private departments: Department[] = [];
     private unsavedEmployments: boolean;
     private employmentsMapped: boolean;
     @ViewChild(UniTable) private uniTable: UniTable;
@@ -55,6 +59,16 @@ export class RecurringPost extends UniView {
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
             const employmentSubject = super.getStateSubject('employments');
+            const projectSubject = super.getStateSubject('projects');
+            const departmentSubject = super.getStateSubject('departments');
+
+            projectSubject.subscribe( projects => {
+                this.projects = projects;
+            });
+
+            departmentSubject.subscribe(departments => {
+                this.departments = departments;
+            });
 
             recurringPostSubject.subscribe(posts => {
                 this.recurringPosts = posts;
@@ -73,7 +87,8 @@ export class RecurringPost extends UniView {
             });
 
             if (!this.tableConfig) {
-                Observable.combineLatest(recurringPostSubject, employmentSubject).take(1)
+                Observable.combineLatest(recurringPostSubject, employmentSubject)
+                    .take(1)
                     .subscribe((res) => {
                         let [recurring, employments] = res;
                         this.employments = (employments || []).filter(emp => emp.ID > 0);
@@ -230,6 +245,58 @@ export class RecurringPost extends UniView {
                     return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
                 }
             });
+        
+        const projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
+            .setTemplate((rowModel: SalaryTransaction) => {
+
+                let project = rowModel['_Project'];
+                if (!rowModel['_isEmpty'] && project) {
+                    return project.ProjectNumber + ' - ' + project.Name;
+                }
+
+                return '';
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem: Project) => {
+                    return (selectedItem.ProjectNumber + ' - ' + selectedItem.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.projects.filter((project: Project) => {
+                        if (isNaN(searchValue)) {
+                            return (project.Name.toLowerCase().indexOf(searchValue) > -1);
+                        } else {
+                            return (project.ProjectNumber.toString().startsWith(searchValue.toString()));
+                        }
+                    });
+                }
+            });
+
+        const departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
+            .setTemplate((rowModel: SalaryTransaction) => {
+
+                let department: Department = rowModel['_Department'];
+                if (!rowModel['_isEmpty'] && department) {
+                    return department.DepartmentNumber + ' - ' + department.Name;
+                }
+
+                return '';
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem: Department) => {
+                    return (selectedItem.DepartmentNumber + ' - ' + selectedItem.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.departments.filter((department: Department) => {
+                        if (isNaN(searchValue)) {
+                            return (department.Name.toLowerCase().indexOf(searchValue) > -1);
+                        } else {
+                            return (department.DepartmentNumber.toString().startsWith(searchValue.toString()));
+                        }
+                    });
+                }
+            });
+        
+
 
         this.tableConfig = new UniTableConfig()
             .setDeleteButton(true)
@@ -238,9 +305,10 @@ export class RecurringPost extends UniView {
                     this.openSuplementaryInformationModal(row);
                 }
             }])
+            .setColumnMenuVisible(true)
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol,
-                amountCol, rateCol, sumCol, payoutCol
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
@@ -252,8 +320,7 @@ export class RecurringPost extends UniView {
                 }
 
                 if (event.field === '_Employment') {
-                    const employment = row['_Employment'];
-                    row['EmploymentID'] = (employment) ? employment.ID : null;
+                    this.mapEmploymentToTrans(row);
                     rateObservable = this.getRate(row);
                 }
 
@@ -271,6 +338,14 @@ export class RecurringPost extends UniView {
 
                 if (event.field === '_Account') {
                     this.mapAccountToTrans(row);
+                }
+
+                if (event.field === '_Project') {
+                    this.mapProjectToTrans(row);
+                }
+
+                if (event.field === '_Department') {
+                    this.mapDepartmentToTrans(row);
                 }
 
                 if (rateObservable) {
@@ -302,7 +377,8 @@ export class RecurringPost extends UniView {
         if (!rowModel['EmploymentID']) {
             let employment = this.employments.find(emp => emp.Standard === true);
             if (employment) {
-                rowModel['EmploymentID'] = employment.ID;
+                rowModel['_Employment'] = employment;
+                this.mapEmploymentToTrans(rowModel);
             }
         }
 
@@ -337,6 +413,23 @@ export class RecurringPost extends UniView {
         }
     }
 
+    private mapEmploymentToTrans(rowModel: SalaryTransaction) {
+        const employment = rowModel['_Employment'];
+        rowModel['EmploymentID'] = (employment) ? employment.ID : null;
+
+        if (employment && employment.Dimensions) {
+            let department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+
+            rowModel['_Department'] = department || rowModel['_Department'];
+
+            let project = this.projects.find(x => x.ID === rowModel.Dimensions.ProjectID);
+            rowModel['_Project'] = project || rowModel['_Project'];
+
+            this.mapDepartmentToTrans(rowModel);
+            this.mapProjectToTrans(rowModel);
+        }
+    }
+
     private getRate(rowModel: SalaryTransaction) {
         return this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
     }
@@ -348,6 +441,36 @@ export class RecurringPost extends UniView {
         }
 
         rowModel.Account = account.AccountNumber;
+    }
+
+    private mapProjectToTrans(rowModel: SalaryTransaction) {
+        let project = rowModel['_Project'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!project) {
+            rowModel.Dimensions.ProjectID = 0;
+            return;
+        }
+
+        rowModel.Dimensions.ProjectID = project.ID;
+    }
+
+    private mapDepartmentToTrans(rowModel: SalaryTransaction) {
+        let department: Department = rowModel['_Department'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!department) {
+            rowModel.Dimensions.DepartmentID = 0;
+            return;
+        }
+
+        rowModel.Dimensions.DepartmentID = department.ID;
     }
 
     private calcItem(rowModel) {

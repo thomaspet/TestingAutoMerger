@@ -9,6 +9,8 @@
     <main class="splitview_detail">
         <employment-details [employment]="employments[selectedIndex]"
                             [subEntities]="subEntities"
+                            [projects]="projects"
+                            [departments]="departments"
                             (employmentChange)="onEmploymentChange($event)">
         </employment-details>
     </main>
