@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, Input, SimpleChanges, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -17,9 +17,9 @@ export interface IUploadConfig {
 @Component({
     selector: 'uni-attachments',
     template: `
-        <label>Vedlegg</label>
+        <label>{{headerText}}</label>
         <article>
-             <section class="file-name-list">
+             <section class="file-name-list" *ngIf="showFileList">
                 <ul>
                     <li *ngFor="let file of files">
                         <a (click)="attachmentClicked(file)">{{file.Name}}</a>
@@ -57,6 +57,18 @@ export class UniAttachments {
     @Input()
     public uploadConfig: IUploadConfig;
 
+    @Input()
+    public showFileList: boolean = true;
+
+    @Input()
+    public uploadWithoutEntity: boolean = false;
+
+    @Input()
+    public headerText: string = 'Vedlegg';
+
+    @Output()
+    public fileUploaded: EventEmitter<File> = new EventEmitter<File>();
+
     private baseUrl: string = AppConfig.BASE_URL_FILES;
 
     private token: any;
@@ -80,7 +92,7 @@ export class UniAttachments {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
+        if (this.showFileList && (changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
             this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint(`files/${this.entity}/${this.entityID}`)
@@ -90,6 +102,8 @@ export class UniAttachments {
                     files => this.files = files,
                     err => this.errorService.handle(err)
                 );
+        } else {
+            this.files = [];
         }
     }
 
@@ -104,9 +118,9 @@ export class UniAttachments {
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
 
-        if (!this.entity || !this.isDefined(this.entityID)) {
-            throw new Error(`Tried to upload a picture with either entity (${this.entity})`
-                + `or entityID (${this.entityID}) being null`);
+        if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {
+            throw new Error(`Tried to upload a feil with either entity (${this.entity})`
+                 + ` or entityID (${this.entityID}) being null, and uploadWithoutEntity being false`);
         }
 
         if (source.files && source.files.length) {
@@ -118,11 +132,16 @@ export class UniAttachments {
     }
 
     private uploadFile(file: File) {
+
         let data = new FormData();
         data.append('Token', this.token);
         data.append('CompanyKey', this.activeCompany.Key);
-        data.append('EntityType', this.entity);
-        data.append('EntityID', this.entityID);
+        if (this.entity) {
+            data.append('EntityType', this.entity);
+        }
+        if (this.entityID) {
+            data.append('EntityID', this.entityID);
+        }
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);
 
@@ -131,6 +150,7 @@ export class UniAttachments {
             .subscribe((res) => {
                 this.uploading = false;
                 this.files.push(res);
+                this.fileUploaded.emit(res);
                 this.imageModal.refreshImages();
             }, err => this.errorService.handle(err));
     }

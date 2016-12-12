@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {StatisticsService, BankAccountService, BusinessRelationService, PaymentCodeService, PaymentService} from '../../../services/services';
+import {StatisticsService, BankAccountService, BusinessRelationService, PaymentCodeService, PaymentService, PaymentBatchService, FileService} from '../../../services/services';
 import {Bank, BankAccount, Payment, PaymentCode, BusinessRelation, PaymentBatch} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -16,6 +16,7 @@ import {BankAccountModal} from '../../common/modals/modals';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 declare const moment;
+declare const saveAs; // filesaver.js
 
 @Component({
     selector: 'payment-list',
@@ -52,7 +53,9 @@ export class PaymentList {
                 private bankAccountService: BankAccountService,
                 private businessRelationService: BusinessRelationService,
                 private paymentCodeService: PaymentCodeService,
-                private paymentService: PaymentService) {
+                private paymentService: PaymentService,
+                private paymentBatchService: PaymentBatchService,
+                private fileService: FileService) {
 
         this.tabService.addTab({ name: 'Betalinger', url: '/bank/payments', moduleID: UniModules.Payment, active: true });
     }
@@ -178,21 +181,29 @@ export class PaymentList {
             requests.push(this.paymentService.Put(x.ID, x));
         });
 
-        Observable.forkJoin(requests)
-            .subscribe(resp => {
-                if (!nextAction) {
-                    doneHandler('Lagret endringer');
+        if (requests.length > 0) {
+            Observable.forkJoin(requests)
+                .subscribe(resp => {
+                    if (!nextAction) {
+                        doneHandler('Lagret endringer');
 
-                    // refresh data after save
-                    this.loadData();
+                        // refresh data after save
+                        this.loadData();
 
-                } else {
-                    nextAction();
-                }
-            }, (err) => {
-                doneHandler('Feil ved lagring av data');
-                this.errorService.handle(err);
-            });
+                    } else {
+                        nextAction();
+                    }
+                }, (err) => {
+                    doneHandler('Feil ved lagring av data');
+                    this.errorService.handle(err);
+                });
+        } else {
+            if (!nextAction) {
+                doneHandler('Ingen endringer funnet');
+            } else {
+                nextAction();
+            }
+        }
     }
 
     private validateBeforePay(selectedRows: Array<Payment>): boolean {
@@ -208,6 +219,11 @@ export class PaymentList {
             errorMessages.push(`Det er ${paymentsWithoutToAccount.length} rader som mangler til-konto`);
         }
 
+        let paymentsWithoutPaymentCode = selectedRows.filter(x => !x.PaymentCode);
+        if (paymentsWithoutPaymentCode.length > 0) {
+            errorMessages.push(`Det er ${paymentsWithoutPaymentCode.length} rader som mangler type`);
+        }
+
         if (errorMessages.length > 0) {
             this.toastService.addToast('Feil ved validering', ToastType.bad, 0, errorMessages.join('\n\n'));
             return false;
@@ -220,7 +236,13 @@ export class PaymentList {
         let selectedRows = this.table.getSelectedRows();
 
         if (selectedRows.length === 0) {
-            alert('Ingen rader er valgt');
+            this.toastService.addToast(
+                'Ingen rader er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst velg hvilke linjer du vil utbetale, eller kryss av for alle'
+            );
+
             doneHandler('Lagring/utbetaling avbrutt');
             return;
         }
@@ -241,17 +263,41 @@ export class PaymentList {
                 // lag action for å generer batch for X betalinger
                 this.paymentService.createPaymentBatch(paymentIDs)
                     .subscribe((paymentBatch: PaymentBatch) => {
-                        this.toastService.addToast('Data lagret, genererer utbetalingsfil...', ToastType.good, 5);
 
-                        // kjør action for å hente utbetalingsfil basert på batch
-                        //TODO: Opprett betalingsfil og last den ned når dette er klart i API'et
-                        //this.toastService.addToast('Utbetalingsfil laget', ToastType.good, 5);
-                        this.toastService.addToast('Utbetalingsfil ikke laget, ikke ferdig implementert i API enda', ToastType.warn, 5);
+                        this.toastService.addToast(`Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`, ToastType.good, 5);
 
-                        // refresh list after paymentbatch has been generated
-                        this.loadData();
+                        // kjør action for å generere utbetalingsfil basert på batch
+                        this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
+                            .subscribe((updatedPaymentBatch: PaymentBatch) => {
+                                // refresh list after paymentbatch has been generated
+                                this.loadData();
 
-                        doneHandler('Utbetalingsfil laget');
+                                if (updatedPaymentBatch.PaymentFileID) {
+                                    this.toastService.addToast('Utbetalingsfil laget, henter fil...', ToastType.good, 5);
+
+                                    this.fileService
+                                        .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                                            .subscribe((blob) => {
+                                                doneHandler('Utbetalingsfil hentet');
+
+                                                // download file so the user can open it
+                                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                                            },
+                                            err => {
+                                                doneHandler('Feil ved henting av utbetalingsfil');
+                                                this.errorService.handle(err)
+                                            }
+                                        );
+                                } else {
+                                    this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
+                                    doneHandler('Feil ved henting av utbetalingsfil');
+                                }
+                            },
+                            err => {
+                                doneHandler('Feil ved generering av utbetalingsfil');
+                                this.errorService.handle(err);
+                            });
+
                     },
                     err => {
                         doneHandler('Feil ved opprettelse av betalingsbunt');

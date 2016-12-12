@@ -1,5 +1,16 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
+<header class="horizontal_nav no-print">
+    <ul>
+        <li *ngFor="let tab of filterTabs">
+            <a (click)="onFilterTabClick(tab)" [ngClass]="{'router-link-active': tab === activeTab}" >
+                {{tab.label}}&nbsp;
+                <span *ngIf="tab.count >= 0" class="tab_counter tab_counter_passive">{{tab.count}}</span>
+            </a>
+        </li>
+    </ul>
+</header>
+
 <section class="application">
     <button class="new-button" (click)="createQuote()">Nytt tilbud</button>
     <uni-table [resource]="lookupFunction"

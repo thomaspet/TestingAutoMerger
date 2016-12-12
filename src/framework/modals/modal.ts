@@ -10,8 +10,10 @@ import {ComponentCreator} from '../core/dynamic/UniComponentCreator';
     selector: 'uni-modal',
     template: `
         <dialog class='uniModal' [attr.open]='isOpen'>
-            <button (click)='close()' class='closeBtn'></button>
-            <div #modalContainer></div>
+            <article class="uniModal_bounds">
+                <button (click)='close()' class='closeBtn'></button>
+                <div #modalContainer></div>
+            </article>
         </dialog>
     `
 })

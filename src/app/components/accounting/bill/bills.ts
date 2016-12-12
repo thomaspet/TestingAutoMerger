@@ -25,7 +25,7 @@ interface IFilter {
     showStatus?: boolean;
     showJournalID?: boolean;
     route?: string;
-    onDataReady?: (data) => void;    
+    onDataReady?: (data) => void;
     passiveCounter?: boolean;
     hotCounter?: boolean;
 }
@@ -66,7 +66,7 @@ export class BillsView {
     ];
 
     public toolbarConfig: any = {
-        title: 'Fakturamottak'             
+        title: 'Fakturamottak'
     };
 
     constructor(
@@ -162,7 +162,7 @@ export class BillsView {
         if (this.startupPage > 1) {
             setTimeout(() => {
                 this.unitable.goToPage(this.startupPage);
-                this.startupPage = 0;                
+                this.startupPage = 0;
             }, 200);
         }
     }
@@ -264,7 +264,7 @@ export class BillsView {
                 )
                 .setFormat('DD.MM.YYYY'),
             new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
-            new UniTableColumn('BankAccount', 'Bankgiro').setWidth('10%'),
+            new UniTableColumn('BankAccountAccountNumber', 'Bankgiro').setWidth('10%'),
             new UniTableColumn('PaymentID', 'KID/Melding').setWidth('10%')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setWidth('8%').setVisible(!!filter.showJournalID)
@@ -339,7 +339,7 @@ export class BillsView {
         }
     }
 
-  
+
 
     private checkPath() {
         var params = this.pageStateService.getPageState();
@@ -347,7 +347,7 @@ export class BillsView {
             this.currentFilter = this.filters.find( x => x.name === params.filter);
             if (this.currentFilter) {
                 this.filters.forEach(x => x.isSelected = false);
-                this.currentFilter.isSelected = true;                
+                this.currentFilter.isSelected = true;
             }
         }
         if (params.search) {

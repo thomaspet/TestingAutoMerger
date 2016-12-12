@@ -28,6 +28,24 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         this.DefaultOrderBy = null;
     }
 
+    public getGroupCounts() {
+        const route = '?model=customerorder&select=count(id),statuscode&filter=isnull(deleted,0) eq 0';
+        return this.http.asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(route)
+            .send()
+            .map((res) => {
+                const data = (res.json() || {}).Data || [];
+                return data.reduce((counts, group) => {
+                    if (group.CustomerOrderStatusCode) {
+                        counts[group.CustomerOrderStatusCode] = group.countid;
+                    }
+                    return counts;
+                }, {});
+            });
+    }
+
+
     public next(currentID: number): Observable<CustomerOrder> {
         return super.GetAction(currentID, 'next');
     }

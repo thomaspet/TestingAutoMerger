@@ -36,4 +36,6 @@
         (click)="navigate('add')">Ny</button>
 
     <uni-context-menu *ngIf="config?.contextmenu" [actions]="config.contextmenu"></uni-context-menu>
+
+    <uni-save *ngIf="config?.saveactions" [actions]="config.saveactions"></uni-save>
 </nav>

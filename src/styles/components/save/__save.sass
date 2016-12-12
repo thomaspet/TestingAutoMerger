@@ -1,3 +1,11 @@
+@keyframes slideUp
+    from
+        transform: translate3d(0, 100%, 0)
+        opacity: 0
+    to
+        transform: none
+        opacity: 1
+
 %contextMenuItem
     padding: .5rem 1rem
     border-bottom: pxToRem(1) solid $uni-color-scale9
@@ -38,7 +46,74 @@
     li
         @extend %contextMenuItem
 
-uni-save
+.toolbar_tools uni-save
+
+    .uniSave
+        display: inline-block
+
+    .singleButton,
+    .comboButton
+        margin: -.5rem 0 0
+
+    .singleButton button,
+    .comboButton_btn
+        @extend button.good
+        width: auto
+        margin: .35rem 0 0 .2rem
+        box-shadow: none
+        border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+        top: .32rem
+
+        &:hover,
+        &:focus
+            border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+
+    .comboButton_btn
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+    .comboButton_more
+        @extend %hideText
+        border-radius: 0 pxToRem(3) pxToRem(3) 0
+        margin-left: 0
+        border-left: none
+        top: 0
+        width: 2rem
+        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
+        background-size: .75rem auto
+
+        &:hover,
+        &:focus
+            border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+            border-left: 0
+            background-color: darken($uni-color-good, 5%)
+
+    .comboButton_moreList
+        @extend %contextMenu
+        right: 0
+        top: 1.1rem
+
+    .uniSave-status
+        position: fixed
+        bottom: 0
+        left: 0
+        right: 0
+        margin: 0
+        padding: .3rem 6.5% .8rem
+        text-align: start
+        display: block
+        background: transparentize($uni-color-scale4, .1)
+        color: $uni-color-negative
+        -webkit-backdrop-filter: blur(.5rem)
+        animation: .3s ease slideUp
+
+        time
+            opacity: .5
+            transition: opacity 300ms ease
+
+        &:hover time
+            opacity: 1
+
+:not(.toolbar_tools) > uni-save
     display: block
     position: fixed
     left: 0
@@ -49,6 +124,13 @@ uni-save
     border-top: pxToRem(1) solid $uni-color-scale9
     height: 3.5rem
     z-index: map-get($zindex, hamburger)
+
+    &:before
+        content: '⚠️ Attn. devs! Uni-save has moved. Add your saveactions[] to the toolbar config instead.'
+        display: block
+        background: $uni-color-action
+        top: -.5rem
+        padding: 0 5rem
 
     .uniSave
         @include unigrid-flush(14)
@@ -111,3 +193,5 @@ uni-save
         @extend %contextMenu
         bottom: 2.7rem
         right: 0
+
+

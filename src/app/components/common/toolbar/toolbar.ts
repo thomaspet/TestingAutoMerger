@@ -1,3 +1,4 @@
+import { IUniSaveAction } from './../../../../framework/save/save';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -17,6 +18,7 @@ export interface IToolbarConfig {
         add?: () => void;
     };
     contextmenu?: IContextMenuItem[];
+    saveactions?: IUniSaveAction[];
     hideBreadcrumbs?: boolean;
     omitFinalCrumb?: boolean;
 }

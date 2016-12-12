@@ -1,0 +1,49 @@
+payment-batch-details
+    h2
+        margin-top: pxToRem(0)
+
+    .file-buttons
+        float: right
+
+        button
+            margin-top: 0
+            margin-right: 0
+
+    .detail_header_navigation
+        @extend .poster_toolbar_tools
+        position: absolute
+        top: 0
+        right: 0
+        min-width: auto
+
+        .next, .previous, .trash
+            height: 1.5rem
+
+    uni-table
+        margin-top: 1.5rem
+
+payment-batches
+    .splitview
+        width: 100%
+
+    .splitview_detail
+        min-height: 25rem
+
+        uni-table
+            font-size: small
+
+    .receipt-file-upload-button
+        float: right
+
+    uni-attachments
+        height: 10rem
+        width: 11.5rem
+
+        .uni-image-upload
+            min-width: 9rem
+
+        .uni-image-upload [aria-busy]
+            width: 11.5rem
+
+    .upload-no-batch
+        margin-top: 2rem

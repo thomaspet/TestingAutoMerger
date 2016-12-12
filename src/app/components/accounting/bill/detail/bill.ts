@@ -1,10 +1,10 @@
 import {ViewChild, Component} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService} from '../../../../services/services';
+import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService, BankAccountService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice} from '../../../../unientities';
+import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
@@ -19,8 +19,10 @@ import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from '
 import {ErrorService} from '../../../../services/common/ErrorService';
 import {PageStateService} from '../../../../services/common/PageStateService';
 import {BillHistoryView} from './history/history';
+import {BankAccountModal} from '../../../common/modals/modals';
 
 declare const moment;
+declare const _; // lodash
 
 interface ITab {
     name: string;
@@ -64,9 +66,11 @@ export class BillView {
     private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
+    private bankAccountChanged: any;
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
+    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -101,7 +105,8 @@ export class BillView {
         private router: Router,
         private location: Location,
         private errorService: ErrorService,
-        private pageStateService: PageStateService) {
+        private pageStateService: PageStateService,
+        private bankAccountService: BankAccountService) {
             this.actions = this.rootActions;
     }
 
@@ -173,12 +178,52 @@ export class BillView {
             decimalLength: 2
         };
 
+        let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
+        bankAccountCol.Options = {
+            entity: 'BankAccount',
+            listProperty: 'Supplier.Info.BankAccounts',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            storeResultInProperty: 'BankAccountID',
+            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+                if (!bankaccount) {
+                    bankaccount = new BankAccount();
+                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankaccount.BankAccountType = 'supplier';
+                    bankaccount.BusinessRelationID = this.current.Supplier.BusinessRelationID;
+                    bankaccount.ID = 0;
+                }
+
+                this.bankAccountModal.openModal(bankaccount, false);
+
+                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
+                    this.bankAccountChanged.unsubscribe();
+
+                    // save the bank account to the supplier
+                    if (changedBankaccount.ID === 0) {
+                        this.bankAccountService.Post(changedBankaccount)
+                            .subscribe((savedBankAccount: BankAccount) => {
+                                this.current.BankAccountID = savedBankAccount.ID;
+                                resolve(savedBankAccount);
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                reject('Feil ved lagring av bankkonto');
+                            }
+                        );
+                    } else {
+                        throw new Error('Du kan ikke endre en bankkonto herfra');
+                    }
+                });
+            })
+        };
+
         var list = [
             supIdCol,
             createFormField('InvoiceDate', lang.col_date, ControlTypes.DateInput, FieldSize.Double),
             createFormField('PaymentDueDate', lang.col_due, ControlTypes.DateInput, FieldSize.Double),
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
-            createFormField('BankAccount', lang.col_bank, ControlTypes.TextInput, FieldSize.Double),
+            bankAccountCol,
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
             sumCol
         ];
@@ -202,9 +247,9 @@ export class BillView {
 
     /// =============================
 
-    public onFileListReady(files: Array<any>) {      
+    public onFileListReady(files: Array<any>) {
         this.files = files;
-        if (files && files.length) {            
+        if (files && files.length) {
             if (!this.hasValidSupplier()) {
                 this.runOcr(files);
             }
@@ -253,17 +298,47 @@ export class BillView {
         if (ocr.Orgno) {
             if (!this.hasValidSupplier()) {
                 var orgNo = filterInput(ocr.Orgno);
-                this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info']).subscribe( (result: Supplier[]) => {
+                this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts']).subscribe( (result: Supplier[]) => {
                     if (result && result.length > 0) {
-                        this.setSupplier(result[0]);
+                        let supplier = result[0];
+
+                        if (ocr.BankAccount) {
+                            let bankAccount = supplier.Info.BankAccounts.find(x => x.AccountNumber === ocr.BankAccount);
+
+                            if (bankAccount) {
+                                this.setFormValue('BankAccountID', bankAccount.ID);
+                            } else {
+                                this.confirmModal.confirm(`${lang.create_bankaccount_info} ${supplier.Info.Name}`,
+                                    `${lang.create_bankaccount_title} ${ocr.BankAccount}?`, false, {accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject})
+                                        .then((userChoice: ConfirmActions) => {
+                                            if (userChoice === ConfirmActions.ACCEPT) {
+                                                let newBankAccount = new BankAccount();
+                                                newBankAccount.AccountNumber = ocr.BankAccount;
+                                                newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
+                                                newBankAccount.BankAccountType = 'supplier';
+
+                                                this.bankAccountService.Post(newBankAccount)
+                                                    .subscribe((savedBankAccount: BankAccount) => {
+                                                        supplier.Info.BankAccounts.push(savedBankAccount);
+                                                        this.setFormValue('BankAccountID', savedBankAccount.ID);
+
+                                                        this.setSupplier(supplier);
+                                                    },
+                                                    err => this.errorService.handle(err)
+                                                );
+                                            }
+                                        });
+                            }
+                        }
+
+                        this.setSupplier(supplier);
                     } else {
-                        this.findSupplierViaPhonebook(orgNo, true);
+                        this.findSupplierViaPhonebook(orgNo, true, ocr.BankAccount);
                     }
                 }, err => this.errorService.handle(err));
             }
         }
         this.setFormValue('PaymentID', ocr.PaymentID);
-        this.setFormValue('BankAccount', ocr.BankAccount);
         this.setFormValue('InvoiceNumber', ocr.InvoiceNumber);
         this.setFormValue('InvoiceDate', moment(ocr.InvoiceDate).format('L'), true);
         this.setFormValue('PaymentDueDate', moment(ocr.PaymentDueDate).format('L'), true);
@@ -293,9 +368,7 @@ export class BillView {
     private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
         var sup = new Supplier();
         sup.OrgNumber = orgNo;
-        if (bankAccount) {
-            sup.Info.DefaultBankAccount = <any>{ AccountNumber: bankAccount };
-        }
+
         sup.Info = <any>{
             Name: name,
             ShippingAddress: {
@@ -306,10 +379,14 @@ export class BillView {
                 CountryCode: 'NO'
             }
         };
-        this.supplierService.Post(sup).subscribe( x => {
-            this.setSupplier(x);
-        }, err => this.errorService.handle(err));
 
+        if (bankAccount) {
+            sup.Info.DefaultBankAccount = <any>{ AccountNumber: bankAccount, BankAccountType: 'supplier' };
+        }
+
+        this.supplierService.Post(sup).subscribe( x => {
+            this.fetchNewSupplier(x.ID, true);
+        }, err => this.errorService.handle(err));
     }
 
 
@@ -348,9 +425,11 @@ export class BillView {
     }
 
     private fetchNewSupplier(id: number, updateCombo = false) {
-        this.supplierService.Get(id, ['Info']).subscribe( (result: Supplier) => {
-            this.setSupplier(result, updateCombo);
-        });
+        if (id) {
+            this.supplierService.Get(id, ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount']).subscribe( (result: Supplier) => {
+                this.setSupplier(result, updateCombo);
+            });
+        }
     }
 
     private setSupplier(result: Supplier, updateCombo = true) {
@@ -362,6 +441,15 @@ export class BillView {
         if (updateCombo) {
             this.uniForm.field('SupplierID').control.setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));
         }
+
+        if (!this.current.BankAccountID && result.Info.DefaultBankAccountID || (this.current.BankAccount && this.current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
+            this.current.BankAccountID = result.Info.DefaultBankAccountID;
+            this.uniForm.field('BankAccountID').control.setValue(result.Info.DefaultBankAccount.AccountNumber);
+        }
+
+        // make uniform update itself to show correct values for bankaccount
+        this.current = _.cloneDeep(this.current);
+
         this.setupToolbar();
         this.fetchHistoryCount(this.currentSupplierID);
     }
@@ -369,7 +457,7 @@ export class BillView {
     private fetchHistoryCount(supplierId: number) {
         if (this.current.StatusCode >= StatusCodeSupplierInvoice.Payed ) {
             return;
-        }        
+        }
         if (!supplierId) {
             this.setHistoryCounter(0);
             return;
@@ -619,7 +707,7 @@ export class BillView {
         this.files = undefined;
         this.setHistoryCounter(0);
         return new Promise( (resolve, reject) => {
-            this.supplierInvoiceService.Get(id, ['Supplier.Info', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
+            this.supplierInvoiceService.Get(id, ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current = result;
@@ -628,7 +716,7 @@ export class BillView {
                 this.flagActionBar(actionBar.delete, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, this.current.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
-                this.checkLockStatus();                
+                this.checkLockStatus();
                 this.fetchHistoryCount(this.current.SupplierID);
                 resolve('');
             }, (err) => {
@@ -653,14 +741,14 @@ export class BillView {
 
                 case StatusCodeSupplierInvoice.ToPayment:
                     this.uniForm.readMode();
-                    this.uniForm.field('BankAccount').editMode();
+                    this.uniForm.field('BankAccountID').editMode();
                     this.uniForm.field('PaymentID').editMode();
                     return;
 
                 case StatusCodeSupplierInvoice.Journaled:
                     this.uniForm.readMode();
                     this.uniForm.field('PaymentDueDate').editMode();
-                    this.uniForm.field('BankAccount').editMode();
+                    this.uniForm.field('BankAccountID').editMode();
                     this.uniForm.field('PaymentID').editMode();
                     return;
 
@@ -784,6 +872,12 @@ export class BillView {
                 this.current.PaymentInformation = lang.headliner_invoice + this.current.InvoiceNumber;
                 changesMade = true;
             }
+        }
+
+        // clear BankAccount, this should be saved/defined on the Supplier, and only the ID should
+        // be set on the SupplierInvoice
+        if (this.current.BankAccount) {
+            this.current.BankAccount = null;
         }
 
         return changesMade;
@@ -1014,7 +1108,7 @@ export class BillView {
 
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
-        this.fileIds = [safeInt(fileID)];        
+        this.fileIds = [safeInt(fileID)];
         this.currentFileID = safeInt(fileID);
     }
 

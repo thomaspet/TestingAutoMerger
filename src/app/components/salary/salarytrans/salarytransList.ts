@@ -3,8 +3,14 @@ import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@a
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from 'unitable-ng2/main';
-import { Employee, WageType, PayrollRun, SalaryTransaction, WageTypeSupplement, SalaryTransactionSupplement, Account } from '../../../unientities';
-import { SalaryTransactionService, AccountService, ReportDefinitionService, UniCacheService } from '../../../services/services';
+import {
+    Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
+    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions
+} from '../../../unientities';
+import {
+    SalaryTransactionService, AccountService,
+    ReportDefinitionService, UniCacheService
+} from '../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 import { ErrorService } from '../../../services/common/ErrorService';
@@ -20,6 +26,8 @@ declare var _;
 export class SalaryTransactionEmployeeList extends UniView implements OnChanges {
     private salarytransEmployeeTableConfig: UniTableConfig;
     private wagetypes: WageType[] = [];
+    private projects: Project[] = [];
+    private departments: Department[] = [];
 
     public config: any = {};
 
@@ -74,10 +82,21 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             const payrollRunSubject = super.getStateSubject('payrollRun');
             const wagetypesSubject = super.getStateSubject('wagetypes');
             const salaryTransactionsSubject = super.getStateSubject('salaryTransactions');
+            const projectSubject = super.getStateSubject('projects');
+            const departmentSubject = super.getStateSubject('departments');
 
             wagetypesSubject.subscribe(wagetypes => {
                 this.wagetypes = wagetypes;
             });
+
+            projectSubject.subscribe(projects => {
+                this.projects = projects;
+            });
+
+            departmentSubject.subscribe(departments => {
+                this.departments = departments;
+            });
+
             payrollRunSubject.subscribe(payrollRun => {
                 this.payrollRun = payrollRun;
                 if (this.salarytransEmployeeTableConfig) {
@@ -89,14 +108,17 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
             salaryTransactionsSubject.subscribe(transes => {
                 this.salaryTransactions = transes;
-                this.filteredTranses = this.salaryTransactions.filter(x => this.employee && !x.Deleted && x.EmployeeID === this.employee.ID);
+                this.filteredTranses = this.salaryTransactions
+                    .filter(x => this.employee && !x.Deleted && x.EmployeeID === this.employee.ID);
             });
             if (!this.salarytransEmployeeTableConfig) {
                 this.busy = true;
-                Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject, payrollRunSubject).take(1).subscribe((response) => {
-                    this.createTableConfig();
-                    this.busy = false;
-                });
+                Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject,
+                    payrollRunSubject)
+                    .take(1).subscribe((response) => {
+                        this.createTableConfig();
+                        this.busy = false;
+                    });
             }
         });
     }
@@ -105,7 +127,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         if (this.employee) {
             this.employeeID = this.employee.ID;
             if (this.salaryTransactions) {
-                this.filteredTranses = this.salaryTransactions.filter(x => !x.Deleted && x.EmployeeID === this.employee.ID);
+                this.filteredTranses = this.salaryTransactions
+                    .filter(x => !x.Deleted && x.EmployeeID === this.employee.ID);
             }
             if (this.salarytransEmployeeTableConfig) {
                 this.salarytransEmployeeTableConfig.columns.find(x => x.field === 'employment').editorOptions = {
@@ -114,7 +137,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                         return item ? item.ID + ' - ' + item.JobName : '';
                     }
                 };
-                this.salarytransEmployeeTableConfig = _.cloneDeep(this.salarytransEmployeeTableConfig); // Trigger change detection in unitable
+
+                // Trigger change detection in unitable
+                this.salarytransEmployeeTableConfig = _.cloneDeep(this.salarytransEmployeeTableConfig);
             }
         } else {
             this.filteredTranses = [];
@@ -131,13 +156,13 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private createTableConfig() {
-        var wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
-        var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
-        var toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
-        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
-        var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
-        var employmentidCol = new UniTableColumn('employment', 'Arbeidsforhold', UniTableColumnType.Select)
+        let wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
+        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
+        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
+        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
+        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
+        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
+        let employmentidCol = new UniTableColumn('employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
 
                 if (!dataItem['employment'] && !dataItem['EmploymentID']) {
@@ -157,7 +182,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-        var accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
+        let accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return dataItem['Account'] || '';
             })
@@ -169,10 +194,63 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
                 }
             });
-        var payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
+
+        let projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
+            .setTemplate((rowModel: SalaryTransaction) => {
+
+                let project = rowModel['_Project'];
+                if (!rowModel['_isEmpty'] && project) {
+                    return project.ProjectNumber + ' - ' + project.Name;
+                }
+
+                return '';
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem: Project) => {
+                    return (selectedItem.ProjectNumber + ' - ' + selectedItem.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.projects.filter((project: Project) => {
+                        if (isNaN(searchValue)) {
+                            return (project.Name.toLowerCase().indexOf(searchValue) > -1);
+                        } else {
+                            return (project.ProjectNumber.toString().startsWith(searchValue.toString()));
+                        }
+                    });
+                }
+            });
+
+        let departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
+            .setTemplate((rowModel: SalaryTransaction) => {
+
+                let department: Department = rowModel['_Department'];
+                if (!rowModel['_isEmpty'] && department) {
+                    return department.DepartmentNumber + ' - ' + department.Name;
+                }
+
+                return '';
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem: Department) => {
+                    return (selectedItem.DepartmentNumber + ' - ' + selectedItem.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.departments.filter((department: Department) => {
+                        if (isNaN(searchValue)) {
+                            return (department.Name.toLowerCase().indexOf(searchValue) > -1);
+                        } else {
+                            return (department.DepartmentNumber.toString().startsWith(searchValue.toString()));
+                        }
+                    });
+                }
+            });
+
+        let payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
-                const wagetype: WageType = dataItem.Wagetype || this.wagetypes ? this.wagetypes.find(x => x.ID === dataItem.WageTypeID) : undefined;
+                const wagetype: WageType = dataItem.Wagetype || this.wagetypes
+                    ? this.wagetypes.find(x => x.ID === dataItem.WageTypeID)
+                    : undefined;
 
                 if (!wagetype) {
                     return;
@@ -183,7 +261,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     return 'Nei';
                 }
             });
-        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number, false)
+
+        let transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number, false)
             .setTemplate((dataItem) => {
                 if (dataItem.IsRecurringPost === undefined || dataItem.IsRecurringPost === null) {
                     return;
@@ -195,7 +274,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-        var wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
+        let wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
             .setEditorOptions({
                 itemTemplate: (selectedItem: WageType) => {
@@ -212,6 +291,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
+
+
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun ? this.payrollRun.StatusCode < 1 : true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
@@ -221,8 +302,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
-                transtypeCol, payoutCol
+                transtypeCol, payoutCol, projectCol, departmentCol
             ])
+            .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
             .setChangeCallback((event) => {
@@ -237,8 +319,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
 
                 if (event.field === 'employment') {
-                    const employment = row['employment'];
-                    row['EmploymentID'] = (employment) ? employment.ID : null;
+                    this.mapEmploymentToTrans(row);
                     rateObservable = this.getRate(row);
                 }
 
@@ -256,6 +337,14 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 if (event.field === '_Account') {
                     this.mapAccountToTrans(row);
+                }
+
+                if (event.field === '_Project') {
+                    this.mapProjectToTrans(row);
+                }
+
+                if (event.field === '_Department') {
+                    this.mapDepartmentToTrans(row);
                 }
 
                 if (rateObservable) {
@@ -296,7 +385,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         if (this.employee) {
             let employment = this.employee.Employments.find(emp => emp.Standard === true);
             if (employment) {
-                rowModel['EmploymentID'] = employment.ID ? employment.ID : 0;
+                rowModel['employment'] = employment;
+                this.mapEmploymentToTrans(rowModel);
             }
         }
 
@@ -324,7 +414,25 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private getRate(rowModel: SalaryTransaction) {
-        return this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+        return this.salarytransService
+            .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+    }
+
+    private mapEmploymentToTrans(rowModel: SalaryTransaction) {
+        const employment = rowModel['employment'];
+        rowModel['EmploymentID'] = (employment) ? employment.ID : null;
+
+        if (employment && employment.Dimensions) {
+            let department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+
+            rowModel['_Department'] = department || rowModel['_Department'];
+
+            let project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
+            rowModel['_Project'] = project || rowModel['_Project'];
+
+            this.mapDepartmentToTrans(rowModel);
+            this.mapProjectToTrans(rowModel);
+        }
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {
@@ -337,12 +445,44 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         rowModel.Account = account.AccountNumber;
     }
 
+    private mapProjectToTrans(rowModel: SalaryTransaction) {
+        let project = rowModel['_Project'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!project) {
+            rowModel.Dimensions.ProjectID = 0;
+            return;
+        }
+
+        rowModel.Dimensions.ProjectID = project.ID;
+    }
+
+    private mapDepartmentToTrans(rowModel: SalaryTransaction) {
+        let department: Department = rowModel['_Department'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!department) {
+            rowModel.Dimensions.DepartmentID = 0;
+            return;
+        }
+
+        rowModel.Dimensions.DepartmentID = department.ID;
+    }
+
     private calcItem(rowModel) {
         let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
         let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
+        let sum =
+            (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate'])))
+            / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
     }
 
@@ -379,6 +519,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
         if (row.ToDate) {
             row.ToDate = this.fixTimezone(row.ToDate);
+        }
+
+        if (!row.DimensionsID && !row.Dimensions) {
+            row.Dimensions = new Dimensions();
         }
     }
 

@@ -33,12 +33,19 @@ export class ErrorService {
     }
 
     public extractMessage(error: any): string {
+        let jsonBodyContent: any = null;
+        try {
+            jsonBodyContent = JSON.parse(error._body);
+        } catch (ex) {
+            // ignore, this is just a test to see if the content is json
+        }
+
         if (error.message) {
             return error.message;
         } else if (error.Message) {
             return error.Message;
-        } else if (error._body) {
-            let errContent = JSON.parse(error._body);
+        } else if (jsonBodyContent) {
+            let errContent = jsonBodyContent;
             if (errContent && errContent.Messages && errContent.Messages.length > 0) {
                 return errContent.Messages.map(m => m.Message).join('.\n') + '.\n';
             } else if (errContent && errContent.Message) {

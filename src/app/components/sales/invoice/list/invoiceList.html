@@ -2,8 +2,8 @@
 
 <header class="horizontal_nav no-print">
     <ul>
-        <li *ngFor="let tab of filterTabs; let idx = index">
-            <a (click)="onFilterTabClick(tab, idx)" [ngClass]="{'router-link-active': idx === selectedFilterIndex}" >
+        <li *ngFor="let tab of filterTabs">
+            <a (click)="onFilterTabClick(tab)" [ngClass]="{'router-link-active': tab === activeTab}" >
                 {{tab.label}}&nbsp;
                 <span *ngIf="tab.count >= 0" class="tab_counter tab_counter_passive">{{tab.count}}</span>
             </a>

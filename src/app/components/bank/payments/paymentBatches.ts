@@ -1,26 +1,44 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {StatisticsService} from '../../../services/services';
-import {Bank, BankAccount, Payment, PaymentCode} from '../../../unientities';
+import {StatisticsService, PaymentBatchService, FileService} from '../../../services/services';
+import {Payment, PaymentCode, File, PaymentBatch} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {URLSearchParams} from '@angular/http';
+import {ErrorService} from '../../../services/common/ErrorService';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
 declare const moment;
+declare const saveAs; // filesaver.js
 
 @Component({
     selector: 'payment-batches',
     templateUrl: 'app/components/bank/payments/paymentBatches.html',
 })
 export class PaymentBatches {
-
+    @ViewChild(UniTable) private table: UniTable;
     private toolbarconfig: IToolbarConfig;
+    private paymentBatchTableConfig: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
+    private selectedPaymentBatchID: number;
+    private currentRow: any;
 
     constructor(private router: Router,
                 private statisticsService: StatisticsService,
-                private tabService: TabService) {
+                private paymentBatchService: PaymentBatchService,
+                private errorService: ErrorService,
+                private tabService: TabService,
+                private toastService: ToastService,
+                private fileService: FileService) {
 
-        this.tabService.addTab({ name: 'Betalingsbunter', url: '/bank/batches', moduleID: UniModules.PaymentBatches, active: true });
+        this.tabService.addTab({
+            name: 'Betalingsbunter',
+            url: '/bank/batches',
+            moduleID: UniModules.PaymentBatches,
+            active: true }
+        );
     }
 
     public ngOnInit() {
@@ -29,5 +47,101 @@ export class PaymentBatches {
                 subheads: [],
                 navigation: {}
             };
+
+        this.setupTable();
+
+        setTimeout(() => {
+            if (this.table) {
+                this.table.focusRow(0);
+            }
+        }, 100);
+    }
+
+    private fileUploaded(file: File) {
+        this.toastService.addToast('Laster opp kvitteringsfil..', ToastType.good, 10,
+            'Dette kan ta litt tid, vennligst vent...');
+
+        this.toastService.addToast('Dette er ikke implementert i APIet enda' , ToastType.warn, 10,
+                'Ta inn utkommentert kode i receiptFileUploaded når det er klart');
+
+        /*
+        this.paymentBatchService.parseReceiptFile(file)
+            .subscribe(paymentBatch => {
+                this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
+                    'Betalinger og bilag er oppdatert');
+            },
+            err => this.errorService.handle
+        );
+        */
+    }
+
+    private paymentBatchNavigate(direction: number) {
+        if (this.table) {
+            try {
+                // use try catch here, in case we navigate past the last item
+                // TODO: Should consider exposing number of rows to see if we can navigate further
+                if (this.currentRow._originalIndex + direction >= 0) {
+                    this.table.focusRow(this.currentRow._originalIndex + direction);
+                } else {
+                    this.selectedPaymentBatchID = null;
+                }
+            } catch (error) {
+                this.selectedPaymentBatchID = null;
+            }
+        }
+    }
+
+    private deletePaymentBatch(paymentBatch: PaymentBatch) {
+        this.selectedPaymentBatchID = null;
+        this.currentRow = null;
+
+        this.paymentBatchService.revertPaymentBatch(paymentBatch.ID)
+            .subscribe((res) => {
+                this.table.refreshTableData();
+            },
+            this.errorService.handle
+        );
+    }
+
+    private onRowSelected(row) {
+        this.selectedPaymentBatchID = row.rowModel.ID;
+        this.currentRow = row.rowModel;
+    }
+
+    private setupTable() {
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams;
+
+            if (params === null) {
+                params = new URLSearchParams();
+            }
+
+            if (!params.get('orderby')) {
+                params.set('orderby', 'ID DESC');
+            }
+
+            return this.paymentBatchService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+        };
+
+        // Define columns to use in the table
+        let dateCol = new UniTableColumn('CreatedAt', 'Dato',  UniTableColumnType.Date)
+            .setWidth('110px');
+
+        let totalAmountCol = new UniTableColumn('TotalAmount', 'Totalbeløp',  UniTableColumnType.Money)
+            .setFilterOperator('contains')
+            .setWidth('140px');
+
+        let numberOfPaymentsCol = new UniTableColumn('NumberOfPayments', 'Antall',  UniTableColumnType.Text)
+            .setFilterable(false)
+            .setWidth('70px');
+
+        let statusCodeCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
+            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode))
+            .setFilterable(false);
+
+        // Setup table
+        this.paymentBatchTableConfig = new UniTableConfig(false, true, 25)
+            .setSearchable(true)
+            .setColumns([dateCol, totalAmountCol, numberOfPaymentsCol, statusCodeCol]);
     }
 }

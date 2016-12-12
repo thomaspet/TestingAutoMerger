@@ -85,7 +85,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 0,
-                    Placeholder: null,
+                    Placeholder: 'La stå tom for neste ledige',
                     Options: null,
                     LineBreak: null,
                     Combo: null,

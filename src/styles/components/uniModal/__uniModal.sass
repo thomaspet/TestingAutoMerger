@@ -35,9 +35,9 @@ dialog.uniModal
 
     .closeBtn
         @extend %hideText
-        position: absolute
-        top: 1rem
-        right: 1rem
+        position: relative
+        top: 3rem
+        right: -.5rem
         height: 2rem
         width: 2rem
         padding: 0
@@ -45,9 +45,11 @@ dialog.uniModal
         border: none
         background: transparent unicon-close($uni-color-positive) center no-repeat
         background-size: .8rem
+        margin-top: -2rem
+        float: right
 
         &:hover
-            background-color: $uni-color-negative
+            background-color: $uni-color-scale8
             border-radius: 99rem
             background-size: .8rem
 

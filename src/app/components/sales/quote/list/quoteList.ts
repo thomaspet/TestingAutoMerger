@@ -5,7 +5,7 @@ import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
 import {CustomerQuoteService, ReportDefinitionService} from '../../../../services/services';
-import {CustomerQuote} from '../../../../unientities';
+import {CustomerQuote, StatusCodeCustomerQuote} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -13,6 +13,7 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import moment from 'moment';
 
 @Component({
     selector: 'quote-list',
@@ -26,10 +27,19 @@ export class QuoteList {
     private quoteTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Tilbud',
         omitFinalCrumb: true
     };
+
+    private filterTabs: any[] = [
+        {label: 'Alle'},
+        {label: 'Kladd', statuscode: StatusCodeCustomerQuote.Draft},
+        {label: 'Registrert', statuscode: StatusCodeCustomerQuote.Registered},
+        {label: 'Overført ordre', statuscode: StatusCodeCustomerQuote.TransferredToOrder},
+        {label: 'Overført faktura', statuscode: StatusCodeCustomerQuote.TransferredToInvoice}
+    ];
+    private activeTab: any = this.filterTabs[0];
 
     constructor(
         private router: Router,
@@ -38,18 +48,47 @@ export class QuoteList {
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService
-    ) {
+    ) {}
 
-        this.tabService.addTab({ name: 'Tilbud', url: '/sales/quotes', active: true, moduleID: UniModules.Quotes });
+    public ngOnInit() {
+        this.tabService.addTab({
+            name: 'Tilbud',
+            url: '/sales/quotes',
+            active: true,
+            moduleID: UniModules.Quotes
+        });
+
         this.setupQuoteTable();
+        this.getGroupCounts();
     }
 
     public createQuote() {
         this.router.navigateByUrl('/sales/quotes/0');
     }
 
-    private setupQuoteTable() {
+    private getGroupCounts() {
+        this.customerQuoteService.getGroupCounts().subscribe((counts) => {
+            this.filterTabs.forEach((filter) => {
+                filter['count'] = counts[filter.statuscode];
+            });
+        });
+    }
 
+    public onFilterTabClick(tab) {
+        this.activeTab = tab;
+        if (tab.statuscode) {
+            this.table.setFilters([{
+                field: 'StatusCode',
+                operator: 'eq',
+                value: tab.statuscode,
+                group: 1
+            }]);
+        } else {
+            this.table.removeFilter('StatusCode');
+        }
+    }
+
+    private setupQuoteTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
             urlParams.set('expand', 'Customer');
@@ -75,18 +114,17 @@ export class QuoteList {
         });
 
         contextMenuItems.push({
-            label: '-------------',
-            action: () => { }
-        });
-
-        contextMenuItems.push({
             label: 'Overfør til ordre',
             action: (quote: CustomerQuote) => {
-                this.customerQuoteService.Transition(quote.ID, quote, 'toOrder').subscribe(() => {
-                    console.log('== Quote Transistion OK ==');
-                    alert('-- Overført til ordre-- OK');
-                    this.table.refreshTableData();
-                }, err => this.errorService.handle(err));
+                const toastID = this.toastService.addToast('Overfører til ordre', ToastType.warn);
+                this.customerQuoteService.Transition(quote.ID, quote, 'toOrder').subscribe((res) => {
+                    this.toastService.removeToast(toastID);
+                    this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                },
+                (err) => {
+                    this.toastService.removeToast(toastID);
+                    this.errorService.handle(err);
+                });
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.toOrder;
@@ -96,11 +134,15 @@ export class QuoteList {
         contextMenuItems.push({
             label: 'Overfør til faktura',
             action: (quote: CustomerQuote) => {
-                this.customerQuoteService.Transition(quote.ID, quote, 'toInvoice').subscribe(() => {
-                    console.log('== Quote Transistion OK ==');
-                    alert('-- Overført til faktura-- OK');
-                    this.table.refreshTableData();
-                }, err => this.errorService.handle(err));
+                const toastID = this.toastService.addToast('Overfører til faktura', ToastType.warn);
+                this.customerQuoteService.Transition(quote.ID, quote, 'toInvoice').subscribe((res) => {
+                    this.toastService.removeToast(toastID);
+                    this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                },
+                (err) => {
+                    this.toastService.removeToast(toastID);
+                    this.errorService.handle(err);
+                });
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.toInvoice;
@@ -110,20 +152,20 @@ export class QuoteList {
         contextMenuItems.push({
             label: 'Avslutt',
             action: (quote: CustomerQuote) => {
+                const toastID = this.toastService.addToast('Avslutter tilbud', ToastType.warn);
                 this.customerQuoteService.Transition(quote.ID, quote, 'complete').subscribe(() => {
-                    console.log('== Quote Transistion OK ==');
-                    alert('Overgang til -Avslutt- OK');
+                    this.toastService.removeToast(toastID);
+                    this.getGroupCounts();
                     this.table.refreshTableData();
-                }, err => this.errorService.handle(err));
+                },
+                (err) => {
+                    this.toastService.removeToast(toastID);
+                    this.errorService.handle(err);
+                });
             },
             disabled: (rowModel) => {
                 return !rowModel._links.transitions.complete;
             }
-        });
-
-        contextMenuItems.push({
-            label: '-------------',
-            action: () => { }
         });
 
         contextMenuItems.push({
@@ -143,13 +185,14 @@ export class QuoteList {
         contextMenuItems.push({
             label: 'Send på epost',
             action: (quote: CustomerQuote) => {
+                const quoteNumber = (quote.QuoteNumber) ? 'nr. ' + quote.QuoteNumber : '(kladd)';
                 let sendemail = new SendEmail();
                 sendemail.EntityType = 'CustomerQuote';
                 sendemail.EntityID = quote.ID;
                 sendemail.CustomerID = quote.CustomerID;
-                sendemail.Subject = 'Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd');
-                sendemail.Message = 'Vedlagt finner du Tilbud ' + (quote.QuoteNumber ? 'nr. ' + quote.QuoteNumber : 'kladd');
-            
+                sendemail.Subject = 'Tilbud ' + quoteNumber;
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + quoteNumber;
+
                 this.sendEmailModal.openModal(sendemail);
 
                 if (this.sendEmailModal.Changed.observers.length === 0) {
@@ -161,29 +204,60 @@ export class QuoteList {
         });
 
         // Define columns to use in the table
-        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
+        const quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
             .setFilterOperator('startswith')
             .setWidth('10%');
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('startswith');
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text).setFilterOperator('contains');
-        var quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date).setWidth('10%').setFilterable(false);
-        var validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date).setWidth('10%').setFilterable(false);
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number).setFilterOperator('eq')
+
+        const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            .setWidth('10%')
+            .setFilterOperator('startswith');
+
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
+            .setFilterOperator('contains');
+
+        const quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date)
+            .setWidth('10%')
+            .setFilterable(false);
+
+        const validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date)
+            .setWidth('10%')
+            .setConditionalCls((item: CustomerQuote) => {
+                const ignoreDate = item.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+                    || item.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+                    || item.StatusCode === StatusCodeCustomerQuote.Completed;
+
+                return (ignoreDate || moment(item.ValidUntilDate).isAfter(moment()))
+                    ? 'date-good' : 'date-bad';
+            })
+            .setFilterable(false);
+
+        const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+            .setFilterOperator('eq')
             .setWidth('10%')
             .setFormat('{0:n}')
-            .setCls('column-align-right');
+            .setCls('column-align-right number-good');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%').setFilterable(false);
-        statusCol.setTemplate((dataItem) => {
-            return this.customerQuoteService.getStatusText(dataItem.StatusCode);
-        });
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setWidth('15%')
+            .setFilterable(false)
+            .setTemplate((dataItem) => {
+                return this.customerQuoteService.getStatusText(dataItem.StatusCode);
+            });
 
         // Setup table
         this.quoteTable = new UniTableConfig(false, true)
             .setPageSize(25)
             .setSearchable(true)
-            .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol])
-            .setContextMenu(contextMenuItems);
+            .setContextMenu(contextMenuItems)
+            .setColumns([
+                quoteNumberCol,
+                customerNumberCol,
+                customerNameCol,
+                quoteDateCol,
+                validUntilDateCol,
+                taxInclusiveAmountCol,
+                statusCol
+            ]);
     }
 
     public onRowSelected(event) {
