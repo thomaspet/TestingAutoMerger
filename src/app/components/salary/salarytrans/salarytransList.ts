@@ -91,7 +91,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
             projectSubject.subscribe(projects => {
                 this.projects = projects;
-                console.log('got projects: ', this.projects);
             });
 
             departmentSubject.subscribe(departments => {
