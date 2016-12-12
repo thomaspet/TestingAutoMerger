@@ -543,8 +543,7 @@ export class WagetypeDetail extends UniView {
                     } else if (obj !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
-                        wtSupp.ameldingType = key;
-                        wtSupp.ameldingType = prop;
+                        wtSupp.ameldingType = key;                        
                         wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
