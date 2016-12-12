@@ -55,6 +55,8 @@ export class SupplierList {
         let numberCol = new UniTableColumn('SupplierNumber', 'Leverandørnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         let nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
         let orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        let glnCol = new UniTableColumn('GLN', 'GLN', UniTableColumnType.Text).setFilterOperator('contains').setVisible(false);
+        let peppolCol = new UniTableColumn('PeppolAddress', 'Peppoladresse', UniTableColumnType.Text).setFilterOperator('contains').setVisible(false);
         let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Supplier) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
         let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
@@ -63,6 +65,7 @@ export class SupplierList {
         // Setup table
         this.supplierTable = new UniTableConfig(false, true, 25)
             .setSearchable(true)
-            .setColumns([numberCol, nameCol, orgNoCol, departmentCol, projectCol]);
+            .setColumnMenuVisible(true)
+            .setColumns([numberCol, nameCol, orgNoCol, peppolCol, glnCol, departmentCol, projectCol]);
     }
 }

@@ -766,6 +766,21 @@ export class SupplierDetails implements OnInit {
                     CustomFields: null
                 },
                 {
+                    EntityType: 'Supplier',
+                    Property: 'GLN',
+                    Label: 'GLN',
+                    FieldType: FieldType.TEXT
+                },
+                {
+                    Sectionheader: 'Aksesspunkt',
+                    Legend: 'Aksesspunkt',
+                    Section: 1,
+                    EntityType: 'Supplier',
+                    Property: 'PeppolAddress',
+                    Label: 'Peppoladresse',
+                    FieldType: FieldType.TEXT
+                },
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
                     Property: 'Info.DefaultBankAccount',
@@ -778,7 +793,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 2,
                     Sectionheader: 'Konto & betingelser',
                     Placeholder: null,
                     Options: null,
@@ -818,7 +833,7 @@ export class SupplierDetails implements OnInit {
                     HelpText: null,
                     Placeholder: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 2,
                     Options: null,
                     LineBreak: false,
                     Combo: null,
@@ -847,7 +862,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 3,
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -876,7 +891,7 @@ export class SupplierDetails implements OnInit {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 3,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,

@@ -608,6 +608,12 @@ export class CompanySettingsComponent implements OnInit {
                 Validations: []
             },
             {
+                EntityType: 'Supplier',
+                Property: 'GLN',
+                Label: 'GLN',
+                FieldType: FieldType.TEXT
+            },
+            {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
                 Property: 'WebAddress',

@@ -11,15 +11,13 @@ import {ProductList} from './product/list/productList';
 import {AddressForm} from './modals/addressModal';
 import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
 import {BankAccountForm} from './modals/bankAccountModal';
-import {EmailForm} from './modals/emailModal';
-import {PhoneForm} from './modals/phoneModal';
+import {EmailForm, EmailModal} from './modals/emailModal';
+import {PhoneForm, PhoneModal} from './modals/phoneModal';
 import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AddressModal} from './modals/addressModal';
-import {EmailModal} from './modals/emailModal';
-import {PhoneModal} from './modals/phoneModal';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
 import {BankAccountModal} from './modals/bankAccountModal';
 import {RegisterPaymentModal} from './modals/registerPaymentModal';
@@ -39,6 +37,7 @@ import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget} from './poster/poster';
+import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 
 @NgModule({
     imports: [
@@ -90,7 +89,9 @@ import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget} from '.
         ContactWidget,
         TableWidget,
         AlertsWidget,
-        UniUploadFileButton
+        UniUploadFileButton,
+        ActivateAPForm,
+        ActivateAPModal
     ],
     entryComponents: [
         AddressForm,
@@ -101,7 +102,9 @@ import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget} from '.
         AltinnAuthenticationDataModalContent,
         SendEmailForm,
         SendEmailModal,
-        ImageModalContent
+        ImageModalContent,
+        ActivateAPForm,
+        ActivateAPModal
     ],
     exports: [
         UniDimensions,
@@ -141,7 +144,9 @@ import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget} from '.
         ContactWidget,
         TableWidget,
         AlertsWidget,
-        UniUploadFileButton
+        UniUploadFileButton,
+        ActivateAPForm,
+        ActivateAPModal
     ]
 })
 export class AppCommonModule {

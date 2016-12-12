@@ -12,6 +12,7 @@
     <article class="tof-head">
         <tof-customer-card [readonly]="readonly"
                            [entity]="data"
+                           [entityType]="entityName"
                            (entityChange)="onDataChange($event)">
         </tof-customer-card>
 

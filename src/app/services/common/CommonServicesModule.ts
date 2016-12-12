@@ -25,6 +25,7 @@ import {CompanyService} from './CompanyService';
 import {ErrorService} from './ErrorService';
 import {PageStateService} from './PageStateService';
 import {FileService} from './FileService';
+import {EHFService} from './EHFService';
 
 @NgModule({
     providers: [
@@ -53,7 +54,8 @@ import {FileService} from './FileService';
         CompanyService,
         ErrorService,
         PageStateService,
-        FileService
+        FileService,
+        EHFService
     ]
 })
 export class CommonServicesModule {

@@ -80,3 +80,4 @@ export * from './accounting/PaymentCodeService';
 export * from './accounting/PaymentService';
 export * from './accounting/PaymentBatchService';
 export * from './Salary/Payrollrun/VacationpayLineService';
+export * from './common/EHFService';

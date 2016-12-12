@@ -57,6 +57,7 @@ declare const _;
         <section *ngIf="entity?.Customer" class="addressCard"
                  [attr.aria-readonly]="readonly">
             <span class="edit-btn" (click)="openCustomerModal()"></span>
+            <span *ngIf="ehfEnabled" class="ehf">EHF</span>
             <strong>{{entity.Customer?.Info?.Name}}</strong>
             <br><span *ngIf="entity.InvoiceAddressLine1">
                 {{entity.InvoiceAddressLine1}}
@@ -98,6 +99,9 @@ export class TofCustomerCard {
     @Input()
     private entity: any;
 
+    @Input()
+    private entityType: string;
+
     @Output()
     private entityChange: EventEmitter<any> = new EventEmitter();
 
@@ -108,6 +112,7 @@ export class TofCustomerCard {
     private expanded: boolean;
     private lookupResults: Customer[] = [];
     private busy: boolean;
+    private ehfEnabled: boolean;
 
     constructor(
         private addressService: AddressService,
@@ -133,6 +138,10 @@ export class TofCustomerCard {
             const customer: any = this.entity.Customer || {Info: {}};
             this.initialDisplayValue = customer.Info.Name || '';
             this.control.setValue(this.initialDisplayValue, {emitEvent: false});
+            var peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
+            this.customerService.GetAction(null, 'is-ehf-receiver', 'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType).subscribe(enabled => {
+                this.ehfEnabled = enabled;
+            });
         }
     }
 

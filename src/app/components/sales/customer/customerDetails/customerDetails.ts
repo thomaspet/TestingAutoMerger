@@ -734,6 +734,21 @@ export class CustomerDetails {
                     CustomFields: null
                 },
                 {
+                    EntityType: 'Customer',
+                    Property: 'GLN',
+                    Label: 'GLN',
+                    FieldType: FieldType.TEXT
+                },
+                {
+                    Sectionheader: 'Aksesspunkt',
+                    Legend: 'Aksesspunkt',
+                    Section: 1,
+                    EntityType: 'Customer',
+                    Property: 'PeppolAddress',
+                    Label: 'Peppoladresse',
+                    FieldType: FieldType.TEXT
+                },
+                {
                     Url: 'customers',
                     Validations: [
 
@@ -757,7 +772,7 @@ export class CustomerDetails {
                     HelpText: null,
                     Placeholder: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 2,
                     Options: null,
                     LineBreak: false,
                     Combo: null,
@@ -786,7 +801,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 3,
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -815,7 +830,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 3,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -843,7 +858,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 0, //2, // TODO: > 30.6
+                    Section: 0, //3, // TODO: > 30.6
                     Sectionheader: 'Konto & bank',
                     Placeholder: null,
                     Options: null,

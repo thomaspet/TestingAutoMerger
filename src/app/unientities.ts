@@ -1322,7 +1322,7 @@ export class CustomerInvoice {
 
     public AmountRegards: string;
     public Attachments: string;
-    public BankAccount: string;
+    public BankAccountID: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1383,6 +1383,7 @@ export class CustomerInvoice {
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public YourReference: string;
+    public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public Customer: Customer;
     public InvoiceNumberNumberSeries: NumberSeries;
@@ -3817,6 +3818,7 @@ export class SupplierInvoice {
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public YourReference: string;
+    public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public Dimensions: Dimensions;
     public Supplier: Supplier;
@@ -5073,7 +5075,6 @@ export enum NotificationStatus{
 	Read = 900020,
 	Marked = 900030,
 }
-
 
 export enum StatusCodeCustomerInvoice{
 	Draft = 42001,

@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Rx';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, CustomerInvoiceItem} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, CompanySettings} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -23,6 +23,8 @@ import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {CompanySettingsService} from '../../../../services/services';
+import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
@@ -31,7 +33,8 @@ import {
     ReportDefinitionService,
     CustomerService,
     NumberFormat,
-    ErrorService
+    ErrorService,
+    EHFService
 } from '../../../../services/services';
 
 
@@ -61,6 +64,9 @@ export class InvoiceDetails {
     @ViewChild(TradeItemTable)
     private tradeItemTable: TradeItemTable;
 
+    @ViewChild(ActivateAPModal)
+    public activateAPModal: ActivateAPModal;
+
     @Input()
     public invoiceID: any;
 
@@ -76,6 +82,7 @@ export class InvoiceDetails {
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
+    private companySettings: CompanySettings;
 
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
@@ -96,7 +103,9 @@ export class InvoiceDetails {
         private tabService: TabService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService,
+        private ehfService: EHFService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -120,8 +129,39 @@ export class InvoiceDetails {
             }
         });
 
+        this.companySettingsService.Get(1)
+            .subscribe(
+                settings => this.companySettings = settings,
+                err => this.errorService.handle(err)
+        );
+
         // contextMenu
         this.contextMenuItems = [
+            {
+                label: this.companySettings.APActivated && this.companySettings.APGuid ? 'Send EHF' : 'Aktiver og send EHF',
+                action: () => {
+                    if (this.companySettings.APActivated && this.companySettings.APGuid) {
+                        this.sendEHF();
+                    } else {
+                        this.activateAPModal.openModal();
+
+                        if (this.activateAPModal.Changed.observers.length === 0) {
+                            this.activateAPModal.Changed.subscribe((activate) => {
+                                this.ehfService.Activate(activate).subscribe((ok) => {
+                                    if (ok) {
+                                        this.sendEHF();
+                                    } else {
+                                        this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                                    }
+                                });
+                            });
+                        }
+                    }
+                },
+                disabled: () => {
+                    return this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced;
+                }
+            },
             {
                 label: 'Send på epost',
                 action: () => {
@@ -224,6 +264,16 @@ export class InvoiceDetails {
     public onInvoiceChange(invoice) {
         this.isDirty = true;
         this.invoice = _.cloneDeep(invoice);
+    }
+
+    private sendEHF() {
+        this.customerInvoiceService.PutAction(this.invoice.ID, 'send-ehf').subscribe(
+            () => {
+                this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
+            },
+            (error) => {
+                this.errorService.handleWithMessage(error, null);
+            });
     }
 
     private getStatustrackConfig() {

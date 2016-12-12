@@ -68,6 +68,8 @@ export class CustomerList {
         let numberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         let nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
         let orgNoCol = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        let glnCol = new UniTableColumn('GLN', 'GLN', UniTableColumnType.Text).setFilterOperator('contains').setVisible(false);
+        let peppolCol = new UniTableColumn('PeppolAddress', 'Peppoladresse', UniTableColumnType.Text).setFilterOperator('contains').setVisible(false);
         let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Customer) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
         let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
@@ -77,6 +79,6 @@ export class CustomerList {
         this.customerTable = new UniTableConfig(false, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
-            .setColumns([numberCol, nameCol, orgNoCol, departmentCol, projectCol]);
+            .setColumns([numberCol, nameCol, orgNoCol, peppolCol, glnCol, departmentCol, projectCol]);
     }
 }
