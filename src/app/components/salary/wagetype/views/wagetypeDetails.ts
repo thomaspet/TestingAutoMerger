@@ -520,17 +520,18 @@ export class WagetypeDetail extends UniView {
         let tilleggsObj: any = tillegg.tilleggsinformasjon;
         let spesiObj: any = tillegg.spesifikasjon;
         let additions: WageTypeSupplement[] = [];
-
+        
         if (tilleggsObj !== null) {
-            for (var key in tilleggsObj) {
+            for (var key in tilleggsObj) {                
                 if (key !== null) {
-                    var obj = tilleggsObj[key];
+                    var obj = tilleggsObj[key];                    
                     if (typeof obj === 'object' && obj !== null) {
-                        for (var prop in obj) {
+                        for (var prop in obj) {                            
                             if (obj.hasOwnProperty(prop)) {
                                 if (obj[prop] !== null) {
                                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                     wtSupp.Name = prop;
+                                    wtSupp.ameldingType = key;
                                     // wtSupp.Description = key;
                                     wtSupp.SuggestedValue = this.removeAndReturnValue(obj[prop]);
                                     wtSupp.WageTypeID = this.wageType.ID;
@@ -542,7 +543,8 @@ export class WagetypeDetail extends UniView {
                     } else if (obj !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
-                        // wtSupp.Description = key;
+                        wtSupp.ameldingType = key;
+                        wtSupp.ameldingType = prop;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -557,7 +559,7 @@ export class WagetypeDetail extends UniView {
                 if (spesiObj.hasOwnProperty(props)) {
                     if (spesiObj[props] !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
-                        wtSupp.Name = props;
+                        wtSupp.Name = props;                        
                         // wtSupp.Description = props;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(spesiObj[props]);
                         wtSupp.WageTypeID = this.wageType.ID;

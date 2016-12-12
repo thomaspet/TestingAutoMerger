@@ -1322,7 +1322,7 @@ export class CustomerInvoice {
 
     public AmountRegards: string;
     public Attachments: string;
-    public BankAccount: string;
+    public BankAccountID: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1383,6 +1383,7 @@ export class CustomerInvoice {
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public YourReference: string;
+    public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public Customer: Customer;
     public InvoiceNumberNumberSeries: NumberSeries;
@@ -2042,6 +2043,7 @@ export class WageTypeSupplement {
     public ValueType: Valuetype;
     public WageTypeID: number;
     public CustomFields: any;
+    public ameldingType: string;
 }
 
 
@@ -3757,7 +3759,6 @@ export class SupplierInvoice {
     public AmountRegards: string;
     public Attachments: string;
     public BankAccountID: number;
-    public BankAccount: BankAccount;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3817,6 +3818,7 @@ export class SupplierInvoice {
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public YourReference: string;
+    public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public Dimensions: Dimensions;
     public Supplier: Supplier;
