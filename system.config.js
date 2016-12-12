@@ -29,7 +29,10 @@ var ngPackageNames = [
 ];
 
 ngPackageNames.forEach(function(element) {
-    packages['@angular/' + element] = { main: 'bundles/' + element + '.umd.js', defaultExtension: 'js' };
+    packages['@angular/' + element] = {
+        main: 'bundles/' + element + '.umd.js',
+        defaultExtension: 'js'
+    };
 });
 
 // Apply the user's configuration.
@@ -44,6 +47,8 @@ System.config({
             format: 'global',
             exports: 'Stimulsoft'
         },
-        '*.js': { crossOrigin: 'anonymous' }
+        '*.js': {
+            crossOrigin: 'anonymous'
+        }
     }
 });

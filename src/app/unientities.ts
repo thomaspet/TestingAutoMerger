@@ -3758,7 +3758,6 @@ export class SupplierInvoice {
     public AmountRegards: string;
     public Attachments: string;
     public BankAccountID: number;
-    public BankAccount: BankAccount;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -5075,6 +5074,7 @@ export enum NotificationStatus{
 	Read = 900020,
 	Marked = 900030,
 }
+
 
 export enum StatusCodeCustomerInvoice{
 	Draft = 42001,

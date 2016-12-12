@@ -90,6 +90,11 @@ require('./gulp/zip');
 require('./gulp/rxbundle');
 
 /**
+ * copy onesignal to dist folder
+ */
+require('./gulp/onesignal');
+
+/**
  *  Generate the correct config files
  */
 require('./gulp/app-config');
