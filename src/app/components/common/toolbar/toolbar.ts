@@ -28,11 +28,48 @@ export interface IToolbarConfig {
     templateUrl: 'app/components/common/toolbar/toolbar.html'
 })
 export class UniToolbar {
-    @Input() public config: IToolbarConfig;
-    @Output() public statusSelectEvent: EventEmitter<any> = new EventEmitter();
+    @Input()
+    public config: IToolbarConfig;
+
+    @Input()
+    public saveactions: IUniSaveAction[];
+
+    @Input()
+    public contextmenu: IContextMenuItem[];
+
+    @Input()
+    public statustrack: UniStatusTrack.IStatus[];
+
+    @Output()
+    public statusSelectEvent: EventEmitter<any> = new EventEmitter();
+
+    public ngOnChanges() {
+        if (this.config) {
+            if (this.config.contextmenu) {
+                console.warn(`
+                    DEPRECATION WARNING
+                    For change detection reasons some fields has been moved out of toolbar config and into separate inputs.
+                    See example below. Ask Anders or Jørgen if you have any questions.
+                    <uni-toolbar [saveactions]="foo"
+                                 [contextmenu]="bar"
+                                 [statustrack]="baz"
+                                 [config]="config">
+                    </uni-toolbar>
+                `);
+            }
+            if (this.config.saveactions) {
+
+            }
+            if (this.config.statustrack) {
+
+            }
+        }
+    }
+
     public navigate(type: string, arg: any) {
         this.config.navigation[type](arg);
     }
+
     public selectStatus(event) {
         this.statusSelectEvent.emit(event);
     }

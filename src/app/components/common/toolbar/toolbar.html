@@ -1,7 +1,7 @@
 <uni-breadcrumbs *ngIf="!config?.hideBreadcrumbs" [omitFinalCrumb]="config?.omitFinalCrumb"></uni-breadcrumbs>
 
-<uni-statustrack *ngIf="config?.statustrack"
-    [config]="config.statustrack"
+<uni-statustrack *ngIf="statustrack || config?.statustrack"
+    [config]="statustrack || config.statustrack"
     (statusSelectEvent)="selectStatus($event)">
 </uni-statustrack>
 
@@ -35,7 +35,11 @@
         type="button"
         (click)="navigate('add')">Ny</button>
 
-    <uni-context-menu *ngIf="config?.contextmenu" [actions]="config.contextmenu"></uni-context-menu>
+    <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
+                      [actions]="contextmenu || config.contextmenu">
+    </uni-context-menu>
 
-    <uni-save *ngIf="config?.saveactions" [actions]="config.saveactions"></uni-save>
+    <uni-save *ngIf="saveactions || config?.saveactions"
+              [actions]="saveactions || config.saveactions">
+    </uni-save>
 </nav>
