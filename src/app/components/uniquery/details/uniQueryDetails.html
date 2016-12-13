@@ -1,4 +1,6 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="saveactions">
+</uni-toolbar>
 
 <section class="application uni-query-application" *ngIf="queryDefinition">
     <section *ngIf="models">
@@ -55,9 +57,3 @@
 <save-query-definition-modal (saved)="onSaved($event)"></save-query-definition-modal>
 
 <section class="placeholder-bottom"></section>
-
-<footer class="full-footer">
-    <section class="application">
-        <uni-save [actions]="saveactions"></uni-save>
-    </section>
-</footer>

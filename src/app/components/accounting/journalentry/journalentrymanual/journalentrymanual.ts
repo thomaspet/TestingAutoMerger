@@ -43,20 +43,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public summary: ISummaryConfig[] = [];
     public journalEntrySettings: JournalEntrySettings;
 
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre og bokfør',
-            action: (completeEvent) => this.postJournalEntryData(completeEvent),
-            main: true,
-            disabled: false
-        },
-        {
-            label: 'Slett alle bilag i listen',
-            action: (completeEvent) => this.removeJournalEntryData(completeEvent),
-            main: false,
-            disabled: false
-        }
-    ];
+    public saveactions: IUniSaveAction[];
 
     constructor(
         private journalEntryService: JournalEntryService,
@@ -93,6 +80,23 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.setJournalEntryData(data);
                 });
             }
+        }
+
+        if (!this.runAsSubComponent) {
+            this.saveactions = [
+                {
+                    label: 'Lagre og bokfør',
+                    action: (completeEvent) => this.postJournalEntryData(completeEvent),
+                    main: true,
+                    disabled: false
+                },
+                {
+                    label: 'Slett alle bilag i listen',
+                    action: (completeEvent) => this.removeJournalEntryData(completeEvent),
+                    main: false,
+                    disabled: false
+                }
+            ];
         }
 
         this.setSums();

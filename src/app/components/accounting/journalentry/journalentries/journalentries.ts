@@ -1,11 +1,13 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 
 @Component({
     selector: 'journalentries',
     templateUrl: 'app/components/accounting/journalentry/journalentries/journalentries.html'
 })
 export class JournalEntries {
+    @ViewChild(JournalEntryManual) private journalEntryManual;
 
     private toolbarConfig = {
         title: 'Bilagsregistrering'

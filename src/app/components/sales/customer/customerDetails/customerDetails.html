@@ -1,4 +1,6 @@
-<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
+                                [saveactions]="saveactions">
+</uni-toolbar>
 
 <header class="customer_poster">
     <section class="poster_overview">
@@ -42,7 +44,7 @@
     ></uni-query-read-only>
 </section>
 
-<uni-save [actions]="saveactions" [ngClass]="{'uni_save_modal_mode': modalMode}"></uni-save>
+<uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>
 
 <email-modal></email-modal>
 <phone-modal></phone-modal>

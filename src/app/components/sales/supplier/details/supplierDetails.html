@@ -1,4 +1,6 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
+             [saveactions]="saveactions">
+</uni-toolbar>
 
 <header class="supplier_poster" *ngIf="supplier">
     <!-- Widget poster -->
@@ -44,7 +46,7 @@
 
 </section>
 
-<uni-save [actions]="saveactions" [class.uni_save_modal_mode]="modalMode"></uni-save>
+<uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>
 
 <email-modal></email-modal>
 <phone-modal></phone-modal>

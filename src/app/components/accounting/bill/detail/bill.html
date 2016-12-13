@@ -1,17 +1,20 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarConfig"
+             [saveactions]="actions"
+             class="no-print">
+</uni-toolbar>
 
 <aside class="horizontal_nav no-print">
     <ul>
         <li class="unigrid-small-true unigrid-huge-false unigrid-large-false unigrid-medium-false" >
-            <a (click)="onTabClick(tabs[0])" [ngClass]="{'router-link-active': tabs[0].isSelected}" >{{tabs[0].label}}</a> 
+            <a (click)="onTabClick(tabs[0])" [ngClass]="{'router-link-active': tabs[0].isSelected}" >{{tabs[0].label}}</a>
         </li>
         <li *ngFor="let tab of tabs" [hidden]="tab.isHidden" >
             <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >
                 {{tab.label}}
                 <span *ngIf="tab.count" class="tab_counter">{{tab.count}}</span>
-            </a> 
+            </a>
         </li>
-    </ul>    
+    </ul>
 </aside>
 
 
@@ -53,15 +56,15 @@
         <!--
         <div [hidden]="!tabs[2].isSelected">
             <h3>Bilagslinjer</h3>
-        </div>    
+        </div>
 
         <div [hidden]="!tabs[3].isSelected">
             <h3>Varelinjer</h3>
         </div>
-        -->    
+        -->
 
         <div [hidden]="!tabs[4].isSelected">
-            <uni-bill-history [isActive]="tabs[4].isSelected" [supplierID]="this.current?.SupplierID" [parentID]="this.current?.ID" >                
+            <uni-bill-history [isActive]="tabs[4].isSelected" [supplierID]="this.current?.SupplierID" [parentID]="this.current?.ID" >
             </uni-bill-history>
         </div>
 
@@ -69,12 +72,10 @@
 
 </section>
 
-<uni-save class="no-print" [actions]="actions"></uni-save>
-
 <register-payment-modal></register-payment-modal>
 
 <supplier-detail-modal (change)="onSupplierModalChanged($event)" ></supplier-detail-modal>
 
-<uni-confirm-modal></uni-confirm-modal> 
+<uni-confirm-modal></uni-confirm-modal>
 
 <bankaccount-modal></bankaccount-modal>

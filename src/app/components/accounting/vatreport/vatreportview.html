@@ -1,4 +1,6 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="actions">
+</uni-toolbar>
 
 <header class="poster">
 
@@ -107,11 +109,6 @@
     <vatreport-journal-entry *ngIf="showView == 'journal'"
                              [vatReport]="currentVatReport">
     </vatreport-journal-entry>
-    <footer class="full-footer">
-        <section class="application" *ngIf="actions">
-            <uni-save [actions]="actions"></uni-save>
-        </section>
-    </footer>
 
     <div *ngIf="showView == ''" class="comment commentToSend">
         <label>Kommenter til Altinn</label>
