@@ -1,4 +1,6 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
 
 <uni-tof-head [readonly]="readonly"
               [entityName]="'CustomerQuote'"
@@ -16,7 +18,6 @@
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
 
-<uni-save [actions]="saveActions"></uni-save>
 
 <uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>

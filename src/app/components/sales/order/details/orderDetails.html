@@ -1,4 +1,6 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
 
 <uni-tof-head [readonly]="readonly"
               [entityName]="'CustomerOrder'"
@@ -15,8 +17,6 @@
     </uni-tradeitem-table>
     <uni-summary *ngIf="order" [configs]="summary"></uni-summary>
 </section>
-
-<uni-save [actions]="saveActions"></uni-save>
 
 <uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>
