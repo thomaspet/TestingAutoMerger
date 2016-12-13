@@ -81,7 +81,6 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
                 const data = (res.json() || {}).Data || [];
                 return data.reduce((counts, group) => {
                     if (group.CustomerQuoteStatusCode) {
-                        console.log(group);
                         counts[group.CustomerQuoteStatusCode] = group.countid;
                     }
                     return counts;
