@@ -2043,6 +2043,7 @@ export class WageTypeSupplement {
     public ValueType: Valuetype;
     public WageTypeID: number;
     public CustomFields: any;
+    public ameldingType: string;
 }
 
 
