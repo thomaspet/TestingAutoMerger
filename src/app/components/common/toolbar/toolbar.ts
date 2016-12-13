@@ -45,9 +45,9 @@ export class UniToolbar {
 
     public ngOnChanges() {
         if (this.config) {
-            if (this.config.contextmenu) {
+            if (this.config.saveactions) {
                 console.warn(`
-                    DEPRECATION WARNING
+                    ATTN. DEVELOPERS
                     For change detection reasons some fields has been moved out of toolbar config and into separate inputs.
                     See example below. Ask Anders or Jørgen if you have any questions.
                     <uni-toolbar [saveactions]="foo"
@@ -56,12 +56,6 @@ export class UniToolbar {
                                  [config]="config">
                     </uni-toolbar>
                 `);
-            }
-            if (this.config.saveactions) {
-
-            }
-            if (this.config.statustrack) {
-
             }
         }
     }
