@@ -1304,8 +1304,10 @@ export class Customer {
     public CustomerNumber: number;
     public Deleted: boolean;
     public DimensionsID: number;
+    public GLN: string;
     public ID: number;
     public OrgNumber: string;
+    public PeppolAddress: string;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -1631,8 +1633,10 @@ export class Supplier {
     public CreditDays: number;
     public Deleted: boolean;
     public DimensionsID: number;
+    public GLN: string;
     public ID: number;
     public OrgNumber: string;
+    public PeppolAddress: string;
     public StatusCode: number;
     public SupplierNumber: number;
     public UpdatedAt: Date;
@@ -1993,6 +1997,7 @@ export class SalaryTransactionSupplement {
     public UpdatedBy: string;
     public ValueBool: boolean;
     public ValueDate: Date;
+    public ValueDate2: Date;
     public ValueMoney: number;
     public ValueString: string;
     public WageTypeSupplementID: number;
@@ -2030,6 +2035,7 @@ export class WageTypeSupplement {
     public static RelativeUrl = '';
     public static EntityType = 'WageTypeSupplement';
 
+    public ameldingType: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2043,7 +2049,6 @@ export class WageTypeSupplement {
     public ValueType: Valuetype;
     public WageTypeID: number;
     public CustomFields: any;
-    public ameldingType: string;
 }
 
 
@@ -2464,6 +2469,24 @@ export class BankAccountSalary {
 }
 
 
+export class EHFLog {
+    public static RelativeUrl = 'ehf';
+    public static EntityType = 'EHFLog';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public Guid: string;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class StatusLog {
     public static RelativeUrl = 'statuslogs';
     public static EntityType = 'StatusLog';
@@ -2532,6 +2555,8 @@ export class CompanySettings {
     public AccountGroupSetID: number;
     public AccountingLockedDate: Date;
     public AccountVisibilityGroupID: number;
+    public APActivated: boolean;
+    public APGuid: string;
     public AutoJournalPayment: boolean;
     public BaseCurrency: string;
     public CompanyBankAccountID: number;
@@ -2549,6 +2574,7 @@ export class CompanySettings {
     public DefaultSalesAccountID: number;
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
+    public GLN: string;
     public ID: number;
     public LogoFileID: number;
     public OfficeMunicipalityNo: string;
@@ -4571,6 +4597,15 @@ export class SendEmailAttachment {
 }
 
 
+export class EHFActivate {
+    public contactemail: string;
+    public contactname: string;
+    public contactphone: string;
+    public incommingInvoice: boolean;
+    public outgoingInvoice: boolean;
+}
+
+
 export class JournalEntryLineRequestSummary {
     public SumBalance: number;
     public SumCredit: number;
@@ -4836,6 +4871,7 @@ export enum Valuetype{
 	IsDate = 2,
 	IsBool = 3,
 	IsMoney = 4,
+	Period = 5,
 }
 
 

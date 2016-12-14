@@ -3,7 +3,7 @@ import {FormControl} from '@angular/forms';
 import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
-import {AddressService, CustomerService} from '../../../services/services';
+import {AddressService, CustomerService, EHFService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
 import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;
@@ -117,7 +117,8 @@ export class TofCustomerCard {
     constructor(
         private addressService: AddressService,
         private customerService: CustomerService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private ehfService: EHFService
     ) {}
 
     public ngOnInit() {
@@ -139,7 +140,7 @@ export class TofCustomerCard {
             this.initialDisplayValue = customer.Info.Name || '';
             this.control.setValue(this.initialDisplayValue, {emitEvent: false});
             var peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
-            this.customerService.GetAction(null, 'is-ehf-receiver', 'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType).subscribe(enabled => {
+            this.ehfService.GetAction(null, 'is-ehf-receiver', 'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType).subscribe(enabled => {
                 this.ehfEnabled = enabled;
             });
         }
