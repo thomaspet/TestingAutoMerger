@@ -159,7 +159,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Placeholder: null,
+                    Placeholder: 'La stå tom for neste ledige',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
@@ -495,7 +495,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: ''
+                    Legend: '',
+                    Classes: 'half-width'
                 },
             ]
         }]);

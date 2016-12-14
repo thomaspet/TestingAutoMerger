@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions } from '../../../unientities';
+import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions, TaxDrawFactor } from '../../../unientities';
 import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService, ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -86,9 +86,6 @@ export class PayrollrunDetails extends UniView {
             this.salaryTransactions = undefined;
 
             super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
-                if (!payrollRun || payrollRun.ID !== this.payrollrunID) {
-                    this.getPayrollRun();
-                }
 
                 this.payrollrun = payrollRun;
                 if (this.payrollrun && this.payrollrun.PayDate) {
@@ -327,10 +324,12 @@ export class PayrollrunDetails extends UniView {
                 let [payroll, last, salaries] = dataSet;
 
                 this.payrollrun = payroll;
+                this.setDefaults();
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
 
                 if (this.payrollrun && this.payrollrun.ID === 0) {
+                    this.payrollrun.ID = null;
                     this.suggestFromToDates(latest, companysalary);
                 }
 
@@ -349,6 +348,10 @@ export class PayrollrunDetails extends UniView {
                 this.errorService.handle(err);
             });
         }
+    }
+
+    private setDefaults() {
+        this.payrollrun.taxdrawfactor = TaxDrawFactor.Standard;
     }
 
     private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary) {
@@ -463,6 +466,9 @@ export class PayrollrunDetails extends UniView {
 
     // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
     private fixTimezone(date): Date {
+        if (!date) {
+            return;
+        }
         if (typeof date === 'string') {
             return new Date(date);
         }
@@ -477,7 +483,12 @@ export class PayrollrunDetails extends UniView {
 
         this.payrollrunService.get(0).subscribe((payrollrun: PayrollRun) => {
             this.payrollrun = payrollrun;
+            this.payrollrunID = 0;
+            this.payDate = null;
             this.router.navigateByUrl(this.url + this.payrollrun.ID);
+            if (!this.uniform.section(1).isOpen) {
+                this.uniform.section(1).toggle();
+            }
         },
         err => this.errorService.handle(err));
     }
@@ -581,9 +592,8 @@ export class PayrollrunDetails extends UniView {
             err => this.errorService.handle(err));
     }
 
-    private findByProperty(fields, name) {
-        var field = fields.find((fld) => fld.Property === name);
-        return field;
+    private findByProperty(name) {
+        return this.fields.find((fld) => fld.Property === name);
     }
 
     private setEditMode() {
@@ -595,17 +605,22 @@ export class PayrollrunDetails extends UniView {
             } else {
                 this.isEditable = true;
                 this.uniform.editMode();
-                idField = this.findByProperty(this.fields, 'ID');
-                idField.ReadOnly = true;
+                idField = this.findByProperty('ID');
+
+                if (this.payrollrunID === 0) {
+                    idField.ReadOnly = false;
+                } else {
+                    idField.ReadOnly = true;
+                }
             }
         } else {
             this.isEditable = true;
             this.uniform.editMode();
-            idField = this.findByProperty(this.fields, 'ID');
+            idField = this.findByProperty('ID');
             idField.ReadOnly = true;
         }
-        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'ExcludeRecurringPosts');
-        var noNegativePayCheck: UniFieldLayout = this.findByProperty(this.fields, '1');
+        var recurringTransCheck: UniFieldLayout = this.findByProperty('ExcludeRecurringPosts');
+        var noNegativePayCheck: UniFieldLayout = this.findByProperty('1');
         if (this.isEditable) {
             recurringTransCheck.ReadOnly = false;
             noNegativePayCheck.ReadOnly = false;
@@ -707,12 +722,13 @@ export class PayrollrunDetails extends UniView {
 
     public savePayrollrun(): Observable<PayrollRun> {
         let retObs = null;
-
-
-
         this.payrollrun.PayDate = this.fixTimezone(this.payrollrun.PayDate);
         this.payrollrun.FromDate = this.fixTimezone(this.payrollrun.FromDate);
         this.payrollrun.ToDate = this.fixTimezone(this.payrollrun.ToDate);
+
+        if (!this.payrollrun.ID) {
+            this.payrollrun.ID = 0;
+        }
 
         if (this.payrollrun.ID > 0) {
             this.payrollrun.transactions = _.cloneDeep(this.salaryTransactions
