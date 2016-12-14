@@ -1,9 +1,9 @@
 import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
-import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
+import {JournalEntryLineService, JournalEntryService} from '../../../../services/services';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {JournalEntryLine, JournalEntry} from '../../../../unientities';
@@ -14,6 +14,7 @@ import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -22,12 +23,16 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     templateUrl: 'app/components/accounting/transquery/details/transqueryDetails.html',
 })
 export class TransqueryDetails implements OnInit {
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(UniTable) private table: UniTable;
+
     private summaryData: TransqueryDetailsCalculationsSummary;
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private configuredFilter: string;
     private allowManualSearch: boolean = true;
     public summary: ISummaryConfig[] = [];
+    private lastFilterString: string;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Forespørsel på bilag'
@@ -43,7 +48,8 @@ export class TransqueryDetails implements OnInit {
         private statisticsService: StatisticsService,
         private toastService: ToastService,
         private numberFormat: NumberFormat,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private journalEntryService: JournalEntryService
     ) {
         this.tabService.addTab({ 'name': 'Forespørsel bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
@@ -99,6 +105,7 @@ export class TransqueryDetails implements OnInit {
     }
 
     public onFiltersChange(filter: string) {
+        this.lastFilterString = filter;
         let f = this.configuredFilter || filter;
         if (f) {
             f = f.split('Dimensions.').join('');
@@ -206,6 +213,25 @@ export class TransqueryDetails implements OnInit {
         return filter;
     }
 
+    private creditJournalEntry(journalEntryNumber: string) {
+        this.confirmModal.confirm('Vil du kreditere hele dette bilaget?', `Kreditere bilag ${journalEntryNumber}?`, false, { accept: 'Krediter', reject: 'Avbryt'}, ).then( (userChoice: ConfirmActions) => {
+            if (userChoice === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(journalEntryNumber)
+                    .subscribe((res) => {
+                        this.toastService.addToast('Kreditering utført', ToastType.good, 5);
+                        this.table.refreshTableData();
+
+                        //recalc summary
+                        if (this.lastFilterString) {
+                            console.log('recalc', this.lastFilterString);
+                            this.onFiltersChange(this.lastFilterString);
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
+        });
+    }
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
 
         let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
@@ -227,6 +253,13 @@ export class TransqueryDetails implements OnInit {
 
                 return tmp;
             })
+            .setContextMenu([
+                {
+                    action: (item) => this.creditJournalEntry(item.JournalEntryLineJournalEntryNumber),
+                    disabled: (item) => false,
+                    label: 'Krediter bilag'
+                }
+            ])
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setTemplate(line => {
@@ -289,7 +322,7 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
                     .setFilterable(false)
-                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
+                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryLineJournalEntryNumber))
             ]);
     }
 }

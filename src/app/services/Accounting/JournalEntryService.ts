@@ -204,6 +204,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public creditJournalEntry(journalEntryNumber: string): Observable<any> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=credit-journal-entry&journalEntryNumber=' + journalEntryNumber)
+            .send()
+            .map(response => response.json());
+    }
+
     public calculateJournalEntrySummaryLocal(journalDataEntries: Array<JournalEntryData>): JournalEntrySimpleCalculationSummary {
         let sum: JournalEntrySimpleCalculationSummary = {
             IncomingVat: 0,

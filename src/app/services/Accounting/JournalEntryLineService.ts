@@ -21,7 +21,7 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }
-    
+
     public periodNumberToPeriodDates(period: number, year: number): PeriodDates {
         const format = 'YYYY-MM-DD';
         const periodDates = new PeriodDates();
@@ -30,12 +30,13 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         periodDates.lastDayOfPeriod = firstDay.endOf('month').format(format);
         return periodDates;
     }
-    
-    
+
+
     public StatusTypes: Array<any> = [
         { Code: '31001', Text: 'Åpen' },
         { Code: '31002', Text: 'Delmerket' },
-        { Code: '31003', Text: 'Merket' }
+        { Code: '31003', Text: 'Merket' },
+        { Code: '31004', Text: 'Kreditert'}
     ];
 
     public getStatusText = (statusCode: number) => {
