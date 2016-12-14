@@ -242,6 +242,12 @@ export class BankAccountModal {
                     text: 'Lagre bankkonto',
                     class: 'good',
                     method: () => {
+                        if (this.modalConfig.accountVisible && !this.modalConfig.model.AccountID) {
+                            if (!confirm('Du har ikke angitt hovedbokskonto (f.eks. 1920) - vil du fortsette uten å velge hovedbokskonto?')) {
+                                return;
+                            }
+                        }
+
                         this.modal.close();
 
                         if (this.modalConfig.model.Account) {

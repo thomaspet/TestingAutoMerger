@@ -483,20 +483,25 @@ export class JournalEntryProfessional implements OnInit {
                     this.setJournalEntryNumberProperties(newRow);
 
                     // Set FileIDs based on journalentryno - if it is the same as an existing, use that,
-                    // if it has files but the journalentryno changed, and other journalentries still exists for the
-                    // old journalentryno, clear the FileIDs for this journalentry
-                    if (originalJournalEntryNo && originalJournalEntryNo !== newRow.JournalEntryNo && newRow.FileIDs) {
-                        // JournalEntryNo has changed - clear FileIDs
+                    // if it has files but the journalentryno changed, clear the FileIDs for this journalentry
+                    if (originalJournalEntryNo && originalJournalEntryNo !== newRow.JournalEntryNo && newRow.FileIDs && newRow.FileIDs.length > 0) {
+                        // JournalEntryNo has changed and was previously set to something - clear FileIDs
                         newRow.FileIDs = null;
                     }
 
-                    // if FileIDs is null, see any other journalentrydata with the same number has any files attached
-                    if (!newRow.FileIDs) {
+                    // if FileIDs is null, look if any other journalentrydata with the same number has any files attached
+                    // and if so, attach those files to the journalentry
+                    if (!originalJournalEntryNo || !newRow.FileIDs || newRow.FileIDs.length === 0) {
                         let data = this.table.getTableData();
                         let dataFound: boolean = false;
                         for (let i = 0; i < data.length && !dataFound; i++) {
                             if (newRow.JournalEntryNo === data[i].JournalEntryNo) {
-                                newRow.FileIDs = data[i].FileIDs;
+                                if (!newRow.FileIDs || newRow.FileIDs.length === 0) {
+                                    newRow.FileIDs = data[i].FileIDs;
+                                } else if (data[i].FileIDs) {
+                                    newRow.FileIDs =  data[i].FileIDs.concat(newRow.FileIDs);
+                                }
+
                                 dataFound = true;
                             }
                         }

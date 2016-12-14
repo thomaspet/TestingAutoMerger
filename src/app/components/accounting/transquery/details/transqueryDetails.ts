@@ -234,7 +234,7 @@ export class TransqueryDetails implements OnInit {
                                 ${line.JournalEntryLineJournalEntryNumber}
                             </a>`;
                     })
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('startswith'),
                 new UniTableColumn('Account.AccountNumber', 'Kontonr')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;Account_AccountNumber=${line.AccountAccountNumber}">
