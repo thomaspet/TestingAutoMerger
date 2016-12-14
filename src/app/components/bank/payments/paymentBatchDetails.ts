@@ -70,18 +70,14 @@ export class PaymentBatchDetails implements OnChanges {
         this.toastService.addToast('Kvitteringsfil lastet opp, tolker fil..', ToastType.good, 10,
             'Dette kan ta litt tid, vennligst vent...');
 
-        this.toastService.addToast('Dette er ikke implementert i APIet enda' , ToastType.warn, 10,
-                'Ta inn utkommentert kode i receiptFileUploaded når det er klart');
-
-        /*
-        this.paymentBatchService.parseReceiptFile(file)
+        this.paymentBatchService.registerReceiptFileCamt054(file)
             .subscribe(paymentBatch => {
                 this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
             },
             err => this.errorService.handle
         );
-        */
+
     }
 
     private createPaymentFile() {

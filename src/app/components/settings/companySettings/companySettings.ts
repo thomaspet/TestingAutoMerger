@@ -1054,7 +1054,31 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Bankkontoer',
                 hasLineBreak: false,
                 Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'PaymentBankIdentification',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.TEXT,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Bank-integrasjon ID',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 2,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Bankkontoer',
+                hasLineBreak: false,
+                Validations: []
             }
+
+
         ];
 
         /*

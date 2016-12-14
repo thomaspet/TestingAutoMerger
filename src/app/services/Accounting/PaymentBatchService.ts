@@ -21,8 +21,8 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         return super.PutAction(null, 'generate-payment-file', `ID=${paymentBatchID}`);
     }
 
-    public parseReceiptFile(file: File): Observable<PaymentBatch> {
-        return super.PostAction(null, 'parse-receipt-file', `fileid=${file.ID}`);
+    public registerReceiptFileCamt054(file: File): Observable<any> {
+        return super.PutAction(null, 'register-receipt-file-camt054', `fileID=${file.ID}`);
     }
 
     public getStatusText(statusCode: number): string {
