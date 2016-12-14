@@ -16,6 +16,12 @@
     @extend %detaillist
     min-width: 15rem
     max-width: 33%
+    position: fixed
+
+    @supports (position: sticky)
+        position: sticky
+        top: 10rem
+        max-height: calc(100vh - 15rem)
 
     input[type=search].unitableSearch_input
         display: inline-block
