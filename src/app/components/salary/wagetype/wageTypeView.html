@@ -1,8 +1,6 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarConfig" [saveactions]="saveActions"></uni-toolbar>
 <article [attr.aria-busy]="busy">
     <!-- Child component navigation and outlet -->
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
     <router-outlet></router-outlet>
 </article>
-
-<uni-save [actions]="saveActions"></uni-save>

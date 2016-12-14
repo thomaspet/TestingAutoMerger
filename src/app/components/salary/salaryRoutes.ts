@@ -45,14 +45,14 @@ export const childRoutes = [
         children: EmployeeRoutes,
         canDeactivate: [CanDeactivateGuard]
     },
-
     {
         path: 'payrollrun',
         component: PayrollrunList
     },
     {
         path: 'payrollrun/:id',
-        component: PayrollrunDetails
+        component: PayrollrunDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'paymentlist/:id',

@@ -1,4 +1,8 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarconfig" 
+             [contextmenu]="contextMenuItems" 
+             [saveactions]="saveActions" 
+             [statustrack]="getStatustrackConfig()">
+</uni-toolbar>
 
 <header class="poster" [attr.aria-busy]="busy">
     <section class="poster_toolbar_extras" *ngIf="payrollrun">

@@ -6,9 +6,8 @@ import {SalaryTransactionService, PayrollrunService, AMeldingService} from '../.
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {SelectAmeldingTypeModal} from './modals/selectAmeldingTypeModal';
+import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
-import {UniSave} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {NumberFormat} from '../../../services/common/NumberFormatService';
@@ -47,7 +46,6 @@ export class AMeldingView implements OnInit {
     private legalEntityNo: string;
     @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
-    @ViewChild(UniSave) private saveComponent: UniSave;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
     private toolbarConfig: IToolbarConfig;
@@ -139,14 +137,14 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    public createAMelding(ameldType: number = 0) {
-        this.saveComponent.manualSaveStart();
-        this._ameldingService.postAMeldingforDebug(this.currentPeriod, ameldType)
+    public createAMelding(event: IAmeldingTypeEvent) {
+        this.saveStatus.numberOfRequests++;
+        this._ameldingService.postAMeldingforDebug(this.currentPeriod, event.type)
         .subscribe(response => {
             this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
             this.setAMelding(response);
-            this.checkForSaveDone();
+            this.checkForSaveDone(event.done);
             this._toastService.addToast('A-melding generert', ToastType.good, 4);
         },
         (err) => {
@@ -154,15 +152,6 @@ export class AMeldingView implements OnInit {
             this.saveStatus.completeCount++;
             this.saveStatus.hasErrors = true;
         });
-    }
-
-    public aMeldingTypeChange(newType: number) {
-        if (newType !== 999) {
-            this.saveStatus.numberOfRequests++;
-            this.createAMelding(newType);
-        } else {
-            this.saveComponent.manualSaveComplete('Generering av A-melding avbrutt');
-        }
     }
 
     public setAMelding(amelding: AmeldingData) {
@@ -221,12 +210,10 @@ export class AMeldingView implements OnInit {
             {
                 title: this.currentAMelding ? 'A-melding ' + this.currentAMelding.ID : null
             }],
-            statustrack: this.getStatusTrackConfig(),
             navigation: {
                 prev: this.prevPeriod.bind(this),
                 next: this.nextPeriod.bind(this)
-            },
-            contextmenu: this.contextMenuItems
+            }
         };
     }
 
@@ -474,12 +461,12 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    private checkForSaveDone() {
+    private checkForSaveDone(done) {
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
-                this.saveComponent.manualSaveComplete('Kunne ikke generere A-melding');
+                done('Kunne ikke generere A-melding');
             } else {
-                this.saveComponent.manualSaveComplete('A-melding generert');
+                done('A-melding generert');
             }
         }
     }
@@ -549,7 +536,7 @@ export class AMeldingView implements OnInit {
     }
 
     private openAmeldingTypeModal(done) {
-        this.aMeldingTypeModal.openModal();
+        this.aMeldingTypeModal.openModal(done);
     }
 
     private clearAMelding() {

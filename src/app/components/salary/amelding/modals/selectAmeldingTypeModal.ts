@@ -1,7 +1,7 @@
-import {Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
-import {UniFieldLayout} from 'uniform-ng2/main';
-import {FieldType} from '../../../../unientities';
+import { Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { UniModal } from '../../../../../framework/modals/modal';
+import { UniFieldLayout } from 'uniform-ng2/main';
+import { FieldType } from '../../../../unientities';
 
 @Component({
     selector: 'select-amelding-type-modal-content',
@@ -36,9 +36,9 @@ export class SelectAmeldingTypeModalContent {
         ameldTypeField.Property = 'type';
         ameldTypeField.Options = {
             source: [
-                {id: 1, name: 'Full a-melding'},
-                {id: 2, name: 'Bare arbeidsforhold'},
-                {id: 3, name: 'Nullstille a-meldingen'}
+                { id: 1, name: 'Full a-melding' },
+                { id: 2, name: 'Bare arbeidsforhold' },
+                { id: 3, name: 'Nullstille a-meldingen' }
             ],
             displayProperty: 'name',
             valueProperty: 'id',
@@ -55,15 +55,22 @@ export class SelectAmeldingTypeModalContent {
 
 }
 
+export interface IAmeldingTypeEvent {
+    type: number;
+    done?: (message: string) => void;
+}
+
 @Component({
     selector: 'select-amelding-type-modal',
-    template: `<uni-modal [type]="type" [config]="modalConfig"></uni-modal>`
+    template: `<uni-modal [type]="type" [config]="modalConfig" (close)="close()"></uni-modal>`
 })
 export class SelectAmeldingTypeModal implements AfterViewInit {
     public ameldType: number;
     public modalConfig: any = {};
+    private isActive: boolean;
     public type: Type<any> = SelectAmeldingTypeModalContent;
-    @Output() private ameldTypeChange: EventEmitter<number> = new EventEmitter<number>();
+    private done: (message: string) => void;
+    @Output() private ameldTypeChange: EventEmitter<IAmeldingTypeEvent> = new EventEmitter<IAmeldingTypeEvent>();
 
     @ViewChild(UniModal)
     private modal: UniModal;
@@ -74,7 +81,8 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
             ameldType: 0,
             cancel: () => {
                 this.modal.getContent().then((component: SelectAmeldingTypeModalContent) => {
-                    this.ameldTypeChange.emit(999);
+                    this.done('Generering av A-melding avbrutt');
+                    this.isActive = false;
                     this.modal.close();
                 });
             },
@@ -89,7 +97,12 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
                             } else {
                                 this.ameldType = component.ameldingModel.type - 1;
                             }
-                            this.ameldTypeChange.emit(this.ameldType);
+                            let event: IAmeldingTypeEvent = {
+                                type: this.ameldType,
+                                done: this.done
+                            };
+                            this.ameldTypeChange.emit(event);
+                            this.isActive = false;
                             this.modal.close();
                         });
                     }
@@ -98,12 +111,20 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
         };
     }
 
+    public close() {
+        if (this.isActive) {
+            this.done('Generering av A-melding avbrutt');
+        }
+    }
+
     public ngAfterViewInit() {
         this.modal.createContent();
     }
 
-    public openModal() {
+    public openModal(done) {
         this.modal.getContent().then((component: SelectAmeldingTypeModalContent) => {
+            this.done = done;
+            this.isActive = true;
             component.loadContent();
             this.modal.open();
         });

@@ -128,14 +128,15 @@ export class EmployeeDetails extends UniView {
                         prev: this.previousEmployee.bind(this),
                         next: this.nextEmployee.bind(this),
                         add: this.newEmployee.bind(this)
-                    },
-                    saveactions: [{
-                        label: 'Lagre',
-                        action: this.saveAll.bind(this),
-                        main: true,
-                        disabled: true
-                    }]
+                    }
                 };
+
+                this.saveActions = [{
+                    label: 'Lagre',
+                    action: this.saveAll.bind(this),
+                    main: true,
+                    disabled: true
+                }];
                 this.updatePosterEmployee(employee);
                 this.checkDirty();
             }, err => this.errorService.handle(err));
@@ -403,7 +404,7 @@ export class EmployeeDetails extends UniView {
 
     private checkDirty() {
         if (super.isDirty()) {
-            this.toolbarConfig.saveactions[0].disabled = false;
+            this.saveActions[0].disabled = false;
         }
     }
 
@@ -549,7 +550,7 @@ export class EmployeeDetails extends UniView {
                 done('Feil ved lagring');
             } else {
                 done('Lagring fullført');
-                this.toolbarConfig.saveactions[0].disabled = true;
+                this.saveActions[0].disabled = true;
             }
         }
     }
@@ -597,7 +598,7 @@ export class EmployeeDetails extends UniView {
                     }
 
                     if (!this.saveStatus.numberOfRequests) {
-                        this.toolbarConfig.saveactions[0].disabled = true;
+                        this.saveActions[0].disabled = true;
                         done('Lagring fullført');
                     }
                 });

@@ -1,5 +1,9 @@
 <header class="poster">
-    <uni-toolbar [config]="toolbarConfig" (statusSelectEvent)="setAmeldingFromEvent($event)"></uni-toolbar>
+    <uni-toolbar [config]="toolbarConfig" 
+                 [saveactions]="actions" 
+                 [contextmenu]="contextMenuItems" 
+                 [statustrack]="getStatusTrackConfig()" 
+                 (statusSelectEvent)="setAmeldingFromEvent($event)"></uni-toolbar>
 
     <section class="amelding_poster">
 
@@ -75,7 +79,7 @@
     </div>
 </header>
 
-<select-amelding-type-modal (ameldTypeChange)="aMeldingTypeChange($event)"></select-amelding-type-modal>
+<select-amelding-type-modal (ameldTypeChange)="createAMelding($event)"></select-amelding-type-modal>
 <altinn-authentication-data-modal></altinn-authentication-data-modal>
 
 <section class="application" [attr.aria-busy]="busy">
@@ -87,9 +91,4 @@
     <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [systemData]="currentSumsInPeriod" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-periodsummary-view>
     <!--<amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>-->
 
-    <footer class="full-footer">
-        <section class="application" *ngIf="actions">
-            <uni-save [actions]="actions"></uni-save>
-        </section>
-    </footer>
 </section>

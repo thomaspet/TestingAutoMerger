@@ -1,14 +1,17 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageType, ValidationLevel, SpecialAgaRule, SpecialTaxAndContributionsRule, TaxType, StdWageType, GetRateFrom } from '../../../unientities';
+import {
+    WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
+    TaxType, StdWageType, GetRateFrom
+} from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { WageTypeService, UniCacheService } from '../../../services/services';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { UniSave, IUniSaveAction } from '../../../../framework/save/save';
+import { ToastService } from '../../../../framework/uniToast/toastService';
+import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import {ErrorService} from '../../../services/common/ErrorService';
+import { ErrorService } from '../../../services/common/ErrorService';
 declare var _; // lodash
 
 @Component({
@@ -16,8 +19,6 @@ declare var _; // lodash
     templateUrl: 'app/components/salary/wagetype/wageTypeView.html'
 })
 export class WageTypeView extends UniView {
-    @ViewChild(UniSave)
-    private saveComponent: UniSave;
 
     public busy: boolean;
     private url: string = '/salary/wagetypes/';
@@ -26,7 +27,7 @@ export class WageTypeView extends UniView {
     private wageType: WageType;
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
-    
+
     private childRoutes: any[];
 
     constructor(
@@ -37,14 +38,14 @@ export class WageTypeView extends UniView {
         private tabService: TabService,
         public cacheService: UniCacheService,
         private errorService: ErrorService
-) {
+    ) {
 
         super(router.url, cacheService);
 
         this.childRoutes = [
-            {name: 'Detaljer', path: 'details'},
-            {name: 'Spesialinnstillinger', path: 'spesial-settings'},
-            {name: 'Grenseverdier', path: 'limit-values'}
+            { name: 'Detaljer', path: 'details' },
+            { name: 'Spesialinnstillinger', path: 'spesial-settings' },
+            { name: 'Grenseverdier', path: 'limit-values' }
         ];
 
         this.saveActions = [{
@@ -97,7 +98,7 @@ export class WageTypeView extends UniView {
                 this.wageType = undefined;
             }
 
-            
+
         });
 
         this.router.events.subscribe((event: any) => {
@@ -110,7 +111,7 @@ export class WageTypeView extends UniView {
 
     }
 
-    private saveWageType(done?: (message: string) => void) {
+    private saveWageType(done: (message: string) => void) {
         let saver = (this.wageType.ID > 0)
             ? this.wageTypeService.Put(this.wageType.ID, this.wageType)
             : this.wageTypeService.Post(this.wageType);
@@ -119,19 +120,11 @@ export class WageTypeView extends UniView {
             super.updateState('wagetype', this.wageType, false);
             let childRoute = this.router.url.split('/').pop();
             this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
-            if (done) {
-                done('lagring fullført');
-            } else {
-                this.saveComponent.manualSaveComplete('Lagring fullført');
-            }
+            done('lagring fullført');
             this.saveActions[0].disabled = true;
         },
             (error) => {
-                if (done) {
-                    done('Lagring feilet');
-                } else {
-                    this.saveComponent.manualSaveComplete('Lagring feilet');
-                }
+                done('Lagring feilet');
                 this.errorService.handle(error);
             });
     }
@@ -139,6 +132,8 @@ export class WageTypeView extends UniView {
     private checkDirty() {
         if (super.isDirty()) {
             this.saveActions[0].disabled = false;
+        } else {
+            this.saveActions[0].disabled = true;
         }
     }
 

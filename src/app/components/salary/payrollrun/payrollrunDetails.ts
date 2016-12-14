@@ -1,13 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions, TaxDrawFactor } from '../../../unientities';
-import { PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService, ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService } from '../../../services/services';
+import {
+    PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account,
+    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions, TaxDrawFactor
+} from '../../../unientities';
+import {
+    PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
+    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService
+} from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
 import { PostingsummaryModal } from './postingsummaryModal';
 import { VacationpayModal } from './vacationpay/VacationpayModal';
-import { IUniSaveAction, UniSave } from '../../../../framework/save/save';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -31,7 +36,6 @@ export class PayrollrunDetails extends UniView {
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-    @ViewChild(UniSave) private saveComponent: UniSave;
     private payrollrun: PayrollRun;
     private payrollrunID: number;
     private payDate: Date = null;
@@ -48,6 +52,7 @@ export class PayrollrunDetails extends UniView {
     private toolbarconfig: IToolbarConfig;
     private filter: string = '';
     private disableFilter: boolean;
+    private saveActions: any[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
 
     private employees: Employee[];
@@ -112,13 +117,13 @@ export class PayrollrunDetails extends UniView {
                             'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
                             : 'Utbetalingsdato ikke satt'
                     }],
-                    statustrack: this.getStatustrackConfig(),
                     navigation: {
                         prev: this.previousPayrollrun.bind(this),
                         next: this.nextPayrollrun.bind(this),
                         add: this.newPayrollrun.bind(this)
                     },
-                    saveactions: [
+                };
+                this.saveActions = [
                         {
                             label: 'Lagre',
                             action: this.saveAll.bind(this),
@@ -149,9 +154,7 @@ export class PayrollrunDetails extends UniView {
                             main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
                             disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
                         }
-                    ],
-                    contextmenu: this.contextMenuItems,
-                };
+                    ];
 
                 this.checkDirty();
 
@@ -431,11 +434,11 @@ export class PayrollrunDetails extends UniView {
     }
 
     private checkDirty() {
-        if (this.toolbarconfig && this.toolbarconfig.saveactions && this.toolbarconfig.saveactions.length) {
+        if (this.saveActions && this.saveActions.length) {
             if (super.isDirty()) {
-                this.toolbarconfig.saveactions[0].disabled = false;
+                this.saveActions[0].disabled = false;
             } else {
-                this.toolbarconfig.saveactions[0].disabled = true;
+                this.saveActions[0].disabled = true;
             }
         }
     }
@@ -549,11 +552,11 @@ export class PayrollrunDetails extends UniView {
     }
 
     public runSettling(done: (message: string) => void) {
-        this.toolbarconfig.saveactions[0].disabled = true;
-        this.toolbarconfig.saveactions[0].main = false;
-        this.toolbarconfig.saveactions[2].main = true;
-        this.toolbarconfig.saveactions[2].disabled = true;
-        this.toolbarconfig.saveactions = _.cloneDeep(this.toolbarconfig.saveactions);
+        this.saveActions[0].main = false;
+        this.saveActions[0].disabled = true;
+        this.saveActions[2].main = true;
+        this.saveActions[2].disabled = true;
+        this.saveActions = _.cloneDeep(this.saveActions);
         this.payrollrunService.runSettling(this.payrollrunID)
             .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
@@ -566,11 +569,11 @@ export class PayrollrunDetails extends UniView {
             (err) => {
                 done('Feil ved avregning');
                 this.errorService.handle(err);
-                this.toolbarconfig.saveactions[2].main = false;
-                this.toolbarconfig.saveactions[2].disabled = false;
-                this.toolbarconfig.saveactions[0].main = true;
+                this.saveActions[2].main = false;
+                this.saveActions[2].disabled = false;
+                this.saveActions[0].main = true;
                 this.checkDirty();
-                this.toolbarconfig.saveactions = _.cloneDeep(this.toolbarconfig.saveactions);
+                this.saveActions = _.cloneDeep(this.saveActions);
             });
     }
 
