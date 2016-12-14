@@ -318,7 +318,7 @@ export class ProductDetails {
                         }
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
         }
     }
@@ -332,7 +332,7 @@ export class ProductDetails {
                         this.calculateAndUpdatePrice();
                     }
                 },
-                this.errorService.handle
+                err => this.errorService.handle(err)
             );
         }
     }

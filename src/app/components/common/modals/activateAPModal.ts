@@ -128,15 +128,18 @@ export class ActivateAPModal {
     public openModal() {
         var activate = new ActivateAP();
 
-        this.userService.getCurrentUser().subscribe(user => {
-            activate.contactname = user.DisplayName;
-            activate.contactemail = user.Email;
-            activate.contactphone = user.PhoneNumber;
-            activate.incommingInvoice = true;
-            activate.outgoingInvoice = true;
+        this.userService.getCurrentUser()
+            .subscribe(user => {
+                activate.contactname = user.DisplayName;
+                activate.contactemail = user.Email;
+                activate.contactphone = user.PhoneNumber;
+                activate.incommingInvoice = true;
+                activate.outgoingInvoice = true;
 
-            this.modalConfig.model = activate;
-            this.modal.open();
-        }, this.errorService.handle);
+                this.modalConfig.model = activate;
+                this.modal.open();
+            },
+            err => this.errorService.handle(err)
+        );
     }
 }

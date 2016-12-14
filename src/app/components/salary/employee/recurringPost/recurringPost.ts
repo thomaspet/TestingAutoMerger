@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService } from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
-import { 
+import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
     SalaryTransactionSupplement, WageTypeSupplement, Account } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
@@ -54,7 +54,8 @@ export class RecurringPost extends UniView {
                     if (this.recurringPosts) {
                         this.mapWageTypes();
                     }
-                }, this.errorService.handle);
+                },
+                err => this.errorService.handle(err));
             }
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
@@ -101,7 +102,9 @@ export class RecurringPost extends UniView {
                         this.unsavedEmployments = this.employments.length !== employments.length;
 
                         this.buildTableConfig();
-                    }, this.errorService.handle);
+                    },
+                    err => this.errorService.handle(err)
+                );
             }
         });
     }
@@ -245,7 +248,7 @@ export class RecurringPost extends UniView {
                     return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
                 }
             });
-        
+
         const projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
@@ -295,7 +298,7 @@ export class RecurringPost extends UniView {
                     });
                 }
             });
-        
+
 
 
         this.tableConfig = new UniTableConfig()
@@ -369,7 +372,7 @@ export class RecurringPost extends UniView {
         if (updateTable) {
             this.uniTable.updateRow(row['_originalIndex'], row);
         }
-        
+
         super.updateState('recurringPosts', this.recurringPosts, true);
     }
 

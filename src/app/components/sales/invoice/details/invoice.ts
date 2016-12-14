@@ -454,6 +454,14 @@ export class InvoiceDetails {
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
             }
+
+            if (item.VatType) {
+                item.VatType = null;
+            }
+
+            if (item.Product) {
+                item.Product = null;
+            }
         });
 
         if (!this.invoice.DeliveryDate) {

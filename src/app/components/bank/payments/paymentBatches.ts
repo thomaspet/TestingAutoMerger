@@ -70,7 +70,7 @@ export class PaymentBatches {
                 this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
             },
-            err => this.errorService.handle
+            err => this.errorService.handle(err)
         );
         */
     }
@@ -99,7 +99,7 @@ export class PaymentBatches {
             .subscribe((res) => {
                 this.table.refreshTableData();
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 
@@ -120,7 +120,8 @@ export class PaymentBatches {
                 params.set('orderby', 'ID DESC');
             }
 
-            return this.paymentBatchService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
+            return this.paymentBatchService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

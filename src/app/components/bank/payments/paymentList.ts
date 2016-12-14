@@ -75,7 +75,8 @@ export class PaymentList {
                 data.unshift(emptyPaymentCodeOption);
                 this.paymentCodes = data;
             },
-            this.errorService.handle);
+            err => this.errorService.handle(err)
+        );
 
         this.setupPaymentTable();
         this.setSums();
@@ -157,7 +158,9 @@ export class PaymentList {
                     this.calculateSums();
                 });
 
-            }, this.errorService.handle);
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private save(doneHandler: (status: string) => any, nextAction: () => any) {

@@ -156,7 +156,7 @@ export class PaymentBatchDetails implements OnChanges {
             .subscribe(data => {
                 this.paymentBatch = data;
             },
-            this.errorService.handle
+            err => this.errorService.handle(err)
         );
     }
 

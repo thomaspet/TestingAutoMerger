@@ -478,7 +478,8 @@ export class PayrollrunDetails extends UniView {
         this.payrollrunService.get(0).subscribe((payrollrun: PayrollRun) => {
             this.payrollrun = payrollrun;
             this.router.navigateByUrl(this.url + this.payrollrun.ID);
-        }, this.errorService.handle);
+        },
+        err => this.errorService.handle(err));
     }
 
     public openPostingSummaryModal(done) {

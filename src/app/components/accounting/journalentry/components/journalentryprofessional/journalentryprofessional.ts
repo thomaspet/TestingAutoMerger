@@ -669,7 +669,7 @@ export class JournalEntryProfessional implements OnInit {
                             this.table.focusRow(0);
                         }
                     },
-                    err => this.errorService.handle
+                    err => this.errorService.handle(err)
                 );
 
                 this.dataChanged.emit(this.journalEntryLines);
@@ -697,7 +697,7 @@ export class JournalEntryProfessional implements OnInit {
                         this.table.focusRow(0);
                     }
                 },
-                err => this.errorService.handle
+                err => this.errorService.handle(err)
             );
 
             completeCallback('Listen er tømt');

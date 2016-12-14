@@ -51,11 +51,11 @@ export class Employments extends UniView {
                 .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
 
             super.getStateSubject('projects')
-                .subscribe(projects => this.projects = projects, this.errorService.handle);
+                .subscribe(projects => this.projects = projects, err => this.errorService.handle(err));
 
             super.getStateSubject('departments')
-                .subscribe(departments => this.departments = departments, this.errorService.handle);
-                
+                .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
+
             super.getStateSubject('employments')
                 .subscribe((employments) => {
                 this.employments = employments || [];
