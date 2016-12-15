@@ -55,6 +55,33 @@ export class AuditLog {
 }
 
 
+export class WorkBalance {
+    public static RelativeUrl = 'workbalances';
+    public static EntityType = 'WorkBalance';
+
+    public ActualMinutes: number;
+    public BalanceDate: Date;
+    public BalanceFrom: Date;
+    public Balancetype: WorkBalanceTypeEnum;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Days: number;
+    public Deleted: boolean;
+    public Description: string;
+    public ExpectedMinutes: number;
+    public ID: number;
+    public IsStartBalance: boolean;
+    public Minutes: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValidFrom: Date;
+    public ValidTimeOff: number;
+    public WorkRelationID: number;
+    public CustomFields: any;
+}
+
+
 export class Worker {
     public static RelativeUrl = 'workers';
     public static EntityType = 'Worker';
@@ -108,6 +135,29 @@ export class WorkItem {
     public Worktype: WorkType;
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
+    public CustomFields: any;
+}
+
+
+export class WorkTimeOff {
+    public static RelativeUrl = 'worktimeoff';
+    public static EntityType = 'WorkTimeOff';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public FromDate: Date;
+    public ID: number;
+    public IsHalfDay: boolean;
+    public RegionKey: string;
+    public StatusCode: number;
+    public SystemKey: string;
+    public TimeoffType: number;
+    public ToDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WorkRelationID: number;
     public CustomFields: any;
 }
 
@@ -2615,6 +2665,7 @@ export class CompanySettings {
     public LogoFileID: number;
     public OfficeMunicipalityNo: string;
     public OrganizationNumber: string;
+    public PaymentBankIdentification: string;
     public PeriodSeriesAccountID: number;
     public PeriodSeriesVatID: number;
     public SalaryBankAccountID: number;
@@ -3243,6 +3294,7 @@ export class Comment {
     public static RelativeUrl = 'comments';
     public static EntityType = 'Comment';
 
+    public AuthorID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3254,6 +3306,7 @@ export class Comment {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Mentioned: Array<Mentioned>;
+    public Author: User;
     public CustomFields: any;
 }
 
@@ -3576,8 +3629,8 @@ export class PaymentBatch {
     public ID: number;
     public NumberOfPayments: number;
     public PaymentFileID: number;
-    public PaymentReceiptFileID: number;
     public PaymentReferenceID: string;
+    public PaymentStatusReportFileID: number;
     public ReceiptDate: Date;
     public StatusCode: number;
     public TotalAmount: number;
@@ -3609,8 +3662,10 @@ export class Payment {
     public PaymentCodeID: number;
     public PaymentDate: Date;
     public PaymentID: string;
+    public PaymentNotificationReportFileID: number;
     public ReconcilePayment: boolean;
     public StatusCode: number;
+    public StatusText: string;
     public ToBankAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4805,6 +4860,15 @@ export class Totals {
 }
 
 
+export enum WorkBalanceTypeEnum{
+	Hours = 1,
+	Flex = 11,
+	Overtime = 12,
+	Vacation = 13,
+	SickLeave = 20,
+}
+
+
 export enum WorkTypeEnum{
 	IsHours = 1,
 	IsPaidTimeOff = 9,
@@ -5227,6 +5291,7 @@ export enum StatusCodeJournalEntryLine{
 	Open = 31001,
 	PartlyMarked = 31002,
 	Marked = 31003,
+	Credited = 31004,
 }
 
 
