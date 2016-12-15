@@ -1,9 +1,11 @@
 import {Injectable} from '@angular/core';
-import {WorkItem, WorkRelation} from '../../unientities';
+import {WorkItem, WorkRelation, WorkBalance} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
 import {Observable} from 'rxjs/Rx';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt} from '../../components/timetracking/utils/utils';
 import {Dimension} from '../common/dimensionservice';
+import {URLSearchParams} from '@angular/http';
+
 declare var moment;
 
 export class ValueItem {
@@ -303,7 +305,8 @@ export class TimesheetService {
         return this.workerService.getWorkItems(workRelationID, interval);
     }
 
-    public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]): Observable<{ original: WorkItem, saved: WorkItem }> {
+    public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]): 
+        Observable<{ original: WorkItem, saved: WorkItem }> {
 
         var obsSave = Observable.from(items).flatMap((item: WorkItem) => {
             var originalId = item.ID;
@@ -339,12 +342,21 @@ export class TimesheetService {
             // ensure item.StartTime and item.EndTime has same date as item.Date
             var dt = moment(item.Date);
             if (item.StartTime) {
-                item.StartTime = toIso(moment(item.StartTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
+                item.StartTime = toIso(moment(item.StartTime).year(dt.year())
+                    .month(dt.month()).date(dt.date()), true);
             }
             if (item.EndTime) {
                 item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
             }
         }
+    }
+
+    public getFlexBalance(workRelationId: number): Observable<WorkBalance> {
+        var params = new URLSearchParams();
+        params.append('action', 'calc-flex-balance');
+        var obs: any = this.workerService.queryWithUrlParams(params, `workrelations/${workRelationId}` )
+            .map((response: any) => response.json());
+        return obs;
     }
 
 }

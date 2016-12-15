@@ -1,4 +1,4 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
 <section [attr.aria-busy]="busy" class="application" >
     <uni-form
@@ -8,7 +8,6 @@
             (changeEvent)="onChange($event)"
             (readyEvent)="onReady($event)">
     </uni-form>
-    <uni-save [actions]="actions"></uni-save>
 </section>
 
 <uni-confirm-modal></uni-confirm-modal>

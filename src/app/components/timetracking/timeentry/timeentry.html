@@ -1,4 +1,4 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
 <aside class="horizontal_nav no-print">
     <ul>
@@ -23,10 +23,25 @@
             <regtimetotals></regtimetotals>
         </section>
 
-        <!--
         <section [hidden]="!tabs[3].isSelected">
-            <h2>Fleksitid</h2>
+            <h2>Fleksitid - <span *ngIf="currentBalance && currentBalance.WorkRelation">{{currentBalance.WorkRelation.Description}} - {{currentBalance.WorkRelation.WorkPercentage}}% stilling</span></h2>
+            <article *ngIf="currentBalance && currentBalance.WorkRelation">
+                <h3>Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}} til {{currentBalance.BalanceDate | date:'dd.MM.yyyy'}}</h3>
+                <ul>
+                    <li>Saldo i timer: {{currentBalance.hours}}</li>
+                    <li>Saldo i dager: {{currentBalance.Days}}</li>
+                </ul>
+
+                <h3>Detaljer</h3>
+                <ul>
+                    <li>Forventet antall timer: {{currentBalance.expectedHours}}</li>
+                    <li>Antall timer levert: {{currentBalance.actualHours}}</li>
+                    <li>Gyldig fravær/fri: {{currentBalance.validHours}}</li>
+                </ul>
+                {{currentBalance.Description}}
+            </article>
         </section>
+        <!--
         
         <section [hidden]="!tabs[3].isSelected">
             <h2>Arbeidsgivere</h2>
@@ -97,8 +112,6 @@
                     </tbody>
                 </table>
             </article>
-
-            <uni-save class="no-print" [actions]="actions"></uni-save>
 
         </section>
 

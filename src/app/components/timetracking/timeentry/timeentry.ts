@@ -1,10 +1,11 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {WorkRelation, WorkItem, Worker} from '../../../unientities';
+import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
 import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, 
+    ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
+import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength, roundTo} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe} from '../utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -18,7 +19,8 @@ import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/conf
 
 declare var moment;
 
-type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' | 'Dimensions.ProjectID' | 'CustomerOrderID';
+type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' | 
+    'Dimensions.ProjectID' | 'CustomerOrderID';
 
 export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
@@ -40,6 +42,7 @@ export class TimeEntry {
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
     private editable: Editable;
+    public currentBalance: any;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
@@ -51,9 +54,11 @@ export class TimeEntry {
         ];
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) => this.regtimeTools.activate(ts, filter) },
-            { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => this.regtimeTotals.activate(ts, filter) },
-            // { name: 'flex', label: 'Fleksitid', counter: 15 },
+            { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) => 
+                this.regtimeTools.activate(ts, filter) },
+            { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => 
+                this.regtimeTotals.activate(ts, filter) },
+            { name: 'flex', label: 'Fleksitid', counter: 0 }
             // { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             // { name: 'vacation', label: 'Ferie', counter: 22 },
             // { name: 'offtime', label: 'Fravær', counter: 4 },
@@ -77,12 +82,14 @@ export class TimeEntry {
             new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, 
                 { route: 'projects', select: 'ProjectNumber,Name', visualKey: 'ProjectNumber' }),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer,
-                { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'}),
+                { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName', 
+                visualKey: 'OrderNumber'}),
             new Column('Actions', '', ColumnType.Action)
             ],
         events: {
                 onChange: (event) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
+                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), 
+                    (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
                 },
                 onInit: (instance: Editable) => {
                     this.editable = instance;
@@ -109,7 +116,6 @@ export class TimeEntry {
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
             if (item.workerId) {
-                console.info('workerId:' + item.workerId + ', workRelationId:' + item.workRelationId);
                 this.init(item.workerId);
             } else {
                 this.init();
@@ -140,6 +146,7 @@ export class TimeEntry {
     }
 
     private setWorkRelationById(id: number) {
+        this.toast.addToast('setWorkRelationById', ToastType.warn, 3, 'id = ' + id  );
         this.checkSave().then( (value) => {
             if (id) {
                 this.timeSheet.currentRelationId = id;
@@ -192,6 +199,7 @@ export class TimeEntry {
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
+            this.loadFlex(ts.currentRelation.ID);
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
         }, err => this.errorService.handle(err));
@@ -244,6 +252,24 @@ export class TimeEntry {
         }
     }
 
+    private loadFlex(workRelationId: number) {
+        if (!workRelationId) {
+            this.tabs[3].counter = 0;
+            this.currentBalance = new WorkBalance();
+        } else {
+            this.timesheetService.getFlexBalance(workRelationId).subscribe( x => {
+                this.currentBalance = x;
+                this.currentBalance.hours = roundTo( x.Minutes / 60, 1 );
+                this.currentBalance.expectedHours = roundTo( x.ExpectedMinutes / 60, 1);
+                this.currentBalance.actualHours = roundTo( x.ActualMinutes / 60, 1);
+                this.currentBalance.offHours = roundTo( x.ValidTimeOff / 60, 1);
+                this.tabs[3].counter = this.currentBalance.hours;
+            }, (err) => {
+                console.log('Unable to fetch balance');
+            });
+        }
+    }
+
     private save(done?: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
 
@@ -268,6 +294,7 @@ export class TimeEntry {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
                 this.loadItems();
+                this.loadFlex(this.timeSheet.currentRelation.ID);
                 resolve(true);
             });
         });
@@ -412,14 +439,16 @@ export class TimeEntry {
             event.userTypedValue = false;
             this.updateChange(event);
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, 
+                `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
     }
 
     private updateChange(event: IChangeEvent) {
 
         // Update value via timesheet
-        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name, event.value, event.row, event.lookupValue))) {
+        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name, 
+            event.value, event.row, event.lookupValue))) {
             event.cancel = true;
             return;
         }
@@ -448,7 +477,8 @@ export class TimeEntry {
     private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
-                this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true).then( (userChoice: ConfirmActions) => {                    
+                this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
+                .then( (userChoice: ConfirmActions) => {                    
                     switch (userChoice) {
                         case ConfirmActions.ACCEPT:
                             this.save().then( x => {
