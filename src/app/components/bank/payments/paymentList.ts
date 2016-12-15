@@ -137,13 +137,27 @@ export class PaymentList {
         });
 
         if (dirtyRows.length > 0) {
-            if (!confirm(`Du har gjort endringer i ${dirtyRows.length} rader som ikke er lagret - disse vil du miste hvis du fortsetter.\nVil du fortsette likevel?`)) {
-                return;
-            }
+            this.confirmModal.confirm(
+                `Du har endret ${dirtyRows.length} rader som du ikke har lagret - vil du lagre før du fortsetter?`,
+                'Ulagrede endringer',
+                true
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    this.save((status) => {}, () => {
+                        this.paymentCodeFilterValue = newValue;
+                        this.loadData();
+                    });
+                } else if (action === ConfirmActions.REJECT) {
+                    this.paymentCodeFilterValue = newValue;
+                    this.loadData();
+                } else {
+                    return;
+                }
+            });
+        } else {
+            this.paymentCodeFilterValue = newValue;
+            this.loadData();
         }
-
-        this.paymentCodeFilterValue = newValue;
-        this.loadData();
     }
 
     private loadData() {
@@ -255,60 +269,95 @@ export class PaymentList {
             return;
         }
 
+        let rowsWithOldDates = selectedRows.filter(x => moment(x.PaymentDate).isBefore(moment().toDate()));
+
+        if (rowsWithOldDates.length > 0) {
+            this.confirmModal.confirm(
+                `Det er ${rowsWithOldDates.length} rader som har betalingsdato tilbake i tid. Vil du sette dagens dato automatisk?`,
+                'Ugyldig betalingsdato',
+                false,
+                {accept: 'Sett dagens dato', reject: 'Avbryt og sett dato manuelt'}
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    rowsWithOldDates.forEach(x => {
+                        x.PaymentDate = moment().toDate();
+                        x._isDirty = true;
+                        this.table.updateRow(x._originalIndex, x);
+                    });
+
+                    this.saveAndPayInternal(selectedRows, doneHandler);
+                } else if (action === ConfirmActions.REJECT) {
+                    doneHandler('Lagring avbrutt');
+                }
+            });
+        } else {
+            this.saveAndPayInternal(selectedRows, doneHandler);
+        }
+    }
+
+    private saveAndPayInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any) {
         // save first, then run action
         this.save(doneHandler, () => {
-            if (confirm('Er du sikker på at du vil utbetale de valgte ' + selectedRows.length + ' betalinger?')) {
-                let paymentIDs: Array<number> = [];
-                selectedRows.forEach(x => {
-                    paymentIDs.push(x.ID);
-                });
+            this.confirmModal.confirm(
+                'Er du sikker på at du vil utbetale de valgte ' + selectedRows.length + ' betalinger?',
+                'Bekreft utbetaling',
+                false,
+                {accept: 'Send til betaling', reject: 'Avbryt'}
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
 
-                // lag action for å generer batch for X betalinger
-                this.paymentService.createPaymentBatch(paymentIDs)
-                    .subscribe((paymentBatch: PaymentBatch) => {
-
-                        this.toastService.addToast(`Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`, ToastType.good, 5);
-
-                        // kjør action for å generere utbetalingsfil basert på batch
-                        this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
-                            .subscribe((updatedPaymentBatch: PaymentBatch) => {
-                                // refresh list after paymentbatch has been generated
-                                this.loadData();
-
-                                if (updatedPaymentBatch.PaymentFileID) {
-                                    this.toastService.addToast('Utbetalingsfil laget, henter fil...', ToastType.good, 5);
-
-                                    this.fileService
-                                        .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                                            .subscribe((blob) => {
-                                                doneHandler('Utbetalingsfil hentet');
-
-                                                // download file so the user can open it
-                                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                            },
-                                            err => {
-                                                doneHandler('Feil ved henting av utbetalingsfil');
-                                                this.errorService.handle(err)
-                                            }
-                                        );
-                                } else {
-                                    this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
-                                    doneHandler('Feil ved henting av utbetalingsfil');
-                                }
-                            },
-                            err => {
-                                doneHandler('Feil ved generering av utbetalingsfil');
-                                this.errorService.handle(err);
-                            });
-
-                    },
-                    err => {
-                        doneHandler('Feil ved opprettelse av betalingsbunt');
-                        this.errorService.handle(err);
+                    let paymentIDs: Array<number> = [];
+                    selectedRows.forEach(x => {
+                        paymentIDs.push(x.ID);
                     });
-            } else {
-                doneHandler('Utbetaling avbrutt');
-            }
+
+                    // lag action for å generer batch for X betalinger
+                    this.paymentService.createPaymentBatch(paymentIDs)
+                        .subscribe((paymentBatch: PaymentBatch) => {
+                            this.toastService.addToast(`Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`, ToastType.good, 5);
+
+                            // kjør action for å generere utbetalingsfil basert på batch
+                            this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
+                                .subscribe((updatedPaymentBatch: PaymentBatch) => {
+                                    // refresh list after paymentbatch has been generated
+                                    this.loadData();
+
+                                    if (updatedPaymentBatch.PaymentFileID) {
+                                        this.toastService.addToast('Utbetalingsfil laget, henter fil...', ToastType.good, 5);
+
+                                        this.fileService
+                                            .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                                                .subscribe((blob) => {
+                                                    doneHandler('Utbetalingsfil hentet');
+
+                                                    // download file so the user can open it
+                                                    saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                                                },
+                                                err => {
+                                                    doneHandler('Feil ved henting av utbetalingsfil');
+                                                    this.errorService.handle(err)
+                                                }
+                                            );
+                                    } else {
+                                        this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
+                                        doneHandler('Feil ved henting av utbetalingsfil');
+                                    }
+                                },
+                                err => {
+                                    doneHandler('Feil ved generering av utbetalingsfil');
+                                    this.errorService.handle(err);
+                                });
+
+                        },
+                        err => {
+                            doneHandler('Feil ved opprettelse av betalingsbunt');
+                            this.errorService.handle(err);
+                        });
+
+                } else if (action === ConfirmActions.REJECT) {
+                    doneHandler('Utbetaling avbrutt');
+                }
+            });
         });
     }
 
@@ -344,27 +393,33 @@ export class PaymentList {
             }
         }
 
-        if (confirm('Er du sikker på at du vil slette ' + selectedRows.length + ' betalinger?')) {
-            let requests = [];
-            selectedRows.forEach(x => {
-                requests.push(this.paymentService.Remove(x.ID, x));
+        this.confirmModal.confirm(
+                'Er du sikker på at du vil slette ' + selectedRows.length + ' betalinger?',
+                'Bekreft sletting',
+                false
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    let requests = [];
+                    selectedRows.forEach(x => {
+                        requests.push(this.paymentService.Remove(x.ID, x));
+                    });
+
+                    Observable.forkJoin(requests)
+                        .subscribe(resp => {
+                            this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
+                            doneHandler('Betalinger slettet');
+
+                            // refresh data after save
+                            this.loadData();
+
+                        }, (err) => {
+                            doneHandler('Feil ved sletting av data');
+                            this.errorService.handle(err);
+                        });
+                } else if (action === ConfirmActions.REJECT) {
+                    doneHandler('Sletting avbrutt');
+                }
             });
-
-            Observable.forkJoin(requests)
-                .subscribe(resp => {
-                    this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
-                    doneHandler('Betalinger slettet');
-
-                    // refresh data after save
-                    this.loadData();
-
-                }, (err) => {
-                    doneHandler('Feil ved sletting av data');
-                    this.errorService.handle(err);
-                });
-        } else {
-            doneHandler('Sletting avbrutt');
-        }
     }
 
     private setSums() {

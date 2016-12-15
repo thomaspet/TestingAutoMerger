@@ -7,6 +7,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 declare const moment;
 declare const saveAs; // filesaver.js
@@ -23,7 +24,7 @@ export class PaymentBatchDetails implements OnChanges {
 
     @ViewChild(PaymentRelationsModal) private paymentRelationsModal: PaymentRelationsModal;
     @ViewChild(UniTable) private table: UniTable;
-
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private paymentBatch: PaymentBatch;
     private paymentTableConfig: UniTableConfig;
@@ -60,9 +61,19 @@ export class PaymentBatchDetails implements OnChanges {
     }
 
     private deleteBatch() {
-        if (!this.paymentBatch.PaymentFileID
-            || (this.paymentBatch.PaymentFileID && confirm('Er du helt sikker på at du vil tilbakestille bunten?'))) {
+        if (!this.paymentBatch.PaymentFileID) {
             this.deletePaymentBatch.emit(this.paymentBatch);
+        } else {
+            this.confirmModal.confirm(
+                `Er du sikker på at du vil tilbakestille bunten? Betalingene vil da legges tilbake i betalingslisten`,
+                'Bekreft tilbakestilling',
+                false,
+                {accept: 'Tilbakestill bunt', reject: 'Avbryt'}
+            ).then((action) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    this.deletePaymentBatch.emit(this.paymentBatch);
+                }
+            });
         }
     }
 
@@ -77,7 +88,6 @@ export class PaymentBatchDetails implements OnChanges {
             },
             err => this.errorService.handle
         );
-
     }
 
     private createPaymentFile() {

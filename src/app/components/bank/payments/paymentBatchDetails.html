@@ -1,6 +1,6 @@
 <div *ngIf="paymentBatchID && paymentBatch">
     <header class="detail_header">
-        <h2>Detaljer betalingsbunt {{paymentBatchID}} - {{getFormattedDate(paymentBatch.CreatedAt)}}</h2>
+        <h2>Detaljer betalingsbunt {{paymentBatchID}} - {{getFormattedDate(paymentBatch.CreatedAt)}} {{paymentBatchService.getStatusText(paymentBatch.StatusCode)}}</h2>
         <nav class="detail_header_navigation">
             <a (click)="goToPreviousBatch()" class="previous">Forrige</a>
             <a (click)="goToNextBatch()" class="next">Neste</a>
@@ -10,8 +10,8 @@
         <div class="file-buttons">
             <button (click)="createPaymentFile()" *ngIf="!paymentBatch.PaymentFileID">Opprett betalingsfil</button>
             <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
-            <button (click)="downloadReceiptFile()" *ngIf="paymentBatch.PaymentReceiptFileID">Last ned kvitteringsfil</button>
-            <uni-upload-file-button [buttonText]="'Last opp kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && !paymentBatch.PaymentReceiptFileID"></uni-upload-file-button>
+            <button (click)="downloadReceiptFile()" *ngIf="paymentBatch.StatusCode === 45005">Last ned kvitteringsfil</button>
+            <uni-upload-file-button [buttonText]="'Last opp kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && paymentBatch.StatusCode !== 45005"></uni-upload-file-button>
         </div>
     </header>
      <uni-table *ngIf="paymentTableConfig"
@@ -21,3 +21,4 @@
 </div>
 
 <payment-relations-modal></payment-relations-modal>
+<uni-confirm-modal></uni-confirm-modal>
