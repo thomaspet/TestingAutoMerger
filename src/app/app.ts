@@ -75,5 +75,12 @@ export class App {
 
         // KE: For now, don't load static registers - these are slow because of to much data in local storage
         // this.staticRegisterService.checkForStaticRegisterUpdate();
+
+        // OneSignal
+        OneSignal.push(function() {
+            OneSignal.getUserId(function(userId) {
+                console.log("OneSignal User ID:", userId);
+            });
+        });
     }
 }
