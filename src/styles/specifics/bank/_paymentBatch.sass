@@ -35,15 +35,19 @@ payment-batches
     .receipt-file-upload-button
         float: right
 
-    uni-attachments
-        height: 10rem
-        width: 11.5rem
-
-        .uni-image-upload
-            min-width: 9rem
-
-        .uni-image-upload [aria-busy]
+    .payment-batch-uploader
+        uni-attachments
+            height: 10rem
             width: 11.5rem
+
+            .uni-image-upload
+                min-width: 9rem
+
+            .uni-image-upload [aria-busy]
+                width: 11.5rem
+
+            .upload
+                width: 100%
 
     .upload-no-batch
         margin-top: 2rem

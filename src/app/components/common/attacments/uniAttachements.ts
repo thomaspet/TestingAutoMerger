@@ -3,11 +3,14 @@ import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../../framework/core/authService';
+import {FileService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
 import {ErrorService} from '../../../services/common/ErrorService';
+
+declare const saveAs; // filesaver.js
 
 export interface IUploadConfig {
     isDisabled?: boolean;
@@ -64,6 +67,9 @@ export class UniAttachments {
     public uploadWithoutEntity: boolean = false;
 
     @Input()
+    public downloadAsAttachment: boolean = false;
+
+    @Input()
     public headerText: string = 'Vedlegg';
 
     @Output()
@@ -83,6 +89,7 @@ export class UniAttachments {
         private http: UniHttp,
         private imageUploader: ImageUploader,
         private errorService: ErrorService,
+        private fileService: FileService,
         authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
@@ -112,7 +119,21 @@ export class UniAttachments {
     }
 
     public attachmentClicked(attachment: File) {
-        this.imageModal.openReadOnly(this.entity, this.entityID, attachment.ID);
+        if (!this.downloadAsAttachment) {
+            this.imageModal.openReadOnly(this.entity, this.entityID, attachment.ID);
+        } else {
+            console.log('attachment', attachment);
+            this.fileService
+                .downloadFile(attachment.ID, 'application/xml')
+                    .subscribe((blob) => {
+                        // download file so the user can open it
+                        saveAs(blob, attachment.Name);
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                    }
+                );
+        }
     }
 
     public uploadFileChange(event) {

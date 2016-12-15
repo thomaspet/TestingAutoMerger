@@ -26,10 +26,11 @@ export class PaymentBatchDetails implements OnChanges {
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
+    private downloadFilesAsAttachments: boolean = true;
     private paymentBatch: PaymentBatch;
     private paymentTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-
+    private receiptFilesVisible: boolean = false;
 
     constructor(private router: Router,
                 private paymentService: PaymentService,
@@ -143,18 +144,8 @@ export class PaymentBatchDetails implements OnChanges {
         }
     }
 
-    private downloadReceiptFile() {
-        this.fileService
-            .downloadFile(this.paymentBatch.PaymentReceiptFileID, 'application/xml')
-                .subscribe((blob) => {
-                    this.toastService.addToast('Kvitteringsfil hentet', ToastType.good, 5)
-                    // download file so the user can open it
-                    saveAs(blob, `paymentreceipts_${this.paymentBatch.ID}.xml`);
-                },
-                err => {
-                    this.errorService.handleWithMessage(err, 'Feil ved henting av kvitteringsfil');
-                }
-            );
+    private toggleReceiptFilesVisible() {
+        this.receiptFilesVisible = !this.receiptFilesVisible;
     }
 
     private loadPaymentBatchData() {
