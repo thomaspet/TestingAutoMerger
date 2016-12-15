@@ -5,18 +5,6 @@ var plugins = require('gulp-load-plugins')({
     lazy: true
 });
 
-var raygunProd = '';
-
-function getRaygunPilot(){
-    return '<script type="text/javascript">'
-    + 'rg4js("apiKey", "2iYzARArU22aNutdEnvtWw==");'
-    + 'rg4js("enableCrashReporting", true);'
-    + "rg4js('setVersion', '" + getGitRevision() + "');"
-    + '</script>';
-}
-
-var raygunDevelop = '';
-
 gulp.task('index.html.dev', ['ts2js.dev', 'sass2css', 'vendors'], function() {
     var manifest = gulp.src("./dist/rev-manifest.json");
     return gulp.src('./src/index.html')
@@ -24,7 +12,7 @@ gulp.task('index.html.dev', ['ts2js.dev', 'sass2css', 'vendors'], function() {
             version: (new Date()).getTime(),
             environment: 'development',
             gitRevision: getGitRevision(),
-            raygunApiKeyCode: raygunDevelop
+            raygunApiKeyCode: getRaygunCode()
         }))
         .pipe(gulp.dest('./dist'));
 });
@@ -36,7 +24,7 @@ gulp.task('index.html.prod', ['ts2js', 'sass2css', 'vendors'], function() {
             version: (new Date()).getTime(),
             environment: 'production',
             gitRevision: getGitRevision(),
-            raygunApiKeyCode: raygunProd
+            raygunApiKeyCode: getRaygunCode()
         }))
         .pipe(gulp.dest('./dist'));
 });
@@ -48,11 +36,22 @@ gulp.task('index.html.pilot', ['ts2js', 'sass2css', 'vendors'], function() {
             version: (new Date()).getTime(),
             environment: 'production',
             gitRevision: getGitRevision(),
-            raygunApiKeyCode: getRaygunPilot()
+            raygunApiKeyCode: getRaygunCode()
         }))
         .pipe(gulp.dest('./dist'));
 });
 
+function getRaygunCode(){
+    if (process.env.RAYGUN_API_KEY) {
+        return '<script type="text/javascript">'
+            + 'rg4js("apiKey", "' + process.env.RAYGUN_API_KEY + '");'
+            + 'rg4js("enableCrashReporting", true);'
+            + 'rg4js("setVersion", "' + getGitRevision() + '");'
+            + '</script>';
+    } else {
+        return '';
+    }
+}
 
 function getGitRevision() {
     const GIT_HEAD_FILE = '.git/HEAD';
