@@ -1,3 +1,10 @@
+%mainNavDropdown
+    color: $uni-color-positive
+    background: #fff
+    border: pxToRem(1) solid $uni-color-scale8
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+    border-radius: 0 0 pxToRem(3) pxToRem(3)
+
 uni-company-dropdown
     text-align: right
 
@@ -51,17 +58,13 @@ uni-company-dropdown
     opacity: .75
 
 .navbar_company_dropdown
+    @extend %mainNavDropdown
+    margin: 1.5rem 0
     position: absolute
     display: none
     list-style: none
     right: 0
     top: 1rem
-    color: $uni-color-positive
-    margin: 1.5rem 0
-    background: #fff
-    border: pxToRem(1) solid $uni-color-scale8
-    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
-    border-radius: 0 0 pxToRem(3) pxToRem(3)
     text-align: left
     min-width: 15rem
     max-width: 20rem

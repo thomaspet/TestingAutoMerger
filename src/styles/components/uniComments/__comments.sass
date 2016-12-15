@@ -10,24 +10,43 @@
         background-size: 1rem auto
 
 .comments_count
+    display: inline-block
     background: $navbarBackground
     height: pxToRem(26)
+    padding: 0 .3rem
+    border-radius: 0 pxToRem(3) pxToRem(3) 0
+    position: relative
+    top: pxToRem(-1)
+    margin-left: -.2rem
 
 .comments-view
+    @extend %mainNavDropdown // Consolidating a few styles
     position: fixed
-    right: 10rem
+    right: calc(6.5vw + 1.6rem) // The gutter on desktop + padding on toolbar + elems
     z-index: #{map-get($zindex, toolbar) - 1}
     height: 80%
     width: 30rem
-    background: #fff
-    color: #000
-    border-radius: pxToRem(3)
-    border: 1px solid $uni-color-scale7
-    box-shadow: 0 .2rem .5rem .1rem transparentize($uni-color-positive, .9)
+    margin-top: .3rem
 
     display: none
     &[aria-expanded]:not([aria-expanded=false])
         display: block
+
+    // Put an arrow on it
+    &:before
+        border: solid transparent
+        content: ''
+        height: 0
+        width: 0
+        position: absolute
+        pointer-events: none
+        display: block
+        border-color: rgba(255, 255, 255, 0)
+        border-bottom-color: #fff
+        border-width: .5rem
+        margin-left: -.5rem
+        top: -1rem
+        right: 1.5rem
 
     ol.comment-list
         height: calc(100% - 7.5rem)
