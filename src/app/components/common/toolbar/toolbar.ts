@@ -23,6 +23,12 @@ export interface IToolbarConfig {
     omitFinalCrumb?: boolean;
 }
 
+export interface ICommentsConfig {
+    entityName: string;
+    entityID: number;
+    // more?
+}
+
 @Component({
     selector: 'uni-toolbar',
     templateUrl: 'app/components/common/toolbar/toolbar.html'
@@ -39,6 +45,9 @@ export class UniToolbar {
 
     @Input()
     public statustrack: UniStatusTrack.IStatus[];
+
+    @Input()
+    public commentsConfig: ICommentsConfig;
 
     @Output()
     public statusSelectEvent: EventEmitter<any> = new EventEmitter();

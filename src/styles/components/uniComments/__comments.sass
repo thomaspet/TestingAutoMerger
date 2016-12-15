@@ -1,0 +1,101 @@
+.comments_toggle
+    @extend %toolbarButton
+    top: -0.4rem !important // meh
+    background-image: unicon-chat($uni-color-scale3)
+    background-size: 1rem auto
+    &:hover,
+    &:focus
+        background: mix($uni-color-negative, $uni-color-c2a, 80%) no-repeat center
+        background-image: unicon-chat($uni-color-c2a)
+        background-size: 1rem auto
+
+.comments_count
+    background: $navbarBackground
+    height: pxToRem(26)
+
+.comments-view
+    position: fixed
+    right: 10rem
+    z-index: #{map-get($zindex, toolbar) - 1}
+    height: 80%
+    width: 30rem
+    background: #fff
+    color: #000
+    border-radius: pxToRem(3)
+    border: 1px solid $uni-color-scale7
+    box-shadow: 0 .2rem .5rem .1rem transparentize($uni-color-positive, .9)
+
+    display: none
+    &[aria-expanded]:not([aria-expanded=false])
+        display: block
+
+    ol.comment-list
+        height: calc(100% - 7.5rem)
+        overflow-y: auto
+
+        li
+            display: flex
+            flex-flow: row nowrap
+            margin: 0 1rem 1rem 0
+
+            &:before
+                content: ''
+
+            aside.comment-avatar
+                order: 1
+                flex: 0 1 4rem
+                background-image: unicon-user($uni-color-scale3)
+                background-size: 40%
+                background-repeat: no-repeat
+                background-position: center .25rem
+
+            main
+                order: 2
+                flex: 1
+                font-size: .9rem
+
+                header
+                    strong
+                        margin-right: .5rem
+                    small
+                        color: $uni-color-scale5
+
+                blockquote
+                    margin: .5rem 0 1rem 0
+                    padding: 0
+                    background: none
+                    border: none
+
+    .new-comment
+        margin: 0 1rem
+        height: 4.5rem
+        display: flex
+        flex-flow: row nowrap
+
+        textarea
+            order: 1
+            flex: 1
+            resize: none
+            min-height: 4rem
+
+        button
+            order: 2
+            flex: 0 1 5rem
+            margin: auto 0 0 1rem
+
+        .comments-dropdown-list
+            @extend .uni-multivalue-values
+            position: absolute
+            bottom: 5rem
+            left: 1rem
+            width: 15rem
+            max-height: 17rem
+            border-radius: pxToRem(3)
+
+            box-sizing: border-box
+            overflow-y: auto
+            visibility: hidden
+            &[aria-expanded]:not([aria-expanded=false])
+                visibility: visible
+
+

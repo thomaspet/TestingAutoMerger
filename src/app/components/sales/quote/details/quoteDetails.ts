@@ -71,6 +71,8 @@ export class QuoteDetails {
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
+    private commentsConfig: any;
+
     constructor(
         private customerService: CustomerService,
         private customerQuoteService: CustomerQuoteService,
@@ -125,6 +127,10 @@ export class QuoteDetails {
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
+            this.commentsConfig = {
+                entityName: 'CustomerQuote',
+                entityID: this.quoteID
+            };
 
             if (this.quoteID) {
                 this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe((quote) => {

@@ -1,5 +1,6 @@
 <uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveActions">
+             [saveactions]="saveActions"
+             [commentsConfig]="commentsConfig">
 </uni-toolbar>
 
 <uni-tof-head [readonly]="readonly"
@@ -17,7 +18,6 @@
     </uni-tradeitem-table>
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
-
 
 <uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>

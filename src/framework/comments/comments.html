@@ -1,0 +1,46 @@
+<button class="comments_toggle"
+        type="button"
+        (click)="toggle($event)">Kommentarer</button>
+<span class="comments_count" *ngIf="comments.length">
+    {{comments.length}}
+</span>
+
+<section class="comments-view"
+         (keydown.esc)="close()"
+         (clickOutside)="close()"
+         [attr.aria-expanded]="isOpen">
+    <ol class="comment-list">
+        <li *ngFor="let comment of comments">
+            <aside class="comment-avatar"><!-- TODO --></aside>
+            <main>
+                <header>
+                    <strong>{{comment._author}}</strong>
+                    <small>{{getTimeFromNow(comment.CreatedAt)}}</small>
+                </header>
+                <blockquote>{{comment.Text}}</blockquote>
+            </main>
+        </li>
+    </ol>
+
+    <section class="new-comment">
+        <ul #list class="comments-dropdown-list"
+            role="listbox"
+            tabindex="-1"
+            [attr.aria-expanded]="lookupResults?.length > 0">
+
+            <li *ngFor="let item of lookupResults; let idx = index"
+                role="option"
+                (mouseover)="selectedIndex = idx"
+                (click)="selectItem()"
+                [attr.aria-selected]="selectedIndex === idx">
+
+                {{item.DisplayName}}
+            </li>
+        </ul>
+        <textarea [formControl]="inputControl"
+                  (keydown)="onKeydown($event)"
+                  #inputElement>
+        </textarea>
+        <button class="comment-submit-btn" (click)="submit()">Send</button>
+    </section>
+</section>

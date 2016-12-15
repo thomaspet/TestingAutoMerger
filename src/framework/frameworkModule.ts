@@ -16,8 +16,8 @@ import {UniCoreModule} from './core/coreModule';
 import {UniPipesModule} from './pipes/pipesModule';
 import {UniConfirmModal, UniConfirmContent} from './modals/confirm';
 import {Logger} from './core/logger';
-
-
+import {UniComments} from './comments/comments';
+import {CommentService} from './comments/commentService';
 
 @NgModule({
     imports: [
@@ -37,6 +37,7 @@ import {Logger} from './core/logger';
         UniImage,
         UniToast,
         UniToastList,
+        UniComments,
         WidgetPoster,
     ],
     entryComponents: [
@@ -45,6 +46,7 @@ import {Logger} from './core/logger';
     providers: [
         ImageUploader,
         ToastService,
+        CommentService,
         StimulsoftReportWrapper,
         Logger
     ],
@@ -63,6 +65,7 @@ import {Logger} from './core/logger';
         UniImage,
         UniToast,
         UniToastList,
+        UniComments,
         WidgetPoster
     ]
 })

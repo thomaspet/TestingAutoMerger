@@ -5,6 +5,11 @@
     (statusSelectEvent)="selectStatus($event)">
 </uni-statustrack>
 
+<uni-comments *ngIf="commentsConfig"
+              [entity]="commentsConfig.entityName"
+              [entityID]="commentsConfig.entityID">
+</uni-comments>
+
 <h1>{{config?.title}}
     <small *ngFor="let subhead of config?.subheads"
         [class]="subhead.classname || ''">
