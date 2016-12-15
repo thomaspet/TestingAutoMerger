@@ -8,12 +8,14 @@
         <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
                                     (showImageChanged)="onShowImageChanged($event)"
                                     (showImageForJournalEntry)="onShowImageForJournalEntry($event)"
+                                    (columnVisibilityChange)="onColumnVisibilityChange($event)"
                                     [runAsSubComponent]="runAsSubComponent"
                                     [disabled]="disabled"
                                     [mode]="mode"
                                     [supplierInvoice]="supplierInvoice"
                                     [journalEntryID]="journalEntryID"
                                     [doShowImage]="journalEntrySettings.AttachmentsVisible"
+                                    [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
                                     *ngIf="journalEntryMode == 'PROFESSIONAL'">
         </journal-entry-professional>
 

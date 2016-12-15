@@ -25,7 +25,7 @@ export class JournalEntryProfessional implements OnInit {
     @Input() public disabled: boolean = false;
     @Input() public journalEntryLines: JournalEntryData[] = [];
     @Input() public doShowImage: boolean = false;
-
+    @Input() public defaultVisibleColumns: Array<string> = [];
     @ViewChild(UniTable) private table: UniTable;
     private journalEntryTableConfig: UniTableConfig;
 
@@ -33,6 +33,7 @@ export class JournalEntryProfessional implements OnInit {
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
+    @Output() public columnVisibilityChange: EventEmitter<Array<string>> = new EventEmitter<Array<string>>();
 
     private projects: Project[];
     private departments: Department[];
@@ -264,6 +265,10 @@ export class JournalEntryProfessional implements OnInit {
 
     private setupUniTable() {
 
+        if (!this.defaultVisibleColumns) {
+            this.defaultVisibleColumns = [];
+        }
+
         let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('80px')
             .setEditorOptions({
                 displayField: 'Name',
@@ -458,6 +463,16 @@ export class JournalEntryProfessional implements OnInit {
 
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol, fileCol];
+        }
+
+        if (this.defaultVisibleColumns.length > 0) {
+        columns.forEach(col => {
+            if (this.defaultVisibleColumns.find(x => x === col.field)) {
+                col.visible = true;
+            } else {
+                col.visible = false;
+            }
+        });
         }
 
         this.journalEntryTableConfig = new UniTableConfig(!this.disabled, false, 100)
@@ -740,6 +755,18 @@ export class JournalEntryProfessional implements OnInit {
         }
 
         this.lastImageDisplayFor = journalEntry.JournalEntryNo;
+    }
+
+    private onColumnVisibilityChange(columns) {
+        let visibleColumns: Array<string> = [];
+
+        columns.forEach(x => {
+            if (x.visible) {
+                visibleColumns.push(x.field);
+            }
+        });
+
+        this.columnVisibilityChange.emit(visibleColumns);
     }
 
     private rowSelected(event) {

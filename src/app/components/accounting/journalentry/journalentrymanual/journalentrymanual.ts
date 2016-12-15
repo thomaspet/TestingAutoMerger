@@ -205,6 +205,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
+    public onColumnVisibilityChange(visibleColumns: Array<string>) {
+        this.journalEntrySettings.DefaultVisibleFields = visibleColumns;
+        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings);
+    }
+
     public addJournalEntryData(data: JournalEntryData) {
         data.SameOrNew = '1';
 
