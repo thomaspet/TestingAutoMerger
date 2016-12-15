@@ -550,6 +550,7 @@ export class PaymentList {
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '');
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name')
+            .setVisible(false)
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.Name);
