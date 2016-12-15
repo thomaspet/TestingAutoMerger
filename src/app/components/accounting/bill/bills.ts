@@ -257,7 +257,7 @@ export class BillsView {
             }).setWidth('8%'),
             new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text).setFilterOperator('startswith').setWidth('15em'),
-            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.Date).setWidth('10%')
+            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('10%')
                 .setFilterOperator('eq')
                 .setConditionalCls(item =>
                     moment(item.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok'

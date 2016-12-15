@@ -120,7 +120,7 @@ export class PaymentBatches {
         };
 
         // Define columns to use in the table
-        let dateCol = new UniTableColumn('CreatedAt', 'Dato',  UniTableColumnType.Date)
+        let dateCol = new UniTableColumn('CreatedAt', 'Dato',  UniTableColumnType.LocalDate)
             .setWidth('110px');
 
         let totalAmountCol = new UniTableColumn('TotalAmount', 'Totalbeløp',  UniTableColumnType.Money)

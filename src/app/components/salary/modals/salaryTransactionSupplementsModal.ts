@@ -76,7 +76,7 @@ export class SalaryTransactionSupplementsModalContent {
             supplement.ValueDate = new Date(supplement.WageTypeSupplement.SuggestedValue);
         }
 
-        return this.getNewField(supplement, FieldType.DATEPICKER, `Supplements[${index}].ValueDate`);
+        return this.getNewField(supplement, FieldType.LOCAL_DATE_PICKER, `Supplements[${index}].ValueDate`);
     }
 
     private createNumberField(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout {

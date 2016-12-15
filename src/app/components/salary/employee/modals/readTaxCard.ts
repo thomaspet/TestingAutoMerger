@@ -36,7 +36,7 @@ export class ReadTaxCard {
         private errorService: ErrorService
     ) {
 
-        let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.Date).setFormat('DD.MM.YYYY HH:mm');
+        let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.LocalDate).setFormat('DD.MM.YYYY HH:mm');
         let receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
         let signatureColumn = new UniTableColumn('UserSign', 'Signatur', UniTableColumnType.Text);
         let isReadColumn = new UniTableColumn('HasBeenRegistered', 'Innlest', UniTableColumnType.Text)

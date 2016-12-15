@@ -141,16 +141,6 @@ export class RecurringPost extends UniView {
             });
         });
     }
-
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }
-
     private onRowDeleted(event) {
         if (event.rowModel['_isEmpty']) {
             return;
@@ -216,8 +206,8 @@ export class RecurringPost extends UniView {
                 }
             });
 
-        const fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.Date);
-        const todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.Date);
+        const fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.LocalDate);
+        const todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.LocalDate);
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
         const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money);
@@ -329,14 +319,6 @@ export class RecurringPost extends UniView {
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
-                }
-
-                if (event.field === 'recurringPostValidFrom' && row['recurringPostValidFrom']) {
-                    row['recurringPostValidFrom'] = this.fixTimezone(row['recurringPostValidFrom']);
-                }
-
-                if (event.field === 'recurringPostValidTo' && row['recurringPostValidTo']) {
-                    row['recurringPostValidTo'] = this.fixTimezone(row['recurringPostValidTo']);
                 }
 
                 if (event.field === '_Account') {

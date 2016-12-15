@@ -1,5 +1,41 @@
 /* tslint:disable */
 
+ export class LocalDate {
+    private value: Date;
+    constructor(value: string | Date) {
+        this.value = typeof value === 'string' ? new Date(value) : value;
+        if (isNaN(this.value.getTime())) { throw new Error(`Invalid date initializer supplied: ${value}`); }
+    }
+    public toJSON(): any {
+        const org = this.value;
+        const y = org.getFullYear();
+        const m = org.getMonth() + 1;
+        const d = org.getDate();
+        return y + '-' + ('00'+m).slice(-2) + '-' + ('00'+d).slice(-2)
+    }
+    public toDate(): Date {
+        return this.value;
+    }
+    public toString(): string {
+        return this.value.toString();
+    }
+}
+
+export class LocalTime {
+  constructor(private value: string) {
+    if (!/^\d{2}:\d{2}:\d{2}(\.\d{1,7})?$/.test(this.value)) {
+      throw new Error('UniTime needs to be either on the format'
+      + ` 00:00:00 or 00:00:00.000! Was: ${this.value}!`);
+    }
+  }
+  public toJSON() {
+    return this.value;
+  }
+  public toString() {
+    return this.value;
+  }
+} 
+
 export class AuditLog {
     public static RelativeUrl = 'auditlogs';
     public static EntityType = 'AuditLog';
@@ -4790,7 +4826,7 @@ export enum Alignment{
 export enum FieldType{
 	AUTOCOMPLETE = 0,
 	COMBOBOX = 1,
-	DATEPICKER = 2,
+	DATE_TIME_PICKER = 2,
 	DROPDOWN = 3,
 	MASKED = 4,
 	MULTISELECT = 5,
@@ -4805,6 +4841,7 @@ export enum FieldType{
 	MULTIVALUE = 14,
 	URL = 15,
 	TEXTAREA = 16,
+	LOCAL_DATE_PICKER = 17,
 }
 
 

@@ -99,20 +99,7 @@ export class PersonalDetails extends UniView {
         this.uniform.field('BusinessRelationInfo.Name').focus();
     }
 
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }
-
     public onFormChange(employee: Employee) {
-        if (employee.BirthDate) {
-            employee.BirthDate = this.fixTimezone(employee.BirthDate);
-        }
-
         if (this.employee.BankAccounts[0]) {
             if (!this.employee.BankAccounts[0].AccountNumber) {
                 this.employee.BankAccounts[0].Active = false;

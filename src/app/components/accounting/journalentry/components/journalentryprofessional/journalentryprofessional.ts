@@ -278,7 +278,7 @@ export class JournalEntryProfessional implements OnInit {
                 return item.JournalEntryNo ? item.JournalEntryNo : '';
             });
 
-        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth('80px');
+        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate).setWidth('80px');
 
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Fakturanr', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')

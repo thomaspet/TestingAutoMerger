@@ -2,7 +2,7 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
-import {FieldType, CompanyVacationRate, Account} from '../../../../unientities';
+import {FieldType, CompanyVacationRate, Account, LocalDate} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import moment from 'moment';
 import {ErrorService} from '../../../../services/common/ErrorService';
@@ -56,15 +56,6 @@ export class VacationpaySettingModalContent {
 
     public change(value) {
 
-    }
-
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     }
 
     public saveSettings() {
@@ -162,7 +153,7 @@ export class VacationpaySettingModalContent {
             .setChangeCallback((event) => {
                 let row = event.rowModel;
                 if (event.field === 'FromDate') {
-                    row.FromDate = this.fixTimezone(new Date(row.FromDate, 0, 1));
+                    row.FromDate = row.FromDate && new LocalDate(row.FromDate + '-01-01');
                     return row;
                 }
             });

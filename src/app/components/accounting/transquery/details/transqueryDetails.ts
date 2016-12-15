@@ -278,11 +278,11 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
                     .setTemplate(line => line.AccountAccountName),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.Date)
+                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
                     .setTemplate(line => line.JournalEntryLineFinancialDate),
-                new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.Date)
+                new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
                     .setTemplate(line => line.JournalEntryLineVatDate),

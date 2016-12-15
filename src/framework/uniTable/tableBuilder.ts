@@ -16,7 +16,7 @@ export class TableBuilder extends UniTableConfig {
                 colType = UniTableColumnType.Lookup;
                 break;
             case 2:
-                colType = UniTableColumnType.Date;
+                colType = UniTableColumnType.LocalDate;
                 break;
             case 6:
                 colType = UniTableColumnType.Number;

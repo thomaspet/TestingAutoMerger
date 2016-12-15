@@ -351,7 +351,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         finanicalDate.FieldSet = 0;
         finanicalDate.Section = 0;
         finanicalDate.Combo = 0;
-        finanicalDate.FieldType = FieldType.DATEPICKER;
+        finanicalDate.FieldType = FieldType.LOCAL_DATE_PICKER;
         finanicalDate.Label = 'Dato';
         finanicalDate.Property = 'FinancialDate';
         finanicalDate.ReadOnly = false;

@@ -146,19 +146,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
     }
 
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }
-
     private createTableConfig() {
         let wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
-        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
-        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
+        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
+        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
         let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
         let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
@@ -327,14 +318,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     this.calcItem(row);
                 }
 
-                if (event.field === 'FromDate' && row['FromDate']) {
-                    row['FromDate'] = this.fixTimezone(row['FromDate']);
-                }
-
-                if (event.field === 'ToDate' && row['ToDate']) {
-                    row['ToDate'] = this.fixTimezone(row['ToDate']);
-                }
-
                 if (event.field === '_Account') {
                     this.mapAccountToTrans(row);
                 }
@@ -375,8 +358,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
-        rowModel['FromDate'] = this.fixTimezone(this.payrollRun.FromDate);
-        rowModel['ToDate'] = this.fixTimezone(this.payrollRun.ToDate);
+        rowModel['FromDate'] = this.payrollRun.FromDate;
+        rowModel['ToDate'] = this.payrollRun.ToDate;
         rowModel['_BasePayment'] = wagetype.Base_Payment;
 
         if (!rowModel.Amount) {
@@ -513,13 +496,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     public rowChanged(event) {
         let row: SalaryTransaction = event.rowModel;
-
-        if (row.FromDate) {
-            row.FromDate = this.fixTimezone(row.FromDate);
-        }
-        if (row.ToDate) {
-            row.ToDate = this.fixTimezone(row.ToDate);
-        }
 
         if (!row.DimensionsID && !row.Dimensions) {
             row.Dimensions = new Dimensions();

@@ -42,7 +42,7 @@ export class EmployeeList {
             return `<a href="mailto:${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}" >${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}</a>`;
         });
 
-        var birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.Date);
+        var birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.LocalDate);
 
         var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
 

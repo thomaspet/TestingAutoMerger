@@ -202,7 +202,7 @@ export class OrderList {
         const customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
             .setFilterOperator('contains');
 
-        const orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date)
+        const orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.LocalDate)
             .setWidth('10%')
             .setFilterOperator('eq');
 

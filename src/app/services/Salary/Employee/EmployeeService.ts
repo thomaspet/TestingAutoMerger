@@ -200,7 +200,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Property: 'BirthDate',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fødselsdato',

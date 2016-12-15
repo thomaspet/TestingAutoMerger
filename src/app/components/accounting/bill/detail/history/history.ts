@@ -116,10 +116,10 @@ export class BillHistoryView {
 
     private createTableConfig(): UniTableConfig {
         var cols = [
-            new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.Date).setWidth('5.5em')            
+            new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.LocalDate).setWidth('5.5em')
                 .setFilterOperator('eq')           
                 .setFormat('DD.MM.YY'),
-            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.Date).setWidth('4em').setVisible(false)            
+            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('4em').setVisible(false)
                 .setFilterOperator('eq')
                 .setConditionalCls(item =>
                     moment(item.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok'

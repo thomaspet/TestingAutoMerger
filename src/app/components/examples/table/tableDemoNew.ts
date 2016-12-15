@@ -148,7 +148,7 @@ export class UniTableDemoNew {
         });
 
         // Columns
-        let dateTestCol = new UniTableColumn('_Date', 'Dato', UniTableColumnType.Date);
+        let dateTestCol = new UniTableColumn('_Date', 'Dato', UniTableColumnType.LocalDate);
 
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
@@ -280,8 +280,8 @@ export class UniTableDemoNew {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         let jobNameCol = new UniTableColumn('JobName', 'Job name');
-        let startDateCol = new UniTableColumn('StartDate', 'Start date', UniTableColumnType.Date);
-        let endDateCol = new UniTableColumn('EndDate', 'End date', UniTableColumnType.Date);
+        let startDateCol = new UniTableColumn('StartDate', 'Start date', UniTableColumnType.LocalDate);
+        let endDateCol = new UniTableColumn('EndDate', 'End date', UniTableColumnType.LocalDate);
 
         this.demoTable2 = new UniTableConfig()
             // When showDropdownOnSingleItems is set to false unitable will skip the "..." dropdown

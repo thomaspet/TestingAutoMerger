@@ -88,7 +88,7 @@ export class GrantsModalContent {
                 });
             }
         });
-        let dateCol = new UniTableColumn('FromDate', 'Dato', UniTableColumnType.Date);
+        let dateCol = new UniTableColumn('FromDate', 'Dato', UniTableColumnType.LocalDate);
         let descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
         let agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Lookup)

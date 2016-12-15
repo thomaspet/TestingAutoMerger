@@ -414,7 +414,7 @@ export class PaymentList {
     }
 
     private setupPaymentTable() {
-        let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.Date);
+        let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
             .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
             .setEditorOptions({
@@ -491,7 +491,7 @@ export class PaymentList {
             });
 
         let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
-        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.Date)
+        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '');
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name')

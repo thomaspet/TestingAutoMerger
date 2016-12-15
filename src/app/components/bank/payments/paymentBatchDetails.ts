@@ -175,7 +175,7 @@ export class PaymentBatchDetails implements OnChanges {
             return this.paymentService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };
 
-        let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.Date);
+        let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
             .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '');
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
@@ -184,7 +184,7 @@ export class PaymentBatchDetails implements OnChanges {
         let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
             .setDisplayField('ToBankAccount.AccountNumber');
         let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
-        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.Date)
+        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '');
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name');

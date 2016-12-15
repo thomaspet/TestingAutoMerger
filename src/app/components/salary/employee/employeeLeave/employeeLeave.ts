@@ -60,18 +60,9 @@ export class EmployeeLeave extends UniView {
         });
     }
 
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }
-
     public buildTableConfig() {
-        const fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
-        const toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);
+        const fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.LocalDate);
+        const toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.LocalDate);
         const leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Percent);
         const commentCol = new UniTableColumn('Description', 'Kommentar');
         const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
@@ -116,14 +107,6 @@ export class EmployeeLeave extends UniView {
 
                 if (event.field === 'LeaveType') {
                     this.mapLeavetypeToPermision(row);
-                }
-
-                if (event.field === 'FromDate' && row['FromDate']) {
-                    row['FromDate'] = this.fixTimezone(row['FromDate']);
-                }
-
-                if (event.field === 'ToDate' && row['ToDate']) {
-                    row['ToDate'] = this.fixTimezone(row['ToDate']);
                 }
 
                 // Update local array and cache

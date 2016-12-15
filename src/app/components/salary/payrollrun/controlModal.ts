@@ -133,8 +133,8 @@ export class ControlModalContent {
         this.payList = [];
         let wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem');
         let wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
-        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date).setWidth('6rem');
-        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date).setWidth('6rem');
+        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate).setWidth('6rem');
+        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate).setWidth('6rem');
         let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('5rem');
         let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money).setWidth('7rem');
         let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('4rem');

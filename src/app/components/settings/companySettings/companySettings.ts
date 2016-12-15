@@ -1095,13 +1095,13 @@ export class CompanySettingsComponent implements OnInit {
         accountingLockedDate.setLabel('Regnskap låst tom')
             .setModel(this.company)
             .setModelField('AccountingLockedDate')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.LOCAL_DATE_PICKER]);
 
         var vatLockedDate = new UniFieldBuilder();
         vatLockedDate.setLabel('Mva låst tom')
             .setModel(this.company)
             .setModelField('VatLockedDate')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.LOCAL_DATE_PICKER])
             .setKendoOptions({})
             .hasLineBreak(true);
 

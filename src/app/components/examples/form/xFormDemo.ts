@@ -192,7 +192,7 @@ export class XFormDemo {
             dateTest.FieldSet = 0;
             dateTest.Section = 0;
             dateTest.Combo = 0;
-            dateTest.FieldType = FieldType.DATEPICKER;
+            dateTest.FieldType = FieldType.LOCAL_DATE_PICKER;
             dateTest.Label = 'Date';
             dateTest.Property = 'DateTest';
             dateTest.ReadOnly = false;

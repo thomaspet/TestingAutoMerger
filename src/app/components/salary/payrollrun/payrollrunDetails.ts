@@ -467,18 +467,6 @@ export class PayrollrunDetails extends UniView {
         return statustrack;
     }
 
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (!date) {
-            return;
-        }
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }
-
     public newPayrollrun() {
         if (!super.canDeactivate()) {
             return;
@@ -725,10 +713,6 @@ export class PayrollrunDetails extends UniView {
 
     public savePayrollrun(): Observable<PayrollRun> {
         let retObs = null;
-        this.payrollrun.PayDate = this.fixTimezone(this.payrollrun.PayDate);
-        this.payrollrun.FromDate = this.fixTimezone(this.payrollrun.FromDate);
-        this.payrollrun.ToDate = this.fixTimezone(this.payrollrun.ToDate);
-
         if (!this.payrollrun.ID) {
             this.payrollrun.ID = 0;
         }

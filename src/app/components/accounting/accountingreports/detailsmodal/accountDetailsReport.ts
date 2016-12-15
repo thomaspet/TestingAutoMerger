@@ -130,7 +130,7 @@ export class AccountDetailsReport {
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setFilterOperator('contains'),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.Date)
+                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
                     .setTemplate(line => line.JournalEntryLineFinancialDate),

@@ -107,29 +107,8 @@ export class Employments extends UniView {
         }, err => this.errorService.handle(err));
     }
 
-    // REVISIT: Remove this when pure dates (no timestamp) are implemented on backend!
-    private fixTimezone(date): Date {
-        if (typeof date === 'string') {
-            return new Date(date);
-        }
-
-        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    }
-
     private onEmploymentChange(employment: Employment) {
         employment['_isDirty'] = true;
-
-        if (employment.StartDate) {
-            employment.StartDate = this.fixTimezone(employment.StartDate);
-        }
-
-        if (employment.EndDate) {
-            employment.EndDate = this.fixTimezone(employment.EndDate);
-        }
-
-        if (employment.SeniorityDate) {
-            employment.SeniorityDate = this.fixTimezone(employment.SeniorityDate);
-        }
 
         // Update employments array and table row
         const index = this.employments.findIndex((emp) => {

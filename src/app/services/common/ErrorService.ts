@@ -32,20 +32,13 @@ export class ErrorService {
         this.addErrorToast(toastMsg || message);
     }
 
-    public extractMessage(error: any): string {
-        let jsonBodyContent: any = null;
-        try {
-            jsonBodyContent = JSON.parse(error._body);
-        } catch (ex) {
-            // ignore, this is just a test to see if the content is json
-        }
-
+    public  extractMessage(error: any): string {
         if (error.message) {
             return error.message;
         } else if (error.Message) {
             return error.Message;
-        } else if (jsonBodyContent) {
-            let errContent = jsonBodyContent;
+        } else if (error._body) {
+            let errContent = typeof error._body === 'string' ? JSON.parse(error._body) : error._body;
             if (errContent && errContent.Messages && errContent.Messages.length > 0) {
                 return errContent.Messages.map(m => m.Message).join('.\n') + '.\n';
             } else if (errContent && errContent.Message) {

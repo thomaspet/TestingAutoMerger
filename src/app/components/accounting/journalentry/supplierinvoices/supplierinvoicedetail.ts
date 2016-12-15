@@ -402,7 +402,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         invoiceDate.FieldSet = 0;
         invoiceDate.Section = 0;
         invoiceDate.Combo = 0;
-        invoiceDate.FieldType = FieldType.DATEPICKER;
+        invoiceDate.FieldType = FieldType.LOCAL_DATE_PICKER;
         invoiceDate.Label = 'Fakturadato';
         invoiceDate.Property = 'InvoiceDate';
         invoiceDate.ReadOnly = false;
@@ -411,7 +411,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         paymentDueDate.FieldSet = 0;
         paymentDueDate.Section = 0;
         paymentDueDate.Combo = 0;
-        paymentDueDate.FieldType = FieldType.DATEPICKER;
+        paymentDueDate.FieldType = FieldType.LOCAL_DATE_PICKER;
         paymentDueDate.Label = 'Forfallsdato';
         paymentDueDate.Property = 'PaymentDueDate';
         paymentDueDate.ReadOnly = false;

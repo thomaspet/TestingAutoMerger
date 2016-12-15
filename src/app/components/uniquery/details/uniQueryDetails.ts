@@ -754,7 +754,7 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
         } else if (field.Type.toString().startsWith('System.Decimal')) {
             colType = UniTableColumnType.Money;
         } else if (field.Type.toString().startsWith('System.DateTime')) {
-            colType = UniTableColumnType.Date;
+            colType = UniTableColumnType.LocalDate;
         } else {
             colType = UniTableColumnType.Text;
         }

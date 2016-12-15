@@ -221,7 +221,7 @@ export class TofDeliveryForm {
                 Property: 'DeliveryDate',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.DATEPICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Leveringsdato',

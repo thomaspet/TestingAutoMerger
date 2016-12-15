@@ -34,9 +34,9 @@ export class PayrollrunList implements OnInit {
             var status = this.payrollService.getStatus(payrollRun);
             return status.text;
         });
-        var paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', UniTableColumnType.Date);
-        var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
-        var todateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
+        var paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
+        var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
+        var todateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
 
         this.payrollrunListConfig = new UniTableConfig(false)
             .setColumns([idCol, nameCol, statusCol, paydateCol, fromdateCol, todateCol])

@@ -215,11 +215,11 @@ export class QuoteList {
         const customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
             .setFilterOperator('contains');
 
-        const quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date)
+        const quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.LocalDate)
             .setWidth('10%')
             .setFilterable(false);
 
-        const validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date)
+        const validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.LocalDate)
             .setWidth('10%')
             .setConditionalCls((item: CustomerQuote) => {
                 const ignoreDate = item.StatusCode === StatusCodeCustomerQuote.TransferredToOrder

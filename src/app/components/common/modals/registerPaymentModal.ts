@@ -40,7 +40,7 @@ export class RegisterPaymentForm {
                 Property: 'PaymentDate',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.DATEPICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Betalingsdato',

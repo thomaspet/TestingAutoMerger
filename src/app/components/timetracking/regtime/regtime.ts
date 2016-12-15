@@ -166,7 +166,7 @@ export class RegisterTime {
     public createTableConfig(): UniTableConfig {
 
         var cols = [
-            new UniTableColumn('Date', 'Dato', UniTableColumnType.Date, true),
+            new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate, true),
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
             this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt)),
