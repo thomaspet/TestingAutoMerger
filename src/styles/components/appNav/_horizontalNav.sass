@@ -14,7 +14,7 @@
 
         @supports (position: sticky)
             position: sticky
-            z-index: map-get($zindex, toolbar)
+            z-index: #{map-get($zindex, toolbar) - 1}
 
         li a
             @extend %clickable
