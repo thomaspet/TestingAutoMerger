@@ -29,14 +29,17 @@
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script>
-        var OneSignal = window.OneSignal || [];
-        OneSignal.push(["init", {
-            appId: "e9a52330-4281-4ef7-a635-a71face78f91",
-            autoRegister: true,
-            notifyButton: {
-                enable: true /* Set to false to hide */
-            }
-        }]);
+        window.ENV = '<%= environment %>';
+        if (window.ENV === 'production') {
+            var OneSignal = window.OneSignal || [];
+            OneSignal.push(["init", {
+                appId: "e9a52330-4281-4ef7-a635-a71face78f91",
+                autoRegister: true,
+                notifyButton: {
+                    enable: true /* Set to false to hide */
+                }
+            }]);
+        }
     </script>
 
     <!-- METADATA
@@ -133,7 +136,6 @@
                 APP_VERSION = "<%= gitRevision %>";
             </script>
             <script>
-                window.ENV = '<%= environment %>';
                 System.import('system.config.js').then(function() {
                     System.import('app/appModule');
                 }).catch(console.error.bind(console));

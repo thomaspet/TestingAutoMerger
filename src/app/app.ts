@@ -7,6 +7,13 @@ import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
 import {ErrorService} from './services/common/ErrorService';
+import {PushMapper} from './models/PushMapper';
+import {AppConfig} from './AppConfig';
+import {Observable} from 'rxjs/Rx';
+import {UserService} from './services/common//UserService';
+
+declare const OneSignal;
+declare const window;
 
 @Component({
     selector: 'uni-app',
@@ -47,9 +54,39 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
+        this.setOneSignal();
+    }
+
+    private setOneSignal() {
+        if (window.ENV === 'production') {
+            OneSignal.push(function() {
+                OneSignal.getUserId(function(userId) {
+                    console.log('OneSignal User ID:', userId);
+
+                    this.userService.getCurrentUser()
+                        .subscribe(
+                            user => {
+                                var body: PushMapper = {
+                                    DeviceToken : userId,
+                                    UserIdentity : user.GlobalIdentity,
+                                };
+
+                                this.http.asPOST()
+                                    .withBody(body)
+                                    .withHeader('Content-Type', 'application/json')
+                                    .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
+                                        .catch((err) => {
+                                        console.log(err);
+                                        return Observable.throw(err);
+                                    }).subscribe(response => null);
+                    });
+                });
+            });
+        }
     }
 
     private initialize() {
+
         // Get companysettings
         this.http.asGET()
             .usingBusinessDomain()
@@ -77,10 +114,5 @@ export class App {
         // this.staticRegisterService.checkForStaticRegisterUpdate();
 
         // OneSignal
-        OneSignal.push(function() {
-            OneSignal.getUserId(function(userId) {
-                console.log("OneSignal User ID:", userId);
-            });
-        });
     }
 }
