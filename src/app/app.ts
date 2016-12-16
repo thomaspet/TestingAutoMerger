@@ -7,6 +7,11 @@ import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
 import {ErrorService} from './services/common/ErrorService';
+import {PushMapper} from './models/PushMapper';
+import {AppConfig} from './AppConfig';
+
+declare const OneSignal;
+declare const window;
 
 @Component({
     selector: 'uni-app',
@@ -50,6 +55,17 @@ export class App {
     }
 
     private initialize() {
+        var body : PushMapper = {
+            DeviceToken : 'testToken',
+            UserIdentity : 'testUser',
+        };
+
+
+        this.http.asPOST()
+            .withBody(body)
+            .withHeader('Content-Type', 'application/json')
+            .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices');
+
         // Get companysettings
         this.http.asGET()
             .usingBusinessDomain()
@@ -77,10 +93,20 @@ export class App {
         // this.staticRegisterService.checkForStaticRegisterUpdate();
 
         // OneSignal
-        OneSignal.push(function() {
-            OneSignal.getUserId(function(userId) {
-                console.log("OneSignal User ID:", userId);
+
+        console.log(window.ENV);
+        if (window.ENV === 'production') {
+            OneSignal.push(function() {
+                OneSignal.getUserId(function(userId) {
+                    console.log('OneSignal User ID:', userId);
+
+                    this.http.asPOST()
+                        .withBody(body)
+                        .withHeader('Content-Type', 'application/json')
+                        .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices');
+                    
+                });
             });
-        });
+        }
     }
 }

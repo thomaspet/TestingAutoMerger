@@ -172,7 +172,10 @@ export class UniHttp {
 
         this.method = undefined;
         this.body = undefined;
-        return this.http.request(new Request(options)).map((response: any) => response.json());
+        return this.http.request(new Request(options)).map((response: any) => response.json()).catch((err) => {
+            console.log(err);
+            return Observable.throw(err);
+        });
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {

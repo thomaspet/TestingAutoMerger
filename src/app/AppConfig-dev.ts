@@ -7,6 +7,8 @@ export const AppConfig = ({
 
     BASE_URL_FILES: 'https://unifiles.azurewebsites.net/',
 
+    UNI_PUSH_ADAPTER_URL: 'http://devapi-unipushadapter.azurewebsites.net',
+
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',

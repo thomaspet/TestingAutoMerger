@@ -15,6 +15,8 @@ export const AppConfig = ({
 
     BASE_URL_FILES: 'https://pilot-unifiles.unieconomy.no/',
 
+    UNI_PUSH_ADAPTER_URL: 'http://devapi-unipushadapter.azurewebsites.net',
+
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',
