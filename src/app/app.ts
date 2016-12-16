@@ -72,7 +72,7 @@ export class App {
                             user => {
                                 var body: PushMapper = {
                                     DeviceToken : userId,
-                                    UserIdentity : user.GlobalIdentity,
+                                    UserIdentity : user.GlobalIdentity
                                 };
 
                                 self.http.asPOST()
