@@ -739,43 +739,76 @@ export class EmployeeDetails extends UniView {
                             ? this.salaryTransService.Put(post.ID, post)
                             : this.salaryTransService.Post(post);
 
-                        source.finally(() => {
-                            if (saveCount === changeCount) {
-                                this.saveStatus.completeCount++;
-                                if (hasErrors) {
-                                    this.saveStatus.hasErrors = true;
+                        source
+                            .map(trans => {
+                                return Observable.forkJoin(
+                                    Observable.of(trans),
+                                    this.getProjectsObservable(),
+                                    this.getDepartmentsObservable(),
+                                    this.getDimension(trans));
+                            })
+                            .flatMap(x => x)
+                            .map((response: [SalaryTransaction, Project[], Department[], Dimensions]) => {
+                                let [trans, projects, departments, dimensions] = response;
+                                trans.Dimensions = dimensions;
+
+                                if (trans.Dimensions) {
+                                    trans['_Project'] = projects
+                                        .find(x => x.ID === trans.Dimensions.ProjectID);
+                                    trans['_Department'] = departments
+                                        .find(x => x.ID === trans.Dimensions.DepartmentID);
                                 }
-
-                                super.updateState('recurringPosts', recurringPosts.filter(x => !x.Deleted), false);
-
-                                this.checkForSaveDone(done);
-                            }
-                        })
+                                return trans;
+                            })
                             .subscribe(
                             (res: SalaryTransaction) => {
-                                saveCount++;
-                                if (res.Dimensions) {
-                                    res['_Project'] = this.projects
-                                        .find(x => x.ID === res.Dimensions.ProjectID);
-
-                                    res['_Department'] = this.departments
-                                        .find(x => x.ID === res.Dimensions.DepartmentID);
-                                }
                                 recurringPosts[index] = res;
                             },
                             (err) => {
                                 hasErrors = true;
-                                saveCount++;
-                                console.log(err);
                                 recurringPosts[index].Deleted = false;
-                                let toastHeader = `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                                let toastHeader =
+                                    `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
                                 let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
                                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                this.errorService.handle(err);
+                            },
+                            () => {
+                                saveCount++;
+                                if (saveCount === changeCount) {
+                                    this.saveStatus.completeCount++;
+                                    if (hasErrors) {
+                                        this.saveStatus.hasErrors = true;
+                                    }
+
+                                    super.updateState('recurringPosts',
+                                        recurringPosts.filter(x => !x.Deleted),
+                                        false);
+
+                                    this.checkForSaveDone(done);
+                                }
                             }
                             );
                     }
                 });
         }, err => this.errorService.handle(err));
+    }
+
+    private getDimension(post: SalaryTransaction): Observable<Dimensions> {
+        if (post.DimensionsID) {
+            if (post['Dimensions']) {
+                return Observable.of(post.Dimensions);
+            }
+
+            return this.http
+                .usingBusinessDomain()
+                .asGET()
+                .withEndPoint('/dimensions/' + post.DimensionsID)
+                .send()
+                .map(response => response.json());
+        }
+
+        return Observable.of(null);
     }
 
     private saveEmployeeLeave(done) {
