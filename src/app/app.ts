@@ -57,6 +57,8 @@ export class App {
     }
 
     private setOneSignal() {
+        console.log(window.ENV);
+        
         if (window.ENV === 'production') {
             OneSignal.push(function() {
                 OneSignal.getUserId(function(userId) {
