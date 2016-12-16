@@ -36,10 +36,9 @@ import {
     ErrorService,
     EHFService
 } from '../../../../services/services';
-
+import moment from 'moment';
 
 declare const _;
-declare const moment;
 
 @Component({
     selector: 'uni-invoice',
@@ -268,16 +267,11 @@ export class InvoiceDetails {
         });
     }
 
-    public onInvoiceChange(invoice) {
-        if (!invoice.CreditDays && invoice.Customer) {
-            invoice.CreditDays = invoice.Customer.CreditDays;
-        }
-
-        if (!invoice.PaymentDueDate) {
-            let dueDate = new Date(invoice.InvoiceDate);
-            if (dueDate) {
-                dueDate.setDate(dueDate.getDate() + invoice.CreditDays);
-                invoice.PaymentDueDate = dueDate;
+    public onInvoiceChange(invoice: CustomerInvoice) {
+        if (invoice.Customer) {
+            invoice.CreditDays = invoice.CreditDays || invoice.Customer.CreditDays;
+            if (!invoice.PaymentDueDate) {
+                invoice.PaymentDueDate = moment().add(invoice.CreditDays, 'days').toDate();
             }
         }
 
@@ -334,13 +328,8 @@ export class InvoiceDetails {
     private refreshInvoice(invoice: CustomerInvoice) {
         if (!invoice.CreditDays && invoice.Customer) {
             invoice.CreditDays = invoice.Customer.CreditDays;
-        }
-
-        if (!invoice.PaymentDueDate) {
-            let dueDate = new Date(invoice.InvoiceDate);
-            if (dueDate) {
-                dueDate.setDate(dueDate.getDate() + invoice.CreditDays);
-                invoice.PaymentDueDate = dueDate;
+            if (!invoice.PaymentDueDate && invoice.CreditDays) {
+                invoice.PaymentDueDate = moment().add(invoice.CreditDays, 'days').toDate();
             }
         }
 
