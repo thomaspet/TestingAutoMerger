@@ -125,12 +125,13 @@
     height: 3.5rem
     z-index: map-get($zindex, hamburger)
 
-    &:before
-        content: '⚠️ Attn. devs! Uni-save has moved. Add your saveactions[] to the toolbar config instead.'
-        display: block
-        background: $uni-color-action
-        top: -.5rem
-        padding: 0 5rem
+    // Removing deprecation warning for pilot merge.
+    // &:before
+    //     content: '⚠️ Attn. devs! Uni-save has moved. Add your saveactions[] to the toolbar config instead.'
+    //     display: block
+    //     background: $uni-color-action
+    //     top: -.5rem
+    //     padding: 0 5rem
 
     .uniSave
         @include unigrid-flush(14)
