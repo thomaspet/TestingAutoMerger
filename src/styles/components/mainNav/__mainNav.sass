@@ -24,7 +24,7 @@ $navbarActive: $uni-color-toolbar
     display: flex
     flex-direction: row
     align-items: center
-    flex-wrap: wrap
+    flex-wrap: nowrap
 
 // Layout
 body
@@ -45,18 +45,20 @@ uni-company-dropdown
     flex-grow: 1
 
 @include media(large, max-width)
-    uni-hamburger-menu
-        order: 1
 
     uni-navbar-search
-        order: 2
-        width: calc(100% - 13rem)
-
-    uni-company-dropdown
-        order: 3
-        width: 8rem
+        display: none
 
     uni-tabstrip
-        order: 4
-        width: 100%
-        overflow-x: scroll
+        flex-grow: 2
+        flex-shrink: 1
+
+        overflow-x: hidden
+        @media (pointer:coarse)
+            overflow-x: scroll
+
+            .navbar_tabs li
+                flex-shrink: 0
+        
+        li
+            min-width: 1.5rem

@@ -84,14 +84,3 @@
         &:hover,
         &:focus
             background: darken($navbarBackground, 10%)
-
-    @include media(large, max-width)
-        $btmNavColor1: mix($navbarBackground, $uni-color-scale1, 80%)
-        $btmNavColor2: mix($navbarBackground, $uni-color-scale1, 70%)
-
-        &
-            border-top: pxToRem(1) solid mix($uni-color-positive, $navbarBackground, 30%)
-
-        &,
-        & li
-            background: linear-gradient(to top, $btmNavColor1, $btmNavColor2)
