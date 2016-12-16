@@ -31,10 +31,9 @@
     <script>
         window.ENV = '<%= environment %>';
 
-        if (window.location.indexOf('localhost') >= 0) {
+        if (window.location.hostname.indexOf('localhost') >= 0) {
             window.ENV = 'development';
-        }
-        else {
+        } else {
             window.ENV = 'production';
         }
 
