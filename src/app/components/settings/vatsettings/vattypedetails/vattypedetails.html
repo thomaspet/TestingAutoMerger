@@ -3,7 +3,7 @@
         [config]="config" 
         [fields]="fields" 
         [model]="vatType"                
-        (change)="changeEvent($event)">
+        (change)="onChange($event)">
     </uni-form>
     <uni-table
             [resource]="vatType.VatReportReferences"
