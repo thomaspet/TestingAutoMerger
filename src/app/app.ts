@@ -10,7 +10,6 @@ import {ErrorService} from './services/common/ErrorService';
 import {PushMapper} from './models/PushMapper';
 import {AppConfig} from './AppConfig';
 import {Observable} from 'rxjs/Rx';
-import {UserService} from './services/common//UserService';
 
 declare const OneSignal;
 declare const window;
@@ -56,37 +55,6 @@ export class App {
         } /* don't need error handling */);
     }
 
-    private setOneSignal() {
-
-        console.log(window.ENV);
-
-        if (window.ENV === 'production') {
-            OneSignal.push(function() {
-                OneSignal.getUserId(function(userId) {
-                    console.log('OneSignal User ID:', userId);
-
-                    this.userService.getCurrentUser()
-                        .subscribe(
-                            user => {
-                                var body: PushMapper = {
-                                    DeviceToken : userId,
-                                    UserIdentity : user.GlobalIdentity,
-                                };
-
-                                this.http.asPOST()
-                                    .withBody(body)
-                                    .withHeader('Content-Type', 'application/json')
-                                    .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
-                                        .catch((err) => {
-                                        console.log(err);
-                                        return Observable.throw(err);
-                                    }).subscribe(response => null);
-                    });
-                });
-            });
-        }
-    }
-
     private initialize() {
 
         // Get companysettings
@@ -114,8 +82,5 @@ export class App {
 
         // KE: For now, don't load static registers - these are slow because of to much data in local storage
         // this.staticRegisterService.checkForStaticRegisterUpdate();
-
-        // OneSignal
-        this.setOneSignal();
     }
 }
