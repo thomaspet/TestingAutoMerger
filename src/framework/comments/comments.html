@@ -1,8 +1,8 @@
 <button class="comments_toggle"
         type="button"
         (click)="toggle($event)">Kommentarer</button>
-<span class="comments_count" *ngIf="comments.length">
-    {{comments.length}}
+<span class="comments_count">
+    {{comments?.length || 0}}
 </span>
 
 <section class="comments-view"
@@ -31,7 +31,7 @@
             <li *ngFor="let item of lookupResults; let idx = index"
                 role="option"
                 (mouseover)="selectedIndex = idx"
-                (click)="selectItem()"
+                (click)="selectItem($event)"
                 [attr.aria-selected]="selectedIndex === idx">
 
                 {{item.DisplayName}}

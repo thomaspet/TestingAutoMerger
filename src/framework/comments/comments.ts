@@ -20,11 +20,12 @@ export class UniComments {
     @Input()
     private entityID: number;
 
-    private isOpen: boolean = true;
+    private isOpen: boolean;
     private comments: Comment[] = [];
     private users: User[] = [];
 
     private inputControl: FormControl = new FormControl('');
+    private mentionedIndexes: number[] = [];
 
     // lookup
     private lookupResults: any[] = [];
@@ -40,10 +41,16 @@ export class UniComments {
         this.inputControl.valueChanges.debounceTime(150).subscribe((val) => {
             const mention = this.inputControl.value
                 .split(' ')
-                .find(word => word[0] === '@');
+                .find((word, index) => {
+                    if (word[0] !== '@') {
+                        return false;
+                    }
+                    // TODO: hacky for demo.. Rework this!
+                    return this.mentionedIndexes.findIndex(x => x === index) < 0;
+                });
 
             if (mention) {
-                this.mentionLookup(mention.substring(1));
+                this.mentionLookup(mention.substring(1).toLowerCase());
             } else {
                 this.lookupResults = [];
             }
@@ -63,6 +70,7 @@ export class UniComments {
     }
 
     public toggle(event?: MouseEvent) {
+        this.mentionedIndexes = [];
         if (event) {
             event.stopPropagation();
         }
@@ -75,6 +83,7 @@ export class UniComments {
     }
 
     public close() {
+        this.mentionedIndexes = [];
         this.isOpen = false;
     }
 
@@ -86,19 +95,29 @@ export class UniComments {
 
     private mentionLookup(word) {
         this.lookupResults = this.users.filter((user) => {
-            return (user.DisplayName || '').startsWith(word)
-                || (user.UserName || '').startsWith(word);
+            return (user.DisplayName || '').toLowerCase().startsWith(word)
+                || (user.UserName || '').toLowerCase().startsWith(word);
         });
 
         this.selectedIndex = (this.lookupResults.length > 0)
             ? 0 : undefined;
     }
 
-    public selectItem() {
+    public selectItem(event?: MouseEvent) {
+        if (event) {
+            event.stopPropagation(); // avoid trigger clickOutside
+        }
         const words = this.inputControl.value.split(' ');
-        const index = words.findIndex(word => word[0] === '@');
-        words[index] = this.lookupResults[this.selectedIndex].UserName;
+        const wordIndex = words.findIndex((word, index) => {
+            if (word[0] !== '@') {
+                return false;
+            }
+            // TODO: hacky for demo.. Rework this!
+            return this.mentionedIndexes.findIndex(x => x === index) < 0;
+        });
 
+        words[wordIndex] = '@' + this.lookupResults[this.selectedIndex].UserName;
+        this.mentionedIndexes.push(wordIndex);
         this.lookupResults = [];
         this.inputControl.setValue(words.join(' '), {emitEvent: false});
     }
@@ -133,6 +152,7 @@ export class UniComments {
     }
 
     public submit() {
+        this.mentionedIndexes = [];
         if (this.inputControl.value) {
             this.commentService.post(
                 this.entity,
