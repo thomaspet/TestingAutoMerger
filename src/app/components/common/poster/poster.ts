@@ -4,6 +4,7 @@ export * from './textWidget';
 export * from './contactWidget';
 export * from './tableWidget';
 export * from './alertsWidget';
+export * from './imageWidget';
 
 export interface IPosterWidget {
     type: string;
@@ -22,6 +23,7 @@ export interface IPosterWidget {
         <uni-widget-contact *ngIf="widget.type === 'contact'" [config]="widget.config"></uni-widget-contact>
         <uni-widget-table   *ngIf="widget.type === 'table'"   [config]="widget.config"></uni-widget-table>
         <uni-widget-alerts  *ngIf="widget.type === 'alerts'"  [config]="widget.config"></uni-widget-alerts>
+        <uni-widget-image   *ngIf="widget.type === 'image'"   [config]="widget.config"></uni-widget-image>
 
     </article>
     `

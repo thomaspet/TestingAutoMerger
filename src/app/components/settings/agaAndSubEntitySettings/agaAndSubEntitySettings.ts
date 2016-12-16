@@ -4,7 +4,9 @@ import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { SubEntityList } from './subEntityList';
-import { FieldType, CompanySalary, Account, SubEntity, AGAZone, AGASector } from '../../../unientities';
+import { 
+    FieldType, CompanySalary, Account, 
+    SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval } from '../../../unientities';
 import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService } from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
@@ -56,7 +58,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         private agazoneService: AgaZoneService,
         private errorService: ErrorService
     ) {
-
+        this.formConfig = {
+            sections: {
+                1: { isOpen: true }
+            }
+        };
     }
 
     public ngOnInit() {
@@ -104,7 +110,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgOrg.Property = 'OrgNumber';
         mainOrgOrg.FieldType = FieldType.TEXT;
         mainOrgOrg.Section = 1;
-        
+
         var mainOrgZone = new UniFieldLayout();
         mainOrgZone.Label = 'Sone';
         mainOrgZone.EntityType = 'mainOrganization';
@@ -245,6 +251,23 @@ export class AgaAndSubEntitySettings implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
+        let paymentInterval = new UniFieldLayout();
+        paymentInterval.EntityType = 'CompanySalary';
+        paymentInterval.Label = 'Lønnsintervall';
+        paymentInterval.Property = 'PaymentInterval';
+        paymentInterval.FieldType = FieldType.DROPDOWN;
+        paymentInterval.Section = 3;
+        paymentInterval.Sectionheader = 'Lønnsintervall';
+        paymentInterval.Options = {
+            source: [
+                { value: CompanySalaryPaymentInterval.Monthly, name: 'Måned' },
+                { value: CompanySalaryPaymentInterval.Pr14Days, name: '14-dager' },
+                { value: CompanySalaryPaymentInterval.Weekly, name: 'Uke' }
+            ],
+            valueProperty: 'value',
+            displayProperty: 'name'
+        };
+
         this.fields = [
             mainOrgName,
             mainOrgOrg,
@@ -261,7 +284,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountCostAga,
             mainAccountAllocatedAgaVacation,
             mainAccountCostAgaVacation,
-            interrimRemit
+            interrimRemit,
+            paymentInterval
         ];
     }
 
@@ -283,7 +307,9 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         if (this.companySalary) {
             let companySaveObs: Observable<CompanySalary>;
-            companySaveObs = this.companySalary['_isDirty'] ? this.companySalaryService.Put(this.companySalary.ID, this.companySalary) : Observable.of(this.companySalary);
+            companySaveObs = this.companySalary['_isDirty'] 
+            ? this.companySalaryService.Put(this.companySalary.ID, this.companySalary) 
+            : Observable.of(this.companySalary);
 
             saveObs.push(companySaveObs);
         }

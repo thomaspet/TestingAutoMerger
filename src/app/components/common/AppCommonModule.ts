@@ -36,7 +36,7 @@ import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {UniUploadFileButton} from './attacments/uploadFileButton';
-import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget} from './poster/poster';
+import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 
 @NgModule({
@@ -89,6 +89,7 @@ import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
         ContactWidget,
         TableWidget,
         AlertsWidget,
+        ImageWidget,
         UniUploadFileButton,
         ActivateAPForm,
         ActivateAPModal
@@ -144,6 +145,7 @@ import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
         ContactWidget,
         TableWidget,
         AlertsWidget,
+        ImageWidget,
         UniUploadFileButton,
         ActivateAPForm,
         ActivateAPModal
