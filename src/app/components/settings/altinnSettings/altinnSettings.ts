@@ -1,11 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {AltinnIntegrationService} from '../../../services/services';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {Altinn} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
-import {UniFieldLayout} from 'uniform-ng2/main';
-import {ErrorService} from '../../../services/common/ErrorService';
+import { Component, OnInit } from '@angular/core';
+import { AltinnIntegrationService } from '../../../services/services';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { Altinn } from '../../../unientities';
+import { Observable } from 'rxjs/Observable';
+import { IntegrationServerCaller } from '../../../services/common/IntegrationServerCaller';
+import { UniFieldLayout } from 'uniform-ng2/main';
+import { ErrorService } from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'altinn-settings',
@@ -15,6 +15,7 @@ import {ErrorService} from '../../../services/common/ErrorService';
 export class AltinnSettings implements OnInit {
     private formConfig: UniFieldLayout[] = [];
     private altinn: Altinn;
+    private busy: boolean;
 
     public saveactions: IUniSaveAction[] = [
         {
@@ -24,7 +25,7 @@ export class AltinnSettings implements OnInit {
             disabled: false
         }
     ];
-    
+
     public loginErr: string;
 
     constructor(
@@ -32,32 +33,39 @@ export class AltinnSettings implements OnInit {
         private integrate: IntegrationServerCaller,
         private errorService: ErrorService
     ) {
-           this.loginErr = '';
+        this.loginErr = '';
     }
 
     public ngOnInit() {
         this.getData();
     }
 
-    public check()  {
+    public check() {
         this.loginErr = '';
         if (this.altinn == undefined) {
-             this.altinn = new Altinn();
+            this.altinn = new Altinn();
         }
 
-        let company = JSON.parse(localStorage.getItem('companySettings'));      
-                
-        
-        this.integrate.checkSystemLogin(company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {
-            if (response !== true){                
-                this.loginErr = 'Failed to log in with given credentials'; 
-            } else {
-                this.loginErr = 'Login ok';
-            }
-        }, (err) => {
-            this.errorService.handle(err);
-            this.loginErr = err;
-        });
+        let company = JSON.parse(localStorage.getItem('companySettings'));
+
+        this.busy = true;
+        this.integrate
+            .checkSystemLogin(
+            company.OrganizationNumber,
+            this.altinn.SystemID,
+            this.altinn.SystemPw,
+            this.altinn.Language)
+            .finally(() => this.busy = false)
+            .subscribe((response) => {
+                if (response !== true) {
+                    this.loginErr = 'Failed to log in with given credentials';
+                } else {
+                    this.loginErr = 'Login ok';
+                }
+            }, (err) => {
+                this.errorService.handle(err);
+                this.loginErr = err;
+            });
 
     }
 
