@@ -11,8 +11,6 @@ import {PushMapper} from './models/PushMapper';
 import {AppConfig} from './AppConfig';
 import {Observable} from 'rxjs/Rx';
 
-declare const OneSignal;
-declare const window;
 
 @Component({
     selector: 'uni-app',
