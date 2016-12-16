@@ -299,7 +299,7 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
                     .setFilterable(false)
-                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryLineJournalEntryNumber))
+                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
             ];
 
         columns.forEach(x => {

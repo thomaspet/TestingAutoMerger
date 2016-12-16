@@ -611,12 +611,15 @@ export class JournalEntryProfessional implements OnInit {
 
                 if (tableData.length > 0) {
                     let range = this.journalEntryService.findJournalNumbersFromLines(tableData);
-                    this.lastUsedJournalEntryNumber = range.lastNumber;
-                    this.firstAvailableJournalEntryNumber = range.nextNumber;
 
-                    for (let i = 0; i <= (range.last - range.first); i++) {
-                        let jn = `${i + range.first}-${range.year}`;
-                        this.journalEntryNumberAlternatives.push({ID: jn, Name: jn});
+                    if (range) {
+                        this.lastUsedJournalEntryNumber = range.lastNumber;
+                        this.firstAvailableJournalEntryNumber = range.nextNumber;
+
+                        for (let i = 0; i <= (range.last - range.first); i++) {
+                            let jn = `${i + range.first}-${range.year}`;
+                            this.journalEntryNumberAlternatives.push({ID: jn, Name: jn});
+                        }
                     }
                 }
             }
