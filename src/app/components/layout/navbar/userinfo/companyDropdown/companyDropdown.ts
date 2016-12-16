@@ -20,7 +20,8 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
 
             <span class="navbar_company_title"
                 (click)="companyDropdownActive = !companyDropdownActive">
-                {{activeCompany.Name}}<span class="navbar_company_title_year">{{activeYearHdr}}</span>
+                <span class="navbar_company_title_name">{{activeCompany.Name}}</span>
+                <span class="navbar_company_title_year">{{activeYearHdr}}</span>
             </span>
 
             <section class="navbar_company_dropdown"
