@@ -67,6 +67,7 @@ export class BillView {
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
     private bankAccountChanged: any;
+    private commentsConfig: any;
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
@@ -129,6 +130,11 @@ export class BillView {
                 this.newInvoice(true);
                 this.checkPath();
             }
+
+            this.commentsConfig = {
+                entityType: SupplierInvoice.EntityType,
+                entityID: +params.id
+            };
         });
 
     }
@@ -1066,7 +1072,7 @@ export class BillView {
                     this.newInvoice(false);
                     this.router.navigateByUrl('/accounting/bill/0');
                 }
-            },
+            }
         };
     }
 
