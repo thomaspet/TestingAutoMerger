@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TabService } from '../layout/navbar/tabstrip/tabService';
 import { UniModules } from '../layout/navbar/tabstrip/tabService';
 import { IPosterWidget } from '../common/poster/poster';
@@ -6,6 +6,7 @@ import { CompanySettings, SubEntity, User, File } from '../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { CompanySettingsService, SubEntityService, UserService, ErrorService } from '../../services/services';
 import { UniHttp } from '../../../framework/core/http/http';
+import {IToolbarConfig} from '../common/toolbar/toolbar';
 
 @Component({
     selector: 'settings',
@@ -18,7 +19,7 @@ export class Settings {
         {
             type: 'image',
             config: {
-                
+
             }
         },
         {
@@ -59,6 +60,10 @@ export class Settings {
         ];
     }
 
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Innstillinger'
+    };
+
     public ngOnInit() {
         Observable.forkJoin(
             this.companySettingsService.GetAll('').map(response => response[0]),
@@ -79,12 +84,12 @@ export class Settings {
     }
 
     private updateWidgets(
-        companySettings: CompanySettings, 
-        subEntities: SubEntity[], 
-        users: User[], 
+        companySettings: CompanySettings,
+        subEntities: SubEntity[],
+        users: User[],
         currentUser: User,
         file: File) {
-        
+
         let posterCompanyLogo: IPosterWidget = {
             type: 'image',
             config: {
@@ -93,7 +98,7 @@ export class Settings {
                 altText: 'firmalogo'
             }
         };
-        
+
         let posterOrgNumber: IPosterWidget = {
             type: 'text',
             config: {
