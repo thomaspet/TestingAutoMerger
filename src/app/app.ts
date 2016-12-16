@@ -54,7 +54,6 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
-        this.setOneSignal();
     }
 
     private setOneSignal() {
@@ -114,5 +113,6 @@ export class App {
         // this.staticRegisterService.checkForStaticRegisterUpdate();
 
         // OneSignal
+        this.setOneSignal();
     }
 }
