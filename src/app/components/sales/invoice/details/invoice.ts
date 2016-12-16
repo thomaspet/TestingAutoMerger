@@ -470,6 +470,18 @@ export class InvoiceDetails {
             }
         });
 
+        if (!this.invoice.CreditDays) {
+            if (this.invoice.PaymentDueDate && this.invoice.InvoiceDate) {
+                this.invoice.CreditDays = moment(this.invoice.PaymentDueDate).diff(moment(this.invoice.InvoiceDate), 'days');
+            } else if (this.invoice.Customer && this.invoice.Customer.CreditDays) {
+                this.invoice.CreditDays =  this.invoice.Customer.CreditDays;
+            } else if (this.companySettings && this.companySettings.CustomerCreditDays) {
+                this.invoice.CreditDays = this.companySettings.CustomerCreditDays;
+            } else {
+                this.invoice.CreditDays = 0;
+            }
+        }
+
         if (!this.invoice.DeliveryDate) {
             this.invoice.DeliveryDate = this.invoice.InvoiceDate || new Date();
         }
