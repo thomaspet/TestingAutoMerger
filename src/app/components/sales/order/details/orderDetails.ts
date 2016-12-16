@@ -356,7 +356,22 @@ export class OrderDetails {
 
         this.saveActions.push({
             label: 'Registrer',
-            action: (done) => this.saveOrderTransition(done, 'register', 'Registrert'),
+            action: (done) => {
+                if (this.order.ID) {
+                    this.saveOrderTransition(done, 'register', 'Registrert');
+                } else {
+                    this.saveOrder().subscribe(
+                        (res) => {
+                            done('Ordre registrert');
+                            this.isDirty = false;
+                            this.router.navigateByUrl('/sales/orders/' + res.ID);
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                }
+
+
+            },
             disabled: transitions && !transitions['register'],
             main: !transitions || transitions['register']
         });
@@ -411,7 +426,7 @@ export class OrderDetails {
         this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveAndTransferToInvoice(done),
-            disabled: !transitions || !transitions['toInvoice']
+            disabled: !transitions || !transitions['transferToInvoice']
         });
 
         this.saveActions.push({
@@ -498,19 +513,12 @@ export class OrderDetails {
     }
 
     private saveOrderTransition(done: any, transition: string, doneText: string) {
-        const navigateOnSuccess = !this.order.ID;
         this.saveOrder().subscribe(
             (order) => {
                 this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
                     (res) => {
                         done(doneText);
-                        if (navigateOnSuccess) {
-                            this.isDirty = false;
-                            this.router.navigateByUrl('/sales/orders/' + order.ID);
-                        } else {
-                            this.orderID = res.ID;
-                            this.refreshOrder();
-                        }
+                        this.refreshOrder();
                     },
                     (err) => {
                         done('Lagring feilet');

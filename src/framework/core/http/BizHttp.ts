@@ -105,8 +105,9 @@ export class BizHttp<T> {
             ID = 'new';
         }
 
-        const hash = this.hashFnv32a(this.relativeURL + expandStr);
+        const hash = this.hashFnv32a(this.relativeURL + ID + expandStr);
         const cached = this.getFromCache(hash);
+
         if (cached) {
             return Observable.of(cached);
         } else {

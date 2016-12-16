@@ -269,6 +269,18 @@ export class InvoiceDetails {
     }
 
     public onInvoiceChange(invoice) {
+        if (!invoice.CreditDays && invoice.Customer) {
+            invoice.CreditDays = invoice.Customer.CreditDays;
+        }
+
+        if (!invoice.PaymentDueDate) {
+            let dueDate = new Date(invoice.InvoiceDate);
+            if (dueDate) {
+                dueDate.setDate(dueDate.getDate() + invoice.CreditDays);
+                invoice.PaymentDueDate = dueDate;
+            }
+        }
+
         this.isDirty = true;
         this.invoice = _.cloneDeep(invoice);
     }
@@ -320,6 +332,10 @@ export class InvoiceDetails {
     }
 
     private refreshInvoice(invoice: CustomerInvoice) {
+        if (!invoice.CreditDays && invoice.Customer) {
+            invoice.CreditDays = invoice.Customer.CreditDays;
+        }
+
         if (!invoice.PaymentDueDate) {
             let dueDate = new Date(invoice.InvoiceDate);
             if (dueDate) {
@@ -420,12 +436,6 @@ export class InvoiceDetails {
                 main: status === StatusCodeCustomerInvoice.Paid
             });
         }
-
-        this.saveActions.push({
-            label: 'Krediter faktura',
-            action: (done) => this.creditInvoice(done),
-            main: status === StatusCodeCustomerInvoice.Paid
-        });
 
         this.saveActions.push({
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
