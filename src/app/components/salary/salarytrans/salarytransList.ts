@@ -436,7 +436,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
 
         if (!project) {
-            rowModel.Dimensions.ProjectID = 0;
+            rowModel.Dimensions.ProjectID = null;
             return;
         }
 
@@ -451,7 +451,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
 
         if (!department) {
-            rowModel.Dimensions.DepartmentID = 0;
+            rowModel.Dimensions.DepartmentID = null;
             return;
         }
 

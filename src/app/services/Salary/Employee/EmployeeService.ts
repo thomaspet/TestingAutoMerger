@@ -80,7 +80,6 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     public get(id: number | string, expand: string[] = null) {
-        console.log('new entity from get, id is ', id);
         if (id === 0) {
             if (expand) {
                 return super.GetNewEntity(expand);
