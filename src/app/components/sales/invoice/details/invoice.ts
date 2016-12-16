@@ -131,10 +131,46 @@ export class InvoiceDetails {
 
         this.companySettingsService.Get(1)
             .subscribe(
-                settings => this.companySettings = settings,
+                settings => {
+                    this.companySettings = settings;
+                    this.setupContextMenuItems();
+                },
                 err => this.errorService.handle(err)
         );
 
+
+
+        // Subscribe to route param changes and update invoice data
+        this.route.params.subscribe((params) => {
+            this.invoiceID = +params['id'];
+            const customerID = +params['customerID'];
+
+            if (this.invoiceID === 0) {
+                Observable.forkJoin(
+                    this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
+                    this.userService.getCurrentUser(),
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
+                ).subscribe((res) => {
+                    let invoice = <CustomerInvoice>res[0];
+                    invoice.OurReference = res[1].DisplayName;
+                    invoice.InvoiceDate = new Date();
+                    invoice.DeliveryDate = new Date();
+                    invoice.PaymentDueDate = null;
+                    if (res[2]) {
+                        invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
+                    }
+                    this.refreshInvoice(invoice);
+                }, err => this.errorService.handle(err));
+            } else {
+                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
+                    this.refreshInvoice(invoice);
+                }, err => this.errorService.handle(err));
+            }
+
+        }, err => this.errorService.handle(err));
+    }
+
+    private setupContextMenuItems() {
         // contextMenu
         this.contextMenuItems = [
             {
@@ -182,35 +218,6 @@ export class InvoiceDetails {
                 disabled: () => !this.invoice.ID
             }
         ];
-
-        // Subscribe to route param changes and update invoice data
-        this.route.params.subscribe((params) => {
-            this.invoiceID = +params['id'];
-            const customerID = +params['customerID'];
-
-            if (this.invoiceID === 0) {
-                Observable.forkJoin(
-                    this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
-                    this.userService.getCurrentUser(),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
-                ).subscribe((res) => {
-                    let invoice = <CustomerInvoice>res[0];
-                    invoice.OurReference = res[1].DisplayName;
-                    invoice.InvoiceDate = new Date();
-                    invoice.DeliveryDate = new Date();
-                    invoice.PaymentDueDate = null;
-                    if (res[2]) {
-                        invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
-                    }
-                    this.refreshInvoice(invoice);
-                }, err => this.errorService.handle(err));
-            } else {
-                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
-                    this.refreshInvoice(invoice);
-                }, err => this.errorService.handle(err));
-            }
-
-        }, err => this.errorService.handle(err));
     }
 
     @HostListener('keydown', ['$event'])

@@ -93,7 +93,6 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Bilagsføring', componentUrl: '/accounting', moduleID: UniModules.Accounting},
                     {componentName: 'Fakturamottak', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
-                    {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices', hidden: true},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     // KE: This is not really needed anymore - I'll just hide it for now, but the components should be removed when BA has approved new solution
