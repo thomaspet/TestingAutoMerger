@@ -9,6 +9,7 @@ import {CompanySyncModal} from './components/init/companySyncModal';
 import {ErrorService} from './services/common/ErrorService';
 import {PushMapper} from './models/PushMapper';
 import {AppConfig} from './AppConfig';
+import {Observable} from 'rxjs/Rx';
 
 declare const OneSignal;
 declare const window;
@@ -52,19 +53,44 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
+        this.setOneSignal();
     }
 
-    private initialize() {
-        var body : PushMapper = {
+    private setOneSignal() {
+        var body: PushMapper = {
             DeviceToken : 'testToken',
             UserIdentity : 'testUser',
         };
-
-
+        /* just for test pourposes
         this.http.asPOST()
             .withBody(body)
             .withHeader('Content-Type', 'application/json')
-            .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices');
+            .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
+            .catch((err) => {
+                console.log(err);
+                return Observable.throw(err);
+            }).subscribe(response => null);
+        //*/
+        
+        if (window.ENV === 'production') {
+            OneSignal.push(function() {
+                OneSignal.getUserId(function(userId) {
+                    console.log('OneSignal User ID:', userId);
+                    this.http.asPOST()
+                        .withBody(body)
+                        .withHeader('Content-Type', 'application/json')
+                        .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
+                        .catch((err) => {
+                            console.log(err);
+                            return Observable.throw(err);
+                        }).subscribe(response => null);
+                    
+                });
+            });
+        }
+    }
+
+    private initialize() {
 
         // Get companysettings
         this.http.asGET()
@@ -93,20 +119,5 @@ export class App {
         // this.staticRegisterService.checkForStaticRegisterUpdate();
 
         // OneSignal
-
-        console.log(window.ENV);
-        if (window.ENV === 'production') {
-            OneSignal.push(function() {
-                OneSignal.getUserId(function(userId) {
-                    console.log('OneSignal User ID:', userId);
-
-                    this.http.asPOST()
-                        .withBody(body)
-                        .withHeader('Content-Type', 'application/json')
-                        .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices');
-                    
-                });
-            });
-        }
     }
 }

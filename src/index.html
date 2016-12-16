@@ -29,6 +29,7 @@
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script>
+        window.ENV = '<%= environment %>';
         if (window.ENV === 'production') {
             var OneSignal = window.OneSignal || [];
             OneSignal.push(["init", {
@@ -135,7 +136,6 @@
                 APP_VERSION = "<%= gitRevision %>";
             </script>
             <script>
-                window.ENV = '<%= environment %>';
                 System.import('system.config.js').then(function() {
                     System.import('app/appModule');
                 }).catch(console.error.bind(console));
