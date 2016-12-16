@@ -188,7 +188,7 @@ export class PaymentBatchDetails implements OnChanges {
         let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '');
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
-            .setDisplayField('PaymentCode.Name');
+            .setDisplayField('PaymentCode.Name').setVisible(false);
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
 
         // Setup table

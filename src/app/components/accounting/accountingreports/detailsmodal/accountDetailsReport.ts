@@ -85,25 +85,27 @@ export class AccountDetailsReport {
         }
 
         urlParams.set('model', 'JournalEntryLine');
+
         urlParams.set('select',
-            'ID as ID,'
-            + 'JournalEntryNumber as JournalEntryNumber,'
-            + 'FinancialDate,'
-            + 'Description as Description,'
-            + 'VatType.VatCode,'
-            + 'Amount as Amount,'
-            + 'Department.Name,'
-            + 'Project.Name,'
-            + 'Department.DepartmentNumber,'
-            + 'Project.ProjectNumber,'
-            + 'count(FileEntityLink.ID) as Attachments,'
-            + 'JournalEntryID as JournalEntryID'
-            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
-        );
+            'ID as ID,' +
+            'JournalEntryNumber as JournalEntryNumber,' +
+            'FinancialDate,' +
+            'Description as Description,' +
+            'VatType.VatCode,' +
+            'Amount as Amount,' +
+            'Department.Name,' +
+            'Project.Name,' +
+            'Department.DepartmentNumber,' +
+            'Project.ProjectNumber,' +
+            'JournalEntryID as JournalEntryID,' +
+            'ReferenceCreditPostID as ReferenceCreditPostID,' +
+            'OriginalReferencePostID as OriginalReferencePostID,' +
+            'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments');
+
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
-        urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
+        urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -118,17 +120,8 @@ export class AccountDetailsReport {
 
     private setupTransactionsTable() {
 
-        this.uniTableConfigTransactions = new UniTableConfig(false, false)
-            .setPageable(true)
-            .setPageSize(20)
-            .setSearchable(true)
-            .setDataMapper((data) => {
-                let tmp = data !== null ? data.Data : [];
-
-                return tmp;
-            })
-            .setColumns([
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+        let columns = [
+            new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setFilterOperator('contains'),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
@@ -151,6 +144,23 @@ export class AccountDetailsReport {
                     .setWidth('40px')
                     .setFilterable(false)
                     .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
-            ]);
+        ];
+
+        columns.forEach(x => {
+            x.conditionalCls = (data) => {
+                return data.ReferenceCreditPostID || data.OriginalReferencePostID ? 'journal-entry-credited' : '';
+            };
+        });
+
+        this.uniTableConfigTransactions = new UniTableConfig(false, false)
+            .setPageable(true)
+            .setPageSize(20)
+            .setSearchable(true)
+            .setDataMapper((data) => {
+                let tmp = data !== null ? data.Data : [];
+
+                return tmp;
+            })
+            .setColumns(columns);
     }
 }

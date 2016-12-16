@@ -94,12 +94,14 @@ export class TransqueryDetails implements OnInit {
             'TerminPeriod.No,' +
             'TerminPeriod.AccountYear,' +
             'JournalEntryID as JournalEntryID,' +
+            'ReferenceCreditPostID as ReferenceCreditPostID,' +
+            'OriginalReferencePostID as OriginalReferencePostID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
         );
         urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
-        urlParams.set('orderby', urlParams.get('orderby') || 'ID desc');
+        urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -223,7 +225,6 @@ export class TransqueryDetails implements OnInit {
 
                         //recalc summary
                         if (this.lastFilterString) {
-                            console.log('recalc', this.lastFilterString);
                             this.onFiltersChange(this.lastFilterString);
                         }
                     },
@@ -236,32 +237,8 @@ export class TransqueryDetails implements OnInit {
 
         let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
 
-        return new UniTableConfig(false, false)
-            .setPageable(true)
-            .setPageSize(20)
-            .setColumnMenuVisible(false)
-            .setSearchable(this.allowManualSearch)
-            .setFilters(unitableFilter)
-            .setAllowGroupFilter(true)
-            .setColumnMenuVisible(true)
-            .setDataMapper((data) => {
-                let tmp = data !== null ? data.Data : [];
-
-                if (data !== null && data.Message !== null && data.Message !== '') {
-                    this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
-                }
-
-                return tmp;
-            })
-            .setContextMenu([
-                {
-                    action: (item) => this.creditJournalEntry(item.JournalEntryLineJournalEntryNumber),
-                    disabled: (item) => false,
-                    label: 'Krediter bilag'
-                }
-            ])
-            .setColumns([
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+        let columns = [
+            new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
                                 ${line.JournalEntryLineJournalEntryNumber}
@@ -323,6 +300,38 @@ export class TransqueryDetails implements OnInit {
                     .setWidth('40px')
                     .setFilterable(false)
                     .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryLineJournalEntryNumber))
-            ]);
+            ];
+
+        columns.forEach(x => {
+            x.conditionalCls = (data) => {
+                return data.ReferenceCreditPostID || data.OriginalReferencePostID ? 'journal-entry-credited' : '';
+            };
+        });
+
+        return new UniTableConfig(false, false)
+            .setPageable(true)
+            .setPageSize(20)
+            .setColumnMenuVisible(false)
+            .setSearchable(this.allowManualSearch)
+            .setFilters(unitableFilter)
+            .setAllowGroupFilter(true)
+            .setColumnMenuVisible(true)
+            .setDataMapper((data) => {
+                let tmp = data !== null ? data.Data : [];
+
+                if (data !== null && data.Message !== null && data.Message !== '') {
+                    this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
+                }
+
+                return tmp;
+            })
+            .setContextMenu([
+                {
+                    action: (item) => this.creditJournalEntry(item.JournalEntryLineJournalEntryNumber),
+                    disabled: (item) => false,
+                    label: 'Krediter bilag'
+                }
+            ])
+            .setColumns(columns);
     }
 }
