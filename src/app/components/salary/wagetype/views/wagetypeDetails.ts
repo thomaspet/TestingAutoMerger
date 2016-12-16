@@ -2,7 +2,9 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
-import { WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
+import { 
+    WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, 
+    StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 
@@ -34,6 +36,7 @@ export class WagetypeDetail extends UniView {
     private showSupplementaryInformations: boolean = false;
     private hidePackageDropdown: boolean = true;
     private showBenefitAndDescriptionAsReadonly: boolean = true;
+    private wageetypeUsedFieldIsReadOnly: boolean = false;
 
     private currentPackage: string;
     private rateIsReadOnly: boolean;
@@ -140,13 +143,15 @@ export class WagetypeDetail extends UniView {
         Observable.forkJoin(
             this.wageService.layout('WagetypeDetails'),
             this.inntektService.getSalaryValidValueTypes(),
-            this.accountService.GetAll(null)
+            this.accountService.GetAll(null),
+            this.wageService.usedInPayrollrun(this.wagetypeID)
         ).subscribe(
             (response: any) => {
-                let [layout, validvaluesTypes, accounts] = response;
+                let [layout, validvaluesTypes, accounts, usedInPayrollrun] = response;
                 this.fields = layout.Fields;
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
+                this.wageetypeUsedFieldIsReadOnly = usedInPayrollrun;
 
                 this.extendFields();
                 this.updateUniformFields();
@@ -159,6 +164,12 @@ export class WagetypeDetail extends UniView {
     private extendFields() {
         let rate: UniFieldLayout = this.findByProperty('Rate');
         rate.ReadOnly = this.rateIsReadOnly;
+
+        let baseOptionsField: UniFieldLayout = this.findByProperty('_baseOptions');
+        baseOptionsField.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
+
+        let basePaymentField: UniFieldLayout = this.findByProperty('Base_Payment');
+        basePaymentField.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let wageTypeNumber: UniFieldLayout = this.findByProperty('WageTypeNumber');
         wageTypeNumber.ReadOnly = this.wageType.ID > 0;
@@ -179,15 +190,16 @@ export class WagetypeDetail extends UniView {
         accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
         this.basePayment = this.wageType.Base_Payment;
 
-        let specialAgaRule = this.findByProperty('SpecialAgaRule');
+        let specialAgaRule: UniFieldLayout = this.findByProperty('SpecialAgaRule');
         specialAgaRule.Options = {
             source: this.specialAgaRule,
             displayProperty: 'Name',
             valueProperty: 'ID',
             debounceTime: 500
         };
+        specialAgaRule.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
-        let taxtype = this.findByProperty('taxtype');
+        let taxtype: UniFieldLayout = this.findByProperty('taxtype');
         taxtype.Options = {
             source: this.taxType,
             template: (obj) => obj.Name,
@@ -203,6 +215,7 @@ export class WagetypeDetail extends UniView {
                 }
             }
         };
+        taxtype.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let getRateFrom = this.fields.find(x => x.Property === 'GetRateFrom');
         getRateFrom.Options = {
@@ -211,7 +224,7 @@ export class WagetypeDetail extends UniView {
             valueProperty: 'ID'
         };
 
-        let standardWageTypeFor = this.fields.find(x => x.Property === 'StandardWageTypeFor');
+        let standardWageTypeFor: UniFieldLayout = this.findByProperty('StandardWageTypeFor');
         standardWageTypeFor.Options = {
             source: this.stdWageType,
             displayProperty: 'Name',
@@ -230,6 +243,7 @@ export class WagetypeDetail extends UniView {
                 }
             }
         };
+        standardWageTypeFor.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let specialTaxAndContributionsRule = this.fields.find(x => x.Property === 'SpecialTaxAndContributionsRule');
         specialTaxAndContributionsRule.Options = {

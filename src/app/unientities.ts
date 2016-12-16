@@ -1868,14 +1868,14 @@ export class AGACalculation {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
-    public agaPension: Array<AGAPension>;
-    public foreignerWithPercent: Array<ForeignerWithPercent>;
-    public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
-    public foreignerWithAmount: Array<ForeignerWithAmount>;
     public payrollRun: PayrollRun;
+    public freeAmountUsed: Array<FreeAmountUsed>;
+    public foreignerWithAmount: Array<ForeignerWithAmount>;
+    public foreignerWithPercent: Array<ForeignerWithPercent>;
+    public agaPension: Array<AGAPension>;
+    public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public CustomFields: any;
 }
 

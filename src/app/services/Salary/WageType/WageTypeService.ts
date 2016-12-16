@@ -55,6 +55,15 @@ export class WageTypeService extends BizHttp<WageType> {
             return this.Get(id, this.defaultExpands);
         }
     }
+
+    public usedInPayrollrun(ID: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=used-in-payrollrun')
+            .send()
+            .map(response => response.json());
+    }
     
     public getPrevious(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID desc`, expands ? expands : this.defaultExpands)
