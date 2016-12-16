@@ -30,6 +30,14 @@
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script>
         window.ENV = '<%= environment %>';
+
+        if (window.location.indexOf('localhost') >= 0) {
+            window.ENV = 'development';
+        }
+        else {
+            window.ENV = 'production';
+        }
+
         if (window.ENV === 'production') {
             var OneSignal = window.OneSignal || [];
             OneSignal.push(["init", {
