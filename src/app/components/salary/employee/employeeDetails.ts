@@ -760,20 +760,7 @@ export class EmployeeDetails extends UniView {
                                 }
                                 return trans;
                             })
-                            .subscribe(
-                            (res: SalaryTransaction) => {
-                                recurringPosts[index] = res;
-                            },
-                            (err) => {
-                                hasErrors = true;
-                                recurringPosts[index].Deleted = false;
-                                let toastHeader =
-                                    `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                                let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                this.errorService.handle(err);
-                            },
-                            () => {
+                            .finally(() => {
                                 saveCount++;
                                 if (saveCount === changeCount) {
                                     this.saveStatus.completeCount++;
@@ -787,6 +774,19 @@ export class EmployeeDetails extends UniView {
 
                                     this.checkForSaveDone(done);
                                 }
+                            })
+                            .subscribe(
+                            (res: SalaryTransaction) => {
+                                recurringPosts[index] = res;
+                            },
+                            (err) => {
+                                hasErrors = true;
+                                recurringPosts[index].Deleted = false;
+                                let toastHeader =
+                                    `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                                let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                this.errorService.handle(err);
                             }
                             );
                     }
