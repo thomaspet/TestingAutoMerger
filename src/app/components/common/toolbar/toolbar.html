@@ -5,8 +5,8 @@
     (statusSelectEvent)="selectStatus($event)">
 </uni-statustrack>
 
-<uni-comments *ngIf="commentsConfig"
-              [entity]="commentsConfig.entityName"
+<uni-comments *ngIf="commentsConfig?.entityID > 0"
+              [entity]="commentsConfig.entityType"
               [entityID]="commentsConfig.entityID">
 </uni-comments>
 

@@ -128,7 +128,7 @@ export class QuoteDetails {
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
             this.commentsConfig = {
-                entityName: 'CustomerQuote',
+                entityType: 'CustomerQuote',
                 entityID: this.quoteID
             };
 
