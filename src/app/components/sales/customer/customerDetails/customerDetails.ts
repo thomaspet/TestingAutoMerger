@@ -734,21 +734,6 @@ export class CustomerDetails {
                     CustomFields: null
                 },
                 {
-                    EntityType: 'Customer',
-                    Property: 'GLN',
-                    Label: 'GLN',
-                    FieldType: FieldType.TEXT
-                },
-                {
-                    Sectionheader: 'Aksesspunkt',
-                    Legend: 'Aksesspunkt',
-                    Section: 1,
-                    EntityType: 'Customer',
-                    Property: 'PeppolAddress',
-                    Label: 'Peppoladresse',
-                    FieldType: FieldType.TEXT
-                },
-                {
                     Url: 'customers',
                     Validations: [
 
@@ -772,7 +757,7 @@ export class CustomerDetails {
                     HelpText: null,
                     Placeholder: null,
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 1,
                     Options: null,
                     LineBreak: false,
                     Combo: null,
@@ -801,7 +786,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 3,
+                    Section: 2,
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -830,7 +815,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 3,
+                    Section: 2,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -844,6 +829,24 @@ export class CustomerDetails {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null
+                },
+                {
+                    Sectionheader: 'EHF',
+                    Legend: 'EHF',
+                    Section: 3,
+                    EntityType: 'Customer',
+                    Property: 'PeppolAddress',
+                    Label: 'Peppoladresse',
+                    FieldType: FieldType.TEXT
+                },
+                {
+                    Sectionheader: 'EHF',
+                    Legend: 'EHF',
+                    Section: 3,
+                    EntityType: 'Customer',
+                    Property: 'GLN',
+                    Label: 'GLN-nummer',
+                    FieldType: FieldType.TEXT
                 },
                 {
                     ComponentLayoutID: 3,
