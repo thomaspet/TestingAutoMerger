@@ -58,15 +58,16 @@ export class App {
     }
 
     private setOneSignal() {
-
         console.log(window.ENV);
+
+        var self = this;
 
         if (window.ENV === 'production') {
             OneSignal.push(function() {
                 OneSignal.getUserId(function(userId) {
                     console.log('OneSignal User ID:', userId);
 
-                    this.userService.getCurrentUser()
+                    self.userService.getCurrentUser()
                         .subscribe(
                             user => {
                                 var body: PushMapper = {
@@ -74,7 +75,7 @@ export class App {
                                     UserIdentity : user.GlobalIdentity,
                                 };
 
-                                this.http.asPOST()
+                                self.http.asPOST()
                                     .withBody(body)
                                     .withHeader('Content-Type', 'application/json')
                                     .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
