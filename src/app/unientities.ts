@@ -1,40 +1,47 @@
 /* tslint:disable */
 
- export class LocalDate {
+export class LocalDate {
     private value: Date;
-    constructor(value: string | Date) {
-        this.value = typeof value === 'string' ? new Date(value) : value;
-        if (isNaN(this.value.getTime())) { throw new Error(`Invalid date initializer supplied: ${value}`); }
+    constructor(value: string | Date = new Date()) {
+        if (typeof value === 'string') {
+            this.value = new Date(value);
+        } else if (Object.prototype.toString.call(value) === '[object Date]') {
+            this.value = value
+        } else {
+            throw new Error(`Can only be initialized with a date or a sting! Was: ${value} (${typeof value})`);
+        }
+        if (isNaN(this.value.getTime())) {
+            throw new Error(`The date you supplied is not valid: ${value}`);
+        }
     }
-    public toJSON(): any {
-        const org = this.value;
-        const y = org.getFullYear();
-        const m = org.getMonth() + 1;
-        const d = org.getDate();
-        return y + '-' + ('00'+m).slice(-2) + '-' + ('00'+d).slice(-2)
+    public toJSON(): string {
+        const y = this.value.getFullYear();
+        const m = this.value.getMonth() + 1;
+        const d = this.value.getDate();
+        return y + '-' + ('00'+m).slice(-2) + '-' + ('00'+d).slice(-2);
     }
     public toDate(): Date {
-        return this.value;
+        return new Date(this.value.getTime());
     }
     public toString(): string {
-        return this.value.toString();
+        return this.toJSON();
     }
 }
 
 export class LocalTime {
-  constructor(private value: string) {
-    if (!/^\d{2}:\d{2}:\d{2}(\.\d{1,7})?$/.test(this.value)) {
-      throw new Error('UniTime needs to be either on the format'
-      + ` 00:00:00 or 00:00:00.000! Was: ${this.value}!`);
+    constructor(private value: string) {
+        if (!/^\d{2}:\d{2}:\d{2}(\.\d{1,7})?$/.test(this.value)) {
+            throw new Error('LocalTime needs to be either on the format'
+                + ` 00:00:00 or 00:00:00.000! Was: ${this.value}!`);
+        }
     }
-  }
-  public toJSON() {
-    return this.value;
-  }
-  public toString() {
-    return this.value;
-  }
-} 
+    public toJSON() {
+        return this.value;
+    }
+    public toString() {
+        return this.value;
+    }
+}
 
 export class AuditLog {
     public static RelativeUrl = 'auditlogs';
