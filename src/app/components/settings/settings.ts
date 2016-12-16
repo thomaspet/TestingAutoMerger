@@ -104,7 +104,7 @@ export class Settings {
             config: {
                 topText: [{ text: 'Org.Nummer', class: 'large' }],
                 mainText: { text: companySettings.OrganizationNumber },
-                bottomText: [{ text: subEntities.length + 'virksomheter', class: 'small' }]
+                bottomText: [{ text: subEntities.length + ' virksomheter', class: 'small' }]
             }
         };
         let posterCurrentUser: IPosterWidget = {
