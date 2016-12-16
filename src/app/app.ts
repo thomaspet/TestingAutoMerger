@@ -29,7 +29,8 @@ export class App {
         private authService: AuthService,
         private http: UniHttp,
         private staticRegisterService: StaticRegisterService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private userService: UserService
     ) {
 
         // prohibit dropping of files unless otherwise specified
