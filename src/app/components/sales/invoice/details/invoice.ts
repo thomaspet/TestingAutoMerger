@@ -184,10 +184,14 @@ export class InvoiceDetails {
                             this.activateAPModal.Changed.subscribe((activate) => {
                                 this.ehfService.Activate(activate).subscribe((ok) => {
                                     if (ok) {
+                                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
                                         this.sendEHF();
                                     } else {
                                         this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
                                     }
+                                },
+                                (err) => {
+                                    this.errorService.handle(err);
                                 });
                             });
                         }
@@ -284,8 +288,8 @@ export class InvoiceDetails {
             () => {
                 this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
             },
-            (error) => {
-                this.errorService.handleWithMessage(error, null);
+            (err) => {
+                this.errorService.handle(err);
             });
     }
 
