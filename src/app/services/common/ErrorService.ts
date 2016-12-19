@@ -44,7 +44,7 @@ export class ErrorService {
             } else if (errContent && errContent.Message) {
                 return errContent.Message;
             } else {
-                return error._body;
+                return '[Unparsable error occurred, see logs for more info]';
             }
         } else if (error.statusText) {
             return error.statusText;
