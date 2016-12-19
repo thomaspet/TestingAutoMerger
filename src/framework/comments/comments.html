@@ -14,7 +14,7 @@
             <aside class="comment-avatar"><!-- TODO --></aside>
             <main>
                 <header>
-                    <strong>{{comment._author}}</strong>
+                    <strong>{{comment.Author?.DisplayName}}</strong>
                     <small>{{getTimeFromNow(comment.CreatedAt)}}</small>
                 </header>
                 <blockquote>{{comment.Text}}</blockquote>

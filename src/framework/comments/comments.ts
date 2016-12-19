@@ -59,12 +59,10 @@ export class UniComments {
 
     public ngOnChanges() {
         if (this.entity && this.entityID) {
+            this.getAllOnEntity();
             this.userService.GetAll(null).subscribe(
-                (res) => {
-                    this.users = res;
-                    this.getAllOnEntity();
-                },
-                this.errorService.handle
+                res => this.users = res,
+                err => this.errorService.handle(err)
             );
         }
     }
@@ -116,7 +114,7 @@ export class UniComments {
             return this.mentionedIndexes.findIndex(x => x === index) < 0;
         });
 
-        words[wordIndex] = '@' + this.lookupResults[this.selectedIndex].UserName;
+        words[wordIndex] = '@' + this.lookupResults[this.selectedIndex].UserName + ' ';
         this.mentionedIndexes.push(wordIndex);
         this.lookupResults = [];
         this.inputControl.setValue(words.join(' '), {emitEvent: false});
@@ -129,6 +127,7 @@ export class UniComments {
 
         switch (event.which || event.keyCode) {
             case KeyCodes.ENTER:
+            case KeyCodes.TAB:
                 event.preventDefault();
                 this.selectItem();
             break;
@@ -160,7 +159,7 @@ export class UniComments {
                 this.inputControl.value
             ).subscribe(
                 (res) => {
-                    this.inputControl = new FormControl('');
+                    this.inputControl.setValue('', {emitEvent: false});
                     this.getAllOnEntity();
                 },
                 this.errorService.handle
@@ -170,18 +169,8 @@ export class UniComments {
 
     public getAllOnEntity() {
         this.commentService.getAll(this.entity, this.entityID).subscribe(
-            (res) => {
-                // REVISIT: if expanding Author works this can be removed
-                this.comments = res.map((comment) => {
-                    const author = this.users.find(user => user.ID === comment.AuthorID);
-                    comment['_author'] = (author && author.DisplayName)
-                        ? author.DisplayName : 'Ukjent bruker';
-
-                    return comment;
-                });
-                // this.comments = res
-            },
-            this.errorService.handle
+            res => this.comments = res,
+            err => this.errorService.handle(err)
         );
     }
 

@@ -8,9 +8,10 @@ export class CommentService {
     constructor(protected http: UniHttp) {}
 
     public getAll(entity: string, entityID: number) {
+        const route = `comments?filter=entitytype eq '${entity}' and entityid eq ${entityID}`;
         return this.http.asGET()
             .usingBusinessDomain()
-            .withEndPoint(`${Comment.RelativeUrl}/${entity}/${entityID}`)
+            .withEndPoint(`${route}&expand=Author`)
             .send()
             .map(res => res.json());
     }
