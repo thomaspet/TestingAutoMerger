@@ -54,13 +54,6 @@ export class ErrorService {
     }
 
     public addErrorToast(message: string) {
-        const duplicate = this.toastService.getToasts()
-            .find(toast => toast.message === message);
-
-        if (duplicate) {
-            this.toastService.removeToast(duplicate.id);
-        }
-
         this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
     }
 }

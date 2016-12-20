@@ -12,6 +12,7 @@ export interface IToast {
     title: string;
     message?: string;
     duration: number;
+    count: number;
 }
 
 @Injectable()
@@ -19,49 +20,49 @@ export class ToastService {
     private nextId: number = 0;
     private toasts: IToast[] = [];
 
-    public addToast(title: string, type?: ToastType, durationInSeconds?: number, message?: string): number {
-        let id = this.nextId++;
-        this.toasts.push({
-            id: id,
-            type: type || ToastType.bad,
-            title: title,
-            message: message || '',
-            duration: durationInSeconds || 0,
-        });
-        return id;
+    public addToast(
+        title: string,
+        type?: ToastType,
+        durationInSeconds?: number,
+        message?: string
+    ): number {
+        const duplicate = this.toasts.find(toast => toast.message === message);
+        if (duplicate) {
+            const i = this.toasts.indexOf(duplicate);
+            this.toasts[i] = <IToast>{
+                id: duplicate.id,
+                type: duplicate.type,
+                title: duplicate.title,
+                message: duplicate.message,
+                duration: duplicate.duration,
+                count: duplicate.count + 1
+            };
+            return duplicate.id;
+        } else {
+            const id = this.nextId++;
+            this.toasts.push(<IToast>{
+                id: id,
+                type: type || ToastType.bad,
+                title: title,
+                message: message || '',
+                duration: durationInSeconds || 0,
+                count: 1
+            });
+            return id;
+        }
     }
 
     public clear() {
-        this.toasts.forEach( x => {
-            this.removeToast(x.id);
-        });
-        this.toasts.length = 0;
+        this.toasts = [];
     }
 
     public getToasts(): IToast[] {
         return this.toasts;
     }
 
-    public removeToast(id) {
+    public removeToast(id: number) {
         this.toasts = this.toasts.filter((toast) => {
             return toast.id !== id;
         });
-    }
-
-    public parseErrorMessageFromError(err): string {
-        let message = '';
-
-        if (err && err._body) {
-            let errContent = JSON.parse(err._body);
-            if (errContent && errContent.Messages && errContent.Messages.length > 0) {
-                errContent.Messages.forEach(msg => {
-                    message += msg.Message + '.\n';
-                });
-            }
-        } else if (err && err._body) {
-            message = JSON.stringify(err._body);
-        }
-
-        return message;
     }
 }
