@@ -24,7 +24,8 @@ export class AccountReportFilterForm implements OnInit {
         IncludeCorrections: boolean,
         ShowAccountsWithoutDetails: boolean,
         UseColors: boolean,
-        ShowAccountsWithoutBalance: boolean
+        ShowAccountsWithoutBalance: boolean,
+        ShowFilter: string
     } = {
         PeriodAccountYear: new Date().getFullYear(),
         FromAccountNumber: 1000,
@@ -35,18 +36,21 @@ export class AccountReportFilterForm implements OnInit {
         IncludeCorrections: false,
         UseColors: true,
         ShowAccountsWithoutDetails: false,
-        ShowAccountsWithoutBalance: false
+        ShowAccountsWithoutBalance: false,
+        ShowFilter: 'withoutCorrections'
     };
 
-    // TODO: 
-    // * Show journal entries with/without corrections
-    // * 
-
-        private typeOfOrderBy: { ID: string, Label: string }[] = [
+    private typeOfOrderBy: { ID: string, Label: string }[] = [
         { ID: 'AccountNrAndDate', Label: 'Kontonr og dato' },
         { ID: 'AccountNrAndJournalNr', Label: 'Kontonr og bilagsnr' },
         { ID: 'AccountNameAndDate', Label: 'Kontonavn og dato' },
         { ID: 'AccountNameAndJournalNr', Label: 'Kontonavn og bilagsnr' }
+    ];
+
+    private typeOfShowFilter: {ID: string, Label: string}[] = [
+        {ID: 'withoutCorrections', Label: 'uten korrigeringer'},
+        {ID: 'withCorrections', Label: 'med korrigeringer'},
+        {ID: 'onlyCorrections', Label: 'med KUN korrigeringer'}
     ];
 
     constructor() {
@@ -89,6 +93,16 @@ export class AccountReportFilterForm implements OnInit {
                 Property: 'OrderBy',
                 Options: {
                     source: this.typeOfOrderBy,
+                    valueProperty: 'ID',
+                    displayProperty: 'Label'
+                }
+            },
+            <any>{
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Vis bilag',
+                Property: 'ShowFilter',
+                Options: {
+                    source: this.typeOfShowFilter,
                     valueProperty: 'ID',
                     displayProperty: 'Label'
                 }
