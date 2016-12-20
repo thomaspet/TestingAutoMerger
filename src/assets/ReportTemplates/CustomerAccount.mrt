@@ -1,1 +1,1586 @@
-{"ReportVersion":"2016.2.2","ReportGuid":"b185d6fedbe75260351cecc51c862c8f","ReportName":"Kontoutskrift_kunder","ReportAlias":"Kontoutskrift kunder","ReportCreated":"/Date(14400000+0100)/","ReportChanged":"/Date(14400000+0100)/","EngineVersion":"EngineV2","CalculationMode":"Interpretation","Styles":{"0":{"Ident":"StiStyle","Name":"Style1","Font":"Algerian;;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:245,245,245","TextBrush":"solid:0,0,0","AllowUseFont":false},"1":{"Ident":"StiStyle","Name":"Style2","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0"},"2":{"Ident":"StiStyle","Name":"Style3","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,0,0"}},"Dictionary":{"Variables":{"0":{"Value":"2016","Name":"PeriodAccountYear","Alias":"PeriodAccountYear","Type":"System.Int32","RequestFromUser":true},"1":{"Value":"1","Name":"FromPeriodNo","Alias":"Fra periode","Type":"System.Decimal","RequestFromUser":true},"2":{"Value":"12","Name":"ToPeriodNo","Alias":"Til periode","Type":"System.Decimal","RequestFromUser":true},"3":{"Name":"FromAccountNumber","DialogInfo":{"ItemsInitializationType":"Columns","KeysColumn":"journalEntryLines_Data.SubAccountAccountNumber","ValuesColumn":"journalEntryLines_Data.SubAccountAccountNumber"},"Alias":"Fra kontonr","Type":"System.Decimal","RequestFromUser":true},"4":{"Value":"9999","Name":"ToAccountNumber","DialogInfo":{"ItemsInitializationType":"Columns","KeysColumn":"journalEntryLines_Data.SubAccountAccountNumber","ValuesColumn":"journalEntryLines_Data.SubAccountAccountNumber"},"Alias":"Til kontonr","Type":"System.Decimal","RequestFromUser":true},"5":{"Value":"name","Name":"OrderByGroup","DialogInfo":{"DateTimeType":"DateAndTime"},"Alias":"OrderByGroup","Type":"System.String","ReadOnly":true},"6":{"Value":"withCorrections","Name":"ShowFilter","DialogInfo":{"DateTimeType":"DateAndTime"},"Alias":"ShowFilter","Type":"System.String"},"7":{"Value":"Financialdate","Name":"OrderBy","Alias":"OrderBy","Type":"System.String"}},"DataSources":{"0":{"Ident":"StiDataTableSource","Name":"companysettings","Alias":"companysettings","Columns":{"0":{"Name":"AccountGroupSetID","Index":-1,"NameInSource":"AccountGroupSetID","Alias":"AccountGroupSetID","Type":"System.Decimal"},"1":{"Name":"AccountingLockedDate","Index":-1,"NameInSource":"AccountingLockedDate","Alias":"AccountingLockedDate","Type":"System.String"},"2":{"Name":"AutoJournalPayment","Index":-1,"NameInSource":"AutoJournalPayment","Alias":"AutoJournalPayment","Type":"System.Boolean"},"3":{"Name":"BaseCurrency","Index":-1,"NameInSource":"BaseCurrency","Alias":"BaseCurrency","Type":"System.String"},"4":{"Name":"CompanyBankAccountID","Index":-1,"NameInSource":"CompanyBankAccountID","Alias":"CompanyBankAccountID","Type":"System.Decimal"},"5":{"Name":"CompanyName","Index":-1,"NameInSource":"CompanyName","Alias":"CompanyName","Type":"System.String"},"6":{"Name":"CompanyRegistered","Index":-1,"NameInSource":"CompanyRegistered","Alias":"CompanyRegistered","Type":"System.Boolean"},"7":{"Name":"CompanyTypeID","Index":-1,"NameInSource":"CompanyTypeID","Alias":"CompanyTypeID","Type":"System.Decimal"},"8":{"Name":"CreatedAt","Index":-1,"NameInSource":"CreatedAt","Alias":"CreatedAt","Type":"System.String"},"9":{"Name":"CreatedBy","Index":-1,"NameInSource":"CreatedBy","Alias":"CreatedBy","Type":"System.String"},"10":{"Name":"CustomValues","Index":-1,"NameInSource":"CustomValues","Alias":"CustomValues","Type":"System.String"},"11":{"Name":"CustomerAccountID","Index":-1,"NameInSource":"CustomerAccountID","Alias":"CustomerAccountID","Type":"System.Decimal"},"12":{"Name":"CustomerCreditDays","Index":-1,"NameInSource":"CustomerCreditDays","Alias":"CustomerCreditDays","Type":"System.Decimal"},"13":{"Name":"Deleted","Index":-1,"NameInSource":"Deleted","Alias":"Deleted","Type":"System.Boolean"},"14":{"Name":"ForceSupplierInvoiceApproval","Index":-1,"NameInSource":"ForceSupplierInvoiceApproval","Alias":"ForceSupplierInvoiceApproval","Type":"System.String"},"15":{"Name":"ID","Index":-1,"NameInSource":"ID","Alias":"ID","Type":"System.Decimal"},"16":{"Name":"LogoFileID","Index":-1,"NameInSource":"LogoFileID","Alias":"LogoFileID","Type":"System.Decimal"},"17":{"Name":"OfficeMunicipalityNo","Index":-1,"NameInSource":"OfficeMunicipalityNo","Alias":"OfficeMunicipalityNo","Type":"System.String"},"18":{"Name":"OrganizationNumber","Index":-1,"NameInSource":"OrganizationNumber","Alias":"OrganizationNumber","Type":"System.String"},"19":{"Name":"PeriodSeriesAccountID","Index":-1,"NameInSource":"PeriodSeriesAccountID","Alias":"PeriodSeriesAccountID","Type":"System.Decimal"},"20":{"Name":"PeriodSeriesVatID","Index":-1,"NameInSource":"PeriodSeriesVatID","Alias":"PeriodSeriesVatID","Type":"System.Decimal"},"21":{"Name":"SalaryBankAccountID","Index":-1,"NameInSource":"SalaryBankAccountID","Alias":"SalaryBankAccountID","Type":"System.String"},"22":{"Name":"SettlementVatAccountID","Index":-1,"NameInSource":"SettlementVatAccountID","Alias":"SettlementVatAccountID","Type":"System.Decimal"},"23":{"Name":"StatusCode","Index":-1,"NameInSource":"StatusCode","Alias":"StatusCode","Type":"System.String"},"24":{"Name":"SupplierAccountID","Index":-1,"NameInSource":"SupplierAccountID","Alias":"SupplierAccountID","Type":"System.Decimal"},"25":{"Name":"TaxBankAccountID","Index":-1,"NameInSource":"TaxBankAccountID","Alias":"TaxBankAccountID","Type":"System.String"},"26":{"Name":"TaxMandatory","Index":-1,"NameInSource":"TaxMandatory","Alias":"TaxMandatory","Type":"System.Boolean"},"27":{"Name":"UpdatedAt","Index":-1,"NameInSource":"UpdatedAt","Alias":"UpdatedAt","Type":"System.String"},"28":{"Name":"UpdatedBy","Index":-1,"NameInSource":"UpdatedBy","Alias":"UpdatedBy","Type":"System.String"},"29":{"Name":"VatLockedDate","Index":-1,"NameInSource":"VatLockedDate","Alias":"VatLockedDate","Type":"System.String"},"30":{"Name":"VatReportFormID","Index":-1,"NameInSource":"VatReportFormID","Alias":"VatReportFormID","Type":"System.Decimal"},"31":{"Name":"WebAddress","Index":-1,"NameInSource":"WebAddress","Alias":"WebAddress","Type":"System.String"},"32":{"Name":"_links","Index":-1,"NameInSource":"_links","Alias":"_links","Type":"System.String"}},"NameInSource":"kontoutskriftkunder.companysettings"},"1":{"Ident":"StiDataTableSource","Name":"companysettings__links","Alias":"companysettings__links","Columns":{"0":{"Name":"actions","Index":-1,"NameInSource":"actions","Alias":"actions","Type":"System.String"},"1":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"},"2":{"Name":"relations","Index":-1,"NameInSource":"relations","Alias":"relations","Type":"System.String"},"3":{"Name":"transitions","Index":-1,"NameInSource":"transitions","Alias":"transitions","Type":"System.String"}},"NameInSource":"kontoutskriftkunder.companysettings__links"},"2":{"Ident":"StiDataTableSource","Name":"companysettings__links_actions","Alias":"companysettings__links_actions","Columns":{"0":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_actions"},"3":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations","Alias":"companysettings__links_relations","Columns":{"0":{"Name":"BankAccounts","Index":-1,"NameInSource":"BankAccounts","Alias":"BankAccounts","Type":"System.String"},"1":{"Name":"CompanyBankAccount","Index":-1,"NameInSource":"CompanyBankAccount","Alias":"CompanyBankAccount","Type":"System.String"},"2":{"Name":"CustomerAccount","Index":-1,"NameInSource":"CustomerAccount","Alias":"CustomerAccount","Type":"System.String"},"3":{"Name":"Self","Index":-1,"NameInSource":"Self","Alias":"Self","Type":"System.String"},"4":{"Name":"SettlementVatAccount","Index":-1,"NameInSource":"SettlementVatAccount","Alias":"SettlementVatAccount","Type":"System.String"},"5":{"Name":"SupplierAccount","Index":-1,"NameInSource":"SupplierAccount","Alias":"SupplierAccount","Type":"System.String"},"6":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations"},"4":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations_BankAccounts","Alias":"companysettings__links_relations_BankAccounts","Columns":{"0":{"Name":"description","Index":-1,"NameInSource":"description","Alias":"description","Type":"System.String"},"1":{"Name":"href","Index":-1,"NameInSource":"href","Alias":"href","Type":"System.String"},"2":{"Name":"label","Index":-1,"NameInSource":"label","Alias":"label","Type":"System.String"},"3":{"Name":"method","Index":-1,"NameInSource":"method","Alias":"method","Type":"System.String"},"4":{"Name":"readonly","Index":-1,"NameInSource":"readonly","Alias":"readonly","Type":"System.Boolean"},"5":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations_BankAccounts"},"5":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations_CompanyBankAccount","Alias":"companysettings__links_relations_CompanyBankAccount","Columns":{"0":{"Name":"description","Index":-1,"NameInSource":"description","Alias":"description","Type":"System.String"},"1":{"Name":"href","Index":-1,"NameInSource":"href","Alias":"href","Type":"System.String"},"2":{"Name":"label","Index":-1,"NameInSource":"label","Alias":"label","Type":"System.String"},"3":{"Name":"method","Index":-1,"NameInSource":"method","Alias":"method","Type":"System.String"},"4":{"Name":"readonly","Index":-1,"NameInSource":"readonly","Alias":"readonly","Type":"System.Boolean"},"5":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations_CompanyBankAccount"},"6":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations_CustomerAccount","Alias":"companysettings__links_relations_CustomerAccount","Columns":{"0":{"Name":"description","Index":-1,"NameInSource":"description","Alias":"description","Type":"System.String"},"1":{"Name":"href","Index":-1,"NameInSource":"href","Alias":"href","Type":"System.String"},"2":{"Name":"label","Index":-1,"NameInSource":"label","Alias":"label","Type":"System.String"},"3":{"Name":"method","Index":-1,"NameInSource":"method","Alias":"method","Type":"System.String"},"4":{"Name":"readonly","Index":-1,"NameInSource":"readonly","Alias":"readonly","Type":"System.Boolean"},"5":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations_CustomerAccount"},"7":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations_Self","Alias":"companysettings__links_relations_Self","Columns":{"0":{"Name":"description","Index":-1,"NameInSource":"description","Alias":"description","Type":"System.String"},"1":{"Name":"href","Index":-1,"NameInSource":"href","Alias":"href","Type":"System.String"},"2":{"Name":"label","Index":-1,"NameInSource":"label","Alias":"label","Type":"System.String"},"3":{"Name":"method","Index":-1,"NameInSource":"method","Alias":"method","Type":"System.String"},"4":{"Name":"readonly","Index":-1,"NameInSource":"readonly","Alias":"readonly","Type":"System.Boolean"},"5":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations_Self"},"8":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations_SettlementVatAccount","Alias":"companysettings__links_relations_SettlementVatAccount","Columns":{"0":{"Name":"description","Index":-1,"NameInSource":"description","Alias":"description","Type":"System.String"},"1":{"Name":"href","Index":-1,"NameInSource":"href","Alias":"href","Type":"System.String"},"2":{"Name":"label","Index":-1,"NameInSource":"label","Alias":"label","Type":"System.String"},"3":{"Name":"method","Index":-1,"NameInSource":"method","Alias":"method","Type":"System.String"},"4":{"Name":"readonly","Index":-1,"NameInSource":"readonly","Alias":"readonly","Type":"System.Boolean"},"5":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations_SettlementVatAccount"},"9":{"Ident":"StiDataTableSource","Name":"companysettings__links_relations_SupplierAccount","Alias":"companysettings__links_relations_SupplierAccount","Columns":{"0":{"Name":"description","Index":-1,"NameInSource":"description","Alias":"description","Type":"System.String"},"1":{"Name":"href","Index":-1,"NameInSource":"href","Alias":"href","Type":"System.String"},"2":{"Name":"label","Index":-1,"NameInSource":"label","Alias":"label","Type":"System.String"},"3":{"Name":"method","Index":-1,"NameInSource":"method","Alias":"method","Type":"System.String"},"4":{"Name":"readonly","Index":-1,"NameInSource":"readonly","Alias":"readonly","Type":"System.Boolean"},"5":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_relations_SupplierAccount"},"10":{"Ident":"StiDataTableSource","Name":"companysettings__links_transitions","Alias":"companysettings__links_transitions","Columns":{"0":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings__links_transitions"},"11":{"Ident":"StiDataTableSource","Name":"companysettings_CustomValues","Alias":"companysettings_CustomValues","Columns":{"0":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.companysettings_CustomValues"},"12":{"Ident":"StiDataTableSource","Name":"journalentrydataLedger","Alias":"journalentrydataLedger","Columns":{"0":{"Name":"Data","Index":-1,"NameInSource":"Data","Alias":"Data","Type":"System.String"},"1":{"Name":"Message","Index":-1,"NameInSource":"Message","Alias":"Message","Type":"System.String"},"2":{"Name":"Success","Index":-1,"NameInSource":"Success","Alias":"Success","Type":"System.Boolean"}},"NameInSource":"kontoutskriftkunder.journalentrydataLedger"},"13":{"Ident":"StiDataTableSource","Name":"journalentrydataLedger_Data","Alias":"journalentrydataLedger_Data","Columns":{"0":{"Name":"SubAccountAccountName","Index":-1,"NameInSource":"SubAccountAccountName","Alias":"SubAccountAccountName","Type":"System.String"},"1":{"Name":"SubAccountAccountNumber","Index":-1,"NameInSource":"SubAccountAccountNumber","Alias":"SubAccountAccountNumber","Type":"System.Decimal"},"2":{"Name":"SumAfterPeriodThisYear","Index":-1,"NameInSource":"SumAfterPeriodThisYear","Alias":"SumAfterPeriodThisYear","Type":"System.Decimal"},"3":{"Name":"SumCreditThisPeriod","Index":-1,"NameInSource":"SumCreditThisPeriod","Alias":"SumCreditThisPeriod","Type":"System.Decimal"},"4":{"Name":"SumDebitThisPeriod","Index":-1,"NameInSource":"SumDebitThisPeriod","Alias":"SumDebitThisPeriod","Type":"System.Decimal"},"5":{"Name":"SumIB","Index":-1,"NameInSource":"SumIB","Alias":"SumIB","Type":"System.Decimal"},"6":{"Name":"SumThisPeriod","Index":-1,"NameInSource":"SumThisPeriod","Alias":"SumThisPeriod","Type":"System.Decimal"},"7":{"Name":"SumThisPeriodLastYear","Index":-1,"NameInSource":"SumThisPeriodLastYear","Alias":"SumThisPeriodLastYear","Type":"System.Decimal"},"8":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.journalentrydataLedger_Data"},"14":{"Ident":"StiDataTableSource","Name":"journalEntryLines","Alias":"journalEntryLines","Columns":{"0":{"Name":"Data","Index":-1,"NameInSource":"Data","Alias":"Data","Type":"System.String"},"1":{"Name":"Message","Index":-1,"NameInSource":"Message","Alias":"Message","Type":"System.String"},"2":{"Name":"Success","Index":-1,"NameInSource":"Success","Alias":"Success","Type":"System.Boolean"}},"NameInSource":"kontoutskriftkunder.journalEntryLines"},"15":{"Ident":"StiDataTableSource","Name":"journalEntryLines_Data","Alias":"journalEntryLines_Data","Columns":{"0":{"Name":"CustomerInvoiceInvoiceNumber","Index":-1,"NameInSource":"CustomerInvoiceInvoiceNumber","Alias":"CustomerInvoiceInvoiceNumber","Type":"System.String"},"1":{"Name":"DepartmentDepartmentNumber","Index":-1,"NameInSource":"DepartmentDepartmentNumber","Alias":"DepartmentDepartmentNumber","Type":"System.Decimal"},"2":{"Name":"JournalEntryLineAccountID","Index":-1,"NameInSource":"JournalEntryLineAccountID","Alias":"JournalEntryLineAccountID","Type":"System.Decimal"},"3":{"Name":"JournalEntryLineAmount","Index":-1,"NameInSource":"JournalEntryLineAmount","Alias":"JournalEntryLineAmount","Type":"System.Decimal"},"4":{"Name":"JournalEntryLineDescription","Index":-1,"NameInSource":"JournalEntryLineDescription","Alias":"JournalEntryLineDescription","Type":"System.String"},"5":{"Name":"JournalEntryLineFinancialDate","Index":-1,"NameInSource":"JournalEntryLineFinancialDate","Alias":"JournalEntryLineFinancialDate","Type":"System.DateTime"},"6":{"Name":"JournalEntryLineJournalEntryNumber","Index":-1,"NameInSource":"JournalEntryLineJournalEntryNumber","Alias":"JournalEntryLineJournalEntryNumber","Type":"System.String"},"7":{"Name":"JournalEntryLineJournalEntryNumberNumeric","Index":-1,"NameInSource":"JournalEntryLineJournalEntryNumberNumeric","Alias":"JournalEntryLineJournalEntryNumberNumeric","Type":"System.Decimal"},"8":{"Name":"JournalEntryLineOriginalJournalEntryPost","Index":-1,"NameInSource":"JournalEntryLineOriginalJournalEntryPost","Alias":"JournalEntryLineOriginalJournalEntryPost","Type":"System.Decimal"},"9":{"Name":"JournalEntryLineVatDate","Index":-1,"NameInSource":"JournalEntryLineVatDate","Alias":"JournalEntryLineVatDate","Type":"System.String"},"10":{"Name":"PeriodAccountYear","Index":-1,"NameInSource":"PeriodAccountYear","Alias":"PeriodAccountYear","Type":"System.Decimal"},"11":{"Name":"PeriodNo","Index":-1,"NameInSource":"PeriodNo","Alias":"PeriodNo","Type":"System.Decimal"},"12":{"Name":"ProjectProjectNumber","Index":-1,"NameInSource":"ProjectProjectNumber","Alias":"ProjectProjectNumber","Type":"System.Decimal"},"13":{"Name":"SubAccountAccountName","Index":-1,"NameInSource":"SubAccountAccountName","Alias":"SubAccountAccountName","Type":"System.String"},"14":{"Name":"SubAccountAccountNumber","Index":-1,"NameInSource":"SubAccountAccountNumber","Alias":"SubAccountAccountNumber","Type":"System.Decimal"},"15":{"Name":"VatPeriodAccountYear","Index":-1,"NameInSource":"VatPeriodAccountYear","Alias":"VatPeriodAccountYear","Type":"System.Decimal"},"16":{"Name":"VatPeriodNo","Index":-1,"NameInSource":"VatPeriodNo","Alias":"VatPeriodNo","Type":"System.Decimal"},"17":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.journalEntryLines_Data"},"16":{"Ident":"StiDataTableSource","Name":"user","Alias":"user","Columns":{"0":{"Name":"CreatedAt","Index":-1,"NameInSource":"CreatedAt","Alias":"CreatedAt","Type":"System.String"},"1":{"Name":"CreatedBy","Index":-1,"NameInSource":"CreatedBy","Alias":"CreatedBy","Type":"System.String"},"2":{"Name":"CustomValues","Index":-1,"NameInSource":"CustomValues","Alias":"CustomValues","Type":"System.String"},"3":{"Name":"Deleted","Index":-1,"NameInSource":"Deleted","Alias":"Deleted","Type":"System.Boolean"},"4":{"Name":"DisplayName","Index":-1,"NameInSource":"DisplayName","Alias":"DisplayName","Type":"System.String"},"5":{"Name":"Email","Index":-1,"NameInSource":"Email","Alias":"Email","Type":"System.String"},"6":{"Name":"GlobalIdentity","Index":-1,"NameInSource":"GlobalIdentity","Alias":"GlobalIdentity","Type":"System.String"},"7":{"Name":"ID","Index":-1,"NameInSource":"ID","Alias":"ID","Type":"System.Decimal"},"8":{"Name":"LastLogin","Index":-1,"NameInSource":"LastLogin","Alias":"LastLogin","Type":"System.String"},"9":{"Name":"PhoneNumber","Index":-1,"NameInSource":"PhoneNumber","Alias":"PhoneNumber","Type":"System.String"},"10":{"Name":"StatusCode","Index":-1,"NameInSource":"StatusCode","Alias":"StatusCode","Type":"System.Decimal"},"11":{"Name":"UpdatedAt","Index":-1,"NameInSource":"UpdatedAt","Alias":"UpdatedAt","Type":"System.String"},"12":{"Name":"UpdatedBy","Index":-1,"NameInSource":"UpdatedBy","Alias":"UpdatedBy","Type":"System.String"}},"NameInSource":"kontoutskriftkunder.user"},"17":{"Ident":"StiDataTableSource","Name":"user_CustomValues","Alias":"user_CustomValues","Columns":{"0":{"Name":"relationId","Index":-1,"NameInSource":"relationId","Alias":"relationId","Type":"System.Decimal"}},"NameInSource":"kontoutskriftkunder.user_CustomValues"}},"Databases":{"0":{"Ident":"StiJsonDatabase","Name":"kontoutskriftkunder","Alias":"kontoutskriftkunder","PathData":"C:\\Src\\UniEconomyReport\\UE Reports\\DataSource\\kontoutskriftkunder.json"}},"Relations":{"0":{"Name":"companysettings_CustomValues","ChildColumns":{"0":"CustomValues"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings_CustomValues","Alias":"companysettings_CustomValues","IsCloud":null,"ParentSource":"companysettings_CustomValues","ChildSource":"companysettings"},"1":{"Name":"companysettings__links","ChildColumns":{"0":"_links"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links","Alias":"companysettings__links","IsCloud":null,"ParentSource":"companysettings__links","ChildSource":"companysettings"},"2":{"Name":"companysettings__links_actions","ChildColumns":{"0":"actions"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_actions","Alias":"companysettings__links_actions","IsCloud":null,"ParentSource":"companysettings__links_actions","ChildSource":"companysettings__links"},"3":{"Name":"companysettings__links_relations","ChildColumns":{"0":"relations"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations","Alias":"companysettings__links_relations","IsCloud":null,"ParentSource":"companysettings__links_relations","ChildSource":"companysettings__links"},"4":{"Name":"companysettings__links_transitions","ChildColumns":{"0":"transitions"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_transitions","Alias":"companysettings__links_transitions","IsCloud":null,"ParentSource":"companysettings__links_transitions","ChildSource":"companysettings__links"},"5":{"Name":"companysettings__links_relations_BankAccounts","ChildColumns":{"0":"BankAccounts"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations_BankAccounts","Alias":"companysettings__links_relations_BankAccounts","IsCloud":null,"ParentSource":"companysettings__links_relations_BankAccounts","ChildSource":"companysettings__links_relations"},"6":{"Name":"companysettings__links_relations_CompanyBankAccount","ChildColumns":{"0":"CompanyBankAccount"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations_CompanyBankAccount","Alias":"companysettings__links_relations_CompanyBankAccount","IsCloud":null,"ParentSource":"companysettings__links_relations_CompanyBankAccount","ChildSource":"companysettings__links_relations"},"7":{"Name":"companysettings__links_relations_CustomerAccount","ChildColumns":{"0":"CustomerAccount"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations_CustomerAccount","Alias":"companysettings__links_relations_CustomerAccount","IsCloud":null,"ParentSource":"companysettings__links_relations_CustomerAccount","ChildSource":"companysettings__links_relations"},"8":{"Name":"companysettings__links_relations_Self","ChildColumns":{"0":"Self"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations_Self","Alias":"companysettings__links_relations_Self","IsCloud":null,"ParentSource":"companysettings__links_relations_Self","ChildSource":"companysettings__links_relations"},"9":{"Name":"companysettings__links_relations_SettlementVatAccount","ChildColumns":{"0":"SettlementVatAccount"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations_SettlementVatAccount","Alias":"companysettings__links_relations_SettlementVatAccount","IsCloud":null,"ParentSource":"companysettings__links_relations_SettlementVatAccount","ChildSource":"companysettings__links_relations"},"10":{"Name":"companysettings__links_relations_SupplierAccount","ChildColumns":{"0":"SupplierAccount"},"ParentColumns":{"0":"relationId"},"NameInSource":"companysettings__links_relations_SupplierAccount","Alias":"companysettings__links_relations_SupplierAccount","IsCloud":null,"ParentSource":"companysettings__links_relations_SupplierAccount","ChildSource":"companysettings__links_relations"},"11":{"Name":"journalEntryLines_Data","ChildColumns":{"0":"Data"},"ParentColumns":{"0":"relationId"},"NameInSource":"journalEntryLines_Data","Alias":"journalEntryLines_Data","IsCloud":null,"ParentSource":"journalEntryLines_Data","ChildSource":"journalEntryLines"},"12":{"Name":"journalentrydataLedger_Data","ChildColumns":{"0":"Data"},"ParentColumns":{"0":"relationId"},"NameInSource":"journalentrydataLedger_Data","Alias":"journalentrydataLedger_Data","IsCloud":null,"ParentSource":"journalentrydataLedger_Data","ChildSource":"journalentrydataLedger"},"13":{"Name":"user_CustomValues","ChildColumns":{"0":"CustomValues"},"ParentColumns":{"0":"relationId"},"NameInSource":"user_CustomValues","Alias":"user_CustomValues","IsCloud":null,"ParentSource":"user_CustomValues","ChildSource":"user"}}},"Pages":{"0":{"Ident":"StiPage","Name":"Page1","Guid":"a69f43cf-eac9-eb05-9abd-6bde37f66d61","Interaction":{"Ident":"StiInteraction"},"Border":";;2;;;;;solid:Black","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiPageHeaderBand","Name":"PageHeaderBand1","ClientRectangle":"0,0.4,19,3.4","ComponentPlacement":"ph.Page1","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiText","Name":"Text23","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,0.2,11.8,1.2","ComponentPlacement":"ph.PageHeaderBand1","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{ReportAlias}"},"Font":"Source Sans Pro;34;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","Type":"Expression"},"1":{"Ident":"StiText","Name":"Text2","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,1.4,10.6,1","ComponentPlacement":"ph.PageHeaderBand1","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{companysettings.CompanyName}"},"VertAlignment":"Center","Font":"Source Sans Pro;16;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","Type":"DataColumn"},"2":{"Ident":"StiText","Name":"Text1","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"12,0.2,7,1","ComponentPlacement":"ph.PageHeaderBand1","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{PeriodAccountYear}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;24;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","Type":"Expression"},"3":{"Ident":"StiText","Name":"Text22","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"13.2,1.2,5.8,0.6","ComponentPlacement":"ph.PageHeaderBand1","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Periode {FromPeriodNo} - {ToPeriodNo}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"4":{"Ident":"StiText","Name":"Text24","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"13.2,1.8,5.8,0.6","ComponentPlacement":"ph.PageHeaderBand1","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Konto {FromAccountNumber} - {ToAccountNumber}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"5":{"Ident":"StiText","Name":"Text45","Guid":"e7ef23cb-15f5-7e86-b97d-e2d2888ff4f1","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"13.2,2.4,5.8,0.6","ComponentPlacement":"ph.PageHeaderBand1","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Vis: {Switch(ShowFilter == \"withCorrections\", \"med korrigeringer\",\r\nShowFilter == \"withoutCorrections\", \"uten korrigeringer\",\r\nShowFilter == \"onlyCorrections\", \"kun korrigeringer\")}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"}}},"1":{"Ident":"StiPageFooterBand","Name":"PageFooterBand1","ClientRectangle":"0,24.9,19,2.8","ComponentPlacement":"pf.Page1","Interaction":{"Ident":"StiInteraction"},"Border":"Top;231,230,230;;;;;;solid:0,0,0","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiImage","Name":"Image1","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,0,2.6,2.6","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","Stretch":true,"Image":""},"1":{"Ident":"StiShape","Name":"Shape1","ShiftMode":"DecreasingSize","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"17.4,1.1,1.6,1.6","Interaction":{"Ident":"StiInteraction"},"Brush":"solid:236,245,249","BorderColor":"Transparent","Style":"None","ShapeType":{"Ident":"StiOvalShapeType"}},"2":{"Ident":"StiText","Name":"Text9","ShiftMode":"DecreasingSize","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"17.4,1.1,1.6,1.6","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{PageNumber} / {TotalPageCount}"},"HorAlignment":"Center","VertAlignment":"Center","Font":"Source Sans Pro;12;;","Border":";;;;;;;solid:0,0,0","Brush":"empty","TextBrush":"solid:0,0,0","Type":"Expression"},"3":{"Ident":"StiText","Name":"Text5","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.6,1.2,1.4,0.6","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Dato: "},"VertAlignment":"Center","Font":"Source Sans Pro;12;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression"},"4":{"Ident":"StiText","Name":"Text7","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"7,1.2,8.4,0.6","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{Today}"},"VertAlignment":"Center","Font":"Source Sans Pro;12;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression","TextFormat":{"Ident":"StiDateFormatService","StringFormat":"dd.MM.yyyy"}},"5":{"Ident":"StiText","Name":"Text6","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.6,1.8,2,0.6","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Signatur: "},"VertAlignment":"Center","Font":"Source Sans Pro;12;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression"},"6":{"Ident":"StiText","Name":"Text8","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"7,1.8,8.4,0.6","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{user.DisplayName}"},"VertAlignment":"Center","Font":"Source Sans Pro;12;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"DataColumn"}}},"2":{"Ident":"StiText","Name":"Text41","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"21.8,13.4,8.4,1.6","ComponentPlacement":"p.Page1","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black"},"3":{"Ident":"StiText","Name":"Text4","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"21.4,13.6,4.8,0.8","ComponentPlacement":"p.Page1","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black"},"4":{"Ident":"StiText","Name":"Text43","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"21.4,16.4,4.8,0.8","ComponentPlacement":"p.Page1","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black"},"5":{"Ident":"StiGroupHeaderBand","Name":"GroupHeaderBand1","ClientRectangle":"0,4.6,19,1.6","Interaction":{"Ident":"StiBandInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiText","Name":"Text12","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,0,19,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Konto: {journalEntryLines_Data.SubAccountAccountNumber} - {journalEntryLines_Data.SubAccountAccountName}"},"VertAlignment":"Center","Font":"Source Sans Pro;14;;","Border":"Bottom;216,216,216;;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:Black","Type":"Expression"},"1":{"Ident":"StiText","Name":"Text15","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,1,2.8,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Bilagsnr"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"2":{"Ident":"StiText","Name":"Text16","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"13.4,1,2.8,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Debet"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"3":{"Ident":"StiText","Name":"Text17","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"16.2,1,2.8,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Kredit"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"4":{"Ident":"StiText","Name":"Text18","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"2.8,1,2,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Dato"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"5":{"Ident":"StiText","Name":"Text19","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.8,1,1.4,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Periode"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"6":{"Ident":"StiText","Name":"Text20","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"8,1,2.6,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Tekst"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"7":{"Ident":"StiText","Name":"Text21","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"6.2,1,1.8,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Fakturanr"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","Type":"Expression"},"8":{"Ident":"StiText","Name":"Text31","Guid":"f37e2e9a-6529-ba70-d7f4-b622ca055e41","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"12,1,1.4,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Avd"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"},"9":{"Ident":"StiText","Name":"Text32","Guid":"a50ab582-b743-42b9-73e9-9679dde10613","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"10.6,1,1.4,0.6","ComponentStyle":"Style2","Interaction":{"Ident":"StiInteraction","SortingEnabled":false,"SortingColumn":"Datasalarytrans.Account"},"Text":{"Value":"Pro"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:0,0,0","Brush":"solid:240,245,250","TextBrush":"solid:0,0,0","TextOptions":{"WordWrap":true},"Type":"Expression"}},"Condition":{"Value":"{IIF(OrderByGroup == \"name\",journalEntryLines_Data.SubAccountAccountName,journalEntryLines_Data.SubAccountAccountNumber)}\r\n"}},"6":{"Ident":"StiDataBand","Name":"DataBand1","ClientRectangle":"0,7,19,0.8","Interaction":{"Ident":"StiBandInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiText","Name":"Datasalarytrans_salarytrans_Employee_BankAccounts","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,0,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalEntryLines_Data.JournalEntryLineJournalEntryNumber}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"Expression"},"1":{"Ident":"StiText","Name":"Text10","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"13.4,0,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{IIF(journalEntryLines_Data.JournalEntryLineAmount >= 0.0, journalEntryLines_Data.JournalEntryLineAmount, \"\")}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:0,112,192","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" ","State":"DecimalDigits, DecimalSeparator, GroupSeparator, GroupSize, NegativePattern"}},"2":{"Ident":"StiText","Name":"Text13","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"16.2,0,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{IIF(journalEntryLines_Data.JournalEntryLineAmount < 0.0, journalEntryLines_Data.JournalEntryLineAmount, \"\")}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:255,0,0","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"3":{"Ident":"StiText","Name":"Text33","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"2.8,0,2,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalEntryLines_Data.JournalEntryLineFinancialDate}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiDateFormatService"}},"4":{"Ident":"StiText","Name":"Text34","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.8,0,1.4,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalEntryLines_Data.PeriodNo}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","DecimalDigits":0,"GroupSeparator":" ","State":"DecimalDigits"}},"5":{"Ident":"StiText","Name":"Text35","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"8,0,2.6,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalEntryLines_Data.JournalEntryLineDescription}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"Expression"},"6":{"Ident":"StiText","Name":"Text37","Guid":"09673f72-7192-ca30-1fde-9d04987c987a","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"12,0,1.4,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{IIF(journalEntryLines_Data.DepartmentDepartmentNumber>0, journalEntryLines_Data.DepartmentDepartmentNumber, \"\")}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalDigits":0,"GroupSeparator":" ","UseGroupSeparator":false,"State":"DecimalDigits"}},"7":{"Ident":"StiText","Name":"Text44","Guid":"83535ba1-894f-b327-ca88-67b95f36c9bd","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"10.6,0,1.4,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{IIF(journalEntryLines_Data.ProjectProjectNumber>0, journalEntryLines_Data.ProjectProjectNumber, \"\")}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalDigits":0,"GroupSeparator":" ","UseGroupSeparator":false,"State":"DecimalDigits"}},"8":{"Ident":"StiText","Name":"Text25","Guid":"95616f4a9e10b7e2d7d182bd59a2f72c","CanGrow":true,"MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"6.2,0,1.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalEntryLines_Data.CustomerInvoiceInvoiceNumber}"},"HorAlignment":"Center","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":";;;;;;;solid:Black","Brush":"solid:Transparent","TextBrush":"solid:Black","TextOptions":{"WordWrap":true},"Type":"DataColumn"}},"DataSourceName":"journalEntryLines_Data","EvenStyle":"Style1","Sort":{"0":"ASC","1":"{IIF(OrderBy == \"FinancialDate\", journalEntryLines_Data.JournalEntryLineFinancialDate, \"\")}","2":"ASC","3":"{IIF(OrderBy == \"JournalEntryNumber\", journalentrylines_Data.JournalEntryLineJournalEntryNumberNumeric, \"\")}"},"Filters":{"0":{"Ident":"StiFilter","Item":"Expression","Expression":{"Value":"{IIF(ShowFilter == \"onlyCorrections\", journalEntryLines_Data.JournalEntryLineOriginalJournalEntryPost > 0, true)}"}},"1":{"Ident":"StiFilter","Item":"Expression","Expression":{"Value":"{IIF(ShowFilter == \"withoutCorrections\", journalEntryLines_Data.JournalEntryLineOriginalJournalEntryPost <= 0, true)}"}}}},"7":{"Ident":"StiGroupFooterBand","Name":"GroupFooterBand1","ClientRectangle":"0,8.6,19,4.8","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:0,0,0","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiText","Name":"Text3","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"16.2,0.2,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{SumIf(journalEntryLines_Data.JournalEntryLineAmount, journalEntryLines_Data.JournalEntryLineAmount < 0.0)}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:255,0,0","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"1":{"Ident":"StiText","Name":"Text14","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"13.4,0.2,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{SumIf(journalEntryLines_Data.JournalEntryLineAmount, journalEntryLines_Data.JournalEntryLineAmount >= 0.0)}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,112,192","TextOptions":{"WordWrap":true},"Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"2":{"Ident":"StiText","Name":"Text11","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,0.2,13.4,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Sum for konto {journalEntryLines_Data.SubAccountAccountNumber}: "},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,0,0","Type":"Expression"},"3":{"Ident":"StiPanel","Name":"Panel1","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,1.2,19,3.4","Interaction":{"Ident":"StiInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiDataBand","Name":"DataBand2","ClientRectangle":"0,0.4,19,2.8","Interaction":{"Ident":"StiBandInteraction"},"Border":";;;;;;;solid:Black","Brush":"solid:Transparent","Components":{"0":{"Ident":"StiText","Name":"Text38","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,0.2,4.6,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Saldo ved periodestart  "},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression"},"1":{"Ident":"StiText","Name":"Text36","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.6,0.2,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalentrydataLedger_Data.SumIB}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"DataColumn","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"2":{"Ident":"StiText","Name":"Text39","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,1,4.6,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Bevegelse i perioden"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression"},"3":{"Ident":"StiText","Name":"Text42","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.6,1,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalentrydataLedger_Data.SumDebitThisPeriod + journalentrydataLedger_Data.SumCreditThisPeriod}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"4":{"Ident":"StiText","Name":"Text27","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"11.2,1,5,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Bokført etter perioden"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"Expression"},"5":{"Ident":"StiText","Name":"Text28","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"16.2,1,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalentrydataLedger_Data.SumAfterPeriodThisYear}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:Transparent","TextBrush":"solid:0,0,0","Type":"DataColumn","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"6":{"Ident":"StiText","Name":"Text40","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"0,1.8,4.6,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Saldo ved periodeslutt"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Top, Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,0,0","Type":"Expression"},"7":{"Ident":"StiText","Name":"Text26","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"4.6,1.8,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalentrydataLedger_Data.SumIB + journalentrydataLedger_Data.SumThisPeriod}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Top, Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,0,0","Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"8":{"Ident":"StiText","Name":"Text29","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"16.2,1.8,2.8,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"{journalentrydataLedger_Data.SumIB \r\n+ journalentrydataLedger_Data.SumThisPeriod\r\n+ journalentrydataLedger_Data.SumAfterPeriodThisYear}"},"HorAlignment":"Right","VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Top, Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,0,0","Type":"Expression","TextFormat":{"Ident":"StiNumberFormatService","DecimalSeparator":",","GroupSeparator":" "}},"9":{"Ident":"StiText","Name":"Text30","MinSize":"0,0","MaxSize":"0,0","ClientRectangle":"11.2,1.8,5,0.8","Interaction":{"Ident":"StiInteraction"},"Text":{"Value":"Saldo i år kontonr {journalEntryLines_Data.SubAccountAccountNumber}"},"VertAlignment":"Center","Font":"Source Sans Pro;11;;","Border":"Top, Right;255,255,255;3;;;;;solid:0,0,0","Brush":"solid:240,244,233","TextBrush":"solid:0,0,0","Type":"Expression"}},"DataSourceName":"journalentrydataLedger_Data","DataRelationName":"[Not Assigned]","Filters":{"0":{"Ident":"StiFilter","DataType":"Expression","Column":"SubAccountAccountNumber","Value1":"journalEntryLines_Data.SubAccountAccountNumber"}}}},"CanBreak":false}}}},"PaperSize":"A4","PageWidth":21,"PageHeight":29.7,"Watermark":{"TextBrush":"solid:50,0,0,0"},"Margins":{"Left":1,"Right":1,"Top":1,"Bottom":1}}}}
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiReport">
+  <CalculationMode>Interpretation</CalculationMode>
+  <Dictionary Ref="1" type="Dictionary" isKey="true">
+    <BusinessObjects isList="true" count="0" />
+    <Databases isList="true" count="1">
+      <kontoutskriftkunder Ref="2" type="Stimulsoft.Report.Dictionary.StiJsonDatabase" isKey="true">
+        <Alias>kontoutskriftkunder</Alias>
+        <Key />
+        <Name>kontoutskriftkunder</Name>
+        <PathData>C:\Src\UniEconomyReport\UE Reports\DataSource\kontoutskriftkunder.json</PathData>
+      </kontoutskriftkunder>
+    </Databases>
+    <DataSources isList="true" count="18">
+      <companysettings Ref="3" type="DataTableSource" isKey="true">
+        <Alias>companysettings</Alias>
+        <Columns isList="true" count="33">
+          <value>AccountGroupSetID,System.Decimal</value>
+          <value>AccountingLockedDate,System.String</value>
+          <value>AutoJournalPayment,System.Boolean</value>
+          <value>BaseCurrency,System.String</value>
+          <value>CompanyBankAccountID,System.Decimal</value>
+          <value>CompanyName,System.String</value>
+          <value>CompanyRegistered,System.Boolean</value>
+          <value>CompanyTypeID,System.Decimal</value>
+          <value>CreatedAt,System.String</value>
+          <value>CreatedBy,System.String</value>
+          <value>CustomValues,System.String</value>
+          <value>CustomerAccountID,System.Decimal</value>
+          <value>CustomerCreditDays,System.Decimal</value>
+          <value>Deleted,System.Boolean</value>
+          <value>ForceSupplierInvoiceApproval,System.String</value>
+          <value>ID,System.Decimal</value>
+          <value>LogoFileID,System.Decimal</value>
+          <value>OfficeMunicipalityNo,System.String</value>
+          <value>OrganizationNumber,System.String</value>
+          <value>PeriodSeriesAccountID,System.Decimal</value>
+          <value>PeriodSeriesVatID,System.Decimal</value>
+          <value>SalaryBankAccountID,System.String</value>
+          <value>SettlementVatAccountID,System.Decimal</value>
+          <value>StatusCode,System.String</value>
+          <value>SupplierAccountID,System.Decimal</value>
+          <value>TaxBankAccountID,System.String</value>
+          <value>TaxMandatory,System.Boolean</value>
+          <value>UpdatedAt,System.String</value>
+          <value>UpdatedBy,System.String</value>
+          <value>VatLockedDate,System.String</value>
+          <value>VatReportFormID,System.Decimal</value>
+          <value>WebAddress,System.String</value>
+          <value>_links,System.String</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings</Name>
+        <NameInSource>kontoutskriftkunder.companysettings</NameInSource>
+      </companysettings>
+      <companysettings__links Ref="4" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links</Alias>
+        <Columns isList="true" count="4">
+          <value>actions,System.String</value>
+          <value>relationId,System.Decimal</value>
+          <value>relations,System.String</value>
+          <value>transitions,System.String</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links</NameInSource>
+      </companysettings__links>
+      <companysettings__links_actions Ref="5" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_actions</Alias>
+        <Columns isList="true" count="1">
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_actions</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_actions</NameInSource>
+      </companysettings__links_actions>
+      <companysettings__links_relations Ref="6" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations</Alias>
+        <Columns isList="true" count="7">
+          <value>BankAccounts,System.String</value>
+          <value>CompanyBankAccount,System.String</value>
+          <value>CustomerAccount,System.String</value>
+          <value>Self,System.String</value>
+          <value>SettlementVatAccount,System.String</value>
+          <value>SupplierAccount,System.String</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations</NameInSource>
+      </companysettings__links_relations>
+      <companysettings__links_relations_BankAccounts Ref="7" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations_BankAccounts</Alias>
+        <Columns isList="true" count="6">
+          <value>description,System.String</value>
+          <value>href,System.String</value>
+          <value>label,System.String</value>
+          <value>method,System.String</value>
+          <value>readonly,System.Boolean</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_BankAccounts</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations_BankAccounts</NameInSource>
+      </companysettings__links_relations_BankAccounts>
+      <companysettings__links_relations_CompanyBankAccount Ref="8" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations_CompanyBankAccount</Alias>
+        <Columns isList="true" count="6">
+          <value>description,System.String</value>
+          <value>href,System.String</value>
+          <value>label,System.String</value>
+          <value>method,System.String</value>
+          <value>readonly,System.Boolean</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_CompanyBankAccount</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations_CompanyBankAccount</NameInSource>
+      </companysettings__links_relations_CompanyBankAccount>
+      <companysettings__links_relations_CustomerAccount Ref="9" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations_CustomerAccount</Alias>
+        <Columns isList="true" count="6">
+          <value>description,System.String</value>
+          <value>href,System.String</value>
+          <value>label,System.String</value>
+          <value>method,System.String</value>
+          <value>readonly,System.Boolean</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_CustomerAccount</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations_CustomerAccount</NameInSource>
+      </companysettings__links_relations_CustomerAccount>
+      <companysettings__links_relations_Self Ref="10" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations_Self</Alias>
+        <Columns isList="true" count="6">
+          <value>description,System.String</value>
+          <value>href,System.String</value>
+          <value>label,System.String</value>
+          <value>method,System.String</value>
+          <value>readonly,System.Boolean</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_Self</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations_Self</NameInSource>
+      </companysettings__links_relations_Self>
+      <companysettings__links_relations_SettlementVatAccount Ref="11" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations_SettlementVatAccount</Alias>
+        <Columns isList="true" count="6">
+          <value>description,System.String</value>
+          <value>href,System.String</value>
+          <value>label,System.String</value>
+          <value>method,System.String</value>
+          <value>readonly,System.Boolean</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_SettlementVatAccount</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations_SettlementVatAccount</NameInSource>
+      </companysettings__links_relations_SettlementVatAccount>
+      <companysettings__links_relations_SupplierAccount Ref="12" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_relations_SupplierAccount</Alias>
+        <Columns isList="true" count="6">
+          <value>description,System.String</value>
+          <value>href,System.String</value>
+          <value>label,System.String</value>
+          <value>method,System.String</value>
+          <value>readonly,System.Boolean</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_SupplierAccount</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_relations_SupplierAccount</NameInSource>
+      </companysettings__links_relations_SupplierAccount>
+      <companysettings__links_transitions Ref="13" type="DataTableSource" isKey="true">
+        <Alias>companysettings__links_transitions</Alias>
+        <Columns isList="true" count="1">
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_transitions</Name>
+        <NameInSource>kontoutskriftkunder.companysettings__links_transitions</NameInSource>
+      </companysettings__links_transitions>
+      <companysettings_CustomValues Ref="14" type="DataTableSource" isKey="true">
+        <Alias>companysettings_CustomValues</Alias>
+        <Columns isList="true" count="1">
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>companysettings_CustomValues</Name>
+        <NameInSource>kontoutskriftkunder.companysettings_CustomValues</NameInSource>
+      </companysettings_CustomValues>
+      <journalentrydataLedger Ref="15" type="DataTableSource" isKey="true">
+        <Alias>journalentrydataLedger</Alias>
+        <Columns isList="true" count="3">
+          <value>Data,System.String</value>
+          <value>Message,System.String</value>
+          <value>Success,System.Boolean</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>journalentrydataLedger</Name>
+        <NameInSource>kontoutskriftkunder.journalentrydataLedger</NameInSource>
+      </journalentrydataLedger>
+      <journalentrydataLedger_Data Ref="16" type="DataTableSource" isKey="true">
+        <Alias>journalentrydataLedger_Data</Alias>
+        <Columns isList="true" count="9">
+          <value>SubAccountAccountName,System.String</value>
+          <value>SubAccountAccountNumber,System.Decimal</value>
+          <value>SumAfterPeriodThisYear,System.Decimal</value>
+          <value>SumCreditThisPeriod,System.Decimal</value>
+          <value>SumDebitThisPeriod,System.Decimal</value>
+          <value>SumIB,System.Decimal</value>
+          <value>SumThisPeriod,System.Decimal</value>
+          <value>SumThisPeriodLastYear,System.Decimal</value>
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>journalentrydataLedger_Data</Name>
+        <NameInSource>kontoutskriftkunder.journalentrydataLedger_Data</NameInSource>
+      </journalentrydataLedger_Data>
+      <journalEntryLines Ref="17" type="DataTableSource" isKey="true">
+        <Alias>journalEntryLines</Alias>
+        <Columns isList="true" count="3">
+          <value>Data,System.String</value>
+          <value>Message,System.String</value>
+          <value>Success,System.Boolean</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>journalEntryLines</Name>
+        <NameInSource>kontoutskriftkunder.journalEntryLines</NameInSource>
+      </journalEntryLines>
+      <journalEntryLines_Data Ref="18" type="DataTableSource" isKey="true">
+        <Alias>journalEntryLines_Data</Alias>
+        <Columns isList="true" count="20">
+          <value>CustomerInvoiceInvoiceNumber,System.String</value>
+          <value>DepartmentDepartmentNumber,System.Decimal</value>
+          <value>JournalEntryLineAccountID,System.Decimal</value>
+          <value>JournalEntryLineAmount,System.Decimal</value>
+          <value>JournalEntryLineDescription,System.String</value>
+          <value>JournalEntryLineFinancialDate,System.DateTime</value>
+          <value>JournalEntryLineJournalEntryNumber,System.String</value>
+          <value>JournalEntryLineJournalEntryNumberNumeric,System.Decimal</value>
+          <value>JournalEntryLineOriginalJournalEntryPost,System.Decimal</value>
+          <value>JournalEntryLineVatDate,System.String</value>
+          <value>PeriodAccountYear,System.Decimal</value>
+          <value>PeriodNo,System.Decimal</value>
+          <value>ProjectProjectNumber,System.Decimal</value>
+          <value>SubAccountAccountName,System.String</value>
+          <value>SubAccountAccountNumber,System.Decimal</value>
+          <value>VatPeriodAccountYear,System.Decimal</value>
+          <value>VatPeriodNo,System.Decimal</value>
+          <value>relationId,System.Decimal</value>
+          <value>OriginalReferencePostID,System.Decimal</value>
+          <value>ReferenceCreditPostID,System.Double</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>journalEntryLines_Data</Name>
+        <NameInSource>kontoutskriftkunder.journalEntryLines_Data</NameInSource>
+      </journalEntryLines_Data>
+      <user Ref="19" type="DataTableSource" isKey="true">
+        <Alias>user</Alias>
+        <Columns isList="true" count="13">
+          <value>CreatedAt,System.String</value>
+          <value>CreatedBy,System.String</value>
+          <value>CustomValues,System.String</value>
+          <value>Deleted,System.Boolean</value>
+          <value>DisplayName,System.String</value>
+          <value>Email,System.String</value>
+          <value>GlobalIdentity,System.String</value>
+          <value>ID,System.Decimal</value>
+          <value>LastLogin,System.String</value>
+          <value>PhoneNumber,System.String</value>
+          <value>StatusCode,System.Decimal</value>
+          <value>UpdatedAt,System.String</value>
+          <value>UpdatedBy,System.String</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>user</Name>
+        <NameInSource>kontoutskriftkunder.user</NameInSource>
+      </user>
+      <user_CustomValues Ref="20" type="DataTableSource" isKey="true">
+        <Alias>user_CustomValues</Alias>
+        <Columns isList="true" count="1">
+          <value>relationId,System.Decimal</value>
+        </Columns>
+        <Dictionary isRef="1" />
+        <Name>user_CustomValues</Name>
+        <NameInSource>kontoutskriftkunder.user_CustomValues</NameInSource>
+      </user_CustomValues>
+    </DataSources>
+    <Relations isList="true" count="14">
+      <companysettings_CustomValues Ref="21" type="DataRelation" isKey="true">
+        <Alias>companysettings_CustomValues</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>CustomValues</value>
+        </ChildColumns>
+        <ChildSource isRef="3" />
+        <Dictionary isRef="1" />
+        <Name>companysettings_CustomValues</Name>
+        <NameInSource>companysettings_CustomValues</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="14" />
+      </companysettings_CustomValues>
+      <companysettings__links Ref="22" type="DataRelation" isKey="true">
+        <Alias>companysettings__links</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>_links</value>
+        </ChildColumns>
+        <ChildSource isRef="3" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links</Name>
+        <NameInSource>companysettings__links</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="4" />
+      </companysettings__links>
+      <companysettings__links_actions Ref="23" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_actions</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>actions</value>
+        </ChildColumns>
+        <ChildSource isRef="4" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_actions</Name>
+        <NameInSource>companysettings__links_actions</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="5" />
+      </companysettings__links_actions>
+      <companysettings__links_relations Ref="24" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>relations</value>
+        </ChildColumns>
+        <ChildSource isRef="4" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations</Name>
+        <NameInSource>companysettings__links_relations</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="6" />
+      </companysettings__links_relations>
+      <companysettings__links_transitions Ref="25" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_transitions</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>transitions</value>
+        </ChildColumns>
+        <ChildSource isRef="4" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_transitions</Name>
+        <NameInSource>companysettings__links_transitions</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="13" />
+      </companysettings__links_transitions>
+      <companysettings__links_relations_BankAccounts Ref="26" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations_BankAccounts</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>BankAccounts</value>
+        </ChildColumns>
+        <ChildSource isRef="6" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_BankAccounts</Name>
+        <NameInSource>companysettings__links_relations_BankAccounts</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="7" />
+      </companysettings__links_relations_BankAccounts>
+      <companysettings__links_relations_CompanyBankAccount Ref="27" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations_CompanyBankAccount</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>CompanyBankAccount</value>
+        </ChildColumns>
+        <ChildSource isRef="6" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_CompanyBankAccount</Name>
+        <NameInSource>companysettings__links_relations_CompanyBankAccount</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="8" />
+      </companysettings__links_relations_CompanyBankAccount>
+      <companysettings__links_relations_CustomerAccount Ref="28" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations_CustomerAccount</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>CustomerAccount</value>
+        </ChildColumns>
+        <ChildSource isRef="6" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_CustomerAccount</Name>
+        <NameInSource>companysettings__links_relations_CustomerAccount</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="9" />
+      </companysettings__links_relations_CustomerAccount>
+      <companysettings__links_relations_Self Ref="29" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations_Self</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>Self</value>
+        </ChildColumns>
+        <ChildSource isRef="6" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_Self</Name>
+        <NameInSource>companysettings__links_relations_Self</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="10" />
+      </companysettings__links_relations_Self>
+      <companysettings__links_relations_SettlementVatAccount Ref="30" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations_SettlementVatAccount</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>SettlementVatAccount</value>
+        </ChildColumns>
+        <ChildSource isRef="6" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_SettlementVatAccount</Name>
+        <NameInSource>companysettings__links_relations_SettlementVatAccount</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="11" />
+      </companysettings__links_relations_SettlementVatAccount>
+      <companysettings__links_relations_SupplierAccount Ref="31" type="DataRelation" isKey="true">
+        <Alias>companysettings__links_relations_SupplierAccount</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>SupplierAccount</value>
+        </ChildColumns>
+        <ChildSource isRef="6" />
+        <Dictionary isRef="1" />
+        <Name>companysettings__links_relations_SupplierAccount</Name>
+        <NameInSource>companysettings__links_relations_SupplierAccount</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="12" />
+      </companysettings__links_relations_SupplierAccount>
+      <journalEntryLines_Data Ref="32" type="DataRelation" isKey="true">
+        <Alias>journalEntryLines_Data</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>Data</value>
+        </ChildColumns>
+        <ChildSource isRef="17" />
+        <Dictionary isRef="1" />
+        <Name>journalEntryLines_Data</Name>
+        <NameInSource>journalEntryLines_Data</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="18" />
+      </journalEntryLines_Data>
+      <journalentrydataLedger_Data Ref="33" type="DataRelation" isKey="true">
+        <Alias>journalentrydataLedger_Data</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>Data</value>
+        </ChildColumns>
+        <ChildSource isRef="15" />
+        <Dictionary isRef="1" />
+        <Name>journalentrydataLedger_Data</Name>
+        <NameInSource>journalentrydataLedger_Data</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="16" />
+      </journalentrydataLedger_Data>
+      <user_CustomValues Ref="34" type="DataRelation" isKey="true">
+        <Alias>user_CustomValues</Alias>
+        <ChildColumns isList="true" count="1">
+          <value>CustomValues</value>
+        </ChildColumns>
+        <ChildSource isRef="19" />
+        <Dictionary isRef="1" />
+        <Name>user_CustomValues</Name>
+        <NameInSource>user_CustomValues</NameInSource>
+        <ParentColumns isList="true" count="1">
+          <value>relationId</value>
+        </ParentColumns>
+        <ParentSource isRef="20" />
+      </user_CustomValues>
+    </Relations>
+    <Report isRef="0" />
+    <Variables isList="true" count="8">
+      <value>,PeriodAccountYear,PeriodAccountYear,,System.Int32,_x0032_016,False,False,True,False</value>
+      <value>,FromPeriodNo,Fra_x0020_periode,,System.Decimal,_x0031_,False,False,True,False</value>
+      <value>,ToPeriodNo,Til_x0020_periode,,System.Decimal,_x0031_2,False,False,True,False</value>
+      <value>,FromAccountNumber,Fra_x0020_kontonr,,System.Decimal,,False,False,True,False,_x003C__x003F_xml_x0020_version_x003D__x0022_1.0_x0022__x0020_encoding_x003D__x0022_utf-16_x0022__x0020_standalone_x003D__x0022_yes_x0022__x003F__x003E__x003C_StiSerializer_x0020_version_x003D__x0022_1.02_x0022__x0020_type_x003D__x0022_Net_x0022__x0020_application_x003D__x0022_State_x0022__x003E__x003C_ItemsInitializationType_x003E_Columns_x003C__x002F_ItemsInitializationType_x003E__x003C_KeysColumn_x003E_journalEntryLines_Data.SubAccountAccountNumber_x003C__x002F_KeysColumn_x003E__x003C_ValuesColumn_x003E_journalEntryLines_Data.SubAccountAccountNumber_x003C__x002F_ValuesColumn_x003E__x003C_BindingVariable_x0020_isNull_x003D__x0022_true_x0022__x0020__x002F__x003E__x003C_Keys_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_Values_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_ValuesBinding_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C__x002F_StiSerializer_x003E_</value>
+      <value>,ToAccountNumber,Til_x0020_kontonr,,System.Decimal,_x0039_999,False,False,True,False,_x003C__x003F_xml_x0020_version_x003D__x0022_1.0_x0022__x0020_encoding_x003D__x0022_utf-16_x0022__x0020_standalone_x003D__x0022_yes_x0022__x003F__x003E__x003C_StiSerializer_x0020_version_x003D__x0022_1.02_x0022__x0020_type_x003D__x0022_Net_x0022__x0020_application_x003D__x0022_State_x0022__x003E__x003C_ItemsInitializationType_x003E_Columns_x003C__x002F_ItemsInitializationType_x003E__x003C_KeysColumn_x003E_journalEntryLines_Data.SubAccountAccountNumber_x003C__x002F_KeysColumn_x003E__x003C_ValuesColumn_x003E_journalEntryLines_Data.SubAccountAccountNumber_x003C__x002F_ValuesColumn_x003E__x003C_BindingVariable_x0020_isNull_x003D__x0022_true_x0022__x0020__x002F__x003E__x003C_Keys_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_Values_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_ValuesBinding_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C__x002F_StiSerializer_x003E_</value>
+      <value>,OrderByGroup,OrderByGroup,,System.String,name,True,False,False,False,_x003C__x003F_xml_x0020_version_x003D__x0022_1.0_x0022__x0020_encoding_x003D__x0022_utf-16_x0022__x0020_standalone_x003D__x0022_yes_x0022__x003F__x003E__x003C_StiSerializer_x0020_version_x003D__x0022_1.02_x0022__x0020_type_x003D__x0022_Net_x0022__x0020_application_x003D__x0022_State_x0022__x003E__x003C_DateTimeType_x003E_DateAndTime_x003C__x002F_DateTimeType_x003E__x003C_BindingVariable_x0020_isNull_x003D__x0022_true_x0022__x0020__x002F__x003E__x003C_Keys_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_Values_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_ValuesBinding_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C__x002F_StiSerializer_x003E_</value>
+      <value>,ShowFilter,ShowFilter,,System.String,withCorrections,False,False,False,False,_x003C__x003F_xml_x0020_version_x003D__x0022_1.0_x0022__x0020_encoding_x003D__x0022_utf-16_x0022__x0020_standalone_x003D__x0022_yes_x0022__x003F__x003E__x003C_StiSerializer_x0020_version_x003D__x0022_1.02_x0022__x0020_type_x003D__x0022_Net_x0022__x0020_application_x003D__x0022_State_x0022__x003E__x003C_DateTimeType_x003E_DateAndTime_x003C__x002F_DateTimeType_x003E__x003C_BindingVariable_x0020_isNull_x003D__x0022_true_x0022__x0020__x002F__x003E__x003C_Keys_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_Values_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C_ValuesBinding_x0020_isList_x003D__x0022_true_x0022__x0020_count_x003D__x0022_0_x0022__x0020__x002F__x003E__x003C__x002F_StiSerializer_x003E_</value>
+      <value>,OrderBy,OrderBy,,System.String,Financialdate,False,False,False,False</value>
+    </Variables>
+  </Dictionary>
+  <EngineVersion>EngineV2</EngineVersion>
+  <GlobalizationStrings isList="true" count="0" />
+  <MetaTags isList="true" count="0" />
+  <Pages isList="true" count="1">
+    <Page1 Ref="35" type="Page" isKey="true">
+      <Border>None;Black;2;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <Components isList="true" count="8">
+        <PageHeaderBand1 Ref="36" type="PageHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0.4,19,3.4</ClientRectangle>
+          <ComponentPlacement>ph.Page1</ComponentPlacement>
+          <Components isList="true" count="6">
+            <Text23 Ref="37" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0.2,11.8,1.2</ClientRectangle>
+              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,34</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text23</Name>
+              <Page isRef="35" />
+              <Parent isRef="36" />
+              <Text>{ReportAlias}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text23>
+            <Text2 Ref="38" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.4,10.6,1</ClientRectangle>
+              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,16</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text2</Name>
+              <Page isRef="35" />
+              <Parent isRef="36" />
+              <Text>{companysettings.CompanyName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text2>
+            <Text1 Ref="39" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>12,0.2,7,1</ClientRectangle>
+              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,24</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text1</Name>
+              <Page isRef="35" />
+              <Parent isRef="36" />
+              <Text>{PeriodAccountYear}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text1>
+            <Text22 Ref="40" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.2,1.2,5.8,0.6</ClientRectangle>
+              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text22</Name>
+              <Page isRef="35" />
+              <Parent isRef="36" />
+              <Text>Periode {FromPeriodNo} - {ToPeriodNo}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text22>
+            <Text24 Ref="41" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.2,1.8,5.8,0.6</ClientRectangle>
+              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text24</Name>
+              <Page isRef="35" />
+              <Parent isRef="36" />
+              <Text>Konto {FromAccountNumber} - {ToAccountNumber}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text24>
+            <Text45 Ref="42" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.2,2.4,5.8,0.6</ClientRectangle>
+              <ComponentPlacement>ph.PageHeaderBand1</ComponentPlacement>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Guid>e7ef23cb-15f5-7e86-b97d-e2d2888ff4f1</Guid>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text45</Name>
+              <Page isRef="35" />
+              <Parent isRef="36" />
+              <Text>Vis: {Switch(ShowFilter == "withCorrections", "med korrigeringer",
+ShowFilter == "withoutCorrections", "uten korrigeringer",
+ShowFilter == "onlyCorrections", "kun korrigeringer")}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text45>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageHeaderBand1</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+        </PageHeaderBand1>
+        <PageFooterBand1 Ref="43" type="PageFooterBand" isKey="true">
+          <Border>Top;[231:230:230];1;Solid;False;4;[0:0:0]</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,24.9,19,2.8</ClientRectangle>
+          <ComponentPlacement>pf.Page1</ComponentPlacement>
+          <Components isList="true" count="7">
+            <Image1 Ref="44" type="Image" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,2.6,2.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Margins>0,0,0,0</Margins>
+              <Name>Image1</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <Stretch>True</Stretch>
+            </Image1>
+            <Shape1 Ref="45" type="Shape" isKey="true">
+              <BorderColor>Transparent</BorderColor>
+              <Brush>[236:245:249]</Brush>
+              <ClientRectangle>17.4,1.1,1.6,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Name>Shape1</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <ShapeType Ref="46" type="Stimulsoft.Report.Components.ShapeTypes.StiOvalShapeType" isKey="true" />
+              <ShiftMode>DecreasingSize</ShiftMode>
+              <Style>None</Style>
+            </Shape1>
+            <Text9 Ref="47" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>EmptyBrush</Brush>
+              <ClientRectangle>17.4,1.1,1.6,1.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,12</Font>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text9</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <ShiftMode>DecreasingSize</ShiftMode>
+              <Text>{PageNumber} / {TotalPageCount}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text9>
+            <Text5 Ref="48" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>4.6,1.2,1.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,12</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text5</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <Text>Dato: </Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text5>
+            <Text7 Ref="49" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,1.2,8.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,12</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text7</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <Text>{Today}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextFormat Ref="50" type="DateFormat" isKey="true">
+                <StringFormat>dd.MM.yyyy</StringFormat>
+              </TextFormat>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text7>
+            <Text6 Ref="51" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>4.6,1.8,2,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,12</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text6</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <Text>Signatur: </Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text6>
+            <Text8 Ref="52" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>7,1.8,8.4,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,12</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text8</Name>
+              <Page isRef="35" />
+              <Parent isRef="43" />
+              <Text>{user.DisplayName}</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text8>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>PageFooterBand1</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+        </PageFooterBand1>
+        <Text41 Ref="53" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>21.8,13.4,8.4,1.6</ClientRectangle>
+          <ComponentPlacement>p.Page1</ComponentPlacement>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,8</Font>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text41</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+          <TextBrush>Black</TextBrush>
+        </Text41>
+        <Text4 Ref="54" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>21.4,13.6,4.8,0.8</ClientRectangle>
+          <ComponentPlacement>p.Page1</ComponentPlacement>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,8</Font>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text4</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+          <TextBrush>Black</TextBrush>
+        </Text4>
+        <Text43 Ref="55" type="Text" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>21.4,16.4,4.8,0.8</ClientRectangle>
+          <ComponentPlacement>p.Page1</ComponentPlacement>
+          <Conditions isList="true" count="0" />
+          <Font>Arial,8</Font>
+          <Margins>0,0,0,0</Margins>
+          <Name>Text43</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+          <TextBrush>Black</TextBrush>
+        </Text43>
+        <GroupHeaderBand1 Ref="56" type="GroupHeaderBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,4.6,19,1.6</ClientRectangle>
+          <Components isList="true" count="10">
+            <Text12 Ref="57" type="Text" isKey="true">
+              <Border>Bottom;[216:216:216];1;Solid;False;4;[0:0:0]</Border>
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,0,19,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,14</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Konto: {journalEntryLines_Data.SubAccountAccountNumber} - {journalEntryLines_Data.SubAccountAccountName}</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text12>
+            <Text15 Ref="58" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,1,2.8,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Interaction Ref="59" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text15</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Bilagsnr</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text15>
+            <Text16 Ref="60" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.4,1,2.8,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Interaction Ref="61" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text16</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Debet</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text16>
+            <Text17 Ref="62" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>16.2,1,2.8,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Interaction Ref="63" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text17</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Kredit</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text17>
+            <Text18 Ref="64" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>2.8,1,2,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Interaction Ref="65" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text18</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Dato</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text18>
+            <Text19 Ref="66" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,1,1.4,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Interaction Ref="67" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text19</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Periode</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text19>
+            <Text20 Ref="68" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>8,1,2.6,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Interaction Ref="69" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text20</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Tekst</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text20>
+            <Text21 Ref="70" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <ClientRectangle>6.2,1,1.8,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text21</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Fakturanr</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text21>
+            <Text31 Ref="71" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12,1,1.4,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Guid>f37e2e9a-6529-ba70-d7f4-b622ca055e41</Guid>
+              <Interaction Ref="72" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text31</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Avd</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text31>
+            <Text32 Ref="73" type="Text" isKey="true">
+              <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:245:250]</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>10.6,1,1.4,0.6</ClientRectangle>
+              <ComponentStyle>Style2</ComponentStyle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Guid>a50ab582-b743-42b9-73e9-9679dde10613</Guid>
+              <Interaction Ref="74" type="Stimulsoft.Report.Components.StiInteraction" isKey="true">
+                <SortingColumn>Datasalarytrans.Account</SortingColumn>
+                <SortingEnabled>False</SortingEnabled>
+              </Interaction>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text32</Name>
+              <Page isRef="35" />
+              <Parent isRef="56" />
+              <Text>Pro</Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text32>
+          </Components>
+          <Condition>{IIF(OrderByGroup == "name",journalEntryLines_Data.SubAccountAccountName,journalEntryLines_Data.SubAccountAccountNumber)}
+</Condition>
+          <Conditions isList="true" count="0" />
+          <Name>GroupHeaderBand1</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+        </GroupHeaderBand1>
+        <DataBand1 Ref="75" type="DataBand" isKey="true">
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,7,19,0.8</ClientRectangle>
+          <Components isList="true" count="9">
+            <Datasalarytrans_salarytrans_Employee_BankAccounts Ref="76" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Datasalarytrans_salarytrans_Employee_BankAccounts</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{journalEntryLines_Data.JournalEntryLineJournalEntryNumber}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Datasalarytrans_salarytrans_Employee_BankAccounts>
+            <Text10 Ref="77" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>13.4,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{IIF(journalEntryLines_Data.JournalEntryLineAmount &gt;= 0.0, journalEntryLines_Data.JournalEntryLineAmount, "")}</Text>
+              <TextBrush>[0:112:192]</TextBrush>
+              <TextFormat Ref="78" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <State>DecimalDigits, DecimalSeparator, GroupSeparator, GroupSize, NegativePattern</State>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text10>
+            <Text13 Ref="79" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>16.2,0,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text13</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{IIF(journalEntryLines_Data.JournalEntryLineAmount &lt; 0.0, journalEntryLines_Data.JournalEntryLineAmount, "")}</Text>
+              <TextBrush>[255:0:0]</TextBrush>
+              <TextFormat Ref="80" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text13>
+            <Text33 Ref="81" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>2.8,0,2,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text33</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{journalEntryLines_Data.JournalEntryLineFinancialDate}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="82" type="DateFormat" isKey="true" />
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text33>
+            <Text34 Ref="83" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>4.8,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text34</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{journalEntryLines_Data.PeriodNo}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="84" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <State>DecimalDigits</State>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text34>
+            <Text35 Ref="85" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>8,0,2.6,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text35</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{journalEntryLines_Data.JournalEntryLineDescription}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text35>
+            <Text37 Ref="86" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>12,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Guid>09673f72-7192-ca30-1fde-9d04987c987a</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text37</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{IIF(journalEntryLines_Data.DepartmentDepartmentNumber&gt;0, journalEntryLines_Data.DepartmentDepartmentNumber, "")}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="87" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <State>DecimalDigits</State>
+                <UseGroupSeparator>False</UseGroupSeparator>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text37>
+            <Text44 Ref="88" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>10.6,0,1.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Guid>83535ba1-894f-b327-ca88-67b95f36c9bd</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text44</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{IIF(journalEntryLines_Data.ProjectProjectNumber&gt;0, journalEntryLines_Data.ProjectProjectNumber, "")}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextFormat Ref="89" type="NumberFormat" isKey="true">
+                <DecimalDigits>0</DecimalDigits>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+                <State>DecimalDigits</State>
+                <UseGroupSeparator>False</UseGroupSeparator>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text44>
+            <Text25 Ref="90" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>6.2,0,1.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="1">
+                <value>_x007B_journalentrylines_Data.OriginalReferencePostID_x0020__x0020__x003E__x0020_0_x0020__x007C__x007C_journalentrylines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x007D_,[127:127:127],[0:255:255:255],Source_x0020_Sans_x0020_Pro_x002C_10.8_x002C_Italic_x002C_Point_x002C_False_x002C_0,True,False,,,None</value>
+              </Conditions>
+              <Font>Source Sans Pro,11</Font>
+              <Guid>95616f4a9e10b7e2d7d182bd59a2f72c</Guid>
+              <HorAlignment>Center</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text25</Name>
+              <Page isRef="35" />
+              <Parent isRef="75" />
+              <Text>{journalEntryLines_Data.CustomerInvoiceInvoiceNumber}</Text>
+              <TextBrush>Black</TextBrush>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>DataColumn</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text25>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <DataRelationName isNull="true" />
+          <DataSourceName>journalEntryLines_Data</DataSourceName>
+          <EvenStyle>Style1</EvenStyle>
+          <Filters isList="true" count="2">
+            <value>_x007B_IIF_x0028_ShowFilter_x0020__x003D__x003D__x0020__x0022_onlyCorrections_x0022__x002C__x0020__x0020__x0028__x0028_journalEntryLines_Data.OriginalReferencePostID_x0020__x003E__x0020_0_x0029__x0020__x007C__x007C__x0020__x0028_journalEntryLines_Data.ReferenceCreditPostID_x0020__x003E__x0020_0_x0029__x0029__x002C__x0020_true_x0029__x007D_</value>
+            <value>_x007B_IIF_x0028_ShowFilter_x0020__x003D__x003D__x0020__x0022_withoutCorrections_x0022__x002C__x0020__x0028__x0028_journalEntryLines_Data.OriginalReferencePostID_x0020__x003D__x003D__x0020_0_x0029__x0020__x0026__x0026__x0020__x0028_journalEntryLines_Data.ReferenceCreditPostID_x0020__x003D__x003D__x0020_0_x0029__x0029__x002C__x0020_true_x0029__x007D_</value>
+          </Filters>
+          <Name>DataBand1</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+          <Sort isList="true" count="4">
+            <value>ASC</value>
+            <value>{IIF(OrderBy == "FinancialDate", journalEntryLines_Data.JournalEntryLineFinancialDate, "")}</value>
+            <value>ASC</value>
+            <value>{IIF(OrderBy == "JournalEntryNumber", journalentrylines_Data.JournalEntryLineJournalEntryNumberNumeric, "")}</value>
+          </Sort>
+        </DataBand1>
+        <GroupFooterBand1 Ref="91" type="GroupFooterBand" isKey="true">
+          <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,8.6,19,4.8</ClientRectangle>
+          <Components isList="true" count="4">
+            <Text3 Ref="92" type="Text" isKey="true">
+              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:244:233]</Brush>
+              <ClientRectangle>16.2,0.2,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text3</Name>
+              <Page isRef="35" />
+              <Parent isRef="91" />
+              <Text>{SumIf(journalEntryLines_Data.JournalEntryLineAmount, journalEntryLines_Data.JournalEntryLineAmount &lt; 0.0)}</Text>
+              <TextBrush>[255:0:0]</TextBrush>
+              <TextFormat Ref="93" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text3>
+            <Text14 Ref="94" type="Text" isKey="true">
+              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:244:233]</Brush>
+              <ClientRectangle>13.4,0.2,2.8,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <HorAlignment>Right</HorAlignment>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text14</Name>
+              <Page isRef="35" />
+              <Parent isRef="91" />
+              <Text>{SumIf(journalEntryLines_Data.JournalEntryLineAmount, journalEntryLines_Data.JournalEntryLineAmount &gt;= 0.0)}</Text>
+              <TextBrush>[0:112:192]</TextBrush>
+              <TextFormat Ref="95" type="NumberFormat" isKey="true">
+                <DecimalSeparator>,</DecimalSeparator>
+                <GroupSeparator> </GroupSeparator>
+                <NegativePattern>1</NegativePattern>
+              </TextFormat>
+              <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text14>
+            <Text11 Ref="96" type="Text" isKey="true">
+              <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+              <Brush>[240:244:233]</Brush>
+              <ClientRectangle>0,0.2,13.4,0.8</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Source Sans Pro,11</Font>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="35" />
+              <Parent isRef="91" />
+              <Text>Sum for konto {journalEntryLines_Data.SubAccountAccountNumber}: </Text>
+              <TextBrush>[0:0:0]</TextBrush>
+              <Type>Expression</Type>
+              <VertAlignment>Center</VertAlignment>
+            </Text11>
+            <Panel1 Ref="97" type="Panel" isKey="true">
+              <Brush>Transparent</Brush>
+              <ClientRectangle>0,1.2,19,3.4</ClientRectangle>
+              <Components isList="true" count="1">
+                <DataBand2 Ref="98" type="DataBand" isKey="true">
+                  <Brush>Transparent</Brush>
+                  <ClientRectangle>0,0.4,19,2.8</ClientRectangle>
+                  <Components isList="true" count="10">
+                    <Text38 Ref="99" type="Text" isKey="true">
+                      <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>Transparent</Brush>
+                      <ClientRectangle>0,0.2,4.6,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text38</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>Saldo ved periodestart  </Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text38>
+                    <Text36 Ref="100" type="Text" isKey="true">
+                      <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>Transparent</Brush>
+                      <ClientRectangle>4.6,0.2,2.8,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <HorAlignment>Right</HorAlignment>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text36</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>{journalentrydataLedger_Data.SumIB}</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <TextFormat Ref="101" type="NumberFormat" isKey="true">
+                        <DecimalSeparator>,</DecimalSeparator>
+                        <GroupSeparator> </GroupSeparator>
+                        <NegativePattern>1</NegativePattern>
+                      </TextFormat>
+                      <Type>DataColumn</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text36>
+                    <Text39 Ref="102" type="Text" isKey="true">
+                      <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>Transparent</Brush>
+                      <ClientRectangle>0,1,4.6,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text39</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>Bevegelse i perioden</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text39>
+                    <Text42 Ref="103" type="Text" isKey="true">
+                      <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>Transparent</Brush>
+                      <ClientRectangle>4.6,1,2.8,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <HorAlignment>Right</HorAlignment>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text42</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>{journalentrydataLedger_Data.SumDebitThisPeriod + journalentrydataLedger_Data.SumCreditThisPeriod}</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <TextFormat Ref="104" type="NumberFormat" isKey="true">
+                        <DecimalSeparator>,</DecimalSeparator>
+                        <GroupSeparator> </GroupSeparator>
+                        <NegativePattern>1</NegativePattern>
+                      </TextFormat>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text42>
+                    <Text27 Ref="105" type="Text" isKey="true">
+                      <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>Transparent</Brush>
+                      <ClientRectangle>11.2,1,5,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text27</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>Bokført etter perioden</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text27>
+                    <Text28 Ref="106" type="Text" isKey="true">
+                      <Border>Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>Transparent</Brush>
+                      <ClientRectangle>16.2,1,2.8,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <HorAlignment>Right</HorAlignment>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text28</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>{journalentrydataLedger_Data.SumAfterPeriodThisYear}</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <TextFormat Ref="107" type="NumberFormat" isKey="true">
+                        <DecimalSeparator>,</DecimalSeparator>
+                        <GroupSeparator> </GroupSeparator>
+                        <NegativePattern>1</NegativePattern>
+                      </TextFormat>
+                      <Type>DataColumn</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text28>
+                    <Text40 Ref="108" type="Text" isKey="true">
+                      <Border>Top, Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>[240:244:233]</Brush>
+                      <ClientRectangle>0,1.8,4.6,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text40</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>Saldo ved periodeslutt</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text40>
+                    <Text26 Ref="109" type="Text" isKey="true">
+                      <Border>Top, Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>[240:244:233]</Brush>
+                      <ClientRectangle>4.6,1.8,2.8,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <HorAlignment>Right</HorAlignment>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text26</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>{journalentrydataLedger_Data.SumIB + journalentrydataLedger_Data.SumThisPeriod}</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <TextFormat Ref="110" type="NumberFormat" isKey="true">
+                        <DecimalSeparator>,</DecimalSeparator>
+                        <GroupSeparator> </GroupSeparator>
+                        <NegativePattern>1</NegativePattern>
+                      </TextFormat>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text26>
+                    <Text29 Ref="111" type="Text" isKey="true">
+                      <Border>Top, Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>[240:244:233]</Brush>
+                      <ClientRectangle>16.2,1.8,2.8,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <HorAlignment>Right</HorAlignment>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text29</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>{journalentrydataLedger_Data.SumIB 
++ journalentrydataLedger_Data.SumThisPeriod
++ journalentrydataLedger_Data.SumAfterPeriodThisYear}</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <TextFormat Ref="112" type="NumberFormat" isKey="true">
+                        <DecimalSeparator>,</DecimalSeparator>
+                        <GroupSeparator> </GroupSeparator>
+                        <NegativePattern>1</NegativePattern>
+                      </TextFormat>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text29>
+                    <Text30 Ref="113" type="Text" isKey="true">
+                      <Border>Top, Right;[255:255:255];3;Solid;False;4;[0:0:0]</Border>
+                      <Brush>[240:244:233]</Brush>
+                      <ClientRectangle>11.2,1.8,5,0.8</ClientRectangle>
+                      <Conditions isList="true" count="0" />
+                      <Font>Source Sans Pro,11</Font>
+                      <Margins>0,0,0,0</Margins>
+                      <Name>Text30</Name>
+                      <Page isRef="35" />
+                      <Parent isRef="98" />
+                      <Text>Saldo i år kontonr {journalEntryLines_Data.SubAccountAccountNumber}</Text>
+                      <TextBrush>[0:0:0]</TextBrush>
+                      <Type>Expression</Type>
+                      <VertAlignment>Center</VertAlignment>
+                    </Text30>
+                  </Components>
+                  <Conditions isList="true" count="0" />
+                  <DataRelationName>[Not Assigned]</DataRelationName>
+                  <DataSourceName>journalentrydataLedger_Data</DataSourceName>
+                  <Filters isList="true" count="1">
+                    <value>SubAccountAccountNumber,EqualTo,journalEntryLines_Data.SubAccountAccountNumber,,Expression</value>
+                  </Filters>
+                  <Name>DataBand2</Name>
+                  <Page isRef="35" />
+                  <Parent isRef="97" />
+                  <Sort isList="true" count="0" />
+                </DataBand2>
+              </Components>
+              <Conditions isList="true" count="0" />
+              <Name>Panel1</Name>
+              <Page isRef="35" />
+              <Parent isRef="91" />
+            </Panel1>
+          </Components>
+          <Conditions isList="true" count="0" />
+          <Name>GroupFooterBand1</Name>
+          <Page isRef="35" />
+          <Parent isRef="35" />
+        </GroupFooterBand1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Guid>a69f43cf-eac9-eb05-9abd-6bde37f66d61</Guid>
+      <Margins>1,1,1,1</Margins>
+      <Name>Page1</Name>
+      <PageHeight>29.7</PageHeight>
+      <PageWidth>21</PageWidth>
+      <PaperSize>A4</PaperSize>
+      <Report isRef="0" />
+      <Watermark Ref="114" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+        <Font>Arial,100</Font>
+        <TextBrush>[50:0:0:0]</TextBrush>
+      </Watermark>
+    </Page1>
+  </Pages>
+  <PrinterSettings Ref="115" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <ReferencedAssemblies isList="true" count="8">
+    <value>System.Dll</value>
+    <value>System.Drawing.Dll</value>
+    <value>System.Windows.Forms.Dll</value>
+    <value>System.Data.Dll</value>
+    <value>System.Xml.Dll</value>
+    <value>Stimulsoft.Controls.Dll</value>
+    <value>Stimulsoft.Base.Dll</value>
+    <value>Stimulsoft.Report.Dll</value>
+  </ReferencedAssemblies>
+  <ReportAlias>Kontoutskrift kunder</ReportAlias>
+  <ReportChanged>12/20/2016 8:55:11 AM</ReportChanged>
+  <ReportCreated>1/1/1970 5:00:00 AM</ReportCreated>
+  <ReportFile>C:\projects\AppFrontend\src\assets\ReportTemplates\CustomerAccount.mrt</ReportFile>
+  <ReportGuid>fb4c1784137f47bbad13ea23120052eb</ReportGuid>
+  <ReportName>Kontoutskrift_kunder</ReportName>
+  <ReportUnit>Centimeters</ReportUnit>
+  <ReportVersion>2016.1.0</ReportVersion>
+  <Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Kontoutskrift_kunder : Stimulsoft.Report.StiReport
+    {
+        public Kontoutskrift_kunder()        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+		#endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script>
+  <ScriptLanguage>CSharp</ScriptLanguage>
+  <Styles isList="true" count="3">
+    <Style1 Ref="116" type="Stimulsoft.Report.StiStyle" isKey="true">
+      <AllowUseFont>False</AllowUseFont>
+      <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+      <Brush>[245:245:245]</Brush>
+      <Conditions isList="true" count="0" />
+      <Font>Algerian,8</Font>
+      <Name>Style1</Name>
+      <TextBrush>[0:0:0]</TextBrush>
+    </Style1>
+    <Style2 Ref="117" type="Stimulsoft.Report.StiStyle" isKey="true">
+      <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+      <Brush>[240:245:250]</Brush>
+      <Conditions isList="true" count="0" />
+      <Font>Source Sans Pro,11</Font>
+      <Name>Style2</Name>
+      <TextBrush>[0:0:0]</TextBrush>
+    </Style2>
+    <Style3 Ref="118" type="Stimulsoft.Report.StiStyle" isKey="true">
+      <Border>None;Black;1;Solid;False;4;[0:0:0]</Border>
+      <Brush>[240:244:233]</Brush>
+      <Conditions isList="true" count="0" />
+      <Font>Arial,8</Font>
+      <Name>Style3</Name>
+      <TextBrush>[0:0:0]</TextBrush>
+    </Style3>
+  </Styles>
+</StiSerializer>
