@@ -280,14 +280,12 @@ export class PayrollrunDetails extends UniView {
         )
             .map((response: [SalaryTransaction[], Project[], Department[]]) => {
                 let [transes, projects, departments] = response;
-                transes
-                    .filter(x => !x.DimensionsID)
-                    .map(trans => trans.Dimensions = new Dimensions());
+                
                 if (this.selectionList) {
                     this.selectionList.updateSums();
                 }
 
-                transes.map(trans => {
+                transes.filter(x => x.DimensionsID).map(trans => {
 
                     trans['_Department'] = departments ? departments
                         .find(x => x.ID === trans.Dimensions.DepartmentID) : undefined;
