@@ -1369,6 +1369,7 @@ export class Notification {
     public static EntityType = 'Notification';
 
     public CompanyKey: string;
+    public CompanyName: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1868,14 +1869,14 @@ export class AGACalculation {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
-    public payrollRun: PayrollRun;
-    public freeAmountUsed: Array<FreeAmountUsed>;
-    public foreignerWithAmount: Array<ForeignerWithAmount>;
-    public foreignerWithPercent: Array<ForeignerWithPercent>;
     public agaPension: Array<AGAPension>;
+    public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
+    public foreignerWithAmount: Array<ForeignerWithAmount>;
+    public payrollRun: PayrollRun;
     public CustomFields: any;
 }
 
@@ -3942,10 +3943,10 @@ export class SupplierInvoice {
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public YourReference: string;
+    public Supplier: Supplier;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public Dimensions: Dimensions;
-    public Supplier: Supplier;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
     public CustomFields: any;
@@ -4432,6 +4433,36 @@ export class FieldLayoutDto {
 }
 
 
+export class WorkBalanceDto {
+    public static RelativeUrl = '';
+    public static EntityType = 'WorkBalanceDto';
+
+    public ActualMinutes: number;
+    public BalanceDate: Date;
+    public BalanceFrom: Date;
+    public Balancetype: WorkBalanceTypeEnum;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Days: number;
+    public Deleted: boolean;
+    public Description: string;
+    public ExpectedMinutes: number;
+    public ID: number;
+    public IsStartBalance: boolean;
+    public LastDayActual: number;
+    public LastDayExpected: number;
+    public Minutes: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValidFrom: Date;
+    public ValidTimeOff: number;
+    public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
+    public CustomFields: any;
+}
+
+
 export class ContactSearchServiceResponse {
     public ErrorCode: number;
     public ErrorMessage: string;
@@ -4847,6 +4878,16 @@ export class Sums {
 
 
 export class Employees {
+    public arbeidsforhold: Array<Employments>;
+}
+
+
+export class Employments {
+    public permisjon: Array<EmploymentLeaves>;
+}
+
+
+export class EmploymentLeaves {
 }
 
 

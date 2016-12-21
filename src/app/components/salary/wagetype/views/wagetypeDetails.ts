@@ -257,10 +257,10 @@ export class WagetypeDetail extends UniView {
     private checkAmeldingInfo() {
         if (this.wageType.SupplementaryInformations && this.wageType.SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
-            this.findByProperty('ameldingType').Hidden = false;
+            this.findByProperty('SupplementPackage').Hidden = false;
         } else {
             this.showSupplementaryInformations = false;
-            this.findByProperty('ameldingType').Hidden = true;
+            this.findByProperty('SupplementPackage').Hidden = true;
         }
 
         if (this.wageType.Benefit !== '') {
@@ -297,7 +297,7 @@ export class WagetypeDetail extends UniView {
             events: {
                 select: (model) => {
                     this.showSupplementaryInformations = false;
-                    this.findByProperty('ameldingType').Hidden = true;
+                    this.findByProperty('SupplementPackage').Hidden = true;
                     this.filterSupplementPackages(model.IncomeType, true, false, false);
                     this.showBenefitAndDescriptionAsReadonly = false;
                     this.wageType.Description = '';
@@ -320,7 +320,7 @@ export class WagetypeDetail extends UniView {
             events: {
                 select: (model) => {
                     this.showSupplementaryInformations = false;
-                    this.findByProperty('ameldingType').Hidden = true;
+                    this.findByProperty('SupplementPackage').Hidden = true;
                     this.filterSupplementPackages(model.IncomeType, true, true, false);
                     this.setDescriptionDataSource();
                     this.wageType.Description = '';
@@ -343,7 +343,7 @@ export class WagetypeDetail extends UniView {
                 select: (model) => {
                     this.filterSupplementPackages(model.IncomeType, true, true, true);
                     if (this.supplementPackages.length > 0) {
-                        this.findByProperty('ameldingType').Hidden = false;
+                        this.findByProperty('SupplementPackage').Hidden = false;
                     }
                     this.uniform.field('SpecialTaxAndContributionsRule').focus();
                 },
@@ -354,7 +354,7 @@ export class WagetypeDetail extends UniView {
         };
         description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
 
-        let tilleggsinfo: UniFieldLayout = this.findByProperty('ameldingType');
+        let tilleggsinfo: UniFieldLayout = this.findByProperty('SupplementPackage');
         tilleggsinfo.Options = {
             source: this.supplementPackages,
             valueProperty: 'uninavn',
@@ -546,7 +546,6 @@ export class WagetypeDetail extends UniView {
                                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                     wtSupp.Name = prop;
                                     wtSupp.ameldingType = key;
-                                    // wtSupp.Description = key;
                                     wtSupp.SuggestedValue = this.removeAndReturnValue(obj[prop]);
                                     wtSupp.WageTypeID = this.wageType.ID;
                                     wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -557,7 +556,7 @@ export class WagetypeDetail extends UniView {
                     } else if (obj !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
-                        wtSupp.ameldingType = key;                        
+                        wtSupp.ameldingType = key;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -572,8 +571,7 @@ export class WagetypeDetail extends UniView {
                 if (spesiObj.hasOwnProperty(props)) {
                     if (spesiObj[props] !== null) {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
-                        wtSupp.Name = props;                        
-                        // wtSupp.Description = props;
+                        wtSupp.Name = props;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(spesiObj[props]);
                         wtSupp.WageTypeID = this.wageType.ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
@@ -609,7 +607,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private showTilleggsPakker(model: any) {
-        let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model.ameldingType);
+        let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model.SupplementPackage);
         this.showSupplementaryInformations = false;
 
         let supInfo: Array<any> = [];
@@ -620,7 +618,7 @@ export class WagetypeDetail extends UniView {
         this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
         if (this.wageType.SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
-            this.findByProperty('ameldingType').Hidden = false;
+            this.findByProperty('SupplementPackage').Hidden = false;
         }
     }
 
@@ -635,8 +633,8 @@ export class WagetypeDetail extends UniView {
     }
 
     public change(model) {
-        if (this.currentPackage !== this.wageType['ameldingType']) {
-            this.currentPackage = this.wageType['ameldingType'];
+        if (this.currentPackage !== this.wageType['SupplementPackage']) {
+            this.currentPackage = this.wageType['SupplementPackage'];
             this.showTilleggsPakker(model);
         }
         let newRateIsReadOnly = this.wageType.GetRateFrom !== GetRateFrom.WageType;

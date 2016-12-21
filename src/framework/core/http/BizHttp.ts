@@ -147,7 +147,7 @@ export class BizHttp<T> {
     }
 
     public GetAll<T>(query: string, expand?: string[]): Observable<any> {
-        if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf('orderby') === 0))) {
+        if (this.DefaultOrderBy && (!query || (query && query.toLowerCase().indexOf('orderby=') < 0))) {
             if (query !== null) {
                 query += '&orderby=' + this.DefaultOrderBy;
             } else {
