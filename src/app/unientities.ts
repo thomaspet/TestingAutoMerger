@@ -2445,6 +2445,7 @@ export class WageType {
     public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
     public StandardWageTypeFor: StdWageType;
     public StatusCode: number;
+    public SupplementPackage: string;
     public SystemRequiredWageType: number;
     public taxtype: TaxType;
     public UpdatedAt: Date;
@@ -3943,10 +3944,10 @@ export class SupplierInvoice {
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public YourReference: string;
-    public Supplier: Supplier;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public Dimensions: Dimensions;
+    public Supplier: Supplier;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
     public CustomFields: any;

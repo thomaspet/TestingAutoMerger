@@ -55,6 +55,7 @@ export class WageTypeModel implements WageType {
 	SpecialAgaRule: SpecialAgaRule = SpecialAgaRule.Regular;
 	SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
 	FixedSalaryHolidayDeduction: any;
+	SupplementPackage: string;
     
     static createFromObject(data: any){
         let instance = new WageTypeModel();
