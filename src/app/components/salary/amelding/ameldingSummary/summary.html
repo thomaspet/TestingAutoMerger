@@ -13,9 +13,9 @@
 </dl>
 
 
-<ul class="amelding_summary_sections" *ngIf="currentSumUp">
+<ul class="amelding_summary_sections" *ngIf="entitiesWithData">
 
-    <li *ngFor="let virksomhet of currentSumUp.entities; let index = index" class="amelding_summary_section" [attr.aria-expanded]="virksomhet.expanded">
+    <li *ngFor="let virksomhet of entitiesWithData; let index = index" class="amelding_summary_section" [attr.aria-expanded]="virksomhet.expanded">
 
         <header class="amelding_summary_section_header" (click)="virksomhet.expanded = !virksomhet.expanded">
 
@@ -33,8 +33,11 @@
             <h2>Ansatte og arbeidsforhold</h2>
             <uni-table [config]="employeeTableConfig" [resource]="virksomhet.employees"></uni-table>
 
-            <h2 *ngIf="virksomhet.transactionTypes">Sum per beskrivelse</h2>
-            <uni-table *ngIf="virksomhet.transactionTypes" [config]="transactionTableConfig" [resource]="virksomhet.transactionTypes"></uni-table>
+            <h2 *ngIf="virksomhet.leaves">Permisjoner</h2>
+            <uni-table *ngIf="virksomhet.leaves" [config]="leaveTableConfig" [resource]="virksomhet.leaves"></uni-table>
+
+            <h2 *ngIf="virksomhet.transactions">Sum per beskrivelse</h2>
+            <uni-table *ngIf="virksomhet.transactions" [config]="transactionTableConfig" [resource]="virksomhet.transactions"></uni-table>
 
         </article>
 

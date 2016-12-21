@@ -12,7 +12,12 @@ export class AmeldingSummaryView {
     @Input() public currentSumUp: any;
     @Input() public currentAMelding: any;
     private employeeTableConfig: UniTableConfig;
+    private leaveTableConfig: UniTableConfig;
     private transactionTableConfig: UniTableConfig;
+    private employeeAndEmployments: any[] = [];
+    private employeeleaves: any[] = [];
+    private sumPerDescription: any[] = [];
+    private entitiesWithData: any[] = [];
     private createdDate: string = '';
     private sentDate: string = '';
     private statusText: string;
@@ -20,6 +25,7 @@ export class AmeldingSummaryView {
 
     constructor() {
         this.setupEmployees();
+        this.setupLeaves();
         this.setupTransactions();
     }
 
@@ -33,6 +39,7 @@ export class AmeldingSummaryView {
             } else {
                 this.statusText = this.statuses[this.currentSumUp.status];
             }
+            this.mapData();
         }
         if (this.currentAMelding) {
             this.createdDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
@@ -42,15 +49,94 @@ export class AmeldingSummaryView {
         }
     }
 
+    private mapData() {
+        this.entitiesWithData = [];
+
+        if (this.currentSumUp.entities) {
+            this.currentSumUp.entities.forEach(entity => {
+                let entityName: string = entity.name;
+                let entityOrgNumber: string = entity.orgNumber;
+                let entityExpanded: boolean = entity.expanded;
+                let entitySums: Object = entity.sums;
+
+                if (entity.employees) {
+                    this.employeeAndEmployments = [];
+                    entity.employees.forEach(employee => {
+                        let employeeName = employee.name;
+                        let employeeNumber = employee.employeeNumber;
+
+                        if (employee.arbeidsforhold) {
+                            employee.arbeidsforhold.forEach(arbeidsforhold => {
+                                this.employeeAndEmployments.push({
+                                    employeeNumber: employeeNumber,
+                                    name: employeeName,
+                                    arbeidsforholdId: arbeidsforhold.arbeidsforholdId,
+                                    startDate: arbeidsforhold.startDate,
+                                    endDate: arbeidsforhold.endDate
+                                });
+
+                                if (arbeidsforhold.permisjon) {
+                                    this.employeeleaves = [];
+                                    arbeidsforhold.permisjon.forEach(permisjon => {
+                                        this.employeeleaves.push({
+                                            permisjonsId: permisjon.permisjonsId,
+                                            employeenumber: employeeNumber,
+                                            employeename: employeeName,
+                                            startdato: permisjon.startdato,
+                                            sluttdato: permisjon.sluttdato,
+                                            permisjonsprosent: permisjon.permisjonsprosent,
+                                            beskrivelse: permisjon.beskrivelse
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                if (entity.transactionTypes) {
+                    this.sumPerDescription = [];
+                    entity.transactionTypes.forEach(transaction => {
+                        this.sumPerDescription.push(transaction);
+                    });
+                }
+
+                this.entitiesWithData.push({
+                    name: entityName,
+                    orgNumber: entityOrgNumber,
+                    expanded: entityExpanded,
+                    employees: this.employeeAndEmployments,
+                    leaves: this.employeeleaves,
+                    transactions: this.sumPerDescription,
+                    sums: entitySums
+                });
+            });
+        }
+
+    }
+
     private setupEmployees() {
         let empNoCol = new UniTableColumn('employeeNumber', 'Nr', UniTableColumnType.Number).setWidth('4rem');
         let nameCol = new UniTableColumn('name', 'Navn', UniTableColumnType.Text);
-        let emplmntCol = new UniTableColumn('employmentID', 'ID arbeidsforhold', UniTableColumnType.Number).setWidth('10rem');
+        let emplmntCol = new UniTableColumn('arbeidsforholdId', 'ID arbeidsforhold', UniTableColumnType.Number).setWidth('10rem');
         let startCol = new UniTableColumn('startDate', 'Startdato', UniTableColumnType.LocalDate).setWidth('8rem');
         let endCol = new UniTableColumn('endDate', 'Sluttdato', UniTableColumnType.LocalDate).setWidth('8rem');
 
         this.employeeTableConfig = new UniTableConfig(false, true, 30)
         .setColumns([empNoCol, nameCol, emplmntCol, startCol, endCol]);
+    }
+
+    private setupLeaves() {
+        let idCol = new UniTableColumn('permisjonsId', 'Id', UniTableColumnType.Number).setWidth('4rem');
+        let numberCol = new UniTableColumn('employeenumber', 'Nr', UniTableColumnType.Number).setWidth('4rem');
+        let nameCol = new UniTableColumn('employeename', 'Ansattnavn', UniTableColumnType.Text);
+        let startCol = new UniTableColumn('startdato', 'Startdato', UniTableColumnType.LocalDate).setWidth('8rem');
+        let endCol = new UniTableColumn('sluttdato', 'Sluttdato', UniTableColumnType.LocalDate).setWidth('8rem');
+        let pcntCol = new UniTableColumn('permisjonsprosent', 'Prosent', UniTableColumnType.Percent).setWidth('5rem');
+        let descCol = new UniTableColumn('beskrivelse', 'Beskrivelse', UniTableColumnType.Text);
+
+        this.leaveTableConfig = new UniTableConfig(false, true, 30)
+        .setColumns([idCol, numberCol, nameCol, startCol, endCol, pcntCol, descCol]);
     }
 
     private setupTransactions() {
