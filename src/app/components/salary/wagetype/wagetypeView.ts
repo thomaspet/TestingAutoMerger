@@ -112,6 +112,11 @@ export class WageTypeView extends UniView {
     }
 
     private saveWageType(done: (message: string) => void) {
+
+        if (this.wageType.WageTypeNumber === null) {
+            this.wageType.WageTypeNumber = 0;
+        }
+
         let saver = (this.wageType.ID > 0)
             ? this.wageTypeService.Put(this.wageType.ID, this.wageType)
             : this.wageTypeService.Post(this.wageType);

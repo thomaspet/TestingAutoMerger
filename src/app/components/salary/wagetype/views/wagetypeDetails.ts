@@ -609,16 +609,17 @@ export class WagetypeDetail extends UniView {
     private showTilleggsPakker(model: any) {
         let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model.SupplementPackage);
         this.showSupplementaryInformations = false;
-
-        let supInfo: Array<any> = [];
-        selectedPackage.additions.forEach(addition => {
-            supInfo.push(addition);
-        });
-        
-        this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
-        if (this.wageType.SupplementaryInformations.length > 0) {
-            this.showSupplementaryInformations = true;
-            this.findByProperty('SupplementPackage').Hidden = false;
+        if (selectedPackage) {
+            let supInfo: Array<any> = [];
+            selectedPackage.additions.forEach(addition => {
+                supInfo.push(addition);
+            });
+            
+            this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
+            if (this.wageType.SupplementaryInformations.length > 0) {
+                this.showSupplementaryInformations = true;
+                this.findByProperty('SupplementPackage').Hidden = false;
+            }
         }
     }
 
