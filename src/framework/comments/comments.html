@@ -9,15 +9,15 @@
          (keydown.esc)="close()"
          (clickOutside)="close()"
          [attr.aria-expanded]="isOpen">
-    <ol class="comment-list">
+    <ol class="comment-list" #commentList>
         <li *ngFor="let comment of comments">
-            <aside class="comment-avatar"><!-- TODO --></aside>
+            <aside class="comment-avatar"></aside>
             <main>
                 <header>
                     <strong>{{comment.Author?.DisplayName}}</strong>
                     <small>{{getTimeFromNow(comment.CreatedAt)}}</small>
                 </header>
-                <blockquote>{{comment.Text}}</blockquote>
+                <blockquote [innerHTML]="comment.Text"></blockquote>
             </main>
         </li>
     </ol>
@@ -41,6 +41,11 @@
                   (keydown)="onKeydown($event)"
                   #inputElement>
         </textarea>
-        <button class="comment-submit-btn c2a" (click)="submit()">Send</button>
+        <button class="comment-submit-btn c2a"
+                (click)="submit()"
+                [attr.aria-busy]="isBusy"
+                [disabled]="isBusy">
+            Send
+        </button>
     </section>
 </section>

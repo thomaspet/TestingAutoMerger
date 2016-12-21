@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ElementRef} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Comment, User} from '../../app/unientities';
 import {CommentService} from './commentService';
@@ -8,11 +8,15 @@ import moment from 'moment';
 
 @Component({
     selector: 'uni-comments',
-    templateUrl: 'framework/comments/comments.html'
+    templateUrl: 'framework/comments/comments.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniComments {
     @ViewChild('inputElement')
     private inputElement: ElementRef;
+
+    @ViewChild('commentList')
+    private commentList: ElementRef;
 
     @Input()
     private entity: string;
@@ -20,6 +24,7 @@ export class UniComments {
     @Input()
     private entityID: number;
 
+    private isBusy: boolean;
     private isOpen: boolean;
     private comments: Comment[] = [];
     private users: User[] = [];
@@ -34,11 +39,12 @@ export class UniComments {
     constructor(
         private commentService: CommentService,
         private userService: UserService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     public ngOnInit() {
-        this.inputControl.valueChanges.debounceTime(150).subscribe((val) => {
+        this.inputControl.valueChanges.throttleTime(300).subscribe((val) => {
             const mention = this.inputControl.value
                 .split(' ')
                 .find((word, index) => {
@@ -53,6 +59,7 @@ export class UniComments {
                 this.mentionLookup(mention.substring(1).toLowerCase());
             } else {
                 this.lookupResults = [];
+                this.cdr.markForCheck();
             }
         });
     }
@@ -75,14 +82,18 @@ export class UniComments {
         this.isOpen = !this.isOpen;
         if (this.isOpen) {
             setTimeout(() => {
+                let scroll = this.commentList.nativeElement.scrollHeight;
+                this.commentList.nativeElement.scrollTop = scroll;
                 this.inputElement.nativeElement.focus();
             });
         }
+        this.cdr.markForCheck();
     }
 
     public close() {
         this.mentionedIndexes = [];
         this.isOpen = false;
+        this.cdr.markForCheck();
     }
 
     public getTimeFromNow(createdAt: Date): string {
@@ -99,6 +110,8 @@ export class UniComments {
 
         this.selectedIndex = (this.lookupResults.length > 0)
             ? 0 : undefined;
+
+        this.cdr.markForCheck();
     }
 
     public selectItem(event?: MouseEvent) {
@@ -118,6 +131,7 @@ export class UniComments {
         this.mentionedIndexes.push(wordIndex);
         this.lookupResults = [];
         this.inputControl.setValue(words.join(' '), {emitEvent: false});
+        this.cdr.markForCheck();
     }
 
     public onKeydown(event: KeyboardEvent) {
@@ -128,6 +142,7 @@ export class UniComments {
         switch (event.which || event.keyCode) {
             case KeyCodes.ENTER:
             case KeyCodes.TAB:
+            case KeyCodes.SPACE:
                 event.preventDefault();
                 this.selectItem();
             break;
@@ -148,37 +163,54 @@ export class UniComments {
                 }
             break;
         }
+
+        this.cdr.markForCheck();
     }
 
     public submit() {
         this.mentionedIndexes = [];
         if (this.inputControl.value) {
+            this.isBusy = true;
             this.commentService.post(
                 this.entity,
                 this.entityID,
                 this.inputControl.value
             ).subscribe(
                 (res) => {
+                    this.isBusy = false;
                     this.inputControl.setValue('', {emitEvent: false});
                     this.getAllOnEntity();
                 },
-                this.errorService.handle
+                (err) => {
+                    this.isBusy = false;
+                    this.errorService.handle(err);
+                }
             );
         }
     }
 
     public getAllOnEntity() {
         this.commentService.getAll(this.entity, this.entityID).subscribe(
-            res => this.comments = res,
+            (res) => {
+                this.comments = res.map((comment) => {
+                    let words = comment.Text.split(' ');
+                    words = words.map((word) => {
+                        return (word.startsWith('@'))
+                            ? `<span class="mention">${word}</span>`
+                            : word;
+                    });
+
+                    comment.Text = words.join(' ');
+                    return comment;
+                });
+
+                this.cdr.markForCheck();
+                setTimeout(() => {
+                    const scroll = this.commentList.nativeElement.scrollHeight;
+                    this.commentList.nativeElement.scrollTop = scroll;
+                });
+            },
             err => this.errorService.handle(err)
         );
     }
-
-    public submitNewComment(text: string) {
-        this.commentService.post(this.entity, this.entityID, text).subscribe(
-            res => this.getAllOnEntity(),
-            this.errorService.handle
-        );
-    }
-
 }
