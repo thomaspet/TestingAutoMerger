@@ -42,7 +42,7 @@ export class TimeEntry {
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
     private editable: Editable;
-    public currentBalance: any;
+    public currentBalance: WorkBalanceDto;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
@@ -58,7 +58,7 @@ export class TimeEntry {
                 this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => 
                 this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Fleksitid', counter: 0 }
+            { name: 'flex', label: 'Timesaldo', counter: 0 }
             // { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             // { name: 'vacation', label: 'Ferie', counter: 22 },
             // { name: 'offtime', label: 'Fravær', counter: 4 },
@@ -255,14 +255,39 @@ export class TimeEntry {
     private loadFlex(workRelationId: number) {
         if (!workRelationId) {
             this.tabs[3].counter = 0;
-            this.currentBalance = new WorkBalance();
+            this.currentBalance = new WorkBalanceDto();
         } else {
-            this.timesheetService.getFlexBalance(workRelationId).subscribe( x => {
+            this.timesheetService.getFlexBalance(workRelationId).subscribe( (x: any) => {
                 this.currentBalance = x;
+
+                // Workrelation ended ?
+                if (x.WorkRelation && x.WorkRelation.EndTime) {
+                    var et = moment(x.WorkRelation.EndTime);
+                    if (et.year() > 1980) {
+                        if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
+                        if (et.year() > 1980 && et < moment(x.BalanceDate)) {
+                            x.LastDayExpected = 0;
+                            x.LastDayActual = 0;
+                            x.relationIsClosed = true;
+                        }
+                    }
+                }
+
+                x.ExpectedMinutes -= x.LastDayExpected;
+                x.ActualMinutes -= x.LastDayActual;
+                x.Minutes -= (x.LastDayActual - x.LastDayExpected);
+
+                this.currentBalance.lastDayBalance = x.LastDayActual - x.LastDayExpected;
+                this.currentBalance.lastDayBalanceHours = roundTo((x.LastDayActual - x.LastDayExpected) / 60, 1);
+                this.currentBalance.lastDayHours = roundTo(x.LastDayActual / 60, 1);
+                this.currentBalance.lastDayExpectedHours = roundTo(x.LastDayExpected / 60, 1);                
+
                 this.currentBalance.hours = roundTo( x.Minutes / 60, 1 );
                 this.currentBalance.expectedHours = roundTo( x.ExpectedMinutes / 60, 1);
                 this.currentBalance.actualHours = roundTo( x.ActualMinutes / 60, 1);
                 this.currentBalance.offHours = roundTo( x.ValidTimeOff / 60, 1);
+
+
                 this.tabs[3].counter = this.currentBalance.hours;
             }, (err) => {
                 console.log('Unable to fetch balance');
@@ -509,4 +534,18 @@ export class TimeEntry {
         }
         return false;
     }
+}
+
+class WorkBalanceDto extends WorkBalance {
+    public LastDayExpected: number;
+    public LastDayActual: number;
+    public expectedHours: number;
+    public actualHours: number;
+    public offHours: number;
+    public hours: number;
+    public lastDayBalanceHours: number;
+    public lastDayBalance: number;
+    public lastDayHours: number;
+    public lastDayExpectedHours: number;
+    public relationIsClosed: boolean;
 }
