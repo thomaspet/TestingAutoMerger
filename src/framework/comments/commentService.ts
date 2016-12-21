@@ -13,7 +13,13 @@ export class CommentService {
             .usingBusinessDomain()
             .withEndPoint(`${route}&expand=Author`)
             .send()
-            .map(res => res.json());
+            .map((res) => {
+                let comments = res.json();
+                return comments.map((comment: Comment) => {
+                    comment.Text = decodeURI(comment.Text);
+                    return comment;
+                });
+            });
     }
 
     public post(entity: string, entityID: number, message: string) {
