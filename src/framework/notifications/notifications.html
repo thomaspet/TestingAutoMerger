@@ -1,0 +1,27 @@
+<button class="notifications_toggle"
+        type="button"
+        (click)="toggle($event)">Varsler</button>
+<span class="notifications_count" *ngIf="unreadCount > 0">
+    {{unreadCount}}
+</span>
+
+<span class="notification_view" (clickOutside)="close()" [attr.aria-expanded]="isOpen">
+    <h1>Varsler</h1>
+    <ol class="notification_list">
+        <li *ngFor="let notification of notifications"
+            (click)="onNotificationClick(notification)"
+            [ngClass]="{
+                'unread': notification.StatusCode === 900010,
+                'marked': notification.StatusCode === 900030
+            }">
+            <header>{{notification.CompanyName}}</header>
+            <main>
+                {{getNotificationText(notification)}}
+            </main>
+            <footer><small>{{getNotificationTime(notification)}}</small></footer>
+        </li>
+    </ol>
+    <footer class="notification_footer">
+        <a (click)="markAllAsRead()">Marker alle som lest</a>
+    </footer>
+</span>

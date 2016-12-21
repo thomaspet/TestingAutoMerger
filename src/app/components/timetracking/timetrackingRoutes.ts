@@ -17,7 +17,15 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTimetracking} from './timetracking';
 import {AuthGuard} from '../../authGuard';
 
-export const childRoutes: Routes = [
+// Maps entitytype to frontend route
+// Important for notifications to work properly!
+export const entityTypeMap: any = {
+    'workprofile': 'workprofiles/:id',
+    'worker': 'workers/:id',
+    'worktype': 'worktypes/:id',
+};
+
+export const childRoutes: any = [
     {
         path: '',
         pathMatch: 'full',

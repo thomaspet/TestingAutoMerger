@@ -16,6 +16,7 @@ import {UniCoreModule} from './core/coreModule';
 import {UniPipesModule} from './pipes/pipesModule';
 import {UniConfirmModal, UniConfirmContent} from './modals/confirm';
 import {Logger} from './core/logger';
+import {UniNotifications} from './notifications/notifications';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
 
@@ -37,6 +38,7 @@ import {CommentService} from './comments/commentService';
         UniImage,
         UniToast,
         UniToastList,
+        UniNotifications,
         UniComments,
         WidgetPoster,
     ],
@@ -65,6 +67,7 @@ import {CommentService} from './comments/commentService';
         UniImage,
         UniToast,
         UniToastList,
+        UniNotifications,
         UniComments,
         WidgetPoster
     ]

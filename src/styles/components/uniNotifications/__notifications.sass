@@ -1,0 +1,108 @@
+.notifications_toggle,
+.notifications_toggle:hover,
+.notifications_toggle:focus
+    @extend %toolbarButton
+    background: $navbarBackground
+    background-image: unicon-bell(#fff) no-repeat center
+    background-size: 1rem auto
+    border: none
+
+// REVISIT: This is very hacky and wont work on different screen sizes..
+.notifications_count
+    pointer-events: none
+    // cursor: pointer
+    color: #fff
+    background: $uni-color-bad
+    display: block
+    position: absolute
+    top: 5px
+    right: 7.5rem
+    text-align: center
+    font-size: .8rem
+    line-height: .9rem
+    height: 1rem
+    width: 1rem
+    border-radius: 50%
+
+.notification_view
+    @extend %mainNavDropdown
+    position: fixed
+    right: calc(5.2vw)
+    z-index: #{map-get($zindex, hamburger)}
+    height: 35rem
+    width: 25rem
+    margin-top: .25rem
+    font-size: 0.9rem
+
+    display: none
+    &[aria-expanded]:not([aria-expanded=false])
+        display: block
+
+    // arrow
+    &:before
+        border: solid transparent
+        content: ''
+        height: 0
+        width: 0
+        position: absolute
+        pointer-events: none
+        display: block
+        border-color: rgba(255, 255, 255, 0)
+        border-bottom-color: #fff
+        border-width: .5rem
+        margin-left: -.5rem
+        top: -1rem
+        right: 1.5rem
+
+    h1
+        margin: 0.5rem 1rem .2rem 1rem
+
+    ol.notification_list
+        height: calc(100% - 8rem)
+        overflow-y: auto
+        margin-top: 0
+        padding: 0 1rem
+
+        li
+            margin-bottom: 1rem
+            cursor: pointer
+
+            &:not(:last-child)
+                border-bottom: 1px solid $uni-color-scale9
+
+            &:before
+                content: ''
+
+            header, main, footer
+                display: block
+
+            header
+                margin-top: .25rem
+                color: mix($uni-color-c2a, $uni-color-toolbar, 50%)
+
+            footer
+                color: $uni-color-scale5
+                margin-bottom: .25rem
+
+    .notification_footer
+        position: absolute
+        bottom: 0
+        display: block
+        height: 2rem
+        line-height: 2rem
+        width: 100%
+        padding: .5rem 0
+        border-top: 1px solid $uni-color-scale9
+        text-align: center
+        cursor: pointer
+
+        a
+            color: mix($uni-color-c2a, $uni-color-toolbar, 50%)
+            &:focus,
+            &:hover
+                color: $uni-color-scale2
+
+
+
+
+

@@ -16,8 +16,13 @@ import {routes as EmployeeRoutes} from './employee/employeeRoutes';
 import {routes as WageTypeRoutes} from './wagetype/wagetypeRoutes';
 import {AMeldingView} from './amelding/ameldingview';
 
-
-
+// Maps entitytype to frontend route
+// Important for notifications to work properly!
+export const entityTypeMap: any = {
+    'wagetype': 'wagetypes/:id',
+    'employee': 'employees/:id',
+    'payrollrun': 'payrollrun/:id'
+};
 
 export const childRoutes = [
     {

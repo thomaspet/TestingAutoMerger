@@ -19,6 +19,18 @@ import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
 import {UniSales} from './sales';
 
+// Maps entitytype to frontend route
+// Important for notifications to work properly!
+export const entityTypeMap: any = {
+    'supplier': 'suppliers/:id',
+    'customerquote': 'quotes/:id',
+    'customerquoteitem': 'quotes/:id',
+    'customerorder': 'orders/:id',
+    'customerorderitem': 'orders/:id',
+    'customerinvoice': 'invoices/:id',
+    'customerinvoiceitem': 'invoices/:id',
+};
+
 export const childRoutes = [
     {
         path: 'customer',

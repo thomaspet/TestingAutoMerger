@@ -11,6 +11,7 @@ import {routes} from '../../../routes';
                 <uni-tabstrip></uni-tabstrip>
                 <uni-navbar-search></uni-navbar-search>
                 <uni-company-dropdown></uni-company-dropdown>
+                <uni-notifications></uni-notifications>
             </div>
         </section>
     `

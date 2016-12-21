@@ -18,6 +18,13 @@ import {UniAccounting} from './accounting';
 import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
+// Maps entitytype to frontend route
+// Important for notifications to work properly!
+export const entityTypeMap: any = {
+    'supplierinvoice': 'bill/:id',
+    'supplierinvoiceitem': 'bill/:id'
+};
+
 export const childRoutes = [
     {
         path: '',
@@ -49,7 +56,8 @@ export const childRoutes = [
     {
         path: 'accountingreports',
         component: AccountingReports,
-        children: AccountintReportsRoutes},
+        children: AccountintReportsRoutes
+    },
     {
         path: 'bills',
         component: BillsView

@@ -1,13 +1,7 @@
 import {RouterModule} from '@angular/router';
-
 import {Dashboard} from './components/dashboard/dashboard';
 import {ProductList} from './components/common/product/list/productList';
 import {ProductDetails} from './components/common/product/details/productDetails';
-import {UniTimetracking} from './components/timetracking/timetracking';
-import {routes as SalesRoutes} from './components/sales/salesRoutes';
-import {routes as SettingRoutes} from './components/settings/settingsRoutes';
-import {routes as BankRoutes} from './components/bank/bankRoutes';
-import {routes as TimetrackingRoutes} from './components/timetracking/timetrackingRoutes';
 
 import {AuthGuard} from './authGuard';
 
