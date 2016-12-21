@@ -4,7 +4,8 @@ declare var moment;
 interface ITime { 
     hours: number;
     minutes: number;
-    preSign: string; 
+    preSign: string;
+    decimal: number; 
 }
 
 export var SYSTEMTYPES = [
@@ -37,17 +38,20 @@ export class MinutesToHoursPipe implements PipeTransform {
         switch (format) {
             case 'short':
                 return this.shortFmt(parsed);
+            case 'decimal':
+                return this.decFmt(parsed);
             default:
                 return this.longFmt(parsed);
         }        
     }
 
     private parse(value: any): ITime {
-        var defaultValue = { hours: 0, minutes: 0, preSign: '' };
+        var defaultValue = { hours: 0, minutes: 0, preSign: '', decimal: 0 };
         if (value === null) { return  defaultValue; }
         if (!value) { return defaultValue; }
         var hours = 0;
         var minutes = parseInt(value);
+        var dec = parseFloat((minutes / 60).toFixed(1));
         var preSign = '';
         if (minutes < 0) {
             minutes = -minutes;
@@ -58,7 +62,7 @@ export class MinutesToHoursPipe implements PipeTransform {
             hours = Math.floor(minutes / 60);
             minutes = minutes % 60;
         }
-        return { hours: hours, minutes: minutes, preSign: preSign };        
+        return { hours: hours, minutes: minutes, preSign: preSign, decimal: dec };        
     }
 
     private longFmt(time: ITime): string {
@@ -68,6 +72,10 @@ export class MinutesToHoursPipe implements PipeTransform {
     private shortFmt(time: ITime): string {
         if (time.hours === 0 && time.minutes === 0) { return ''; }
         return time.preSign + time.hours + ' : ' + (time.minutes < 10 ? '0' : '') + time.minutes;
+    }
+
+    private decFmt(time: ITime): string {        
+        return time.decimal.toFixed(1);        
     }
 
 }

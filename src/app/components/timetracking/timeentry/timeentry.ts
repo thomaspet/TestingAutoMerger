@@ -279,8 +279,8 @@ export class TimeEntry {
 
                 this.currentBalance.lastDayBalance = x.LastDayActual - x.LastDayExpected;
                 this.currentBalance.lastDayBalanceHours = roundTo((x.LastDayActual - x.LastDayExpected) / 60, 1);
-                this.currentBalance.lastDayHours = roundTo(x.LastDayActual / 60, 1);
-                this.currentBalance.lastDayExpectedHours = roundTo(x.LastDayExpected / 60, 1);                
+                // this.currentBalance.lastDayHours = roundTo(x.LastDayActual / 60, 1);
+                // this.currentBalance.lastDayExpectedHours = roundTo(x.LastDayExpected / 60, 1);                
 
                 this.currentBalance.hours = roundTo( x.Minutes / 60, 1 );
                 this.currentBalance.expectedHours = roundTo( x.ExpectedMinutes / 60, 1);
@@ -545,7 +545,5 @@ class WorkBalanceDto extends WorkBalance {
     public hours: number;
     public lastDayBalanceHours: number;
     public lastDayBalance: number;
-    public lastDayHours: number;
-    public lastDayExpectedHours: number;
     public relationIsClosed: boolean;
 }
