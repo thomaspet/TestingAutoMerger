@@ -32,8 +32,12 @@
     margin: pxToRem(7) 0 pxToRem(4) 0
 
     tr > td:last-of-type
+        width: 18em
         text-align: right
-        font-size: 1.2em
+        font-weight: bold
+
+    tr > td:nth-last-of-type(2)
+        text-align: right
 
 .regtime_filters
     ul
@@ -192,3 +196,30 @@ tr.sum td
     background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
     background-size: 0.8rem  
     box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
+
+.flex-table
+    border-collapse: collapse
+
+    td
+        padding: pxToRem(4)
+        border-bottom: 1px solid $uni-color-scale7
+
+    td.spacer
+        width: 2rem
+        border: 0
+
+    td.label
+        width: 10rem
+
+    td.sum
+        text-align: right
+        width: 6rem
+        font-weight: bold
+        border-left: 1px solid $uni-color-scale7
+
+    td.grandtotal
+        background-color: lighten($uni-color-c2a, 62%)
+
+div.bad
+    color: $uni-color-bad
+    

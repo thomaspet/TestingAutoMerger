@@ -24,21 +24,51 @@
         </section>
 
         <section [hidden]="!tabs[3].isSelected">
-            <h2>Fleksitid - <span *ngIf="currentBalance && currentBalance.WorkRelation">{{currentBalance.WorkRelation.Description}} - {{currentBalance.WorkRelation.WorkPercentage}}% stilling</span></h2>
+            <h2>Timesaldo - <span *ngIf="currentBalance && currentBalance.WorkRelation">{{currentBalance.WorkRelation.Description}} - {{currentBalance.WorkRelation.WorkPercentage}}% stilling</span></h2>
             <article *ngIf="currentBalance && currentBalance.WorkRelation">
-                <h3>Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}} til {{currentBalance.BalanceDate | date:'dd.MM.yyyy'}}</h3>
-                <ul>
-                    <li>Saldo i timer: {{currentBalance.hours}}</li>
-                    <li>Saldo i dager: {{currentBalance.Days}}</li>
-                </ul>
 
-                <h3>Detaljer</h3>
-                <ul>
-                    <li>Forventet antall timer: {{currentBalance.expectedHours}}</li>
-                    <li>Antall timer levert: {{currentBalance.actualHours}}</li>
-                    <li>Gyldig fravær/fri: {{currentBalance.validHours}}</li>
-                </ul>
-                {{currentBalance.Description}}
+                <h3 *ngIf="currentBalance.relationIsClosed">
+                    Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}}
+                    <div class="bad">Stillingen har sluttdato: {{currentBalance.WorkRelation.EndTime | date: 'dd.MM.yyyy'}}</div>
+                </h3>
+                
+                <h3 *ngIf="!currentBalance.relationIsClosed">
+                    Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}} til {{currentBalance.BalanceDate | date:'dd.MM.yyyy'}}
+                </h3>
+
+                <table class="flex-table">
+                    <tbody>
+                        <tr>
+                            <td class="label">Forventet antall timer</td><td class="sum">{{currentBalance.expectedHours}}</td>
+                            
+                            <td class="spacer"></td>
+                            <td class="label">Forventet i dag</td><td class="sum">{{currentBalance.lastDayExpectedHours}}</td>                            
+                        </tr>
+                        <tr>
+                            <td class="label">Timer levert</td><td class="sum">{{currentBalance.actualHours}}</td>
+                            
+                            <td class="spacer"></td>
+                            <td class="label">Timer i dag</td><td class="sum">{{currentBalance.lastDayHours}}</td>
+                        </tr>
+                        <tr>
+                            <td class="label grandtotal">Saldo i timer</td>
+                            <td class="sum grandtotal">{{currentBalance.hours}}</td>
+                            <td class="spacer"></td>
+                            <td class="label grandtotal">Saldo for i dag</td><td class="sum grandtotal">{{currentBalance.lastDayBalanceHours}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <br/>
+                <h3>Planlagt fri i perioden</h3>
+                <table class="flex-table">
+                    <tbody>
+                        <tr>
+                            <td class="label">Gyldig fravær/fri</td><td class="sum">{{currentBalance.validHours}}</td>
+                            <td>{{currentBalance.Description}}</td>
+                        </tr>
+                    </tbody>
+                </table>                
             </article>
         </section>
         <!--
@@ -66,8 +96,15 @@
                         <button class="good" (click)="onAddNew()">Ny timeføring</button>
                         <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
                         <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
+                    </td>                    
+                    <td>
+                        <span [hidden]="!filters[0].isSelected" *ngIf="currentBalance && currentBalance.LastDayExpected">
+                            Forventet i dag: {{currentBalance.LastDayExpected | min2hours}}
+                        </span>
                     </td>
-                    <td [hidden]="!(timeSheet && timeSheet.totals.Minutes)">Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
+                    <td [hidden]="!(timeSheet && timeSheet.totals.Minutes)">                        
+                        Totalsum: {{timeSheet.totals.Minutes | min2hours}}
+                    </td>
                     </tr></table>
                 </footer>
 

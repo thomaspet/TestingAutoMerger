@@ -19,7 +19,8 @@ export enum ControlTypes {
     HyperlinkInput = 13,
     MultivalueInput = 14,
     UrlInput = 15,
-    TextareaInput = 16
+    TextareaInput = 16,
+    LocalDate = 17
 }
 
 export enum FieldSize {
@@ -68,7 +69,8 @@ export function safeDec(value: any) {
     return tmp;
 }
 
-export function createFormField(name: string, label: string, fieldType = ControlTypes.TextInput, size = FieldSize.Normal, hideLabel = false, section = 0, sectionHeader?: string, fieldSet = 0, options?: any): any {
+export function createFormField(name: string, label: string, fieldType: any = ControlTypes.TextInput, 
+    size = FieldSize.Normal, hideLabel = false, section = 0, sectionHeader?: string, fieldSet = 0, options?: any): any {
     return {
         Property: name, Label: label,
         FieldType: fieldType,

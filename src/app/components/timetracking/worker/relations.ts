@@ -72,7 +72,8 @@ export class View {
     }
 
     public onRegisterHours() {
-        this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId=' + this.currentRelation.ID );
+        this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId=' 
+        + this.currentRelation.ID );
     }
 
     public onDelete() {
@@ -176,10 +177,12 @@ export class View {
             },
             formFields: [
                 createFormField('WorkPercentage', 'Prosent',  ControlTypes.NumericInput),
-                createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, FieldSize.Double, false, 0, undefined, undefined, this.getComboOptions()),                
+                createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, FieldSize.Double
+                    , false, 0, undefined, undefined, this.getComboOptions()),                
                 createFormField('CompanyName', 'Firmanavn',  ControlTypes.TextInput),
                 createFormField('Description', 'Beskrivelse',  ControlTypes.TextInput, FieldSize.Double),
-                createFormField('StartDate', 'Startdato',  ControlTypes.DateInput ),
+                createFormField('StartDate', 'Startdato',  ControlTypes.LocalDate ),
+                createFormField('EndTime', 'Sluttdato',  ControlTypes.LocalDate ),
                 createFormField('IsActive', 'Aktiv',  ControlTypes.CheckboxInput )                
             ],
         };
