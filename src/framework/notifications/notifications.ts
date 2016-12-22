@@ -1,4 +1,4 @@
-import {Component, HostListener} from '@angular/core';
+import {Component, HostListener, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../core/http/http';
 import {ErrorService} from '../../app/services/services';
@@ -24,7 +24,8 @@ export class UniNotifications {
     constructor(
         private http: UniHttp,
         private errorService: ErrorService,
-        private router: Router
+        private router: Router,
+        private cdr: ChangeDetectorRef
     ) {
         this.getNotifications();
         OneSignal.on('notificationDisplay', (event) => {
@@ -42,13 +43,14 @@ export class UniNotifications {
                 (notifications) => {
                     // REVISIT: orderBy ID desc when possible on backend
                     this.notifications = notifications.reverse();
-
                     this.unreadCount = notifications.reduce((count, value: Notification) => {
                         if (value.StatusCode === NotificationStatus.New) {
                             count++;
                         }
                         return count;
                     }, 0);
+
+                    this.cdr.markForCheck();
                 },
                 err => this.errorService.handle(err)
             );
