@@ -273,7 +273,10 @@ export class InvoiceDetails {
 
     public onInvoiceChange(invoice: CustomerInvoice) {
         if (invoice.Customer) {
-            invoice.CreditDays = invoice.CreditDays || invoice.Customer.CreditDays;
+            invoice.CreditDays = invoice.CreditDays
+                || invoice.Customer.CreditDays
+                || this.companySettings.CustomerCreditDays;
+
             if (!invoice.PaymentDueDate) {
                 invoice.PaymentDueDate = moment().add(invoice.CreditDays, 'days').toDate();
             }
