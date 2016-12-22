@@ -24,7 +24,13 @@ export var SYSTEMTYPES = [
 export class IsoTimePipe implements PipeTransform {
     public transform(value: any, format: string) {
         if (!value) { return ''; }
-        return moment(value).format(format || 'DD.MM.YYYY');
+        var v = value;
+        if (typeof(value) === 'object') {
+            if (!(value instanceof Date)) {
+                v = value.toString();
+            }
+        }
+        return moment(v).format(format || 'DD.MM.YYYY');
     }
 }
 
@@ -66,7 +72,8 @@ export class MinutesToHoursPipe implements PipeTransform {
     }
 
     private longFmt(time: ITime): string {
-        return time.preSign + (time.hours > 0 ? time.hours + ' timer ' : '') + (time.minutes !== 0 ? (time.hours > 0 ? ' og ' : '') + time.minutes + ' minutter' : '');
+        return time.preSign + (time.hours > 0 ? time.hours + ' timer ' : '') 
+            + (time.minutes !== 0 ? (time.hours > 0 ? ' og ' : '') + time.minutes + ' minutter' : '');
     }
 
     private shortFmt(time: ITime): string {

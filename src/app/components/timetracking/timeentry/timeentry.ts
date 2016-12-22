@@ -58,10 +58,9 @@ export class TimeEntry {
                 this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => 
                 this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Timesaldo', counter: 0 }
-            // { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
-            // { name: 'vacation', label: 'Ferie', counter: 22 },
-            // { name: 'offtime', label: 'Fravær', counter: 4 },
+            { name: 'flex', label: 'Timesaldo', counter: 0 },
+            { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
+                this.tabs[4].activated = true; } },
             ];
 
     public toolbarConfig: any = {
@@ -250,6 +249,10 @@ export class TimeEntry {
         } else {
             alert('Current worker/user has no workrelations!');
         }
+    }
+    
+    public onVacationSaved() {
+        this.loadFlex(this.timeSheet.currentRelation.ID);
     }
 
     private loadFlex(workRelationId: number) {

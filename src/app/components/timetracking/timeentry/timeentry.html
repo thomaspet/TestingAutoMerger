@@ -76,15 +76,18 @@
                 </table>                
             </article>
         </section>
+
+
+        <section [hidden]="!tabs[4].isSelected">
+            <vacation *ngIf="tabs[4].activated" (saved)="onVacationSaved()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
+        </section>
+
         <!--
         
         <section [hidden]="!tabs[3].isSelected">
             <h2>Arbeidsgivere</h2>
         </section>
 
-        <section [hidden]="!tabs[4].isSelected">
-            <h2>Ferie</h2>
-        </section>
 
         <section [hidden]="!tabs[5].isSelected">
             <h2>Fravær</h2>

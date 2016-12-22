@@ -92,6 +92,10 @@ export class WorkerService extends BizHttp<Worker> {
     
     public getWorkRelations(workerId: number): Observable<WorkRelation[]> {
         return this.GET('workrelations', { filter: 'workerid eq ' + workerId, expand: 'workprofile'});
+    }
+
+    public get<T>(route: string, params?: any): Observable<T> {
+        return this.GET(route, params);
     }    
     
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {

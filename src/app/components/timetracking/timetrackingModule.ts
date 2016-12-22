@@ -30,6 +30,7 @@ import {WorkprofileDetailview} from './workprofile/workprofile';
 import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
+import {View as VacationView} from './timeentry/vacation/vacation';
 
 @NgModule({
     imports: [
@@ -75,7 +76,8 @@ import {WorktypeListview} from './worktype/worktypes';
         WorkprofileDetailview,
         WorkprofileListview,
         WorktypeDetailview,
-        WorktypeListview
+        WorktypeListview,
+        VacationView
     ],
     providers: [
         Lookupservice,
@@ -99,7 +101,8 @@ import {WorktypeListview} from './worktype/worktypes';
         WorkprofileDetailview,
         WorkprofileListview,
         WorktypeDetailview,
-        WorktypeListview
+        WorktypeListview,
+        VacationView
     ]
 })
 export class TimetrackingModule {

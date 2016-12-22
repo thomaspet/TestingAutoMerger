@@ -1,0 +1,48 @@
+<section>
+
+    <table class='timeentry_toolbar'><tr>
+        <td>
+            <button class="good" (click)="onAddNew()">Ny ferie</button>
+            <button [disabled]="!hasUnsavedChanges" class="good" (click)="onSave()">Lagre endringer</button>
+            <button [hidden]="!items.length" class="bad" (click)="onDelete()">Slett ferie</button>
+            <button [hidden]="!hasUnsavedChanges" class="secondary-button" (click)="onReset()">Avbryt</button>
+        </td>                
+        <td>                    
+        </td>
+        <td>                    
+        </td>
+    </tr></table>            
+    
+
+    <section class="splitview">
+        <nav class="splitview_list">          
+
+            <table class="timeentriesTable">
+                <thead><tr>
+                    <th>Beskrivelse</th>
+                    <th>Fra dato</th>
+                    <th>Til dato</th>
+                </tr></thead>
+                <tbody>
+                    <tr *ngFor="let item of items" (click)="onItemClicked(item)" [class.alternateRow]="item._isSelected" >
+                        <td>{{item.Description}}</td>
+                        <td>{{item.FromDate|isotime}}</td>
+                        <td>{{item.ToDate|isotime}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </nav>
+
+        <main class="splitview_detail">
+            <uni-form
+                    [config]="formConfig"
+                    [fields]="layout.formFields"
+                    [model]="current"
+                    (changeEvent)="onChange($event)"
+                    (readyEvent)="onReady($event)">
+            </uni-form>                    
+        </main>
+        
+    </section>
+
+</section>
