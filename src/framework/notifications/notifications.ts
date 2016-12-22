@@ -10,6 +10,7 @@ import {entityTypeMap as salaryMap} from '../../app/components/salary/salaryRout
 import {entityTypeMap as salesMap} from '../../app/components/sales/salesRoutes';
 import {entityTypeMap as accountingMap} from '../../app/components/accounting/accountingRoutes';
 import {entityTypeMap as timetrackingMap} from '../../app/components/timetracking/timetrackingRoutes';
+declare const OneSignal;
 
 @Component({
     selector: 'uni-notifications',
@@ -26,6 +27,9 @@ export class UniNotifications {
         private router: Router
     ) {
         this.getNotifications();
+        OneSignal.on('notificationDisplay', (event) => {
+            this.getNotifications();
+        });
     }
 
     private getNotifications() {

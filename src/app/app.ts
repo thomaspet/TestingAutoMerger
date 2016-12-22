@@ -9,7 +9,6 @@ import {CompanySyncModal} from './components/init/companySyncModal';
 import {ErrorService} from './services/common/ErrorService';
 import {PushMapper} from './models/PushMapper';
 import {AppConfig} from './AppConfig';
-import {Observable} from 'rxjs/Rx';
 import {UserService} from './services/common//UserService';
 
 declare const OneSignal;
@@ -58,32 +57,28 @@ export class App {
     }
 
     private setOneSignal() {
-        console.log(window.ENV);
-
-        var self = this;
 
         if (window.ENV === 'production') {
-            OneSignal.push(function() {
-                OneSignal.getUserId(function(userId) {
-                    console.log('OneSignal User ID:', userId);
+            OneSignal.push(() => {
+                OneSignal.getUserId((userID) => {
+                    this.userService.getCurrentUser().subscribe(
+                        (user) => {
+                            const body: PushMapper = {
+                                DeviceToken: userID,
+                                UserIdentity: user.GlobalIdentity
+                            };
 
-                    self.userService.getCurrentUser()
-                        .subscribe(
-                            user => {
-                                var body: PushMapper = {
-                                    DeviceToken : userId,
-                                    UserIdentity : user.GlobalIdentity
-                                };
-
-                                self.http.asPOST()
-                                    .withBody(body)
-                                    .withHeader('Content-Type', 'application/json')
-                                    .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
-                                        .catch((err) => {
-                                        console.log(err);
-                                        return Observable.throw(err);
-                                    }).subscribe(response => null);
-                    });
+                            this.http.asPOST()
+                                .withBody(body)
+                                .withHeader('Content-Type', 'application/json')
+                                .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
+                                .subscribe(
+                                    res => null,
+                                    err => this.errorService.handle(err)
+                                );
+                        },
+                        err => this.errorService.handle(err)
+                    );
                 });
             });
         }
