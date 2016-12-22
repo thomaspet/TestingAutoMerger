@@ -55,52 +55,118 @@
         right: 1.5rem
 
     h1
-        margin: 0.5rem 1rem .2rem 1rem
+        @extend h2
+        margin: 0.5rem 1rem .2rem 2.2rem
 
-    ol.notification_list
-        height: calc(100% - 8rem)
-        overflow-y: auto
-        margin-top: 0
-        padding: 0 1rem
+.notification_list
+    height: calc(100% - 7rem)
+    overflow-y: auto
+    margin-top: 0
+    padding: 0
 
-        li
-            margin-bottom: 1rem
-            cursor: pointer
+.notification_list_item
+    padding: .5rem 0
+    display: flex
+    flex-wrap: wrap
+    position: relative
 
-            &:not(:last-child)
-                border-bottom: 1px solid $uni-color-scale9
+    &:not(:last-child):after
+            content: ''
+            display: block
+            height: pxToRem(1)
+            width: calc(100% - 2rem)
+            position: absolute
+            right: 0
+            bottom: 0
+            background: $uni-color-scale9
+            flex-basis: 100%
 
-            &:before
-                content: ''
+    &:before
+        display: none
 
-            header, main, footer
-                display: block
+    &:hover
+        background: transparentize($uni-color-c2a, .9)
 
-            header
-                margin-top: .25rem
-                color: mix($uni-color-c2a, $uni-color-toolbar, 50%)
+.notification_body
+    cursor: pointer
+    flex-grow: 1
+    flex-basis: 50%
 
-            footer
-                color: $uni-color-scale5
-                margin-bottom: .25rem
+    p
+        margin: 0
 
-    .notification_footer
-        position: absolute
-        bottom: 0
+    main, footer
         display: block
-        height: 2rem
-        line-height: 2rem
-        width: 100%
-        padding: .5rem 0
-        border-top: 1px solid $uni-color-scale9
-        text-align: center
+        font-size: .9rem
+
+    header
+        margin-top: .25rem
+        color: $uni-color-c2a
+
+    footer
+        color: $uni-color-scale5
+        margin-bottom: .25rem
+
+.notification_readStatus
+    @extend %hideText
+    cursor: pointer
+    display: block
+    height: .3rem
+    width: .3rem
+    border-radius: 99rem
+    border: pxToRem(2) solid transparent
+    margin: .7rem
+
+    .notification_list_item:hover > &
+        border-color: $uni-color-c2a
+
+    .unread > &
+        background-color: $uni-color-c2a
+
+    &:hover
+        background-color: transparentize($uni-color-c2a, .5)
         cursor: pointer
 
-        a
-            color: mix($uni-color-c2a, $uni-color-toolbar, 50%)
-            &:focus,
-            &:hover
-                color: $uni-color-scale2
+
+
+.notification_deleteBtn
+    @extend %hideText
+    opacity: 0
+    height: 1rem
+    width: 1rem
+    background: $uni-color-scale5 unicon-close($uni-color-negative) center center no-repeat
+    background-size: .5rem auto
+    border-radius: 999rem
+    padding: 0
+    box-shadow: none
+    min-height: 0
+    margin: .7rem
+    align-self: center
+
+    .notification_list_item:hover > &
+        opacity: .75
+
+    .notification_list_item:hover > &:hover
+        opacity: 1
+        background-color: $uni-color-scale5
+
+.notification_footer
+    position: absolute
+    bottom: 0
+    display: block
+    height: 2rem
+    line-height: 2rem
+    width: 100%
+    padding: .5rem 0
+    border-top: 1px solid $uni-color-scale9
+    text-align: center
+    cursor: pointer
+
+    a
+        color: mix($uni-color-c2a, $uni-color-toolbar, 50%)
+        &:focus,
+        &:hover
+            color: $uni-color-scale2
 
 
 

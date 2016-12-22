@@ -88,15 +88,35 @@ export class UniNotifications {
         this.close();
     }
 
+    private toggleReadStatus(notification: Notification): void {
+        if (notification.StatusCode === 900010) {
+            this.markAsRead(notification);
+        } else {
+            this.markAsUnread(notification);
+        }
+    }
+
     private markAsRead(notification: Notification): void {
+
+        // Optimistically setting the status immedeately
+        notification.StatusCode = 900020;
+        this.unreadCount--;
+
         this.http.asPUT()
             .usingBusinessDomain()
             .withEndPoint(`${Notification.RelativeUrl}/${notification.ID}`)
             .send({action: 'mark-as-read'})
             .subscribe((res) => {
                 notification = res;
-                this.unreadCount--;
+                console.log(res);
             });
+    }
+
+    private markAsUnread(notification: Notification): void {
+        // TODO: MARK AS UNREAD ON BACKEND!
+        console.info('Marking as unread not implemented yet. 😿');
+        notification.StatusCode = 900010;
+        this.unreadCount++;
     }
 
     private markAllAsRead(): void {
@@ -105,6 +125,16 @@ export class UniNotifications {
                 this.markAsRead(notification);
             }
         });
+    }
+
+    private deleteNotification(notification: Notification): void {
+        // FIXME: Delete doesn't seem to persist.
+        this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`${Notification.RelativeUrl}/${notification.ID}`)
+            .send();
+        let indx = this.notifications.indexOf(notification);
+        this.notifications.splice(indx, 1);
     }
 
     private getNotificationTime(notification: Notification): string {

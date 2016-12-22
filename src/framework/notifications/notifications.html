@@ -8,17 +8,35 @@
 <span class="notification_view" (clickOutside)="close()" [attr.aria-expanded]="isOpen">
     <h1>Varsler</h1>
     <ol class="notification_list">
-        <li *ngFor="let notification of notifications"
-            (click)="onNotificationClick(notification)"
+        <li class="notification_list_item"
+            *ngFor="let notification of notifications"
             [ngClass]="{
                 'unread': notification.StatusCode === 900010,
                 'marked': notification.StatusCode === 900030
             }">
-            <header>{{notification.CompanyName}}</header>
-            <main>
-                {{getNotificationText(notification)}}
-            </main>
-            <footer><small>{{getNotificationTime(notification)}}</small></footer>
+
+            <p  class="notification_readStatus"
+                role="status"
+                (click)="toggleReadStatus(notification)"
+                [title]="notification.StatusCode === 900010 ? 'Marker som lest' : 'Marker som ulest'">
+                {{notification.StatusCode === 900010 ? 'Ulest' : 'Lest'}}
+            </p>
+
+            <article class="notification_body"
+                (click)="onNotificationClick(notification)">
+
+                <header>{{notification.CompanyName}}</header>
+                <p>
+                    {{getNotificationText(notification)}}
+                </p>
+                <footer><small>{{getNotificationTime(notification)}}</small></footer>
+            </article>
+
+            <button class="notification_deleteBtn"
+                title="Slett notifikasjon"
+                (click)="deleteNotification(notification)">
+                Slett notifikasjon
+            </button>
         </li>
     </ol>
     <footer class="notification_footer">
