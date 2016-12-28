@@ -1,0 +1,4828 @@
+{
+  "CustomerQuote": {
+    "CustomValues": {
+
+    },
+    "Attachments": null,
+    "Comment": "Intern kommentar til oss selv",
+    "CreatedAt": "2016-12-28T07:36:58.043Z",
+    "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+    "CreditDays": 14,
+    "CurrencyCode": null,
+    "CustomerID": 1,
+    "CustomerName": "UNI MICRO STAVANGER AS",
+    "CustomerOrgNumber": null,
+    "CustomerPerson": null,
+    "Deleted": false,
+    "DeliveryDate": "2016-12-28T07:35:49.687Z",
+    "DeliveryMethod": null,
+    "DeliveryTerm": null,
+    "FreeTxt": null,
+    "ID": 2,
+    "InquiryReference": 0,
+    "InternalNote": null,
+    "InvoiceAddressLine1": "Torvmyrveien 26",
+    "InvoiceAddressLine2": null,
+    "InvoiceAddressLine3": null,
+    "InvoiceCity": "RANDABERG",
+    "InvoiceCountry": "Norge",
+    "InvoiceCountryCode": null,
+    "InvoicePostalCode": "4070",
+    "InvoiceReceiverName": null,
+    "OurReference": "Terje Pedersen",
+    "PaymentTerm": null,
+    "PrintStatus": null,
+    "QuoteDate": "2016-12-28T07:35:49.687Z",
+    "QuoteNumber": 1,
+    "QuoteNumberSeriesID": 1,
+    "Requisition": "abcd",
+    "SalesPerson": null,
+    "ShippingAddressLine1": "Torvmyrveien 26",
+    "ShippingAddressLine2": null,
+    "ShippingAddressLine3": null,
+    "ShippingCity": "RANDABERG",
+    "ShippingCountry": "Norge",
+    "ShippingCountryCode": null,
+    "ShippingPostalCode": "4070",
+    "StatusCode": 40105,
+    "SupplierOrgNumber": null,
+    "TaxExclusiveAmount": 42200,
+    "TaxExclusiveCurrencyAmount": 0,
+    "TaxInclusiveAmount": 52750,
+    "TaxInclusiveCurrencyAmount": 0,
+    "UpdatedAt": "2016-12-28T14:34:36.253Z",
+    "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+    "ValidUntilDate": "2017-01-28T07:35:49.687Z",
+    "VatTotalsAmount": 10550,
+    "YourReference": "tp",
+    "Items": [
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 244,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.043Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 5000,
+        "DiscountPercent": 25,
+        "ID": 1,
+        "ItemText": "Langt",
+        "NumberOfItems": 10,
+        "PriceExVat": 2000,
+        "PriceIncVat": 2500,
+        "ProductID": 1,
+        "StatusCode": null,
+        "SumTotalExVat": 15000,
+        "SumTotalIncVat": 18750,
+        "SumVat": 3750,
+        "Unit": "stk",
+        "UpdatedAt": "2016-12-28T14:34:36.283Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 244,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1000,
+          "CreatedAt": "2016-12-28T07:11:26.423Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 1,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "Langt",
+          "PartName": "Med-Langt-Produkt-Nr",
+          "PriceExVat": 2000,
+          "PriceIncVat": 2500,
+          "StatusCode": null,
+          "Type": 0,
+          "Unit": "stk",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/1?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/1?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/1?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/1?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/1",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/244",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 1",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/1",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/1",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/244",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.06Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 2,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.283Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.06Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 3,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.283Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/3",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.073Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 4,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.3Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/4",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.073Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 5,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.3Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/5",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.073Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 6,
+        "ItemText": "T",
+        "NumberOfItems": 5,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 7000,
+        "SumTotalIncVat": 8750,
+        "SumVat": 1750,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.313Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/6",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.073Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 7,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.313Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/7",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.073Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 8,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.33Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/8",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 244,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.09Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 9,
+        "ItemText": "Langt",
+        "NumberOfItems": 1,
+        "PriceExVat": 2000,
+        "PriceIncVat": 2500,
+        "ProductID": 1,
+        "StatusCode": null,
+        "SumTotalExVat": 2000,
+        "SumTotalIncVat": 2500,
+        "SumVat": 500,
+        "Unit": "stk",
+        "UpdatedAt": "2016-12-28T14:34:36.33Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 244,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1000,
+          "CreatedAt": "2016-12-28T07:11:26.423Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 1,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "Langt",
+          "PartName": "Med-Langt-Produkt-Nr",
+          "PriceExVat": 2000,
+          "PriceIncVat": 2500,
+          "StatusCode": null,
+          "Type": 0,
+          "Unit": "stk",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/1?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/1?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/1?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/1?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/1",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/244",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 1",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/9",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/1",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/244",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.09Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 10,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.347Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.09Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 11,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.347Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/11",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.09Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 12,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.347Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/12",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.107Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 13,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.36Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/13",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.107Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 14,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.36Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/14",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.107Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 15,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.377Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/15",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      {
+        "CustomValues": {
+
+        },
+        "AccountID": 245,
+        "CalculateGrossPriceBasedOnNetPrice": false,
+        "Comment": null,
+        "CreatedAt": "2016-12-28T07:36:58.107Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "CustomerQuoteID": 2,
+        "Deleted": false,
+        "DimensionsID": 2,
+        "Discount": 0,
+        "DiscountPercent": 0,
+        "ID": 16,
+        "ItemText": "T",
+        "NumberOfItems": 1,
+        "PriceExVat": 1400,
+        "PriceIncVat": 1750,
+        "ProductID": 2,
+        "StatusCode": null,
+        "SumTotalExVat": 1400,
+        "SumTotalIncVat": 1750,
+        "SumVat": 350,
+        "Unit": "t",
+        "UpdatedAt": "2016-12-28T14:34:36.377Z",
+        "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "VatTypeID": 10,
+        "Product": {
+          "CustomValues": {
+
+          },
+          "AccountID": 245,
+          "AverageCost": null,
+          "CalculateGrossPriceBasedOnNetPrice": false,
+          "CostPrice": 1300,
+          "CreatedAt": "2016-12-28T07:12:46.267Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "DefaultProductCategoryID": 0,
+          "Deleted": false,
+          "Description": null,
+          "DimensionsID": 2,
+          "ID": 2,
+          "ImageFileID": null,
+          "ListPrice": null,
+          "Name": "T",
+          "PartName": "T",
+          "PriceExVat": 1400,
+          "PriceIncVat": 1750,
+          "StatusCode": null,
+          "Type": 2,
+          "Unit": "t",
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "VariansParentID": 0,
+          "VatTypeID": 10,
+          "_links": {
+            "actions": {
+              "first": {
+                "href": "/api/biz/products/2?action=first",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "last": {
+                "href": "/api/biz/products/2?action=last",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "previous": {
+                "href": "/api/biz/products/2?action=previous",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "next": {
+                "href": "/api/biz/products/2?action=next",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/products/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatType": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Account": {
+                "href": "/api/biz/accounts/245",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "ProductCategoryLinks": {
+                "href": "/api/biz/productcategorylinks?filter=ProductID eq 2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Dimensions": {
+                "href": "/api/biz/dimensions/2",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "VatType": {
+          "CustomValues": {
+
+          },
+          "Alias": null,
+          "AvailableInModules": false,
+          "CreatedAt": "2016-06-29T09:32:51.383Z",
+          "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+          "Deleted": false,
+          "ID": 10,
+          "IncomingAccountID": null,
+          "InUse": false,
+          "Locked": false,
+          "Name": "Utgående avgift (høy sats)",
+          "OutgoingAccountID": 207,
+          "OutputVat": true,
+          "ReversedTaxDutyVat": false,
+          "StatusCode": null,
+          "UpdatedAt": null,
+          "UpdatedBy": null,
+          "ValidFrom": "2015-01-01T00:00:00Z",
+          "ValidTo": "0001-01-01T00:00:00Z",
+          "VatCode": "3",
+          "VatCodeGroupID": 1,
+          "VatPercent": 25,
+          "VatTypeSetupID": 12,
+          "Visible": true,
+          "_links": {
+            "actions": {
+              "vatcode": {
+                "href": "/api/biz/vattypes/10?action=vatcode",
+                "method": "GET",
+                "label": "",
+                "description": ""
+              },
+              "lock": {
+                "href": "/api/biz/vattypes/10?action=lock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "unlock": {
+                "href": "/api/biz/vattypes/10?action=unlock",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "visible": {
+                "href": "/api/biz/vattypes/10?action=visible",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              },
+              "hidden": {
+                "href": "/api/biz/vattypes/10?action=hidden",
+                "method": "PUT",
+                "label": "",
+                "description": ""
+              }
+            },
+            "relations": {
+              "Self": {
+                "href": "/api/biz/vattypes/10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "OutgoingAccount": {
+                "href": "/api/biz/accounts/207",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "Deductions": {
+                "href": "/api/biz/vatcodedeductions?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              },
+              "VatReportReferences": {
+                "href": "/api/biz/vatreportreferences?filter=VatTypeID eq 10",
+                "method": "GET",
+                "label": "",
+                "description": "",
+                "readonly": false
+              }
+            },
+            "transitions": {
+
+            }
+          }
+        },
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/quoteitems/16",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Product": {
+              "href": "/api/biz/products/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "VatType": {
+              "href": "/api/biz/vattypes/10",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": true
+            },
+            "Dimensions": {
+              "href": "/api/biz/dimensions/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "Account": {
+              "href": "/api/biz/accounts/245",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      }
+    ],
+    "Customer": {
+      "CustomValues": {
+
+      },
+      "BusinessRelationID": 3,
+      "CreatedAt": "2016-12-28T07:13:06.98Z",
+      "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+      "CreditDays": null,
+      "CustomerNumber": 100000,
+      "Deleted": false,
+      "DimensionsID": 2,
+      "GLN": null,
+      "ID": 1,
+      "OrgNumber": "912561224",
+      "PeppolAddress": null,
+      "StatusCode": null,
+      "UpdatedAt": null,
+      "UpdatedBy": null,
+      "WebUrl": null,
+      "Info": {
+        "CustomValues": {
+
+        },
+        "CreatedAt": "2016-12-28T07:13:06.917Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "DefaultBankAccountID": null,
+        "DefaultEmailID": null,
+        "DefaultPhoneID": null,
+        "Deleted": false,
+        "ID": 3,
+        "InvoiceAddressID": 2,
+        "Name": "UNI MICRO STAVANGER AS",
+        "ShippingAddressID": 3,
+        "StatusCode": null,
+        "UpdatedAt": null,
+        "UpdatedBy": null,
+        "Addresses": [
+          {
+            "CustomValues": {
+
+            },
+            "AddressLine1": "Torvmyrveien 26",
+            "AddressLine2": null,
+            "AddressLine3": null,
+            "BusinessRelationID": 3,
+            "City": "RANDABERG",
+            "Country": "Norge",
+            "CountryCode": null,
+            "CreatedAt": "2016-12-28T07:13:06.903Z",
+            "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+            "Deleted": false,
+            "ID": 2,
+            "PostalCode": "4070",
+            "Region": null,
+            "StatusCode": null,
+            "UpdatedAt": null,
+            "UpdatedBy": null,
+            "_links": {
+              "actions": {
+
+              },
+              "relations": {
+
+              },
+              "transitions": {
+
+              }
+            }
+          },
+          {
+            "CustomValues": {
+
+            },
+            "AddressLine1": "Torvmyrveien 26",
+            "AddressLine2": null,
+            "AddressLine3": null,
+            "BusinessRelationID": 3,
+            "City": "RANDABERG",
+            "Country": "Norge",
+            "CountryCode": null,
+            "CreatedAt": "2016-12-28T07:13:06.917Z",
+            "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+            "Deleted": false,
+            "ID": 3,
+            "PostalCode": "4070",
+            "Region": null,
+            "StatusCode": null,
+            "UpdatedAt": null,
+            "UpdatedBy": null,
+            "_links": {
+              "actions": {
+
+              },
+              "relations": {
+
+              },
+              "transitions": {
+
+              }
+            }
+          }
+        ],
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/business-relations/3",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            },
+            "BankAccounts": {
+              "href": "/api/biz/bankaccounts?filter=BusinessRelationID eq 3",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      "_links": {
+        "actions": {
+          "next": {
+            "href": "/api/biz/customers/1?action=next",
+            "method": "GET",
+            "label": "",
+            "description": ""
+          },
+          "previous": {
+            "href": "/api/biz/customers/1?action=previous",
+            "method": "GET",
+            "label": "",
+            "description": ""
+          }
+        },
+        "relations": {
+          "Self": {
+            "href": "/api/biz/customers/1",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "Info": {
+            "href": "/api/biz/business-relations/3",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "Dimensions": {
+            "href": "/api/biz/dimensions/2",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          }
+        },
+        "transitions": {
+
+        }
+      }
+    },
+    "_links": {
+      "actions": {
+        "calculate-vat-summary": {
+          "href": "/api/biz/quotes/2?action=calculate-vat-summary",
+          "method": "GET",
+          "label": "",
+          "description": ""
+        },
+        "next": {
+          "href": "/api/biz/quotes/2?action=next",
+          "method": "GET",
+          "label": "",
+          "description": ""
+        },
+        "previous": {
+          "href": "/api/biz/quotes/2?action=previous",
+          "method": "GET",
+          "label": "",
+          "description": ""
+        }
+      },
+      "relations": {
+        "Self": {
+          "href": "/api/biz/quotes/2",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": false
+        },
+        "Customer": {
+          "href": "/api/biz/customers/1",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": true
+        },
+        "QuoteNumberNumberSeries": {
+          "href": "/api/biz/number-series/1",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": true
+        },
+        "Items": {
+          "href": "/api/biz/quoteitems?filter=CustomerQuoteID eq 2",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": false
+        }
+      },
+      "transitions": {
+        "toInvoice": {
+          "href": "/api/biz/quotes/2?action=toInvoice",
+          "method": "POST",
+          "label": "",
+          "description": ""
+        },
+        "complete": {
+          "href": "/api/biz/quotes/2?action=complete",
+          "method": "POST",
+          "label": "",
+          "description": ""
+        }
+      }
+    }
+  },
+  "CompanySettings": {
+    "CustomValues": {
+
+    },
+    "AccountGroupSetID": 1,
+    "AccountingLockedDate": null,
+    "AccountVisibilityGroupID": 1,
+    "APActivated": false,
+    "APGuid": "00000000-0000-0000-0000-000000000000",
+    "AutoJournalPayment": false,
+    "BaseCurrency": "NOK",
+    "CompanyBankAccountID": 1,
+    "CompanyName": "Førtiåringen",
+    "CompanyRegistered": false,
+    "CompanyTypeID": 1,
+    "CreatedAt": "2016-06-29T09:20:25.223Z",
+    "CreatedBy": "Terje Pedersen",
+    "CurrentAccountingYear": 2016,
+    "CustomerAccountID": 89,
+    "CustomerCreditDays": 14,
+    "DefaultAddressID": 1,
+    "DefaultEmailID": 1,
+    "DefaultPhoneID": 1,
+    "DefaultSalesAccountID": 244,
+    "Deleted": false,
+    "ForceSupplierInvoiceApproval": false,
+    "GLN": null,
+    "ID": 1,
+    "LogoFileID": 1,
+    "OfficeMunicipalityNo": null,
+    "OrganizationNumber": "912849627",
+    "PaymentBankIdentification": null,
+    "PeriodSeriesAccountID": 3,
+    "PeriodSeriesVatID": 1,
+    "SalaryBankAccountID": null,
+    "SettlementVatAccountID": 219,
+    "StatusCode": null,
+    "SupplierAccountID": 194,
+    "TaxBankAccountID": null,
+    "TaxMandatory": false,
+    "UpdatedAt": "2016-12-28T08:53:34.363Z",
+    "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+    "UseXtraPaymentOrgXmlTag": false,
+    "VatLockedDate": null,
+    "VatReportFormID": null,
+    "WebAddress": "",
+    "DefaultEmail": {
+      "CustomValues": {
+
+      },
+      "BusinessRelationID": 1,
+      "CreatedAt": null,
+      "CreatedBy": null,
+      "Deleted": false,
+      "Description": null,
+      "EmailAddress": "epost@domene.net",
+      "ID": 1,
+      "StatusCode": null,
+      "Type": null,
+      "UpdatedAt": "2016-12-28T08:53:34.317Z",
+      "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b"
+    },
+    "DefaultPhone": {
+      "CustomValues": {
+
+      },
+      "BusinessRelationID": 1,
+      "CountryCode": null,
+      "CreatedAt": null,
+      "CreatedBy": null,
+      "Deleted": false,
+      "Description": null,
+      "ID": 1,
+      "Number": "91334697",
+      "StatusCode": null,
+      "Type": "150101",
+      "UpdatedAt": "2016-12-28T08:53:34.317Z",
+      "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b"
+    },
+    "DefaultAddress": {
+      "CustomValues": {
+
+      },
+      "AddressLine1": "Gate",
+      "AddressLine2": null,
+      "AddressLine3": null,
+      "BusinessRelationID": 1,
+      "City": "Sted",
+      "Country": "Land",
+      "CountryCode": null,
+      "CreatedAt": null,
+      "CreatedBy": null,
+      "Deleted": false,
+      "ID": 1,
+      "PostalCode": "5563",
+      "Region": null,
+      "StatusCode": null,
+      "UpdatedAt": "2016-12-28T08:53:34.3Z",
+      "UpdatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+      "_links": {
+        "actions": {
+
+        },
+        "relations": {
+
+        },
+        "transitions": {
+
+        }
+      }
+    },
+    "CompanyBankAccount": {
+      "CustomValues": {
+
+      },
+      "AccountID": 0,
+      "AccountNumber": "97133894091",
+      "BankAccountType": "company",
+      "BankID": 2,
+      "BusinessRelationID": null,
+      "CompanySettingsID": 1,
+      "CreatedAt": "2016-12-28T08:53:34.333Z",
+      "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+      "Deleted": false,
+      "IBAN": "NO8697133894091",
+      "ID": 1,
+      "Locked": false,
+      "StatusCode": null,
+      "UpdatedAt": null,
+      "UpdatedBy": null,
+      "Bank": {
+        "CustomValues": {
+
+        },
+        "AddressID": 5,
+        "BIC": "SKIANOBB",
+        "CreatedAt": "2016-12-28T08:53:16.72Z",
+        "CreatedBy": "8c676ad7-0279-4a89-9c3d-f5bd60e0927b",
+        "Deleted": false,
+        "EmailID": 3,
+        "ID": 2,
+        "Name": "Skandiabanken AB Filial Norge",
+        "PhoneID": 3,
+        "StatusCode": null,
+        "UpdatedAt": null,
+        "UpdatedBy": null,
+        "Web": "www.skandiabanken.no",
+        "_links": {
+          "actions": {
+
+          },
+          "relations": {
+            "Self": {
+              "href": "/api/biz/banks/2",
+              "method": "GET",
+              "label": "",
+              "description": "",
+              "readonly": false
+            }
+          },
+          "transitions": {
+
+          }
+        }
+      },
+      "_links": {
+        "actions": {
+          "lock": {
+            "href": "/api/biz/bankaccounts/1?action=lock",
+            "method": "PUT",
+            "label": "",
+            "description": ""
+          },
+          "unlock": {
+            "href": "/api/biz/bankaccounts/1?action=unlock",
+            "method": "PUT",
+            "label": "",
+            "description": ""
+          }
+        },
+        "relations": {
+          "Self": {
+            "href": "/api/biz/bankaccounts/1",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": false
+          },
+          "Bank": {
+            "href": "/api/biz/banks/2",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": true
+          },
+          "Account": {
+            "href": "/api/biz/accounts/0",
+            "method": "GET",
+            "label": "",
+            "description": "",
+            "readonly": true
+          }
+        },
+        "transitions": {
+
+        }
+      }
+    },
+    "_links": {
+      "actions": {
+
+      },
+      "relations": {
+        "Self": {
+          "href": "/api/biz/companysettings/1",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": false
+        },
+        "SupplierAccount": {
+          "href": "/api/biz/accounts/194",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": true
+        },
+        "CustomerAccount": {
+          "href": "/api/biz/accounts/89",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": true
+        },
+        "BankAccounts": {
+          "href": "/api/biz/bankaccounts?filter=CompanySettingsID eq 1",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": false
+        },
+        "CompanyBankAccount": {
+          "href": "/api/biz/bankaccounts/1",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": false
+        },
+        "SettlementVatAccount": {
+          "href": "/api/biz/accounts/219",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": true
+        },
+        "DefaultSalesAccount": {
+          "href": "/api/biz/accounts/244",
+          "method": "GET",
+          "label": "",
+          "description": "",
+          "readonly": true
+        }
+      },
+      "transitions": {
+
+      }
+    }
+  },
+  "VatSummary": [
+    {
+      "VatPercent": 25,
+      "SumVatBasis": 42200,
+      "SumVat": 10550
+    }
+  ]
+}
