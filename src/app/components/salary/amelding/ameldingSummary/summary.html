@@ -33,11 +33,11 @@
             <h2>Ansatte og arbeidsforhold</h2>
             <uni-table [config]="employeeTableConfig" [resource]="virksomhet.employees"></uni-table>
 
-            <h2 *ngIf="virksomhet.leaves">Permisjoner</h2>
-            <uni-table *ngIf="virksomhet.leaves" [config]="leaveTableConfig" [resource]="virksomhet.leaves"></uni-table>
+            <h2 *ngIf="virksomhet.leaves && virksomhet.leaves.length > 0">Permisjoner</h2>
+            <uni-table *ngIf="virksomhet.leaves && virksomhet.leaves.length > 0" [config]="leaveTableConfig" [resource]="virksomhet.leaves"></uni-table>
 
-            <h2 *ngIf="virksomhet.transactions">Sum per beskrivelse</h2>
-            <uni-table *ngIf="virksomhet.transactions" [config]="transactionTableConfig" [resource]="virksomhet.transactions"></uni-table>
+            <h2 *ngIf="virksomhet.transactions && virksomhet.transactions.length > 0">Sum per beskrivelse</h2>
+            <uni-table *ngIf="virksomhet.transactions && virksomhet.transactions.length > 0" [config]="transactionTableConfig" [resource]="virksomhet.transactions"></uni-table>
 
         </article>
 

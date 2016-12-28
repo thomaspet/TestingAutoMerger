@@ -51,6 +51,7 @@ export class AmeldingSummaryView {
 
     private mapData() {
         this.entitiesWithData = [];
+        let period = this.currentAMelding.period;
 
         if (this.currentSumUp.entities) {
             this.currentSumUp.entities.forEach(entity => {
@@ -61,6 +62,7 @@ export class AmeldingSummaryView {
 
                 if (entity.employees) {
                     this.employeeAndEmployments = [];
+                    this.employeeleaves = [];
                     entity.employees.forEach(employee => {
                         let employeeName = employee.name;
                         let employeeNumber = employee.employeeNumber;
@@ -76,17 +78,20 @@ export class AmeldingSummaryView {
                                 });
 
                                 if (arbeidsforhold.permisjon) {
-                                    this.employeeleaves = [];
                                     arbeidsforhold.permisjon.forEach(permisjon => {
-                                        this.employeeleaves.push({
-                                            permisjonsId: permisjon.permisjonsId,
-                                            employeenumber: employeeNumber,
-                                            employeename: employeeName,
-                                            startdato: permisjon.startdato,
-                                            sluttdato: permisjon.sluttdato,
-                                            permisjonsprosent: permisjon.permisjonsprosent,
-                                            beskrivelse: permisjon.beskrivelse
-                                        });
+                                        let startdatePeriod = parseInt(permisjon.startdato.split('-', 2)[1]);
+                                        let enddatePeriod = parseInt(permisjon.sluttdato.split('-', 2)[1]);
+                                        if (startdatePeriod === period || enddatePeriod === period) {
+                                            this.employeeleaves.push({
+                                                permisjonsId: permisjon.permisjonsId,
+                                                employeenumber: employeeNumber,
+                                                employeename: employeeName,
+                                                startdato: permisjon.startdato,
+                                                sluttdato: permisjon.sluttdato,
+                                                permisjonsprosent: permisjon.permisjonsprosent,
+                                                beskrivelse: permisjon.beskrivelse
+                                            });
+                                        }
                                     });
                                 }
                             });
@@ -112,7 +117,6 @@ export class AmeldingSummaryView {
                 });
             });
         }
-
     }
 
     private setupEmployees() {
