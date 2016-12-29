@@ -6112,9 +6112,9 @@ underscore@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.7.0.tgz#6bbaf0877500d36be34ecaa584e0db9fef035209"
 
-uniform-ng2@0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.21.tgz#e0bd0f025dcce4f9dc5bd15f33621e38db94821a"
+uniform-ng2@0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.23.tgz#b588795dafb549746cea9219f6f1d78c499c0042"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
@@ -6143,9 +6143,9 @@ unique-stream@^2.0.2:
     json-stable-stringify "^1.0.0"
     through2-filter "^2.0.0"
 
-unitable-ng2@0.0.0-alpha086:
-  version "0.0.0-alpha086"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.0-alpha086.tgz#5f7f68f115178fd5c64fedef0555a792d9c93abf"
+unitable-ng2@0.0.0-alpha087:
+  version "0.0.0-alpha087"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.0-alpha087.tgz#2b6bb7562eb3ce37f1edbfd047588ac75e19126f"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
