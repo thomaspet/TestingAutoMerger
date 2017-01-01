@@ -43,6 +43,7 @@ export class TimeEntry {
     private currentFilter: IFilter;
     private editable: Editable;
     public currentBalance: WorkBalanceDto;
+    public incomingBalance: WorkBalance;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
@@ -58,7 +59,7 @@ export class TimeEntry {
                 this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => 
                 this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Timesaldo', counter: 0 },
+            { name: 'flex', label: 'Timesaldo', counter: 0, activate: () => this.onFlexTabActivate() },
             { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
                 this.tabs[4].activated = true; } },
             ];
@@ -253,6 +254,20 @@ export class TimeEntry {
     
     public onVacationSaved() {
         this.loadFlex(this.timeSheet.currentRelation.ID);
+    }
+
+    private onFlexTabActivate() {
+        this.incomingBalance = undefined;
+        var isoToday = moment().format('YYYY-MM-DD');
+        this.service.getStatistics(`model=workbalance&filter=workrelationid eq ${this.timeSheet.currentRelation.ID}` +
+            ` and balancedate le '${isoToday}' and balancetype eq 11` + 
+            '&select=minutes as Minutes,balancedate as BalanceDate,description as Description' +
+            '&orderby=BalanceDate DESC&top=1')
+        .subscribe( (result) => {            
+            if (result && result.Data && result.Data.length > 0) {
+                this.incomingBalance = result.Data[0];
+            }
+        });
     }
 
     private loadFlex(workRelationId: number) {
@@ -549,4 +564,5 @@ class WorkBalanceDto extends WorkBalance {
     public lastDayBalanceHours: number;
     public lastDayBalance: number;
     public relationIsClosed: boolean;
+    public Previous: any;
 }

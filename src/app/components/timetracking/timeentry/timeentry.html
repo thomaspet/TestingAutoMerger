@@ -39,17 +39,23 @@
                 <table class="flex-table">
                     <tbody>
                         <tr>
-                            <td class="label">Forventet antall timer</td><td class="sum">{{currentBalance.expectedHours}}</td>
-                            
-                            <td class="spacer"></td>
-                            <td class="label">Forventet i dag</td><td class="sum">{{currentBalance.LastDayExpected|min2hours:'decimal'}}</td>                            
-                        </tr>
-                        <tr>
                             <td class="label">Timer levert</td><td class="sum">{{currentBalance.actualHours}}</td>
-                            
                             <td class="spacer"></td>
                             <td class="label">Timer i dag</td><td class="sum">{{currentBalance.LastDayActual|min2hours:'decimal'}}</td>
                         </tr>
+
+                        <tr *ngIf="incomingBalance">
+                            <td class="label">+ {{incomingBalance.Description}} (pr.{{incomingBalance.BalanceDate|date:'dd.MM.yy'}})</td><td class="sum">{{incomingBalance.Minutes|min2hours:'decimal'}}</td>
+                            <td class="spacer"></td>
+                            <td class="label"></td><td class="sum"></td>                            
+                        </tr>
+
+                        <tr>
+                            <td class="label">- forventet antall timer</td><td class="sum">{{currentBalance.ExpectedMinutes|min2hours:'decimal'}}</td>
+                            <td class="spacer"></td>
+                            <td class="label">- forventet i dag</td><td class="sum">{{currentBalance.LastDayExpected|min2hours:'decimal'}}</td>                            
+                        </tr>
+
                         <tr>
                             <td class="label grandtotal">Saldo i timer</td>
                             <td class="sum grandtotal">{{currentBalance.hours}}</td>
