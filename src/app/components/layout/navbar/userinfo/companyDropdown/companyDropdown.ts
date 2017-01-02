@@ -1,4 +1,4 @@
-﻿import {Component} from '@angular/core';
+﻿import {Component, ViewChildren, QueryList} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
@@ -7,7 +7,7 @@ import {FinancialYearService} from '../../../../../services/services';
 import {UserService} from '../../../../../services/services';
 
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
-import {ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationService} from '../../../../../services/common/AltinnAuthenticationService';
 import {ErrorService} from '../../../../../services/common/ErrorService';
@@ -72,6 +72,9 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
     // TODO: Should be decided if such as companies and financialYears should be retrieved during dialog opening, and not only during application load.
     // A company may get a new account year during a session, and a user may get access to new companies during the session.
 export class UniCompanyDropdown {
+    @ViewChildren(UniSelect)
+    private dropdowns: QueryList<UniSelect>;
+
     private activeCompany: any;
     private companyDropdownActive: Boolean;
     private company: CompanySettings;
@@ -89,7 +92,7 @@ export class UniCompanyDropdown {
     private activeYearHdr: string = '';
 
     constructor(
-        private _altInnService : AltinnAuthenticationService,        
+        private _altInnService : AltinnAuthenticationService,
         private _router: Router,
         private _authService: AuthService,
         private userService: UserService,
@@ -187,6 +190,11 @@ export class UniCompanyDropdown {
     }
 
     private close() {
+        if (this.dropdowns && this.dropdowns.length) {
+            this.dropdowns.forEach((dropdown) => {
+                dropdown.close();
+            });
+        }
         this.companyDropdownActive = false;
     }
 
