@@ -39,13 +39,16 @@ export class AmeldingSummaryView {
             } else {
                 this.statusText = this.statuses[this.currentSumUp.status];
             }
-            this.mapData();
         }
         if (this.currentAMelding) {
             this.createdDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
             if (this.currentAMelding.sent) {
                 this.sentDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
             }
+        }
+
+        if (this.currentSumUp && this.currentAMelding) {
+            this.mapData();
         }
     }
 
