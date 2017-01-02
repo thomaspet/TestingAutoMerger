@@ -30,7 +30,7 @@ import {ErrorService} from '../../../../services/common/ErrorService';
                     role="listbox"
                     tabindex="-1"
                     [attr.aria-expanded]="isExpanded">
-                    
+
                     <li role="option"
                         class="autocomplete_result"
                         [attr.aria-selected]="selectedIndex === idx"
@@ -71,7 +71,7 @@ export class NavbarSearch implements AfterViewInit {
         });
     }
 
-    public ngAfterViewInit() {        
+    public ngAfterViewInit() {
         Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             if (event.ctrlKey && (event.keyCode === 32 || event.keyCode === 36)) {
                 event.preventDefault();
@@ -83,7 +83,7 @@ export class NavbarSearch implements AfterViewInit {
             this.isExpanded = false;
             this.selectedIndex = 0;
             let query = inputValue.toLowerCase();
-            
+
             // TODO: This should be reworked after 30.6
             if (query.indexOf('faktura ') === 0) {
                 this.TOFLookup(query.slice(8), 'invoice');
@@ -100,7 +100,7 @@ export class NavbarSearch implements AfterViewInit {
     private onMouseover(index) {
         if (index < this.selectedIndex) {
             for (let i = index; i < this.selectedIndex; i++) {
-                this.focusPositionTop -= this.listElement.nativeElement.children[i].clientHeight; 
+                this.focusPositionTop -= this.listElement.nativeElement.children[i].clientHeight;
             }
         } else if (index > this.selectedIndex) {
             for (let i = this.selectedIndex; i < index; i++) {
@@ -117,8 +117,10 @@ export class NavbarSearch implements AfterViewInit {
 
         switch (event.keyCode) {
             case 9:
-                event.preventDefault();
-                this.tabSelect();
+                if (this.inputControl.value) {
+                    event.preventDefault();
+                    this.tabSelect();
+                }
             break;
             case 13:
                 this.confirmSelection();
@@ -151,7 +153,7 @@ export class NavbarSearch implements AfterViewInit {
                 if (!currItem) { return; }
                 overflow = (this.focusPositionTop + currItem.clientHeight)
                            - (this.listElement.nativeElement.clientHeight + this.listElement.nativeElement.scrollTop);
-                        
+
                 if (overflow > 0) {
                     this.listElement.nativeElement.scrollTop += overflow;
                 }
@@ -162,6 +164,7 @@ export class NavbarSearch implements AfterViewInit {
     private confirmSelection() {
         if (!this.searchResults[this.selectedIndex]) { return; }
         const url = this.searchResults[this.selectedIndex].componentUrl;
+        console.log(url);
         this.close();
         this.router.navigateByUrl(url);
     }
@@ -169,7 +172,6 @@ export class NavbarSearch implements AfterViewInit {
     private tabSelect() {
         if (!this.searchResults[this.selectedIndex]) { return; }
         const name = this.searchResults[this.selectedIndex].componentName;
-        const lower = name.toLowerCase();
 
         if (['faktura', 'tilbud', 'ordre'].indexOf(name.toLowerCase()) >= 0) {
             this.inputControl.setValue(name + ' ', { emitEvent: true });
@@ -184,7 +186,7 @@ export class NavbarSearch implements AfterViewInit {
             this.isExpanded = false;
             this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
         }, 120);
-                
+
     }
 
     private componentLookup(query: string) {
@@ -199,44 +201,32 @@ export class NavbarSearch implements AfterViewInit {
         this.isExpanded = true;
     }
 
-    private invoiceLookup(query: string) {
-        this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`invoices?top=20&filter=contains(InvoiceNumber,'${query}') or contains(CustomerName,'${query}')`)
-            .send()
-            .map(response => response.json())
-            .subscribe((response) => {
-                let results = [];
-                response.forEach((invoice) => {
-                    results.push({
-                        componentName: invoice.InvoiceNumber + ' - ' + invoice.CustomerName,
-                        componentUrl: '/sales/invoice/details/' + invoice.ID
-                    });
-                });
-                this.searchResults = results;
-                this.isExpanded = true;
-            }, err => this.errorService.handle(err));
-    }
-
     private TOFLookup(query: string, module: string) {
-        var tofString = module.charAt(0).toUpperCase() + module.slice(1) + "Number";
+        const filterKey = module.charAt(0).toUpperCase() + module.slice(1) + 'Number';
+        const modulePlural = module + 's';
         this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(module.toLowerCase() + `s?top=20&filter=contains(` + tofString + `,'${query}') or contains(CustomerName,'${query}')`)
+            .withEndPoint(
+                modulePlural.toLowerCase()
+                + `?top=20&filter=contains(` + filterKey + `,'${query}') or contains(CustomerName,'${query}')`
+            )
             .send()
             .map(response => response.json())
             .subscribe(
                 (response) => {
                     let results = [];
-                    
                     response.forEach((tof) => {
-                        if (tof[tofString] === null) { tof[tofString] = 'Kladd ' + tof.ID }
+                        if (tof[filterKey] === null) {
+                            tof[filterKey] = 'Kladd ' + tof.ID;
+                        }
+
                         results.push({
-                            componentName: tof[tofString] + ' - ' + tof.CustomerName,
-                            componentUrl: '/sales/' + module + '/details/' + tof.ID
+                            componentName: tof[filterKey] + ' - ' + tof.CustomerName,
+                            componentUrl: '/sales/' + modulePlural + '/' + tof.ID
                         });
                     });
+
                     this.searchResults = results;
                     this.isExpanded = true;
                 },
