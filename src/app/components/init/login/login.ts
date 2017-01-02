@@ -1,9 +1,9 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 import {Logger} from '../../../../framework/core/logger';
 
 @Component({
@@ -11,6 +11,9 @@ import {Logger} from '../../../../framework/core/logger';
     templateUrl: 'app/components/init/login/login.html'
 })
 export class Login {
+    @ViewChild(UniSelect)
+    private select: UniSelect;
+
     private usernameControl: FormControl = new FormControl('', Validators.required);
     private passwordControl: FormControl = new FormControl('', Validators.required);
 
@@ -21,10 +24,16 @@ export class Login {
     private availableCompanies: any[];
     private selectConfig: ISelectConfig;
 
-    constructor(private _authService: AuthService, private _router: Router, private http: UniHttp, private logger: Logger) {
+    constructor(
+        private _authService: AuthService,
+        private _router: Router,
+        private http: UniHttp,
+        private logger: Logger
+    ) {
         this.selectConfig = {
             displayProperty: 'Name',
-            placeholder: 'Velg selskap'
+            placeholder: 'Velg selskap',
+
         };
     }
 
@@ -32,6 +41,8 @@ export class Login {
         event.preventDefault();
         this.errorMessage = '';
         this.working = true;
+        this.usernameControl.disable();
+        this.passwordControl.disable();
 
         this._authService.authenticate({
             username: this.usernameControl.value,
@@ -42,6 +53,8 @@ export class Login {
             },
             (error) => {
                 this.working = false;
+                this.usernameControl.enable();
+                this.passwordControl.enable();
                 this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.';
                 this.logger.exception(error);
             }
@@ -69,6 +82,10 @@ export class Login {
                 if (this.availableCompanies.length === 1) {
                     this.onCompanySelected(this.availableCompanies[0]);
                 }
+
+                setTimeout(() => {
+                    this.select.focus();
+                });
             });
     }
 
