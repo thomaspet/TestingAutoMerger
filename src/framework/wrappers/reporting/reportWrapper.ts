@@ -22,7 +22,7 @@ export class StimulsoftReportWrapper {
             Promise = backup;
 
             // add font
-            Stimulsoft.Base.StiFontCollection.addOpentypeFontFile('assets/SourceSansPro.otf', 'Source Sans Pro');
+            //Stimulsoft.Base.StiFontCollection.addOpentypeFontFile('assets/SourceSansPro-Regular.otf', 'Source Sans Pro');
         });
     }
 
@@ -52,6 +52,8 @@ export class StimulsoftReportWrapper {
 
     public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string) {
         if (template && reportData) {
+            Stimulsoft.Base.StiFontCollection.addOpentypeFontFile('assets/SourceSansPro-Regular.otf', 'Source Sans Pro');
+
             const report = this.generateReport(template, reportData, parameters);
             var mimetype: string;
 
