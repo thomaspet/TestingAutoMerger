@@ -96,6 +96,7 @@ export class View {
                     resolve(true);
                 }, err => {
                     resolve(false);
+                    this.errorService.handle(err);
                 });
         });
     }
@@ -275,7 +276,7 @@ export class View {
         switch (event.field) {
             case 'Hours':
                 value = parseFloat(safeDec(value).toFixed(3));
-                item.Minutes = safeDec(value) * 60;
+                item.Minutes = safeInt(safeDec(value) * 60);
                 event.rowModel['Minutes'] = item.Minutes;
                 break;
         }
