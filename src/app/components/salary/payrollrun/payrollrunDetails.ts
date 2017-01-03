@@ -653,7 +653,7 @@ export class PayrollrunDetails extends UniView {
     private saveAll(done: (message: string) => void) {
 
         if (!this.payrollrun.PayDate) {
-            this._toastService.addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Du må ha en utbetalingsdato før vi kan lagre');
+            this._toastService.addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
             this.uniform.field('PayDate').focus();
             done('');
             return;
@@ -748,5 +748,18 @@ export class PayrollrunDetails extends UniView {
 
     public updatePayrollRun() {
         this.getPayrollRun();
+    }
+
+    public updateTranses() {
+        this.busy = true;
+        this.savePayrollrun()
+            .finally(() => this.busy = false)
+            .subscribe(response => {
+                this.getSalaryTransactions();
+            },
+            (err) => {
+                this.errorService.handle(err);
+            }
+        );
     }
 }

@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, Output,  EventEmitter} from '@angular/core';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
@@ -22,6 +22,9 @@ export class VacationpaySettingModalContent {
     private vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
     private infoText: string;
+    private originalDeduction: number;
+    public dueToHolidayChanged: boolean = false;
+    private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
 
     constructor(
         private _companysalaryService: CompanySalaryService,
@@ -40,12 +43,14 @@ export class VacationpaySettingModalContent {
         ).subscribe((response: any) => {
             var [compsal, rates] = response;
             this.companysalaryModel = compsal[0];
+            this.originalDeduction = this.companysalaryModel.WageDeductionDueToHoliday;
             this.vacationRates = rates;
             this.formConfig = {
                 submitText: ''
             };
             this.setFormFields();
             this.setTableConfig();
+            this.done('');
             this.busy = false;
         }, err => this.errorService.handle(err));
     }
@@ -59,31 +64,72 @@ export class VacationpaySettingModalContent {
     }
 
     public saveSettings() {
+        
+        this.saveStatus = {
+            numberOfRequests: 0,
+            completeCount: 0,
+            hasErrors: false
+        };
+
         // save uniform
         if (this.companysalaryModel.ID > 0) {
+            this.saveStatus.numberOfRequests++;
             this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
+                .finally(() => this.checkForSaveDone())
                 .subscribe((formresponse) => {
                     this.done('Firmalønn oppdatert');
-                }, err => this.errorService.handle(err));
+                    if (this.originalDeduction !== formresponse.WageDeductionDueToHoliday) {
+                        this.dueToHolidayChanged = true;
+                    }
+                    this.saveStatus.completeCount++;
+                }, (err) => {
+                    this.saveStatus.completeCount++;
+                    this.saveStatus.hasErrors = true;
+                    this.errorService.handle(err);
+                });
         }
 
         // save unitable
         this.changedVacationRates = this.table.getTableData();
         this.changedVacationRates.forEach(vacationRate => {
+            this.saveStatus.numberOfRequests++;
             if (vacationRate.ID > 0) {
                 this._companyvacationRateService.Put(vacationRate.ID, vacationRate)
+                    .finally(() => this.checkForSaveDone())
                     .subscribe((response) => {
                         this.done('Feriepengesats oppdatert');
+                        this.saveStatus.completeCount++;
                     },
-                    err => this.errorService.handle(err));
+                    (err) => {
+                        this.saveStatus.completeCount++;
+                        this.saveStatus.hasErrors = true;
+                        this.errorService.handle(err);
+                    });
             } else {
                 this._companyvacationRateService.Post(vacationRate)
+                    .finally(() => this.checkForSaveDone())
                     .subscribe((response) => {
-                        this.done('Feriepengesats lagret: ');
+                        this.done('Feriepengesats lagret');
+                        this.saveStatus.completeCount++;
                     },
-                    err => this.errorService.handle(err));
+                    (err) => {
+                        this.saveStatus.completeCount++;
+                        this.saveStatus.hasErrors = true;
+                        this.errorService.handle(err);
+                    });
             }
         });
+    }
+
+    private checkForSaveDone() {
+        if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
+            if (this.saveStatus.hasErrors) {
+                this.done('Feil ved lagring');
+            } else {
+                this.done('Lagring fullført');
+                this.config.cancel();
+            }
+        }
     }
 
     private done(infotext: string) {

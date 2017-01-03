@@ -80,6 +80,7 @@ export class AmeldingSummaryView {
                                     endDate: arbeidsforhold.endDate
                                 });
 
+                                this.employeeleaves = [];
                                 if (arbeidsforhold.permisjon) {
                                     arbeidsforhold.permisjon.forEach(permisjon => {
                                         let startdatePeriod = parseInt(permisjon.startdato.split('-', 2)[1]);
@@ -101,9 +102,8 @@ export class AmeldingSummaryView {
                         }
                     });
                 }
-                
+                this.sumPerDescription = [];
                 if (entity.transactionTypes) {
-                    this.sumPerDescription = [];
                     entity.transactionTypes.forEach(transaction => {
                         this.sumPerDescription.push(transaction);
                     });

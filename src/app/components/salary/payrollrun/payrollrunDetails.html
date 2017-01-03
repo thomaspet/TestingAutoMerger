@@ -1,14 +1,11 @@
-<uni-toolbar [config]="toolbarconfig" 
-             [contextmenu]="contextMenuItems" 
-             [saveactions]="saveActions" 
-             [statustrack]="getStatustrackConfig()">
+<uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()">
 </uni-toolbar>
 
 <header class="poster" [attr.aria-busy]="busy">
     <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
         <postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
-        <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()"></vacationpay-modal>
+        <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>
     </section>
 
 </header>

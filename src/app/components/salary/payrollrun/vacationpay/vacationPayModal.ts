@@ -11,8 +11,13 @@ declare var _;
 })
 export class VacationpayModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
-    private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number , submit: () => void};
-    
+    private modalConfig: { 
+        hasCancelButton: boolean, 
+        cancel: (dueToHolidayChanged: boolean) => void, 
+        payrollRunID: number , 
+        submit: (dueToHolidayChanged: boolean) => void
+    };
+    @Output() public recalc: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public type: Type<any> = VacationpayModalContent;
 
@@ -20,10 +25,16 @@ export class VacationpayModal implements AfterViewInit {
         this.router.params.subscribe((params) => {
             this.modalConfig = {
                 hasCancelButton: true,
-                cancel: () => {
+                cancel: (dueToHolidayChanged: boolean) => {
+                    if (dueToHolidayChanged) {
+                        this.recalc.emit(true);
+                    }
                     this.modal.close();
                 },
-                submit: () => {
+                submit: (dueToHolidayChanged: boolean) => {
+                    if (dueToHolidayChanged) {
+                        this.recalc.emit(true);
+                    }
                     this.updatePayrollRun.emit(true);
                     this.modal.close();
                 },

@@ -15,7 +15,12 @@ declare var _;
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
 })
 export class VacationpayModalContent {
-    @Input('config') private config: {hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void};
+    @Input('config') private config: {
+        hasCancelButton: boolean, 
+        cancel: (dueToHolidayChanged: boolean) => void, 
+        payrollRunID: number, 
+        submit: (dueToHolidayChanged: boolean) => void
+    };
     private busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel: any = {};
@@ -27,7 +32,7 @@ export class VacationpayModalContent {
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: any;
     private vacationBaseYear: number;
-    private rowSelectionCount: number;
+    public dueToHolidayChanged: boolean = false;
 
     constructor(
         private _salarytransService: SalaryTransactionService,
@@ -42,6 +47,8 @@ export class VacationpayModalContent {
 
     public load() {
         this.busy = true;
+        this.dueToHolidayChanged = false;
+        this.totalPayout = 0;
         this._basicamountService.getBasicAmounts()
             .subscribe((response: any) => {
                 this.basicamounts = response;
@@ -52,17 +59,13 @@ export class VacationpayModalContent {
                 this.createFormConfig();
                 this.createTableConfig();
 
-                this.getVacationpayData();
-
                 this.busy = false;
             }, err => this.errorService.handle(err));
-
-        this.table.ngOnInit();
-        //this.table.getTableData().map((item) => item.set('_rowSelected', true));
-
     }
 
-    public updateConfig(newConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void }) {
+    public updateConfig(newConfig: { 
+        hasCancelButton: boolean, cancel: (dueToHolidayChanged: boolean) => void, 
+        payrollRunID: number, submit: (dueToHolidayChanged: boolean) => void }) {
         this.config = newConfig;
     }
 
@@ -101,8 +104,12 @@ export class VacationpayModalContent {
         this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
             .finally(() => this.busy = false)
             .subscribe((response) => {
-                this.config.submit();
+                this.config.submit(this.dueToHolidayChanged);
             }, err => this.errorService.handle(err));
+    }
+
+    public closeModal() {
+        this.config.cancel(this.dueToHolidayChanged);
     }
 
     public openVacationpaySettings() {
@@ -117,9 +124,16 @@ export class VacationpayModalContent {
 
     }
 
-    public onRowSelectionChange(event) {
-        this.rowSelectionCount = this.table.getSelectedRows().length;
+    public rowChanged(event) {
         this.updatetotalPay();
+    }
+
+    public onRowSelectionChange(event) {
+        this.updatetotalPay();
+    }
+
+    public recalc(event) {
+        this.dueToHolidayChanged = event;
     }
 
     private getVacationpayData() {
@@ -129,7 +143,8 @@ export class VacationpayModalContent {
                 if (vpBasis) {
                     this.vacationpayBasis = vpBasis.VacationPay;
                 }
-                this.basicamountBusy = false;                
+                this.basicamountBusy = false;
+                this.vacationHeaderModel = _.cloneDeep(this.vacationHeaderModel);
             }, err => this.errorService.handle(err));
 
     }
@@ -169,8 +184,6 @@ export class VacationpayModalContent {
         }
 
         this.getVacationpayData();
-
-        this.vacationHeaderModel = _.cloneDeep(this.vacationHeaderModel);
     }
 
     private createFormConfig() {
@@ -229,11 +242,10 @@ export class VacationpayModalContent {
                 if (event.field === 'ManualVacationPayBase') {
                     this.calcWithdrawal(row);
                 }
-                if(row.Withdrawal > 0){
-                    row._rowSelected = true;
+                if (event.field === 'Withdrawal') {
+                    row['_rowSelected'] = true;
                 }
 
-                this.updatetotalPay();
                 return row;
             });
     }

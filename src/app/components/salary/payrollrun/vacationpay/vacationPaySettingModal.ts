@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, Type, ViewChild, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
 
@@ -10,12 +10,20 @@ export class VacationpaySettingModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
     private type: Type<any> = VacationpaySettingModalContent;
     private modalConfig: {hasCancelButton: boolean, cancel: any};
+    public dueToHolidayChanged: boolean;
+    @Output() public recalc: EventEmitter<any> = new EventEmitter<any>(true);
 
     constructor() {
         this.modalConfig = {
             hasCancelButton: true,
             cancel: () => {
-                this.modal.close();
+                this.modal.getContent().then((component: VacationpaySettingModalContent) => {
+                    this.dueToHolidayChanged = component.dueToHolidayChanged;
+                    if (this.dueToHolidayChanged) {
+                        this.recalc.emit(true);
+                    }
+                    this.modal.close();
+                });
             }
         };
     }
