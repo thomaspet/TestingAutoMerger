@@ -44,6 +44,8 @@ export class TradeItemHelper  {
             PriceExVat: null,
             Discount: null,
             DiscountPercent: null,
+            AccountID: null,
+            Account: null
         };
     }
 
@@ -70,6 +72,10 @@ export class TradeItemHelper  {
 
         if (event.field === 'VatType') {
             this.mapVatTypeToQuoteItem(newRow);
+        }
+
+        if (event.field === 'Account') {
+            this.mapAccountToQuoteItem(newRow);
         }
 
         if (event.field === 'Dimensions.Project') {
@@ -137,10 +143,23 @@ export class TradeItemHelper  {
         }
     }
 
+    public mapAccountToQuoteItem(rowModel) {
+        let account = rowModel['Account'];
+
+        if (!account) {
+            rowModel.AccountID = null;
+        } else {
+            rowModel.AccountID = account.ID;
+            rowModel.VatTypeID = account.VatTypeID;
+            rowModel.VatType = account.VatType;
+        }
+    }
+
     public mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
+        rowModel.Account = product.Account;
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;

@@ -508,8 +508,8 @@ export class CompanySettingsComponent implements OnInit {
     private generateInvoiceEmail() {
         this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
             .subscribe(
-                company => this.onlyCompanyModel = company,
-                err => this.errorService.handle(err)
+            company => this.onlyCompanyModel = company,
+            err => this.errorService.handle(err)
             );
     }
 
@@ -1098,7 +1098,30 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Bankkontoer',
                 hasLineBreak: false,
                 Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'UseXtraPaymentOrgXmlTag',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.MULTISELECT,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Betaling fra DnB konto',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 2,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Bankkontoer',
+                hasLineBreak: false,
+                Validations: []
             }
+
 
 
         ];
@@ -1144,7 +1167,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 console.log('Kontoplan synkronisert for AS');
             },
-                err => this.errorService.handle(err)
+            err => this.errorService.handle(err)
             );
     }
 
@@ -1156,7 +1179,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 console.log('VatTypes synkronisert');
             },
-                err => this.errorService.handle(err)
+            err => this.errorService.handle(err)
             );
     }
 
@@ -1167,7 +1190,7 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 alert('Valuta lasted ned');
             },
-                err => this.errorService.handle(err)
+            err => this.errorService.handle(err)
             );
     }
 

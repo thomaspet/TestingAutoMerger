@@ -84,7 +84,7 @@ export class InvoiceDetails {
     private companySettings: CompanySettings;
 
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
-    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
+    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 

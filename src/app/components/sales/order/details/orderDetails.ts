@@ -86,7 +86,7 @@ export class OrderDetails {
     public summary: ISummaryConfig[] = [];
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     // New

@@ -1,10 +1,11 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
-import {VatType} from '../../../unientities';
+import {VatType, Account} from '../../../unientities';
 import {
     ProductService,
     VatTypeService,
+    AccountService,
     ProjectService,
     DepartmentService,
     ErrorService
@@ -28,12 +29,14 @@ export class TradeItemTable {
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
+    private accounts: Account[] = [];
     private tableConfig: UniTableConfig;
     private tableData: any[];
 
     constructor(
         private productService: ProductService,
         private vatTypeService: VatTypeService,
+        private accountService: AccountService,
         private tradeItemHelper: TradeItemHelper,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
@@ -87,6 +90,21 @@ export class TradeItemTable {
         const unitCol = new UniTableColumn('Unit', 'Enhet');
         const exVatCol = new UniTableColumn('PriceExVat', 'Pris', UniTableColumnType.Money);
 
+        const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
+            .setWidth('15%')
+            .setTemplate((row) => {
+                const account = row['Account'];
+                return (account) ? `${account.AccountNumber} : ${account.AccountName}` : '';
+            })
+            .setEditorOptions({
+                itemTemplate: item => `${item.AccountNumber} : ${item.AccountName}`,
+                lookupFunction: (query) => {
+                    return this.accountService.GetAll(
+                        `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')&top=30`
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            });
+
         const vatTypeCol = new UniTableColumn('VatType', 'Momskode', UniTableColumnType.Lookup)
             .setWidth('15%')
             .setTemplate((row) => {
@@ -99,8 +117,8 @@ export class TradeItemTable {
                     const query = searchValue.toLowerCase();
                     let filtered = this.vatTypes.filter((vatType) => {
                         return vatType.VatCode.toLowerCase().startsWith(query)
-                               || vatType.Name.toLowerCase().indexOf(query) > -1
-                               || vatType.VatPercent.toString() === query;
+                            || vatType.Name.toLowerCase().indexOf(query) > -1
+                            || vatType.VatPercent.toString() === query;
                     });
 
                     return filtered;
@@ -170,7 +188,7 @@ export class TradeItemTable {
         this.tableConfig = new UniTableConfig(!this.readonly)
             .setColumns([
                 productCol, itemTextCol, numItemsCol, unitCol,
-                exVatCol, vatTypeCol, discountPercentCol, discountCol,
+                exVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
             ])
             .setColumnMenuVisible(true)
