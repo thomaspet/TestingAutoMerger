@@ -31,6 +31,7 @@ import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
+import {View as WorkBalancesView} from './worker/balances';
 
 @NgModule({
     imports: [
@@ -77,7 +78,8 @@ import {View as VacationView} from './timeentry/vacation/vacation';
         WorkprofileListview,
         WorktypeDetailview,
         WorktypeListview,
-        VacationView
+        VacationView,
+        WorkBalancesView
     ],
     providers: [
         Lookupservice,

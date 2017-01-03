@@ -1,13 +1,13 @@
 <uni-toolbar [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
-<section [attr.aria-busy]="busy" class="application" >
+<section [attr.aria-busy]="busy" class="application" [hidden]="hiddenform" >
     <uni-form
             [config]="config"
             [fields]="fields"
             [model]="current"
             (changeEvent)="onChange($event)"
             (readyEvent)="onReady($event)">
-    </uni-form>
+    </uni-form>    
 </section>
 
 <uni-confirm-modal></uni-confirm-modal>
