@@ -1,8 +1,9 @@
-import {Component, HostListener, ChangeDetectorRef} from '@angular/core';
+import {Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../core/http/http';
 import {ErrorService} from '../../app/services/services';
 import {Notification, NotificationStatus} from '../../app/unientities';
+import {Observable} from 'rxjs/Observable';
 import moment from 'moment';
 declare const _;
 
@@ -14,7 +15,8 @@ declare const OneSignal;
 
 @Component({
     selector: 'uni-notifications',
-    templateUrl: 'framework/notifications/notifications.html'
+    templateUrl: 'framework/notifications/notifications.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNotifications {
     private isOpen: boolean;
@@ -36,13 +38,12 @@ export class UniNotifications {
     private getNotifications() {
         this.http.asGET()
             .usingBusinessDomain()
-            .withEndPoint(Notification.RelativeUrl)
+            .withEndPoint(Notification.RelativeUrl + '?orderby=ID desc')
             .send()
             .map(res => res.json())
             .subscribe(
                 (notifications) => {
-                    // REVISIT: orderBy ID desc when possible on backend
-                    this.notifications = notifications.reverse();
+                    this.notifications = notifications;
                     this.unreadCount = notifications.reduce((count, value: Notification) => {
                         if (value.StatusCode === NotificationStatus.New) {
                             count++;
@@ -66,11 +67,11 @@ export class UniNotifications {
     }
 
     @HostListener('keydown.esc')
-    private onEscapeKeydown() {
+    public onEscapeKeydown() {
         this.close();
     }
 
-    private onNotificationClick(notification: Notification): void {
+    public onNotificationClick(notification: Notification): void {
         const entityType = notification.EntityType;
         let route = '';
 
@@ -94,38 +95,42 @@ export class UniNotifications {
         this.close();
     }
 
-    private toggleReadStatus(notification: Notification): void {
-        if (notification.StatusCode === 900010) {
+    public toggleReadStatus(notification: Notification): void {
+        if (notification.StatusCode === NotificationStatus.New) {
             this.markAsRead(notification);
         } else {
             this.markAsUnread(notification);
         }
     }
 
-    private markAsRead(notification: Notification): void {
-
-        // Optimistically setting the status immedeately
-        notification.StatusCode = 900020;
-        this.unreadCount--;
-
-        this.http.asPUT()
+    private setNotificationReadStatus(id: number, read: boolean): Observable<Notification> {
+        const markAction = read ? 'mark-as-read' : 'mark-as-unread';
+        return this.http.asPUT()
             .usingBusinessDomain()
-            .withEndPoint(`${Notification.RelativeUrl}/${notification.ID}`)
-            .send({action: 'mark-as-read'})
-            .subscribe((res) => {
-                notification = res;
-                console.log(res);
-            });
+            .withEndPoint(`${Notification.RelativeUrl}/${id}`)
+            .send({action: markAction});
+    }
+
+    private markAsRead(notification: Notification): void {
+        // Optimistically setting the status immedeately
+        notification.StatusCode = NotificationStatus.Read;
+        this.unreadCount--;
+        this.setNotificationReadStatus(notification.ID, true).subscribe(
+            res => notification = res,
+            err => this.errorService.handle(err)
+        );
     }
 
     private markAsUnread(notification: Notification): void {
-        // TODO: MARK AS UNREAD ON BACKEND!
-        console.info('Marking as unread not implemented yet. 😿');
-        notification.StatusCode = 900010;
+        notification.StatusCode = NotificationStatus.New;
         this.unreadCount++;
+        this.setNotificationReadStatus(notification.ID, false).subscribe(
+            res => notification = res,
+            err => this.errorService.handle(err)
+        );
     }
 
-    private markAllAsRead(): void {
+    public markAllAsRead(): void {
         this.notifications.forEach((notification) => {
             if (notification.StatusCode === NotificationStatus.New) {
                 this.markAsRead(notification);
@@ -133,7 +138,7 @@ export class UniNotifications {
         });
     }
 
-    private deleteNotification(notification: Notification): void {
+    public deleteNotification(notification: Notification): void {
         // FIXME: Delete doesn't seem to persist.
         this.http.asDELETE()
             .usingBusinessDomain()
