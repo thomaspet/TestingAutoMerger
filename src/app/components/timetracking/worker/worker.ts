@@ -3,24 +3,32 @@ import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Worker, WorkRelation} from '../../../unientities';
-import {GenericDetailview, IAfterSaveInfo} from '../genericview/detail';
+import {GenericDetailview, IAfterSaveInfo, IResult} from '../genericview/detail';
 import {View as RelationsSubView} from './relations';
+import {View as BalancesSubView} from './balances';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
 @Component({
     selector: view.name,
-    template: `<genericdetail [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" (afterSave)="afterWorkerSaved($event)" ></genericdetail>
-        <workrelations [hidden]="!currentId" (valueChange)="onRelationvalueChanged($event)" [workerid]="currentId">
-    `
+    templateUrl: 'app/components/timetracking/worker/worker.html'
 })
 export class WorkerDetailview {
     @ViewChild(GenericDetailview) private detailForm: GenericDetailview;
     @ViewChild(RelationsSubView) private relationsView: RelationsSubView;
+    @ViewChild(BalancesSubView) private balancesSubView: BalancesSubView;
     private viewconfig: IViewConfig;
     private currentId: number = 0;
     private hasRelationChanges: boolean = false;
+
+    public tabs: Array<any> = [ { name: 'details', label: 'Detaljer', isSelected: true },
+            { name: 'balances', label: 'Saldoer', 
+                activate: (ts: any, filter: any) => {
+                    this.balancesSubView.activate(this.currentId);
+                } 
+            }
+        ];    
 
     constructor() {
         this.viewconfig = this.createFormConfig();
@@ -43,8 +51,42 @@ export class WorkerDetailview {
 
     public afterWorkerSaved(info: IAfterSaveInfo) {
         if (this.hasRelationChanges) {
-            info.promise = this.relationsView.saveChanges(info.entity.ID);
+            info.promise = new Promise( (resolve, reject) => {
+                this.relationsView.saveChanges(info.entity.ID).then( (x) => {
+                    this.saveOrUpdateBalanceView(info.entity.ID).then( y => resolve(y) );
+                });
+            });
+        } else {
+            info.promise = this.saveOrUpdateBalanceView(info.entity.ID);
         }
+        
+    }
+
+    private saveOrUpdateBalanceView(workerId: number): Promise<IResult> {
+        return new Promise( (resolve, reject) => {
+            if (this.balancesSubView.hasUnsavedChanges()) {
+                this.balancesSubView.save(true).then( success => {
+                    resolve( { success: success });
+                }).catch( err => {
+                    reject( { success: false, msg: err ?  err.statusText : '' });
+                });
+            } else {
+                this.balancesSubView.activate( workerId, true);
+                resolve( { success: true });
+            }        
+        });
+    }
+
+    public onTabClick(tab: any) {
+        if (tab.isSelected) { return; }
+        this.tabs.forEach((t: any) => {
+            if (t.name !== tab.name) { t.isSelected = false; }
+        });
+        tab.isSelected = true;
+        if (tab.activate) {
+            tab.activate();
+            tab.activated = true;
+        }        
     }
 
     private createFormConfig(): IViewConfig {

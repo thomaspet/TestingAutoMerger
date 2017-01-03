@@ -47,6 +47,7 @@ export interface IAfterSaveInfo {
 })
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;
+    @Input() public hiddenform: boolean;
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
     @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
     @ViewChild(UniForm) public form: UniForm;

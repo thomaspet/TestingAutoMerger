@@ -1,0 +1,24 @@
+<aside class="horizontal_nav no-print">
+    <ul>
+        <li *ngFor="let tab of tabs">
+            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}">
+                {{tab.label}}
+                <span class='tab_counter' *ngIf="tab.counter">{{tab.counter}}</span>
+            </a>
+        </li>
+    </ul>
+</aside>
+
+<section>
+    <genericdetail [hiddenform]="!tabs[0].isSelected" [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" (afterSave)="afterWorkerSaved($event)" >
+    </genericdetail>
+
+    <workrelations [hidden]="(!tabs[0].isSelected || !currentId)" (valueChange)="onRelationvalueChanged($event)" [workerid]="currentId" >
+    </workrelations>
+</section>
+
+<section [hidden]="!tabs[1].isSelected">
+    <workbalances [workerid]="currentId"></workbalances>
+</section>
+
+    

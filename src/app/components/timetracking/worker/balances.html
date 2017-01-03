@@ -1,0 +1,27 @@
+<section class="application">
+
+    <table class='timeentry_toolbar'><tr>
+        <td>
+            <header class="regtimetitle">
+                <span>Stilling</span>
+                <select (change)="onRelationChanged($event.target.value)">
+                    <option [value]="item.ID" *ngFor="let item of relations">{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
+                </select>
+                &nbsp;
+                <button class="good" (click)="addNew()">Ny saldo</button>
+            </header>               
+        </td>
+        <td>
+        </td>
+        <td>            
+            <button *ngIf="hasUnsavedChanges()" class="good" (click)="onSaveClicked()">Lagre endringer</button>
+            <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>            
+        </td>
+    </tr></table>    
+
+    <uni-table [attr.aria-busy]="busy" [resource]="list" [config]="tableConfig" (rowDeleted)="onDeleteRow($event)" ></uni-table>
+
+</section>
+
+<uni-confirm-modal></uni-confirm-modal>
+
