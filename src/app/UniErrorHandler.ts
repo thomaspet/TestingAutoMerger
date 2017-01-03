@@ -1,19 +1,21 @@
-import {ErrorHandler, Inject} from '@angular/core';
-import {ErrorService} from './services/common/ErrorService';
-import {WrappedError} from '@angular/core/src/facade/errors';
+import { ErrorHandler, Inject } from '@angular/core';
+import { ErrorService } from './services/common/ErrorService';
+import { WrappedError } from '@angular/core/src/facade/errors';
 
 declare const Raygun;
 
 export class UniMicroAngularInternalErrorHandlerOverride implements ErrorHandler {
     private errorService: ErrorService;
 
-    constructor(@Inject(ErrorService) errorService) {
+    constructor( @Inject(ErrorService) errorService) {
         this.errorService = errorService;
     }
 
-    public handleError (err: any) {
-        Raygun.send(err);
-
+    public handleError(err: any) {
+        if (typeof (Raygun) !== 'undefined') {
+            Raygun.send(err);
+        }
+        
         const originalError = this.findOriginalError(err);
         const originalStack = this.findOriginalStack(err);
         const context = this.findContext(err);

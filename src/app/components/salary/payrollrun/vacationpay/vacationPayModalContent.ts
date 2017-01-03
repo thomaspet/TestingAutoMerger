@@ -1,12 +1,12 @@
-import {Component, Input, ViewChild} from '@angular/core';
-import {FieldType, BasicAmount, VacationPayInfo, VacationPayLine} from '../../../../unientities';
-import {UniFieldLayout} from 'uniform-ng2/main';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {SalaryTransactionService, BasicAmountService, PayrollrunService, VacationpayLineService} from '../../../../../app/services/services';
-import {VacationpaySettingModal} from './vacationPaySettingModal';
-import {ErrorService} from '../../../../services/common/ErrorService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Observable';
+import { Component, Input, ViewChild } from '@angular/core';
+import { FieldType, BasicAmount, VacationPayInfo, VacationPayLine } from '../../../../unientities';
+import { UniFieldLayout } from 'uniform-ng2/main';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { SalaryTransactionService, BasicAmountService, PayrollrunService, VacationpayLineService } from '../../../../../app/services/services';
+import { VacationpaySettingModal } from './vacationPaySettingModal';
+import { ErrorService } from '../../../../services/common/ErrorService';
+import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
+import { Observable } from 'rxjs/Observable';
 
 declare var _;
 
@@ -37,28 +37,32 @@ export class VacationpayModalContent {
         private _toastService: ToastService,
         private errorService: ErrorService
     ) {
-        
+
     }
 
     public load() {
         this.busy = true;
         this._basicamountService.getBasicAmounts()
             .subscribe((response: any) => {
-            this.basicamounts = response;
+                this.basicamounts = response;
 
-            this.vacationHeaderModel.VacationpayYear = 1;
-            this.setCurrentBasicAmountAndYear();
+                this.vacationHeaderModel.VacationpayYear = 1;
+                this.setCurrentBasicAmountAndYear();
 
-            this.getVacationpayData();
+                this.createFormConfig();
+                this.createTableConfig();
 
-            this.createFormConfig();
-            this.createTableConfig();
-            
-            this.busy = false;
-        }, err => this.errorService.handle(err));
+                this.getVacationpayData();
+
+                this.busy = false;
+            }, err => this.errorService.handle(err));
+
+        this.table.ngOnInit();
+        //this.table.getTableData().map((item) => item.set('_rowSelected', true));
+
     }
 
-    public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void}) {
+    public updateConfig(newConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number, submit: () => void }) {
         this.config = newConfig;
     }
 
@@ -67,9 +71,9 @@ export class VacationpayModalContent {
         this.vacationpayBasis = this.table.getTableData();
         let saveObservables: Observable<any>[] = [];
         this.vacationpayBasis.forEach(vacationpayLine => {
-            vacationpayLine.ID > 0 ? 
-            saveObservables.push(this._vacationpaylineService.Put(vacationpayLine.ID, vacationpayLine)) :
-            saveObservables.push(this._vacationpaylineService.Post(vacationpayLine));
+            vacationpayLine.ID > 0 ?
+                saveObservables.push(this._vacationpaylineService.Put(vacationpayLine.ID, vacationpayLine)) :
+                saveObservables.push(this._vacationpaylineService.Post(vacationpayLine));
 
         });
 
@@ -87,7 +91,7 @@ export class VacationpayModalContent {
         selectedVacationPayLines.forEach((vacationPay: VacationPayLine) => {
             let vacationPayInfo: VacationPayInfo = {
                 EmployeeID: vacationPay.Employee.ID,
-                Withdrawal: vacationPay.Withdrawal, 
+                Withdrawal: vacationPay.Withdrawal,
                 ManualVacationPayBase: vacationPay.ManualVacationPayBase
             };
 
@@ -95,10 +99,10 @@ export class VacationpayModalContent {
         });
 
         this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
-        .finally(() => this.busy = false)
-        .subscribe((response) => {
-            this.config.submit();
-        }, err => this.errorService.handle(err));
+            .finally(() => this.busy = false)
+            .subscribe((response) => {
+                this.config.submit();
+            }, err => this.errorService.handle(err));
     }
 
     public openVacationpaySettings() {
@@ -110,11 +114,7 @@ export class VacationpayModalContent {
     }
 
     public ready(value) {
-        
-    }
 
-    public rowChanged(event) {
-        this.updatetotalPay();
     }
 
     public onRowSelectionChange(event) {
@@ -125,12 +125,12 @@ export class VacationpayModalContent {
     private getVacationpayData() {
         this.basicamountBusy = true;
         this._payrollrunService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
-        .subscribe((vpBasis) => {
-            if (vpBasis) {
-                this.vacationpayBasis = vpBasis.VacationPay;
-            }
-            this.basicamountBusy = false;
-        }, err => this.errorService.handle(err));
+            .subscribe((vpBasis) => {
+                if (vpBasis) {
+                    this.vacationpayBasis = vpBasis.VacationPay;
+                }
+                this.basicamountBusy = false;                
+            }, err => this.errorService.handle(err));
 
     }
 
@@ -207,7 +207,7 @@ export class VacationpayModalContent {
     }
 
     private createTableConfig() {
-        var nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Number, false).setWidth('4rem');
+        var nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false).setWidth('4rem');
         var nameCol = new UniTableColumn('Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
         var systemGrunnlagCol = new UniTableColumn('SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false).setWidth('8rem');
         var manuellGrunnlagCol = new UniTableColumn('ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money).setWidth('8rem');
@@ -217,21 +217,25 @@ export class VacationpayModalContent {
         var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
         this.tableConfig = new UniTableConfig()
-        .setColumns([nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, rateCol, vacationPayCol, earlierPayCol, payoutCol])
-        .setPageable(false)
-        .setMultiRowSelect(true)
-        .setAutoAddNewRow(false)
-        .setIsRowReadOnly((rowModel) => {
-            return !rowModel.IsInCollection;
-        })
-        .setChangeCallback((event) => {
-            let row = event.rowModel;
-            if (event.field === 'ManualVacationPayBase') {
-                this.calcWithdrawal(row);
-            }
+            .setColumns([nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, rateCol, vacationPayCol, earlierPayCol, payoutCol])
+            .setPageable(false)
+            .setMultiRowSelect(true)
+            .setAutoAddNewRow(false)
+            .setIsRowReadOnly((rowModel) => {
+                return !rowModel.IsInCollection;
+            })
+            .setChangeCallback((event) => {
+                let row = event.rowModel;
+                if (event.field === 'ManualVacationPayBase') {
+                    this.calcWithdrawal(row);
+                }
+                if(row.Withdrawal > 0){
+                    row._rowSelected = true;
+                }
 
-            return row;
-        });
+                this.updatetotalPay();
+                return row;
+            });
     }
 
     private calcWithdrawal(rowModel) {
