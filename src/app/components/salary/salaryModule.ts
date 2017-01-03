@@ -28,7 +28,7 @@ import {UniEmployee} from './employee/employee';
 import {EmployeeCategoryButtons} from './employee/employeeCategoryButtons';
 import {EmployeeDetails} from './employee/employeeDetails';
 import {EmployeeList} from './employee/employeeList';
-import {EmployeeLeave} from './employee/employeeLeave/employeeLeave';
+import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
 import {TaxCardModal, TaxCardModalContent} from './employee/modals/TaxCardModal';
@@ -110,7 +110,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         EmployeeCategoryButtons,
         EmployeeList,
         EmployeeDetails,
-        EmployeeLeave,
+        EmployeeLeaves,
         EmploymentDetails,
         Employments,
         TaxCardModal,
@@ -183,7 +183,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         EmployeeCategoryButtons,
         EmployeeList,
         EmployeeDetails,
-        EmployeeLeave,
+        EmployeeLeaves,
         EmploymentDetails,
         Employments,
         TaxCardModal,

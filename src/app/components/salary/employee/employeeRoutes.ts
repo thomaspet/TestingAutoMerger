@@ -1,6 +1,6 @@
 import {PersonalDetails} from './personalDetails/personalDetails';
 import {RecurringPost} from './recurringPost/recurringPost';
-import {EmployeeLeave} from './employeeLeave/employeeLeave';
+import {EmployeeLeaves} from './employeeLeave/employeeLeave';
 import {Employments} from './employments/employments';
 import {CanDeactivateGuard} from '../../../canDeactivateGuard';
 
@@ -25,7 +25,7 @@ export const routes = [
     },
     {
         path: 'employee-leave',
-        component: EmployeeLeave,
+        component: EmployeeLeaves,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

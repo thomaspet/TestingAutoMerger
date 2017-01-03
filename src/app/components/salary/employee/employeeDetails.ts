@@ -403,8 +403,12 @@ export class EmployeeDetails extends UniView {
     }
 
     private checkDirty() {
-        if (super.isDirty()) {
-            this.saveActions[0].disabled = false;
+        if (this.saveActions) {
+            if (super.isDirty()) {
+                this.saveActions[0].disabled = false;
+            } else {
+                this.saveActions[0].disabled = true;
+            }
         }
     }
 
@@ -845,11 +849,10 @@ export class EmployeeDetails extends UniView {
                             saveCount++;
                         },
                         (err) => {
+                            leave.Deleted = false;
                             hasErrors = true;
                             saveCount++;
-                            let toastHeader = `Feil ved lagring av permisjoner linje ${leave['_originalIndex'] - 1}`;
-                            let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                            this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                            this.errorService.handle(err);
                         }
                         );
                 }
