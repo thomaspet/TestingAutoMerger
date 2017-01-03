@@ -140,10 +140,11 @@ export class AccountDetails implements OnInit {
 
     public saveAccount(completeEvent: any): void {
         // Doing this to prevent "Foreignkey does not match parent ID" error:
-        if (this.account.AccountGroupID !== this.account.AccountGroup.ID) {
+        if (this.account.AccountGroup && this.account.AccountGroupID !== this.account.AccountGroup.ID) {
             this.account.AccountGroup = null;
         }
-        if (this.account.ID > 0) {
+
+        if (this.account.ID && this.account.ID > 0) {
             this.accountService
                 .Put(this.account.ID, this.account)
                 .subscribe(
