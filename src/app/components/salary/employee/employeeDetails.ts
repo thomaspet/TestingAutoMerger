@@ -221,7 +221,7 @@ export class EmployeeDetails extends UniView {
 
                 if (childRoute === 'employee-leave') {
                     if (!this.employeeLeave) {
-                        super.getStateSubject('employments').subscribe(() => {
+                        super.getStateSubject('employments').take(1).subscribe(() => {
                             this.getEmployeeLeave();
                         });
                     }

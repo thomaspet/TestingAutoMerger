@@ -37,8 +37,16 @@ export class EmployeeLeave extends UniView {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
 
-            super.getStateSubject('employee').subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
-            super.getStateSubject('employeeLeave').subscribe(employeeleave => this.employeeleaveItems = employeeleave, err => this.errorService.handle(err));
+            super.getStateSubject('employee')
+                .subscribe(
+                    employee => this.employee = employee, 
+                    err => this.errorService.handle(err)
+                );
+            super.getStateSubject('employeeLeave')
+                .subscribe(
+                    employeeleave => this.employeeleaveItems = employeeleave, 
+                    err => this.errorService.handle(err)
+                );
 
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
                 this.employments = (employments || []).filter(emp => emp.ID > 0);
