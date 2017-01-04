@@ -1,7 +1,7 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
-import {ReportDefinitionParameterService} from '../../../../services/services';
+import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
@@ -45,11 +45,17 @@ export class PostingJournalReportFilterForm implements OnInit {
         { ID: 'onlyCorrections', Label: 'med KUN korrigeringer' }
     ];
 
-    constructor(private journalEntryService: JournalEntryService, private errorService: ErrorService) {
+    constructor(
+        private journalEntryService: JournalEntryService,
+        private errorService: ErrorService,
+        private yearService: FinancialYearService) {
     }
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
+        this.yearService.getActiveFinancialYear().subscribe(res => {
+            this.model.PeriodAccountYear = res;
+        });
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
             this.model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
             this.model = _.cloneDeep(this.model);

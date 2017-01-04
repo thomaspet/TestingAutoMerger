@@ -1,10 +1,15 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
-import {ReportDefinitionParameterService} from '../../../../services/services';
+import {ReportDefinitionParameterService, CompanySettingsService} from '../../../../services/services';
+
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/common/ErrorService';
+
+
+import {FinancialYearService} from '../../../../services/accounting/FinancialYearService';
+
 
 @Component({
     selector: 'balance-report-filter-form',
@@ -28,11 +33,15 @@ export class BalanceReportFilterForm implements OnInit {
         orderBy: 'AccountNumber'
     };
 
-    constructor() {
-    }
+    constructor(
+        private yearService: FinancialYearService
+    ) {}
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
+        this.yearService.getActiveFinancialYear().subscribe(res => {
+            this.model.journalYear = res;
+        });
     }
 
     private getComponentFields(): UniFieldLayout[] {
