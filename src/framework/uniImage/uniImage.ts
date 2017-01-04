@@ -1,9 +1,16 @@
-import {Component, Input, Output, SimpleChanges, EventEmitter} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    SimpleChanges,
+    EventEmitter,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy
+} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
-import {ImageUploader} from './imageUploader';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService} from '../../app/services/common/ErrorService';
@@ -51,6 +58,7 @@ export interface IUploadConfig {
             </ul>
         </article>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniImage {
     @Input()
@@ -109,21 +117,15 @@ export class UniImage {
     constructor(
         private ngHttp: Http,
         private http: UniHttp,
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef,
         authService: AuthService,
-        private errorService: ErrorService
     ) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.token;
             this.activeCompany = authDetails.activeCompany;
-        } /* don't need error handling */);
-    }
-
-    public finishedLoadingImage() {
-        this.imageIsLoading = false;
-        if (this.files && this.currentFileIndex) {
-            this.imageLoaded.emit(this.files[this.currentFileIndex]);
-        }
+        });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -182,6 +184,13 @@ export class UniImage {
                 }, err => this.errorService.handle(err));
         } else {
              this.files = [];
+        }
+    }
+
+    public finishedLoadingImage() {
+        this.imageIsLoading = false;
+        if (this.files && this.currentFileIndex) {
+            this.imageLoaded.emit(this.files[this.currentFileIndex]);
         }
     }
 
@@ -246,6 +255,7 @@ export class UniImage {
 
     private loadThumbnails() {
         this.thumbnails = this.files.map(file => this.generateImageUrl(file, 100));
+        this.cdr.markForCheck();
     }
 
     private loadImage() {
@@ -261,6 +271,7 @@ export class UniImage {
 
         this.imgUrl2x = this.generateImageUrl(file, size * 2);
         this.imgUrl = this.generateImageUrl(file, size);
+        this.cdr.markForCheck();
     }
 
     private generateImageUrl(file: File, width: number): string {
