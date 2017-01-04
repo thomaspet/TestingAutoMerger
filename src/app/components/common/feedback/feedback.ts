@@ -1,15 +1,16 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
-import moment from 'moment';
 import {AppConfig} from '../../../AppConfig';
 import {ErrorService} from '../../../services/common/ErrorService';
+import moment from 'moment';
 declare var APP_VERSION;
 
 @Component({
     selector: 'uni-feedback',
-    templateUrl: 'app/components/common/feedback/feedback.html'
+    templateUrl: 'app/components/common/feedback/feedback.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniFeedback {
     private expanded: boolean = false;
@@ -21,7 +22,12 @@ export class UniFeedback {
     private titleControl: FormControl;
     private descriptionControl: FormControl;
 
-    constructor(private http: Http, private authService: AuthService, private errorService: ErrorService) {
+    constructor(
+        private http: Http,
+        private authService: AuthService,
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef
+    ) {
         this.initForm();
         this.headers = new Headers();
         this.headers.append('Content-Type', 'application/json');
@@ -78,6 +84,7 @@ export class UniFeedback {
         };
 
         this.busy = true;
+
         this.http.post(
             AppConfig.BASE_URL_INTEGRATION + 'api/feedback',
             JSON.stringify(body),
@@ -88,11 +95,13 @@ export class UniFeedback {
                 this.error = false;
                 this.busy = false;
                 setSuccessClass();
+                this.cdr.markForCheck();
             },
             (error) => {
                 this.errorService.handle(error);
                 this.error = true;
                 this.busy = false;
+                this.cdr.markForCheck();
             }
         );
     }
