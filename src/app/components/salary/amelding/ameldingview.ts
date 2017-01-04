@@ -2,8 +2,10 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {SalaryTransactionService, PayrollrunService, AMeldingService} from '../../../services/services';
-import {AmeldingData} from '../../../unientities';
+import {
+    SalaryTransactionService, PayrollrunService, AMeldingService, 
+    CompanySettingsService} from '../../../services/services';
+import {AmeldingData, CompanySettings} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
@@ -51,6 +53,7 @@ export class AMeldingView implements OnInit {
     private toolbarConfig: IToolbarConfig;
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
+    private companysettings: CompanySettings;
 
     constructor(
         private _tabService: TabService,
@@ -59,7 +62,8 @@ export class AMeldingView implements OnInit {
         private _payrollService: PayrollrunService,
         private _salarytransService: SalaryTransactionService,
         private numberformat: NumberFormat,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private _companysettingsService: CompanySettingsService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -83,14 +87,18 @@ export class AMeldingView implements OnInit {
     }
 
     public ngOnInit() {
-        // REVISIT TODO: get correct year (as param 2) when settled from core how to use years
-        this._payrollService.getLatestSettledPeriod(1, 2016)
-            .subscribe((period) => {
-                this.currentPeriod = period;
-                this.getSumsInPeriod();
-                this.currentMonth = moment.months()[this.currentPeriod - 1];
-                this.getAMeldingForPeriod();
-            }, err => this.errorService.handle(err));
+        this._companysettingsService.Get(1)
+        .subscribe((companysettings: CompanySettings) => {
+            this.companysettings = companysettings;
+            let currentYear = companysettings.CurrentAccountingYear;
+            this._payrollService.getLatestSettledPeriod(1, currentYear)
+                .subscribe((period) => {
+                    this.currentPeriod = period;
+                    this.getSumsInPeriod();
+                    this.currentMonth = moment.months()[this.currentPeriod - 1];
+                    this.getAMeldingForPeriod();
+                }, err => this.errorService.handle(err));
+        });
     }
 
     public prevPeriod() {
@@ -139,7 +147,7 @@ export class AMeldingView implements OnInit {
 
     public createAMelding(event: IAmeldingTypeEvent) {
         this.saveStatus.numberOfRequests++;
-        this._ameldingService.postAMeldingforDebug(this.currentPeriod, event.type)
+        this._ameldingService.postAMelding(this.currentPeriod, event.type, this.companysettings.CurrentAccountingYear)
         .subscribe(response => {
             this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
@@ -179,26 +187,27 @@ export class AMeldingView implements OnInit {
     }
 
     private getSumsInPeriod() {
-        this._salarytransService.getSumsInPeriod(this.currentPeriod, this.currentPeriod, 2016)
-        .subscribe((response) => {
-            this.currentSumsInPeriod = response;
+        this._salarytransService
+        .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.companysettings.CurrentAccountingYear)
+            .subscribe((response) => {
+                this.currentSumsInPeriod = response;
 
-            this.totalAGAFeedback = 0;
-            this.totalFtrekkFeedback = 0;
-            this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
-            this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
+                this.totalAGAFeedback = 0;
+                this.totalFtrekkFeedback = 0;
+                this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
+                this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
 
-            this.totalAGASystem = 0;
-            this.totalFtrekkSystem = 0;
+                this.totalAGASystem = 0;
+                this.totalFtrekkSystem = 0;
 
-            this.currentSumsInPeriod.forEach(dataElement => {
-                this.totalAGASystem += dataElement.Sums.calculatedAGA;
-                this.totalFtrekkSystem += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
-            });
+                this.currentSumsInPeriod.forEach(dataElement => {
+                    this.totalAGASystem += dataElement.Sums.calculatedAGA;
+                    this.totalFtrekkSystem += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+                });
 
-            this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
-            this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
-        }, err => this.errorService.handle(err));
+                this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
+                this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
+            }, err => this.errorService.handle(err));
     }
 
     private updateToolbar() {
@@ -411,7 +420,9 @@ export class AMeldingView implements OnInit {
         if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
             
             switch (this.currentAMelding.status) {
-                case 1, 0, null:
+                case 0:
+                case 1:
+                case null:
                     this.periodStatus = 'Ikke innsendt';
                     break;
                 
