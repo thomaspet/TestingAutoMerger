@@ -1,6 +1,4 @@
-import {Component} from '@angular/core';
-import {routes} from '../../../routes';
-
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
     selector: 'uni-navbar',
@@ -14,8 +12,8 @@ import {routes} from '../../../routes';
                 <uni-notifications></uni-notifications>
             </div>
         </section>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNavbar {
-    public routes: any[] = routes;
 }

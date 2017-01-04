@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, EventEmitter} from '@angular/core';
 import {IUniTab} from './tabStrip';
 
 // The enum is numbered based on its parent app:
@@ -56,6 +56,7 @@ export enum UniModules {
 @Injectable()
 export class TabService {
     private _tabs: Array<IUniTab>;
+    public tabsChange: EventEmitter<IUniTab[]>;
     public currentActiveTab: IUniTab;
     public currentActiveIndex: number = 0;
 
@@ -67,6 +68,9 @@ export class TabService {
                 this.currentActiveIndex = i;
             }
         });
+
+        this.tabsChange = new EventEmitter<IUniTab[]>();
+        this.tabsChange.next(this._tabs);
     }
 
     public get tabs(): Array<IUniTab> {
@@ -122,6 +126,7 @@ export class TabService {
         }
         /***********************************************************************************************/
 
+        this.tabsChange.next(this._tabs);
     }
 
     // Sets tab active based on name
