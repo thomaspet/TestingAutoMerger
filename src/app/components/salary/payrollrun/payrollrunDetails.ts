@@ -126,37 +126,37 @@ export class PayrollrunDetails extends UniView {
                     },
                 };
                 this.saveActions = [
-                        {
-                            label: 'Lagre',
-                            action: this.saveAll.bind(this),
-                            main: this.payrollrun ? this.payrollrun.StatusCode < 1 : true,
-                            disabled: true
-                        },
-                        {
-                            label: 'Kontroller',
-                            action: this.openControlModal.bind(this),
-                            main: false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Avregn',
-                            action: this.runSettling.bind(this),
-                            main: false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Utbetalingsliste',
-                            action: this.showPaymentList.bind(this),
-                            main: this.payrollrun ? this.payrollrun.StatusCode > 1 : false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Bokfør',
-                            action: this.openPostingSummaryModal.bind(this),
-                            main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
-                        }
-                    ];
+                    {
+                        label: 'Lagre',
+                        action: this.saveAll.bind(this),
+                        main: this.payrollrun ? this.payrollrun.StatusCode < 1 : true,
+                        disabled: true
+                    },
+                    {
+                        label: 'Kontroller',
+                        action: this.openControlModal.bind(this),
+                        main: false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
+                    },
+                    {
+                        label: 'Avregn',
+                        action: this.runSettling.bind(this),
+                        main: false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
+                    },
+                    {
+                        label: 'Utbetalingsliste',
+                        action: this.showPaymentList.bind(this),
+                        main: this.payrollrun ? this.payrollrun.StatusCode > 1 : false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode < 1 : true
+                    },
+                    {
+                        label: 'Bokfør',
+                        action: this.openPostingSummaryModal.bind(this),
+                        main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
+                    }
+                ];
 
                 this.checkDirty();
 
@@ -243,7 +243,14 @@ export class PayrollrunDetails extends UniView {
 
         this.router.events.subscribe((event: any) => {
             if (event.constructor.name === 'NavigationEnd') {
-                this.getData();
+                let routeList = event.url.split('/');
+                let location = routeList.pop();
+                if (!isNaN(+location)) {
+                    location = routeList.pop();
+                }
+                if (location === 'payrollrun') {
+                    this.getData();
+                }
             }
         });
     }
@@ -282,7 +289,7 @@ export class PayrollrunDetails extends UniView {
         )
             .map((response: [SalaryTransaction[], Project[], Department[]]) => {
                 let [transes, projects, departments] = response;
-                
+
                 if (this.selectionList) {
                     this.selectionList.updateSums();
                 }
@@ -481,7 +488,7 @@ export class PayrollrunDetails extends UniView {
                 this.uniform.section(1).toggle();
             }
         },
-        err => this.errorService.handle(err));
+            err => this.errorService.handle(err));
     }
 
     public openPostingSummaryModal(done) {
@@ -762,6 +769,6 @@ export class PayrollrunDetails extends UniView {
             (err) => {
                 this.errorService.handle(err);
             }
-        );
+            );
     }
 }
