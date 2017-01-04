@@ -110,6 +110,7 @@ export class View {
     }
 
     public saveChanges(parentID: number): Promise<IResult> {
+        this.busy = true;
         return new Promise((resolve, reject) => {
             var result = this.save(parentID);
             if (result === null) { 
@@ -120,7 +121,7 @@ export class View {
                 this.afterSaveCompleted();
                 resolve({ success: true });
             }, err => {
-                // debugger;
+                this.busy = false;
                 reject({ success: false, msg: err._body });
             });
         });
@@ -131,6 +132,7 @@ export class View {
         this.saved.emit();
         this.loadList();
         this.changeMap.clear();
+        this.busy = false;
     }
 
     private save(parentID: number): Observable<any> {
