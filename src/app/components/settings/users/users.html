@@ -2,10 +2,6 @@
 <form class="invite_users_form" [formGroup]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
     <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
     <label>
-        Navn
-        <input type="text" formControlName="DisplayName">
-    </label>
-    <label>
         Epost
         <input type="email" formControlName="Email">
     </label>
