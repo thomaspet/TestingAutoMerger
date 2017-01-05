@@ -179,6 +179,7 @@ export class UniHttp {
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
+        const year = JSON.parse(localStorage.getItem('activeFinancialYear'));
 
         if (token) {
             this.headers.set('Authorization', 'Bearer ' + token);
@@ -186,6 +187,10 @@ export class UniHttp {
 
         if (activeCompany) {
             this.headers.set('CompanyKey', activeCompany.Key);
+        }
+
+        if (year) {
+            this.headers.set('Year', year.Year);
         }
 
         this.headers.set('Accept', 'application/json');
