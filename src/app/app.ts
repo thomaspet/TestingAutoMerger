@@ -58,7 +58,7 @@ export class App {
 
     private setOneSignal() {
 
-        if (window.ENV === 'production') {
+        if (AppConfig.UNI_PUSH_ADAPTER_URL) {
             OneSignal.push(() => {
                 OneSignal.getUserId((userID) => {
                     this.userService.getCurrentUser().subscribe(
@@ -113,6 +113,8 @@ export class App {
         // this.staticRegisterService.checkForStaticRegisterUpdate();
 
         // OneSignal
-        this.setOneSignal();
+        if (window.ENV === 'production') {
+            this.setOneSignal();
+        }
     }
 }
