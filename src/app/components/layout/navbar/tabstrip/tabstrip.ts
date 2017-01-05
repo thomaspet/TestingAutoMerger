@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import {Component, ChangeDetectorRef} from '@angular/core';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
 
@@ -25,8 +25,12 @@ export interface IUniTab {
     `
 })
 export class UniTabStrip {
-
-    constructor(private router: Router, private tabService: TabService, authService: AuthService) {
+    constructor(
+        private router: Router,
+        private tabService: TabService,
+        authService: AuthService,
+        cdr: ChangeDetectorRef
+    ) {
         authService.companyChange.subscribe(change => this.tabService.removeAllTabs());
 
         window.addEventListener('keydown', (event) => {
@@ -41,6 +45,9 @@ export class UniTabStrip {
             }
         });
 
+        tabService.tabsChange.subscribe(() => {
+            cdr.markForCheck();
+        });
     }
 
     private possiblyCloseTab(tab: IUniTab, index: number, event: MouseEvent) {

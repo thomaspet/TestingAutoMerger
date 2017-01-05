@@ -1,7 +1,7 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
-import {ReportDefinitionParameterService} from '../../../../services/services';
+import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/common/ErrorService';
@@ -39,11 +39,17 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
         {field: 'Account.AccountName', name: 'Kontonavn'}
     ];
 
-    constructor() {
+    constructor(
+        private yearService: FinancialYearService
+    ) {
+
     }
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
+        this.yearService.getActiveFinancialYear().subscribe(res => {
+            this.model.PeriodAccountYear = res;
+        });
 
 
     }

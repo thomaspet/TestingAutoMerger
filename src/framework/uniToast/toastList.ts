@@ -1,12 +1,11 @@
-import {Component} from '@angular/core';
-import {UniToast} from './toast';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ToastService} from './toastService';
 
 @Component({
     selector: 'uni-toast-list',
     template: `
         <ol class=toast-list>
-            <li *ngFor="let toast of toastService.toasts">
+            <li *ngFor="let toast of toastService.toasts$ | async">
                 <uni-toast role="alert"
                            [toast]="toast"
                            (dismiss)="toastDismissed(toast)"
@@ -18,13 +17,16 @@ import {ToastService} from './toastService';
                 </uni-toast>
             </li>
         </ol>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToastList {
 
-    constructor(private toastService: ToastService) {}
+    constructor(
+        private toastService: ToastService,
+    ) {}
 
-    private toastDismissed(toast) {
+    public toastDismissed(toast) {
         this.toastService.removeToast(toast.id);
     }
 }

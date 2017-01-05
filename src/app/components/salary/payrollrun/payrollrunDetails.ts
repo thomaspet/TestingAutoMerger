@@ -2,11 +2,12 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account,
-    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions, TaxDrawFactor
+    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions, TaxDrawFactor,
+    CompanySettings
 } from '../../../unientities';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
-    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService
+    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, CompanySettingsService
 } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -75,7 +76,8 @@ export class PayrollrunDetails extends UniView {
         private _reportDefinitionService: ReportDefinitionService,
         private _companySalaryService: CompanySalaryService,
         private _projectService: ProjectService,
-        private _departmentService: DepartmentService
+        private _departmentService: DepartmentService,
+        private _companySettingsService: CompanySettingsService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -124,37 +126,37 @@ export class PayrollrunDetails extends UniView {
                     },
                 };
                 this.saveActions = [
-                        {
-                            label: 'Lagre',
-                            action: this.saveAll.bind(this),
-                            main: this.payrollrun ? this.payrollrun.StatusCode < 1 : true,
-                            disabled: true
-                        },
-                        {
-                            label: 'Kontroller',
-                            action: this.openControlModal.bind(this),
-                            main: false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Avregn',
-                            action: this.runSettling.bind(this),
-                            main: false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Utbetalingsliste',
-                            action: this.showPaymentList.bind(this),
-                            main: this.payrollrun ? this.payrollrun.StatusCode > 1 : false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Bokfør',
-                            action: this.openPostingSummaryModal.bind(this),
-                            main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
-                            disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
-                        }
-                    ];
+                    {
+                        label: 'Lagre',
+                        action: this.saveAll.bind(this),
+                        main: this.payrollrun ? this.payrollrun.StatusCode < 1 : true,
+                        disabled: true
+                    },
+                    {
+                        label: 'Kontroller',
+                        action: this.openControlModal.bind(this),
+                        main: false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
+                    },
+                    {
+                        label: 'Avregn',
+                        action: this.runSettling.bind(this),
+                        main: false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode > 0 : true
+                    },
+                    {
+                        label: 'Utbetalingsliste',
+                        action: this.showPaymentList.bind(this),
+                        main: this.payrollrun ? this.payrollrun.StatusCode > 1 : false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode < 1 : true
+                    },
+                    {
+                        label: 'Bokfør',
+                        action: this.openPostingSummaryModal.bind(this),
+                        main: this.payrollrun ? this.payrollrun.StatusCode === 1 : false,
+                        disabled: this.payrollrun ? this.payrollrun.StatusCode !== 1 : true
+                    }
+                ];
 
                 this.checkDirty();
 
@@ -241,7 +243,14 @@ export class PayrollrunDetails extends UniView {
 
         this.router.events.subscribe((event: any) => {
             if (event.constructor.name === 'NavigationEnd') {
-                this.getData();
+                let routeList = event.url.split('/');
+                let location = routeList.pop();
+                if (!isNaN(+location)) {
+                    location = routeList.pop();
+                }
+                if (location === 'payrollrun') {
+                    this.getData();
+                }
             }
         });
     }
@@ -280,7 +289,7 @@ export class PayrollrunDetails extends UniView {
         )
             .map((response: [SalaryTransaction[], Project[], Department[]]) => {
                 let [transes, projects, departments] = response;
-                
+
                 if (this.selectionList) {
                     this.selectionList.updateSums();
                 }
@@ -319,19 +328,20 @@ export class PayrollrunDetails extends UniView {
             Observable.forkJoin(
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
-                this._companySalaryService.getCompanySalary()
+                this._companySalaryService.getCompanySalary(),
+                this._companySettingsService.Get(1)
             ).subscribe((dataSet: any) => {
-
-                let [payroll, last, salaries] = dataSet;
+                let [payroll, last, salaries, settings] = dataSet;
 
                 this.payrollrun = payroll;
                 this.setDefaults();
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
+                let companysettings: CompanySettings = settings;
 
                 if (this.payrollrun && this.payrollrun.ID === 0) {
                     this.payrollrun.ID = null;
-                    this.suggestFromToDates(latest, companysalary);
+                    this.suggestFromToDates(latest, companysalary, companysettings);
                 }
 
                 if (this.payrollrun) {
@@ -355,9 +365,8 @@ export class PayrollrunDetails extends UniView {
         this.payrollrun.taxdrawfactor = TaxDrawFactor.Standard;
     }
 
-    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary) {
-        const currentYear = 2016;
-
+    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, companysettings: CompanySettings) {
+        const currentYear = companysettings.CurrentAccountingYear;
         if (!latest) {
             // First payrollrun for the year
             let todate: Date;
@@ -479,7 +488,7 @@ export class PayrollrunDetails extends UniView {
                 this.uniform.section(1).toggle();
             }
         },
-        err => this.errorService.handle(err));
+            err => this.errorService.handle(err));
     }
 
     public openPostingSummaryModal(done) {
@@ -760,6 +769,6 @@ export class PayrollrunDetails extends UniView {
             (err) => {
                 this.errorService.handle(err);
             }
-        );
+            );
     }
 }

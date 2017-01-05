@@ -4,12 +4,12 @@ import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement
+    Department, SubEntity, SalaryTransactionSupplement, CompanySettings
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
-    SalaryTransactionService, UniCacheService, SubEntityService
+    SalaryTransactionService, UniCacheService, SubEntityService, CompanySettingsService
 } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
@@ -45,6 +45,7 @@ export class EmployeeDetails extends UniView {
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
     private datachecks: any;
+    private companySettings: CompanySettings;
 
     private employeeWidgets: IPosterWidget[] = [
         {
@@ -91,7 +92,8 @@ export class EmployeeDetails extends UniView {
         cacheService: UniCacheService,
         private errorService: ErrorService,
         private http: UniHttp,
-        private numberformat: NumberFormat
+        private numberformat: NumberFormat,
+        private companySettingsService: CompanySettingsService
     ) {
 
         super(router.url, cacheService);
@@ -269,26 +271,25 @@ export class EmployeeDetails extends UniView {
             // Activate the contact widget
             this.employeeWidgets[0] = posterContact;
 
-            // Fetch the salary @FIXME: Hard coded year
             if (employee.ID) {
-                this.http
-                    .asGET()
-                    .usingBusinessDomain()
-                    .withEndPoint('/salarytrans?action=yearly-sums&year=2016&empID=' + employee.ID)
-                    .send()
-                    .map(response => response.json())
+                this.getCompanySettings().map((response: CompanySettings) => {
+                    this.companySettings = response;
+                    return this.salaryTransService
+                        .getSumsInYear(this.companySettings.CurrentAccountingYear, this.employeeID);
+                })
+                    .flatMap(x => x)
                     .subscribe((data) => {
                         if (data.netPayment) {
                             let add = Math.floor(data.netPayment / 80);
                             let netPaidThisYear: number = 0;
                             let interval = setInterval(() => {
                                 netPaidThisYear += add;
-                                posterSalary.config.mainText.text = netPaidThisYear.toString();
-                                if (posterSalary.config.mainText.text >= data.netPayment) {
+                                posterSalary.config.mainText.text = this.numberformat.asMoney(netPaidThisYear);
+                                if (netPaidThisYear >= data.netPayment) {
                                     clearInterval(interval);
                                     posterSalary.config.mainText.text = this.numberformat.asMoney(data.netPayment);
-                                    this.employeeWidgets[1] = posterSalary;
                                 }
+                                this.employeeWidgets[1] = posterSalary;
                             }, 10);
                         } else {
                             posterSalary.config.mainText.text = this.numberformat.asMoney(data.netPayment);
@@ -331,6 +332,14 @@ export class EmployeeDetails extends UniView {
 
         // Check if the alerts are all a-OK!
         this.updateAlerts();
+    }
+
+    private getCompanySettings(): Observable<CompanySettings> {
+        if (this.companySettings) {
+            return Observable.of(this.companySettings);
+        }
+
+        return this.companySettingsService.GetAll('').map(response => response[0]);
     }
 
     private updatePosterEmployments(employments) {

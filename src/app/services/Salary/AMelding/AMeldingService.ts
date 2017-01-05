@@ -53,13 +53,13 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.json());
     }
 
-    public postAMeldingforDebug(period: number, amldType: number) {
+    public postAMelding(period: number, amldType: number, currYear: number) {
         return this.http
             .asPOST()
             .usingBusinessDomain()
             .withBody( {
                 'period': period,
-                'year': 2016,
+                'year': currYear,
                 'type': amldType,
                 'replacesID': 0
             })

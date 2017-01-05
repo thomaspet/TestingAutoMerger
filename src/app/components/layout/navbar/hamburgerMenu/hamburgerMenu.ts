@@ -1,4 +1,4 @@
-﻿import {Component, ElementRef, Pipe} from '@angular/core';
+﻿import {Component, ElementRef, Pipe, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {routes} from '../../../../routes';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -19,8 +19,7 @@ export class RemoveHidden {
             (click)="toggle($event)"
             (clickOutside)="close()">
 
-            <ul class="hamburger_menu">
-
+            <ul class="hamburger_menu" #menu>
                 <li class="hamburger_item"
                     *ngFor="let componentList of availableComponents; let idx = index"
                     [ngClass]="{'is-active': idx === activeSectionIndex()}">
@@ -33,15 +32,15 @@ export class RemoveHidden {
                             {{component.componentName}}
                         </li>
                     </ul>
-
                 </li>
-
             </ul>
-
         </nav>
     `
 })
 export class HamburgerMenu {
+    @ViewChild('menu')
+    private sectionList: ElementRef;
+
     private open: boolean = false;
 
     public routes: any[] = routes;
@@ -53,6 +52,44 @@ export class HamburgerMenu {
         let _series = moduleID + '';
         let _seriesIndex = +_series.slice(0, 1) - 1;
         return this.getAvailableComponents()[_seriesIndex];
+    }
+
+    constructor(
+        public router: Router,
+        private menuaim: UniMenuAim,
+        private cdr: ChangeDetectorRef
+    ) {
+        this.availableComponents = HamburgerMenu.getAvailableComponents();
+    }
+
+    public ngAfterViewInit() {
+        this.menuaim.aim(this.sectionList.nativeElement, '.hamburger_item', (activeSection: HTMLLIElement) => {
+            this.activeSection = activeSection;
+            this.cdr.markForCheck();
+        });
+
+        this.activeSection = this.sectionList.nativeElement.children[0];
+        this.cdr.markForCheck();
+    }
+
+    private toggle(event) {
+        if (event.target.tagName === 'NAV') {
+            this.open = !this.open;
+        }
+    }
+
+    private close() {
+        this.open = false;
+    }
+
+    private navigate(url: string): void {
+        this.open = false;
+        this.router.navigateByUrl(url);
+    }
+
+    public activeSectionIndex() {
+        const elems = this.sectionList.nativeElement.children;
+        return [].indexOf.call(elems, this.activeSection);
     }
 
     public static getAvailableComponents(): Array<any> {
@@ -144,39 +181,6 @@ export class HamburgerMenu {
                 ]
             }
         ];
-    }
-
-    constructor(public router: Router, private elementRef: ElementRef, private menuaim: UniMenuAim) {
-        this.availableComponents = HamburgerMenu.getAvailableComponents();
-    }
-
-    private setSectionActive(elem) {
-        this.activeSection = elem;
-    }
-
-    private toggle(event) {
-        if (event.target.tagName === 'NAV') {
-            this.open = !this.open;
-        }
-    }
-
-    private close() {
-        this.open = false;
-    }
-
-    private navigate(url: string): void {
-        this.open = false;
-        this.router.navigateByUrl(url);
-    }
-
-    public ngAfterViewInit() {
-        this.menuaim.aim(this.elementRef.nativeElement.querySelectorAll('.hamburger_menu')[0], '.hamburger_item', this.setSectionActive.bind(this));
-        this.activeSection = this.elementRef.nativeElement.querySelectorAll('.hamburger_item:first-of-type')[0];
-    }
-
-    private activeSectionIndex() {
-        let elems = this.elementRef.nativeElement.querySelectorAll('.hamburger_item');
-        return [].indexOf.call(elems, this.activeSection);
     }
 
 }

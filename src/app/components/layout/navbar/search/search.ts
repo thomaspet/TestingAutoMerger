@@ -1,13 +1,12 @@
-﻿import {Component, AfterViewInit, ElementRef, ViewChild, Renderer} from '@angular/core';
+﻿import {Component, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
-
 import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../../../services/common/ErrorService';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-navbar-search',
@@ -62,7 +61,7 @@ export class NavbarSearch implements AfterViewInit {
     constructor(
         private http: UniHttp,
         public router: Router,
-        private renderer: Renderer,
+        private cdr: ChangeDetectorRef,
         private errorService: ErrorService
     ) {
         let componentSections = HamburgerMenu.getAvailableComponents();
@@ -75,7 +74,7 @@ export class NavbarSearch implements AfterViewInit {
         Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             if (event.ctrlKey && (event.keyCode === 32 || event.keyCode === 36)) {
                 event.preventDefault();
-                this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
+                this.inputElement.nativeElement.focus();
             }
         });
 
@@ -184,7 +183,7 @@ export class NavbarSearch implements AfterViewInit {
             this.searchResults = [];
             this.inputControl.setValue('', { emitEvent: false });
             this.isExpanded = false;
-            this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
+            this.inputElement.nativeElement.blur();
         }, 120);
 
     }
@@ -229,6 +228,7 @@ export class NavbarSearch implements AfterViewInit {
 
                     this.searchResults = results;
                     this.isExpanded = true;
+                    this.cdr.markForCheck();
                 },
                 err => this.errorService.handle(err)
             );
