@@ -138,6 +138,7 @@ export class AuthService {
     public clearAuthAndGotoLogin(): void {
         localStorage.removeItem('jwt');
         localStorage.removeItem('activeCompany');
+        localStorage.removeItem('activeFinancialYear');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;

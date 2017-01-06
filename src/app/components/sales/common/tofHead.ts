@@ -1,17 +1,11 @@
-import {
-    Component,
-    Input,
-    Output,
-    ViewChild,
-    EventEmitter,
-} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {TofCustomerCard} from './customerCard';
 declare const _;
 @Component({
     selector: 'uni-tof-head',
     templateUrl: 'app/components/sales/common/tofHead.html'
 })
-export class TofHead {
+export class TofHead extends OnChanges{
     @ViewChild(TofCustomerCard)
     private customerCard: TofCustomerCard;
 
@@ -31,8 +25,13 @@ export class TofHead {
     public activeTabIndex: number = 0;
 
     public onDataChange(data) {
-        this.data = _.cloneDeep(data);
-        this.dataChange.next(this.data);
+        this.dataChange.emit(data);
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes['data']) {
+            this.data = _.cloneDeep(this.data);
+        }
     }
 
     public focus() {

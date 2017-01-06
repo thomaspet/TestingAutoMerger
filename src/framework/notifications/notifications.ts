@@ -1,16 +1,16 @@
-import {Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
-import {Router} from '@angular/router';
-import {UniHttp} from '../core/http/http';
-import {ErrorService} from '../../app/services/services';
-import {Notification, NotificationStatus} from '../../app/unientities';
-import {Observable} from 'rxjs/Observable';
+import { Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
+import { UniHttp } from '../core/http/http';
+import { ErrorService } from '../../app/services/services';
+import { Notification, NotificationStatus } from '../../app/unientities';
+import { Observable } from 'rxjs/Observable';
 import moment from 'moment';
 declare const _;
 
-import {entityTypeMap as salaryMap} from '../../app/components/salary/salaryRoutes';
-import {entityTypeMap as salesMap} from '../../app/components/sales/salesRoutes';
-import {entityTypeMap as accountingMap} from '../../app/components/accounting/accountingRoutes';
-import {entityTypeMap as timetrackingMap} from '../../app/components/timetracking/timetrackingRoutes';
+import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
+import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';
+import { entityTypeMap as accountingMap } from '../../app/components/accounting/accountingRoutes';
+import { entityTypeMap as timetrackingMap } from '../../app/components/timetracking/timetrackingRoutes';
 declare const OneSignal;
 
 @Component({
@@ -30,9 +30,11 @@ export class UniNotifications {
         private cdr: ChangeDetectorRef
     ) {
         this.getNotifications();
-        OneSignal.on('notificationDisplay', (event) => {
-            this.getNotifications();
-        });
+        if (typeof (OneSignal) !== 'undefined') {
+            OneSignal.on('notificationDisplay', (event) => {
+                this.getNotifications();
+            });
+        }
     }
 
     private getNotifications() {
@@ -41,19 +43,18 @@ export class UniNotifications {
             .withEndPoint(Notification.RelativeUrl + '?orderby=ID desc')
             .send()
             .map(res => res.json())
-            .subscribe(
-                (notifications) => {
-                    this.notifications = notifications;
-                    this.unreadCount = notifications.reduce((count, value: Notification) => {
-                        if (value.StatusCode === NotificationStatus.New) {
-                            count++;
-                        }
-                        return count;
-                    }, 0);
+            .subscribe((notifications) => {
+                this.notifications = notifications;
+                this.unreadCount = notifications.reduce((count, value: Notification) => {
+                    if (value.StatusCode === NotificationStatus.New) {
+                        count++;
+                    }
+                    return count;
+                }, 0);
 
-                    this.cdr.markForCheck();
-                },
-                err => this.errorService.handle(err)
+                this.cdr.markForCheck();
+            },
+            err => this.errorService.handle(err)
             );
     }
 
@@ -108,7 +109,7 @@ export class UniNotifications {
         return this.http.asPUT()
             .usingBusinessDomain()
             .withEndPoint(`${Notification.RelativeUrl}/${id}`)
-            .send({action: markAction});
+            .send({ action: markAction });
     }
 
     private markAsRead(notification: Notification): void {

@@ -1,16 +1,17 @@
-﻿import {Component, ViewChildren, QueryList} from '@angular/core';
+﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
-import {AuthService} from '../../../../../../framework/core/authService';
-import {UniHttp} from '../../../../../../framework/core/http/http';
-import {CompanySettingsService} from '../../../../../services/services';
-import {FinancialYearService} from '../../../../../services/services';
-import {UserService} from '../../../../../services/services';
-
+import {Observable} from 'rxjs/Observable';
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
-import {Observable} from 'rxjs/Observable';
-import {AltinnAuthenticationService} from '../../../../../services/common/AltinnAuthenticationService';
-import {ErrorService} from '../../../../../services/common/ErrorService';
+import {AuthService} from '../../../../../../framework/core/authService';
+import {
+    CompanySettingsService,
+    CompanyService,
+    FinancialYearService,
+    AltinnAuthenticationService,
+    UserService,
+    ErrorService
+} from '../../../../../services/services';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -21,7 +22,7 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
             <span class="navbar_company_title"
                 (click)="companyDropdownActive = !companyDropdownActive">
                 <span class="navbar_company_title_name">{{activeCompany.Name}}</span>
-                <span class="navbar_company_title_year">{{activeYearHdr}}</span>
+                <span class="navbar_company_title_year">{{activeYear?.Year}}</span>
             </span>
 
             <section class="navbar_company_dropdown"
@@ -32,6 +33,7 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
                 <dl>
 
                 <uni-select class="navbar_company_select"
+                            *ngIf="availableCompanies"
                             [config]="selectCompanyConfig"
                             [items]="availableCompanies"
                             [value]="activeCompany"
@@ -39,16 +41,17 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
                 </uni-select>
 
 
-                    <dt *ngIf="company?.OrganizationNumber">Org.nr</dt>
-                    <dd *ngIf="company?.OrganizationNumber" itemprop="taxID">{{company.OrganizationNumber | uninumberformat:'orgno'}}</dd>
+                    <dt *ngIf="companySettings?.OrganizationNumber">Org.nr</dt>
+                    <dd *ngIf="companySettings?.OrganizationNumber" itemprop="taxID">{{companySettings.OrganizationNumber | uninumberformat:'orgno'}}</dd>
 
-                    <dt *ngIf="company?.DefaultPhone?.Number">Telefon</dt>
-                    <dd itemprop="phone" *ngIf="company?.DefaultPhone?.Number">
-                        <a href="tel:{{company.DefaultPhone.Number}}">{{company.DefaultPhone.Number}}</a>
+                    <dt *ngIf="companySettings?.DefaultPhone?.Number">Telefon</dt>
+                    <dd itemprop="phone" *ngIf="companySettings?.DefaultPhone?.Number">
+                        <a href="tel:{{companySettings.DefaultPhone.Number}}">{{companySettings.DefaultPhone.Number}}</a>
                     </dd>
                 </dl>
 
                 <p class="navbar_company_taxyear">Regnskapsår
+
                     <uni-select class="navbar_company_taxyearselect"
                         *ngIf="financialYears?.length > 1"
                         [config]="selectYearConfig"
@@ -56,7 +59,10 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
                         [value]="activeYear"
                         (valueChange)="yearSelected($event)">
                     </uni-select>
-                    <span class="navbar_company_activeYear" *ngIf="financialYears?.length <= 1">{{activeYear?.Year || ''}}</span>
+
+                    <span class="navbar_company_activeYear" *ngIf="financialYears?.length <= 1">
+                        {{activeYear?.Year || ''}}
+                    </span>
                 </p>
 
                 <p>
@@ -77,116 +83,98 @@ export class UniCompanyDropdown {
 
     private activeCompany: any;
     private companyDropdownActive: Boolean;
-    private company: CompanySettings;
+    private companySettings: CompanySettings;
 
     private username: string;
 
     private financialYears: Array<FinancialYear> = [];
     private activeYear: FinancialYear;
-    private localStorageYear: FinancialYear;
 
     private availableCompanies: Observable<any>;
     private selectCompanyConfig: ISelectConfig;
     private selectYearConfig: ISelectConfig;
 
-    private activeYearHdr: string = '';
-
     constructor(
-        private _altInnService : AltinnAuthenticationService,
-        private _router: Router,
-        private _authService: AuthService,
+        private altInnService: AltinnAuthenticationService,
+        private router: Router,
+        private authService: AuthService,
         private userService: UserService,
-        private http: UniHttp,
         private companySettingsService: CompanySettingsService,
+        private companyService: CompanyService,
         private financialYearService: FinancialYearService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef
     ) {
-
         this.userService.getCurrentUser().subscribe((user) => {
             this.username = user.DisplayName;
         }, err => this.errorService.handle(err));
 
-        this.http.asGET()
-            .usingInitDomain()
-            .withEndPoint('companies')
-            .send()
-            .map(response => response.json())
-            .subscribe((response) => {
-                this.availableCompanies = response;
-                this.selectCompanyConfig.searchable = response.length >= 8;
-            }, err => this.errorService.handle(err));
+        this.companyService.GetAll(null).subscribe(
+            res => this.availableCompanies = res,
+            err => this.errorService.handle(err)
+        );
+
+        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
+        this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {
             displayProperty: 'Name'
         };
 
         this.selectYearConfig = {
-            placeholder: 'Velg aktivt regnskapsår',
-            template: (item) => {
-                return (item.Year.toString()); // Convert to string - The <uni-select> only handle string type
-            },
+            template: (item) => item.Year.toString(),
             searchable: false
         };
 
-        this.companyDropdownActive = false;
-        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
         this.loadCompanyData();
-
+        this.authService.companyChange.subscribe((company) => {
+            localStorage.removeItem('activeFinancialYear');
+            this.activeCompany = company;
+            this.loadCompanyData();
+        });
     }
 
     private loadCompanyData() {
-        this._altInnService.clearAltinnAuthenticationDataFromLocalstorage();
-        this.companySettingsService.Get(1, ['DefaultPhone']).subscribe((company) => {
-            this.company = company;
-            this.getFinancialYear();
-        }, err => this.errorService.handle(err));
-    }
+        this.altInnService.clearAltinnAuthenticationDataFromLocalstorage();
+        Observable.forkJoin(
+            this.companySettingsService.Get(1, ['DefaultPhone']),
+            this.financialYearService.GetAll(null)
+        ).subscribe(
+            (res) => {
+                this.companySettings = res[0];
+                this.financialYears = res[1];
 
-    private getFinancialYear() {
-        this.localStorageYear = this.financialYearService.getActiveFinancialYearInLocalstorage(this.activeCompany.Name);
-        this.financialYearService.GetAll(null).subscribe((response) => {
-            this.financialYears = response;
-            this.setActiveYear();
-        }, err => this.errorService.handle(err));
-    }
+                const cachedYear = localStorage.getItem('activeFinancialYear');
+                if (cachedYear) {
+                    const parsed = JSON.parse(cachedYear);
+                    this.activeYear = parsed;
+                } else {
+                    const fromCompanySettings = this.financialYears.find((year) => {
+                        return year.Year === this.companySettings.CurrentAccountingYear;
+                    });
 
-    private setActiveYear() {
-        if (this.company !== null && this.financialYears !== null && this.financialYears.length > 0) {
-            if (!this.localStorageYear || !this.localStorageYear.Year) {
-                this.activeYear = this.financialYears.find((y) => y ? y.Year === this.company.CurrentAccountingYear : null);
-            } else {
-                this.activeYear = this.financialYears.find((y) => y ? y.Year === this.localStorageYear.Year : null);
-            }
-        } else {
-            this.activeYear = null;
-        }
-        this.setYearInNavBarTitle();
-    }
+                    this.activeYear = fromCompanySettings || this.financialYears[this.financialYears.length - 1];
+                }
 
-    private setYearInNavBarTitle() {
-        // Show the year in nav bar title if active year is not the current accounting year for the company
-        if (!this.activeYear || !this.activeYear.Year || this.activeYear.Year === this.company.CurrentAccountingYear) {
-            this.activeYearHdr = '';
-        } else {
-            let enspace = '\u2002';
-            this.activeYearHdr = enspace + this.activeYear.Year;
-        }
+                this.cdr.markForCheck();
+                localStorage.setItem('activeFinancialYear', JSON.stringify(this.activeYear));
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private companySelected(selectedCompany): void {
         this.close();
-        if(this.activeCompany === selectedCompany) {return;}
-        this.activeCompany = selectedCompany;
-        this._authService.setActiveCompany(selectedCompany);
-        this.loadCompanyData();
-        this._router.navigateByUrl('/');
+        if (selectedCompany !== this.activeCompany) {
+            this.authService.setActiveCompany(selectedCompany);
+            this.router.navigateByUrl('/');
+        }
     }
 
     private yearSelected(selectedYear: FinancialYear): void {
         this.close();
-        this.financialYearService.storeActiveFinancialYearInLocalstorage(selectedYear, this.activeCompany.Name);
         this.activeYear = selectedYear;
-        this.setYearInNavBarTitle();
+        localStorage.setItem('activeFinancialYear', JSON.stringify(selectedYear));
     }
 
     private close() {
@@ -199,6 +187,6 @@ export class UniCompanyDropdown {
     }
 
     private logOut() {
-        this._authService.clearAuthAndGotoLogin();
+        this.authService.clearAuthAndGotoLogin();
     }
 }

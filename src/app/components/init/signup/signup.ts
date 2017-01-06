@@ -8,27 +8,25 @@ import {passwordValidator} from '../authValidators';
     templateUrl: 'app/components/init/signup/signup.html'
 })
 export class Signup {
-    private emailForm: FormGroup = undefined;
-    private detailsForm: FormGroup = undefined;
-    private isTest: boolean = false;
-
-    private passwordsMatching: boolean = false;
+    private companyForm: FormGroup;
+    private userForm: FormGroup;
+    private emailChecked: boolean;
+    private existingUser: Object;
 
     private working: boolean = false;
-    private existingUser: Object;
+    private passwordsMatching: boolean = false;
     private success: boolean = false;
     private errorMessage: string = '';
 
-
     constructor(private _http: UniHttp) {
-        this.emailForm = new FormGroup({
-            Email: new FormControl('', Validators.required)
+        this.companyForm = new FormGroup({
+            Email: new FormControl('', Validators.required),
+            CompanyName: new FormControl('', Validators.required)
         });
     }
 
     private usernameValidator(control) {
         const valid = /^[a-z0-9]+$/i.test(control.value);
-        console.log('valid: ' + valid);
         return valid ? null : {
             'validUsername': valid
         };
@@ -36,17 +34,16 @@ export class Signup {
 
     private checkEmail() {
         this.working = true;
+        const uriEncoded = encodeURIComponent(this.companyForm.controls['Email'].value);
 
-        let uriEncoded = encodeURIComponent(this.emailForm.controls['Email'].value);
-
-        let passwordValidators = Validators.compose([
+        const passwordValidators = Validators.compose([
             passwordValidator,
             Validators.required,
             Validators.minLength(8),
             Validators.maxLength(16)
         ]);
 
-        let usernameValidators = Validators.compose([
+        const usernameValidators = Validators.compose([
             Validators.required,
             this.usernameValidator
         ]);
@@ -57,34 +54,33 @@ export class Signup {
             .send()
             .map(response => response.json())
             .subscribe(
+                // Provided email is already a user
                 (response) => {
                     if (response['UserName'] && response['FullName']) {
-                        this.detailsForm = new FormGroup({
-                            CompanyName: new FormControl('', Validators.required)
-                        });
-
                         this.existingUser = response;
-                        this.working = false;
+                        this.submitDetails();
                     }
                 },
+                // Provided email is a new user
                 (error) => {
-                    this.detailsForm = new FormGroup({
+                    this.companyForm.disable();
+
+                    this.userForm = new FormGroup({
                         Name: new FormControl('', Validators.required),
                         UserName: new FormControl('', usernameValidators),
-                        CompanyName: new FormControl('', Validators.required),
                         Password: new FormControl('', passwordValidators),
                         ConfirmPassword: new FormControl('', passwordValidators),
                     });
 
-                    this.detailsForm.controls['Password'].valueChanges.subscribe((value) => {
-                        this.passwordsMatching = (value === this.detailsForm.controls['ConfirmPassword'].value);
+                    this.userForm.controls['Password'].valueChanges.subscribe((value) => {
+                        this.passwordsMatching = (value === this.userForm.controls['ConfirmPassword'].value);
                     });
 
-                    this.detailsForm.controls['ConfirmPassword'].valueChanges.subscribe((value) => {
-                        this.passwordsMatching = (value === this.detailsForm.controls['Password'].value);
+                    this.userForm.controls['ConfirmPassword'].valueChanges.subscribe((value) => {
+                        this.passwordsMatching = (value === this.userForm.controls['Password'].value);
                     });
 
-                    this.existingUser = false;
+                    this.emailChecked = true;
                     this.working = false;
                 }
             );
@@ -94,17 +90,15 @@ export class Signup {
         this.errorMessage = '';
         this.working = true;
 
-        let controls = this.detailsForm.controls;
         let body = this.existingUser || {};
-
-        body['Email'] = this.emailForm.controls['Email'].value;
-        body['CompanyName'] = controls['CompanyName'].value;
-        body['IsTest'] = this.isTest;
+        body['Email'] = this.companyForm.controls['Email'].value;
+        body['CompanyName'] = this.companyForm.controls['CompanyName'].value;
+        body['IsTest'] = false;
 
         if (!this.existingUser) {
-            body['Name'] = controls['Name'].value;
-            body['UserName'] = controls['UserName'].value;
-            body['Password'] = controls['Password'].value;
+            body['Name'] = this.userForm.controls['Name'].value;
+            body['UserName'] = this.userForm.controls['UserName'].value;
+            body['Password'] = this.userForm.controls['Password'].value;
             body['Secret'] = 'uni2016';
         }
 

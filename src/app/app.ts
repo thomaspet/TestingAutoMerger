@@ -58,7 +58,7 @@ export class App {
 
     private setOneSignal() {
 
-        if (window.ENV === 'production') {
+        if (window.ENV === 'production' && typeof(OneSignal) !== 'undefined') {
             OneSignal.push(() => {
                 OneSignal.getUserId((userID) => {
                     this.userService.getCurrentUser().subscribe(

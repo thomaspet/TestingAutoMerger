@@ -5,7 +5,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {CustomerInvoice, CustomerInvoiceItem, CompanySettings} from '../../../../unientities';
-import {StatusCodeCustomerInvoice} from '../../../../unientities';
+import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -152,8 +152,8 @@ export class InvoiceDetails {
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
-                    invoice.InvoiceDate = new Date();
-                    invoice.DeliveryDate = new Date();
+                    invoice.InvoiceDate = <any>new LocalDate(); // TODO: Remove <any> when backend is ready
+                    invoice.DeliveryDate = <any>new LocalDate(); // TODO: Remove <any> when backend is ready
                     invoice.PaymentDueDate = null;
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
@@ -272,13 +272,19 @@ export class InvoiceDetails {
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {
+        const isDifferent = (a, b) => a.toString() !== b.toString();
+
         if (invoice.Customer) {
             invoice.CreditDays = invoice.CreditDays
                 || invoice.Customer.CreditDays
                 || this.companySettings.CustomerCreditDays;
 
-            if (!invoice.PaymentDueDate) {
-                invoice.PaymentDueDate = moment().add(invoice.CreditDays, 'days').toDate();
+            if (invoice.InvoiceDate) {
+                if (isDifferent(this.invoice.InvoiceDate, invoice.InvoiceDate)) {
+                    invoice.PaymentDueDate = <any>new LocalDate(
+                        moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
+                    ); // TODO: Remove <any> when backend is ready
+                }
             }
         }
 
@@ -334,10 +340,15 @@ export class InvoiceDetails {
 
     private refreshInvoice(invoice: CustomerInvoice) {
         if (!invoice.CreditDays && invoice.Customer) {
-            invoice.CreditDays = invoice.Customer.CreditDays;
-            if (!invoice.PaymentDueDate && invoice.CreditDays) {
-                invoice.PaymentDueDate = moment().add(invoice.CreditDays, 'days').toDate();
-            }
+            invoice.CreditDays = invoice.CreditDays
+                || invoice.Customer.CreditDays
+                || this.companySettings.CustomerCreditDays;
+        }
+
+        if (invoice.InvoiceDate && !invoice.PaymentDueDate && invoice.CreditDays) {
+            invoice.PaymentDueDate = <any>new LocalDate(
+                moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
+            ); // TODO: Remove <any> when backend is ready
         }
 
         this.newInvoiceItem = <any> this.tradeItemHelper.getDefaultTradeItemData(invoice);
@@ -481,7 +492,7 @@ export class InvoiceDetails {
             if (this.invoice.PaymentDueDate && this.invoice.InvoiceDate) {
                 this.invoice.CreditDays = moment(this.invoice.PaymentDueDate).diff(moment(this.invoice.InvoiceDate), 'days');
             } else if (this.invoice.Customer && this.invoice.Customer.CreditDays) {
-                this.invoice.CreditDays =  this.invoice.Customer.CreditDays;
+                this.invoice.CreditDays = this.invoice.Customer.CreditDays;
             } else if (this.companySettings && this.companySettings.CustomerCreditDays) {
                 this.invoice.CreditDays = this.companySettings.CustomerCreditDays;
             } else {
@@ -490,7 +501,8 @@ export class InvoiceDetails {
         }
 
         if (!this.invoice.DeliveryDate) {
-            this.invoice.DeliveryDate = this.invoice.InvoiceDate || new Date();
+            // TODO: Remove <any> when backend is ready
+            this.invoice.DeliveryDate = this.invoice.InvoiceDate || <any>new LocalDate();
         }
 
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
@@ -609,7 +621,6 @@ export class InvoiceDetails {
         // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
-                console.log('modalData.invoice', modalData.invoice);
                 this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
                     done('Betaling registrert');

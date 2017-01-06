@@ -122,12 +122,12 @@ export class TofDeliveryForm {
     public onLeftFormChange(model) {
         this.addressService.addressToShipping(model, model['_ShippingAddress']);
         this.entity = model;
-        this.entityChange.next(model);
+        this.entityChange.emit(model);
     }
 
     public onRightFormChange(model) {
         this.entity = model;
-        this.entityChange.next(this.entity);
+        this.entityChange.emit(this.entity);
     }
 
     private saveAddressOnCustomer(address: Address, resolve) {

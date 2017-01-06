@@ -56,7 +56,7 @@ export class TofDetailsForm {
     }
 
     public onFormChange(model) {
-        this.entityChange.next(model);
+        this.entityChange.emit(model);
     }
 
     private initFormFields() {

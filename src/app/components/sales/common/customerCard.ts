@@ -172,7 +172,7 @@ export class TofCustomerCard {
         this.entity.CustomerName = info.Name;
         this.entity.Customer = customer;
         this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
-        this.entityChange.next(_.cloneDeep(this.entity));
+        this.entityChange.emit(this.entity);
     }
 
     public refreshCustomer(customerID: number) {
@@ -189,7 +189,7 @@ export class TofCustomerCard {
                 this.entity.CustomerID = customer.ID;
                 this.entity.CustomerName = info.Name;
                 this.entity.Customer = customer;
-                this.entityChange.next(_.cloneDeep(this.entity));
+                this.entityChange.emit(this.entity);
             },
             err => this.errorService.handle(err)
         );
@@ -253,7 +253,7 @@ export class TofCustomerCard {
 
         this.entity.Customer = customer;
         this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
-        this.entityChange.next(_.cloneDeep(this.entity));
+        this.entityChange.emit(this.entity);
     }
 
     private mapAddresses(customer, addresses) {
