@@ -1,24 +1,27 @@
 <section class="authentication-component">
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
-    
+
     <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
     <small class="validation good" *ngIf="success">Vi setter nå opp kontoen din. En epost blir automatisk sendt ut når alt er klart.</small>
 
-    <form *ngIf="emailForm" [formGroup]="emailForm" (ngSubmit)="checkEmail()" #f="ngForm">
+    <h1>Nytt selskap</h1>
+    <form *ngIf="companyForm" [formGroup]="companyForm" (ngSubmit)="checkEmail()" #f="ngForm">
         <label>
             Epost
-            <input type="email" formControlName="Email" placeholder="Epost" [disabled]="detailsForm || working">
+            <input type="email" formControlName="Email" placeholder="Epost" [disabled]="emailChecked || working">
         </label>
-        <button type="submit" class="c2a" *ngIf="!detailsForm" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">Sjekk epost</button>
+        <label>
+            Firmanavn
+            <input type="text" formControlName="CompanyName" placeholder="Firmanavn" [disabled]="emailChecked || working">
+        </label>
+        <button type="submit" class="c2a" *ngIf="!emailChecked" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">
+            Neste
+        </button>
     </form>
-    
-    <section *ngIf="detailsForm && !success">
-        <form *ngIf="!existingUser" [formGroup]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
-            <label>
-                Firmanavn
-                <input type="text" formControlName="CompanyName" placeholder="Firmanavn">
-            </label>
-            
+
+    <section *ngIf="userForm">
+        <h1>Brukerdetaljer</h1>
+        <form [formGroup]="userForm" (ngSubmit)="submitDetails()" #f="ngForm">
             <label>
                 Fullt navn
                 <input type="text" formControlName="Name" placeholder="Fullt navn">
@@ -38,25 +41,10 @@
                 Bekreft passord
                 <input type="password" formControlName="ConfirmPassword" placeholder="Bekreft passord">
             </label>
-            
-            <label>
-                <input type="checkbox" [(ngModel)]="isTest" [ngModelOptions]="{standalone: true}">
-                Inkluder testdata
-            </label>
-            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching || working">Registrer</button>
-        </form>
-        
-        <form *ngIf="existingUser" [formGroup]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
-            <label>
-                Firmanavn
-                <input type="text" formControlName="CompanyName" placeholder="Firmanavn">
-            </label>
-            
-            <label>
-                <input type="checkbox" [(ngModel)]="isTest" [ngModelOptions]="{standalone: true}">
-                Inkluder testdata
-            </label>
-            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">Legg til selskap</button>
+
+            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching || working">
+                Opprett nytt selskap
+            </button>
         </form>
     </section>
 
