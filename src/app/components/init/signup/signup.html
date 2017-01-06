@@ -15,7 +15,7 @@
             <input type="text" formControlName="CompanyName" placeholder="Firmanavn" [disabled]="emailChecked || working">
         </label>
         <button type="submit" class="c2a" *ngIf="!emailChecked" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">
-            Neste
+            Opprett selskap
         </button>
     </form>
 
@@ -24,7 +24,7 @@
         <form [formGroup]="userForm" (ngSubmit)="submitDetails()" #f="ngForm">
             <label>
                 Fullt navn
-                <input type="text" formControlName="Name" placeholder="Fullt navn">
+                <input type="text" autofocus formControlName="Name" placeholder="Fullt navn">
             </label>
 
             <label>
@@ -43,7 +43,7 @@
             </label>
 
             <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching || working">
-                Opprett nytt selskap
+                Opprett selskap
             </button>
         </form>
     </section>

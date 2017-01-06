@@ -63,6 +63,8 @@ export class Signup {
                 },
                 // Provided email is a new user
                 (error) => {
+                    this.companyForm.disable();
+
                     this.userForm = new FormGroup({
                         Name: new FormControl('', Validators.required),
                         UserName: new FormControl('', usernameValidators),
