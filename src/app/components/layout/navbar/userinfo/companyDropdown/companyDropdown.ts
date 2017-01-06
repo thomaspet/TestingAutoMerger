@@ -144,13 +144,16 @@ export class UniCompanyDropdown {
                 this.companySettings = res[0];
                 this.financialYears = res[1];
 
-                const cachedYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+                const cachedYear = localStorage.getItem('activeFinancialYear');
                 if (cachedYear) {
-                    this.activeYear = cachedYear;
+                    const parsed = JSON.parse(cachedYear);
+                    this.activeYear = parsed;
                 } else {
-                    this.activeYear = this.financialYears.find((year) => {
+                    const fromCompanySettings = this.financialYears.find((year) => {
                         return year.Year === this.companySettings.CurrentAccountingYear;
                     });
+
+                    this.activeYear = fromCompanySettings || this.financialYears[this.financialYears.length - 1];
                 }
 
                 this.cdr.markForCheck();
@@ -165,17 +168,7 @@ export class UniCompanyDropdown {
         if (selectedCompany !== this.activeCompany) {
             this.authService.setActiveCompany(selectedCompany);
             this.router.navigateByUrl('/');
-            // this.activeCompany = selectedCompany;
-            // this.authService.setActiveCompany(selectedCompany);
-            // this.loadCompanyData();
-            // this.router.navigat
         }
-
-        // if(this.activeCompany === selectedCompany) {return;}
-        // this.activeCompany = selectedCompany;
-        // this.authService.setActiveCompany(selectedCompany);
-        // this.loadCompanyData();
-        // this.router.navigateByUrl('/');
     }
 
     private yearSelected(selectedYear: FinancialYear): void {
