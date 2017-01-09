@@ -32,8 +32,8 @@ export class ConfirmInvite {
             ]);
 
             this.confirmInviteForm = new FormGroup({
+                displayName: new FormControl('', Validators.required),
                 username: new FormControl('', Validators.required),
-                name: new FormControl('', Validators.required),
                 password: new FormControl('', passwordValidators),
                 confirmPassword: new FormControl('', passwordValidators)
             });
@@ -70,7 +70,7 @@ export class ConfirmInvite {
     }
 
     private submitUser() {
-        const name = this.confirmInviteForm.controls['name'].value;
+        const displayName = this.confirmInviteForm.controls['displayName'].value;
         const username = this.confirmInviteForm.controls['username'].value;
         const password = this.confirmInviteForm.controls['password'].value;
 
@@ -80,7 +80,7 @@ export class ConfirmInvite {
             .usingInitDomain()
             .withEndPoint('user-verification/' + this.verificationCode + '/')
             .withHeader('Content-Type', 'application/json')
-            .withBody({Name: name, UserName: username, Password: password})
+            .withBody({Name: displayName, UserName: username, Password: password})
             .send({action: 'confirm-invite'})
             .map(response => response.json())
             .subscribe(
