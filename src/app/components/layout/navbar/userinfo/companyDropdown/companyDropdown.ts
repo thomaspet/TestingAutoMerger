@@ -157,7 +157,9 @@ export class UniCompanyDropdown {
                 }
 
                 this.cdr.markForCheck();
-                localStorage.setItem('activeFinancialYear', JSON.stringify(this.activeYear));
+                if (this.activeYear) {
+                    localStorage.setItem('activeFinancialYear', JSON.stringify(this.activeYear));
+                }
             },
             err => this.errorService.handle(err)
         );
