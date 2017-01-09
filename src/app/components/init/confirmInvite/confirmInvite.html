@@ -5,6 +5,11 @@
         <small *ngIf="errorMessage.length" class="validation error">{{errorMessage}}</small>
 
         <label>
+            Navn
+            <input type="text" formControllerName="name" [disabled]="!validInvite">
+        </label>
+
+        <label>
             Brukernavn
             <input type="text" formControlName="username" [disabled]="!validInvite">
         </label>
