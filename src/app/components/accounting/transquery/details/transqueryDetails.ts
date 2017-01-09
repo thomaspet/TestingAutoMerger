@@ -87,6 +87,8 @@ export class TransqueryDetails implements OnInit {
             'VatReportID,' +
             'RestAmount,' +
             'StatusCode,' +
+            'InvoiceNumber,' +
+            'DueDate,' +
             'Department.Name,' +
             'Project.Name,' +
             'Department.DepartmentNumber,' +
@@ -270,11 +272,9 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('eq')
                     .setTemplate(line => line.VatTypeVatCode),
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-                    .setCls('column-align-right')
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineAmount),
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
-                    .setCls('column-align-right')
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
@@ -282,8 +282,16 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.VatReportTerminPeriodNo ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear : '')
                     .setFilterable(false)
                     .setVisible(false),
-                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+                new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
                     .setCls('column-align-right')
+                    .setFilterOperator('eq')
+                    .setVisible(false)
+                    .setTemplate(line => line.JournalEntryLineInvoiceNumber),
+                new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime)
+                    .setDisplayField('JournalEntryLineDueDate')
+                    .setFilterOperator('eq')
+                    .setVisible(false),
+                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmount)
                     .setVisible(false),

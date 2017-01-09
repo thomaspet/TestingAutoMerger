@@ -1,0 +1,19 @@
+<section *ngIf="journalEntryLines" [attr.aria-busy]="busy">
+    <h2>Åpne poster</h2>
+    <section class="action-buttons">
+        <button class="c2a" (click)="showHideMarkedEntries()">{{showMarkedEntries ? "Vis åpne" : "Vis alle" }}</button>
+        <button class="warn" (click)="unlockJournalEntries()">Lås opp</button>
+        <button class="warn" (click)="autoMarkJournalEntries()">Automerk</button>
+        <button class="good" (click)="markCheckedJournalEntries()">Merk</button>
+        <button class="good" (click)="reconciliateJournalEntries()">Lagre endringer</button>
+    </section>
+    <uni-table
+        [resource]="journalEntryLines"
+        [config]="uniTableConfig"
+        (rowSelectionChanged)="onRowSelected($event)">
+    </uni-table>
+
+    <uni-summary [configs]="summary" *ngIf="itemsSummaryData"></uni-summary>
+</section>
+
+<uni-confirm-modal></uni-confirm-modal>

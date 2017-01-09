@@ -209,7 +209,6 @@ export class UniQueryReadOnly implements OnChanges {
                 let paramSelect = param + ' as ' + paramAlias;
 
                 if (!selects.find(x => x === paramSelect)) {
-                    console.log('add extra field to select: ' + paramSelect);
                     selects.push(paramSelect);
                 }
             });

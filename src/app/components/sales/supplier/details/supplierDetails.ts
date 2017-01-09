@@ -16,6 +16,8 @@ import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDef
 import {BankAccountModal} from '../../../common/modals/modals';
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 declare var _; // lodash
 
@@ -31,6 +33,8 @@ export class SupplierDetails implements OnInit {
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
     private supplierID: number;
     private config: any = {autofocus: true};
@@ -49,6 +53,7 @@ export class SupplierDetails implements OnInit {
     private emptyAddress: Address;
     private emptyBankAccount: BankAccount;
     public reportLinks: IReference[];
+    private activeTab: string = 'details';
     public showReportWithID: number;
 
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'Info.DefaultBankAccount', 'Info.BankAccounts', 'Info.BankAccounts.Bank'];
@@ -158,8 +163,50 @@ export class SupplierDetails implements OnInit {
         this.toolbarconfig.subheads = this.supplier.ID ? [{title: 'Leverandørnr. ' + this.supplier.SupplierNumber}] : [];
     }
 
-    public showReport(id: number) {
-        this.showReportWithID = id;
+    public showTab(tab: string, reportid: number = null) {
+
+        if (this.activeTab === 'reconciliation'
+            && this.ledgerAccountReconciliation
+            && this.ledgerAccountReconciliation.isDirty) {
+
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'})
+                .then(confirmDialogResponse => {
+                    if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                        this.activeTab = tab;
+                        this.showReportWithID = reportid;
+                    }
+                });
+        } else {
+            this.activeTab = tab;
+            this.showReportWithID = reportid;
+        }
+    }
+
+    public canDeactivate(): boolean|Promise<boolean> {
+
+        // Check if ledgeraccountdetails is dirty - if so, warn user before we continue
+        if (!this.ledgerAccountReconciliation || !this.ledgerAccountReconciliation.isDirty) {
+           return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
     }
 
     private setup() {

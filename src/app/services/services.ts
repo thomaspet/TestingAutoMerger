@@ -47,6 +47,7 @@ export * from './common/companytypeservice';
 export * from './common/VatReportFormService';
 export * from './accounting/periodseriesservice';
 export * from './accounting/accountgroupsetservice';
+export * from './accounting/PostPostService';
 export * from './common/subentityservice';
 export * from './shared/municipalsservice';
 export * from './salary/companysalary/companysalaryservice';

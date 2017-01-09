@@ -1,5 +1,6 @@
 import {CustomerList} from './list/customerList';
 import {CustomerDetails} from './customerDetails/customerDetails';
+import {CanDeactivateGuard} from '../../../candeactivateGuard';
 
 export const routes = [
     {
@@ -8,6 +9,7 @@ export const routes = [
     },
     {
         path: ':id',
-        component: CustomerDetails
+        component: CustomerDetails,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];

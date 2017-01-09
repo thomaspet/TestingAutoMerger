@@ -87,7 +87,7 @@ import {BillHistoryView} from './bill/detail/history/history';
         // Route module
         AccountingRoutes,
         SalesModule,
-        TimetrackingModule        
+        TimetrackingModule
     ],
     declarations: [
         UniAccounting,

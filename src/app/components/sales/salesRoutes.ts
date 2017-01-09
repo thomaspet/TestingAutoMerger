@@ -44,7 +44,8 @@ export const childRoutes = [
     },
     {
         path: 'suppliers/:id',
-        component: SupplierDetails
+        component: SupplierDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
 
     {

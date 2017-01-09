@@ -5,25 +5,27 @@
 <header class="supplier_poster" *ngIf="supplier">
     <!-- Widget poster -->
     <section class="poster_overview">
-        <section class="application">
-            <uni-widget-poster [model]="supplier" *ngIf="supplier && supplier.ID > 0">
-            </uni-widget-poster>
-        </section>
         <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="supplier && supplier.ID == 0"></external-search>
     </section>
 
     <div class="horizontal_nav" *ngIf="supplier?.ID">
         <ul>
             <li>
-                <a
-                        [class]="showReportWithID ? '' : 'router-link-active'"
-                        (click)="showReport(null)"
-                >Detaljer</a>
+                <a [class]="activeTab === 'details' ? 'router-link-active' : ''"
+                   (click)="showTab('details')">
+                    Detaljer
+                </a>
+            </li>
+            <li>
+                <a [class]="activeTab === 'reconciliation' ? 'router-link-active' : ''"
+                   (click)="showTab('reconciliation')">
+                    Åpne poster
+                </a>
             </li>
             <li *ngFor="let link of reportLinks">
                 <a
-                        [class]="showReportWithID == link.id ? 'router-link-active' : ''"
-                        (click)="showReport(link.id)"
+                        [class]="activeTab === 'uniquery' && showReportWithID == link.id ? 'router-link-active' : ''"
+                        (click)="showTab('report', link.id)"
                 >{{link.name}}</a>
             </li>
         </ul>
@@ -31,11 +33,12 @@
 </header>
 
 <section class="supplier-details application" *ngIf='supplier'>
-    <uni-form *ngIf="!showReportWithID"
+    <uni-form *ngIf="activeTab === 'details'"
               [config]="config"
               [fields]="fields"
               [model]="supplier">
     </uni-form>
+    <ledger-account-reconciliation [supplierID]="supplier.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"
@@ -52,3 +55,4 @@
 <phone-modal></phone-modal>
 <address-modal></address-modal>
 <bankaccount-modal></bankaccount-modal>
+<uni-confirm-modal></uni-confirm-modal>

@@ -7,6 +7,13 @@ export enum ToastType {
     warn = 3,
 }
 
+export enum ToastTime {
+    short = 5,
+    medium = 10,
+    long = 15,
+    forever = 0
+}
+
 export interface IToast {
     id: number;
     type: ToastType;

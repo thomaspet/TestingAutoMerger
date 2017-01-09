@@ -22,6 +22,7 @@ import {FinancialYearService} from './FinancialYearService';
 import {PaymentCodeService} from './PaymentCodeService';
 import {PaymentService} from './PaymentService';
 import {PaymentBatchService} from './PaymentBatchService';
+import {PostPostService} from './PostPostService';
 
 @NgModule({
     providers: [
@@ -47,7 +48,8 @@ import {PaymentBatchService} from './PaymentBatchService';
         FinancialYearService,
         PaymentCodeService,
         PaymentService,
-        PaymentBatchService
+        PaymentBatchService,
+        PostPostService
     ]
 })
 export class AccountingServicesModule {
