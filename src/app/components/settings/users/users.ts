@@ -22,7 +22,6 @@ export class Users {
 
     constructor(private http: UniHttp, private errorService: ErrorService) {
         this.newUserForm = new FormGroup({
-            DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', this.isInvalidEmail)
         });
         
@@ -83,7 +82,6 @@ export class Users {
             .withEndPoint('user-verifications')
             .withBody({
                 Email: newUser.Email,
-                DisplayName: newUser.DisplayName,
                 CompanyId: companyId
             })
             .send()
@@ -94,7 +92,6 @@ export class Users {
 
                     // clear form
                     this.newUserForm = new FormGroup({
-                        DisplayName: new FormControl('', Validators.required),
                         Email: new FormControl('', this.isInvalidEmail)
                     });
 
