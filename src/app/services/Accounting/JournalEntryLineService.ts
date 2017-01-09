@@ -32,6 +32,26 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
     }
 
 
+    public getJournalEntryLinePostPostData(includeMarkedPosts, customerID, supplierID) {
+
+        let querystring: string = '&includeMarkedPosts=' + includeMarkedPosts;
+
+        if (customerID) {
+            querystring += '&customerID=' + customerID;
+        }
+
+        if (supplierID) {
+            querystring += '&supplierID=' + supplierID;
+        }
+
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=get-journal-entry-postpost-data' + querystring)
+            .send()
+            .map(response => response.json());
+    }
+
     public StatusTypes: Array<any> = [
         { Code: '31001', Text: 'Åpen' },
         { Code: '31002', Text: 'Delmerket' },

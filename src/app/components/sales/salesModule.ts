@@ -14,6 +14,7 @@ import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsMo
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerList} from './customer/list/customerList';
 import {ReportsModule} from '../reports/reportsModule';
+
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/TradeItemHelper';
@@ -30,7 +31,6 @@ import {SupplierList} from './supplier/list/supplierList';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
-
 import {InvoiceDetails} from './invoice/details/invoice';
 
 import {TofHead} from './common/tofHead';

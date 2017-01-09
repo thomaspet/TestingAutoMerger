@@ -4,25 +4,27 @@
 
 <header class="customer_poster">
     <section class="poster_overview">
-        <section class="application">
-            <uni-widget-poster [model]="customer" *ngIf="customer?.ID">
-            </uni-widget-poster>
-        </section>
         <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="!customer?.ID"></external-search>
     </section>
 
     <div class="horizontal_nav" *ngIf="customer?.ID">
         <ul>
             <li>
-                <a
-                        [class]="showReportWithID ? '' : 'router-link-active'"
-                        (click)="showReport(null)"
-                >Detaljer</a>
+                <a [class]="activeTab === 'details' ? 'router-link-active' : ''"
+                   (click)="showTab('details')">
+                   Detaljer
+                </a>
+            </li>
+            <li>
+                <a [class]="activeTab === 'reconciliation' ? 'router-link-active' : ''"
+                   (click)="showTab('reconciliation')">
+                    Åpne poster
+                </a>
             </li>
             <li *ngFor="let link of reportLinks">
                 <a
-                        [class]="showReportWithID == link.id ? 'router-link-active' : ''"
-                        (click)="showReport(link.id)"
+                        [class]="activeTab === 'uniquery' && showReportWithID == link.id ? 'router-link-active' : ''"
+                        (click)="showTab('report', link.id)"
                 >{{link.name}}</a>
             </li>
         </ul>
@@ -30,11 +32,12 @@
 
 </header>
 <section *ngIf='customer' class="customer-details application">
-    <uni-form *ngIf="!showReportWithID"
+    <uni-form *ngIf="activeTab === 'details'"
               [config]="config"
               [fields]="fields"
               [model]="customer">
     </uni-form>
+    <ledger-account-reconciliation [customerID]="customer.ID" *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"
@@ -42,6 +45,7 @@
             [queryDefinitionID]="link.id"
             [externalID]="customer.ID"
     ></uni-query-read-only>
+
 </section>
 
 <uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>
@@ -49,3 +53,4 @@
 <email-modal></email-modal>
 <phone-modal></phone-modal>
 <address-modal></address-modal>
+<uni-confirm-modal></uni-confirm-modal>

@@ -19,6 +19,8 @@ import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDef
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../../services/common/ErrorService';
 
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 
 declare var _; // lodash
 
@@ -34,6 +36,8 @@ export class CustomerDetails {
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
     private config: any = {autofocus: true};
     private fields: any[] = [];
@@ -48,6 +52,7 @@ export class CustomerDetails {
     public emptyEmail: Email;
     public emptyAddress: Address;
     public reportLinks: IReference[];
+    private activeTab: string = 'details';
     public showReportWithID: number;
 
     private toolbarconfig: IToolbarConfig = {
@@ -171,8 +176,49 @@ export class CustomerDetails {
 
     }
 
-    public showReport(id: number) {
-        this.showReportWithID = id;
+    public canDeactivate(): boolean|Promise<boolean> {
+
+        // Check if ledgeraccountdetails is dirty - if so, warn user before we continue
+        if (!this.ledgerAccountReconciliation || !this.ledgerAccountReconciliation.isDirty) {
+           return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    public showTab(tab: string, reportid: number = null) {
+        if (this.activeTab === 'reconciliation'
+            && this.ledgerAccountReconciliation
+            && this.ledgerAccountReconciliation.isDirty) {
+
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'})
+                .then(confirmDialogResponse => {
+                    if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                        this.activeTab = tab;
+                        this.showReportWithID = reportid;
+                    }
+                });
+        } else {
+            this.activeTab = tab;
+            this.showReportWithID = reportid;
+        }
     }
 
     public reset() {
