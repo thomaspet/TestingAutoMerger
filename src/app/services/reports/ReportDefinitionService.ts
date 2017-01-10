@@ -1,5 +1,5 @@
 import {Http, RequestMethod} from '@angular/http';
-import {Injectable, Inject} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {AppConfig} from '../../appConfig';
@@ -194,7 +194,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private addLogoUrl() {
         let logoKeyParam = new CustomReportDefinitionParameter();
         logoKeyParam.Name = 'LogoUrl';
-        logoKeyParam.value = AppConfig.BASE_URL_FILES + '/image/?key=' + this.authService.getCompanyKey() + '&id=logo';
+        logoKeyParam.value = AppConfig.BASE_URL_FILES + 'image/?key=' + this.authService.getCompanyKey() + '&id=logo';
         this.report.parameters.push(logoKeyParam);
     }
 }
