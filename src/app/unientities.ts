@@ -51,6 +51,7 @@ export class AuditLog {
     public static RelativeUrl = 'auditlogs';
     public static EntityType = 'AuditLog';
 
+    public Action: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -60,8 +61,11 @@ export class AuditLog {
     public ID: number;
     public NewValue: string;
     public OldValue: string;
+    public Route: string;
+    public Transaction: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Verb: string;
     public CustomFields: any;
 }
 
@@ -1382,6 +1386,7 @@ export class Notification {
     public ID: number;
     public Message: string;
     public RecipientID: string;
+    public SenderDisplayName: string;
     public SourceEntityID: number;
     public SourceEntityType: string;
     public StatusCode: number;
@@ -1594,6 +1599,7 @@ export class CustomerOrderItem {
     public static RelativeUrl = 'orderitems';
     public static EntityType = 'CustomerOrderItem';
 
+    public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
     public CreatedAt: Date;
@@ -1620,6 +1626,7 @@ export class CustomerOrderItem {
     public Product: Product;
     public VatType: VatType;
     public Dimensions: Dimensions;
+    public Account: Account;
     public CustomFields: any;
 }
 
@@ -1691,6 +1698,7 @@ export class CustomerQuoteItem {
     public static RelativeUrl = 'quoteitems';
     public static EntityType = 'CustomerQuoteItem';
 
+    public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
     public CreatedAt: Date;
@@ -1717,6 +1725,7 @@ export class CustomerQuoteItem {
     public Product: Product;
     public VatType: VatType;
     public Dimensions: Dimensions;
+    public Account: Account;
     public CustomFields: any;
 }
 
@@ -2077,6 +2086,29 @@ export class AmeldingLog {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class EmployeeTaxCard {
+    public static RelativeUrl = 'taxcards';
+    public static EntityType = 'EmployeeTaxCard';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EmployeeID: number;
+    public EmployeeNumber: number;
+    public ID: number;
+    public MunicipalityNo: string;
+    public NonTaxableAmount: number;
+    public NotMainEmployer: boolean;
+    public StatusCode: number;
+    public TaxPercentage: number;
+    public TaxTable: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Year: number;
     public CustomFields: any;
 }
 
@@ -2523,17 +2555,12 @@ export class Employee {
     public InternasjonalIDCountry: string;
     public InternasjonalIDType: InternationalIDType;
     public InternationalID: string;
-    public MunicipalityNo: string;
-    public NonTaxableAmount: number;
-    public NotMainEmployer: boolean;
     public PaymentInterval: PaymentInterval;
     public PhotoID: number;
     public Sex: number;
     public SocialSecurityNumber: string;
     public StatusCode: number;
     public SubEntityID: number;
-    public TaxPercentage: number;
-    public TaxTable: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VacationRateEmployeeID: number;
@@ -2542,6 +2569,7 @@ export class Employee {
     public BankAccounts: Array<BankAccountSalary>;
     public VacationRateEmployee: VacationRateEmployee;
     public SubEntity: SubEntity;
+    public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
 
@@ -2689,6 +2717,7 @@ export class CompanySettings {
     public TaxMandatory: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UseXtraPaymentOrgXmlTag: boolean;
     public VatLockedDate: Date;
     public VatReportFormID: number;
     public WebAddress: string;
@@ -3472,6 +3501,22 @@ export class Accrual {
 }
 
 
+export class JournalEntryType {
+    public static RelativeUrl = 'journalentrytypes';
+    public static EntityType = 'JournalEntryType';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ExpectNegativeAmount: boolean;
+    public ID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class JournalEntryMode {
     public static RelativeUrl = 'journalEntryModes';
     public static EntityType = 'JournalEntryMode';
@@ -3527,11 +3572,14 @@ export class JournalEntryLine {
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
+    public DueDate: Date;
     public FinancialDate: Date;
     public ID: number;
+    public InvoiceNumber: string;
     public JournalEntryID: number;
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
+    public JournalEntryTypeID: number;
     public OriginalJournalEntryPost: number;
     public OriginalReferencePostID: number;
     public PeriodID: number;
@@ -3567,6 +3615,7 @@ export class JournalEntryLine {
     public CustomerInvoice: CustomerInvoice;
     public SupplierInvoice: SupplierInvoice;
     public VatReport: VatReport;
+    public JournalEntryType: JournalEntryType;
     public CustomFields: any;
 }
 
@@ -3587,11 +3636,14 @@ export class JournalEntryLineDraft {
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
+    public DueDate: Date;
     public FinancialDate: Date;
     public ID: number;
+    public InvoiceNumber: string;
     public JournalEntryID: number;
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
+    public JournalEntryTypeID: number;
     public OriginalJournalEntryPost: number;
     public OriginalReferencePostID: number;
     public PeriodID: number;
@@ -3628,6 +3680,7 @@ export class JournalEntryLineDraft {
     public CustomerInvoice: CustomerInvoice;
     public SupplierInvoice: SupplierInvoice;
     public VatReport: VatReport;
+    public JournalEntryType: JournalEntryType;
     public CustomFields: any;
 }
 
@@ -4458,13 +4511,23 @@ export class WorkBalanceDto {
     public LastDayExpected: number;
     public Minutes: number;
     public StatusCode: number;
+    public SumOvertime: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public Previous: BalanceInfo;
     public WorkRelation: WorkRelation;
     public CustomFields: any;
+}
+
+
+export class BalanceInfo {
+    public BalanceDate: Date;
+    public Description: string;
+    public ID: number;
+    public Minutes: number;
 }
 
 
@@ -4746,6 +4809,10 @@ export class JournalEntryLineRequestSummary {
     public SumDebit: number;
     public SumLedger: number;
     public SumTaxBasisAmount: number;
+}
+
+
+export class JournalEntryLineCouple {
 }
 
 

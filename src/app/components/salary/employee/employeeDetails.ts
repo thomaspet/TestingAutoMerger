@@ -4,12 +4,13 @@ import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement, CompanySettings
+    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
-    SalaryTransactionService, UniCacheService, SubEntityService, CompanySettingsService
+    SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService,
+    FinancialYearService
 } from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
@@ -20,6 +21,7 @@ import { UniHttp } from '../../../../framework/core/http/http';
 
 import { UniView } from '../../../../framework/core/uniView';
 import { ErrorService } from '../../../services/common/ErrorService';
+import { TaxCardModal } from './modals/taxCardModal';
 declare var _; // lodash
 
 @Component({
@@ -44,8 +46,9 @@ export class EmployeeDetails extends UniView {
     private departments: Department[];
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
-    private datachecks: any;
-    private companySettings: CompanySettings;
+    private employeeTaxCard: EmployeeTaxCard;
+
+    @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
 
     private employeeWidgets: IPosterWidget[] = [
         {
@@ -64,7 +67,18 @@ export class EmployeeDetails extends UniView {
         {
             type: 'alerts',
             config: {
-                alerts: []
+                alerts: [{
+                    text: '',
+                    class: ''
+                },
+                {
+                    text: '',
+                    class: ''
+                },
+                {
+                    text: '',
+                    class: ''
+                }]
             }
         },
         {
@@ -93,7 +107,7 @@ export class EmployeeDetails extends UniView {
         private errorService: ErrorService,
         private http: UniHttp,
         private numberformat: NumberFormat,
-        private companySettingsService: CompanySettingsService
+        private employeeTaxCardService: EmployeeTaxCardService
     ) {
 
         super(router.url, cacheService);
@@ -110,14 +124,15 @@ export class EmployeeDetails extends UniView {
 
             // Update cache key and clear data variables when employee ID is changed
             super.updateCacheKey(this.router.url);
+
             this.employments = undefined;
             this.employeeLeave = undefined;
             this.recurringPosts = undefined;
             this.subEntities = undefined;
+            this.employeeTaxCard = undefined;
 
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
-                this.datachecks = this.boolChecks(employee);
                 this.employee = employee;
                 this.posterEmployee.employee = employee;
                 this.posterEmployee = _.cloneDeep(this.posterEmployee);
@@ -139,7 +154,7 @@ export class EmployeeDetails extends UniView {
                     main: true,
                     disabled: true
                 }];
-                this.updatePosterEmployee(employee);
+                this.updatePosterEmployee(this.employee);
                 this.checkDirty();
             }, err => this.errorService.handle(err));
 
@@ -171,6 +186,12 @@ export class EmployeeDetails extends UniView {
 
             super.getStateSubject('departments').subscribe((departments) => {
                 this.departments = departments;
+            });
+
+            super.getStateSubject('employeeTaxCard').subscribe((employeeTaxCard) => {
+                this.employeeTaxCard = employeeTaxCard;
+                this.updateTaxAlerts(employeeTaxCard);
+                this.checkDirty();
             });
 
 
@@ -233,12 +254,18 @@ export class EmployeeDetails extends UniView {
                     if (!this.subEntities) {
                         this.getSubEntities();
                     }
+                    if (!this.employeeTaxCard) {
+                        this.getTax();
+                        super.updateState('taxCardModalCallback',
+                            { openModal: () => this.taxCardModal.openModal() },
+                            false);
+                    }
                 }
             }
         });
     }
 
-    public updatePosterEmployee(employee) {
+    public updatePosterEmployee(employee: Employee) {
         if (employee.ID !== 0) {
 
             // Scaffold our employee widgets
@@ -272,12 +299,9 @@ export class EmployeeDetails extends UniView {
             this.employeeWidgets[0] = posterContact;
 
             if (employee.ID) {
-                this.getCompanySettings().map((response: CompanySettings) => {
-                    this.companySettings = response;
-                    return this.salaryTransService
-                        .getSumsInYear(this.companySettings.CurrentAccountingYear, this.employeeID);
-                })
-                    .flatMap(x => x)
+                let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+                this.salaryTransService
+                    .getSumsInYear(financialYear.Year, this.employeeID)
                     .subscribe((data) => {
                         if (data.netPayment) {
                             let add = Math.floor(data.netPayment / 80);
@@ -331,15 +355,7 @@ export class EmployeeDetails extends UniView {
         }
 
         // Check if the alerts are all a-OK!
-        this.updateAlerts();
-    }
-
-    private getCompanySettings(): Observable<CompanySettings> {
-        if (this.companySettings) {
-            return Observable.of(this.companySettings);
-        }
-
-        return this.companySettingsService.GetAll('').map(response => response[0]);
+        this.updateEmployeeAlerts(employee);
     }
 
     private updatePosterEmployments(employments) {
@@ -386,29 +402,38 @@ export class EmployeeDetails extends UniView {
         this.employeeWidgets[3] = employmentWidget;
     }
 
-    private updateAlerts() {
-        let alerts = [];
-        let checks = this.boolChecks(this.employee);
+    private updateEmployeeAlerts(employee: Employee) {
+        let alerts = this.employeeWidgets[2].config.alerts;
+        let checks = this.employeeBoolChecks(employee);
 
         // Bank acct ok?
-        alerts.push({
+        alerts[0] = {
             text: checks.hasAccountNumber ? 'Kontonummer ok' : 'Kontonummer mangler',
             class: checks.hasAccountNumber ? 'success' : 'error'
-        });
-
-        // Tax info ok?
-        alerts.push({
-            text: checks.hasTaxCard ? 'Skattekort ok' : 'Skattekort mangler',
-            class: checks.hasTaxCard ? 'success' : 'error'
-        });
+        };
 
         // SSN ok?
-        alerts.push({
+        alerts[2] = {
             text: checks.hasSSN ? 'Personnummer ok' : 'Personnummer mangler',
             class: checks.hasSSN ? 'success' : 'error'
-        });
+        };
+    }
 
-        this.employeeWidgets[2].config.alerts = alerts;
+    private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
+        let alerts = this.employeeWidgets[2].config.alerts;
+        let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+        let checks = this.taxBoolChecks(employeeTaxCard, financialYear.Year);
+        // Tax info ok?
+        alerts[1] = {
+            text: checks.hasTaxCard
+                ? (checks.taxCardIsUpToDate
+                    ? 'Skattekort ok'
+                    : 'Skattekortet er ikke oppdatert')
+                : 'Skattekort mangler',
+            class: checks.hasTaxCard && checks.taxCardIsUpToDate
+                ? 'success'
+                : 'error'
+        };
     }
 
     private checkDirty() {
@@ -422,11 +447,17 @@ export class EmployeeDetails extends UniView {
     }
 
     // Dummy check to see is user has Tax Card, social security number and account number
-    private boolChecks(employee: Employee) {
+    private employeeBoolChecks(employee: Employee): { hasSSN: boolean, hasAccountNumber: boolean } {
         return {
-            hasTaxCard: employee.TaxPercentage || employee.TaxTable,
             hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
             hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
+        };
+    }
+
+    private taxBoolChecks(employeeTaxCard: EmployeeTaxCard, year): { hasTaxCard: any, taxCardIsUpToDate: boolean } {
+        return {
+            hasTaxCard: employeeTaxCard && (employeeTaxCard.TaxPercentage || employeeTaxCard.TaxTable),
+            taxCardIsUpToDate: employeeTaxCard && employeeTaxCard.Year === year
         };
     }
 
@@ -476,6 +507,24 @@ export class EmployeeDetails extends UniView {
             this.employee = employee;
             super.updateState('employee', employee, false);
         }, err => this.errorService.handle(err));
+    }
+
+    private getTax(): void {
+        this.employeeTaxCardService
+            .GetTaxCard(this.employeeID)
+            .flatMap(taxCard => {
+                return taxCard
+                    ? Observable.of(taxCard)
+                    : this.employeeTaxCardService
+                        .GetNewEntity(null, 'EmployeeTaxCard')
+                        .map((response: EmployeeTaxCard) => {
+                            response.EmployeeID = this.employeeID;
+                            return response;
+                        });
+            })
+            .subscribe(taxCard => {
+                super.updateState('employeeTaxCard', taxCard, false);
+            });
     }
 
     private getEmployments() {
@@ -610,6 +659,11 @@ export class EmployeeDetails extends UniView {
                         this.saveStatus.numberOfRequests++;
                     }
 
+                    if (super.isDirty('employeeTaxCard')) {
+                        this.saveTax(done);
+                        this.saveStatus.numberOfRequests++;
+                    }
+
                     if (!this.saveStatus.numberOfRequests) {
                         this.saveActions[0].disabled = true;
                         done('Lagring fullført');
@@ -668,6 +722,40 @@ export class EmployeeDetails extends UniView {
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
+    }
+
+    private saveTax(done: (message: string) => void) {
+        super.getStateSubject('employeeTaxCard').take(1)
+            .subscribe((employeeTaxCard: EmployeeTaxCard) => {
+
+                let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+
+                if (employeeTaxCard.Year !== financialYear.Year) {
+                    employeeTaxCard.ID = undefined;
+                    employeeTaxCard.Year = financialYear.Year;
+                }
+
+                if (employeeTaxCard) {
+                    let saveObs = employeeTaxCard.ID
+                        ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)
+                        : this.employeeTaxCardService.Post(employeeTaxCard);
+
+                    saveObs
+                        .finally(() => {
+                            this.saveStatus.completeCount++;
+                            this.checkForSaveDone(done);
+                        })
+                        .subscribe(
+                        updatedTaxCard => super.updateState('employeeTaxCard', updatedTaxCard, false),
+                        err => {
+                            this.errorService.handle(err);
+                            this.saveStatus.hasErrors = true;
+                        });
+                } else {
+                    this.saveStatus.completeCount++;
+                    this.checkForSaveDone(done);
+                }
+            });
     }
 
     private saveEmployments(done) {

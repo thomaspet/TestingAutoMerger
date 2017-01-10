@@ -1,4 +1,4 @@
-<article class="modal-content taxCardRequest" *ngIf="config">
+<article class="taxCardRequest" *ngIf="config">
     <tax-card-request [employeeID]="employeeID" (newReceipt)="updateReceipts()"></tax-card-request>
     <read-tax-card (updateTax)="triggerUpdate()"></read-tax-card>
 </article>

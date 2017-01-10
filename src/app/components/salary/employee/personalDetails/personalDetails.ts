@@ -1,15 +1,16 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniForm } from 'uniform-ng2/main';
-import { OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal, SubEntity } from '../../../../unientities';
-import { EmployeeService, MunicipalService } from '../../../../services/services';
+import { OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal, SubEntity, EmployeeTaxCard } from '../../../../unientities';
+import { EmployeeService, MunicipalService, EmployeeTaxCardService } from '../../../../services/services';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
 import { UniFieldLayout } from 'uniform-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import { ErrorService } from '../../../../services/common/ErrorService';
+import { Observable } from 'rxjs/Observable';
 declare var _;
 
 @Component({
@@ -27,8 +28,10 @@ export class PersonalDetails extends UniView {
     ];
     public config: any = {};
     public fields: any[] = [];
+    public taxFields: any[] = [];
     private subEntities: SubEntity[];
     private municipalities: Municipal[] = [];
+    private employeeTaxCard: EmployeeTaxCard;
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
@@ -44,7 +47,8 @@ export class PersonalDetails extends UniView {
         private municipalService: MunicipalService,
         route: ActivatedRoute,
         cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private employeeTaxCardService: EmployeeTaxCardService
     ) {
 
         super(router.url, cacheService);
@@ -56,15 +60,30 @@ export class PersonalDetails extends UniView {
                 employee => this.employee = employee,
                 err => this.errorService.handle(err)
             );
+            super.getStateSubject('employeeTaxCard')
+                .map((taxCard: EmployeeTaxCard) => {
+                    taxCard['_lastUpdated'] = taxCard.UpdatedAt || taxCard.CreatedAt;
+                    return taxCard;
+                })
+                .subscribe(
+                taxCard => this.employeeTaxCard = taxCard,
+                err => this.errorService.handle(err)
+                );
 
-            super.getStateSubject('subEntities').subscribe((subEntity: SubEntity[]) => {
-                this.subEntities = subEntity;
-                this.getLayout();
-            }, err => this.errorService.handle(err));
+            if (!this.subEntities) {
+                Observable.combineLatest(
+                    super.getStateSubject('subEntities'),
+                    super.getStateSubject('taxCardModalCallback'))
+                    .subscribe((response: [SubEntity[], any]) => {
+                        let [subEntity, taxCardOptions] = response;
+                        this.subEntities = subEntity;
+                        this.getLayout(taxCardOptions);
+                    }, err => this.errorService.handle(err));
+            }
         });
     }
 
-    private getLayout() {
+    private getLayout(taxCardOptions: { openModal: () => void }) {
         this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
             (layout: any) => {
                 layout.Fields[0].Validators = [{
@@ -87,11 +106,44 @@ export class PersonalDetails extends UniView {
                 };
 
                 this.fields = layout.Fields;
-                this.extendFormConfig();
+                this.extendFormConfig(taxCardOptions);
 
             }
             , err => this.errorService.handle(err)
         );
+        this.employeeTaxCardService.getLayout('EmployeeTaxCardForm').subscribe(layout => {
+
+            this.taxFields = layout.Fields;
+            let taxButton = this.findByProperty(this.taxFields, 'TaxBtn');
+            taxButton.Options = {
+                click: (event) => {
+                    taxCardOptions.openModal();
+                }
+            };
+
+            let municipality: UniFieldLayout = this.findByProperty(this.taxFields, 'MunicipalityNo');
+            municipality.Options = {
+                getDefaultData: () => this.employeeTaxCard && this.employeeTaxCard.MunicipalityNo
+                    ? this.municipalService
+                        .GetAll(`filter=MunicipalityNo eq ${this.employeeTaxCard.MunicipalityNo}`)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                    : Observable.of([]),
+                search: (query: string) => this.municipalService
+                    .GetAll(`filter=
+                        startswith(MunicipalityNo, '${query}') 
+                        or contains(MunicipalityName, '${query}')
+                        &top=50`)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                valueProperty: 'MunicipalityNo',
+                displayProperty: 'MunicipalityNo',
+                debounceTime: 200,
+                template: (obj: Municipal) => obj
+                    ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase()
+                    + obj.MunicipalityName.substr(1).toLowerCase()}`
+                    : ''
+            };
+
+        });
     }
 
     public onFormReady(value) {
@@ -109,12 +161,16 @@ export class PersonalDetails extends UniView {
         }
         setTimeout(() => {
             this.updateInfoFromSSN();
-        })
+        });
         this.employee = _.cloneDeep(employee);
         super.updateState('employee', employee, true);
     }
 
-    private extendFormConfig() {
+    public onTaxFormChange(employeeTaxCard: EmployeeTaxCard) {
+        super.updateState('employeeTaxCard', employeeTaxCard, true);
+    }
+
+    private extendFormConfig(taxCardOptions: { openModal: () => void }) {
         const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
         subEntityField.Options.source = this.subEntities;
 
@@ -204,30 +260,6 @@ export class PersonalDetails extends UniView {
             }
 
         };
-
-        let taxButton: UniFieldLayout = this.findByProperty(this.fields, 'TaxBtn');
-        taxButton.Options = {
-            click: (event) => {
-                this.openTaxCardModal();
-            }
-        };
-
-        let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
-
-        this.municipalService.GetAll('').subscribe(items => {
-            municipality.Options = {
-                source: items, // this.municipalService,
-                search: (query: string) => this.municipalService.GetAll(`filter=startswith(MunicipalityNo, '${query}') or contains(MunicipalityName, '${query}')&top=50`),
-                valueProperty: 'MunicipalityNo',
-                displayProperty: 'MunicipalityNo',
-                debounceTime: 200,
-                template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
-            };
-            this.fields = _.cloneDeep(this.fields);
-        }, err => this.errorService.handle(err));
-
-
-
     }
 
     private findByProperty(fields, name) {
@@ -263,22 +295,5 @@ export class PersonalDetails extends UniView {
             super.updateState('employee', this.employee, true);
         }
 
-    }
-
-    public openTaxCardModal() {
-        this.taxCardModal.openModal();
-    }
-
-    public refreshEmployee() {
-        if (this.employee) {
-            this.employeeService.get(this.employee.ID).subscribe((employee: Employee) => {
-                this.employee.TaxPercentage = employee.TaxPercentage;
-                this.employee.TaxTable = employee.TaxTable;
-                this.employee.NonTaxableAmount = employee.NonTaxableAmount;
-                this.employee.MunicipalityNo = employee.MunicipalityNo;
-                this.employee.NotMainEmployer = employee.NotMainEmployer;
-                this.updateState('employee', employee);
-            }, err => this.errorService.handle(err));
-        }
     }
 }

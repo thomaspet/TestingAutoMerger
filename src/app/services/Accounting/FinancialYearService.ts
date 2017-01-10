@@ -40,7 +40,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         let financialYear = this.getActiveFinancialYearInLocalstorage(activeCompany.Name) ;
 
         if (financialYear) {
-            return Observable.of(financialYear.Year)
+            return Observable.of(financialYear.Year);
         } else {
             return this.companySettingsService.Get(1).map((res: CompanySettings) => res.CurrentAccountingYear);
         }

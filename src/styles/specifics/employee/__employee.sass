@@ -1,13 +1,15 @@
 @import 'employment'
 
 .taxCardRequest
+    @extend .modal-content
     display: flex
     align-items: flex-start
     justify-content: space-between
 
-    tax-card-request,
-    read-tax-card
+    tax-card-request
         flex-basis: 45%
+    read-tax-card
+        flex-basis: 50%
 
     h1, h2
         @extend h2
