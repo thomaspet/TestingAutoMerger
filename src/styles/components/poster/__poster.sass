@@ -55,26 +55,3 @@
             border-color: $uni-color-c2a
             background: transparentize($uni-color-c2a, .8)
 
-.poster_toggle
-    @extend %clickable
-    float: right
-    position: absolute
-    right: 1rem
-    margin-top: 2.1rem
-    height: 1.5rem
-    width: 1.5rem
-    text-indent: -99rem
-    overflow: hidden
-    border-radius: 0 0 pxToRem(3) pxToRem(3)
-    background: transparentize($uni-color-scale9, .5)
-    border: pxToRem(1) solid $uni-color-scale8
-    border-top: none
-    background: unicon-up($uni-color-scale8) no-repeat center center
-    background-size: .7rem
-
-    &:hover
-        background-color: transparentize($uni-color-scale9, .2)
-
-    .compact + &
-        background-image: unicon-down($uni-color-scale8)
-

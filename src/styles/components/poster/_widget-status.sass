@@ -65,10 +65,6 @@
         color: $statusColor
         background: transparentize($statusColor, .8)
 
-        &:before
-            background: unicon-thumbsdown($statusColor) no-repeat center center
-            background-size: contain
-
     .error
         @include status-widget($uni-color-bad)
 
@@ -76,9 +72,6 @@
         @include status-widget($uni-color-good)
         h3
             font-size: 1.5rem
-
-        &:before
-            background-image: unicon-thumbsup($uni-color-good)
 
 @include media(small)
     .poster_widget_status ul
