@@ -56,13 +56,13 @@ export class UniFeedback {
 
     private submit() {
         let modules;
-        if (window.location.hash.length === 0) {
+        let path = window.location.hash || '';
+        modules = path.split('/').filter((item) => {
+            return item !== '' && item !== '#' && isNaN(parseInt(item, 10));
+        });
+
+        if (!modules || !modules.length) {
             modules = ['Dashboard'];
-        } else {
-            modules = window.location.hash.split('/').filter((item) => {
-                // skip # and id params
-                return (item !== '#' && isNaN(parseInt(item, 10)));
-            });
         }
 
         let body = {
