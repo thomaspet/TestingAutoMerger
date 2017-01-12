@@ -1,7 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniForm } from 'uniform-ng2/main';
-import { OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, Municipal, SubEntity, EmployeeTaxCard } from '../../../../unientities';
+import {
+    OperationType, Operator, ValidationLevel, Employee, Email, Phone,
+    Address, Municipal, SubEntity, EmployeeTaxCard
+} from '../../../../unientities';
 import { EmployeeService, MunicipalService, EmployeeTaxCardService } from '../../../../services/services';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
@@ -53,9 +56,17 @@ export class PersonalDetails extends UniView {
 
         super(router.url, cacheService);
 
-        // Update cache key and (re)subscribe when param changes (different employee)
+        this.config = {
+            submitText: '',
+            sections: {
+                1: { isOpen: true },
+                2: { isOpen: true }
+            }
+        };
+
+        // (re)subscribe when param changes (different tab)
         route.parent.params.subscribe((paramsChange) => {
-            super.updateCacheKey(router.url);
+            super.updateCacheKey(this.router.url);
             super.getStateSubject('employee').subscribe(
                 employee => this.employee = employee,
                 err => this.errorService.handle(err)
@@ -70,47 +81,25 @@ export class PersonalDetails extends UniView {
                 err => this.errorService.handle(err)
                 );
 
-            if (!this.subEntities) {
-                Observable.combineLatest(
-                    super.getStateSubject('subEntities'),
-                    super.getStateSubject('taxCardModalCallback'))
-                    .subscribe((response: [SubEntity[], any]) => {
-                        let [subEntity, taxCardOptions] = response;
+            if (!this.subEntities || !this.fields || !this.fields.length) {
+                super.getStateSubject('subEntities')
+                    .take(1)
+                    .subscribe((subEntity: SubEntity[]) => {
                         this.subEntities = subEntity;
-                        this.getLayout(taxCardOptions);
+                        this.getLayout();
                     }, err => this.errorService.handle(err));
+            }
+            if (!this.taxFields || !this.taxFields.length) {
+                super.getStateSubject('taxCardModalCallback')
+                    .take(1)
+                    .subscribe(taxCardOptions => {
+                        this.getTaxLayout(taxCardOptions);
+                    });
             }
         });
     }
 
-    private getLayout(taxCardOptions: { openModal: () => void }) {
-        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
-            (layout: any) => {
-                layout.Fields[0].Validators = [{
-                    'EntityType': 'BusinessRelation',
-                    'PropertyName': 'BusinessRelationInfo.Name',
-                    'Operator': Operator.Required,
-                    'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
-                    'Level': ValidationLevel.Error, // not used now. All messages are errors
-                    'Value': null,
-                    'ErrorMessage': 'Employee name is required',
-                    'ID': 1,
-                    'Deleted': false
-                }];
-                this.config = {
-                    submitText: '',
-                    sections: {
-                        1: { isOpen: true },
-                        2: { isOpen: true }
-                    }
-                };
-
-                this.fields = layout.Fields;
-                this.extendFormConfig(taxCardOptions);
-
-            }
-            , err => this.errorService.handle(err)
-        );
+    private getTaxLayout(taxCardOptions: { openModal: () => void }) {
         this.employeeTaxCardService.getLayout('EmployeeTaxCardForm').subscribe(layout => {
 
             this.taxFields = layout.Fields;
@@ -143,7 +132,31 @@ export class PersonalDetails extends UniView {
                     : ''
             };
 
-        });
+        }, err => this.errorService.handle(err));
+    }
+
+    private getLayout() {
+        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
+            (layout: any) => {
+                layout.Fields[0].Validators = [{
+                    'EntityType': 'BusinessRelation',
+                    'PropertyName': 'BusinessRelationInfo.Name',
+                    'Operator': Operator.Required,
+                    'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
+                    'Level': ValidationLevel.Error, // not used now. All messages are errors
+                    'Value': null,
+                    'ErrorMessage': 'Employee name is required',
+                    'ID': 1,
+                    'Deleted': false
+                }];
+
+                this.fields = layout.Fields;
+                this.extendFormConfig();
+
+            }
+            , err => this.errorService.handle(err)
+        );
+
     }
 
     public onFormReady(value) {
@@ -170,7 +183,7 @@ export class PersonalDetails extends UniView {
         super.updateState('employeeTaxCard', employeeTaxCard, true);
     }
 
-    private extendFormConfig(taxCardOptions: { openModal: () => void }) {
+    private extendFormConfig() {
         const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
         subEntityField.Options.source = this.subEntities;
 

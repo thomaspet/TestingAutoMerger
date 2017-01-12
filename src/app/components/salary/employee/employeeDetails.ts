@@ -128,7 +128,6 @@ export class EmployeeDetails extends UniView {
             this.employments = undefined;
             this.employeeLeave = undefined;
             this.recurringPosts = undefined;
-            this.subEntities = undefined;
             this.employeeTaxCard = undefined;
 
             // (Re)subscribe to state var updates
@@ -230,6 +229,8 @@ export class EmployeeDetails extends UniView {
                     this.getEmployee();
                 }
 
+                this.getTax();
+
                 if (!this.employments) {
                     this.getEmployments();
                     this.getProjects();
@@ -251,15 +252,7 @@ export class EmployeeDetails extends UniView {
                 }
 
                 if (childRoute !== 'employee-leave' && childRoute !== 'recurring-post') {
-                    if (!this.subEntities) {
-                        this.getSubEntities();
-                    }
-                    if (!this.employeeTaxCard) {
-                        this.getTax();
-                        super.updateState('taxCardModalCallback',
-                            { openModal: () => this.taxCardModal.openModal() },
-                            false);
-                    }
+                    this.getSubEntities();
                 }
             }
         });
@@ -510,21 +503,31 @@ export class EmployeeDetails extends UniView {
     }
 
     private getTax(): void {
-        this.employeeTaxCardService
-            .GetTaxCard(this.employeeID)
-            .flatMap(taxCard => {
-                return taxCard
-                    ? Observable.of(taxCard)
-                    : this.employeeTaxCardService
-                        .GetNewEntity(null, 'EmployeeTaxCard')
-                        .map((response: EmployeeTaxCard) => {
-                            response.EmployeeID = this.employeeID;
-                            return response;
-                        });
-            })
+        this.getTaxObservable()
             .subscribe(taxCard => {
                 super.updateState('employeeTaxCard', taxCard, false);
+                super.updateState('taxCardModalCallback',
+                    { openModal: () => this.taxCardModal.openModal() },
+                    false);
             });
+    }
+
+    private getTaxObservable(): Observable<EmployeeTaxCard> {
+        let getNewTax = !this.employeeTaxCard || this.employeeID !== this.employeeTaxCard.EmployeeID;
+        return getNewTax
+            ? this.employeeTaxCardService
+                .GetTaxCard(this.employeeID)
+                .flatMap(taxCard => {
+                    return taxCard
+                        ? Observable.of(taxCard)
+                        : this.employeeTaxCardService
+                            .GetNewEntity(null, 'EmployeeTaxCard')
+                            .map((response: EmployeeTaxCard) => {
+                                response.EmployeeID = this.employeeID;
+                                return response;
+                            });
+                })
+            : Observable.of(this.employeeTaxCard);
     }
 
     private getEmployments() {
@@ -601,9 +604,20 @@ export class EmployeeDetails extends UniView {
     }
 
     private getSubEntities() {
-        this.subEntityService.GetAll(null, ['BusinessRelationInfo']).subscribe((response: SubEntity[]) => {
-            super.updateState('subEntities', response.length > 1 ? response.filter(x => x.SuperiorOrganizationID > 0) : response, false);
+        this.getSubEntitiesObservable().subscribe((response: SubEntity[]) => {
+            super.updateState('subEntities', response, false);
         }, err => this.errorService.handle(err));
+    }
+
+    private getSubEntitiesObservable(): Observable<SubEntity[]> {
+        return this.subEntities
+            ? Observable.of(this.subEntities)
+            : this.subEntityService.GetAll(null, ['BusinessRelationInfo'])
+                .map((subEntities: SubEntity[]) => {
+                    return subEntities.length > 1
+                        ? subEntities.filter(x => x.SuperiorOrganizationID > 0)
+                        : subEntities;
+                });
     }
 
     private checkForSaveDone(done) {
