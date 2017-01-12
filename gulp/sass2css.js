@@ -5,7 +5,7 @@ var plugins = require('gulp-load-plugins')({
 var converter = require('sass-convert');
 
 gulp.task('sass2css', function() {
-    return gulp.src(['./kendo/styles/kendo.common.min.css', './src/styles/**/*.sass'])
+    return gulp.src(['./src/styles/**/*.sass'])
         .pipe(plugins.plumber())
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.sass.sync().on('error', plugins.sass.logError))
