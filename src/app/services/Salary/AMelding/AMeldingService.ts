@@ -26,12 +26,12 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         }
     }
     
-    public getAMeldingForPeriod(periode: number): Observable<AmeldingData[]> {
+    public getAMeldingForPeriod(periode: number, currentYear: number): Observable<AmeldingData[]> {
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL)
-            .send({filter: 'period eq ' + periode})
+            .send({filter: 'period eq ' + periode + ' and year eq ' + currentYear})
             .map(response => response.json());
     }
 

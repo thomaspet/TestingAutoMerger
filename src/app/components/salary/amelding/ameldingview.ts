@@ -2,10 +2,8 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {
-    SalaryTransactionService, PayrollrunService, AMeldingService, 
-    CompanySettingsService} from '../../../services/services';
-import {AmeldingData, CompanySettings} from '../../../unientities';
+import {SalaryTransactionService, PayrollrunService, AMeldingService} from '../../../services/services';
+import {AmeldingData, FinancialYear} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
@@ -53,7 +51,7 @@ export class AMeldingView implements OnInit {
     private toolbarConfig: IToolbarConfig;
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
-    private companysettings: CompanySettings;
+    private activeFinancialYear: FinancialYear;
 
     constructor(
         private _tabService: TabService,
@@ -62,8 +60,7 @@ export class AMeldingView implements OnInit {
         private _payrollService: PayrollrunService,
         private _salarytransService: SalaryTransactionService,
         private numberformat: NumberFormat,
-        private errorService: ErrorService,
-        private _companysettingsService: CompanySettingsService
+        private errorService: ErrorService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -87,18 +84,14 @@ export class AMeldingView implements OnInit {
     }
 
     public ngOnInit() {
-        this._companysettingsService.Get(1)
-        .subscribe((companysettings: CompanySettings) => {
-            this.companysettings = companysettings;
-            let currentYear = companysettings.CurrentAccountingYear;
-            this._payrollService.getLatestSettledPeriod(1, currentYear)
-                .subscribe((period) => {
-                    this.currentPeriod = period;
-                    this.getSumsInPeriod();
-                    this.currentMonth = moment.months()[this.currentPeriod - 1];
-                    this.getAMeldingForPeriod();
-                }, err => this.errorService.handle(err));
-        });
+        this.activeFinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+        this._payrollService.getLatestSettledPeriod(1, this.activeFinancialYear.Year)
+            .subscribe((period) => {
+                this.currentPeriod = period;
+                this.getSumsInPeriod();
+                this.currentMonth = moment.months()[this.currentPeriod - 1];
+                this.getAMeldingForPeriod();
+            }, err => this.errorService.handle(err));
     }
 
     public prevPeriod() {
@@ -147,7 +140,7 @@ export class AMeldingView implements OnInit {
 
     public createAMelding(event: IAmeldingTypeEvent) {
         this.saveStatus.numberOfRequests++;
-        this._ameldingService.postAMelding(this.currentPeriod, event.type, this.companysettings.CurrentAccountingYear)
+        this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeFinancialYear.Year)
         .subscribe(response => {
             this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
@@ -188,7 +181,7 @@ export class AMeldingView implements OnInit {
 
     private getSumsInPeriod() {
         this._salarytransService
-        .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.companysettings.CurrentAccountingYear)
+        .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeFinancialYear.Year)
             .subscribe((response) => {
                 this.currentSumsInPeriod = response;
 
@@ -403,16 +396,17 @@ export class AMeldingView implements OnInit {
         
         this.periodStatus = 'Ingen A-meldinger i perioden';
 
-        this.spinner(this._ameldingService.getAMeldingForPeriod(this.currentPeriod))
-            .subscribe((ameldinger: AmeldingData[]) => {
-                this.aMeldingerInPeriod = ameldinger;
-                if (this.aMeldingerInPeriod.length > 0) {
-                    this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
-                } else {
-                    this.updateToolbar();
-                    this.updateSaveActions();
-                }
-            }, err => this.errorService.handle(err));
+        this.spinner(this._ameldingService
+            .getAMeldingForPeriod(this.currentPeriod, this.activeFinancialYear.Year))
+                .subscribe((ameldinger: AmeldingData[]) => {
+                    this.aMeldingerInPeriod = ameldinger;
+                    if (this.aMeldingerInPeriod.length > 0) {
+                        this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
+                    } else {
+                        this.updateToolbar();
+                        this.updateSaveActions();
+                    }
+                }, err => this.errorService.handle(err));
     }
 
     private setStatusForPeriod() {
