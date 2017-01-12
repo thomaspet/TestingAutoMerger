@@ -33,7 +33,6 @@ export class PersonalDetails extends UniView {
     public fields: any[] = [];
     public taxFields: any[] = [];
     private subEntities: SubEntity[];
-    private municipalities: Municipal[] = [];
     private employeeTaxCard: EmployeeTaxCard;
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
@@ -67,10 +66,15 @@ export class PersonalDetails extends UniView {
         // (re)subscribe when param changes (different tab)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(this.router.url);
-            super.getStateSubject('employee').subscribe(
+            super.getStateSubject('employee')
+                .map(employee => {
+                    this.toggleTaxButtonActive(employee);
+                    return employee;
+                })
+                .subscribe(
                 employee => this.employee = employee,
                 err => this.errorService.handle(err)
-            );
+                );
             super.getStateSubject('employeeTaxCard')
                 .map((taxCard: EmployeeTaxCard) => {
                     taxCard['_lastUpdated'] = taxCard.UpdatedAt || taxCard.CreatedAt;
@@ -90,16 +94,28 @@ export class PersonalDetails extends UniView {
                     }, err => this.errorService.handle(err));
             }
             if (!this.taxFields || !this.taxFields.length) {
-                super.getStateSubject('taxCardModalCallback')
+                Observable.combineLatest(
+                    super.getStateSubject('taxCardModalCallback'),
+                    super.getStateSubject('employee')
+                )
                     .take(1)
-                    .subscribe(taxCardOptions => {
-                        this.getTaxLayout(taxCardOptions);
+                    .subscribe((response: [any, Employee]) => {
+                        let [taxCardOptions, employee] = response;
+                        this.getTaxLayout(taxCardOptions, employee);
                     });
             }
         });
     }
 
-    private getTaxLayout(taxCardOptions: { openModal: () => void }) {
+    private toggleTaxButtonActive(employee: Employee) {
+        if (employee && this.taxFields.length) {
+            let field = this.findByProperty(this.taxFields, 'TaxBtn');
+            field.ReadOnly = super.isDirty('employee') || !employee.SocialSecurityNumber;
+            this.taxFields = _.cloneDeep(this.taxFields); // tried without this, didn't update when employee was updated
+        }
+    }
+
+    private getTaxLayout(taxCardOptions: { openModal: () => void }, employee: Employee) {
         this.employeeTaxCardService.getLayout('EmployeeTaxCardForm').subscribe(layout => {
 
             this.taxFields = layout.Fields;
@@ -110,7 +126,9 @@ export class PersonalDetails extends UniView {
                 }
             };
 
-            let municipality: UniFieldLayout = this.findByProperty(this.taxFields, 'MunicipalityNo');
+            this.toggleTaxButtonActive(employee);
+
+            let municipality = this.findByProperty(this.taxFields, 'MunicipalityNo');
             municipality.Options = {
                 getDefaultData: () => this.employeeTaxCard && this.employeeTaxCard.MunicipalityNo
                     ? this.municipalService
@@ -131,7 +149,6 @@ export class PersonalDetails extends UniView {
                     + obj.MunicipalityName.substr(1).toLowerCase()}`
                     : ''
             };
-
         }, err => this.errorService.handle(err));
     }
 
@@ -275,7 +292,7 @@ export class PersonalDetails extends UniView {
         };
     }
 
-    private findByProperty(fields, name) {
+    private findByProperty(fields, name): UniFieldLayout {
         var field = fields.find((fld) => fld.Property === name);
         return field;
     }
