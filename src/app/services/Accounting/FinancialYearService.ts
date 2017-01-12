@@ -8,12 +8,9 @@ import {Observable} from 'rxjs/Rx';
 
 @Injectable()
 export class FinancialYearService extends BizHttp<FinancialYear> {
-    private ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY: string = 'ActiveFinancialYear';
+    private ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY: string = 'activeFinancialYear';
 
-    constructor(
-        http: UniHttp,
-        private companySettingsService: CompanySettingsService
-        ) {
+    constructor(http: UniHttp, private companySettingsService: CompanySettingsService) {
         super(http);
 
         this.relativeURL = FinancialYear.RelativeUrl;
@@ -22,11 +19,11 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     }
 
     public storeActiveFinancialYearInLocalstorage(financialYear: FinancialYear, companyName: string) {
-        localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY + '_' + companyName, JSON.stringify(financialYear));
+        localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear));
     }
 
-    public getActiveFinancialYearInLocalstorage(companyName: string): FinancialYear {
-        const local = localStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY + '_' + companyName);
+    public getActiveFinancialYearInLocalstorage(): FinancialYear {
+        const local = localStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
         if (local !== null) {
             const instance = new FinancialYear();
             Object.assign(instance, JSON.parse(local));
@@ -35,9 +32,8 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         return null;
     }
 
- public getActiveFinancialYear(): Observable<number> {
-        const activeCompany: Company = JSON.parse(localStorage.getItem('activeCompany'));
-        let financialYear = this.getActiveFinancialYearInLocalstorage(activeCompany.Name) ;
+    public getActiveFinancialYear(): Observable<number> {
+        let financialYear = this.getActiveFinancialYearInLocalstorage() ;
 
         if (financialYear) {
             return Observable.of(financialYear.Year);
@@ -46,4 +42,14 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         }
     }
 
+    public getActiveFinancialYearEntity(): Observable<FinancialYear> {
+        let financialYear = this.getActiveFinancialYearInLocalstorage() ;
+
+        if (financialYear) {
+            return Observable.of(financialYear);
+        } else {
+            return this.companySettingsService.Get(1)
+                .switchMap((res: CompanySettings) => this.GetAll('filter=Year eq ' + res.CurrentAccountingYear));
+        }
+    }
 }

@@ -1,15 +1,20 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, Dimensions} from '../../../../unientities';
+import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
-import {JournalEntryService} from '../../../../services/services';
+import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
+import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
+import {JournalEntryService, FinancialYearService} from '../../../../services/services';
 import {JournalEntrySettings} from '../../../../services/accounting/JournalEntryService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {ErrorService} from '../../../../services/common/ErrorService';
+import {Observable} from 'rxjs/Observable';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 export enum JournalEntryMode {
     Manual,
@@ -30,16 +35,23 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public mode: number;
     @Input() public disabled: boolean = false;
 
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
     private journalEntryMode: string;
     private showImagesForJournalEntryNo: string = '';
     private currentJournalEntryImages: number[] = [];
+    private currentJournalEntryData: JournalEntryData;
+
+    private financialYears: Array<FinancialYear>;
+    private currentFinancialYear: FinancialYear;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
+    private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
+    private accountBalanceInfoData: Array<AccountBalanceInfo> = new Array<AccountBalanceInfo>();
 
-    public validationResult: any;
+    public validationResult: ValidationResult;
     public summary: ISummaryConfig[] = [];
     public journalEntrySettings: JournalEntrySettings;
 
@@ -47,14 +59,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     constructor(
         private journalEntryService: JournalEntryService,
+        private financialYearService: FinancialYearService,
         private numberFormat: NumberFormat,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private toastService: ToastService
     ) {
     }
 
     public ngOnInit() {
         this.journalEntryMode = this.journalEntryService.getJournalEntryMode();
         this.journalEntrySettings = this.journalEntryService.getJournalEntrySettings();
+
+        Observable.forkJoin(
+            this.financialYearService.GetAll(null),
+            this.financialYearService.getActiveFinancialYearEntity()
+        ).subscribe(data => {
+                this.financialYears = data[0];
+                this.currentFinancialYear = data[1];
+            },
+            err => this.errorService.handle(err)
+        );
 
         if (this.supplierInvoice) {
             this.mode = JournalEntryMode.Supplier;
@@ -78,6 +102,18 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 // to let Angular create the child components first
                 setTimeout(() => {
                     this.setJournalEntryData(data);
+
+                    if (!this.currentFinancialYear) {
+                        // wait a moment before trying to validate the data
+                        // because the currentyears have not been retrieved yet
+                        setTimeout(() => {
+                            if (this.currentFinancialYear) {
+                                this.validateJournalEntryData(data);
+                            }
+                        }, 1000);
+                    } else {
+                        this.validateJournalEntryData(data);
+                    }
                 });
             }
         }
@@ -135,7 +171,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 }
             } else {
                 if (this.journalEntryProfessional) {
-                    this.journalEntryProfessional.journalEntryLines = data;
+                    this.journalEntryProfessional.setJournalEntryData(data);
                 }
             }
         });
@@ -234,7 +270,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         if (this.journalEntrySimple) {
             this.journalEntrySimple.journalEntryLines = lines;
         } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.journalEntryLines = lines;
+            this.journalEntryProfessional.setJournalEntryData(lines);
         }
     }
 
@@ -245,20 +281,34 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private setupSubscriptions() {
         setTimeout(() => {
             if (this.journalEntryProfessional) {
-                this.journalEntryProfessional.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
+                if (this.journalEntryProfessional.dataChanged.observers.length === 0) {
+                    this.journalEntryProfessional.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
+                }
             }
 
             if (this.journalEntrySimple) {
-                this.journalEntrySimple.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
+                if (this.journalEntrySimple.dataChanged.observers.length === 0) {
+                    this.journalEntrySimple.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
+                }
             }
         });
     }
 
     private onDataChanged(data: JournalEntryData[]) {
         if (data.length <= 0) {
-            this.itemsSummaryData = null;
+            this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
+            this.setSums();
+
+            this.itemAccountInfoData = new JournalEntryAccountCalculationSummary();
+            this.accountBalanceInfoData = new Array<AccountBalanceInfo>();
+
             this.journalEntryService.setSessionData(this.mode, null);
             return;
+        }
+
+        if (this.currentJournalEntryData) {
+            let updatedCurrentJournalEntryData = data.find(x => x['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+            this.currentJournalEntryData = updatedCurrentJournalEntryData;
         }
 
         setTimeout(() => {
@@ -278,8 +328,34 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.calculateItemSums(data);
     }
 
+    private onRowSelected(selectedRow: JournalEntryData) {
+        this.currentJournalEntryData = selectedRow;
+
+        if (this.journalEntryProfessional) {
+            let data = this.journalEntryProfessional.getTableData();
+
+            this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
+                .subscribe(accountBalanceData => {
+                    this.accountBalanceInfoData = accountBalanceData;
+                    this.itemAccountInfoData =
+                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.currentJournalEntryData);
+                });
+        }
+    }
+
     private calculateItemSums(data: JournalEntryData[]) {
         this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data);
+
+        if (this.currentJournalEntryData) {
+            this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
+                .subscribe(accountBalanceData => {
+                    this.accountBalanceInfoData = accountBalanceData;
+                    this.itemAccountInfoData =
+                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.currentJournalEntryData);
+                });
+
+        }
+
         this.setSums();
 
         /*
@@ -296,7 +372,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private validateJournalEntryData(data: JournalEntryData[]) {
-        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data);
+        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data, this.currentFinancialYear, this.financialYears);
 
         /*
         KE 08.11.2016: Switch to running the validations locally. The serverside validation is executed when posting anyway
@@ -312,21 +388,66 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private postJournalEntryData(completeCallback) {
-        if (this.journalEntrySimple) {
-            if (this.journalEntrySimple.journalEntryLines.length === 0) {
-                alert('Du har ikke lagt til noen bilag enda, trykk Legg til når du har registrert opplysningene dine, og trykk Lagre og bokfør igjen');
-                completeCallback('Lagring avbrutt');
-            } else if (this.journalEntrySimple.checkIfFormsHaveChanges()) {
-                alert('Du har gjort endringer uten å trykke Legg til / Oppdater - vennligst fullfør endringene før du trykker Lagre og bokfør igjen');
-                completeCallback('Lagring avbrutt');
-            } else {
-                this.journalEntrySimple.postJournalEntryData(completeCallback);
-            }
-        } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.postJournalEntryData(completeCallback);
+        new Promise((resolve, reject) => {
+            if (this.validationResult && this.validationResult.Messages.length > 0) {
+                let errorMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Error);
+                let warningMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Warning);
 
-            this.onShowImageForJournalEntry(null);
-        }
+                if (errorMessages.length > 0) {
+                    this.toastService.addToast(
+                        'Kan ikke lagre',
+                        ToastType.bad,
+                        ToastTime.long,
+                        'Lagring avbrutt - se feilmeldinger under, og korriger linjene som er feil før du lagrer på ny'
+                    );
+                    completeCallback('Lagring avbrutt');
+                } else if (warningMessages.length > 0) {
+                    this.confirmModal.confirm(
+                        'Det finnes advarsler, men du kan bokføre likevel hvis dataene dine er riktige',
+                        'Lagre og bokfør likevel?',
+                        false,
+                        {accept: 'Lagre og bokfør', reject: 'Avbryt'}
+                    ).then(confirmDialogResponse => {
+                        if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                            resolve();
+                        } else {
+                            completeCallback('Lagring avbrutt');
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            } else {
+                resolve();
+            }
+
+        })
+        .then(() => {
+            if (this.journalEntrySimple) {
+                if (this.journalEntrySimple.journalEntryLines.length === 0) {
+                    this.toastService.addToast(
+                        'Du har ikke lagt til noen bilag enda',
+                        ToastType.bad,
+                        ToastTime.medium,
+                        'Trykk Legg til når du har registrert opplysningene dine, og trykk Lagre og bokfør igjen'
+                    );
+                    completeCallback('Lagring avbrutt');
+                } else if (this.journalEntrySimple.checkIfFormsHaveChanges()) {
+                    this.toastService.addToast(
+                        'Du har gjort endringer uten å trykke Legg til / Oppdater',
+                        ToastType.bad,
+                        ToastTime.medium,
+                        'Vennligst fullfør endringene før du trykker Lagre og bokfør igjen'
+                    );
+                    completeCallback('Lagring avbrutt');
+                } else {
+                    this.journalEntrySimple.postJournalEntryData(completeCallback);
+                }
+            } else if (this.journalEntryProfessional) {
+                this.journalEntryProfessional.postJournalEntryData(completeCallback);
+                this.onShowImageForJournalEntry(null);
+            }
+        });
     }
 
     private removeJournalEntryData(completeCallback) {
@@ -366,5 +487,22 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.OutgoingVat || 0) : null,
                 title: 'Utg.mva',
             }];
+    }
+
+    private getValidationLevelCss(validationLevel) {
+        if (validationLevel === ValidationLevel.Error) {
+            return 'error';
+        } else if (validationLevel === ValidationLevel.Warning) {
+            return 'warn';
+        }
+        return 'good';
+    }
+
+    private getFormattedNumber(number): string {
+        if (number) {
+            return this.numberFormat.asMoney(number);
+        }
+
+        return '';
     }
 }

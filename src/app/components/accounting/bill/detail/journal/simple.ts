@@ -15,7 +15,7 @@ import {ErrorService} from '../../../../../services/common/ErrorService';
 })
 export class BillSimpleJournalEntryView {
     @Input() public set supplierinvoice(value: SupplierInvoice ) {
-        this.current = value;        
+        this.current = value;
         this.initFromInvoice(this.current);
         this.calcRemainder();
     }
@@ -47,7 +47,7 @@ export class BillSimpleJournalEntryView {
     }
 
     public ngOnInit() {
-        
+
     }
 
     private initFromInvoice(invoice: SupplierInvoice) {
@@ -64,7 +64,7 @@ export class BillSimpleJournalEntryView {
         this.sumRemainder = 0;
         this.sumVat = 0;
         this.journalEntryNumber = '';
-        this.costItems.length = 0; 
+        this.costItems.length = 0;
         this.ensureWeHaveSingleEntry();
     }
 
@@ -81,7 +81,7 @@ export class BillSimpleJournalEntryView {
     }
 
     private addEmptyRowAtBottom() {
-        this.costItems.push(this.newEntry());        
+        this.costItems.push(this.newEntry());
     }
 
     private newEntry(sum = 0): JournalEntryLineDraft {
@@ -89,7 +89,7 @@ export class BillSimpleJournalEntryView {
         entry.Amount = sum;
         var acc = new Account();
         acc.AccountNumber = 0;
-        acc.AccountName = '';        
+        acc.AccountName = '';
         entry.Account = acc;
         entry.VatPercent = 0;
         return entry;
@@ -106,9 +106,9 @@ export class BillSimpleJournalEntryView {
                     sumVat += roundTo((value * x.VatType.VatPercent) / (100 + x.VatType.VatPercent));
                 }
                 sumItems += value;
-            });  
+            });
             this.sumVat = sumVat;
-            this.sumRemainder = roundTo(total - sumItems);              
+            this.sumRemainder = roundTo(total - sumItems);
             return this.sumRemainder;
         }
         return 0;
@@ -126,7 +126,7 @@ export class BillSimpleJournalEntryView {
         if (lines.length > 0) {
             var numberOfCostAccounts = 0;
             var firstLine = lines[0];
-            this.costItems.length = 0; 
+            this.costItems.length = 0;
 
             // Extract 'non-supplier' items
             lines.forEach((x, index) => {
@@ -141,7 +141,7 @@ export class BillSimpleJournalEntryView {
                 }
             });
 
-            if (numberOfCostAccounts > 0 ) {                
+            if (numberOfCostAccounts > 0 ) {
                 if (numberOfCostAccounts > 1) {
                     this.hasMultipleEntries = true;
                 }
@@ -154,20 +154,20 @@ export class BillSimpleJournalEntryView {
             }
         }
 
-    }    
+    }
 
     private initTableConfig() {
         this.tableConfig = {
             columns: [
-                new Column('Account.AccountNumber', '', ColumnType.Integer, 
-                    { 
-                        route: 'accounts', 
-                        select: 'AccountNumber,AccountName,ID,VatTypeID', visualKey: 'AccountNumber', 
+                new Column('Account.AccountNumber', '', ColumnType.Integer,
+                    {
+                        route: 'accounts',
+                        select: 'AccountNumber,AccountName,ID,VatTypeID', visualKey: 'AccountNumber',
                         blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999 and setornull(visible)',
                         model: 'account',
-                        expand: 'VatType', filter: 'setornull(visible)' 
+                        expand: 'VatType', filter: 'setornull(visible)'
                     }),
-                new Column('VatTypeID', '', ColumnType.Integer, 
+                new Column('VatTypeID', '', ColumnType.Integer,
                     {
                         route: 'vattypes',
                         select: 'VatCode,Name,VatPercent,ID', visualKey: 'VatCode', visualKeyType: ColumnType.Text,
@@ -176,21 +176,21 @@ export class BillSimpleJournalEntryView {
                     }
                 ),
                 new Column('Description'),
-                new Column('Amount'), 
+                new Column('Amount'),
                 new Column('delete', '', ColumnType.Action)
             ],
             events: {
 
                 onChange: (event: IChangeEvent) => {
                     return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
-                }, 
+                },
 
                 onStartEdit: (info: IStartEdit) => {
                     if (this.isReadOnly) {
                         info.cancel = true;
                     } else {
                         if (info.columnDefinition.name === 'Description') {
-                            info.value = this.costItems[info.row].Description; 
+                            info.value = this.costItems[info.row].Description;
                         }
                         this.calcRemainder();
                     }
@@ -217,7 +217,7 @@ export class BillSimpleJournalEntryView {
                             row.VatType = rowAbove.VatType;
                             row.VatTypeID = rowAbove.VatTypeID;
                             this.checkRowSum(row, details.position.row);
-                            break; 
+                            break;
                         case 'VatTypeID':
                             row.VatType = rowAbove.VatType;
                             row.VatTypeID = rowAbove.VatTypeID;
@@ -227,13 +227,13 @@ export class BillSimpleJournalEntryView {
                             break;
                         case 'Amount':
                             row.Amount = rowAbove.Amount;
-                            break; 
+                            break;
                     }
                     details.copyAbove = false;
                     this.raiseUpdateFromCostIndex(details.position.row);
                     if (details.position.row >= this.costItems.length - 1) {
                         this.addEmptyRowAtBottom();
-                    } 
+                    }
                 }
             }
         };
@@ -244,7 +244,7 @@ export class BillSimpleJournalEntryView {
             row.Amount = this.sumRemainder;
         }
         if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
-            row.Description = capitalizeSentence(this.current.Supplier.Info.Name, 2);            
+            row.Description = capitalizeSentence(this.current.Supplier.Info.Name, 2);
         }
     }
 
@@ -264,13 +264,13 @@ export class BillSimpleJournalEntryView {
         this.calcRemainder();
         if (!line) { return; }
         var actualRowIndex = line['_rowIndex'];
-        this.raiseUpdateEvent(actualRowIndex, line, cargo);        
+        this.raiseUpdateEvent(actualRowIndex, line, cargo);
     }
 
     private raiseUpdateEvent(actualRowIndex: number, item: any, cargo: any) {
         if (actualRowIndex >= 0 ) {
             this.valueChange.emit({ rowIndex: actualRowIndex, item: item, details: cargo });
-        }        
+        }
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
@@ -289,21 +289,21 @@ export class BillSimpleJournalEntryView {
         }
         this.ensureWeHaveSingleEntry();
         this.calcRemainder();
-    }    
+    }
 
     private enrollNewRow(row: JournalEntryLineDraft) {
         var actualRowIndex = row['_rowIndex'];
         if (actualRowIndex === undefined) {
             this.current.JournalEntry = this.current.JournalEntry || new JournalEntry();
-            this.current.JournalEntry.DraftLines = this.current.JournalEntry.DraftLines || []; 
-            this.current.JournalEntry.DraftLines.push(row);    
+            this.current.JournalEntry.DraftLines = this.current.JournalEntry.DraftLines || [];
+            this.current.JournalEntry.DraftLines.push(row);
             actualRowIndex = this.current.JournalEntry.DraftLines.length - 1;
             row['_rowIndex'] = actualRowIndex;
-            checkGuid(this.current.JournalEntry);           
+            checkGuid(this.current.JournalEntry);
             checkGuid(row);
             this.checkJournalYear(this.current.JournalEntry);
         }
-        return actualRowIndex;        
+        return actualRowIndex;
     }
 
     private updateChange(change: IChangeEvent) {
@@ -332,7 +332,7 @@ export class BillSimpleJournalEntryView {
                             line.VatPercent = x.VatPercent;
                             this.checkRowSum(line, change.row);
                             this.calcRemainder();
-                            this.editable.reloadCellValue();    
+                            this.editable.reloadCellValue();
                         });
                     } else {
                         this.checkRowSum(line, change.row);
@@ -359,7 +359,7 @@ export class BillSimpleJournalEntryView {
                     line.Amount = change.value.sum;
                 } else {
                     line.Amount = roundTo(change.value);
-                }                                
+                }
                 change.reloadAfterEdit = true;
                 if (change.row > 0 && (!this.sumRemainder) ) {
                     this.calcRemainder();
@@ -367,7 +367,7 @@ export class BillSimpleJournalEntryView {
                 }
                 if (line.Amount !== this.current.TaxInclusiveAmount) {
                     line['_setByUser'] = true;
-                }                
+                }
                 break;
         }
 
@@ -409,15 +409,12 @@ export class BillSimpleJournalEntryView {
         } else {
             this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
-    }    
+    }
 
     private initYear() {
         var fc: FinancialYear;
-        var comp = JSON.parse(localStorage.getItem('activeCompany'));
-        if (comp) {
-            var companyName = comp.Name;
-            fc = this.financialYearService.getActiveFinancialYearInLocalstorage(companyName);
-        }        
+        fc = this.financialYearService.getActiveFinancialYearInLocalstorage();
+
         if (fc) {
             this.financialYears = [fc];
             this.financialYearID = fc.ID;
@@ -435,7 +432,7 @@ export class BillSimpleJournalEntryView {
                 this.financialYearID = this.financialYears[0].ID;
             }
             entry.FinancialYearID =  this.financialYearID;
-        }        
+        }
     }
 
 }
