@@ -14,10 +14,10 @@ declare const moment;
 declare const saveAs; // filesaver.js
 
 @Component({
-    selector: 'payment-batches',
-    templateUrl: 'app/components/bank/payments/paymentBatches.html',
+    selector: 'customer-payment-batches',
+    templateUrl: 'app/components/bank/payments/customerPaymentBatches.html',
 })
-export class PaymentBatches {
+export class CustomerPaymentBatches {
     @ViewChild(UniTable) private table: UniTable;
     private toolbarconfig: IToolbarConfig;
     private paymentBatchTableConfig: UniTableConfig;
@@ -34,8 +34,8 @@ export class PaymentBatches {
                 private fileService: FileService) {
 
         this.tabService.addTab({
-            name: 'Betalingsbunter',
-            url: '/bank/batches',
+            name: 'Innbetalinger',
+            url: '/bank/customerbatches',
             moduleID: UniModules.PaymentBatches,
             active: true }
         );
@@ -43,7 +43,7 @@ export class PaymentBatches {
 
     public ngOnInit() {
         this.toolbarconfig = {
-                title: 'Betalingsbunter',
+                title: 'Innbetalinger',
                 subheads: [],
                 navigation: {}
             };
@@ -58,16 +58,25 @@ export class PaymentBatches {
     }
 
     private fileUploaded(file: File) {
-        this.toastService.addToast('Laster opp kvitteringsfil..', ToastType.good, 10,
+        this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 10,
             'Dette kan ta litt tid, vennligst vent...');
 
-        this.paymentBatchService.registerReceiptFileCamt054(file)
+        this.paymentBatchService.registerCustomerPaymentFile(file)
             .subscribe(paymentBatch => {
-                this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
+                this.toastService.addToast('Innbetalingsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
+
+                this.table.refreshTableData();
+                this.selectedPaymentBatchID = paymentBatch.ID;
             },
             err => this.errorService.handle(err)
         );
+    }
+
+    private paymentBatchUpdated(paymentBatch: PaymentBatch) {
+        if (this.table) {
+            this.table.refreshTableData();
+        }
     }
 
     private paymentBatchNavigate(direction: number) {
@@ -115,7 +124,7 @@ export class PaymentBatches {
                 params.set('orderby', 'ID DESC');
             }
 
-            params.set('filter', 'IsCustomerPayment eq false');
+            params.set('filter', 'IsCustomerPayment eq true');
 
             return this.paymentBatchService.GetAllByUrlSearchParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -134,7 +143,7 @@ export class PaymentBatches {
             .setWidth('70px');
 
         let statusCodeCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
-            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode,false))
+            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode,true))
             .setFilterable(false);
 
         // Setup table

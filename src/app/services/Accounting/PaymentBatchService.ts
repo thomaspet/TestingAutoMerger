@@ -25,7 +25,17 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         return super.PutAction(null, 'register-receipt-file-camt054', `fileID=${file.ID}`);
     }
 
-    public getStatusText(statusCode: number): string {
+    public registerCustomerPaymentFile(file: File): Observable<any> {
+        return super.PutAction(null, 'register-ocr-giro-file', `fileID=${file.ID}`);
+    }
+
+    public completeCustomerPayment(paymentBatchID: number) {
+        return super.PutAction(null, 'complete-ocr-payment-registration', `ID=${paymentBatchID}`);
+    }
+
+    public getStatusText(statusCode: number, isCustomerPayment: boolean): string {
+        let word = isCustomerPayment ? 'Innbetaling' : 'Kvittering';
+
         if (!statusCode) {
             return '';
         } else if (statusCode === 45001) {
@@ -35,11 +45,17 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         } else if (statusCode === 45003) {
             return 'Sendt til bank';
         } else if (statusCode === 45004) {
-            return 'Kvittering mottatt';
+            return `${word} mottatt`;
         } else if (statusCode === 45005) {
-            return 'Kvittering innlest';
+            return `${word} innlest`;
         } else if (statusCode === 45006) {
             return 'Avvist fra bank';
+        } else if (statusCode === 45007) {
+            return `${word} er ufullstendig`;
+        } else if (statusCode === 45008) {
+            return 'Delvis fullført';
+        } else if (statusCode === 45009) {
+            return 'Fullført';
         }
 
         return 'Ukjent status: ' + statusCode;

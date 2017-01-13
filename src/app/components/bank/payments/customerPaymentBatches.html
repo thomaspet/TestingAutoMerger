@@ -1,0 +1,28 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+
+<section class=" application">
+    <section class="splitview">
+        <nav class="splitview_list">
+            <uni-table
+                [resource]="lookupFunction"
+                [config]="paymentBatchTableConfig"
+                (rowSelected)="onRowSelected($event)">
+            </uni-table>
+        </nav>
+        <main class="splitview_detail">
+            <customer-payment-batch-details
+                *ngIf="selectedPaymentBatchID"
+                (paymentBatchUpdated)="paymentBatchUpdated($event)"
+                (paymentBatchNavigate)="paymentBatchNavigate($event)"
+                [paymentBatchID]="selectedPaymentBatchID"
+                (deletePaymentBatch)="deletePaymentBatch($event)">
+            </customer-payment-batch-details>
+            <div *ngIf="!selectedPaymentBatchID">
+                <h2>Opplasting av innbetalingsfil</h2>
+                <div class="payment-batch-uploader">
+                    <uni-attachments class="upload-no-batch" [showFileList]="false" [uploadWithoutEntity]="true" (fileUploaded)="fileUploaded($event)" [headerText]="'Last opp innbetalingsfil'"></uni-attachments>
+                </div>
+            </div>
+        </main>
+    </section>
+</section>
