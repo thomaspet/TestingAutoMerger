@@ -6,7 +6,7 @@ import {TableBuilder} from '../../../../framework/uniTable/tableBuilder';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import {FieldType} from '../../../unientities';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'unitable-demo',

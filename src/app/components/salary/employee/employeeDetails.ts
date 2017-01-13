@@ -1,4 +1,3 @@
-import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -7,21 +6,27 @@ import {
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import {
-    EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
-    SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService,
-    FinancialYearService
-} from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
-
-
 import { UniView } from '../../../../framework/core/uniView';
-import { ErrorService } from '../../../services/common/ErrorService';
 import { TaxCardModal } from './modals/taxCardModal';
+import {
+    EmployeeService,
+    EmploymentService,
+    EmployeeLeaveService,
+    DepartmentService,
+    ProjectService,
+    SalaryTransactionService,
+    UniCacheService,
+    SubEntityService,
+    EmployeeTaxCardService,
+    ErrorService,
+    NumberFormat
+} from '../../../services/services';
+
 declare var _; // lodash
 
 @Component({

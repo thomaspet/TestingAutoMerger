@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {IContextMenuItem} from 'unitable-ng2/main';
-import {GuidService} from '../../../../app/services/common/guidService';
+import {GuidService} from '../../../../app/services/services';
 
 @Component({
     selector: 'uni-context-menu',

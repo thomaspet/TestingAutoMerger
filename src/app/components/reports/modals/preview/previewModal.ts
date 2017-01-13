@@ -5,9 +5,8 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ReportDefinitionService, Report, ReportParameter, UserService} from '../../../../services/services';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
+import {CompanySettingsService, ErrorService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'report-preview-modal-type',

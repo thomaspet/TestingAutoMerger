@@ -2,12 +2,11 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {WageTypeService} from '../../../services/services';
+import {WageTypeService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 
 import {WageType} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../services/common/ErrorService';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 

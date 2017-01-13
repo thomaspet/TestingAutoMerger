@@ -1,10 +1,9 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
-import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
+import {ReportDefinitionParameterService, FinancialYearService, ErrorService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'supplier-account-report-filter-form',

@@ -1,9 +1,8 @@
-import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {DepartmentService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from '../../../../services/services';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
 import {Supplier, Email, Phone, Address, FieldType, BankAccount} from '../../../../unientities';
@@ -12,12 +11,21 @@ import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
 import {BankAccountModal} from '../../../common/modals/modals';
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
-import {ErrorService} from '../../../../services/common/ErrorService';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {
+    DepartmentService,
+    ProjectService,
+    SupplierService,
+    PhoneService,
+    AddressService,
+    EmailService,
+    BankAccountService,
+    ErrorService,
+    UniQueryDefinitionService,
+} from '../../../../services/services';
 
 declare var _; // lodash
 

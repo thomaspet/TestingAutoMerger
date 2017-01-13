@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AltinnIntegrationService } from '../../../services/services';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { Altinn } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { IntegrationServerCaller } from '../../../services/common/IntegrationServerCaller';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { ErrorService } from '../../../services/common/ErrorService';
+import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from '../../../services/services';
 
 @Component({
     selector: 'altinn-settings',

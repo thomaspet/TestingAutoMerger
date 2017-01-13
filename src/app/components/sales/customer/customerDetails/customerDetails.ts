@@ -2,25 +2,27 @@ import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
-
-import {DepartmentService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from '../../../../services/services';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
-
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-
 import {ComponentLayout, Customer, Email, Phone, Address, FieldType} from '../../../../unientities';
-
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
-import {UniQueryDefinitionService} from '../../../../services/common/UniQueryDefinitionService';
-
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../services/common/ErrorService';
-
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {
+    DepartmentService,
+    ProjectService,
+    CustomerService,
+    PhoneService,
+    AddressService,
+    EmailService,
+    BusinessRelationService,
+    UniQueryDefinitionService,
+    ErrorService
+} from '../../../../services/services';
 
 declare var _; // lodash
 

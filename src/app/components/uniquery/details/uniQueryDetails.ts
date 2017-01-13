@@ -13,7 +13,7 @@ import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 
 

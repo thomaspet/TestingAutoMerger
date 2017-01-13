@@ -2,13 +2,15 @@
 import {Component, ViewChild} from '@angular/core';
 import {AuthService} from '../framework/core/authService';
 import {UniHttp} from '../framework/core/http/http';
-import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
-import {ErrorService} from './services/common/ErrorService';
 import {PushMapper} from './models/PushMapper';
 import {AppConfig} from './AppConfig';
-import {UserService} from './services/common//UserService';
+import {
+    UserService,
+    ErrorService,
+    StaticRegisterService
+} from './services/services';
 
 declare const OneSignal;
 declare const window;

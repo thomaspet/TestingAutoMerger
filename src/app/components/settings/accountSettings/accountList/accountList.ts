@@ -2,8 +2,7 @@ import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
-import {AccountService} from '../../../../services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {AccountService, ErrorService} from '../../../../services/services';
 
 declare var _;
 

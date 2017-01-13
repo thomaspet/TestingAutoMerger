@@ -4,10 +4,14 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
-import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    SalaryTransactionService,
+    PayrollrunService,
+    EmployeeService,
+    ErrorService
+} from '../../../../app/services/services';
 
 declare var _; // lodash
 
@@ -202,7 +206,7 @@ export class ControlModal implements AfterViewInit {
     public type: Type<any> = ControlModalContent;
 
     constructor(private route: ActivatedRoute, private errorService: ErrorService) {
-        
+
         this.modalConfig = {
             hasCancelButton: true,
             cancel: () => {

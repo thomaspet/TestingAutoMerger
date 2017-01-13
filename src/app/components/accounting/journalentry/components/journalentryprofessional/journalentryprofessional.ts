@@ -3,11 +3,19 @@ import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear} from '../../../../../unientities';
-import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService, CompanySettingsService, FinancialYearService} from '../../../../../services/services';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../../services/common/ErrorService';
+import {
+    VatTypeService,
+    AccountService,
+    JournalEntryService,
+    DepartmentService,
+    ProjectService,
+    CustomerInvoiceService,
+    CompanySettingsService,
+    ErrorService
+} from '../../../../../services/services';
 
 declare const _;
 declare const moment;

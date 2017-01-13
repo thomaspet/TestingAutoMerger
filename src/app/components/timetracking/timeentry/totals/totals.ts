@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
 import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 
 interface IStatSource {
     name: string;
@@ -37,42 +37,42 @@ export class RegtimeTotals {
     }
 
     public activate(ts: TimeSheet, filter?: IFilter) {
-        if (!this.timesheet) { 
+        if (!this.timesheet) {
             this.initSources(ts);
-            this.currentFilter = this.filters[3]; 
+            this.currentFilter = this.filters[3];
             this.currentSource = this.sources[1];
         }
         this.timesheet = ts;
         this.onFilterClick( this.currentFilter );
-    } 
+    }
 
     private initSources(ts: TimeSheet) {
         this.sources = [
             { name: 'workers', label: 'Personer', pivotColName: 'BusinessRelation.Name', isSelected: false, pivotResultColName: 'BusinessRelationName',
-                join: 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id',            
+                join: 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id',
             },
-            { name: 'orders', label: 'Ordre (dine)', pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName', 
+            { name: 'orders', label: 'Ordre (dine)', pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName',
                 isSelected: true,
-                join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
-                filter: 'customerorder.ordernumber gt 0 and workrelationid eq ' + ts.currentRelation.ID  
+                join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id',
+                filter: 'customerorder.ordernumber gt 0 and workrelationid eq ' + ts.currentRelation.ID
             },
-            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName', 
+            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName',
                 isSelected: false,
-                join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
-                filter: 'customerorder.ordernumber gt 0'  
+                join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id',
+                filter: 'customerorder.ordernumber gt 0'
             },
-            { name: 'projects', label: 'Prosjekter (dine)', pivotColName: 'Project.Name', pivotResultColName: 'ProjectName', 
+            { name: 'projects', label: 'Prosjekter (dine)', pivotColName: 'Project.Name', pivotResultColName: 'ProjectName',
                 isSelected: false,
-                join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
-                filter: 'dimensions.projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID  
+                join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id',
+                filter: 'dimensions.projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID
             },
             { name: 'projectsAll', label: 'Prosjekter (alle)', pivotColName: 'Project.Name', pivotResultColName: 'ProjectName',
                 isSelected: false,
-                join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
-                filter: 'dimensions.projectid gt 0'  
-            }        
-            
-        ];    
+                join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id',
+                filter: 'dimensions.projectid gt 0'
+            }
+
+        ];
     }
 
     private onFilterClick(filter: IFilter) {
@@ -84,11 +84,11 @@ export class RegtimeTotals {
             } else {
                 value.isSelected = false;
             }
-        });        
+        });
         this.currentFilter = f;
         this.queryTotals();
     }
-    
+
     public onSourceClick(src: IStatSource) {
         var f: IStatSource;
         this.sources.forEach((value: any) => {
@@ -98,15 +98,15 @@ export class RegtimeTotals {
             } else {
                 value.isSelected = false;
             }
-        });        
+        });
         this.currentSource = f;
-        this.queryTotals();        
+        this.queryTotals();
     }
 
 
     private showData(items: Array<any>) {
         var cols: ICol[] = [];
-        
+
         // Extract keys (since it has been pivoted with values as columnnames)
         if (items && items.length > 0) {
             for (var key in items[0]) {
@@ -132,10 +132,10 @@ export class RegtimeTotals {
                 let value = items[i][col.name];
                 let itemSum = value ? parseInt(value) : 0;
                 sum += itemSum;
-                lineSum[col.name] = (lineSum[col.name] || 0) + itemSum;  
+                lineSum[col.name] = (lineSum[col.name] || 0) + itemSum;
             }
             lineSum.sum = (lineSum.sum || 0) + sum;
-            items[i].sum = sum;            
+            items[i].sum = sum;
         }
         lineSum[this.currentSource.pivotResultColName] = 'Sum';
 
@@ -167,7 +167,7 @@ export class RegtimeTotals {
                 } else {
                     this.showData([{'label': result.Message}]);
                 }
-            } 
+            }
         }, err => this.errorService.handle(err));
     }
 

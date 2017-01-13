@@ -3,11 +3,14 @@ import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
 import {UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from 'uniform-ng2/main';
 import {Router} from '@angular/router';
-import {AccountService, JournalEntryService} from '../../../../services/services';
 import {Account, FieldType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    ErrorService,
+    AccountService,
+    JournalEntryService
+} from '../../../../services/services';
 
 declare var jQuery;
 declare var moment;

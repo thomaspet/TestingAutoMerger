@@ -8,7 +8,7 @@ import {WorkerService, ItemInterval} from '../../../services/timetracking/worker
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {setDeepValue} from '../utils/utils';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime', false, '', RegisterTime);
 

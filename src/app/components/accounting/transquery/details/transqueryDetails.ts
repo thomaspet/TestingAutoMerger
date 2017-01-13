@@ -3,20 +3,25 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
-import {JournalEntryLineService, JournalEntryService, AccountService, FinancialYearService} from '../../../../services/services';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {JournalEntryLine, JournalEntry, Account, FieldType, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {StatisticsService} from '../../../../services/common/StatisticsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {NumberFormat} from '../../../../services/common/NumberFormatService';
-import {ErrorService} from '../../../../services/common/ErrorService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
 import {BrowserStorageService} from '../../../../services/BrowserStorageService';
+import {
+    JournalEntryLineService,
+    JournalEntryService,
+    ErrorService,
+    NumberFormat,
+    StatisticsService,
+	AccountService,
+	FinancialYearService
+} from '../../../../services/services';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 

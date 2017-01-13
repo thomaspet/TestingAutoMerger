@@ -2,12 +2,16 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Email, FieldType, CompanySettings} from '../../../unientities';
-import {EmailService, CustomerService, UserService} from '../../../services/services';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {Observable} from 'rxjs/Rx';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    EmailService,
+    CustomerService,
+    UserService,
+    ErrorService,
+    CompanySettingsService
+} from '../../../services/services';
 
 // Reusable email form
 @Component({
@@ -19,24 +23,24 @@ import {ErrorService} from '../../../services/common/ErrorService';
            <footer>
                 <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
-                </button>                
+                </button>
             </footer>
         </article>
     `
 })
-export class SendEmailForm {    
+export class SendEmailForm {
     @Input() public model: SendEmail;
     @ViewChild(UniForm) public form: UniForm;
     private config: any = {};
     private fields: any[] = [];
     private formConfig: any = {};
-       
+
     public ngOnInit() {
         this.setupForm();
-        this.extendFormConfig();    
+        this.extendFormConfig();
     }
- 
-    private setupForm() {   
+
+    private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields = [
@@ -66,13 +70,13 @@ export class SendEmailForm {
                 Property: 'Message',
                 FieldType: FieldType.TEXTAREA,
                 Label: 'Melding'
-            }, 
+            },
             {
                 EntityType: 'SendEmail',
                 Property: 'SendCopy',
                 FieldType: FieldType.MULTISELECT,
                 Label: 'Kopi til meg'
-            }  
+            }
         ];
     }
 
@@ -104,13 +108,13 @@ export class SendEmailForm {
     `
 })
 export class SendEmailModal {
-    @Input() public email: SendEmail;    
+    @Input() public email: SendEmail;
     @ViewChild(UniModal) public modal: UniModal;
-    
+
     @Output() public Changed = new EventEmitter<Email>();
     @Output() public Canceled = new EventEmitter<boolean>();
 
-    private modalConfig: any = {};    
+    private modalConfig: any = {};
 
     private type: Type<any> = SendEmailForm;
 
@@ -123,16 +127,16 @@ export class SendEmailModal {
         private errorService: ErrorService
     ) {
     }
-    
-    public ngOnInit() {    
+
+    public ngOnInit() {
         this.modalConfig = {
-            model: this.email,            
+            model: this.email,
             title: 'Send på epost',
             actions: [
                 {
                     text: 'Send epost',
                     class: 'good',
-                    method: () => {          
+                    method: () => {
                         if (this.modalConfig.model.EmailAddress.indexOf('@') <= 0) {
                             this.toastService.addToast('Sending av epost feilet', ToastType.bad, 3, 'Grunnet manglende epostadresse');
                         } else {
@@ -154,13 +158,13 @@ export class SendEmailModal {
         };
     }
 
-    public openModal(sendemail: SendEmail) {  
+    public openModal(sendemail: SendEmail) {
         sendemail.Format = sendemail.Format || 'pdf';
 
         Observable.forkJoin(
             this.companySettingsService.Get(1, ['DefaultEmail']),
             this.userService.getCurrentUser(),
-            sendemail.CustomerID ? this.customerService.Get(sendemail.CustomerID, ['Info', 'Info.DefaultEmail']) : Observable.of(null)  
+            sendemail.CustomerID ? this.customerService.Get(sendemail.CustomerID, ['Info', 'Info.DefaultEmail']) : Observable.of(null)
         )
         .subscribe((response) => {
             let companySettings: CompanySettings = response[0];
@@ -175,7 +179,7 @@ export class SendEmailModal {
                                  user.DisplayName + '\n' +
                                  (companySettings.DefaultEmail ? companySettings.DefaultEmail.EmailAddress : '');
 
-            this.modalConfig.model = sendemail;    
+            this.modalConfig.model = sendemail;
             this.modal.open();
         }, err => this.errorService.handle(err));
     }

@@ -4,7 +4,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMe
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
-import {CustomerQuoteService, ReportDefinitionService} from '../../../../services/services';
+import {CustomerQuoteService, ReportDefinitionService, ErrorService} from '../../../../services/services';
 import {CustomerQuote, StatusCodeCustomerQuote} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -12,7 +12,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../services/common/ErrorService';
 import moment from 'moment';
 
 @Component({

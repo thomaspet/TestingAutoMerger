@@ -1,13 +1,15 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
-import {FieldType, CompanySettings} from '../../../unientities';
-import {CustomerService, UserService} from '../../../services/services';
+import {FieldType} from '../../../unientities';
 import {ActivateAP} from '../../../models/activateAP';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
-import {Observable} from 'rxjs/Rx';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ToastService} from '../../../../framework/uniToast/toastService';
+import {
+    ErrorService,
+    CustomerService,
+    UserService,
+    CompanySettingsService
+} from '../../../services/services';
 
 // Reusable email form
 @Component({

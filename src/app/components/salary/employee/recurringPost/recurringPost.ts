@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService } from '../../../../services/services';
+import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService, ErrorService} from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
@@ -8,7 +8,6 @@ import {
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
-import { ErrorService } from '../../../../services/common/ErrorService';
 
 declare var _;
 

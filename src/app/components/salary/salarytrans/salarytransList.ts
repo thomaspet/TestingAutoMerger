@@ -1,4 +1,3 @@
-import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -9,11 +8,11 @@ import {
 } from '../../../unientities';
 import {
     SalaryTransactionService, AccountService,
-    ReportDefinitionService, UniCacheService
+    ReportDefinitionService, UniCacheService,
+    ErrorService, NumberFormat
 } from '../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
-import { ErrorService } from '../../../services/common/ErrorService';
 
 import { UniView } from '../../../../framework/core/uniView';
 declare var _;

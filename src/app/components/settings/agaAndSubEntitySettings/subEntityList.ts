@@ -2,10 +2,9 @@ import { Component, ViewChild, OnInit, EventEmitter, Output } from '@angular/cor
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
-import { SubEntityService, AgaZoneService, MunicipalService } from '../../../services/services';
+import { SubEntityService, AgaZoneService, MunicipalService, ErrorService } from '../../../services/services';
 import { SubEntity, Municipal, AGAZone } from '../../../unientities';
 import { SubEntityDetails } from './subEntityDetails';
-import { ErrorService } from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({

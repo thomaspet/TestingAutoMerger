@@ -1,9 +1,11 @@
 import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {VatReport, AltinnGetVatReportDataFromAltinnStatus, VatReportSummaryPerPost} from '../../../../unientities';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
-import {VatReportService} from '../../../../services/Accounting/VatReportService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    ErrorService,
+    VatReportService
+} from '../../../../services/services';
 
 @Component({
     selector: 'vatreport-receipt-view',

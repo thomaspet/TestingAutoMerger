@@ -1,12 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {ProjectService} from '../../../../../services/services';
+import {ProjectService, ErrorService} from '../../../../../services/services';
 import {FieldType, Project} from '../../../../../unientities';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'Project-dimensions-details',

@@ -2,8 +2,7 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, Simp
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Address, FieldType, Country, PostalCode} from '../../../unientities';
-import {AddressService, CountryService, PostalCodeService} from '../../../services/services';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {AddressService, CountryService, PostalCodeService, ErrorService} from '../../../services/services';
 
 declare const _; // lodash
 

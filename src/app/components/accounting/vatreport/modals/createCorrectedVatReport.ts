@@ -2,11 +2,13 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
 import {FieldLayout, Period, VatReport, FieldType} from '../../../../../app/unientities';
-import {VatReportService} from '../../../../services/Accounting/VatReportService';
-import {PeriodService} from '../../../../services/Accounting/PeriodService';
 import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    PeriodService,
+    VatReportService,
+    ErrorService
+} from '../../../../services/services';
 
 declare var _;
 declare const moment;

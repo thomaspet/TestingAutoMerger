@@ -1,4 +1,4 @@
-import { NumberFormat } from './../../../../services/common/NumberFormatService';
+import { NumberFormat } from './../../../../services/services';
 import { Component, Input } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { AmeldingData } from '../../../../unientities';

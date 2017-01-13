@@ -1,19 +1,27 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {StatisticsService, BankAccountService, BusinessRelationService, PaymentCodeService, PaymentService, PaymentBatchService, FileService} from '../../../services/services';
-import {Bank, BankAccount, Payment, PaymentCode, BusinessRelation, PaymentBatch} from '../../../unientities';
+import {BankAccount, Payment, PaymentCode, PaymentBatch} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {ISummaryConfig} from '../../common/summary/summary';
-import {NumberFormat} from '../../../services/common/NumberFormatService';
-import {ErrorService} from '../../../services/common/ErrorService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {PaymentRelationsModal} from './relationModal';
 import {BankAccountModal} from '../../common/modals/modals';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {
+    NumberFormat,
+    ErrorService,
+    StatisticsService,
+    BankAccountService,
+    BusinessRelationService,
+    PaymentCodeService,
+    PaymentService,
+    PaymentBatchService,
+    FileService
+} from '../../../services/services';
 
 declare const moment;
 declare const saveAs; // filesaver.js

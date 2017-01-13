@@ -4,10 +4,9 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {URLSearchParams} from '@angular/http';
-import {CustomerService} from '../../../../services/services';
+import {CustomerService, ErrorService} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Customer} from '../../../../unientities';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 

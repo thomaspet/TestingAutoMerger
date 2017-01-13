@@ -4,13 +4,12 @@ import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { SubEntityList } from './subEntityList';
-import { 
-    FieldType, CompanySalary, Account, 
+import {
+    FieldType, CompanySalary, Account,
     SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval } from '../../../unientities';
-import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService } from '../../../services/services';
+import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService, ErrorService } from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
-import { ErrorService } from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 
@@ -307,8 +306,8 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         if (this.companySalary) {
             let companySaveObs: Observable<CompanySalary>;
-            companySaveObs = this.companySalary['_isDirty'] 
-            ? this.companySalaryService.Put(this.companySalary.ID, this.companySalary) 
+            companySaveObs = this.companySalary['_isDirty']
+            ? this.companySalaryService.Put(this.companySalary.ID, this.companySalary)
             : Observable.of(this.companySalary);
 
             saveObs.push(companySaveObs);

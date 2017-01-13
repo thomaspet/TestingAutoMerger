@@ -2,7 +2,6 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {SalaryTransactionService, PayrollrunService, AMeldingService} from '../../../services/services';
 import {AmeldingData, FinancialYear} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -10,8 +9,13 @@ import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldi
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
-import {NumberFormat} from '../../../services/common/NumberFormatService';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    SalaryTransactionService,
+    PayrollrunService,
+    AMeldingService,
+    ErrorService,
+    NumberFormat
+} from '../../../services/services';
 
 declare var moment;
 
@@ -295,7 +299,7 @@ export class AMeldingView implements OnInit {
             } else {
                 this.currentSumUp._sumupStatusText = this.periodStatus;
             }
-            
+
             this.legalEntityNo = response.LegalEntityNo;
         }, err => this.errorService.handle(err));
     }
@@ -348,7 +352,7 @@ export class AMeldingView implements OnInit {
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
         if (mottattPeriode && mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
-            
+
             this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
             this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
 
@@ -393,7 +397,7 @@ export class AMeldingView implements OnInit {
     }
 
     private getAMeldingForPeriod() {
-        
+
         this.periodStatus = 'Ingen A-meldinger i perioden';
 
         this.spinner(this._ameldingService
@@ -412,14 +416,14 @@ export class AMeldingView implements OnInit {
     private setStatusForPeriod() {
         // Only the last (highest ID) amelding for the period can set this status
         if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-            
+
             switch (this.currentAMelding.status) {
                 case 0:
                 case 1:
                 case null:
                     this.periodStatus = 'Ikke innsendt';
                     break;
-                
+
                 case 2:
                     this.periodStatus = 'Tilbakemelding må hentes';
                     break;

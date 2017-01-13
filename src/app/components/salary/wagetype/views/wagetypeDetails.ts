@@ -2,15 +2,14 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
-import { 
-    WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, 
+import {
+    WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom,
     StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
-import { UniCacheService } from '../../../../services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import { UniCacheService, ErrorService} from '../../../../services/services';
 
 declare var _; // lodash
 
@@ -236,7 +235,7 @@ export class WagetypeDetail extends UniView {
                     } else {
                         this.uniform.field('AccountNumber_balance').focus();
                     }
-                    
+
                 },
                 shift_tab: (event) => {
                     this.uniform.field('taxtype').focus();
@@ -534,13 +533,13 @@ export class WagetypeDetail extends UniView {
         let tilleggsObj: any = tillegg.tilleggsinformasjon;
         let spesiObj: any = tillegg.spesifikasjon;
         let additions: WageTypeSupplement[] = [];
-        
+
         if (tilleggsObj !== null) {
-            for (var key in tilleggsObj) {                
+            for (var key in tilleggsObj) {
                 if (key !== null) {
-                    var obj = tilleggsObj[key];                    
+                    var obj = tilleggsObj[key];
                     if (typeof obj === 'object' && obj !== null) {
-                        for (var prop in obj) {                            
+                        for (var prop in obj) {
                             if (obj.hasOwnProperty(prop)) {
                                 if (obj[prop] !== null) {
                                     let wtSupp: WageTypeSupplement = new WageTypeSupplement();
@@ -585,7 +584,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private removeAndReturnValue(value: string) {
-        
+
         if (value !== null) {
             switch (value.toString().toLowerCase()) {
                 case 'ja/nei':
@@ -602,7 +601,7 @@ export class WagetypeDetail extends UniView {
                     break;
             }
         }
-        
+
         return value;
     }
 

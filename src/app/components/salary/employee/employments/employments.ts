@@ -4,9 +4,7 @@ import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService} from '../../../../services/services';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Employee, Employment, SubEntity, Project, Department} from '../../../../unientities';
-
-import {UniCacheService} from '../../../../services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {UniCacheService, ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'employments',

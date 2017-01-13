@@ -2,9 +2,8 @@ import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 
 import {VatType} from '../../../../unientities';
-import {VatTypeService, VatCodeGroupService} from '../../../../services/services';
+import {VatTypeService, VatCodeGroupService, ErrorService} from '../../../../services/services';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'vattype-list',
@@ -22,7 +21,7 @@ export class VatTypeList {
         private errorService: ErrorService
     ) {
     }
-    
+
     public ngOnInit() {
         this.setupTable();
     }
@@ -39,21 +38,21 @@ export class VatTypeList {
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
-            
+
             if (params === null) {
                 params = new URLSearchParams();
             }
-            
+
             if (!params.get('orderby')) {
                 params.set('orderby', 'VatCode');
             }
-            
+
             params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost,VatReportReferences.Account');
-            
+
             return this.vatTypeService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
-        
-        
+
+
         let groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('20%');
         let codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('10%');
         let aliasCol = new UniTableColumn('Alias', 'Alias', UniTableColumnType.Text).setWidth('10%');
@@ -64,10 +63,10 @@ export class VatTypeList {
             .setWidth('10%')
             .setTemplate((data) => data.VatPercent + '%')
             .setFilterOperator('eq');
-      
+
         // Setup table
-        this.vatTableConfig = new UniTableConfig(false, true, 25)            
-            .setSearchable(true)            
+        this.vatTableConfig = new UniTableConfig(false, true, 25)
+            .setSearchable(true)
             .setColumns([groupCol, codeCol, aliasCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol]);
     }
 }

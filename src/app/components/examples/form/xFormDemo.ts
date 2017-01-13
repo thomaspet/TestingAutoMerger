@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
+import {EmployeeService} from '../../../services/services';
 import {UniForm} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {Employee, Employment, FieldType} from '../../../unientities';
@@ -10,15 +10,15 @@ declare var _;
     selector: 'uni-form-demo-2',
     template: `
         <uni-form *ngIf='employee'
-            
-            [config]='config' 
-            [fields]='fields' 
+
+            [config]='config'
+            [fields]='fields'
             [model]='employee'
-            
+
             (submitEvent)='submit($event)'
             (changeEvent)='change($event)'
-            (readyEvent)='ready($event)'        
-            
+            (readyEvent)='ready($event)'
+
         ></uni-form>
     `
 })
@@ -118,7 +118,7 @@ export class XFormDemo {
                     });
                 }
             };
-            
+
             var emailTest = new UniFieldLayout();
             emailTest.FieldSet = 0;
             emailTest.Section = 0;
@@ -127,7 +127,7 @@ export class XFormDemo {
             emailTest.Label = 'Email test';
             emailTest.Property = 'EmailTestProperty';
             emailTest.ReadOnly = false;
-            
+
             var passwordTest = new UniFieldLayout();
             passwordTest.FieldSet = 0;
             passwordTest.Section = 0;
@@ -136,7 +136,7 @@ export class XFormDemo {
             passwordTest.Label = 'Password test';
             passwordTest.Property = 'PasswodTestProperty';
             passwordTest.ReadOnly = false;
-            
+
             var textareaTest = new UniFieldLayout();
             textareaTest.FieldSet = 0;
             textareaTest.Section = 0;
@@ -145,7 +145,7 @@ export class XFormDemo {
             textareaTest.Label = 'Textarea test';
             textareaTest.Property = 'TextareaTestProperty';
             textareaTest.ReadOnly = false;
-            
+
             var hyperlinkTest = new UniFieldLayout();
             hyperlinkTest.FieldSet = 0;
             hyperlinkTest.Section = 0;
@@ -157,7 +157,7 @@ export class XFormDemo {
             hyperlinkTest.Options = {
                 description: 'Open Link'
             };
-            
+
             var urlTest = new UniFieldLayout();
             urlTest.FieldSet = 0;
             urlTest.Section = 0;
@@ -166,7 +166,7 @@ export class XFormDemo {
             urlTest.Label = 'Url test';
             urlTest.Property = 'UrlProperty';
             urlTest.ReadOnly = false;
-            
+
             var selectTest = new UniFieldLayout();
             selectTest.FieldSet = 0;
             selectTest.Section = 0;
@@ -182,12 +182,12 @@ export class XFormDemo {
                     { id: 2, name: 'Frank' },
                     { id: 3, name: 'Anders' },
                 ],
-                template: (obj) => `${obj.id} - ${obj.name}`, 
+                template: (obj) => `${obj.id} - ${obj.name}`,
                 valueProperty: 'id',
                 displayProperty: 'name',
                 debounceTime: 500,
             };
-            
+
             var dateTest = new UniFieldLayout();
             dateTest.FieldSet = 0;
             dateTest.Section = 0;
@@ -197,7 +197,7 @@ export class XFormDemo {
             dateTest.Property = 'DateTest';
             dateTest.ReadOnly = false;
             dateTest.Placeholder = 'Select a date';
-            
+
             var radiogroupTest = new UniFieldLayout();
             radiogroupTest.FieldSet = 0;
             radiogroupTest.Section = 0;
@@ -213,7 +213,7 @@ export class XFormDemo {
                     { id: 2, name: 'Frank' },
                     { id: 3, name: 'Anders' },
                 ],
-                labelProperty: 'name', 
+                labelProperty: 'name',
                 valueProperty: 'id'
             };
             var checkboxgroupTest = new UniFieldLayout();
@@ -232,7 +232,7 @@ export class XFormDemo {
                     { id: 2, name: 'Frank' },
                     { id: 3, name: 'Anders' },
                 ],
-                labelProperty: 'name', 
+                labelProperty: 'name',
                 valueProperty: 'id'
             };
 
@@ -250,18 +250,18 @@ export class XFormDemo {
             };
 
             self.fields = [
-                numericTest, 
-                maskedTest, 
-                multiValueTest, 
-                autocompleteTest, 
+                numericTest,
+                maskedTest,
+                multiValueTest,
+                autocompleteTest,
                 emailTest,
                 passwordTest,
                 hyperlinkTest,
                 urlTest,
                 textareaTest,
                 selectTest,
-                radiogroupTest,  
-                dateTest,   
+                radiogroupTest,
+                dateTest,
                 checkboxgroupTest,
                 buttonTest,
                 ...self.fields];
@@ -278,7 +278,7 @@ export class XFormDemo {
     public ready(value) {
         console.log('Ready:', value);
         var self = this;
-        
+
         setTimeout(() => {
             self.api.get(2).toPromise().then((employee: any) => {
                 self.employee = employee;

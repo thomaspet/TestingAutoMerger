@@ -1,11 +1,10 @@
 import {Component, Input, ViewChild, Output,  EventEmitter} from '@angular/core';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
+import {CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService} from '../../../../services/services';
 import {FieldType, CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import moment from 'moment';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
@@ -32,7 +31,7 @@ export class VacationpaySettingModalContent {
         private _accountService: AccountService,
         private errorService: ErrorService
     ) {
-        
+
     }
 
     public loadData() {
@@ -64,7 +63,7 @@ export class VacationpaySettingModalContent {
     }
 
     public saveSettings() {
-        
+
         this.saveStatus = {
             numberOfRequests: 0,
             completeCount: 0,
@@ -151,7 +150,7 @@ export class VacationpaySettingModalContent {
             valueProperty: 'AccountNumber',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
-        
+
         var mainAccountAllocatedVacation = new UniFieldLayout();
         let allVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountAllocatedVacation
                 ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
@@ -181,7 +180,7 @@ export class VacationpaySettingModalContent {
             displayProperty: 'name',
             valueProperty: 'id'
         };
-        
+
         this.fields = [payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation];
     }
 

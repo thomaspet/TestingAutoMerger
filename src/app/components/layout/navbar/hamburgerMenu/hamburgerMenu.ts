@@ -2,7 +2,7 @@
 import {Router} from '@angular/router';
 import {routes} from '../../../../routes';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniMenuAim} from '../../../../services/common/UniMenuAim';
+import {UniMenuAim} from '../../../../services/services';
 
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {

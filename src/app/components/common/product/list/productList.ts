@@ -3,10 +3,9 @@ import {URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {ProductService} from '../../../../services/services';
+import {ProductService, ErrorService} from '../../../../services/services';
 import {Product} from '../../../../unientities';
 import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 
@@ -47,7 +46,7 @@ export class ProductList {
             }
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
-                        
+
             return this.productService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
@@ -67,10 +66,10 @@ export class ProductList {
             .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
         let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
-                                                    
+
         // Setup table
-        this.productTable = new UniTableConfig(false, true, 25)            
-            .setSearchable(true)            
+        this.productTable = new UniTableConfig(false, true, 25)
+            .setSearchable(true)
             .setColumns([partNameCol, nameCol, priceExVatCol, priceIncVatCol, departmentCol, projectCol]);
     }
 }

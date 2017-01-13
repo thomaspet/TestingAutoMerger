@@ -11,16 +11,30 @@ import {
     CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account,
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
-import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, PhoneService, EmailService} from '../../../services/services';
-import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService, AddressService, AccountVisibilityGroupService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
 import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
-import {CompanyService} from '../../../services/common/CompanyService';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniField} from 'uniform-ng2/main';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    CompanySettingsService,
+    CurrencyService,
+    VatTypeService,
+    AccountService,
+    AccountGroupSetService,
+    PeriodSeriesService,
+    PhoneService,
+    EmailService,
+    CompanyTypeService,
+    VatReportFormService,
+    MunicipalService,
+    BankAccountService,
+    AddressService,
+    AccountVisibilityGroupService,
+    ErrorService,
+    CompanyService
+} from '../../../services/services';
 
 declare const _;
 

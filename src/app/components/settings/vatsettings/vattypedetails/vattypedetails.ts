@@ -6,10 +6,9 @@ import {FieldType, VatReportReference} from '../../../../unientities';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 
 import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
-import {VatTypeService, VatCodeGroupService, AccountService, VatPostService} from '../../../../services/services';
+import {VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService} from '../../../../services/services';
 
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 
 @Component({

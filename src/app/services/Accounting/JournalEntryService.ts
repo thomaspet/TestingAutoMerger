@@ -5,13 +5,12 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel} from '../../unientities';
-import {StatisticsService} from '../common/StatisticsService';
-import {BrowserStorageService} from '../BrowserStorageService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
-
+import {BrowserStorageService} from '../common/browserStorageService';
+import {StatisticsService} from '../common/statisticsService';
 declare const _; // lodash
 
 class JournalEntryLineCalculation {

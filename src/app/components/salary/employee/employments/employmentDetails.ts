@@ -1,12 +1,15 @@
 import { Component, Input, Output, EventEmitter, ViewChild, OnChanges } from '@angular/core';
-import { EmploymentService, AccountService, StatisticsService } from '../../../../services/services';
 import { Employment, Account, SubEntity, Project, Department } from '../../../../unientities';
 import { UniForm } from 'uniform-ng2/main';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { EmployeeService } from '../../../../services/Salary/Employee/EmployeeService';
 import { Observable } from 'rxjs/Observable';
-import { ErrorService } from '../../../../services/common/ErrorService';
-
+import {
+    EmployeeService,
+    ErrorService,
+    EmploymentService,
+    AccountService,
+    StatisticsService
+} from '../../../../services/services';
 declare var _; // lodash
 
 @Component({

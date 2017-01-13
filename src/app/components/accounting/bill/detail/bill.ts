@@ -1,6 +1,5 @@
 import {ViewChild, Component} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SupplierInvoiceService,  SupplierService, UniCacheService, VatTypeService, BankAccountService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
@@ -9,17 +8,24 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
-import {checkGuid} from '../../../../services/common/dimensionservice';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
-import {ErrorService} from '../../../../services/common/ErrorService';
-import {PageStateService} from '../../../../services/common/PageStateService';
 import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
+import {
+    SupplierInvoiceService,
+    SupplierService,
+    UniCacheService,
+    VatTypeService,
+    BankAccountService,
+    ErrorService,
+    PageStateService,
+    checkGuid
+} from '../../../../services/services';
 
 declare const moment;
 declare const _; // lodash

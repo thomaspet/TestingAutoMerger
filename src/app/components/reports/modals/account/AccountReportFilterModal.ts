@@ -4,7 +4,7 @@ import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../.
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'account-report-filter-form',

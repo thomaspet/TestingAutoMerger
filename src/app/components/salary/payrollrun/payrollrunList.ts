@@ -3,9 +3,8 @@ import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
-import {PayrollrunService} from '../../../services/services';
+import {PayrollrunService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'payrollrun-list',

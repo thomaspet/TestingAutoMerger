@@ -3,11 +3,10 @@ import {UniTable, UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilte
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {StatisticsService, UniQueryDefinitionService, StatusService} from '../../../services/services';
+import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-query-read-only',

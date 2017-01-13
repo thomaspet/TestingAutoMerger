@@ -3,12 +3,11 @@ import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../../framework/core/authService';
-import {FileService} from '../../../services/services';
+import {FileService, ErrorService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const saveAs; // filesaver.js
 

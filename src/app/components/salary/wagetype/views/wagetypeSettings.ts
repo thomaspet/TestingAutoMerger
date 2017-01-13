@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
 import { WageType } from '../../../../unientities';
-import { WageTypeService, UniCacheService } from '../../../../services/services';
+import { WageTypeService, UniCacheService, ErrorService } from '../../../../services/services';
 import { UniView } from '../../../../../framework/core/uniView';
-import { ErrorService } from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'uni-wagetype-settings',
@@ -12,7 +10,7 @@ import { ErrorService } from '../../../../services/common/ErrorService';
 })
 export class WageTypeSettings extends UniView {
     private wageType: WageType;
-    private fields: any[]; 
+    private fields: any[];
     private config: any;
     constructor(
         private route: ActivatedRoute,

@@ -1,4 +1,4 @@
-import { UniCacheService } from '../../app/services/cacheService';
+import { UniCacheService } from '../../app/services/services';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 

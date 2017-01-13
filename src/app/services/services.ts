@@ -1,86 +1,107 @@
-export * from './accounting/accountservice';
-export * from './accounting/accountgroupservice';
-export * from './accounting/AccountVisibilityGroupService';
-export * from './accounting/vattypeservice';
-export * from './accounting/vatcodegroupservice';
-export * from './accounting/vatcodedeductionservice';
-export * from './accounting/vatpostservice';
-export * from './accounting/vatreportservice';
-export * from './accounting/journalentryservice';
-export * from './accounting/journalentrylineservice';
-export * from './accounting/journalentrylinedraftservice';
-export * from './accounting/supplierservice';
-export * from './accounting/supplierinvoiceservice';
-export * from './accounting/supplierinvoiceitemservice';
-export * from './accounting/BankAccountService';
-export * from './salary/employee/employeeservice';
-export * from './salary/employee/employmentservice';
-export * from './salary/employee/employeecategoryservice';
-export * from './salary/employee/employeeleaveservice';
-export * from './staticregisterservice';
-export * from './salary/wagetype/wagetypeservice'
-export * from './common/departmentservice';
-export * from './common/projectservice';
-export * from './common/currencyservice';
-export * from './common/CountryService';
-export * from './common/PostalCodeService';
-export * from './common/StatusService';
-export * from './common/FileService';
-export * from './BrowserStorageService';
-export * from './sales/phoneservice';
-export * from './common/productservice';
-export * from './sales/customerservice';
-export * from './sales/businessrelationservice';
-export * from './sales/customerquoteservice';
-export * from './sales/customerquoteitemservice';
-export * from './sales/customerorderservice';
-export * from './sales/customerorderitemservice';
-export * from './sales/customerinvoiceservice';
-export * from './sales/customerinvoiceitemservice'
-export * from './shared/agazoneservice';
-export * from './sales/addressservice';
-export * from './sales/phoneservice';
-export * from './sales/emailservice';
-export * from './salary/payrollrun/payrollrunservice';
-export * from './common/companysettingsservice';
-export * from './common/companytypeservice';
-export * from './common/VatReportFormService';
-export * from './accounting/periodseriesservice';
-export * from './accounting/accountgroupsetservice';
-export * from './accounting/PostPostService';
-export * from './common/subentityservice';
-export * from './shared/municipalsservice';
-export * from './salary/companysalary/companysalaryservice';
-export * from './salary/salarytransaction/salarytransactionservice';
-export * from './reports/ReportDefinitionParameterService';
-export * from './reports/ReportDefinitionDataSourceService';
-export * from './reports/ReportDefinitionService';
-export * from './common/AltinnIntegrationService';
-export * from './common/IntegrationServerCaller';
-export * from './common/AltinnReceiptService';
-export * from './common/UserService';
-export * from './salary/basicamount/BasicAmountService';
-export * from './common/guidService';
-export * from './common/StatisticsService';
-export * from './salary/companysalary/CompanyVacationRateService';
-export * from './accounting/BankService';
-export * from './salary/wagetype/InntektService';
-export * from './accounting/periodservice';
-export * from './common/UniQueryDefinitionService';
-export * from './common/AltinnAuthenticationService';
-export * from './accounting/FinancialYearService';
-export * from './common/UniMenuAim';
-export * from './Salary/Grants/GrantService';
-export * from './cacheService';
-export * from './common/NumberFormatService';
-export * from './Salary/AMelding/AMeldingService';
-export * from './common/settingsservice';
-export * from './common/PageStateService';
-export * from './common/ErrorService';
-export * from './accounting/PaymentCodeService';
-export * from './accounting/PaymentService';
-export * from './accounting/PaymentBatchService';
-export * from './Salary/Payrollrun/VacationpayLineService';
-export * from './common/EHFService';
-export * from './common/CompanyService';
-export * from './Salary/Employee/EmployeeTaxCardService';
+export * from './accountingServicesModule';
+export * from './salaryServicesModule';
+export * from './salesServicesModule';
+export * from './commonServicesModule';
+export * from './reportServicesModule';
+export * from './timeTrackingServicesModule';
+
+// Accounting
+// export * from './accounting/accountService';
+// export * from './accounting/accountGroupService';
+// export * from './accounting/accountVisibilityGroupService';
+// export * from './accounting/vatTypeService';
+// export * from './accounting/vatCodeGroupService';
+// export * from './accounting/vatCodeDeductionService';
+// export * from './accounting/vatPostService';
+// export * from './accounting/vatReportService';
+// export * from './accounting/journalEntryService';
+// export * from './accounting/journalEntryLineService';
+// export * from './accounting/journalEntryLineDraftService';
+// export * from './accounting/supplierService';
+// export * from './accounting/supplierInvoiceService';
+// export * from './accounting/supplierInvoiceItemService';
+// export * from './accounting/bankAccountService';
+// export * from './accounting/periodSeriesService';
+// export * from './accounting/accountGroupSetService';
+// export * from './accounting/postPostService';
+// export * from './accounting/financialYearService';
+// export * from './accounting/bankService';
+// export * from './accounting/periodService';
+// export * from './accounting/paymentCodeService';
+// export * from './accounting/paymentService';
+// export * from './accounting/paymentBatchService';
+
+// Salary
+// export * from './salary/employee/employeeService';
+// export * from './salary/employee/employmentService';
+// export * from './salary/employee/employeeCategoryService';
+// export * from './salary/employee/employeeLeaveService';
+// export * from './salary/wagetype/wageTypeService'
+// export * from './salary/companysalary/companySalaryService';
+// export * from './salary/salarytransaction/salaryTransactionService';
+// export * from './salary/basicamount/basicAmountService';
+// export * from './salary/grants/grantService';
+// export * from './salary/companysalary/companyVacationRateService';
+// export * from './salary/wagetype/inntektService';
+// export * from './salary/AMelding/AMeldingService';
+// export * from './salary/payrollrun/vacationPayLineService';
+// export * from './salary/employee/employeeTaxCardService';
+// export * from './salary/payrollrun/payrollRunService';
+
+// Sales
+// export * from './sales/customerService';
+// export * from './sales/businessRelationService';
+// export * from './sales/customerQuoteService';
+// export * from './sales/customerQuoteItemService';
+// export * from './sales/customerOrderService';
+// export * from './sales/customerOrderItemService';
+// export * from './sales/customerInvoiceService';
+// export * from './sales/customerInvoiceItemService'
+// export * from './sales/addressService';
+// export * from './sales/phoneService';
+// export * from './sales/emailService';
+
+
+// Timetracking
+
+// Common
+// export * from './common/departmentService';
+// export * from './common/projectService';
+// export * from './common/currencyService';
+// export * from './common/countryService';
+// export * from './common/postalCodeService';
+// export * from './common/statusService';
+// export * from './common/fileService';
+// export * from './common/companySettingsService';
+// export * from './common/companyTypeService';
+// export * from './common/vatReportFormService';
+// export * from './common/subEntityService';
+// export * from './common/productService';
+// export * from './common/altinnIntegrationService';
+// export * from './common/integrationServerCaller';
+// export * from './common/altinnReceiptService';
+// export * from './common/userService';
+// export * from './common/guidService';
+// export * from './common/statisticsService';
+// export * from './common/uniQueryDefinitionService';
+// export * from './common/altinnAuthenticationService';
+// export * from './common/uniMenuAim';
+// export * from './common/numberFormatService';
+// export * from './common/settingsService';
+// export * from './common/pageStateService';
+// export * from './common/errorService';
+// export * from './common/EHFService';
+// export * from './common/companyService';
+// export * from './common/dimensionService';
+// export * from './common/agaZoneService';
+// export * from './common/municipalsService';
+// export * from './common/staticRegisterService';
+// export * from './common/browserStorageService';
+// export * from './common/cacheService';
+
+// Reports
+// export * from './reports/reportDefinitionParameterService';
+// export * from './reports/reportDefinitionDataSourceService';
+// export * from './reports/reportDefinitionService';
+
+

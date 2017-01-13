@@ -5,11 +5,6 @@ import {
     Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, CompanySettings,
     FinancialYear
 } from '../../../unientities';
-import {
-    PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
-    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
-    CompanySettingsService
-} from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
@@ -20,12 +15,24 @@ import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { ErrorService } from '../../../services/common/ErrorService';
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
 import { UniView } from '../../../../framework/core/uniView';
 import { PreviewModal } from '../../reports/modals/preview/previewModal';
 import 'rxjs/add/observable/forkJoin';
-
+import {
+    PayrollrunService,
+    UniCacheService,
+    SalaryTransactionService,
+    EmployeeService,
+    WageTypeService,
+    ReportDefinitionService,
+    CompanySalaryService,
+    ProjectService,
+    DepartmentService,
+    EmployeeTaxCardService,
+    CompanySettingsService,
+    ErrorService
+} from '../../../services/services';
 declare var _;
 declare var moment;
 

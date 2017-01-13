@@ -1,9 +1,8 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService } from '../../../services/services';
+import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService, ErrorService } from '../../../services/services';
 import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
-import { ErrorService } from '../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({

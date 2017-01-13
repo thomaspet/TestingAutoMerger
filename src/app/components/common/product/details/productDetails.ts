@@ -2,9 +2,6 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
-import {ProductService, AccountService, VatTypeService, ProjectService, DepartmentService, CompanySettingsService} from '../../../../services/services';
-
 import {Product, Account, VatType, FieldType} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
@@ -12,8 +9,16 @@ import {Project} from '../../../../unientities';
 import {Department} from '../../../../unientities';
 import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../../services/common/ErrorService';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
+import {
+    ErrorService,
+    ProductService,
+    AccountService,
+    VatTypeService,
+    ProjectService,
+    DepartmentService,
+	CompanySettingsService
+} from '../../../../services/services';
 
 declare const _; // lodash
 

@@ -7,7 +7,7 @@ import {UniForm} from 'uniform-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../utils/utils';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 enum IAction {
@@ -81,7 +81,7 @@ export class GenericDetailview {
 
     public ngOnInit() {
         if (this.viewconfig) {
-            this.fields = this.viewconfig.formFields;            
+            this.fields = this.viewconfig.formFields;
         }
     }
 
@@ -102,9 +102,9 @@ export class GenericDetailview {
                 { label: labels.action_delete,
                     action: () => {
                         this.onDelete();
-                    }  
+                    }
                 }
-            ]                         
+            ]
         };
 
     }
@@ -177,7 +177,7 @@ export class GenericDetailview {
                         case ConfirmActions.ACCEPT:
                             this.save(undefined).then(success => {
                                 resolve(true);
-                            }).catch( () => 
+                            }).catch( () =>
                                 resolve(false) );
                             break;
                         case ConfirmActions.REJECT:
@@ -185,7 +185,7 @@ export class GenericDetailview {
                             break;
                         default: // CANCEL
                             resolve(false);
-                    } 
+                    }
                 });
             } else {
                 resolve(true);
@@ -235,7 +235,7 @@ export class GenericDetailview {
                 this.updateTitle(this.viewconfig.labels.createNew);
             }
             this.itemChanged.emit(this.current);
-        }        
+        }
         this.initToolbar(this.title, this.subTitle === this.title ? '' : this.subTitle );
     }
 
@@ -308,7 +308,7 @@ export class GenericDetailview {
     private delete(done?) {
         if (this.ID) {
             this.confirmModal.confirm(labels.ask_delete, labels.ask_delete_title).then( (dlgResult: ConfirmActions) => {
-                if (dlgResult !== ConfirmActions.ACCEPT) { if (done) { done(); } return; }                 
+                if (dlgResult !== ConfirmActions.ACCEPT) { if (done) { done(); } return; }
                 this.workerService.deleteByID(this.ID, this.viewconfig.data.route)
                 .finally(() => this.busy = false)
                 .subscribe((result) => {

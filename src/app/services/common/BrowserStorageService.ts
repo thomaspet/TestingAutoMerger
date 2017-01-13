@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
-import {AuthService} from '../../framework/core/authService';
+import {AuthService} from '../../../framework/core/authService';
 
 @Injectable()
 export class BrowserStorageService  {
 
     constructor(private authService: AuthService) {
-        
+
     }
 
     // save to localStorage

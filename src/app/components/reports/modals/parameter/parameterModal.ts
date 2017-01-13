@@ -7,7 +7,7 @@ import {StatisticsService} from '../../../../services/services';
 
 import {ReportDefinitionParameterService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'report-parameter-modal-type',
@@ -18,7 +18,7 @@ export class ReportparameterModalType {
     private config;
 
     constructor() {
-        
+
     }
 }
 
@@ -31,12 +31,12 @@ export class ReportparameterModalType {
 export class ParameterModal {
     @ViewChild(UniModal)
     private modal: UniModal;
-    
+
     public modalConfig: any = {};
     public type: Type<any> = ReportparameterModalType;
-    
+
     private previewModal: PreviewModal;
-    
+
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private http: Http,
@@ -104,11 +104,11 @@ export class ParameterModal {
                     if (val > 0) { param.value = val; }
 
                     this.modalConfig.report.parameters = params;
-                    this.modal.open();        
+                    this.modal.open();
                 }, err => this.errorService.handle(err));
             } else {
                 this.modalConfig.report.parameters = params;
-                this.modal.open();        
+                this.modal.open();
             }
         }, err => this.errorService.handle(err));
     }

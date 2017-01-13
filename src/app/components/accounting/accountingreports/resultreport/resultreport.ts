@@ -1,13 +1,12 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {JournalEntryService, StatisticsService} from '../../../../services/services';
+import {JournalEntryService, StatisticsService, DimensionTypes} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {DimensionsOverviewReportPart} from '../reportparts/dimensionsOverviewReportPart';
-import {DimensionTypes} from '../../../../services/common/DimensionService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 
 declare const moment;

@@ -1,7 +1,6 @@
 import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
-import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerQuote} from '../../../../unientities';
@@ -10,14 +9,13 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
@@ -28,7 +26,9 @@ import {
     CustomerService,
     ReportDefinitionService,
     UserService,
-    ErrorService
+    ErrorService,
+    NumberFormat,
+    CompanySettingsService
 } from '../../../../services/services';
 import moment from 'moment';
 declare const _;

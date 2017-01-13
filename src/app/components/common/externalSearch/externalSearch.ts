@@ -1,8 +1,7 @@
 import {Component, ViewChildren, Input, Output, SimpleChange, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {BusinessRelationService} from '../../../services/services';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {BusinessRelationService, ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'external-search',

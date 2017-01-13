@@ -5,13 +5,12 @@ import {
     TaxType, StdWageType, GetRateFrom
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { WageTypeService, UniCacheService } from '../../../services/services';
+import { WageTypeService, UniCacheService, ErrorService } from '../../../services/services';
 import { ToastService } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { ErrorService } from '../../../services/common/ErrorService';
 declare var _; // lodash
 
 @Component({

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {FinancialYear, Company, CompanySettings} from '../../unientities';
-import {CompanySettingsService} from '../services';
+import {CompanySettingsService} from '../common/companySettingsService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 

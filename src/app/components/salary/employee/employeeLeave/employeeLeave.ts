@@ -2,10 +2,8 @@ import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Employment, Employee, EmployeeLeave} from '../../../../unientities';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {UniCacheService} from '../../../../services/services';
-
+import {UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'employee-permision',
@@ -38,12 +36,12 @@ export class EmployeeLeaves extends UniView {
 
             super.getStateSubject('employee')
                 .subscribe(
-                    employee => this.employee = employee, 
+                    employee => this.employee = employee,
                     err => this.errorService.handle(err)
                 );
             super.getStateSubject('employeeLeave')
                 .subscribe(
-                    employeeleave => this.employeeleaveItems = employeeleave, 
+                    employeeleave => this.employeeleaveItems = employeeleave,
                     err => this.errorService.handle(err)
                 );
 

@@ -2,11 +2,9 @@ import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {SupplierService} from '../../../../services/services';
+import {SupplierService, ErrorService} from '../../../../services/services';
 import {Supplier} from '../../../../unientities';
-
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var jQuery;
 

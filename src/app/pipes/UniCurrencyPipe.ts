@@ -1,5 +1,5 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {ErrorService} from '../services/common/ErrorService';
+import {ErrorService} from '../services/services';
 
 @Pipe({name: 'unicurrency'})
 export class UniCurrencyPipe implements PipeTransform {

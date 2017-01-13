@@ -1,6 +1,6 @@
 import * as browser from '@angular/platform-browser';
 import {Pipe} from '@angular/core';
-import {ErrorService} from '../services/common/ErrorService';
+import {ErrorService} from '../services/services';
 
 @Pipe({name: 'safehtml'})
 export class SafeHtml {

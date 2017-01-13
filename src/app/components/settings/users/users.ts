@@ -1,22 +1,22 @@
 ﻿import {Component} from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormControl, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
+import {ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'uni-users',
     templateUrl: 'app/components/settings/users/users.html'
 })
 export class Users {
-    // New user Form 
+    // New user Form
     private newUserForm: FormGroup;
     private errorMessage: string;
-    
+
     // Users table
     private users: any[];
     private tableConfig: UniTableConfig;
-    
+
     // Misc
     private busy: boolean = false;
 
@@ -24,20 +24,20 @@ export class Users {
         this.newUserForm = new FormGroup({
             Email: new FormControl('', this.isInvalidEmail)
         });
-        
+
         this.errorMessage = '';
         this.users = [];
-        
+
         this.setupUserTable();
         this.refreshUsers();
     }
-    
+
     private setupUserTable() {
         const nameCol = new UniTableColumn('DisplayName', 'Navn');
         const emailCol = new UniTableColumn('Email', 'Epost');
         const statusCol = new UniTableColumn('StatusCode', 'Status')
             .setTemplate(rowModel => this.getStatusCodeText(rowModel['StatusCode']));
-        
+
         const contextMenuItems: IContextMenuItem[] = [
             {
                 label: 'Send ny invitasjon',
@@ -54,12 +54,12 @@ export class Users {
                 }
             }
         ];
-        
+
         this.tableConfig = new UniTableConfig(false, true, 25)
             .setColumns([nameCol, emailCol, statusCol])
             .setContextMenu(contextMenuItems);
     }
-    
+
     private refreshUsers() {
         this.http
             .asGET()
@@ -74,7 +74,7 @@ export class Users {
         this.errorMessage = '';
         let companyId = JSON.parse(localStorage.getItem('activeCompany')).id;
         let newUser = user || this.newUserForm.value;
-        
+
         this.busy = true;
 
         this.http.asPOST()
@@ -126,7 +126,7 @@ export class Users {
             .map(response => response.json())
             .subscribe(response => this.refreshUsers(), err => this.errorService.handle(err));
     }
-    
+
     private getStatusCodeText(statusCode: number): string {
         switch (statusCode) {
             case 110000: return 'Invitert';
@@ -135,14 +135,14 @@ export class Users {
             default: return 'Ingen status';
         }
     }
-    
+
     private isInvalidEmail(control: FormControl) {
         let testResult = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i.test(control.value);
-        
+
         if (!testResult) {
             return {'isInvalidEmail': true}
         }
-        
+
         return null;
     }
 }

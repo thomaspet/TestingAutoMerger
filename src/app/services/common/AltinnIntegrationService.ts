@@ -2,7 +2,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {SubEntityService} from '../services';
+import {SubEntityService} from '../common/subEntityService';
 import {IntegrationServerCaller} from './IntegrationServerCaller';
 import {Injectable} from '@angular/core';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
@@ -35,7 +35,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     }
 
     public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<string> {
-        
+
         const headers = {
             'x-altinn-userid': authData.userID,
             'x-altinn-password': authData.password,
@@ -153,7 +153,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     IsLookUp: true,
                     Options: {
                         source: this.languages,
-                        template: (obj) => `${obj.id} - ${obj.name}`, 
+                        template: (obj) => `${obj.id} - ${obj.name}`,
                         valueProperty: 'ID',
                         displayProperty: 'text'
                     },

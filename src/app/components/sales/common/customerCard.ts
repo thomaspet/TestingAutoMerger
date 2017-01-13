@@ -3,9 +3,8 @@ import {FormControl} from '@angular/forms';
 import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
-import {AddressService, CustomerService, EHFService} from '../../../services/services';
+import {AddressService, CustomerService, EHFService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
-import {ErrorService} from '../../../services/common/ErrorService';
 declare const _;
 
 @Component({

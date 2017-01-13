@@ -6,7 +6,7 @@ import {createFormField, FieldSize, ControlTypes} from '../../utils/utils';
 import {ChangeMap} from '../../utils/changeMap';
 import {Observable} from 'rxjs/Rx';
 import {IResult} from '../../genericview/detail';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'vacation',
@@ -113,7 +113,7 @@ export class View {
         this.busy = true;
         return new Promise((resolve, reject) => {
             var result = this.save(parentID);
-            if (result === null) { 
+            if (result === null) {
                 this.afterSaveCompleted();
                 resolve({success: true});
             }
@@ -136,7 +136,7 @@ export class View {
     }
 
     private save(parentID: number): Observable<any> {
-        
+
         var items = this.changeMap.getValues();
         if (items.length > 0) {
             items.forEach( item => item.WorkerID = parentID );
@@ -178,15 +178,15 @@ export class View {
         this.current = this.layout.data.factory();
         if (this.parentId) {
             this.busy = true;
-            this.workerService.get<WorkTimeOff>('worktimeoff', 
+            this.workerService.get<WorkTimeOff>('worktimeoff',
                 { filter: `workrelationid eq ${this.parentId}`,
-                    top: 30, orderBy: 'todate desc' 
+                    top: 30, orderBy: 'todate desc'
                 }).subscribe( (items: any) => {
                 this.items = items;
                 if (items.length > 0) {
                     this.onItemClicked(items[0]);
                 }
-                this.busy = false; 
+                this.busy = false;
             }, err => this.errorService.handle(err));
         } else {
             this.items.length = 0;
@@ -200,7 +200,7 @@ export class View {
                 route: 'worktimeoff',
                 factory: () => { return new WorkTimeOff(); }
             },
-            formFields: [                
+            formFields: [
                 createFormField('Description', 'Beskrivelse av ferie/fri',  ControlTypes.TextInput, FieldSize.Full),
                 createFormField('FromDate', 'Fra og med dato',  ControlTypes.LocalDate, FieldSize.Double ),
                 createFormField('ToDate', 'Til og med dato',  ControlTypes.LocalDate, FieldSize.Double )
@@ -208,7 +208,7 @@ export class View {
         };
 
         return layout;
-    }  
+    }
 /*
     private getTimeOffTypes(): Array<any> {
         return [

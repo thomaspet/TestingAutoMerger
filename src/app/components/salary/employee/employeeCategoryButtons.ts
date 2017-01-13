@@ -1,8 +1,7 @@
 import {Component, Input, SimpleChanges, OnChanges} from '@angular/core';
 import {EmployeeCategory} from '../../../unientities';
-import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
+import {EmployeeService, EmployeeCategoryService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 declare var jQuery;
 

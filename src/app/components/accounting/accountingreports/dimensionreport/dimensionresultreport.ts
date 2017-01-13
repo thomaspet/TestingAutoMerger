@@ -1,17 +1,21 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, StatisticsService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {DimensionsOverviewReportPart} from '../reportparts/dimensionsOverviewReportPart';
-import {DimensionTypes} from '../../../../services/common/DimensionService';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
 import {ResultSummaryData} from '../resultreport/resultreport';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {
+    JournalEntryService,
+    StatisticsService,
+    DimensionTypes,
+
+} from '../../../../services/services';
 
 declare const moment;
 declare const _; // lodash

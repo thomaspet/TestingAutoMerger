@@ -2,9 +2,8 @@ import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {ProjectService} from '../../../../../services/common/ProjectService';
+import {ProjectService, ErrorService} from '../../../../../services/services';
 import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../../../services/common/ErrorService';
 
 @Component({
     selector: 'project-dimensions-list',

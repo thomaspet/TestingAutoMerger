@@ -1,10 +1,9 @@
 import {Component, AfterViewInit, ViewChild, Type, Input} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
-import {GrantService, SubEntityService} from '../../../../services/services';
+import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'grants-modal-content',
@@ -19,7 +18,7 @@ export class GrantsModalContent {
     private allSubEntities: SubEntity[];
 
     constructor(
-        private _grantService: GrantService, 
+        private _grantService: GrantService,
         private _subentityService: SubEntityService,
         private errorService: ErrorService
     ) {
@@ -59,7 +58,7 @@ export class GrantsModalContent {
     }
 
     private setTableConfig() {
-        let yesNo: any[] = 
+        let yesNo: any[] =
         [
             {Text: 'Ja', Value: true},
             {Text: 'Nei', Value: false}
@@ -72,7 +71,7 @@ export class GrantsModalContent {
                 subEntity = this.allSubEntities.find(sub => sub.ID === rowModel.SubentityID);
             }
             return (subEntity) ? `${subEntity.OrgNumber} - ${subEntity._Name}` : '';
-            
+
         })
         .setEditorOptions({
             itemTemplate: (selectedItem) => {
@@ -107,7 +106,7 @@ export class GrantsModalContent {
                 return yesNo.filter((affect) => {
                     let text = (affect.Text || '').toLowerCase();
                     return (text.indexOf(searchValue.toLowerCase()) > - 1);
-                }); 
+                });
             },
             itemTemplate: (selectedItem) => {
                 return selectedItem ? selectedItem.Text : '';

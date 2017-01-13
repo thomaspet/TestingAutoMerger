@@ -2,13 +2,15 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {Period, VatReport} from '../../../../../app/unientities';
-import {VatReportService} from '../../../../services/Accounting/VatReportService';
-import {PeriodService} from '../../../../services/Accounting/PeriodService';
 import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    VatReportService,
+    PeriodService,
+    ErrorService
+} from '../../../../services/services';
 
 declare var _;
 declare const moment;

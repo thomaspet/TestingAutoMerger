@@ -2,11 +2,10 @@ import { Component, Input, ViewChild } from '@angular/core';
 import { FieldType, BasicAmount, VacationPayInfo, VacationPayLine, CompanySettings } from '../../../../unientities';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { 
-    SalaryTransactionService, BasicAmountService, PayrollrunService, 
-    VacationpayLineService, CompanySettingsService } from '../../../../../app/services/services';
+import {
+    SalaryTransactionService, BasicAmountService, PayrollrunService,
+    VacationpayLineService, CompanySettingsService, ErrorService } from '../../../../../app/services/services';
 import { VacationpaySettingModal } from './vacationPaySettingModal';
-import { ErrorService } from '../../../../services/common/ErrorService';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
 
@@ -18,9 +17,9 @@ declare var _;
 })
 export class VacationpayModalContent {
     @Input('config') private config: {
-        hasCancelButton: boolean, 
-        cancel: (dueToHolidayChanged: boolean) => void, 
-        payrollRunID: number, 
+        hasCancelButton: boolean,
+        cancel: (dueToHolidayChanged: boolean) => void,
+        payrollRunID: number,
         submit: (dueToHolidayChanged: boolean) => void
     };
     private busy: boolean;
@@ -72,8 +71,8 @@ export class VacationpayModalContent {
             }, err => this.errorService.handle(err));
     }
 
-    public updateConfig(newConfig: { 
-        hasCancelButton: boolean, cancel: (dueToHolidayChanged: boolean) => void, 
+    public updateConfig(newConfig: {
+        hasCancelButton: boolean, cancel: (dueToHolidayChanged: boolean) => void,
         payrollRunID: number, submit: (dueToHolidayChanged: boolean) => void }) {
         this.config = newConfig;
     }

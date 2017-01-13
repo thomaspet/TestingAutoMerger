@@ -3,12 +3,18 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard } from '../../../unientities';
-import { EmployeeService, PayrollrunService, UniCacheService, AgaZoneService, NumberFormat } from '../../../services/services';
 import { ISummaryConfig } from '../../common/summary/summary';
-
 import { UniView } from '../../../../framework/core/uniView';
 import {SalaryTransactionEmployeeList} from './salarytransList';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    EmployeeService,
+    PayrollrunService,
+    UniCacheService,
+    AgaZoneService,
+    NumberFormat,
+    ErrorService
+} from '../../../services/services';
+
 declare var _;
 
 @Component({
@@ -47,12 +53,12 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         super(router.url, cacheService);
 
         this.tableConfig();
-        
+
         route.params.subscribe(param => {
             this.payrollRunID = +param['id'];
             super.updateCacheKey(router.url);
             super.getStateSubject('employees').subscribe((employees: Employee[]) => {
-                
+
                 this.selectedIndex = 0;
                 if (employees && employees[0].TaxCards) {
                     this.employeeList = employees || [];
@@ -86,15 +92,15 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             .setTemplate((rowModel: Employee) => {
                 if (rowModel.BankAccounts) {
                     let error = '';
-                    let taxError = !rowModel.TaxCards 
-                    || !rowModel.TaxCards.length 
-                    || (!rowModel.TaxCards[0].TaxTable 
+                    let taxError = !rowModel.TaxCards
+                    || !rowModel.TaxCards.length
+                    || (!rowModel.TaxCards[0].TaxTable
                     && !rowModel.TaxCards[0].TaxPercentage);
-                    let accountError = (!rowModel.BankAccounts) 
+                    let accountError = (!rowModel.BankAccounts)
                     || !rowModel.BankAccounts.some(x => x.Active === true);
-                    let notUpdated = !taxError 
-                    && rowModel.TaxCards 
-                    && this.payrollRun 
+                    let notUpdated = !taxError
+                    && rowModel.TaxCards
+                    && this.payrollRun
                     && rowModel.TaxCards[0].Year < new Date(this.payrollRun.PayDate).getFullYear();
 
                     if (taxError || accountError || notUpdated) {
@@ -104,14 +110,14 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                             error = 'Kontonummer mangler. ';
                         } else if (taxError) {
                             error = 'Skatteinfo mangler. ';
-                        } 
+                        }
                         if (notUpdated) {
                             error += 'Skattekort er ikke oppdatert';
                         }
-                        return '{#<em class="missing-info" title="' 
-                        + error 
-                        + '" role="presentation">' 
-                        + error 
+                        return '{#<em class="missing-info" title="'
+                        + error
+                        + '" role="presentation">'
+                        + error
                         + '</em>#}';
                     } else {
                         return "{#<em role='presentation'></em>#}# ";
@@ -162,14 +168,14 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         this.summary = [{
             value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.percentTax),
             title: `Prosenttrekk` + (taxCard ? ` (${taxCard.TaxPercentage}%)` : ''),
-            description: this.employeeTotals 
-            && this.employeeTotals.basePercentTax 
+            description: this.employeeTotals
+            && this.employeeTotals.basePercentTax
             ? `av ${this.numberFormat.asMoney(this.employeeTotals.basePercentTax)}` : null
         }, {
             value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.tableTax),
             title: 'Tabelltrekk' + (taxCard ? ` (${taxCard.TaxTable})` : ''),
-            description: this.employeeTotals 
-            && this.employeeTotals.baseTableTax 
+            description: this.employeeTotals
+            && this.employeeTotals.baseTableTax
             ? `av ${this.numberFormat.asMoney(this.employeeTotals.baseTableTax)}` : null
         }, {
             title: 'Utbetalt beløp',
@@ -233,7 +239,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             error = 'Kontonummer mangler. ' + error + 'kontonummer.';
         } else if (noTax) {
             error = 'Skatteinfo mangler. ' + error + 'skatteinfo.';
-        } 
+        }
 
         return error;
     }

@@ -4,10 +4,9 @@ import {Observable} from 'rxjs/Observable';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
-import {CustomerOrderService, ProductService} from '../../../../services/services';
+import {CustomerOrderService, ProductService, ErrorService} from '../../../../services/services';
 import {StatusCodeCustomerOrderItem} from '../../../../unientities';
 import {CustomerOrder, CustomerOrderItem} from '../../../../unientities';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'order-to-invoice-table',
@@ -40,7 +39,7 @@ export class OrderToInvoiceTable {
         var productNameCol = new UniTableColumn('Product.Name', 'Produktnavn', UniTableColumnType.Text);
         let numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
 
-        // Setup table        
+        // Setup table
         this.orderItemTable = new UniTableConfig(false, true, 10)
             .setColumns([
                 productNrCol, productNameCol, numItemsCol

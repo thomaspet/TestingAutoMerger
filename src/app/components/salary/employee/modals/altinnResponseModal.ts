@@ -1,8 +1,7 @@
 import {Component, Type, ViewChild, Input, AfterViewInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {AltinnIntegrationService} from '../../../../../app/services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {AltinnIntegrationService,ErrorService} from '../../../../../app/services/services';
 
 declare var _;
 @Component({
