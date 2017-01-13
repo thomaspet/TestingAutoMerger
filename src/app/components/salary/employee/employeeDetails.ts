@@ -122,6 +122,49 @@ export class EmployeeDetails extends UniView {
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
 
+            if (!this.employeeID) {
+                // If we're dealing with a new employee, just fire up an empty state poster
+                this.employeeWidgets = [
+                    {
+                        type: 'contact',
+                        config: {
+                            contacts: [{ value: 'Ny ansatt' }]
+                        }
+                    },
+                    {
+                        type: 'text',
+                        size: 'small',
+                        config: {
+                            topText: [{ text: 'Ingen lønn utbetalt' }]
+                        }
+                    },
+                    {
+                        type: 'alerts',
+                        config: {
+                            alerts: [{
+                                text: '',
+                                class: ''
+                            },
+                            {
+                                text: '',
+                                class: ''
+                            },
+                            {
+                                text: '',
+                                class: ''
+                            }]
+                        }
+                    },
+                    {
+                        type: 'text',
+                        size: 'small',
+                        config: {
+                            topText: [{ text: 'Ingen aktive stillingsforhold' }]
+                        }
+                    }
+                ];
+            }
+
             // Update cache key and clear data variables when employee ID is changed
             super.updateCacheKey(this.router.url);
 
@@ -162,7 +205,9 @@ export class EmployeeDetails extends UniView {
                 this.posterEmployee.employments = employments;
                 this.posterEmployee = _.cloneDeep(this.posterEmployee);
                 this.checkDirty();
-                this.updatePosterEmployments(employments);
+                if (this.employeeID) {
+                    this.updatePosterEmployments(employments);
+                }
             }, err => this.errorService.handle(err));
 
             super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
@@ -314,37 +359,6 @@ export class EmployeeDetails extends UniView {
                         }
                     }, err => this.errorService.handle(err));
             }
-        } else {
-            // If we're dealing with a new employee, just fire up an empty state poster
-            this.employeeWidgets = [
-                {
-                    type: 'contact',
-                    config: {
-                        contacts: [{ value: 'Ny ansatt' }]
-                    }
-                },
-                {
-                    type: 'text',
-                    size: 'small',
-                    config: {
-                        topText: [{ text: 'Ingen lønn utbetalt' }]
-                    }
-                },
-                {
-                    type: 'alerts',
-                    config: {
-                        alerts: []
-                    }
-                },
-                {
-                    type: 'text',
-                    size: 'small',
-                    config: {
-                        topText: [{ text: 'Ingen aktive stillingsforhold' }]
-                    }
-                }
-            ];
-
         }
 
         // Check if the alerts are all a-OK!
