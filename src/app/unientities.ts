@@ -2,9 +2,9 @@
 
 export class LocalDate {
     private value: Date;
-    public year: number; // <-- For moment constructor
+    public year: number;  // <-- For moment constructor
     public month: number; // <-- For moment constructor
-    public day: number; // <-- For moment constructor
+    public day: number;   // <-- For moment constructor
     constructor(value: string | Date = new Date()) {
         if (typeof value === 'string') {
             this.value = new Date(value);
@@ -47,7 +47,9 @@ export class LocalTime {
     }
 }
 
-export class AuditLog {
+export class UniEntity {}
+
+export class AuditLog extends UniEntity {
     public static RelativeUrl = 'auditlogs';
     public static EntityType = 'AuditLog';
 
@@ -70,7 +72,7 @@ export class AuditLog {
 }
 
 
-export class WorkBalance {
+export class WorkBalance extends UniEntity {
     public static RelativeUrl = 'workbalances';
     public static EntityType = 'WorkBalance';
 
@@ -97,7 +99,7 @@ export class WorkBalance {
 }
 
 
-export class Worker {
+export class Worker extends UniEntity {
     public static RelativeUrl = 'workers';
     public static EntityType = 'Worker';
 
@@ -116,7 +118,7 @@ export class Worker {
 }
 
 
-export class WorkItem {
+export class WorkItem extends UniEntity {
     public static RelativeUrl = 'workitems';
     public static EntityType = 'WorkItem';
 
@@ -154,7 +156,7 @@ export class WorkItem {
 }
 
 
-export class WorkTimeOff {
+export class WorkTimeOff extends UniEntity {
     public static RelativeUrl = 'worktimeoff';
     public static EntityType = 'WorkTimeOff';
 
@@ -177,7 +179,7 @@ export class WorkTimeOff {
 }
 
 
-export class WorkProfile {
+export class WorkProfile extends UniEntity {
     public static RelativeUrl = 'workprofiles';
     public static EntityType = 'WorkProfile';
 
@@ -198,7 +200,7 @@ export class WorkProfile {
 }
 
 
-export class WorkRelation {
+export class WorkRelation extends UniEntity {
     public static RelativeUrl = 'workrelations';
     public static EntityType = 'WorkRelation';
 
@@ -227,7 +229,7 @@ export class WorkRelation {
 }
 
 
-export class WorkType {
+export class WorkType extends UniEntity {
     public static RelativeUrl = 'worktypes';
     public static EntityType = 'WorkType';
 
@@ -245,7 +247,7 @@ export class WorkType {
 }
 
 
-export class FieldLayout {
+export class FieldLayout extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FieldLayout';
 
@@ -282,7 +284,7 @@ export class FieldLayout {
 }
 
 
-export class ComponentLayout {
+export class ComponentLayout extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComponentLayout';
 
@@ -300,7 +302,7 @@ export class ComponentLayout {
 }
 
 
-export class UserRole {
+export class UserRole extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'UserRole';
 
@@ -317,7 +319,7 @@ export class UserRole {
 }
 
 
-export class Role {
+export class Role extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Role';
 
@@ -335,7 +337,7 @@ export class Role {
 }
 
 
-export class RolePermission {
+export class RolePermission extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'RolePermission';
 
@@ -353,7 +355,7 @@ export class RolePermission {
 }
 
 
-export class Permission {
+export class Permission extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Permission';
 
@@ -369,7 +371,7 @@ export class Permission {
 }
 
 
-export class AccountVisibilityGroupAccount {
+export class AccountVisibilityGroupAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountVisibilityGroupAccount';
 
@@ -385,7 +387,7 @@ export class AccountVisibilityGroupAccount {
 }
 
 
-export class AccountVisibilityGroup {
+export class AccountVisibilityGroup extends UniEntity {
     public static RelativeUrl = 'accountvisibilitygroups';
     public static EntityType = 'AccountVisibilityGroup';
 
@@ -402,7 +404,7 @@ export class AccountVisibilityGroup {
 }
 
 
-export class PostalCode {
+export class PostalCode extends UniEntity {
     public static RelativeUrl = 'postalcodes';
     public static EntityType = 'PostalCode';
 
@@ -419,7 +421,7 @@ export class PostalCode {
 }
 
 
-export class UserVerification {
+export class UserVerification extends UniEntity {
     public static RelativeUrl = 'user-verifications';
     public static EntityType = 'UserVerification';
 
@@ -441,7 +443,7 @@ export class UserVerification {
 }
 
 
-export class AccountGroupSetup {
+export class AccountGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountGroupSetup';
 
@@ -460,7 +462,7 @@ export class AccountGroupSetup {
 }
 
 
-export class AccountSetup {
+export class AccountSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountSetup';
 
@@ -484,7 +486,7 @@ export class AccountSetup {
 }
 
 
-export class AGARate {
+export class AGARate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGARate';
 
@@ -502,7 +504,7 @@ export class AGARate {
 }
 
 
-export class AGASector {
+export class AGASector extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGASector';
 
@@ -522,7 +524,7 @@ export class AGASector {
 }
 
 
-export class AGAZone {
+export class AGAZone extends UniEntity {
     public static RelativeUrl = 'AGAZones';
     public static EntityType = 'AGAZone';
 
@@ -539,7 +541,7 @@ export class AGAZone {
 }
 
 
-export class bilOgBaat {
+export class bilOgBaat extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'bilOgBaat';
 
@@ -564,7 +566,7 @@ export class bilOgBaat {
 }
 
 
-export class bonusFraForsvaret {
+export class bonusFraForsvaret extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'bonusFraForsvaret';
 
@@ -581,7 +583,7 @@ export class bonusFraForsvaret {
 }
 
 
-export class Company {
+export class Company extends UniEntity {
     public static RelativeUrl = 'companies';
     public static EntityType = 'Company';
 
@@ -601,7 +603,7 @@ export class Company {
 }
 
 
-export class CompanyAccess {
+export class CompanyAccess extends UniEntity {
     public static RelativeUrl = 'companies-access';
     public static EntityType = 'CompanyAccess';
 
@@ -617,7 +619,7 @@ export class CompanyAccess {
 }
 
 
-export class CompanyType {
+export class CompanyType extends UniEntity {
     public static RelativeUrl = 'companytypes';
     public static EntityType = 'CompanyType';
 
@@ -636,7 +638,7 @@ export class CompanyType {
 }
 
 
-export class Country {
+export class Country extends UniEntity {
     public static RelativeUrl = 'countries';
     public static EntityType = 'Country';
 
@@ -654,7 +656,7 @@ export class Country {
 }
 
 
-export class CurrencyEntry {
+export class CurrencyEntry extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'CurrencyEntry';
 
@@ -673,7 +675,7 @@ export class CurrencyEntry {
 }
 
 
-export class dagmammaIEgenBolig {
+export class dagmammaIEgenBolig extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'dagmammaIEgenBolig';
 
@@ -691,7 +693,7 @@ export class dagmammaIEgenBolig {
 }
 
 
-export class EmploymentValidValues {
+export class EmploymentValidValues extends UniEntity {
     public static RelativeUrl = 'employmentvalidvalues';
     public static EntityType = 'EmploymentValidValues';
 
@@ -725,7 +727,7 @@ export class EmploymentValidValues {
 }
 
 
-export class etterbetalingsperiode {
+export class etterbetalingsperiode extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'etterbetalingsperiode';
 
@@ -743,7 +745,7 @@ export class etterbetalingsperiode {
 }
 
 
-export class Inntekt {
+export class Inntekt extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Inntekt';
 
@@ -776,7 +778,7 @@ export class Inntekt {
 }
 
 
-export class inntektPaaNorskKontinentalsokkel {
+export class inntektPaaNorskKontinentalsokkel extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'inntektPaaNorskKontinentalsokkel';
 
@@ -796,7 +798,7 @@ export class inntektPaaNorskKontinentalsokkel {
 }
 
 
-export class inntjeningsforhold {
+export class inntjeningsforhold extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'inntjeningsforhold';
 
@@ -813,7 +815,7 @@ export class inntjeningsforhold {
 }
 
 
-export class livrente {
+export class livrente extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'livrente';
 
@@ -830,7 +832,7 @@ export class livrente {
 }
 
 
-export class loennsinntekt {
+export class loennsinntekt extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'loennsinntekt';
 
@@ -852,7 +854,7 @@ export class loennsinntekt {
 }
 
 
-export class lottOgPart {
+export class lottOgPart extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'lottOgPart';
 
@@ -869,7 +871,7 @@ export class lottOgPart {
 }
 
 
-export class Municipal {
+export class Municipal extends UniEntity {
     public static RelativeUrl = 'Municipals';
     public static EntityType = 'Municipal';
 
@@ -887,7 +889,7 @@ export class Municipal {
 }
 
 
-export class MunicipalAGAZone {
+export class MunicipalAGAZone extends UniEntity {
     public static RelativeUrl = 'MunicipalAGAZones';
     public static EntityType = 'MunicipalAGAZone';
 
@@ -904,7 +906,7 @@ export class MunicipalAGAZone {
 }
 
 
-export class naeringsinntekt {
+export class naeringsinntekt extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'naeringsinntekt';
 
@@ -923,7 +925,7 @@ export class naeringsinntekt {
 }
 
 
-export class nettoloenn {
+export class nettoloenn extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'nettoloenn';
 
@@ -943,7 +945,7 @@ export class nettoloenn {
 }
 
 
-export class PaymentCode {
+export class PaymentCode extends UniEntity {
     public static RelativeUrl = 'paymentCodes';
     public static EntityType = 'PaymentCode';
 
@@ -961,7 +963,7 @@ export class PaymentCode {
 }
 
 
-export class pensjon {
+export class pensjon extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'pensjon';
 
@@ -983,7 +985,7 @@ export class pensjon {
 }
 
 
-export class pensjonEllerTrygd {
+export class pensjonEllerTrygd extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'pensjonEllerTrygd';
 
@@ -1002,7 +1004,7 @@ export class pensjonEllerTrygd {
 }
 
 
-export class reiseKostOgLosji {
+export class reiseKostOgLosji extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'reiseKostOgLosji';
 
@@ -1020,7 +1022,7 @@ export class reiseKostOgLosji {
 }
 
 
-export class tilleggsinformasjon {
+export class tilleggsinformasjon extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'tilleggsinformasjon';
 
@@ -1064,7 +1066,7 @@ export class tilleggsinformasjon {
 }
 
 
-export class utenlandskArtist {
+export class utenlandskArtist extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'utenlandskArtist';
 
@@ -1083,7 +1085,7 @@ export class utenlandskArtist {
 }
 
 
-export class spesifikasjon {
+export class spesifikasjon extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'spesifikasjon';
 
@@ -1103,7 +1105,7 @@ export class spesifikasjon {
 }
 
 
-export class StaticRegister {
+export class StaticRegister extends UniEntity {
     public static RelativeUrl = 'StaticRegister';
     public static EntityType = 'StaticRegister';
 
@@ -1119,7 +1121,7 @@ export class StaticRegister {
 }
 
 
-export class STYRKCode {
+export class STYRKCode extends UniEntity {
     public static RelativeUrl = 'STYRK';
     public static EntityType = 'STYRKCode';
 
@@ -1137,7 +1139,7 @@ export class STYRKCode {
 }
 
 
-export class VatCodeGroupSetup {
+export class VatCodeGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroupSetup';
 
@@ -1153,7 +1155,7 @@ export class VatCodeGroupSetup {
 }
 
 
-export class VatPostSetup {
+export class VatPostSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatPostSetup';
 
@@ -1173,7 +1175,7 @@ export class VatPostSetup {
 }
 
 
-export class VatReportForm {
+export class VatReportForm extends UniEntity {
     public static RelativeUrl = 'vatreportforms';
     public static EntityType = 'VatReportForm';
 
@@ -1189,7 +1191,7 @@ export class VatReportForm {
 }
 
 
-export class VatReportReferenceSetup {
+export class VatReportReferenceSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportReferenceSetup';
 
@@ -1206,7 +1208,7 @@ export class VatReportReferenceSetup {
 }
 
 
-export class VatTypeSetup {
+export class VatTypeSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatTypeSetup';
 
@@ -1232,7 +1234,7 @@ export class VatTypeSetup {
 }
 
 
-export class LanguageCode {
+export class LanguageCode extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'LanguageCode';
 
@@ -1247,7 +1249,7 @@ export class LanguageCode {
 }
 
 
-export class Translation {
+export class Translation extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Translation';
 
@@ -1265,7 +1267,7 @@ export class Translation {
 }
 
 
-export class TranslationKey {
+export class TranslationKey extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TranslationKey';
 
@@ -1280,7 +1282,7 @@ export class TranslationKey {
 }
 
 
-export class PeriodSeries {
+export class PeriodSeries extends UniEntity {
     public static RelativeUrl = 'period-series';
     public static EntityType = 'PeriodSeries';
 
@@ -1297,7 +1299,7 @@ export class PeriodSeries {
 }
 
 
-export class PeriodTemplate {
+export class PeriodTemplate extends UniEntity {
     public static RelativeUrl = 'period-templates';
     public static EntityType = 'PeriodTemplate';
 
@@ -1317,7 +1319,7 @@ export class PeriodTemplate {
 }
 
 
-export class ReportDefinition {
+export class ReportDefinition extends UniEntity {
     public static RelativeUrl = 'report-definitions';
     public static EntityType = 'ReportDefinition';
 
@@ -1336,7 +1338,7 @@ export class ReportDefinition {
 }
 
 
-export class ReportDefinitionDataSource {
+export class ReportDefinitionDataSource extends UniEntity {
     public static RelativeUrl = 'report-definition-data-sources';
     public static EntityType = 'ReportDefinitionDataSource';
 
@@ -1353,7 +1355,7 @@ export class ReportDefinitionDataSource {
 }
 
 
-export class ReportDefinitionParameter {
+export class ReportDefinitionParameter extends UniEntity {
     public static RelativeUrl = 'report-definition-parameters';
     public static EntityType = 'ReportDefinitionParameter';
 
@@ -1372,7 +1374,7 @@ export class ReportDefinitionParameter {
 }
 
 
-export class Notification {
+export class Notification extends UniEntity {
     public static RelativeUrl = 'notifications';
     public static EntityType = 'Notification';
 
@@ -1396,7 +1398,7 @@ export class Notification {
 }
 
 
-export class Customer {
+export class Customer extends UniEntity {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
 
@@ -1421,7 +1423,7 @@ export class Customer {
 }
 
 
-export class CustomerInvoice {
+export class CustomerInvoice extends UniEntity {
     public static RelativeUrl = 'invoices';
     public static EntityType = 'CustomerInvoice';
 
@@ -1498,7 +1500,7 @@ export class CustomerInvoice {
 }
 
 
-export class CustomerInvoiceItem {
+export class CustomerInvoiceItem extends UniEntity {
     public static RelativeUrl = 'invoiceitems';
     public static EntityType = 'CustomerInvoiceItem';
 
@@ -1534,7 +1536,7 @@ export class CustomerInvoiceItem {
 }
 
 
-export class CustomerOrder {
+export class CustomerOrder extends UniEntity {
     public static RelativeUrl = 'orders';
     public static EntityType = 'CustomerOrder';
 
@@ -1595,7 +1597,7 @@ export class CustomerOrder {
 }
 
 
-export class CustomerOrderItem {
+export class CustomerOrderItem extends UniEntity {
     public static RelativeUrl = 'orderitems';
     public static EntityType = 'CustomerOrderItem';
 
@@ -1631,7 +1633,7 @@ export class CustomerOrderItem {
 }
 
 
-export class CustomerQuote {
+export class CustomerQuote extends UniEntity {
     public static RelativeUrl = 'quotes';
     public static EntityType = 'CustomerQuote';
 
@@ -1694,7 +1696,7 @@ export class CustomerQuote {
 }
 
 
-export class CustomerQuoteItem {
+export class CustomerQuoteItem extends UniEntity {
     public static RelativeUrl = 'quoteitems';
     public static EntityType = 'CustomerQuoteItem';
 
@@ -1730,7 +1732,7 @@ export class CustomerQuoteItem {
 }
 
 
-export class Supplier {
+export class Supplier extends UniEntity {
     public static RelativeUrl = 'suppliers';
     public static EntityType = 'Supplier';
 
@@ -1755,7 +1757,7 @@ export class Supplier {
 }
 
 
-export class Address {
+export class Address extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Address';
 
@@ -1780,7 +1782,7 @@ export class Address {
 }
 
 
-export class Contact {
+export class Contact extends UniEntity {
     public static RelativeUrl = 'contacts';
     public static EntityType = 'Contact';
 
@@ -1801,7 +1803,7 @@ export class Contact {
 }
 
 
-export class BusinessRelation {
+export class BusinessRelation extends UniEntity {
     public static RelativeUrl = 'business-relations';
     public static EntityType = 'BusinessRelation';
 
@@ -1831,7 +1833,7 @@ export class BusinessRelation {
 }
 
 
-export class Email {
+export class Email extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Email';
 
@@ -1850,7 +1852,7 @@ export class Email {
 }
 
 
-export class Phone {
+export class Phone extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Phone';
 
@@ -1870,7 +1872,7 @@ export class Phone {
 }
 
 
-export class AGACalculation {
+export class AGACalculation extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGACalculation';
 
@@ -1894,7 +1896,7 @@ export class AGACalculation {
 }
 
 
-export class FreeAmountUsed {
+export class FreeAmountUsed extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FreeAmountUsed';
 
@@ -1913,7 +1915,7 @@ export class FreeAmountUsed {
 }
 
 
-export class AGATax {
+export class AGATax extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGATax';
 
@@ -1936,7 +1938,7 @@ export class AGATax {
 }
 
 
-export class AGAPension {
+export class AGAPension extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGAPension';
 
@@ -1959,7 +1961,7 @@ export class AGAPension {
 }
 
 
-export class AGADraw {
+export class AGADraw extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGADraw';
 
@@ -1982,7 +1984,7 @@ export class AGADraw {
 }
 
 
-export class ForeignerWithPercent {
+export class ForeignerWithPercent extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ForeignerWithPercent';
 
@@ -2002,7 +2004,7 @@ export class ForeignerWithPercent {
 }
 
 
-export class DrawForeignerWithPercent {
+export class DrawForeignerWithPercent extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DrawForeignerWithPercent';
 
@@ -2022,7 +2024,7 @@ export class DrawForeignerWithPercent {
 }
 
 
-export class ForeignerWithAmount {
+export class ForeignerWithAmount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ForeignerWithAmount';
 
@@ -2042,7 +2044,7 @@ export class ForeignerWithAmount {
 }
 
 
-export class AmeldingData {
+export class AmeldingData extends UniEntity {
     public static RelativeUrl = 'amelding';
     public static EntityType = 'AmeldingData';
 
@@ -2072,7 +2074,7 @@ export class AmeldingData {
 }
 
 
-export class AmeldingLog {
+export class AmeldingLog extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AmeldingLog';
 
@@ -2090,7 +2092,7 @@ export class AmeldingLog {
 }
 
 
-export class EmployeeTaxCard {
+export class EmployeeTaxCard extends UniEntity {
     public static RelativeUrl = 'taxcards';
     public static EntityType = 'EmployeeTaxCard';
 
@@ -2113,7 +2115,7 @@ export class EmployeeTaxCard {
 }
 
 
-export class SalaryTransactionSupplement {
+export class SalaryTransactionSupplement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SalaryTransactionSupplement';
 
@@ -2136,7 +2138,7 @@ export class SalaryTransactionSupplement {
 }
 
 
-export class VacationPayLine {
+export class VacationPayLine extends UniEntity {
     public static RelativeUrl = 'VacationPayLines';
     public static EntityType = 'VacationPayLine';
 
@@ -2161,7 +2163,7 @@ export class VacationPayLine {
 }
 
 
-export class WageTypeSupplement {
+export class WageTypeSupplement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'WageTypeSupplement';
 
@@ -2182,7 +2184,7 @@ export class WageTypeSupplement {
 }
 
 
-export class BasicAmount {
+export class BasicAmount extends UniEntity {
     public static RelativeUrl = 'basicamounts';
     public static EntityType = 'BasicAmount';
 
@@ -2202,7 +2204,7 @@ export class BasicAmount {
 }
 
 
-export class CompanySalary {
+export class CompanySalary extends UniEntity {
     public static RelativeUrl = 'companysalary';
     public static EntityType = 'CompanySalary';
 
@@ -2233,7 +2235,7 @@ export class CompanySalary {
 }
 
 
-export class CompanyVacationRate {
+export class CompanyVacationRate extends UniEntity {
     public static RelativeUrl = 'companyvacationrates';
     public static EntityType = 'CompanyVacationRate';
 
@@ -2251,7 +2253,7 @@ export class CompanyVacationRate {
 }
 
 
-export class EmployeeCategory {
+export class EmployeeCategory extends UniEntity {
     public static RelativeUrl = 'employeecategories';
     public static EntityType = 'EmployeeCategory';
 
@@ -2268,7 +2270,7 @@ export class EmployeeCategory {
 }
 
 
-export class EmployeeCategoryLink {
+export class EmployeeCategoryLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EmployeeCategoryLink';
 
@@ -2288,7 +2290,7 @@ export class EmployeeCategoryLink {
 }
 
 
-export class EmployeeLeave {
+export class EmployeeLeave extends UniEntity {
     public static RelativeUrl = 'EmployeeLeave';
     public static EntityType = 'EmployeeLeave';
 
@@ -2310,7 +2312,7 @@ export class EmployeeLeave {
 }
 
 
-export class Employment {
+export class Employment extends UniEntity {
     public static RelativeUrl = 'employments';
     public static EntityType = 'Employment';
 
@@ -2354,7 +2356,7 @@ export class Employment {
 }
 
 
-export class SubEntity {
+export class SubEntity extends UniEntity {
     public static RelativeUrl = 'subentities';
     public static EntityType = 'SubEntity';
 
@@ -2378,7 +2380,7 @@ export class SubEntity {
 }
 
 
-export class Grant {
+export class Grant extends UniEntity {
     public static RelativeUrl = 'grants';
     public static EntityType = 'Grant';
 
@@ -2398,7 +2400,7 @@ export class Grant {
 }
 
 
-export class PayrollRun {
+export class PayrollRun extends UniEntity {
     public static RelativeUrl = 'payrollrun';
     public static EntityType = 'PayrollRun';
 
@@ -2427,7 +2429,7 @@ export class PayrollRun {
 }
 
 
-export class VacationRateEmployee {
+export class VacationRateEmployee extends UniEntity {
     public static RelativeUrl = 'employeevacationrates';
     public static EntityType = 'VacationRateEmployee';
 
@@ -2446,7 +2448,7 @@ export class VacationRateEmployee {
 }
 
 
-export class WageType {
+export class WageType extends UniEntity {
     public static RelativeUrl = 'wagetypes';
     public static EntityType = 'WageType';
 
@@ -2493,7 +2495,7 @@ export class WageType {
 }
 
 
-export class SalaryTransaction {
+export class SalaryTransaction extends UniEntity {
     public static RelativeUrl = 'salarytrans';
     public static EntityType = 'SalaryTransaction';
 
@@ -2537,7 +2539,7 @@ export class SalaryTransaction {
 }
 
 
-export class Employee {
+export class Employee extends UniEntity {
     public static RelativeUrl = 'employees';
     public static EntityType = 'Employee';
 
@@ -2574,7 +2576,7 @@ export class Employee {
 }
 
 
-export class BankAccountSalary {
+export class BankAccountSalary extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BankAccountSalary';
 
@@ -2596,7 +2598,7 @@ export class BankAccountSalary {
 }
 
 
-export class EHFLog {
+export class EHFLog extends UniEntity {
     public static RelativeUrl = 'ehf';
     public static EntityType = 'EHFLog';
 
@@ -2614,7 +2616,7 @@ export class EHFLog {
 }
 
 
-export class StatusLog {
+export class StatusLog extends UniEntity {
     public static RelativeUrl = 'statuslogs';
     public static EntityType = 'StatusLog';
 
@@ -2632,7 +2634,7 @@ export class StatusLog {
 }
 
 
-export class EmailLog {
+export class EmailLog extends UniEntity {
     public static RelativeUrl = 'emails';
     public static EntityType = 'EmailLog';
 
@@ -2652,7 +2654,7 @@ export class EmailLog {
 }
 
 
-export class Period {
+export class Period extends UniEntity {
     public static RelativeUrl = 'periodes';
     public static EntityType = 'Period';
 
@@ -2675,7 +2677,7 @@ export class Period {
 }
 
 
-export class CompanySettings {
+export class CompanySettings extends UniEntity {
     public static RelativeUrl = 'companysettings';
     public static EntityType = 'CompanySettings';
 
@@ -2736,7 +2738,7 @@ export class CompanySettings {
 }
 
 
-export class User {
+export class User extends UniEntity {
     public static RelativeUrl = 'users';
     public static EntityType = 'User';
 
@@ -2757,7 +2759,7 @@ export class User {
 }
 
 
-export class TreeStructure {
+export class TreeStructure extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TreeStructure';
 
@@ -2776,7 +2778,7 @@ export class TreeStructure {
 }
 
 
-export class ProductCategory {
+export class ProductCategory extends UniEntity {
     public static RelativeUrl = 'productcategories';
     public static EntityType = 'ProductCategory';
 
@@ -2799,7 +2801,7 @@ export class ProductCategory {
 }
 
 
-export class ProductCategoryLink {
+export class ProductCategoryLink extends UniEntity {
     public static RelativeUrl = 'productcategorylinks';
     public static EntityType = 'ProductCategoryLink';
 
@@ -2817,7 +2819,7 @@ export class ProductCategoryLink {
 }
 
 
-export class Tracelink {
+export class Tracelink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Tracelink';
 
@@ -2837,7 +2839,7 @@ export class Tracelink {
 }
 
 
-export class Product {
+export class Product extends UniEntity {
     public static RelativeUrl = 'products';
     public static EntityType = 'Product';
 
@@ -2873,7 +2875,7 @@ export class Product {
 }
 
 
-export class Region {
+export class Region extends UniEntity {
     public static RelativeUrl = 'regions';
     public static EntityType = 'Region';
 
@@ -2892,7 +2894,7 @@ export class Region {
 }
 
 
-export class Department {
+export class Department extends UniEntity {
     public static RelativeUrl = 'departments';
     public static EntityType = 'Department';
 
@@ -2913,7 +2915,7 @@ export class Department {
 }
 
 
-export class Dimensions {
+export class Dimensions extends UniEntity {
     public static RelativeUrl = 'dimensions';
     public static EntityType = 'Dimensions';
 
@@ -2936,7 +2938,7 @@ export class Dimensions {
 }
 
 
-export class Project {
+export class Project extends UniEntity {
     public static RelativeUrl = 'projects';
     public static EntityType = 'Project';
 
@@ -2957,7 +2959,7 @@ export class Project {
 }
 
 
-export class Responsible {
+export class Responsible extends UniEntity {
     public static RelativeUrl = 'responsibles';
     public static EntityType = 'Responsible';
 
@@ -2975,7 +2977,7 @@ export class Responsible {
 }
 
 
-export class Status {
+export class Status extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Status';
 
@@ -2996,7 +2998,7 @@ export class Status {
 }
 
 
-export class StatusCategory {
+export class StatusCategory extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'StatusCategory';
 
@@ -3012,7 +3014,7 @@ export class StatusCategory {
 }
 
 
-export class Transition {
+export class Transition extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Transition';
 
@@ -3029,7 +3031,7 @@ export class Transition {
 }
 
 
-export class TransitionThreshold {
+export class TransitionThreshold extends UniEntity {
     public static RelativeUrl = 'thresholds';
     public static EntityType = 'TransitionThreshold';
 
@@ -3050,7 +3052,7 @@ export class TransitionThreshold {
 }
 
 
-export class TransitionThresholdApproval {
+export class TransitionThresholdApproval extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TransitionThresholdApproval';
 
@@ -3072,7 +3074,7 @@ export class TransitionThresholdApproval {
 }
 
 
-export class Approval {
+export class Approval extends UniEntity {
     public static RelativeUrl = 'approvals';
     public static EntityType = 'Approval';
 
@@ -3091,7 +3093,7 @@ export class Approval {
 }
 
 
-export class Task {
+export class Task extends UniEntity {
     public static RelativeUrl = 'tasks';
     public static EntityType = 'Task';
 
@@ -3114,7 +3116,7 @@ export class Task {
 }
 
 
-export class TransitionFlow {
+export class TransitionFlow extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TransitionFlow';
 
@@ -3135,7 +3137,7 @@ export class TransitionFlow {
 }
 
 
-export class UniQueryFilter {
+export class UniQueryFilter extends UniEntity {
     public static RelativeUrl = 'uniqueryfilters';
     public static EntityType = 'UniQueryFilter';
 
@@ -3155,7 +3157,7 @@ export class UniQueryFilter {
 }
 
 
-export class UniQueryField {
+export class UniQueryField extends UniEntity {
     public static RelativeUrl = 'uniqueryfields';
     public static EntityType = 'UniQueryField';
 
@@ -3179,7 +3181,7 @@ export class UniQueryField {
 }
 
 
-export class UniQueryDefinition {
+export class UniQueryDefinition extends UniEntity {
     public static RelativeUrl = 'uniquerydefinitions';
     public static EntityType = 'UniQueryDefinition';
 
@@ -3208,7 +3210,7 @@ export class UniQueryDefinition {
 }
 
 
-export class NumberSeriesInvalidOverlap {
+export class NumberSeriesInvalidOverlap extends UniEntity {
     public static RelativeUrl = 'number-series-invalid-overlaps';
     public static EntityType = 'NumberSeriesInvalidOverlap';
 
@@ -3227,7 +3229,7 @@ export class NumberSeriesInvalidOverlap {
 }
 
 
-export class NumberSeries {
+export class NumberSeries extends UniEntity {
     public static RelativeUrl = 'number-series';
     public static EntityType = 'NumberSeries';
 
@@ -3252,7 +3254,7 @@ export class NumberSeries {
 }
 
 
-export class NumberSeriesType {
+export class NumberSeriesType extends UniEntity {
     public static RelativeUrl = 'number-series-types';
     public static EntityType = 'NumberSeriesType';
 
@@ -3270,7 +3272,7 @@ export class NumberSeriesType {
 }
 
 
-export class File {
+export class File extends UniEntity {
     public static RelativeUrl = 'files/{entitytype}/{entityid}';
     public static EntityType = 'File';
 
@@ -3295,7 +3297,7 @@ export class File {
 }
 
 
-export class FileTag {
+export class FileTag extends UniEntity {
     public static RelativeUrl = 'filetags';
     public static EntityType = 'FileTag';
 
@@ -3313,7 +3315,7 @@ export class FileTag {
 }
 
 
-export class FileEntityLink {
+export class FileEntityLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FileEntityLink';
 
@@ -3332,7 +3334,7 @@ export class FileEntityLink {
 }
 
 
-export class Comment {
+export class Comment extends UniEntity {
     public static RelativeUrl = 'comments';
     public static EntityType = 'Comment';
 
@@ -3353,7 +3355,7 @@ export class Comment {
 }
 
 
-export class Mentioned {
+export class Mentioned extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Mentioned';
 
@@ -3371,7 +3373,7 @@ export class Mentioned {
 }
 
 
-export class Altinn {
+export class Altinn extends UniEntity {
     public static RelativeUrl = 'altinn';
     public static EntityType = 'Altinn';
 
@@ -3390,7 +3392,7 @@ export class Altinn {
 }
 
 
-export class AltinnSigning {
+export class AltinnSigning extends UniEntity {
     public static RelativeUrl = 'altinnsigning';
     public static EntityType = 'AltinnSigning';
 
@@ -3411,7 +3413,7 @@ export class AltinnSigning {
 }
 
 
-export class AltinnReceipt {
+export class AltinnReceipt extends UniEntity {
     public static RelativeUrl = 'altinnreceipts';
     public static EntityType = 'AltinnReceipt';
 
@@ -3435,7 +3437,7 @@ export class AltinnReceipt {
 }
 
 
-export class AltinnCorrespondanceReader {
+export class AltinnCorrespondanceReader extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AltinnCorrespondanceReader';
 
@@ -3456,7 +3458,7 @@ export class AltinnCorrespondanceReader {
 }
 
 
-export class Accrual {
+export class Accrual extends UniEntity {
     public static RelativeUrl = 'accruals';
     public static EntityType = 'Accrual';
 
@@ -3501,7 +3503,7 @@ export class Accrual {
 }
 
 
-export class JournalEntryType {
+export class JournalEntryType extends UniEntity {
     public static RelativeUrl = 'journalentrytypes';
     public static EntityType = 'JournalEntryType';
 
@@ -3517,7 +3519,7 @@ export class JournalEntryType {
 }
 
 
-export class JournalEntryMode {
+export class JournalEntryMode extends UniEntity {
     public static RelativeUrl = 'journalEntryModes';
     public static EntityType = 'JournalEntryMode';
 
@@ -3536,7 +3538,7 @@ export class JournalEntryMode {
 }
 
 
-export class JournalEntry {
+export class JournalEntry extends UniEntity {
     public static RelativeUrl = 'journalentries';
     public static EntityType = 'JournalEntry';
 
@@ -3557,7 +3559,7 @@ export class JournalEntry {
 }
 
 
-export class JournalEntryLine {
+export class JournalEntryLine extends UniEntity {
     public static RelativeUrl = 'journalentrylines';
     public static EntityType = 'JournalEntryLine';
 
@@ -3620,7 +3622,7 @@ export class JournalEntryLine {
 }
 
 
-export class JournalEntryLineDraft {
+export class JournalEntryLineDraft extends UniEntity {
     public static RelativeUrl = 'journalentrylinedrafts';
     public static EntityType = 'JournalEntryLineDraft';
 
@@ -3685,7 +3687,7 @@ export class JournalEntryLineDraft {
 }
 
 
-export class PaymentBatch {
+export class PaymentBatch extends UniEntity {
     public static RelativeUrl = 'paymentbatches';
     public static EntityType = 'PaymentBatch';
 
@@ -3708,7 +3710,7 @@ export class PaymentBatch {
 }
 
 
-export class Payment {
+export class Payment extends UniEntity {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
 
@@ -3747,7 +3749,7 @@ export class Payment {
 }
 
 
-export class VatCodeGroup {
+export class VatCodeGroup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroup';
 
@@ -3764,7 +3766,7 @@ export class VatCodeGroup {
 }
 
 
-export class VatReportArchivedSummary {
+export class VatReportArchivedSummary extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportArchivedSummary';
 
@@ -3789,7 +3791,7 @@ export class VatReportArchivedSummary {
 }
 
 
-export class VatReportType {
+export class VatReportType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportType';
 
@@ -3805,7 +3807,7 @@ export class VatReportType {
 }
 
 
-export class VatReport {
+export class VatReport extends UniEntity {
     public static RelativeUrl = 'vatreports';
     public static EntityType = 'VatReport';
 
@@ -3834,7 +3836,7 @@ export class VatReport {
 }
 
 
-export class VatPost {
+export class VatPost extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatPost';
 
@@ -3856,7 +3858,7 @@ export class VatPost {
 }
 
 
-export class VatReportReference {
+export class VatReportReference extends UniEntity {
     public static RelativeUrl = 'vatreportreferences';
     public static EntityType = 'VatReportReference';
 
@@ -3877,7 +3879,7 @@ export class VatReportReference {
 }
 
 
-export class PostPost {
+export class PostPost extends UniEntity {
     public static RelativeUrl = 'postposts';
     public static EntityType = 'PostPost';
 
@@ -3901,7 +3903,7 @@ export class PostPost {
 }
 
 
-export class SupplierInvoiceItem {
+export class SupplierInvoiceItem extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SupplierInvoiceItem';
 
@@ -3935,7 +3937,7 @@ export class SupplierInvoiceItem {
 }
 
 
-export class SupplierInvoice {
+export class SupplierInvoice extends UniEntity {
     public static RelativeUrl = 'supplierinvoices';
     public static EntityType = 'SupplierInvoice';
 
@@ -4011,7 +4013,7 @@ export class SupplierInvoice {
 }
 
 
-export class JournalEntrySourceSerie {
+export class JournalEntrySourceSerie extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'JournalEntrySourceSerie';
 
@@ -4028,7 +4030,7 @@ export class JournalEntrySourceSerie {
 }
 
 
-export class AccountGroupSet {
+export class AccountGroupSet extends UniEntity {
     public static RelativeUrl = 'accountgroupsets';
     public static EntityType = 'AccountGroupSet';
 
@@ -4049,7 +4051,7 @@ export class AccountGroupSet {
 }
 
 
-export class Account {
+export class Account extends UniEntity {
     public static RelativeUrl = 'accounts';
     public static EntityType = 'Account';
 
@@ -4097,7 +4099,7 @@ export class Account {
 }
 
 
-export class AccountAlias {
+export class AccountAlias extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountAlias';
 
@@ -4114,7 +4116,7 @@ export class AccountAlias {
 }
 
 
-export class AccountGroup {
+export class AccountGroup extends UniEntity {
     public static RelativeUrl = 'accountgroups';
     public static EntityType = 'AccountGroup';
 
@@ -4139,7 +4141,7 @@ export class AccountGroup {
 }
 
 
-export class Bank {
+export class Bank extends UniEntity {
     public static RelativeUrl = 'banks';
     public static EntityType = 'Bank';
 
@@ -4163,7 +4165,7 @@ export class Bank {
 }
 
 
-export class BankAccount {
+export class BankAccount extends UniEntity {
     public static RelativeUrl = 'bankaccounts';
     public static EntityType = 'BankAccount';
 
@@ -4189,7 +4191,7 @@ export class BankAccount {
 }
 
 
-export class Currency {
+export class Currency extends UniEntity {
     public static RelativeUrl = 'currencies';
     public static EntityType = 'Currency';
 
@@ -4210,7 +4212,7 @@ export class Currency {
 }
 
 
-export class FinancialYear {
+export class FinancialYear extends UniEntity {
     public static RelativeUrl = 'financialyears';
     public static EntityType = 'FinancialYear';
 
@@ -4228,7 +4230,7 @@ export class FinancialYear {
 }
 
 
-export class VatCodeDeduction {
+export class VatCodeDeduction extends UniEntity {
     public static RelativeUrl = 'vatcodedeductions';
     public static EntityType = 'VatCodeDeduction';
 
@@ -4248,7 +4250,7 @@ export class VatCodeDeduction {
 }
 
 
-export class VatType {
+export class VatType extends UniEntity {
     public static RelativeUrl = 'vattypes';
     public static EntityType = 'VatType';
 
@@ -4284,7 +4286,7 @@ export class VatType {
 }
 
 
-export class EntityValidationRule {
+export class EntityValidationRule extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRule';
 
@@ -4309,7 +4311,7 @@ export class EntityValidationRule {
 }
 
 
-export class EntityValidationRuleTemplate {
+export class EntityValidationRuleTemplate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRuleTemplate';
 
@@ -4334,7 +4336,7 @@ export class EntityValidationRuleTemplate {
 }
 
 
-export class ComplexValidationRule {
+export class ComplexValidationRule extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComplexValidationRule';
 
@@ -4357,7 +4359,7 @@ export class ComplexValidationRule {
 }
 
 
-export class ComplexValidationRuleTemplate {
+export class ComplexValidationRuleTemplate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComplexValidationRuleTemplate';
 
@@ -4380,7 +4382,7 @@ export class ComplexValidationRuleTemplate {
 }
 
 
-export class CustomField {
+export class CustomField extends UniEntity {
     public static RelativeUrl = 'custom-fields';
     public static EntityType = 'CustomField';
 
@@ -4399,7 +4401,7 @@ export class CustomField {
 }
 
 
-export class ValueList {
+export class ValueList extends UniEntity {
     public static RelativeUrl = 'valuelists';
     public static EntityType = 'ValueList';
 
@@ -4417,7 +4419,7 @@ export class ValueList {
 }
 
 
-export class ValueItem {
+export class ValueItem extends UniEntity {
     public static RelativeUrl = 'valueitems';
     public static EntityType = 'ValueItem';
 
@@ -4438,7 +4440,7 @@ export class ValueItem {
 }
 
 
-export class ComponentLayoutDto {
+export class ComponentLayoutDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComponentLayoutDto';
 
@@ -4450,7 +4452,7 @@ export class ComponentLayoutDto {
 }
 
 
-export class FieldLayoutDto {
+export class FieldLayoutDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FieldLayoutDto';
 
@@ -4491,7 +4493,7 @@ export class FieldLayoutDto {
 }
 
 
-export class WorkBalanceDto {
+export class WorkBalanceDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'WorkBalanceDto';
 
@@ -4523,7 +4525,7 @@ export class WorkBalanceDto {
 }
 
 
-export class BalanceInfo {
+export class BalanceInfo extends UniEntity {
     public BalanceDate: Date;
     public Description: string;
     public ID: number;
@@ -4531,7 +4533,7 @@ export class BalanceInfo {
 }
 
 
-export class ContactSearchServiceResponse {
+export class ContactSearchServiceResponse extends UniEntity {
     public ErrorCode: number;
     public ErrorMessage: string;
     public Method: string;
@@ -4540,7 +4542,7 @@ export class ContactSearchServiceResponse {
 }
 
 
-export class CustomerBalanceReportData {
+export class CustomerBalanceReportData extends UniEntity {
     public AccountNumber: number;
     public CustomerID: number;
     public Name: string;
@@ -4550,7 +4552,7 @@ export class CustomerBalanceReportData {
 }
 
 
-export class TradeHeaderCalculationSummary {
+export class TradeHeaderCalculationSummary extends UniEntity {
     public DecimalRounding: number;
     public SumDiscount: number;
     public SumNoVatBasis: number;
@@ -4561,27 +4563,27 @@ export class TradeHeaderCalculationSummary {
 }
 
 
-export class VatCalculationSummary {
+export class VatCalculationSummary extends UniEntity {
     public SumVat: number;
     public SumVatBasis: number;
     public VatPercent: number;
 }
 
 
-export class InvoicePaymentData {
+export class InvoicePaymentData extends UniEntity {
     public Amount: number;
     public PaymentDate: Date;
 }
 
 
-export class InvoiceSummary {
+export class InvoiceSummary extends UniEntity {
     public SumCreditedAmount: number;
     public SumRestAmount: number;
     public SumTotalAmount: number;
 }
 
 
-export class SupplierBalanceReportData {
+export class SupplierBalanceReportData extends UniEntity {
     public AccountNumber: number;
     public Name: string;
     public SumCredit: number;
@@ -4591,7 +4593,7 @@ export class SupplierBalanceReportData {
 }
 
 
-export class AmeldingAgaAndTaxSums {
+export class AmeldingAgaAndTaxSums extends UniEntity {
     public AccountNumber: string;
     public DueDate: Date;
     public EmploymentTax: number;
@@ -4603,7 +4605,7 @@ export class AmeldingAgaAndTaxSums {
 }
 
 
-export class SalaryTransactionPay {
+export class SalaryTransactionPay extends UniEntity {
     public CompanyAccount: string;
     public CompanyAddress: string;
     public CompanyCity: string;
@@ -4616,7 +4618,7 @@ export class SalaryTransactionPay {
 }
 
 
-export class SalaryTransactionPayLine {
+export class SalaryTransactionPayLine extends UniEntity {
     public Account: string;
     public Address: string;
     public City: string;
@@ -4628,26 +4630,26 @@ export class SalaryTransactionPayLine {
 }
 
 
-export class PostingSummary {
+export class PostingSummary extends UniEntity {
     public SubEntity: SubEntity;
     public PayrollRun: PayrollRun;
     public PostList: Array<JournalEntryLine>;
 }
 
 
-export class VacationPayList {
+export class VacationPayList extends UniEntity {
     public VacationPay: Array<VacationPayLine>;
 }
 
 
-export class VacationPayInfo {
+export class VacationPayInfo extends UniEntity {
     public EmployeeID: number;
     public ManualVacationPayBase: number;
     public Withdrawal: number;
 }
 
 
-export class code {
+export class code extends UniEntity {
     public fordel: string;
     public gmlcode: string;
     public gyldigfom: string;
@@ -4667,33 +4669,33 @@ export class code {
 }
 
 
-export class Loennsinntekt {
+export class Loennsinntekt extends UniEntity {
     public antall: number;
     public antallSpecified: boolean;
 }
 
 
-export class YtelseFraOffentlige {
+export class YtelseFraOffentlige extends UniEntity {
 }
 
 
-export class PensjonEllerTrygd {
+export class PensjonEllerTrygd extends UniEntity {
 }
 
 
-export class Naeringsinntekt {
+export class Naeringsinntekt extends UniEntity {
 }
 
 
-export class Fradrag {
+export class Fradrag extends UniEntity {
 }
 
 
-export class Forskuddstrekk {
+export class Forskuddstrekk extends UniEntity {
 }
 
 
-export class SalaryTransactionSums {
+export class SalaryTransactionSums extends UniEntity {
     public baseAGA: number;
     public basePercentTax: number;
     public baseTableTax: number;
@@ -4711,7 +4713,7 @@ export class SalaryTransactionSums {
 }
 
 
-export class SalaryTransactionPeriodSums {
+export class SalaryTransactionPeriodSums extends UniEntity {
     public AgaRate: number;
     public AgaZone: string;
     public FromPeriod: number;
@@ -4723,7 +4725,7 @@ export class SalaryTransactionPeriodSums {
 }
 
 
-export class OcrResult {
+export class OcrResult extends UniEntity {
     public language: string;
     public MaxTop: number;
     public MaxWidth: number;
@@ -4734,7 +4736,7 @@ export class OcrResult {
 }
 
 
-export class OcrInvoiceReport {
+export class OcrInvoiceReport extends UniEntity {
     public SupplierID: number;
     public Orgno: SuggestedValue;
     public Kid: SuggestedValue;
@@ -4747,13 +4749,13 @@ export class OcrInvoiceReport {
 }
 
 
-export class SuggestedValue {
+export class SuggestedValue extends UniEntity {
     public Candidates: Array<HitWord>;
     public Value: HitWord;
 }
 
 
-export class HitWord {
+export class HitWord extends UniEntity {
     public boundingBox: string;
     public DateValue: Date;
     public Hit: string;
@@ -4762,7 +4764,7 @@ export class HitWord {
 }
 
 
-export class AltinnAuthChallenge {
+export class AltinnAuthChallenge extends UniEntity {
     public Message: string;
     public Status: string;
     public ValidFrom: Date;
@@ -4770,14 +4772,14 @@ export class AltinnAuthChallenge {
 }
 
 
-export class AltinnAuthRequest {
+export class AltinnAuthRequest extends UniEntity {
     public PreferredLogin: string;
     public UserID: string;
     public UserPassword: string;
 }
 
 
-export class SendEmail {
+export class SendEmail extends UniEntity {
     public CopyAddress: string;
     public EntityID: number;
     public EntityType: string;
@@ -4788,13 +4790,13 @@ export class SendEmail {
 }
 
 
-export class SendEmailAttachment {
+export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
     public FileName: string;
 }
 
 
-export class EHFActivate {
+export class EHFActivate extends UniEntity {
     public contactemail: string;
     public contactname: string;
     public contactphone: string;
@@ -4803,7 +4805,7 @@ export class EHFActivate {
 }
 
 
-export class JournalEntryLineRequestSummary {
+export class JournalEntryLineRequestSummary extends UniEntity {
     public SumBalance: number;
     public SumCredit: number;
     public SumDebit: number;
@@ -4812,17 +4814,17 @@ export class JournalEntryLineRequestSummary {
 }
 
 
-export class JournalEntryLineCouple {
+export class JournalEntryLineCouple extends UniEntity {
 }
 
 
-export class VatReportMessage {
+export class VatReportMessage extends UniEntity {
     public Level: ValidationLevel;
     public Message: string;
 }
 
 
-export class VatReportSummary {
+export class VatReportSummary extends UniEntity {
     public HasTaxAmount: boolean;
     public HasTaxBasis: boolean;
     public IsHistoricData: boolean;
@@ -4835,7 +4837,7 @@ export class VatReportSummary {
 }
 
 
-export class VatReportSummaryPerPost {
+export class VatReportSummaryPerPost extends UniEntity {
     public HasTaxAmount: boolean;
     public HasTaxBasis: boolean;
     public IsHistoricData: boolean;
@@ -4852,7 +4854,7 @@ export class VatReportSummaryPerPost {
 }
 
 
-export class VatReportNotReportedJournalEntryData {
+export class VatReportNotReportedJournalEntryData extends UniEntity {
     public NumberOfJournalEntryLines: number;
     public SumTaxBasisAmount: number;
     public SumVatAmount: number;
@@ -4860,19 +4862,19 @@ export class VatReportNotReportedJournalEntryData {
 }
 
 
-export class AltinnGetVatReportDataFromAltinnResult {
+export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
     public Message: string;
     public Status: AltinnGetVatReportDataFromAltinnStatus;
 }
 
 
-export class BankData {
+export class BankData extends UniEntity {
     public IBAN: string;
     public Bank: Bank;
 }
 
 
-export class JournalEntryData {
+export class JournalEntryData extends UniEntity {
     public Amount: number;
     public CreditAccountID: number;
     public CreditAccountNumber: number;
@@ -4896,12 +4898,12 @@ export class JournalEntryData {
 }
 
 
-export class ValidationResult {
+export class ValidationResult extends UniEntity {
     public Messages: Array<ValidationMessage>;
 }
 
 
-export class ValidationMessage {
+export class ValidationMessage extends UniEntity {
     public EntityID: number;
     public EntityType: string;
     public ID: number;
@@ -4914,7 +4916,7 @@ export class ValidationMessage {
 }
 
 
-export class JournalEntryCalculationSummary {
+export class JournalEntryCalculationSummary extends UniEntity {
     public Differance: number;
     public IncomingVat: number;
     public OutgoingVat: number;
@@ -4923,7 +4925,7 @@ export class JournalEntryCalculationSummary {
 }
 
 
-export class JournalEntryPeriodData {
+export class JournalEntryPeriodData extends UniEntity {
     public PeriodName: string;
     public PeriodNo: number;
     public PeriodSumYear1: number;
@@ -4931,43 +4933,43 @@ export class JournalEntryPeriodData {
 }
 
 
-export class AmeldingSumUp {
+export class AmeldingSumUp extends UniEntity {
     public entities: Array<AmeldingEntity>;
     public agadetails: Array<AGADetails>;
     public totals: Totals;
 }
 
 
-export class AmeldingEntity {
+export class AmeldingEntity extends UniEntity {
     public sums: Sums;
     public employees: Array<Employees>;
     public transactionTypes: Array<TransactionTypes>;
 }
 
 
-export class Sums {
+export class Sums extends UniEntity {
 }
 
 
-export class Employees {
+export class Employees extends UniEntity {
     public arbeidsforhold: Array<Employments>;
 }
 
 
-export class Employments {
+export class Employments extends UniEntity {
     public permisjon: Array<EmploymentLeaves>;
 }
 
 
-export class EmploymentLeaves {
+export class EmploymentLeaves extends UniEntity {
 }
 
 
-export class TransactionTypes {
+export class TransactionTypes extends UniEntity {
 }
 
 
-export class AGADetails {
+export class AGADetails extends UniEntity {
     public baseAmount: number;
     public rate: number;
     public sectorName: string;
@@ -4976,7 +4978,7 @@ export class AGADetails {
 }
 
 
-export class Totals {
+export class Totals extends UniEntity {
 }
 
 
