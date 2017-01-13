@@ -4,7 +4,7 @@
 
 <header class="customer_poster">
     <section class="poster_overview">
-        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="!customer?.ID"></external-search>
+        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="showSearch(customerID)"></external-search>
     </section>
 
     <div class="horizontal_nav" *ngIf="customer?.ID">

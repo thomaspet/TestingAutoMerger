@@ -47,6 +47,8 @@ export class LedgerAccountReconciliation {
     public isDirty: boolean = false;
     private busy: boolean = false;
 
+    private displayPostsOption: string = "OPEN";
+
     private summaryData = {
         SumOpen: 0,
         SumOpenDue: 0,
@@ -82,18 +84,20 @@ export class LedgerAccountReconciliation {
         this.summaryData.SumOpenDue = 0;
         this.summaryData.SumOpen = 0;
 
-        let posts = this.table.getTableData();
+        setTimeout(() => {
+            let posts = this.table.getTableData();
 
-        posts.forEach(x => {
-            if (x.StatusCode !== StatusCodeJournalEntryLine.Marked) {
-                this.summaryData.SumOpen += x.RestAmount;
-                if (x.DueDate && moment(x.DueDate).isBefore(moment())) {
-                    this.summaryData.SumOpenDue += x.RestAmount;
+            posts.forEach(x => {
+                if (x.StatusCode !== StatusCodeJournalEntryLine.Marked) {
+                    this.summaryData.SumOpen += x.RestAmount;
+                    if (x.DueDate && moment(x.DueDate).isBefore(moment())) {
+                        this.summaryData.SumOpenDue += x.RestAmount;
+                    }
                 }
-            }
-        });
+            });
 
-        this.setSums();
+            this.setSums();
+        });
     }
 
     private onRowSelected(data) {
@@ -148,55 +152,28 @@ export class LedgerAccountReconciliation {
                     // TODO: Add some slack here - allow for e.g. differences of 5 kr ??
                     this.addToCurrentMarkingSession(rowModel);
                     this.closeMarkingSession();
-                } else if (countPositive === 0 || countNegative === 0) {
+                } else if ((countPositive === 0 && rowModel.RestAmount < 0)
+                    || (countNegative === 0 && rowModel.RestAmount > 0)) {
                     // Only negative or only positive amounts are crossed, so they don't balance.
                     // Just add the item to the list and wait for next input from user
                     this.addToCurrentMarkingSession(rowModel);
+                } else if (didSwitchAfterLastSelection) {
+                    // close marking with the selected item included, this will
+                    // cause a restamount on one of the selected lines
+                    this.addToCurrentMarkingSession(rowModel);
+                    this.closeMarkingSession();
                 } else if (((countPositive === 0 && rowModel.RestAmount > 0) || (countPositive === 1 && rowModel.RestAmount < 0))
                             && ((countNegative === 0 && rowModel.RestAmount < 0) || (countNegative === 1 && rowModel.RestAmount > 0))) {
                     // One positive and one negative amount are crossed, but the don't balance.
                     // Just add the item to the list and wait for next input from user
                     this.addToCurrentMarkingSession(rowModel);
                 } else {
-                    if (didSwitchAfterLastSelection ||
-                        ((countPositive > 1 || (countPositive > 0 && rowModel.RestAmount > 0))
-                            && (countNegative > 1 || (countNegative > 0 && rowModel.RestAmount < 0)))) {
-
-                        // we can't have multiple positive and multiple negative amounts selected
-                        this.confirmModal.confirm(
-                            'Vil du lukke forrige markering og legge denne linjen legges til en ny markering?',
-                            'Ferdigstill forrige markering?')
-                            .then(confirmDialogResponse => {
-
-                                if (((countPositive > 1 || (countPositive > 0 && rowModel.RestAmount > 0))
-                                    && (countNegative > 1 || (countNegative > 0 && rowModel.RestAmount < 0)))) {
-
-                                    if (confirmDialogResponse !== ConfirmActions.ACCEPT) {
-                                        // User has only marked multiple amounts, both positive and negative.
-                                        // Don't allow this, only negative and positive amounts should be allowed
-                                        this.toastService.addToast('Kan ikke markere linjen',
-                                            ToastType.warn,
-                                            ToastTime.medium,
-                                            'Kan ikke ha flere positive og flere negative beløp samtidig'
-                                        );
-                                        rowModel._rowSelected = false;
-                                        this.table.updateRow(rowModel._originalIndex, rowModel);
-
-                                        return;
-                                    } else {
-                                        // close marking session before adding the newly selected row
-                                        this.closeMarkingSession();
-                                        this.addToCurrentMarkingSession(rowModel);
-                                    }
-                                } else {
-                                    // close marking with the selected item included, this will
-                                    // cause a restamount on one of the selected lines
-                                    this.addToCurrentMarkingSession(rowModel);
-                                    this.closeMarkingSession();
-                                }
-                            });
-
-
+                    if ((countPositive > 1 || (countPositive > 0 && rowModel.RestAmount > 0))
+                            && (countNegative > 1 || (countNegative > 0 && rowModel.RestAmount < 0))) {
+                        // make an assumption here, and just close the exising markings - we cannot have multiple Open
+                        // negative and positive amounts at the same time
+                        this.closeMarkingSession();
+                        this.addToCurrentMarkingSession(rowModel);
                     } else {
                         // we have just added more items to be mached, e.g. first 1000, then -250 and -300
                         this.addToCurrentMarkingSession(rowModel);
@@ -212,13 +189,16 @@ export class LedgerAccountReconciliation {
         }
 
         this.summaryData.SumChecked = 0;
-        this.currentSelectedRows = this.table.getSelectedRows();
 
-        this.currentSelectedRows.forEach(x => {
-            this.summaryData.SumChecked += x.RestAmount;
+        setTimeout(() => {
+            this.currentSelectedRows = this.table.getSelectedRows();
+
+            this.currentSelectedRows.forEach(x => {
+                this.summaryData.SumChecked += x.RestAmount;
+            });
+
+            this.setSums();
         });
-
-        this.setSums();
     }
 
     private autoMarkJournalEntries() {
@@ -278,9 +258,10 @@ export class LedgerAccountReconciliation {
     private addToCurrentMarkingSession(model) {
         this.currentMarkingSession.push(model);
 
+        // run calculation of SumChecked before we try to find matches
         setTimeout(() => {
             this.setLikelyMatchCandidates();
-        });
+        }, 100);
     }
 
     private setLikelyMatchCandidates() {
@@ -299,7 +280,6 @@ export class LedgerAccountReconciliation {
                 && ((row.RestAmount < 0 && this.summaryData.SumChecked > 0)
                         || (row.RestAmount > 0 && this.summaryData.SumChecked < 0))
                 && Math.abs(this.summaryData.SumChecked + row.RestAmount) < 10) {
-
                 row._isLikelyMatch = true;
                 this.table.updateRow(row._originalIndex, row);
             }
@@ -370,10 +350,10 @@ export class LedgerAccountReconciliation {
         }
 
         // find largest amount, either negative or positive
-        this.currentMarkingSession = this.currentMarkingSession.sort((x, y) => x.RestAmount - y.RestAmount);
+        let sortedSessionList = this.currentMarkingSession.slice().sort((x, y) => x.RestAmount - y.RestAmount);
 
-        let smallestRestAmountLine = this.currentMarkingSession[0];
-        let largestRestAmountLine = this.currentMarkingSession[this.currentMarkingSession.length - 1];
+        let smallestRestAmountLine = sortedSessionList[0];
+        let largestRestAmountLine = sortedSessionList[sortedSessionList.length - 1];
 
         let baseLine = Math.abs(smallestRestAmountLine.RestAmount) > Math.abs(largestRestAmountLine.RestAmount) ?
                             smallestRestAmountLine : largestRestAmountLine;
@@ -425,7 +405,12 @@ export class LedgerAccountReconciliation {
                             baseLine.RestAmount = baseRestAmount;
                         }
 
-                        x._rowSelected = false;
+                        // if the row is fully marked, deselect it. If it is not, keep it selected,
+                        // as the user will probably want to mark it against more items
+                        if (x.StatusCode === StatusCodeJournalEntryLine.Marked) {
+                            x._rowSelected = false;
+                        }
+
                         x._isDirty = true;
 
                         x.Markings.push(baseLine);
@@ -434,14 +419,13 @@ export class LedgerAccountReconciliation {
                         baseLine.Markings.push(x);
                     } else {
                         // the base line is already full marked - no point in trying to do more here
-                        x._rowSelected = false;
-                        this.table.updateRow(x._originalIndex, x);
+                        // but we will keep the row marked, in case the user wants to mark it against
+                        // another post
                     }
                 }
             });
         }
 
-        baseLine._rowSelected = false;
         baseLine._originalRestAmount = originalBaseRestAmount;
         baseLine._originalStatusCode = baseLine.StatusCode;
 
@@ -451,12 +435,17 @@ export class LedgerAccountReconciliation {
             baseLine.StatusCode = StatusCodeJournalEntryLine.PartlyMarked;
         }
 
+        if (baseLine.StatusCode === StatusCodeJournalEntryLine.Marked) {
+            baseLine._rowSelected = false;
+        }
+
         baseLine._isDirty = true;
 
         this.table.updateRow(baseLine._originalIndex, baseLine);
 
         this.isDirty = true;
-        this.currentMarkingSession = [];
+        this.currentMarkingSession =
+            this.currentMarkingSession.filter(x => x.StatusCode !== StatusCodeJournalEntryLine.Marked);
 
         setTimeout(() => {
             this.calculateSums();
@@ -479,19 +468,28 @@ export class LedgerAccountReconciliation {
         ];
     }
 
-    private showHideMarkedEntries() {
+    private showHideEntires(newValue) {
         if (this.isDirty) {
             this.confirmModal.confirm(
                 'Du har endringer som ikke er lagret, disse vil forkastes hvis du fortsetter - vil du fortsette?',
                 'Fortsette uten å lagre?')
             .then(confirmDialogResponse => {
                 if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    this.showMarkedEntries = !this.showMarkedEntries;
+                    this.allMarkingSessions = [];
+                    this.currentMarkingSession = [];
+                    this.currentSelectedRows = [];
+                    this.isDirty = false;
+                    this.displayPostsOption = newValue;
+
                     this.loadData();
                 }
             });
         } else {
-            this.showMarkedEntries = !this.showMarkedEntries;
+            this.allMarkingSessions = [];
+            this.currentMarkingSession = [];
+            this.currentSelectedRows = [];
+            this.isDirty = false;
+            this.displayPostsOption = newValue;
             this.loadData();
         }
     }
@@ -646,10 +644,23 @@ export class LedgerAccountReconciliation {
 
     private setupUniTable() {
 
-        this.journalEntryLineService.getJournalEntryLinePostPostData(this.showMarkedEntries, this.customerID, this.supplierID)
+        let filters: ITableFilter[] = [];
+        if (this.displayPostsOption === 'OPEN') {
+            filters.push({
+                field: 'StatusCode',
+                operator: 'ne',
+                value: StatusCodeJournalEntryLine.Marked,
+                group: 0
+            });
+        }
+
+        this.journalEntryLineService.getJournalEntryLinePostPostData(
+            this.displayPostsOption !== 'MARKED',
+            this.displayPostsOption !== 'OPEN',
+            this.customerID,
+            this.supplierID)
             .subscribe(data => {
                 this.journalEntryLines = data;
-
                 setTimeout(() => {
                     this.calculateSums();
                 });
@@ -687,7 +698,8 @@ export class LedgerAccountReconciliation {
         this.uniTableConfig = new UniTableConfig(false, true, 25)
             .setColumns(columns)
             .setMultiRowSelect(true)
-            .setColumnMenuVisible(true)            ;
+            .setColumnMenuVisible(true)
+            .setFilters(filters);
     }
 
     private getCssClasses(model, field) {

@@ -32,9 +32,8 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
     }
 
 
-    public getJournalEntryLinePostPostData(includeMarkedPosts, customerID, supplierID) {
-
-        let querystring: string = '&includeMarkedPosts=' + includeMarkedPosts;
+    public getJournalEntryLinePostPostData(includeOpenPosts, includeMarkedPosts, customerID, supplierID) {
+        let querystring: string = `&includeOpenPosts=${includeOpenPosts}&includeMarkedPosts=${includeMarkedPosts}`;
 
         if (customerID) {
             querystring += '&customerID=' + customerID;
