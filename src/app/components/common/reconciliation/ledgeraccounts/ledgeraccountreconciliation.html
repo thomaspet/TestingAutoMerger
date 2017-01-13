@@ -1,12 +1,27 @@
 <section *ngIf="journalEntryLines" [attr.aria-busy]="busy">
-    <h2>Åpne poster</h2>
-    <section class="action-buttons">
-        <button class="c2a" (click)="showHideMarkedEntries()">{{showMarkedEntries ? "Vis åpne" : "Vis alle" }}</button>
-        <button class="warn" (click)="abortMarking()" [disabled]="!(currentSelectedRows.length > 0 || isDirty)">Avbryt</button>
-        <button class="warn" (click)="unlockJournalEntries()" [disabled]="currentSelectedRows.length < 2">Lås opp</button>
-        <button class="warn" (click)="autoMarkJournalEntries()">Automerk</button>
-        <button class="good" (click)="markCheckedJournalEntries()" [disabled]="currentMarkingSession.length < 2">Merk</button>
-        <button class="good" (click)="reconciliateJournalEntries()" [disabled]="!isDirty">Lagre endringer</button>
+    <section class="floating-header">
+        <h2>Åpne poster</h2>
+        <section class="action-buttons">
+            <!--<button class="c2a" (click)="showHideMarkedEntries()">{{showMarkedEntries ? "Vis åpne" : "Vis alle" }}</button>-->
+            <select [value]="displayPostsOption" (change)="showHideEntires($event.target.value)">
+                <option value="OPEN">Vis åpne poster</option>
+                <option value="MARKED">Vis lukkede poster</option>
+                <option value="ALL">Vis alle poster</option>
+            </select>
+            <button class="warn" (click)="abortMarking()" [disabled]="!(currentSelectedRows.length > 0 || isDirty)">Avbryt</button>
+            <button class="warn" (click)="unlockJournalEntries()" [disabled]="currentSelectedRows.length < 2">Lås opp</button>
+            <button class="warn" (click)="autoMarkJournalEntries()" [hidden]="displayPostsOption === 'CLOSED'">Automerk</button>
+            <button
+                class="good"
+                (click)="markCheckedJournalEntries()"
+                [disabled]="currentMarkingSession.length < 2"
+                [hidden]="displayPostsOption === 'CLOSED'">
+                Lås
+            </button>
+            <button class="good" (click)="reconciliateJournalEntries()" [disabled]="!isDirty">
+                Lagre {{allMarkingSessions.length > 0 ? allMarkingSessions.length : ''}} endringer
+            </button>
+        </section>
     </section>
     <uni-table
         [resource]="journalEntryLines"
@@ -14,7 +29,7 @@
         (rowSelectionChanged)="onRowSelected($event)">
     </uni-table>
 
-    <uni-summary [configs]="summary" *ngIf="itemsSummaryData"></uni-summary>
+    <uni-summary class="application" [configs]="summary" *ngIf="itemsSummaryData"></uni-summary>
 </section>
 
 <uni-confirm-modal></uni-confirm-modal>

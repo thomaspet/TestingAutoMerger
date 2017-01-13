@@ -231,6 +231,10 @@ export class CustomerDetails {
         this.setup();
     }
 
+    public showSearch(customerID): boolean {
+        return isNaN(customerID);
+    }
+
     public setup() {
         this.showReportWithID = null;
 
