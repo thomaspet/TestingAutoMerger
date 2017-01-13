@@ -116,6 +116,12 @@ export class WageTypeView extends UniView {
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
         }
+        
+        this.wageType.SupplementaryInformations.forEach(supplement => {
+            if (supplement['_setDelete']) {
+                supplement['Deleted'] = true;
+            }
+        });
 
         let saver = (this.wageType.ID > 0)
             ? this.wageTypeService.Put(this.wageType.ID, this.wageType)

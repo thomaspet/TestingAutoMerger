@@ -41,6 +41,15 @@ export class WageTypeService extends BizHttp<WageType> {
             .send()
             .map(response => response.json());
     }
+
+    public syncWagetypes() {
+        return this.http
+            .usingBusinessDomain()
+            .asPUT()
+            .withEndPoint(this.relativeURL + '/?action=synchronize')
+            .send()
+            .map(response => response.json());
+    }
     
     public getWageType(id: number | string, expand: string[] = null): Observable<any> {
         if (id === 0) {

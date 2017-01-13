@@ -33,9 +33,9 @@ export class SalaryTransactionSupplementsModalContent {
         if (this.salaryTransaction.Supplements) {
             this.salaryTransaction.Supplements.forEach((supplement: SalaryTransactionSupplement, index) => {
                 
-                supplement.WageTypeSupplement = 
-                    supplement.WageTypeSupplement 
-                    || this.salaryTransaction.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID);
+                if (!supplement.WageTypeSupplement && this.salaryTransaction.Wagetype) {
+                    supplement.WageTypeSupplement = this.salaryTransaction.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID);
+                }
 
                 if (supplement.WageTypeSupplement) {
                     switch (supplement.WageTypeSupplement.ValueType) {
