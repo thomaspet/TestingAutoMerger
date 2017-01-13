@@ -23,4 +23,22 @@ export class PaymentService extends BizHttp<Payment> {
             .send()
             .map(response => response.json());
     }
+
+    public getStatusText(statusCode: number): string {
+        if (!statusCode) {
+            return '';
+        } else if (statusCode === 44001) {
+            return 'Opprettet';
+        } else if (statusCode === 44002) {
+            return 'Overført til Bank';
+        } else if (statusCode === 44003) {
+            return 'Feilet';
+        } else if (statusCode === 44004) {
+            return 'Fullført';
+        } else if (statusCode === 44005) {
+            return 'Klar for overføring';
+        }
+
+        return 'Ukjent status: ' + statusCode;
+    }
 }

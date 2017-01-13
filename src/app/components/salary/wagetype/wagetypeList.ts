@@ -8,6 +8,8 @@ import {Observable} from 'rxjs/Observable';
 import {WageType} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService} from '../../../services/common/ErrorService';
+import { IContextMenuItem } from 'unitable-ng2/main';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'wagetypes',
@@ -17,14 +19,25 @@ export class WagetypeList implements OnInit {
 
     private tableConfig: UniTableConfig;
     private wageTypes$: Observable<WageType>;
+    private contextMenuItems: IContextMenuItem[] = [];
 
     constructor(
         private _router: Router,
         private tabSer: TabService,
         private _wageTypeService: WageTypeService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private _toastService: ToastService
     ) {
         this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true });
+
+        this.contextMenuItems = [
+            {
+                label: 'Synkroniser lønnsarter',
+                action: () => {
+                    this.syncWagetypes();
+                }
+            }
+        ];
     }
 
     public ngOnInit() {
@@ -55,5 +68,12 @@ export class WagetypeList implements OnInit {
 
     public createWageType() {
         this._router.navigateByUrl('/salary/wagetypes/0');
+    }
+
+    public syncWagetypes() {
+        this._wageTypeService.syncWagetypes()
+            .subscribe((response) => {
+                this._toastService.addToast('Lønnsarter synkronisert', ToastType.good, 4);
+            });
     }
 }

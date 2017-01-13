@@ -5,7 +5,10 @@ input[type=checkbox],
 input[type=radio]
     @extend %visuallyHidden
 
-    &:focus + label
+    &:focus + label,
+    & + label:focus
+        outline: none
+
         &:before
             background: $uni-color-scale9
 
@@ -100,54 +103,42 @@ input[type=radio]
 
     & + label.toggle
         padding-top: .3rem
-        padding-left: 3.8rem
-
-        &.small
-            padding: 0 0 0 2.8rem
+        padding-left: 3.5rem
 
         &:before
-            width: 3rem
-            height: 1.5rem
-            border-radius: 999rem
-
-        &.small:before
-            width: 2rem
-            height: 1rem
+            width: 2.2rem
+            height: 1.1rem
+            border-radius: 99rem
+            top: .45rem
+            border-color: transparent
+            background-color: $uni-color-scale8
 
         &:after
-            width: 1.1rem
-            height: 1.1rem
-            top: .5rem
-            left: .6rem
-            border-radius: 999rem
-            background: $uni-color-scale8
-            border: none
+            width: 1rem
+            height: 1rem
+            top: .45rem
+            left: .3rem
+            border-radius: 99rem
+            background: $uni-color-scale5
+            box-shadow: 0 0 .5rem transparentize($uni-color-scale1, .5)
+            border: pxToRem(1) solid transparentize($uni-color-scale2, .5)
             transition: left .3s ease
             transform: rotate(0deg)
 
-        &.small:after
-            height: .7rem
-            width: .7rem
-            top: .42rem
-            left: .5rem
-
-    &:not(:checked) + label.toggle:hover
-        &:before
-            background: transparent
-
-        &:after
-            background: $uni-color-scale7
+        &:hover
+            &:after
+                background: $uni-color-scale3
 
     &[disabled] + label.toggle:hover:after
         background: $uni-color-scale8
 
     &:checked + label.toggle
         &:after
-            left: 2rem
-            background: $uni-color-negative
-
-        &.small:after
             left: 1.4rem
+
+        &:before
+            background: transparentize($uni-color-good, .5)
+            border-color: transparent
 
 input[type=radio] + label
     &:before

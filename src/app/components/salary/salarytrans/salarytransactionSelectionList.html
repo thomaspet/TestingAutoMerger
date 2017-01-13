@@ -10,6 +10,7 @@
                     <small><abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}</small>
                 </h1>
                 <p *ngIf="hasError()" role="alert" class="error" [innerHTML]="generateErrorMessage()"></p>
+                <p *ngIf="hasWarning()" role="alert" class="warn" [innerHTML]="generateWarningMessage()"></p>
             </section>
 
             <nav class="detail_header_navigation" *ngIf="employeeList.length">

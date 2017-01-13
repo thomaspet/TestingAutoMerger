@@ -42,20 +42,10 @@ var jsFiles = [
     './node_modules/.tmp/Rx.js'
 ];
 
-var cssFiles = [
-    require.resolve('../kendo/styles/kendo.common.min.css')
-];
-
-gulp.task('vendors', ['vendors.js', 'vendors.css'])
+gulp.task('vendors', ['vendors.js']);
 
 gulp.task('vendors.js', ['rxbundle'], function () {
     gulp.src(jsFiles)
         .pipe(plugins.concat('vendors.bundle.js'))
-        .pipe(gulp.dest('./dist'))
-});
-
-gulp.task('vendors.css', function () {
-    gulp.src(cssFiles)
-        .pipe(plugins.concat('vendors.bundle.css'))
         .pipe(gulp.dest('./dist'))
 });

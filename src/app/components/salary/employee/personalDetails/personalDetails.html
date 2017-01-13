@@ -1,5 +1,4 @@
 <article class="application employee-personal-details" [attr.aria-busy]="busy">
-    <tax-card-modal *ngIf="employee" [employeeID]="employee.ID" (updateEvent)="refreshEmployee()"></tax-card-modal>
 
     <uni-form *ngIf="employee"
               [config]="config"
@@ -7,6 +6,12 @@
               [model]="employee"
               (changeEvent)="onFormChange($event)"
               (readyEvent)="onFormReady($event)">
+    </uni-form>
+    <uni-form [config]="config"
+              [fields]="taxFields"
+              [model]="employeeTaxCard"
+              (changeEvent)="onTaxFormChange($event)">
+
     </uni-form>
 
     <email-modal></email-modal>

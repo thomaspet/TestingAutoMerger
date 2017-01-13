@@ -1,9 +1,9 @@
-import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings} from '../../../../../unientities';
-import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService, CompanySettingsService} from '../../../../../services/services';
+import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear} from '../../../../../unientities';
+import {VatTypeService, AccountService, JournalEntryService, DepartmentService, ProjectService, CustomerInvoiceService, CompanySettingsService, FinancialYearService} from '../../../../../services/services';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
@@ -17,7 +17,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     selector: 'journal-entry-professional',
     templateUrl: 'app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html',
 })
-export class JournalEntryProfessional implements OnInit {
+export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
@@ -26,6 +26,9 @@ export class JournalEntryProfessional implements OnInit {
     @Input() public journalEntryLines: JournalEntryData[] = [];
     @Input() public doShowImage: boolean = false;
     @Input() public defaultVisibleColumns: Array<string> = [];
+    @Input() public financialYears: Array<FinancialYear>;
+    @Input() public currentFinancialYear: FinancialYear;
+
     @ViewChild(UniTable) private table: UniTable;
     private journalEntryTableConfig: UniTableConfig;
 
@@ -34,6 +37,7 @@ export class JournalEntryProfessional implements OnInit {
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public columnVisibilityChange: EventEmitter<Array<string>> = new EventEmitter<Array<string>>();
+    @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
     private projects: Project[];
     private departments: Department[];
@@ -45,8 +49,6 @@ export class JournalEntryProfessional implements OnInit {
 
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
-
-
 
     private lastImageDisplayFor: string = '';
 
@@ -71,15 +73,43 @@ export class JournalEntryProfessional implements OnInit {
         this.setupJournalEntryTable();
     }
 
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes['currentFinancialYear'] && this.currentFinancialYear) {
+            let journalentrytoday: JournalEntryData = new JournalEntryData();
+            journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                .subscribe(numberdata => {
+                    this.firstAvailableJournalEntryNumber = numberdata;
+                    this.setupSameNewAlternatives();
+                }, err => this.errorService.handle(err)
+            );
+        }
+
+        if (changes['journalEntryLines'] && this.journalEntryLines && this.journalEntryLines.length > 0) {
+            // when the journalEntryLines changes, we need to update the sameornew alternatives,
+            // e.g. the items that it is possible to select in the journalentrynumber dropdown
+            setTimeout(() => {
+                this.setupSameNewAlternatives();
+            });
+        }
+    }
+
+    public setJournalEntryData(data) {
+        this.journalEntryLines = data;
+
+        // when the journalEntryLines changes, we need to update the sameornew alternatives,
+        // e.g. the items that it is possible to select in the journalentrynumber dropdown
+        setTimeout(() => {
+            this.setupSameNewAlternatives();
+        });
+    }
+
     private setupJournalEntryTable() {
-        let journalentrytoday: JournalEntryData = new JournalEntryData()
-        journalentrytoday.FinancialDate = moment().toDate();
 
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.GetAll(null)
         ).subscribe(
@@ -87,17 +117,18 @@ export class JournalEntryProfessional implements OnInit {
                 this.departments = data[0];
                 this.projects = data[1];
                 this.vattypes = data[2];
-                this.firstAvailableJournalEntryNumber = data[3];
 
                 let companySettings: CompanySettings = null;
-                if (data[5]) {
-                    companySettings = data[5][0];
+                if (data[4]) {
+                    companySettings = data[4][0];
                 }
-                if (companySettings && companySettings[0] && companySettings[0].CompanyBankAccount && companySettings[0].CompanyBankAccount.Account) {
+                if (companySettings && companySettings[0]
+                    && companySettings[0].CompanyBankAccount
+                    && companySettings[0].CompanyBankAccount.Account) {
                     this.defaultAccountPayments = companySettings[0].CompanyBankAccount.Account;
                 } else {
-                    if (data[4]) {
-                        this.defaultAccountPayments = data[4];
+                    if (data[3]) {
+                        this.defaultAccountPayments = data[3];
                     }
                 }
 
@@ -269,7 +300,7 @@ export class JournalEntryProfessional implements OnInit {
             this.defaultVisibleColumns = [];
         }
 
-        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('80px')
+        let sameOrNewCol = new UniTableColumn('SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup).setWidth('100px')
             .setEditorOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
@@ -283,7 +314,7 @@ export class JournalEntryProfessional implements OnInit {
                 return item.JournalEntryNo ? item.JournalEntryNo : '';
             });
 
-        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate).setWidth('80px');
+        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate).setWidth('110px');
 
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Fakturanr', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
@@ -590,12 +621,19 @@ export class JournalEntryProfessional implements OnInit {
     private deleteLine(line) {
         if (confirm('Er du sikker på at du vil slette linjen?')) {
             this.table.removeRow(line._originalIndex);
+
+            setTimeout(() => {
+                var tableData = this.table.getTableData();
+                this.dataChanged.emit(tableData);
+            });
         }
     }
 
     private setupSameNewAlternatives() {
 
-        if (this.journalEntryTableConfig
+        if (this.firstAvailableJournalEntryNumber
+            && this.firstAvailableJournalEntryNumber !== ''
+            && this.journalEntryTableConfig
             && this.journalEntryTableConfig.columns
             && this.journalEntryTableConfig.columns.length > 0
             && this.journalEntryTableConfig.columns[0].field === 'SameOrNewDetails') {
@@ -611,7 +649,6 @@ export class JournalEntryProfessional implements OnInit {
 
                 if (tableData.length > 0) {
                     let range = this.journalEntryService.findJournalNumbersFromLines(tableData);
-
                     if (range) {
                         this.lastUsedJournalEntryNumber = range.lastNumber;
                         this.firstAvailableJournalEntryNumber = range.nextNumber;
@@ -632,27 +669,8 @@ export class JournalEntryProfessional implements OnInit {
         }
     }
 
-    private validateData(data: Array<JournalEntryData>, completeCallback): string {
-        let invalidRows = data.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
-
-        if (invalidRows.length > 0) {
-            return 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene. Vennligst korriger og lagre igjen';
-        }
-
-        return null;
-    }
-
     public postJournalEntryData(completeCallback) {
-
         let tableData = this.table.getTableData();
-
-        let validationMessage = this.validateData(tableData, completeCallback);
-
-        if (validationMessage) {
-            this.toastService.addToast('Feil ved validering av data:', ToastType.bad, null, validationMessage);
-            completeCallback('Validering feilet');
-            return;
-        }
 
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(
@@ -677,7 +695,7 @@ export class JournalEntryProfessional implements OnInit {
                 this.journalEntryLines = new Array<JournalEntryData>();
 
                 let journalentrytoday: JournalEntryData = new JournalEntryData();
-                journalentrytoday.FinancialDate = moment().toDate();
+                journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
                 this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
                     .subscribe(data => {
                         this.firstAvailableJournalEntryNumber = data;
@@ -705,7 +723,7 @@ export class JournalEntryProfessional implements OnInit {
             this.dataChanged.emit(this.journalEntryLines);
 
             let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = moment().toDate();
+            journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
                 .subscribe(data => {
                     this.firstAvailableJournalEntryNumber = data;
@@ -772,10 +790,12 @@ export class JournalEntryProfessional implements OnInit {
         this.columnVisibilityChange.emit(visibleColumns);
     }
 
-    private rowSelected(event) {
+    private onRowSelected(event) {
         if (this.doShowImage) {
             this.showImageForJournalEntry.emit(event.rowModel);
         }
+
+        this.rowSelected.emit(event.rowModel);
     }
 
     private rowChanged(event) {

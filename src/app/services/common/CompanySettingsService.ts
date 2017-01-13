@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class CompanySettingsService extends BizHttp<CompanySettings> {

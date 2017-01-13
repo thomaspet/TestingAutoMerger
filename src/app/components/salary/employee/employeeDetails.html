@@ -1,5 +1,6 @@
 <uni-toolbar [config]="toolbarConfig" [saveactions]="saveActions"></uni-toolbar>
 <uni-poster [widgets]="employeeWidgets" *ngIf="employeeWidgets"></uni-poster>
+<tax-card-modal *ngIf="employee" [employeeID]="employee.ID" (updateEvent)="getTax()"></tax-card-modal>
 
 <article [attr.aria-busy]="busy">
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>

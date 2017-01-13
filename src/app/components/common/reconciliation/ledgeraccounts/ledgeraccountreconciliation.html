@@ -2,10 +2,11 @@
     <h2>Åpne poster</h2>
     <section class="action-buttons">
         <button class="c2a" (click)="showHideMarkedEntries()">{{showMarkedEntries ? "Vis åpne" : "Vis alle" }}</button>
-        <button class="warn" (click)="unlockJournalEntries()">Lås opp</button>
+        <button class="warn" (click)="abortMarking()" [disabled]="!(currentSelectedRows.length > 0 || isDirty)">Avbryt</button>
+        <button class="warn" (click)="unlockJournalEntries()" [disabled]="currentSelectedRows.length < 2">Lås opp</button>
         <button class="warn" (click)="autoMarkJournalEntries()">Automerk</button>
-        <button class="good" (click)="markCheckedJournalEntries()">Merk</button>
-        <button class="good" (click)="reconciliateJournalEntries()">Lagre endringer</button>
+        <button class="good" (click)="markCheckedJournalEntries()" [disabled]="currentMarkingSession.length < 2">Merk</button>
+        <button class="good" (click)="reconciliateJournalEntries()" [disabled]="!isDirty">Lagre endringer</button>
     </section>
     <uni-table
         [resource]="journalEntryLines"

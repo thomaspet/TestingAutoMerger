@@ -9,6 +9,7 @@
                                     (showImageChanged)="onShowImageChanged($event)"
                                     (showImageForJournalEntry)="onShowImageForJournalEntry($event)"
                                     (columnVisibilityChange)="onColumnVisibilityChange($event)"
+                                    (rowSelected)="onRowSelected($event)"
                                     [runAsSubComponent]="runAsSubComponent"
                                     [disabled]="disabled"
                                     [mode]="mode"
@@ -16,14 +17,55 @@
                                     [journalEntryID]="journalEntryID"
                                     [doShowImage]="journalEntrySettings.AttachmentsVisible"
                                     [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
+                                    [financialYears]="financialYears"
+                                    [currentFinancialYear]="currentFinancialYear"
                                     *ngIf="journalEntryMode == 'PROFESSIONAL'">
         </journal-entry-professional>
 
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
 
+
+        <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
+            <tr>
+                <th style="width:20%;min-width: 90px"></th>
+                <th style="width:40%">Debet</th>
+                <th style="width:40%">Kredit</th>
+            </tr>
+            <tr>
+                <td>Kontonavn</td>
+                <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
+                <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
+            </tr>
+            <tr>
+                <td>Saldo ({{currentFinancialYear.Year}})</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.debitOriginalBalance) }}</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.creditOriginalBalance) }}</td>
+            </tr>
+            <tr>
+                <td>Nettobeløp</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.debitNetChangeCurrentLine) }}</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.creditNetChangeCurrentLine) }}</td>
+            </tr>
+            <tr>
+                <td>Inng. mva</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.debitIncomingVatCurrentLine) }}</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.creditIncomingVatCurrentLine) }}</td>
+            </tr>
+            <tr>
+                <td>Utg. mva</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.debitOutgoingVatCurrentLine) }}</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.creditOutgoingVatCurrentLine) }}</td>
+            </tr>
+            <tr>
+                <td>Ny saldo</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.debitNewBalance) }}</td>
+                <td>{{ getFormattedNumber(itemAccountInfoData.creditNewBalance) }}</td>
+            </tr>
+        </table>
+
         <p *ngIf="validationResult && validationResult.Messages.length > 0">
-            <strong class="journalEntry_validation validation error"
-                    *ngFor="let message of validationResult.Messages"
+            <strong *ngFor="let message of validationResult.Messages"
+                class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
                     [ngClass]="{
                     simplemode: journalEntryMode === 'SIMPLE',
                     promode: journalEntryMode != 'SIMPLE',
@@ -52,3 +94,5 @@
                     (fileListReady)="onFileListReady($event)"></uni-image>
     </span>
 </section>
+
+<uni-confirm-modal></uni-confirm-modal>

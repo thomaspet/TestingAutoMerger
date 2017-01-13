@@ -1,13 +1,14 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account,
-    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, Dimensions, TaxDrawFactor,
-    CompanySettings
+    PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
+    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, CompanySettings,
+    FinancialYear
 } from '../../../unientities';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
-    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, CompanySettingsService
+    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
+    CompanySettingsService
 } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -77,6 +78,7 @@ export class PayrollrunDetails extends UniView {
         private _companySalaryService: CompanySalaryService,
         private _projectService: ProjectService,
         private _departmentService: DepartmentService,
+        private _employeeTaxCardService: EmployeeTaxCardService,
         private _companySettingsService: CompanySettingsService
     ) {
         super(router.url, cacheService);
@@ -92,7 +94,10 @@ export class PayrollrunDetails extends UniView {
             this.employees = undefined;
             this.salaryTransactions = undefined;
 
-            super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
+            const payrollRunSubject = super.getStateSubject('payrollRun');
+            const employeesSubject = super.getStateSubject('employees');
+
+            payrollRunSubject.subscribe((payrollRun: PayrollRun) => {
 
                 this.payrollrun = payrollRun;
                 if (this.payrollrun && this.payrollrun.PayDate) {
@@ -162,11 +167,33 @@ export class PayrollrunDetails extends UniView {
 
             }, err => this.errorService.handle(err));
 
-            super.getStateSubject('employees').subscribe((employees: Employee[]) => {
+            employeesSubject.subscribe((employees: Employee[]) => {
                 this.employees = employees;
-                this.employments = [];
-                employees.map(x => x.Employments.concat(this.employments));
             });
+
+            employeesSubject
+                .take(1)
+                .flatMap((employees: Employee[]) => {
+                    let filter: string = 'filter=';
+                    let employeeFilterTable: string[] = [];
+                    let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+                    employees.forEach(employee => {
+                        employeeFilterTable.push('EmployeeID eq ' + employee.ID);
+                    });
+                    filter += '(' + employeeFilterTable.join(' or ') + ') ';
+                    filter += `and Year le ${financialYear.Year}&orderby=Year DESC`;
+                    return Observable.forkJoin(this._employeeTaxCardService
+                        .GetAll(filter), Observable.of(employees));
+                })
+                .subscribe((response: [EmployeeTaxCard[], Employee[]]) => {
+                    let [taxCards, employees] = response;
+
+                    employees.map(employee => {
+                        let taxCard = taxCards.find(x => x.EmployeeID === employee.ID);
+                        employee.TaxCards = taxCard ? [taxCard] : [];
+                    });
+                    super.updateState('employees', employees, false);
+                });
 
             super.getStateSubject('salaryTransactions').subscribe((salaryTransactions: SalaryTransaction[]) => {
                 this.salaryTransactions = salaryTransactions;
@@ -184,6 +211,7 @@ export class PayrollrunDetails extends UniView {
             super.getStateSubject('departments').subscribe((departments) => {
                 this.departments = departments;
             });
+
             if (this.payrollrunID) {
                 this.tabSer.addTab({
                     name: 'Lønnsavregning ' + this.payrollrunID,
@@ -421,9 +449,12 @@ export class PayrollrunDetails extends UniView {
     }
 
     private getEmployees() {
-        this._employeeService.GetAll('filter=' + this.filter, ['Employments.Dimensions', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']).subscribe(response => {
-            this.updateState('employees', response, false);
-        }, err => this.errorService.handle(err));
+        this._employeeService
+            .GetAll('filter=' + this.filter,
+            ['Employments.Dimensions', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts'])
+            .subscribe((employees: Employee[]) => {
+                this.updateState('employees', employees, false);
+            }, err => this.errorService.handle(err));
     }
 
     private getWageTypes() {

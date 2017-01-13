@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, EventEmitter, Output, OnChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {PaymentService, PaymentBatchService, ErrorService, FileService} from '../../../services/services';
+import {PaymentService, PaymentBatchService, ErrorService, FileService, StatisticsService} from '../../../services/services';
 import {Payment, PaymentBatch} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
@@ -37,7 +37,8 @@ export class PaymentBatchDetails implements OnChanges {
                 private paymentBatchService: PaymentBatchService,
                 private errorService: ErrorService,
                 private toastService: ToastService,
-                private fileService: FileService) {}
+                private fileService: FileService,
+                private statisticsService: StatisticsService) {}
 
     public ngOnInit() {
         this.setupPaymentTable();
@@ -157,6 +158,54 @@ export class PaymentBatchDetails implements OnChanges {
         );
     }
 
+    private setupCustomerPayentTable() {
+        let invoiceNoCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text);
+        let restCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+            .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
+            .setEditorOptions({
+                itemTemplate: (selectedItem) => {
+                    return 100;
+                },
+                lookupFunction: (query: string) => {
+                    return this.statisticsService.GetAll(
+                        `model=Tracelink&select=CustomerInvoice.RestAmount&join=CustomerInvoice on .ID eq CustomerInvoice.ID CustomerInvoice&filter=TraceLink.Deleted eq 'false' and DestinationEntityName eq 'Payment' and DestinationInstanceID eq `
+                    ).map(x => x.Data ? x.Data : []);
+                }
+            });
+
+        let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
+            .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '');
+        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
+        let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
+            .setDisplayField('FromBankAccount.AccountNumber');
+        let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
+            .setDisplayField('ToBankAccount.AccountNumber');
+        let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
+        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
+
+        // Setup table
+        this.paymentTableConfig = new UniTableConfig(false, true, 15)
+            .setColumns([
+                invoiceNoCol,
+                payToCol,
+                fromAccountCol,
+                toAccountCol,
+                paymentIDCol,
+                amountCol,
+                restCol,
+                descriptionCol
+            ])
+            .setContextMenu([
+                {
+                    action: (item) => this.paymentRelationsModal.openModal(item.ID),
+                    disabled: (item) => false,
+                    label: 'Vis relasjoner'
+                }
+            ])
+            .setColumnMenuVisible(true)
+            .setSearchable(false);
+    }
+
     private setupPaymentTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
@@ -166,12 +215,11 @@ export class PaymentBatchDetails implements OnChanges {
             }
 
             params.set('expand', 'ToBankAccount,FromBankAccount,PaymentCode,BusinessRelation');
+            params.set('filter', `PaymentBatchID eq ${this.paymentBatchID}`);
 
             if (!params.get('orderby')) {
                 params.set('orderby', 'PaymentDate ASC');
             }
-
-            params.set('filter', `PaymentBatchID eq ${this.paymentBatchID}`);
 
             return this.paymentService.GetAllByUrlSearchParams(params).catch(this.errorService.handleRxCatch);
         };

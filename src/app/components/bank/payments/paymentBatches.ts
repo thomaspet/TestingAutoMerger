@@ -115,6 +115,8 @@ export class PaymentBatches {
                 params.set('orderby', 'ID DESC');
             }
 
+            params.set('filter', 'IsCustomerPayment eq false');
+
             return this.paymentBatchService.GetAllByUrlSearchParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
@@ -132,7 +134,7 @@ export class PaymentBatches {
             .setWidth('70px');
 
         let statusCodeCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
-            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode))
+            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode,false))
             .setFilterable(false);
 
         // Setup table

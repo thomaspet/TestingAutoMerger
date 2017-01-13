@@ -614,13 +614,52 @@ export class WagetypeDetail extends UniView {
             selectedPackage.additions.forEach(addition => {
                 supInfo.push(addition);
             });
-            
-            this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
+
+            if (supInfo && supInfo.length > 0) {
+                this.wageType.SupplementaryInformations = this.setDeleteOnDuplicates(supInfo);
+            } else {
+                this.wageType.SupplementaryInformations.forEach(supplement => {
+                    supplement['_setDelete'] = true;
+                });
+            }
+
             if (this.wageType.SupplementaryInformations.length > 0) {
                 this.showSupplementaryInformations = true;
                 this.findByProperty('SupplementPackage').Hidden = false;
             }
+            
+            super.updateState('wagetype', this.wageType, true);
         }
+    }
+
+    private setDeleteOnDuplicates(additions) {
+        // set delete for those supplements thats not in selected addition-package
+        if (this.wageType.SupplementaryInformations && this.wageType.SupplementaryInformations.length) {
+            for (var g = 0; g < this.wageType.SupplementaryInformations.length; g++) {
+                let setDelete = true;
+                for (var h = 0; h < additions.length; h++) {
+                    if (additions[h].Name === this.wageType.SupplementaryInformations[g].Name) {
+                        setDelete = false;
+                    }
+                }
+                if (setDelete) {
+                    this.wageType.SupplementaryInformations[g].Deleted = true;
+                }
+            }
+        }
+        
+        let array = this.wageType.SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
+        
+        // ensure no duplicates
+        for (var i = array.length - 1; i > 0; i--) {
+            for (var j = i - 1; j >= 0; j--) {
+                if (array[i].Name === array[j].Name) {
+                    array[j]['_setDelete'] = true;
+                    break;
+                }
+            }
+        }
+        return array;
     }
 
     private setupTilleggspakkeConfig() {

@@ -22,6 +22,8 @@ import {PaymentList} from './payments/paymentList';
 import {PaymentBatchDetails} from './payments/paymentBatchDetails';
 import {PaymentBatches} from './payments/paymentBatches';
 import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationModal';
+import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
+import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetails';
 
 @NgModule({
     imports: [
@@ -54,7 +56,9 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
         PaymentBatches,
         PaymentRelationsModal,
         PaymentRelationsTable,
-        PaymentBatchDetails
+        PaymentBatchDetails,
+        CustomerPaymentBatches,
+        CustomerPaymentBatchDetails
     ],
     entryComponents: [
         PaymentRelationsTable
@@ -64,7 +68,8 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
     exports: [
         PaymentList,
         PaymentBatches,
-        PaymentBatchDetails
+        PaymentBatchDetails,
+        CustomerPaymentBatches
     ]
 })
 export class BankModule {

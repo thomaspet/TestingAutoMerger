@@ -22,13 +22,17 @@ export class PayrollrunList implements OnInit {
         private tabSer: TabService,
         private payrollService: PayrollrunService,
         private errorService: ErrorService
-    ) {}
+    ) { }
 
     public ngOnInit() {
 
-        this.payrollRuns$ = this.payrollService.GetAll('orderby=ID Desc').catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        let year = JSON.parse(localStorage.getItem('activeFinancialYear'));
+        this.payrollRuns$ = this.payrollService
+            .GetAll('orderby=ID Desc' + (year && year.Year ? '&filter=year(PayDate) eq ' + year.Year : ''))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
-        .setWidth('5rem');
+            .setWidth('5rem');
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text).setTemplate((payrollRun) => {
             var status = this.payrollService.getStatus(payrollRun);

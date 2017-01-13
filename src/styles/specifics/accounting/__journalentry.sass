@@ -43,6 +43,31 @@ journal-entry-manual
             text-decoration: none
             font-size: small
 
+    .account_summary_info
+        background-color: $uni-color-scale9
+        font-size: smaller
+        width: 40%
+        line-height: pxToRem(17)
+        padding-top: pxToRem(10)
+        padding-left: pxToRem(10)
+        padding-bottom: pxToRem(10)
+        margin-bottom: pxToRem(15)
+
+        th
+            text-align: right
+            padding-right: pxToRem(10)
+
+        td
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+            max-width: 0
+            text-align: right
+            padding-right: pxToRem(10)
+
+            &:first-child
+                text-align: left
+
 journal-entry-manual.runassubcomponent
     display: block
 

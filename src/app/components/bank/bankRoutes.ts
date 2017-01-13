@@ -8,6 +8,8 @@ import {BankComponent} from './bankComponent';
 import {PaymentList} from './payments/paymentList';
 import {PaymentBatches} from './payments/paymentBatches';
 
+import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
+
 export const childRoutes = [
     {
         path: '',
@@ -22,6 +24,10 @@ export const childRoutes = [
     {
         path: 'batches',
         component: PaymentBatches
+    },
+    {
+        path: 'customerbatches',
+        component: CustomerPaymentBatches
     }
 ];
 

@@ -1,4 +1,3 @@
-/// <reference path="../../kendo/typescript/kendo.all.d.ts" />
 /// <reference path="../../typings/main.d.ts" />
 import {Component, ViewChild} from '@angular/core';
 import {AuthService} from '../framework/core/authService';

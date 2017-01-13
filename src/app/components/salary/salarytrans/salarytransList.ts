@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from 'unitable-ng2/main';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
-    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions
+    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
 } from '../../../unientities';
 import {
     SalaryTransactionService, AccountService,
@@ -330,6 +330,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     this.mapDepartmentToTrans(row);
                 }
 
+                if (event.field === 'FromDate' || event.field === 'ToDate') {
+                    this.checkDates(row);
+                }
+
                 if (rateObservable) {
                     rateObservable.subscribe(rate => {
                         row['Rate'] = rate;
@@ -467,6 +471,14 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate'])))
             / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
+    }
+
+    private checkDates(rowModel) {
+        let fromDate: LocalDate = new LocalDate(rowModel['FromDate'].toString());
+        let toDate: LocalDate = new LocalDate(rowModel['ToDate'].toString());
+        if (toDate < fromDate) {
+            rowModel['ToDate'] = fromDate.toString();
+        }
     }
 
     private getEmploymentFromEmployee(employmentID: number) {

@@ -36,6 +36,7 @@ export enum UniModules {
     Bank            = 450,
     Payment         = 451,
     PaymentBatches  = 452,
+    Incomming       = 453,
 
     Employees       = 500,
     Wagetypes       = 501,
