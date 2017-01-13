@@ -1,4 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {VatType, Account} from '../../../unientities';
@@ -98,11 +99,9 @@ export class TradeItemTable {
             })
             .setEditorOptions({
                 itemTemplate: item => `${item.AccountNumber} : ${item.AccountName}`,
-                lookupFunction: (query) => {
-                    return this.accountService.GetAll(
-                        `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')&top=30`
-                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                }
+               lookupFunction: (searchValue) => {
+                    return this.accountSearch(searchValue);
+               }
             });
 
         const vatTypeCol = new UniTableColumn('VatType', 'Momskode', UniTableColumnType.Lookup)
@@ -222,4 +221,25 @@ export class TradeItemTable {
 
         this.itemsChange.next(this.items);
     }
+
+    private accountSearch(searchValue: string): Observable<any> {
+
+        let filter = '';
+        if (searchValue === '') {
+            filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+        } else {
+            let copyPasteFilter = '';
+
+            if (searchValue.indexOf(':') > 0) {
+                let accountNumberPart = searchValue.split(':')[0].trim();
+                let accountNamePart =  searchValue.split(':')[1].trim();
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+            }
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+        }
+
+        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+    }
 }
+
+

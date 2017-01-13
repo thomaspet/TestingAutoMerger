@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {ProductService, AccountService, VatTypeService, ProjectService, DepartmentService} from '../../../../services/services';
+import {ProductService, AccountService, VatTypeService, ProjectService, DepartmentService, CompanySettingsService} from '../../../../services/services';
 
 import {Product, Account, VatType, FieldType} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -28,6 +28,8 @@ export class ProductDetails {
     private config: any = {autofocus: true};
     private fields: any[] = [];
     private product: Product;
+
+    private defaultSalesAccount: Account;
 
     private showImageComponent: boolean = true;  // template variable
     private imageUploadConfig: IUploadConfig;
@@ -69,7 +71,8 @@ export class ProductDetails {
         private tabService: TabService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService
     ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
@@ -77,26 +80,24 @@ export class ProductDetails {
         });
     }
 
-
     public setupForm() {
         // setup form
         if (!this.formIsInitialized) {
             this.fields = this.getComponentLayout().Fields;
 
             Observable.forkJoin(
-                    this.vatTypeService.GetAll(null),
+                    this.vatTypeService.GetAll('filter=OutputVat eq 1'),
                     this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null)
-                    )
+                    this.departmentService.GetAll(null),
+                    this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType'])
+                )
                 .subscribe((response: Array<any>) => {
                     this.vatTypes = response[0];
                     this.projects = response[1];
                     this.departments = response[2];
-
+                    this.defaultSalesAccount = response[3].DefaultSalesAccount;
                     this.extendFormConfig();
-
                     this.formIsInitialized = true;
-
                     this.loadProduct();
                 }, err => this.errorService.handle(err));
         } else {
@@ -105,9 +106,24 @@ export class ProductDetails {
     }
 
     private setupToolbar() {
+        let subheads = [];
+        if (this.productId > 0) {
+            subheads.push({title: 'Produktnr. ' + this.product.PartName});
+        }
+
+        if(this.product.CalculateGrossPriceBasedOnNetPrice) {
+            if(this.product.PriceExVat !== null) {
+                subheads.push({title: 'Utpris eks. mva ' + this.product.PriceExVat });
+            }
+        } else {
+            if(this.product.PriceIncVat !== null) {
+                subheads.push({title: 'Utpris inkl. mva ' + this.product.PriceIncVat });
+            }
+        }
+
         this.toolbarconfig = {
             title: this.productId > 0 ? 'Produkt' : 'Nytt produkt',
-            subheads: this.productId > 0 ? [{title: 'Produktnr. ' + this.product.PartName}] : [],
+            subheads: subheads,
             navigation: {
                 prev: () => this.previousProduct(),
                 next: () => this.nextProduct(),
@@ -193,6 +209,7 @@ export class ProductDetails {
     private calculateAndUpdatePrice() {
         this.productService.calculatePriceLocal(this.product);
         this.product = _.cloneDeep(this.product);
+        this.setupToolbar();
     }
 
     private showHidePriceFields(model: Product) {
@@ -200,6 +217,7 @@ export class ProductDetails {
         this.priceIncVat.Hidden = !model.CalculateGrossPriceBasedOnNetPrice;
         this.priceExVat.Hidden = model.CalculateGrossPriceBasedOnNetPrice;
         this.product = _.cloneDeep(this.product);
+        this.setupToolbar();
     }
 
     private previousProduct() {
@@ -251,6 +269,10 @@ export class ProductDetails {
         };
 
         let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatTypeID');
+        if(this.defaultSalesAccount && this.defaultSalesAccount.VatType) {
+            vattype.Placeholder =
+                this.defaultSalesAccount.VatType.VatCode + ' - ' + this.defaultSalesAccount.VatType.Name;
+        }
         vattype.Options = {
             source: this.vatTypes,
             valueProperty: 'ID',
@@ -266,6 +288,10 @@ export class ProductDetails {
         };
 
         let accountField: UniFieldLayout = this.fields.find(x => x.Property === 'AccountID');
+        if(this.defaultSalesAccount) {
+            accountField.Placeholder =
+                this.defaultSalesAccount.AccountNumber + ' - ' + this.defaultSalesAccount.AccountName;
+        }
         accountField.Options = {
             getDefaultData: () => this.getDefaultAccountData(),
             displayProperty: 'AccountNumber',
