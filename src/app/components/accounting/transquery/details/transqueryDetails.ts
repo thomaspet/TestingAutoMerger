@@ -3,10 +3,10 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
-import {JournalEntryLineService, JournalEntryService} from '../../../../services/services';
+import {JournalEntryLineService, JournalEntryService, AccountService, FinancialYearService} from '../../../../services/services';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import {JournalEntryLine, JournalEntry} from '../../../../unientities';
+import {JournalEntryLine, JournalEntry, Account, FieldType, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {StatisticsService} from '../../../../services/common/StatisticsService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -15,8 +15,12 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {ErrorService} from '../../../../services/common/ErrorService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
+import {BrowserStorageService} from '../../../../services/BrowserStorageService';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+
+declare const _; // lodash
 
 @Component({
     selector: 'transquery-details',
@@ -34,9 +38,19 @@ export class TransqueryDetails implements OnInit {
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
 
+    private searchParams: any;
+    private config: any;
+    private fields: any[] = [];
+
+    private financialYears: Array<FinancialYear> = null;
+    private activeFinancialYear: FinancialYear;
+
     private toolbarconfig: IToolbarConfig = {
         title: 'Forespørsel på bilag'
     };
+
+    private COLUMN_VISIBILITY_LOCALSTORAGE_KEY = 'TransqueryDetailsColumnVisibility';
+
 
     @ViewChild(ImageModal)
     private imageModal: ImageModal;
@@ -49,17 +63,43 @@ export class TransqueryDetails implements OnInit {
         private toastService: ToastService,
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
-        private journalEntryService: JournalEntryService
+        private journalEntryService: JournalEntryService,
+        private accountService: AccountService,
+        private financialYearService: FinancialYearService,
+        private storageService: BrowserStorageService
     ) {
         this.tabService.addTab({ 'name': 'Forespørsel bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
     }
 
     public ngOnInit() {
-        this.route.params.subscribe(params => {
-            const unitableFilter = this.generateUnitableFilters(params);
-            this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
-            this.lookupFunction = (urlParams: URLSearchParams) =>
-                this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        // setup unitable and router parameter subscriptions
+        Observable.forkJoin(
+            this.financialYearService.GetAll(null),
+            this.financialYearService.getActiveFinancialYearEntity()
+        ).subscribe(data => {
+            this.financialYears = data[0];
+            this.activeFinancialYear = data[1];
+
+            // set default value for filtering
+            this.searchParams = {
+                AccountID: null,
+                AccountYear: null
+            };
+
+            if (this.activeFinancialYear) {
+                this.searchParams.AccountYear = this.activeFinancialYear.Year;
+            }
+
+            // setup uniform (filters in the top of the page)
+            this.config = {};
+            this.fields = this.getLayout().Fields;
+
+            this.route.params.subscribe(params => {
+                const unitableFilter = this.generateUnitableFilters(params);
+                this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
+                this.lookupFunction = (urlParams: URLSearchParams) =>
+                    this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            });
         });
     }
 
@@ -70,6 +110,33 @@ export class TransqueryDetails implements OnInit {
 
         if (this.configuredFilter) {
             filters.push(this.configuredFilter);
+        }
+
+        if (filters && filters.length > 0) {
+            let newFilters = [];
+            let splitFilters = filters[0].split(' and ');
+
+            splitFilters.forEach(x => {
+                if (!x.startsWith('Period.AccountYear eq ') && !x.startsWith('Account.ID eq ')) {
+                    newFilters.push(x);
+                }
+            });
+
+            filters[0] = newFilters.join(' and ');
+        }
+
+        if (this.searchParams.AccountYear) {
+            filters.push(`Period.AccountYear eq ${this.searchParams.AccountYear}`);
+        }
+
+        if (this.searchParams.AccountID) {
+            filters.push(`Account.ID eq ${this.searchParams.AccountID}`);
+        }
+
+        // remove empty first filter - this is done if we have multiple filters but the first one is
+        // empty (this would generate an invalid filter clause otherwise)
+        if (filters[0] === '') {
+            filters.shift();
         }
 
         urlParams.set('model', 'JournalEntryLine');
@@ -95,12 +162,13 @@ export class TransqueryDetails implements OnInit {
             'Project.ProjectNumber,' +
             'TerminPeriod.No,' +
             'TerminPeriod.AccountYear,' +
+            'Period.AccountYear,' +
             'JournalEntryID as JournalEntryID,' +
             'ReferenceCreditPostID as ReferenceCreditPostID,' +
             'OriginalReferencePostID as OriginalReferencePostID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
         );
-        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
+        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
@@ -117,7 +185,7 @@ export class TransqueryDetails implements OnInit {
             urlParams.set('model', 'JournalEntryLine');
             urlParams.set('filter', f);
             urlParams.set('select', 'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,sum(JournalEntryLine.Amount) as SumBalance');
-            urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,VatReport.TerminPeriod');
+            urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod');
             this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
@@ -239,6 +307,12 @@ export class TransqueryDetails implements OnInit {
 
         let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
 
+        let visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
+        let visibleColumns = [];
+        if (visibleColumnsString) {
+            visibleColumns = JSON.parse(visibleColumnsString);
+        }
+
         let columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setTemplate(line => {
@@ -266,8 +340,9 @@ export class TransqueryDetails implements OnInit {
                     .setFormat('DD.MM.YYYY')
                     .setTemplate(line => line.JournalEntryLineVatDate),
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                    .setWidth('20%')
                     .setFilterOperator('contains')
-                    .setTemplate(line => line.JournalEntryLineDescription),
+                    .setTemplate(line => `<span title="${line.JournalEntryLineDescription}">${line.JournalEntryLineDescription}</span>`),
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.VatTypeVatCode),
@@ -288,7 +363,7 @@ export class TransqueryDetails implements OnInit {
                     .setVisible(false)
                     .setTemplate(line => line.JournalEntryLineInvoiceNumber),
                 new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime)
-                    .setDisplayField('JournalEntryLineDueDate')
+                    .setTemplate(line => line.JournalEntryLineDueDate)
                     .setFilterOperator('eq')
                     .setVisible(false),
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
@@ -311,10 +386,18 @@ export class TransqueryDetails implements OnInit {
             ];
 
         columns.forEach(x => {
-            x.conditionalCls = (data) => {
-                return data.ReferenceCreditPostID || data.OriginalReferencePostID ? 'journal-entry-credited' : '';
-            };
+            x.conditionalCls = (data) => this.getCssClasses(data, x.field);
         });
+
+        if (visibleColumns && visibleColumns.length > 0) {
+            columns.forEach(col => {
+                if (visibleColumns.find(x => x === col.field)) {
+                    col.visible = true;
+                } else {
+                    col.visible = false;
+                }
+            });
+        }
 
         return new UniTableConfig(false, false)
             .setPageable(true)
@@ -341,5 +424,126 @@ export class TransqueryDetails implements OnInit {
                 }
             ])
             .setColumns(columns);
+    }
+
+    private getCssClasses(data, field) {
+        let cssClasses = '';
+
+        if (data.ReferenceCreditPostID || data.OriginalReferencePostID) {
+            cssClasses += 'journal-entry-credited';
+        } else {
+            if (field === 'Amount') {
+                cssClasses += ' ' + (data.JournalEntryLineAmount >= 0 ? 'number-good' : 'number-bad');
+            }
+
+            if (field === 'RestAmount') {
+                cssClasses += ' ' + (data.JournalEntryLineRestAmount >= 0 ? 'number-good' : 'number-bad');
+            }
+        }
+
+        return cssClasses.trim();
+    }
+
+    private onFormFilterChange(event) {
+        this.table.refreshTableData();
+    }
+
+    private onColumnVisibilityChange(columns) {
+        let visibleColumns: Array<string> = [];
+
+        columns.forEach(x => {
+            if (x.visible) {
+                visibleColumns.push(x.field);
+            }
+        });
+
+        this.storageService.save(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, JSON.stringify(visibleColumns), true);
+    }
+
+    private getLayout() {
+        return {
+            Name: 'TransqueryList',
+            BaseEntity: 'Account',
+            StatusCode: 0,
+            Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'JournalEntryLine',
+                    Property: 'AccountID',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Filtrer på konto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null,
+                    Options: {
+                        search: (query: string) => this.accountService.searchAccounts(`( ( AccountNumber eq '${query}') or (Visible eq 'true' and (startswith(AccountNumber,'${query}') or contains(AccountName,'${query}') ) ) ) and isnull(AccountID,0) eq 0`),
+                        displayProperty: 'AccountName',
+                        valueProperty: 'ID',
+                        template: (account: Account) => account ? `${account.AccountNumber}: ${account.AccountName}` : '',
+                        minLength: 1,
+                        debounceTime: 200
+                    }
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'JournalEntryLine',
+                    Property: 'AccountYear',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Filtrer på regnskapsår',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null,
+                    Options: {
+                        source: this.financialYears,
+                        valueProperty: 'Year',
+                        debounceTime: 200,
+                        template: (item) => {
+                            return item ? item.Year.toString() : '';
+                        }
+                    }
+                }
+            ]
+        };
     }
 }

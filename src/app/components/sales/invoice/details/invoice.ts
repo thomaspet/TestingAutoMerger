@@ -86,7 +86,7 @@ export class InvoiceDetails {
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'InvoiceReference'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+        'Customer', 'InvoiceReference', 'JournalEntry'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     constructor(
         private customerInvoiceService: CustomerInvoiceService,
@@ -153,7 +153,6 @@ export class InvoiceDetails {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = <any>new LocalDate(); // TODO: Remove <any> when backend is ready
-                    invoice.DeliveryDate = <any>new LocalDate(); // TODO: Remove <any> when backend is ready
                     invoice.PaymentDueDate = null;
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
@@ -408,6 +407,13 @@ export class InvoiceDetails {
             toolbarconfig.subheads.push({
                 title: `Kreditering av faktura nr. ${this.invoice.InvoiceReference.InvoiceNumber}`,
                 link: `#/sales/invoices/${this.invoice.InvoiceReference.ID}`
+            });
+        }
+
+        if (this.invoice.JournalEntry) {
+            toolbarconfig.subheads.push({
+                title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
+                link: `#/accounting/transquery/details;JournalEntryNumber=${this.invoice.JournalEntry.JournalEntryNumber}`
             });
         }
 

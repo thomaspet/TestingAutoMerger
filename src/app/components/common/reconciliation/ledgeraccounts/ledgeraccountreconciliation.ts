@@ -42,6 +42,7 @@ export class LedgerAccountReconciliation {
 
     private currentMarkingSession: Array<any> = [];
     private allMarkingSessions: Array<JournalEntryLineCouple> = [];
+    private currentSelectedRows: Array<any> = [];
 
     public isDirty: boolean = false;
     private busy: boolean = false;
@@ -72,14 +73,7 @@ export class LedgerAccountReconciliation {
     private loadData() {
         if (this.customerID || this.supplierID) {
             this.setupUniTable();
-
-            setTimeout(() => {
-                if (this.table) {
-                    this.calculateSums();
-                }
-
-                this.busy = false;
-            });
+            this.busy = false;
         }
     }
 
@@ -131,7 +125,7 @@ export class LedgerAccountReconciliation {
                     didSwitchAfterLastSelection = true;
                 }
 
-                if (rowModel.RestAmount === 0 || rowModel.StatusCode === StatusCodeJournalEntryLine.Marked) {
+                if (rowModel.StatusCode === StatusCodeJournalEntryLine.Marked) {
                     // row is already marked, dont do anything else here - the user is probably going
                     // to unmark a marked line. Let's help the user by selecting related rows for him
                     if (rowModel.Markings && rowModel.Markings.length > 0) {
@@ -146,6 +140,10 @@ export class LedgerAccountReconciliation {
                             }
                         });
                     }
+                } else if (countPositive === 0 && countNegative === 0 && rowModel.RestAmount === 0) {
+                    // user selected a row with 0 as RestAmount - just close it
+                    this.addToCurrentMarkingSession(rowModel);
+                    this.closeMarkingSession();
                 } else if (currentSessionSum === 0) {
                     // TODO: Add some slack here - allow for e.g. differences of 5 kr ??
                     this.addToCurrentMarkingSession(rowModel);
@@ -214,9 +212,9 @@ export class LedgerAccountReconciliation {
         }
 
         this.summaryData.SumChecked = 0;
-        let selectedRows = this.table.getSelectedRows();
+        this.currentSelectedRows = this.table.getSelectedRows();
 
-        selectedRows.forEach(x => {
+        this.currentSelectedRows.forEach(x => {
             this.summaryData.SumChecked += x.RestAmount;
         });
 
@@ -359,7 +357,11 @@ export class LedgerAccountReconciliation {
     }
 
     private closeMarkingSession(): boolean {
-        if (this.currentMarkingSession.length < 2) {
+
+        if (this.currentMarkingSession.length === 1 && this.currentMarkingSession[0].RestAmount === 0) {
+            // if only one item has been added, and that has 0 as RestAmount, just mark it against itself
+            // as a dummy - the API will handle this gracefully
+        } else if (this.currentMarkingSession.length < 2) {
             this.toastService.addToast('Kan ikke merke postene', ToastType.bad, 10, 'Du må velge minst to poster som skal markeres');
             return false;
         } else if (this.currentMarkingSession.filter(x => x.RestAmount > 0).length === 0 || this.currentMarkingSession.filter(x => x.RestAmount < 0).length === 0) {
@@ -383,53 +385,61 @@ export class LedgerAccountReconciliation {
         let originalBaseRestAmount = baseLine.RestAmount;
         let baseRestAmount = baseLine.RestAmount;
 
-        // update markings on table data based on currentMarkingSession
-        this.currentMarkingSession.forEach(x => {
-            if (!x.Markings) {
-                x.Markings = [];
-            }
-
-            if (x.ID !== baseLine.ID) {
-                if (baseLine.RestAmount !== 0) {
-                    let newMarking: JournalEntryLineCouple = {
-                        JournalEntryLineId1: baseLine.ID,
-                        JournalEntryLineId2: x.ID
-                    };
-                    this.allMarkingSessions.push(newMarking);
-
-                    baseRestAmount = baseRestAmount + x.RestAmount;
-
-                    // keep original values in case line is "unmarked"
-                    x._originalRestAmount = x.RestAmount;
-                    x._originalStatusCode = x.StatusCode;
-
-                    if ((baseRestAmount < 0 && originalBaseRestAmount > 0)
-                            || (baseRestAmount > 0 && originalBaseRestAmount < 0))  {
-                        // the base line is fully Marked, keep the restamount on the line
-                        baseLine.RestAmount = 0;
-
-                        x.RestAmount = baseRestAmount;
-                        x.StatusCode = StatusCodeJournalEntryLine.PartlyMarked;
-                    } else {
-                        x.RestAmount = 0;
-                        x.StatusCode = StatusCodeJournalEntryLine.Marked;
-                        baseLine.RestAmount = baseRestAmount;
-                    }
-
-                    x._rowSelected = false;
-                    x._isDirty = true;
-
-                    x.Markings.push(baseLine);
-                    this.table.updateRow(x._originalIndex, x);
-
-                    baseLine.Markings.push(x);
-                } else {
-                    // the base line is already full marked - no point in trying to do more here
-                    x._rowSelected = false;
-                    this.table.updateRow(x._originalIndex, x);
+        if (this.currentMarkingSession.length === 1) {
+            let newMarking: JournalEntryLineCouple = {
+                JournalEntryLineId1: this.currentMarkingSession[0],
+                JournalEntryLineId2: this.currentMarkingSession[0]
+            };
+            this.allMarkingSessions.push(newMarking);
+        } else {
+            // update markings on table data based on currentMarkingSession
+            this.currentMarkingSession.forEach(x => {
+                if (!x.Markings) {
+                    x.Markings = [];
                 }
-            }
-        });
+
+                if (x.ID !== baseLine.ID) {
+                    if (baseLine.RestAmount !== 0) {
+                        let newMarking: JournalEntryLineCouple = {
+                            JournalEntryLineId1: baseLine.ID,
+                            JournalEntryLineId2: x.ID
+                        };
+                        this.allMarkingSessions.push(newMarking);
+
+                        baseRestAmount = baseRestAmount + x.RestAmount;
+
+                        // keep original values in case line is "unmarked"
+                        x._originalRestAmount = x.RestAmount;
+                        x._originalStatusCode = x.StatusCode;
+
+                        if ((baseRestAmount < 0 && originalBaseRestAmount > 0)
+                                || (baseRestAmount > 0 && originalBaseRestAmount < 0))  {
+                            // the base line is fully Marked, keep the restamount on the line
+                            baseLine.RestAmount = 0;
+
+                            x.RestAmount = baseRestAmount;
+                            x.StatusCode = StatusCodeJournalEntryLine.PartlyMarked;
+                        } else {
+                            x.RestAmount = 0;
+                            x.StatusCode = StatusCodeJournalEntryLine.Marked;
+                            baseLine.RestAmount = baseRestAmount;
+                        }
+
+                        x._rowSelected = false;
+                        x._isDirty = true;
+
+                        x.Markings.push(baseLine);
+                        this.table.updateRow(x._originalIndex, x);
+
+                        baseLine.Markings.push(x);
+                    } else {
+                        // the base line is already full marked - no point in trying to do more here
+                        x._rowSelected = false;
+                        this.table.updateRow(x._originalIndex, x);
+                    }
+                }
+            });
+        }
 
         baseLine._rowSelected = false;
         baseLine._originalRestAmount = originalBaseRestAmount;
@@ -574,6 +584,28 @@ export class LedgerAccountReconciliation {
         });
     }
 
+    private abortMarking() {
+        if (this.isDirty) {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret, disse vil forkastes hvis du fortsetter - vil du fortsette?',
+                'Fortsette uten å lagre?')
+            .then(confirmDialogResponse => {
+                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    this.allMarkingSessions = [];
+                    this.currentMarkingSession = [];
+                    this.currentSelectedRows = [];
+                    this.isDirty = false;
+                    this.loadData();
+                }
+            });
+        } else {
+            this.currentMarkingSession = [];
+            this.currentSelectedRows = [];
+            this.isDirty = false;
+            this.loadData();
+        }
+    }
+
     private reconciliateJournalEntries() {
         // if at least 2 rows are marked but haven't been closed yet (because they dont match exactly),
         // close them before saving
@@ -595,8 +627,9 @@ export class LedgerAccountReconciliation {
         this.postPostService.markPosts(this.allMarkingSessions)
             .subscribe(res => {
                 this.allMarkingSessions = [];
-                this.toastService.addToast('Merking lagret', ToastType.good, ToastTime.short);
+                this.currentSelectedRows = [];
                 this.isDirty = false;
+                this.toastService.addToast('Merking lagret', ToastType.good, ToastTime.short);
                 this.loadData();
             }, err => {
                 this.errorService.handle(err);
@@ -616,6 +649,10 @@ export class LedgerAccountReconciliation {
         this.journalEntryLineService.getJournalEntryLinePostPostData(this.showMarkedEntries, this.customerID, this.supplierID)
             .subscribe(data => {
                 this.journalEntryLines = data;
+
+                setTimeout(() => {
+                    this.calculateSums();
+                });
             },
             (err) => this.errorService.handle(err)
         );
@@ -643,7 +680,7 @@ export class LedgerAccountReconciliation {
 
         columns.forEach(x => {
             x.setConditionalCls((model) => {
-                return this.getCssClasses(model);
+                return this.getCssClasses(model, x.field);
             });
         });
 
@@ -653,18 +690,26 @@ export class LedgerAccountReconciliation {
             .setColumnMenuVisible(true)            ;
     }
 
-    private getCssClasses(model) {
+    private getCssClasses(model, field) {
         let cssClasses = '';
 
         if (model.StatusCode === StatusCodeJournalEntryLine.Marked) {
-            cssClasses += 'reconciliation-marked-row';
+            cssClasses += ' reconciliation-marked-row';
+        } else {
+            if (model._isLikelyMatch) {
+                cssClasses +=  ' reconciliation-likely-match';
+            }
+
+            if (field === 'Amount') {
+                cssClasses += ' ' + (model.Amount >= 0 ? 'number-good' : 'number-bad');
+            }
+
+            if (field === 'RestAmount') {
+                cssClasses += ' ' + (model.RestAmount >= 0 ? 'number-good' : 'number-bad');
+            }
         }
 
-        if (model._isLikelyMatch) {
-            cssClasses +=  'reconciliation-likely-match';
-        }
-
-        return cssClasses;
+        return cssClasses.trim();
     }
 
     private getMarkingsText(item): string {

@@ -1,9 +1,16 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
+    <uni-form [config]="config"
+              [fields]="fields"
+              [model]="searchParams"
+              (changeEvent)="onFormFilterChange($event)"
+              *ngIf="allowManualSearch">
+    </uni-form>
     <uni-table
             [resource]="lookupFunction"
             [config]="uniTableConfig"
-            (filtersChange)="onFiltersChange($event.filter)">
+            (filtersChange)="onFiltersChange($event.filter)"
+            (columnVisibilityChange)="onColumnVisibilityChange($event)">
     </uni-table>
 
     <uni-summary [configs]="summary" *ngIf="summaryData" [attr.aria-busy]="busy"></uni-summary>
