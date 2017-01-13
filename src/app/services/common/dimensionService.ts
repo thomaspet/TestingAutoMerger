@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {Dimensions} from '../../unientities';
 
 export enum DimensionTypes {
@@ -20,6 +21,7 @@ export function checkGuid(item) {
     }
 }
 
+@Injectable()
 export class Dimension extends Dimensions {
 
     public static setNewGuid(dim: any) {

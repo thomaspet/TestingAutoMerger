@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {EHFLog} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {RequestMethod} from '@angular/http';
 
+@Injectable()
 export class EHFService extends BizHttp<EHFLog> {
 
     constructor(http: UniHttp) {

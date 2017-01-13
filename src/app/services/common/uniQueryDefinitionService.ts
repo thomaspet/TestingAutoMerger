@@ -1,9 +1,11 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniQueryDefinition} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 import {IReference} from '../../models/iReference';
 
+@Injectable()
 export class UniQueryDefinitionService extends BizHttp<UniQueryDefinition> {
 
     constructor(http: UniHttp) {

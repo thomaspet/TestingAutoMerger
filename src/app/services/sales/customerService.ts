@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
 
+@Injectable()
 export class CustomerService extends BizHttp<Customer> {
 
     constructor(http: UniHttp, authService: AuthService) {

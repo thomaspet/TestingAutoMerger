@@ -1,8 +1,10 @@
+import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {URLSearchParams, ResponseContentType} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 
+@Injectable()
 export class StatisticsService extends BizHttp<string> {
 
     private notSoImportantFields: Array<string> = ['createdat', 'createdby', 'updatedat', 'updatedby', 'id', 'deleted'];
