@@ -1,23 +1,30 @@
 {
-    "compilerOptions": {
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "module": "system",
-        "moduleResolution": "node",
-        "noImplicitAny": false,
-        "outDir": "./dist",
-        "outFile": "./dist/app.bundle.js",
-        "rootDir": "./src",
-        "sourceMap": true,
-        "target": "es5",
-        "removeComments": false,
-        "suppressImplicitAnyIndexErrors": true
-    },
-    "exclude": [
-        "node_modules",
-        "typings/main",
-        "typings/main.d.ts",
-        "kendo/typescript/",
-        "dist"
+  "compilerOptions": {
+    "target": "es5",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es5", "dom"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitHelpers": true,
+    "skipDefaultLibCheck": true,
+    "pretty": true,
+    "sourceMap": true,
+    "strictNullChecks": false,
+    "typeRoots": [
+      "node_modules/@types"
     ]
+  },
+  "exclude": [
+    "node_modules",
+    "src/compiled"
+  ],
+  "awesomeTypescriptLoaderOptions": {
+    "useWebpackText": true,
+    "forkChecker": true,
+    "useCache": true
+  },
+  "compileOnSave": false,
+  "buildOnSave": false,
+  "atom": { "rewriteTsconfig": false }
 }
