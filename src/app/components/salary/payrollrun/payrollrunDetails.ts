@@ -18,6 +18,7 @@ import { ToastService, ToastType } from '../../../../framework/uniToast/toastSer
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
 import { UniView } from '../../../../framework/core/uniView';
 import { PreviewModal } from '../../reports/modals/preview/previewModal';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService,
@@ -53,6 +54,7 @@ export class PayrollrunDetails extends UniView {
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
     @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     private isEditable: boolean;
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
@@ -219,21 +221,7 @@ export class PayrollrunDetails extends UniView {
                 this.departments = departments;
             });
 
-            if (this.payrollrunID) {
-                this.tabSer.addTab({
-                    name: 'Lønnsavregning ' + this.payrollrunID,
-                    url: 'salary/payrollrun/' + this.payrollrunID,
-                    moduleID: UniModules.Payrollrun,
-                    active: true
-                });
-            } else {
-                this.tabSer.addTab({
-                    name: 'Ny lønnsavregning',
-                    url: this.url + this.payrollrunID,
-                    moduleID: UniModules.Payrollrun,
-                    active: true
-                });
-            }
+            this.updateTabStrip(this.payrollrunID);
         });
 
         this.contextMenuItems = [
@@ -288,6 +276,45 @@ export class PayrollrunDetails extends UniView {
                 }
             }
         });
+    }
+
+    public canDeactivate(): Observable<boolean> {
+
+        return Observable
+            .of(!super.isDirty())
+            .flatMap(result => {
+                return result
+                    ? Observable.of(result)
+                    : Observable
+                        .fromPromise(
+                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
+                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+            })
+            .map(canDeactivate => {
+                canDeactivate
+                    ? this.cacheService.clearPageCache(this.cacheKey)
+                    : this.updateTabStrip(this.payrollrunID);
+
+                return canDeactivate;
+            });
+    }
+
+    private updateTabStrip(payrollrunID) {
+        if (payrollrunID) {
+            this.tabSer.addTab({
+                name: 'Lønnsavregning ' + payrollrunID,
+                url: 'salary/payrollrun/' + payrollrunID,
+                moduleID: UniModules.Payrollrun,
+                active: true
+            });
+        } else {
+            this.tabSer.addTab({
+                name: 'Ny lønnsavregning',
+                url: this.url + payrollrunID,
+                moduleID: UniModules.Payrollrun,
+                active: true
+            });
+        }
     }
 
     private getLayout() {
@@ -513,20 +540,21 @@ export class PayrollrunDetails extends UniView {
     }
 
     public newPayrollrun() {
-        if (!super.canDeactivate()) {
-            return;
-        }
 
-        this.payrollrunService.get(0).subscribe((payrollrun: PayrollRun) => {
-            this.payrollrun = payrollrun;
-            this.payrollrunID = 0;
-            this.payDate = null;
-            this.router.navigateByUrl(this.url + this.payrollrun.ID);
-            if (!this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
+        this.canDeactivate().subscribe(result => {
+            if (result) {
+                this.payrollrunService.get(0).subscribe((payrollrun: PayrollRun) => {
+                    this.payrollrun = payrollrun;
+                    this.payrollrunID = 0;
+                    this.payDate = null;
+                    this.router.navigateByUrl(this.url + this.payrollrun.ID);
+                    if (!this.uniform.section(1).isOpen) {
+                        this.uniform.section(1).toggle();
+                    }
+                },
+                    err => this.errorService.handle(err));
             }
-        },
-            err => this.errorService.handle(err));
+        });
     }
 
     public openPostingSummaryModal(done) {
@@ -553,24 +581,23 @@ export class PayrollrunDetails extends UniView {
     }
 
     public previousPayrollrun() {
-
-        if (!super.canDeactivate()) {
-            return;
-        }
-
-        this.payrollrunService.getPrevious(this.payrollrunID)
-            .subscribe((previous) => {
-                if (previous) {
-                    this.payrollrun = previous;
-                    this.setSection();
-                    this.router.navigateByUrl(this.url + previous.ID);
-                }
-            }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(result => {
+            if (result) {
+                this.payrollrunService.getPrevious(this.payrollrunID)
+                    .subscribe((previous) => {
+                        if (previous) {
+                            this.payrollrun = previous;
+                            this.setSection();
+                            this.router.navigateByUrl(this.url + previous.ID);
+                        }
+                    }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     public nextPayrollrun() {
 
-        if (!super.canDeactivate()) {
+        if (!this.canDeactivate()) {
             return;
         }
 

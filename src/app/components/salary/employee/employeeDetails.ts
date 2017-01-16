@@ -13,6 +13,7 @@ import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { UniView } from '../../../../framework/core/uniView';
 import { TaxCardModal } from './modals/taxCardModal';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import {
     EmployeeService,
     EmploymentService,
@@ -54,6 +55,7 @@ export class EmployeeDetails extends UniView {
     private employeeTaxCard: EmployeeTaxCard;
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private employeeWidgets: IPosterWidget[] = [
         {
@@ -253,21 +255,7 @@ export class EmployeeDetails extends UniView {
             }
 
             // Update navbar tabs
-            if (this.employeeID) {
-                this.tabService.addTab({
-                    name: 'Ansattnr. ' + (this.employee ? this.employee.EmployeeNumber : this.employeeID),
-                    url: this.url + this.employeeID,
-                    moduleID: UniModules.Employees,
-                    active: true
-                });
-            } else {
-                this.tabService.addTab({
-                    name: 'Ny ansatt',
-                    url: this.url + this.employeeID,
-                    moduleID: UniModules.Employees,
-                    active: true
-                });
-            }
+            this.updateTabStrip(this.employeeID, this.employee);
         });
 
         // Subscribe to route changes and load necessary data
@@ -306,6 +294,44 @@ export class EmployeeDetails extends UniView {
                 }
             }
         });
+    }
+
+    private updateTabStrip(employeeID: number, employee: Employee) {
+        if (employeeID) {
+            this.tabService.addTab({
+                name: 'Ansattnr. ' + (employee ? employee.EmployeeNumber : employeeID),
+                url: this.url + employeeID,
+                moduleID: UniModules.Employees,
+                active: true
+            });
+        } else {
+            this.tabService.addTab({
+                name: 'Ny ansatt',
+                url: this.url + employeeID,
+                moduleID: UniModules.Employees,
+                active: true
+            });
+        }
+    }
+
+    public canDeactivate(): Observable<boolean> {
+        return Observable
+            .of(!super.isDirty())
+            .flatMap(result => {
+                return result
+                    ? Observable.of(result)
+                    : Observable
+                        .fromPromise(
+                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
+                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+            })
+            .map(canDeactivate => {
+                canDeactivate
+                    ? this.cacheService.clearPageCache(this.cacheKey)
+                    : this.updateTabStrip(this.employeeID, this.employee);
+
+                return canDeactivate;
+            });
     }
 
     public updatePosterEmployee(employee: Employee) {
@@ -474,44 +500,44 @@ export class EmployeeDetails extends UniView {
     }
 
     public nextEmployee() {
-        if (!super.canDeactivate()) {
-            return;
-        }
 
-        // TODO: this should use BizHttp.getNextID()
-        this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
-            if (next) {
-                this.employee = next;
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
+                    if (next) {
+                        this.employee = next;
+                        let childRoute = this.router.url.split('/').pop();
+                        this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+                    }
+                }, err => this.errorService.handle(err));
             }
-        }, err => this.errorService.handle(err));
+        });
     }
 
-    // TODO: this should use BizHttp.getPreviousID()
     public previousEmployee() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-
-        this.employeeService.getPrevious(this.employee.ID).subscribe((prev: Employee) => {
-            if (prev) {
-                this.employee = prev;
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.employeeService.getPrevious(this.employee.ID).subscribe((prev: Employee) => {
+                    if (prev) {
+                        this.employee = prev;
+                        let childRoute = this.router.url.split('/').pop();
+                        this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+                    }
+                }, err => this.errorService.handle(err));
             }
-        }, err => this.errorService.handle(err));
+        });
     }
 
     public newEmployee() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-        this.employeeService.get(0).subscribe((emp: Employee) => {
-            this.employee = emp;
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
-        }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.employeeService.get(0).subscribe((emp: Employee) => {
+                    this.employee = emp;
+                    let childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
+                }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     private getEmployee() {
