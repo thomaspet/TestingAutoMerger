@@ -16,7 +16,7 @@ declare var jQuery;
 
 @Component({
     selector: 'order-list',
-    templateUrl: 'app/components/sales/order/list/orderList.html'
+    templateUrl: './orderList.html'
 })
 export class OrderList {
 

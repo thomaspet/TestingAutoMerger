@@ -9,7 +9,7 @@ declare var APP_VERSION;
 
 @Component({
     selector: 'uni-feedback',
-    templateUrl: 'app/components/common/feedback/feedback.html',
+    templateUrl: './feedback.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniFeedback {

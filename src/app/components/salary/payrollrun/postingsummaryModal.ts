@@ -6,7 +6,7 @@ import {ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'postingsummary-modal',
-    templateUrl: 'app/components/salary/payrollrun/postingsummaryModal.html'
+    templateUrl: './postingsummaryModal.html'
 })
 export class PostingsummaryModal implements AfterViewInit {
 

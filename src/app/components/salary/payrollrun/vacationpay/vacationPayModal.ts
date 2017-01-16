@@ -7,7 +7,7 @@ declare var _;
 
 @Component({
     selector: 'vacationpay-modal',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html'
+    templateUrl: './vacationPayModal.html'
 })
 export class VacationpayModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;

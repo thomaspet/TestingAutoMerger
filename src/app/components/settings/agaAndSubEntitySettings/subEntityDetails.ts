@@ -7,7 +7,7 @@ import { Observable } from 'rxjs/Observable';
 declare var _; // lodash
 @Component({
     selector: 'sub-entity-details',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityDetails.html'
+    templateUrl: './subEntityDetails.html'
 })
 export class SubEntityDetails {
     @Input() private currentSubEntity: SubEntity;

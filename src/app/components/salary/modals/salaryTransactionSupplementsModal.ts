@@ -6,7 +6,7 @@ import { UniFieldLayout, UniForm } from 'uniform-ng2/main';
 
 @Component({
     selector: 'sal-trans-supplements-modal-content',
-    templateUrl: 'app/components/salary/modals/salaryTransactionSupplementsModalContent.html'
+    templateUrl: './salaryTransactionSupplementsModalContent.html'
 })
 export class SalaryTransactionSupplementsModalContent {
 
@@ -14,7 +14,7 @@ export class SalaryTransactionSupplementsModalContent {
     @Input('config') private config: { cancel: () => void, submit: (trans: SalaryTransaction) => void };
     private salaryTransaction: SalaryTransaction;
     private readOnly: boolean;
-    
+
 
     private fields: UniFieldLayout[] = [];
 
@@ -32,7 +32,7 @@ export class SalaryTransactionSupplementsModalContent {
         let fields: UniFieldLayout[] = [];
         if (this.salaryTransaction.Supplements) {
             this.salaryTransaction.Supplements.forEach((supplement: SalaryTransactionSupplement, index) => {
-                
+
                 if (!supplement.WageTypeSupplement && this.salaryTransaction.Wagetype) {
                     supplement.WageTypeSupplement = this.salaryTransaction.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID);
                 }
@@ -60,7 +60,7 @@ export class SalaryTransactionSupplementsModalContent {
     }
 
     private createCheckBox(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout {
-        
+
         if (!supplement.ValueBool) {
             if (supplement.WageTypeSupplement.SuggestedValue === 'true' || supplement.WageTypeSupplement.SuggestedValue === 'false') {
                 supplement.ValueBool = supplement.WageTypeSupplement.SuggestedValue === 'true' ? true : false;
@@ -71,7 +71,7 @@ export class SalaryTransactionSupplementsModalContent {
     }
 
     private createDatePicker(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout {
-        
+
         if (!supplement.ValueDate) {
             supplement.ValueDate = new Date(supplement.WageTypeSupplement.SuggestedValue);
         }
@@ -80,7 +80,7 @@ export class SalaryTransactionSupplementsModalContent {
     }
 
     private createNumberField(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout {
-        
+
         if (!supplement.ValueMoney && !isNaN(+supplement.WageTypeSupplement.SuggestedValue)) {
             supplement.ValueMoney = +supplement.WageTypeSupplement.SuggestedValue;
         }

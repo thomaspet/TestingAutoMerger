@@ -3,7 +3,7 @@ import {TofCustomerCard} from './customerCard';
 declare const _;
 @Component({
     selector: 'uni-tof-head',
-    templateUrl: 'app/components/sales/common/tofHead.html'
+    templateUrl: './tofHead.html'
 })
 export class TofHead extends OnChanges{
     @ViewChild(TofCustomerCard)

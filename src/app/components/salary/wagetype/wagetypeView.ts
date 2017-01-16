@@ -18,7 +18,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-wagetype-view',
-    templateUrl: 'app/components/salary/wagetype/wageTypeView.html'
+    templateUrl: './wageTypeView.html'
 })
 export class WageTypeView extends UniView {
 

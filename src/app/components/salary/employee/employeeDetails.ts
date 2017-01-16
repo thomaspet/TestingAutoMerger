@@ -35,7 +35,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-employee-details',
-    templateUrl: 'app/components/salary/employee/employeeDetails.html'
+    templateUrl: './employeeDetails.html'
 })
 export class EmployeeDetails extends UniView {
 

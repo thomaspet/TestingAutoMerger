@@ -23,7 +23,7 @@ interface IFilter {
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/regtime/regtime.html'
+    templateUrl: './regtime.html'
 })
 export class RegisterTime {
     public view: View = view;

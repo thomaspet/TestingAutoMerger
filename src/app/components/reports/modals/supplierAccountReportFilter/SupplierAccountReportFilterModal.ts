@@ -7,7 +7,7 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 
 @Component({
     selector: 'supplier-account-report-filter-form',
-    templateUrl: 'app/components/reports/modals/SupplierAccountReportFilter/SupplierAccountReportFilterModal.html'
+    templateUrl: './SupplierAccountReportFilterModal.html'
 
 })
 export class SupplierAccountReportFilterForm implements OnInit {

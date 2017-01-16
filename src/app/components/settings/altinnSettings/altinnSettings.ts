@@ -7,7 +7,7 @@ import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from 
 
 @Component({
     selector: 'altinn-settings',
-    templateUrl: 'app/components/settings/altinnSettings/altinnSettings.html'
+    templateUrl: './altinnSettings.html'
 
 })
 export class AltinnSettings implements OnInit {

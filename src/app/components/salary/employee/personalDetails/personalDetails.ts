@@ -18,7 +18,7 @@ declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
+    templateUrl: './personalDetails.html'
 })
 export class PersonalDetails extends UniView {
 
@@ -137,7 +137,7 @@ export class PersonalDetails extends UniView {
                     : Observable.of([]),
                 search: (query: string) => this.municipalService
                     .GetAll(`filter=
-                        startswith(MunicipalityNo, '${query}') 
+                        startswith(MunicipalityNo, '${query}')
                         or contains(MunicipalityName, '${query}')
                         &top=50`)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),

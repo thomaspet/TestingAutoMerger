@@ -8,7 +8,7 @@ declare var moment;
 
 @Component({
     selector: 'regtimetools',
-    templateUrl: 'app/components/timetracking/timeentry/tools/tools.html'
+    templateUrl: './tools.html'
 })
 export class RegtimeTools {
     private timesheet: TimeSheet;

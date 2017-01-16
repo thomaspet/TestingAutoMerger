@@ -28,7 +28,7 @@ declare const _;
 
 @Component({
     selector: 'supplier-invoice-detail',
-    templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html'
+    templateUrl: './supplierinvoicedetail.html'
 })
 export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     @Input() private invoiceId: any;

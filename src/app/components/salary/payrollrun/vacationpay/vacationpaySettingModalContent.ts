@@ -8,7 +8,7 @@ import moment from 'moment';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModalContent.html'
+    templateUrl: './vacationpaySettingModalContent.html'
 })
 export class VacationpaySettingModalContent {
     private busy: boolean;

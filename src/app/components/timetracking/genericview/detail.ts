@@ -42,7 +42,7 @@ export interface IAfterSaveInfo {
 
 @Component({
     selector: 'genericdetail',
-    templateUrl: 'app/components/timetracking/genericview/detail.html'
+    templateUrl: './detail.html'
 
 })
 export class GenericDetailview {

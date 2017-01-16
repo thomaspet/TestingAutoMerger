@@ -42,7 +42,7 @@ declare const _;
 
 @Component({
     selector: 'uni-invoice',
-    templateUrl: 'app/components/sales/invoice/details/invoice.html'
+    templateUrl: './invoice.html'
 })
 export class InvoiceDetails {
     @ViewChild(UniConfirmModal)

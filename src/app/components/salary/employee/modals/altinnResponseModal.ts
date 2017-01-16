@@ -6,7 +6,7 @@ import {AltinnIntegrationService,ErrorService} from '../../../../../app/services
 declare var _;
 @Component({
     selector: 'altinn-response-modal-content',
-    templateUrl: 'app/components/salary/employee/modals/altinnResponseModalContent.html',
+    templateUrl: './altinnResponseModalContent.html',
     providers: [AltinnIntegrationService]
 })
 export class AltinnResponseModalContent {

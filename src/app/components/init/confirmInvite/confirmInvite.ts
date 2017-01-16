@@ -7,7 +7,7 @@ import {Logger} from '../../../../framework/core/logger';
 
 @Component({
     selector: 'uni-confirm-invite',
-    templateUrl: 'app/components/init/confirmInvite/confirmInvite.html'
+    templateUrl: './confirmInvite.html'
 })
 
 export class ConfirmInvite {

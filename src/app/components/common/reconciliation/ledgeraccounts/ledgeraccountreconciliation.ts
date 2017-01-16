@@ -23,7 +23,7 @@ class JournalEntryLineCouple {
 
 @Component({
     selector: 'ledger-account-reconciliation',
-    templateUrl: 'app/components/common/reconciliation/ledgeraccounts/ledgeraccountreconciliation.html',
+    templateUrl: './ledgeraccountreconciliation.html',
 })
 export class LedgerAccountReconciliation {
     @Input() supplierID: number;

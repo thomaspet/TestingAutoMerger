@@ -6,7 +6,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'user-settings',
-    templateUrl: 'app/components/settings/userSettings/userSettings.html',
+    templateUrl: './userSettings.html',
 })
 
 export class UserSettings {

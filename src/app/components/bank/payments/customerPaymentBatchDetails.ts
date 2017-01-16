@@ -14,7 +14,7 @@ declare const saveAs; // filesaver.js
 
 @Component({
     selector: 'customer-payment-batch-details',
-    templateUrl: 'app/components/bank/payments/customerPaymentBatchDetails.html',
+    templateUrl: './customerPaymentBatchDetails.html',
 })
 export class CustomerPaymentBatchDetails implements OnChanges {
     @Input() private paymentBatchID: number;

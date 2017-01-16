@@ -6,7 +6,7 @@ import {AltinnIntegrationService, ErrorService} from '../../../../../app/service
 declare var _;
 @Component({
     selector: 'tax-card-request',
-    templateUrl: 'app/components/salary/employee/modals/taxCardRequest.html',
+    templateUrl: './taxCardRequest.html',
     host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
 
 })

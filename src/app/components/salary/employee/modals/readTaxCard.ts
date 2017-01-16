@@ -10,7 +10,7 @@ import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationD
 declare var _; // lodash
 @Component({
     selector: 'read-tax-card',
-    templateUrl: 'app/components/salary/employee/modals/readTaxCard.html'
+    templateUrl: './readTaxCard.html'
 })
 export class ReadTaxCard {
 

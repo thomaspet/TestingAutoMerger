@@ -31,7 +31,7 @@ export interface ICommentsConfig {
 
 @Component({
     selector: 'uni-toolbar',
-    templateUrl: 'app/components/common/toolbar/toolbar.html'
+    templateUrl: './toolbar.html'
 })
 export class UniToolbar {
     @Input()

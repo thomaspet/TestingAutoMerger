@@ -16,7 +16,7 @@ declare var moment;
 
 @Component({
     selector: 'journal-entry-simple-form',
-    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html'
+    templateUrl: './journalentrysimpleform.html'
 })
 export class JournalEntrySimpleForm implements OnChanges {
     @Input() public dropdownData: any;

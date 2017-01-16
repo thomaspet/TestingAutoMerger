@@ -16,7 +16,7 @@ import moment from 'moment';
 
 @Component({
     selector: 'quote-list',
-    templateUrl: 'app/components/sales/quote/list/quoteList.html'
+    templateUrl: './quoteList.html'
 })
 export class QuoteList {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;

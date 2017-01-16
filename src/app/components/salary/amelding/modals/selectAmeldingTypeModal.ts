@@ -5,7 +5,7 @@ import { FieldType } from '../../../../unientities';
 
 @Component({
     selector: 'select-amelding-type-modal-content',
-    templateUrl: 'app/components/salary/amelding/modals/selectAmeldingTypeModal.html'
+    templateUrl: './selectAmeldingTypeModal.html'
 })
 export class SelectAmeldingTypeModalContent {
     private fields: UniFieldLayout[] = [];

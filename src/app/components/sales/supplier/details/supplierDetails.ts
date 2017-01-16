@@ -31,7 +31,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'supplier-details',
-    templateUrl: 'app/components/sales/supplier/details/supplierDetails.html'
+    templateUrl: './supplierDetails.html'
 })
 export class SupplierDetails implements OnInit {
     @Input() public modalMode: boolean = false;

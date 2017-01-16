@@ -10,7 +10,7 @@ import {ErrorService} from '../../../../services/services';
 declare var _; // lodash
 @Component({
     selector: 'balance-report-filter-form',
-    templateUrl: 'app/components/reports/modals/postingJournal/PostingJournalReportFilterModal.html'
+    templateUrl: './PostingJournalReportFilterModal.html'
 })
 export class PostingJournalReportFilterForm implements OnInit {
     @Input('config')

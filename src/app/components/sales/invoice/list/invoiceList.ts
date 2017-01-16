@@ -22,7 +22,7 @@ import {
 
 @Component({
     selector: 'invoice-list',
-    templateUrl: 'app/components/sales/invoice/list/invoiceList.html'
+    templateUrl: './invoiceList.html'
 })
 export class InvoiceList implements OnInit {
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;

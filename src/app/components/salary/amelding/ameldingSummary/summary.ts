@@ -5,7 +5,7 @@ declare var moment;
 
 @Component({
     selector: 'amelding-summary-view',
-    templateUrl: 'app/components/salary/amelding/ameldingSummary/summary.html'
+    templateUrl: './summary.html'
 })
 
 export class AmeldingSummaryView {

@@ -22,7 +22,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'dimension-result-report',
-    templateUrl: 'app/components/accounting/accountingreports/dimensionreport/dimensionresultreport.html',
+    templateUrl: './dimensionresultreport.html',
 })
 export class DimensionResultReport {
 

@@ -11,7 +11,7 @@ import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'report-parameter-modal-type',
-    templateUrl: 'app/components/reports/modals/parameter/parameterModal.html'
+    templateUrl: './parameterModal.html'
 })
 export class ReportparameterModalType {
     @Input('config')

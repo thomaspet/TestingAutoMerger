@@ -8,7 +8,7 @@ import {EmployeeService, ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'employee-list',
-    templateUrl: 'app/components/salary/employee/employeeList.html'
+    templateUrl: './employeeList.html'
 })
 
 export class EmployeeList {

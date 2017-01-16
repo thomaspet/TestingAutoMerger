@@ -33,7 +33,7 @@ interface ITab {
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/timeentry/timeentry.html'
+    templateUrl: './timeentry.html'
 })
 export class TimeEntry {
     public busy: boolean = true;

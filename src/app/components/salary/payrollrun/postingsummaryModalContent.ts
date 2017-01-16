@@ -7,7 +7,7 @@ declare var moment;
 
 @Component({
     selector: 'postingsummary-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html'
+    templateUrl: './postingsummaryModalContent.html'
 })
 export class PostingsummaryModalContent {
     public busy: boolean;

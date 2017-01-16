@@ -17,7 +17,7 @@ declare var moment;
 
 @Component({
     selector: 'customer-list',
-    templateUrl: 'app/components/accounting/transquery/list/transqueryList.html',
+    templateUrl: './transqueryList.html',
 })
 export class TransqueryList {
     @ViewChild(UniForm) public form: UniForm;

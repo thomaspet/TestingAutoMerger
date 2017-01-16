@@ -5,7 +5,7 @@ declare var Chart;
 
 @Component({
     selector: 'uni-widget-poster',
-    templateUrl: 'framework/widgetPoster/widgetPoster.html',
+    templateUrl: './widgetPoster.html',
 })
 export class WidgetPoster {
     @Input() public model: any;

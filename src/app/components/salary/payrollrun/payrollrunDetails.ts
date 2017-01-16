@@ -30,7 +30,7 @@ declare var moment;
 
 @Component({
     selector: 'payrollrun-details',
-    templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
+    templateUrl: './payrollrunDetails.html',
 })
 
 export class PayrollrunDetails extends UniView {

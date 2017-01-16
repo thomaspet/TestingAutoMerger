@@ -11,7 +11,7 @@ import {
 
 @Component({
     selector: 'balance-report-filter-form',
-    templateUrl: 'app/components/reports/modals/balanceList/BalanceReportFilterModal.html'
+    templateUrl: './BalanceReportFilterModal.html'
 })
 export class BalanceReportFilterForm implements OnInit {
     @Input('config')

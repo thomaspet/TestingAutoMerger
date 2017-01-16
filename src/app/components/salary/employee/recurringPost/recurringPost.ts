@@ -14,7 +14,7 @@ declare var _;
 
 @Component({
     selector: 'reccuringpost-list',
-    templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html'
+    templateUrl: './recurringPost.html'
 })
 
 export class RecurringPost extends UniView {

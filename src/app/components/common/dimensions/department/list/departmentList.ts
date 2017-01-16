@@ -7,7 +7,7 @@ import {DepartmentService, ErrorService} from '../../../../../services/services'
 
 @Component({
     selector: 'department-dimensions-list',
-    templateUrl: 'app/components/common/dimensions/department/list/departmentList.html'
+    templateUrl: './departmentList.html'
 })
 export class DepartmentList {
 

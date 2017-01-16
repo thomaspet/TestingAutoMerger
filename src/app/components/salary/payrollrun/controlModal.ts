@@ -17,7 +17,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'control-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/controlModalContent.html'
+    templateUrl: './controlModalContent.html'
 })
 export class ControlModalContent {
     private busy: boolean;

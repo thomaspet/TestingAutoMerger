@@ -9,7 +9,7 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'vat-settings',
-    templateUrl: 'app/components/settings/vatsettings/vatsettings.html'
+    templateUrl: './vatsettings.html'
 })
 export class VatSettings {
     @ViewChild(VatTypeList) private vatTypeList: VatTypeList;

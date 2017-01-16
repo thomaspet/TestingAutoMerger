@@ -9,7 +9,7 @@ import {ToastService, ToastType} from '../../../../../../framework/uniToast/toas
 
 @Component({
     selector: 'Project-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/project/details/projectDetails.html'
+    templateUrl: './projectDetails.html'
 })
 export class ProjectDetails implements OnInit {
     public config: any = {autofocus: true};

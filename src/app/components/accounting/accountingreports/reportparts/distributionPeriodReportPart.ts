@@ -19,7 +19,7 @@ export class DistributionPeriodData {
 
 @Component({
     selector: 'distribution-period-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/distributionPeriodReportPart.html',
+    templateUrl: './distributionPeriodReportPart.html',
 })
 export class DistributionPeriodReportPart implements OnChanges {
 

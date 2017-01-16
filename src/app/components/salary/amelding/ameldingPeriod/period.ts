@@ -8,7 +8,7 @@ declare var moment;
 
 @Component({
     selector: 'amelding-periodsummary-view',
-    templateUrl: 'app/components/salary/amelding/ameldingPeriod/period.html'
+    templateUrl: './period.html'
 })
 
 export class AmeldingPeriodSummaryView {

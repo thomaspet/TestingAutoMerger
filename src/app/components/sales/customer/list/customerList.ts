@@ -12,7 +12,7 @@ declare var jQuery;
 
 @Component({
     selector: 'customer-list',
-    templateUrl: 'app/components/sales/customer/list/customerList.html'
+    templateUrl: './customerList.html'
 })
 export class CustomerList {
     @ViewChild(UniTable) table: any;

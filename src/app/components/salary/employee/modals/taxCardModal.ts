@@ -8,7 +8,7 @@ declare var _;
 
 @Component({
     selector: 'tax-card-modal-content',
-    templateUrl: 'app/components/salary/employee/modals/taxCardModalContent.html'
+    templateUrl: './taxCardModalContent.html'
 })
 export class TaxCardModalContent {
     public title: string = '';

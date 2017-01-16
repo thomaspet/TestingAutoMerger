@@ -8,7 +8,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'account-settings',
-    templateUrl: 'app/components/settings/accountSettings/accountSettings.html',
+    templateUrl: './accountSettings.html',
 })
 export class AccountSettings {
     @ViewChild(AccountList) private accountlist: AccountList;

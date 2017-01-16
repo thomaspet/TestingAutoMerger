@@ -12,7 +12,7 @@ declare const moment;
 
 @Component({
     selector: 'accounting-balance-report',
-    templateUrl: 'app/components/accounting/accountingreports/balancereport/balancereport.html',
+    templateUrl: './balancereport.html',
 })
 export class BalanceReport {
     @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;

@@ -15,7 +15,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'account-details',
-    templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html'
+    templateUrl: './accountDetails.html'
 })
 export class AccountDetails implements OnInit {
     @Input() public inputAccount: Account;

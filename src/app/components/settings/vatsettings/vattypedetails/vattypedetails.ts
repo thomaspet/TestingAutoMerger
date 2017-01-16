@@ -13,7 +13,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
 
 @Component({
     selector: 'vattype-details',
-    templateUrl: 'app/components/settings/vatsettings/vattypedetails/vattypedetails.html'
+    templateUrl: './vattypedetails.html'
 })
 export class VatTypeDetails implements OnChanges, OnInit {
     @Input() public vatType: VatType;

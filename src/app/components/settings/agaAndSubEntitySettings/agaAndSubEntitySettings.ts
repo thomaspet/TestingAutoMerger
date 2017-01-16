@@ -15,7 +15,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'aga-and-subentities-settings',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings.html'
+    templateUrl: './agaAndSubEntitySettings.html'
 })
 
 export class AgaAndSubEntitySettings implements OnInit {

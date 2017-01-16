@@ -7,7 +7,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 
 @Component({
     selector: 'vattype-list',
-    templateUrl: 'app/components/settings/vatsettings/vattypelist/vatTypeList.html'
+    templateUrl: './vatTypeList.html'
 })
 export class VatTypeList {
     @Output() public uniVatTypeChange: EventEmitter<VatType> = new EventEmitter<VatType>();

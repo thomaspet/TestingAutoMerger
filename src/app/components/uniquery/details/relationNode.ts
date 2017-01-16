@@ -6,7 +6,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'dynamic-report-relation-node',
-    templateUrl: 'app/components/uniquery/details/relationNode.html'
+    templateUrl: './relationNode.html'
 })
 export class RelationNode implements OnChanges {
     @Input() private relation: any;

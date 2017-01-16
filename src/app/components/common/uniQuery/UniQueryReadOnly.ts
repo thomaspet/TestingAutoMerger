@@ -10,7 +10,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 
 @Component({
     selector: 'uni-query-read-only',
-    templateUrl: 'app/components/common/uniQuery/UniQueryReadOnly.html'
+    templateUrl: './UniQueryReadOnly.html'
 })
 export class UniQueryReadOnly implements OnChanges {
     // externalID is used when using this report from another component, e.g. as a sub component

@@ -35,7 +35,7 @@ export class DimensionSummaryData {
 
 @Component({
     selector: 'dimensions-overview-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/dimensionsOverviewReportPart.html',
+    templateUrl: './dimensionsOverviewReportPart.html',
 })
 export class DimensionsOverviewReportPart {
     @Input() private periodFilter1: PeriodFilter;

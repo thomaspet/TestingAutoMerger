@@ -21,7 +21,7 @@ declare var moment;
 
 @Component({
     selector: 'amelding-view',
-    templateUrl: 'app/components/salary/amelding/ameldingview.html'
+    templateUrl: './ameldingview.html'
 })
 
 export class AMeldingView implements OnInit {

@@ -20,7 +20,7 @@ declare var _;
 
 @Component({
     selector: 'salarytrans',
-    templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
+    templateUrl: './salarytransactionSelectionList.html'
 })
 
 export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {

@@ -55,7 +55,7 @@ class CustomerOrderExt extends CustomerOrder {
 
 @Component({
     selector: 'order-details',
-    templateUrl: 'app/components/sales/order/details/orderDetails.html'
+    templateUrl: './orderDetails.html'
 })
 export class OrderDetails {
     @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;

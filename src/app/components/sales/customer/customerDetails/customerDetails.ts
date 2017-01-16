@@ -28,7 +28,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'customer-details',
-    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html'
+    templateUrl: './customerDetails.html'
 })
 export class CustomerDetails {
     @Input() public customerID: any;

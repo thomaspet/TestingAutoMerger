@@ -29,7 +29,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'transquery-details',
-    templateUrl: 'app/components/accounting/transquery/details/transqueryDetails.html',
+    templateUrl: './transqueryDetails.html',
 })
 export class TransqueryDetails implements OnInit {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;

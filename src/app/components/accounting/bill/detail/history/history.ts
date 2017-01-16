@@ -7,7 +7,7 @@ declare const moment;
 
 @Component({
     selector: 'uni-bill-history',
-    templateUrl: 'app/components/accounting/bill/detail/history/history.html'
+    templateUrl: './history.html'
 })
 export class BillHistoryView {
 

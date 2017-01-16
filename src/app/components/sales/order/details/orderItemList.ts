@@ -11,7 +11,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 @Component({
     selector: 'order-item-list',
-    templateUrl: 'app/components/sales/order/details/orderItemList.html'
+    templateUrl: './orderItemList.html'
 })
 export class OrderItemList {
     @Input() public order: CustomerOrder;

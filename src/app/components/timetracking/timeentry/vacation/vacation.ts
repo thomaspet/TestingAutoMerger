@@ -10,7 +10,7 @@ import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'vacation',
-    templateUrl: 'app/components/timetracking/timeentry/vacation/vacation.html',
+    templateUrl: './vacation.html',
 })
 export class View {
     @Input() public set workrelationid(id: number) {

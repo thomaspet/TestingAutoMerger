@@ -19,7 +19,7 @@ import {
 
 @Component({
     selector: 'journal-entry-simple',
-    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html'
+    templateUrl: './journalentrysimple.html'
 })
 export class JournalEntrySimple implements OnInit {
     @Input() public supplierInvoice: SupplierInvoice;

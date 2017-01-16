@@ -28,7 +28,7 @@ declare const moment;
 
 @Component({
     selector: 'vat-report-view',
-    templateUrl: 'app/components/accounting/vatreport/vatreportview.html'
+    templateUrl: './vatreportview.html'
 })
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;

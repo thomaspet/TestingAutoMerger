@@ -52,7 +52,7 @@ interface ILocalValidation {
 
 @Component({
     selector: 'uni-bill',
-    templateUrl: 'app/components/accounting/bill/detail/bill.html'
+    templateUrl: './bill.html'
 })
 export class BillView {
 

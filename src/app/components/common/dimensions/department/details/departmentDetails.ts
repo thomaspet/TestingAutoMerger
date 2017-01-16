@@ -9,7 +9,7 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 
 @Component({
     selector: 'department-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html'
+    templateUrl: './departmentDetails.html'
 })
 export class DepartmentDetails implements OnInit {
     public config: any = {autofocus: true};

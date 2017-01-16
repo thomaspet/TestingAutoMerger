@@ -19,7 +19,7 @@ declare const moment;
 
 @Component({
     selector: 'supplier-invoice-list',
-    templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html'
+    templateUrl: './supplierinvoicelist.html'
 })
 export class SupplierInvoiceList implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;

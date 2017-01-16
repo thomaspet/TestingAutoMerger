@@ -6,7 +6,7 @@ declare var moment;
 
 @Component({
     selector: 'amelding-receipt-view',
-    templateUrl: 'app/components/salary/amelding/ameldingReceipt/receipt.html'
+    templateUrl: './receipt.html'
 })
 
 export class AmeldingReceiptView {
@@ -31,7 +31,7 @@ export class AmeldingReceiptView {
     }
 
     public rowSelected(event) {
-        
+
     }
 
     public toggleCollapsed(index: number) {
@@ -55,13 +55,13 @@ export class AmeldingReceiptView {
             let feedback = this.currentAMelding.feedBack;
             if (feedback !== null) {
                 this.alleAvvikNoder = [];
-                
+
                 let alleMottak = this.currentAMelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
                     alleMottak.forEach(mottak => {
                         const pr = mottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
-                        this.setMottattLeveranser(mottak.mottattLeveranse, period); 
+                        this.setMottattLeveranser(mottak.mottattLeveranse, period);
                         if (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year) {
                             this.getAvvikRec(mottak, period);
                         }
@@ -163,7 +163,7 @@ export class AmeldingReceiptView {
                 this.aMeldingerInPeriod.forEach(amelding => {
                     if (dataItem.meldingsId === amelding.messageID) {
                         mldID = amelding.ID;
-                    } 
+                    }
                 });
                 return mldID === 0 ? dataItem.meldingsId : mldID;
             });

@@ -11,7 +11,7 @@ import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/conf
 
 @Component({
     selector: 'workbalances',
-    templateUrl: 'app/components/timetracking/worker/balances.html',
+    templateUrl: './balances.html',
 })
 export class View {
     @Input() public set workerid(id: number) {

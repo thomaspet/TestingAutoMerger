@@ -30,7 +30,7 @@ export class ResultSummaryData {
 
 @Component({
     selector: 'accounting-result-report',
-    templateUrl: 'app/components/accounting/accountingreports/resultreport/resultreport.html',
+    templateUrl: './resultreport.html',
 })
 export class ResultReport {
     @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;

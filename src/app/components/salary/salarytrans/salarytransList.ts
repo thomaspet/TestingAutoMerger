@@ -19,7 +19,7 @@ declare var _;
 
 @Component({
     selector: 'salary-transactions-employee',
-    templateUrl: 'app/components/salary/salarytrans/salarytransList.html'
+    templateUrl: './salarytransList.html'
 })
 
 export class SalaryTransactionEmployeeList extends UniView implements OnChanges {

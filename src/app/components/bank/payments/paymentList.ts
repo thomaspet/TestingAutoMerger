@@ -28,7 +28,7 @@ declare const saveAs; // filesaver.js
 
 @Component({
     selector: 'payment-list',
-    templateUrl: 'app/components/bank/payments/paymentList.html',
+    templateUrl: './paymentList.html',
 })
 export class PaymentList {
     @ViewChild(UniTable) private table: UniTable;

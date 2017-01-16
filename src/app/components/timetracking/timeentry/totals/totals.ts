@@ -16,7 +16,7 @@ interface IStatSource {
 
 @Component({
     selector: 'regtimetotals',
-    templateUrl: 'app/components/timetracking/timeentry/totals/totals.html'
+    templateUrl: './totals.html'
 })
 export class RegtimeTotals {
     private timesheet: TimeSheet;

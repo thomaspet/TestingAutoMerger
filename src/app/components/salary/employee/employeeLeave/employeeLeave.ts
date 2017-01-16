@@ -7,7 +7,7 @@ import {UniView} from '../../../../../framework/core/uniView';
 
 @Component({
     selector: 'employee-permision',
-    templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html'
+    templateUrl: './employeeLeave.html'
 
 })
 export class EmployeeLeaves extends UniView {

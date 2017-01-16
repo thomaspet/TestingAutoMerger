@@ -13,7 +13,7 @@ declare var _;
 
 @Component({
     selector: 'vacationpay-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
+    templateUrl: './vacationPayModalContent.html'
 })
 export class VacationpayModalContent {
     @Input('config') private config: {

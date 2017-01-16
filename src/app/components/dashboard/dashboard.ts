@@ -20,7 +20,7 @@ export interface IChartDataSet {
 
 @Component({
     selector: 'uni-dashboard',
-    templateUrl: 'app/components/dashboard/dashboard.html'
+    templateUrl: './dashboard.html'
 })
 
 export class Dashboard {

@@ -8,7 +8,7 @@ import moment from 'moment';
 
 @Component({
     selector: 'uni-comments',
-    templateUrl: 'framework/comments/comments.html',
+    templateUrl: './comments.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniComments {

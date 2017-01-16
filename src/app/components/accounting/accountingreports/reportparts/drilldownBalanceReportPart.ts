@@ -33,7 +33,7 @@ export class BalanceSummaryData {
 
 @Component({
     selector: 'drilldown-balance-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/drilldownBalanceReportPart.html',
+    templateUrl: './drilldownBalanceReportPart.html',
 })
 export class DrilldownBalanceReportPart implements OnChanges {
 

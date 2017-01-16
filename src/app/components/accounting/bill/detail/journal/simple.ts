@@ -12,7 +12,7 @@ import {
 
 @Component({
     selector: 'bill-simple-journalentry',
-    templateUrl: 'app/components/accounting/bill/detail/journal/simple.html',
+    templateUrl: './simple.html',
 })
 export class BillSimpleJournalEntryView {
     @Input() public set supplierinvoice(value: SupplierInvoice ) {

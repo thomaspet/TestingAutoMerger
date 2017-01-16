@@ -15,7 +15,7 @@ declare const OneSignal;
 
 @Component({
     selector: 'uni-notifications',
-    templateUrl: 'framework/notifications/notifications.html',
+    templateUrl: './notifications.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNotifications {

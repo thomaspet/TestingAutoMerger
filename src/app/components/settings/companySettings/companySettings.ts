@@ -40,7 +40,7 @@ declare const _;
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/companySettings/companySettings.html'
+    templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
     @ViewChild(UniForm) public form: UniForm;

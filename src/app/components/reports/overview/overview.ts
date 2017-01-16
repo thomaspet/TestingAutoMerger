@@ -23,7 +23,7 @@ class ReportCategory {
 
 @Component({
     selector: 'uni-overview',
-    templateUrl: 'app/components/reports/overview/overview.html'
+    templateUrl: './overview.html'
 })
 export class Overview {
     @ViewChild(ParameterModal)

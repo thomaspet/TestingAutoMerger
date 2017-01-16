@@ -34,7 +34,7 @@ export interface IViewConfig {
 
 @Component({
     selector: 'genericlist',
-    templateUrl: 'app/components/timetracking/genericview/list.html'
+    templateUrl: './list.html'
 })
 export class GenericListView {
     @Input() public viewconfig: IViewConfig;

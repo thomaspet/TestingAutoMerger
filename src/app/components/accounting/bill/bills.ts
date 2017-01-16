@@ -37,7 +37,7 @@ interface IFilter {
 
 @Component({
     selector: 'uni-bills',
-    templateUrl: 'app/components/accounting/bill/bills.html'
+    templateUrl: './bills.html'
 })
 export class BillsView {
 

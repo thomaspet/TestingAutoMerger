@@ -22,7 +22,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'uni-query-details',
-    templateUrl: 'app/components/uniquery/details/uniQueryDetails.html'
+    templateUrl: './uniQueryDetails.html'
 })
 export class UniQueryDetails {
     @ViewChild(UniTable) table: UniTable;

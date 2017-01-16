@@ -35,7 +35,7 @@ declare const _;
 
 @Component({
     selector: 'quote-details',
-    templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
+    templateUrl: './quoteDetails.html',
 })
 export class QuoteDetails {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;

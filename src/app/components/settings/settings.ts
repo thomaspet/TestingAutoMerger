@@ -10,7 +10,7 @@ import {IToolbarConfig} from '../common/toolbar/toolbar';
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/settings.html'
+    templateUrl: './settings.html'
 })
 export class Settings {
 

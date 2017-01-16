@@ -6,7 +6,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'period-picker',
-    templateUrl: 'app/components/accounting/accountingreports/periodFilter/periodpicker.html',
+    templateUrl: './periodpicker.html',
     host: {
         '(document:click)': 'checkForClickOutside($event)'
     },

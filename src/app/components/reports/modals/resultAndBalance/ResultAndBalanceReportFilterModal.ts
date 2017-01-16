@@ -7,7 +7,7 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 
 @Component({
     selector: 'result-and-balance-report-filter-form',
-    templateUrl: 'app/components/reports/modals/resultAndBalance/ResultAndBalanceReportFilterModal.html'
+    templateUrl: './ResultAndBalanceReportFilterModal.html'
 })
 export class ResultAndBalanceReportFilterForm implements OnInit {
     @Input('config')

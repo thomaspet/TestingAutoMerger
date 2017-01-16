@@ -10,7 +10,7 @@ declare var jQuery;
 
 @Component({
     selector: 'supplier-list',
-    templateUrl: 'app/components/sales/supplier/list/supplierList.html'
+    templateUrl: './supplierList.html'
 })
 export class SupplierList {
 

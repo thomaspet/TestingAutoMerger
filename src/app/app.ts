@@ -17,7 +17,7 @@ declare const window;
 
 @Component({
     selector: 'uni-app',
-    templateUrl: 'app/app.html'
+    templateUrl: './app.html'
 })
 export class App {
     private isAuthenticated: boolean = false;

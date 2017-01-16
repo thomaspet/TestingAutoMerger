@@ -8,7 +8,7 @@ import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'payrollrun-list',
-    templateUrl: 'app/components/salary/payrollrun/payrollrunList.html'
+    templateUrl: './payrollrunList.html'
 })
 
 export class PayrollrunList implements OnInit {

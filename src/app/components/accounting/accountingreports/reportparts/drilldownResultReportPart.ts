@@ -32,7 +32,7 @@ export class ResultSummaryData {
 
 @Component({
     selector: 'drilldown-result-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/drilldownResultReportPart.html',
+    templateUrl: './drilldownResultReportPart.html',
 })
 export class DrilldownResultReportPart implements OnChanges {
 
