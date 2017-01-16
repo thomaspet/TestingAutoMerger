@@ -1,6 +1,6 @@
 // Angular imports
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -10,7 +10,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
@@ -22,13 +21,11 @@ import {PaymentList} from './payments/paymentList';
 import {PaymentBatchDetails} from './payments/paymentBatchDetails';
 import {PaymentBatches} from './payments/paymentBatches';
 import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationModal';
-import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
-import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetails';
 
 @NgModule({
     imports: [
         // Angular modules
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -43,8 +40,7 @@ import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetail
         // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
 
         // Route module
         BankRoutes
@@ -56,9 +52,7 @@ import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetail
         PaymentBatches,
         PaymentRelationsModal,
         PaymentRelationsTable,
-        PaymentBatchDetails,
-        CustomerPaymentBatches,
-        CustomerPaymentBatchDetails
+        PaymentBatchDetails
     ],
     entryComponents: [
         PaymentRelationsTable
@@ -68,8 +62,7 @@ import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetail
     exports: [
         PaymentList,
         PaymentBatches,
-        PaymentBatchDetails,
-        CustomerPaymentBatches
+        PaymentBatchDetails
     ]
 })
 export class BankModule {

@@ -1,4 +1,5 @@
 import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {PeriodDateFormatPipe} from './PeriodDateFormatPipe';
 import {UniAccountNumberPipe} from './UniAccountNumberPipe';
 import {UniCurrencyPipe} from './UniCurrencyPipe';
@@ -7,6 +8,9 @@ import {SafeHtml} from './safeHTML';
 import {UniNumberFormatPipe} from './UniNumberFormatPipe';
 
 @NgModule({
+    imports: [
+        CommonModule
+    ],
     declarations: [
         PeriodDateFormatPipe,
         UniAccountNumberPipe,
@@ -15,7 +19,16 @@ import {UniNumberFormatPipe} from './UniNumberFormatPipe';
         SafeHtml,
         UniNumberFormatPipe
     ],
+    providers: [
+        PeriodDateFormatPipe,
+        UniAccountNumberPipe,
+        UniCurrencyPipe,
+        UniDateFormatPipe,
+        SafeHtml,
+        UniNumberFormatPipe
+    ],
     exports: [
+        CommonModule,
         PeriodDateFormatPipe,
         UniAccountNumberPipe,
         UniCurrencyPipe,
@@ -24,6 +37,4 @@ import {UniNumberFormatPipe} from './UniNumberFormatPipe';
         UniNumberFormatPipe
     ]
 })
-export class AppPipesModule {
-
-}
+export class AppPipesModule { }

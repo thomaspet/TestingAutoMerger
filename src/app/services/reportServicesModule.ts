@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {ReportDefinitionDataSourceService} from './reports/reportDefinitionDataSourceService';
 import {ReportDefinitionParameterService} from './reports/reportDefinitionParameterService';
 import {ReportDefinitionService} from './reports/reportDefinitionService';
@@ -14,4 +14,15 @@ export * from './reports/reportDefinitionService';
         ReportDefinitionService
     ]
 })
-export class ReportServicesModule {}
+export class ReportServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: ReportServicesModule,
+            providers: [
+                ReportDefinitionDataSourceService,
+                ReportDefinitionParameterService,
+                ReportDefinitionService
+            ]
+        };
+    }
+}

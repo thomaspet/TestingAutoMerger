@@ -1,12 +1,11 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 import {routes as InitRoutes} from './initRoutes';
 import {LoginModal} from './loginModal';
@@ -20,7 +19,7 @@ import {UniFormModule} from 'uniform-ng2/main';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -33,8 +32,7 @@ import {UniFormModule} from 'uniform-ng2/main';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
 
         // Route module
         InitRoutes

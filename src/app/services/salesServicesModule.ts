@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AddressService} from './sales/addressService';
 import {BusinessRelationService} from './sales/businessRelationService';
 import {CustomerInvoiceService} from './sales/customerInvoiceService';
@@ -38,4 +38,23 @@ export * from './sales/phoneService';
         PhoneService
     ]
 })
-export class SalesServicesModule { }
+export class SalesServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: SalesServicesModule,
+            providers: [
+                AddressService,
+                BusinessRelationService,
+                CustomerInvoiceService,
+                CustomerInvoiceItemService,
+                CustomerOrderItemService,
+                CustomerOrderService,
+                CustomerQuoteItemService,
+                CustomerQuoteService,
+                CustomerService,
+                EmailService,
+                PhoneService
+            ]
+        };
+    }
+}

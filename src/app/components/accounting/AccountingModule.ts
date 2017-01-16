@@ -1,6 +1,6 @@
 // Angular imports
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -62,7 +62,7 @@ import {BillHistoryView} from './bill/detail/history/history';
 @NgModule({
     imports: [
         // Angular modules
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -81,7 +81,7 @@ import {BillHistoryView} from './bill/detail/history/history';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
         SettingsModule,
 
         // Route module

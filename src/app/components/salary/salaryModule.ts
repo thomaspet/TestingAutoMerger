@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -74,7 +74,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -93,7 +93,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
         ReportsModule,
 
         // routes

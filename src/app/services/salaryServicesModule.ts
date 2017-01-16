@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AMeldingService} from './salary/AMelding/AMeldingService';
 import {BasicAmountService} from './salary/basicamount/basicAmountService';
 import {CompanySalaryService} from './salary/companysalary/companySalaryService';
@@ -53,5 +53,28 @@ export * from './salary/salaryTransaction/salarySumsService';
         SalarySumsService
     ]
 })
-export class SalaryServicesModule { }
+export class SalaryServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: SalaryServicesModule,
+            providers: [
+                AMeldingService,
+                BasicAmountService,
+                CompanySalaryService,
+                CompanyVacationRateService,
+                EmployeeCategoryService,
+                EmployeeLeaveService,
+                EmployeeService,
+                EmploymentService,
+                PayrollrunService,
+                SalaryTransactionService,
+                InntektService,
+                WageTypeService,
+                GrantService,
+                VacationpayLineService,
+                EmployeeTaxCardService
+            ]
+        };
+    }
+}
 

@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -8,7 +8,6 @@ import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 import {routes as TimetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
@@ -35,7 +34,7 @@ import {View as WorkBalancesView} from './worker/balances';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -53,8 +52,7 @@ import {View as WorkBalancesView} from './worker/balances';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
 
         // Route module
         TimetrackingRoutes

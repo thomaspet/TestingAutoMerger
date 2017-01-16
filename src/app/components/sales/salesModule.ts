@@ -1,12 +1,11 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 import {routes as SalesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
@@ -42,7 +41,7 @@ import {TradeItemTable} from './common/tradeitemTable';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -60,8 +59,7 @@ import {TradeItemTable} from './common/tradeitemTable';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
         ReportsModule,
 
         // Route module

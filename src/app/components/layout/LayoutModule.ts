@@ -1,6 +1,6 @@
-import {AppPipesModule} from './../../pipes/AppPipesModule';
+import {AppPipesModule} from './../../pipes/appPipesModule';
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -14,11 +14,11 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {TabService} from './navbar/tabstrip/tabService';
 import {UniFormModule} from 'uniform-ng2/main';
-
+import {UniNumberFormatPipe} from '../../pipes/UniNumberFormatPipe';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -37,7 +37,8 @@ import {UniFormModule} from 'uniform-ng2/main';
         UniCompanyDropdown
     ],
     providers: [
-        TabService
+        TabService,
+        UniNumberFormatPipe
     ],
     exports: [
         UniTabs,

@@ -1,6 +1,6 @@
 // Angular imports
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -11,7 +11,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
@@ -25,7 +24,7 @@ import {UniQueries} from './uniQueries';
 @NgModule({
     imports: [
         // Angular modules
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -43,8 +42,7 @@ import {UniQueries} from './uniQueries';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
+        // AppServicesModule,
 
         // Route module
         UniQueryRoutes

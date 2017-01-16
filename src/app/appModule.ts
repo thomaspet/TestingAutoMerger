@@ -1,7 +1,5 @@
-/// <reference path='../../typings/browser/ambient/es6-shim/es6-shim.d.ts'/>
-/// <reference path='../../node_modules/immutable/dist/immutable.d.ts'/>
-
-import {enableProdMode, NgModule, ErrorHandler, Inject} from '@angular/core';
+/// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
+import {enableProdMode, NgModule, ErrorHandler} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 import {BrowserModule} from '@angular/platform-browser';
@@ -14,12 +12,10 @@ import {UniFormModule} from 'uniform-ng2/main';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 
-import moment from 'moment';
+import * as moment from 'moment';
 import 'moment/locale/nb';
 
-import {AppPipesModule} from './pipes/appPipesModule';
 import {UniFrameworkModule} from '../framework/frameworkModule';
-import {AppServicesModule} from './services/servicesModule';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
 import {AccountingModule} from './components/accounting/accountingModule';
@@ -33,8 +29,16 @@ import {SalaryModule} from './components/salary/salaryModule';
 import {InitModule} from './components/init/initModule';
 import {SalesModule} from './components/sales/salesModule';
 import {SettingsModule} from './components/settings/settingsModule';
-import {TimetrackingModule} from './components/timetracking/timetrackingModule';
 import {BankModule} from './components/bank/bankModule';
+
+// TODO: REVISIT SERVICES (we probably dont need all to be singletons)
+import {AccountingServicesModule} from './services/accountingServicesModule';
+import {CommonServicesModule} from './services/commonServicesModule';
+import {ReportServicesModule} from './services/reportServicesModule';
+import {SalaryServicesModule} from './services/salaryServicesModule';
+import {TimeTrackingServicesModule} from './services/timetrackingServicesModule';
+import {SalesServicesModule} from './services/salesServicesModule';
+
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -53,6 +57,14 @@ if (window.ENV === 'production') {
         HttpModule,
         RouterModule,
 
+        // REVISIT SERVICES!
+        CommonServicesModule.forRoot(),
+        AccountingServicesModule.forRoot(),
+        ReportServicesModule.forRoot(),
+        SalaryServicesModule.forRoot(),
+        SalesServicesModule.forRoot(),
+        TimeTrackingServicesModule.forRoot(),
+
         // routes
         APP_ROUTES,
 
@@ -68,8 +80,6 @@ if (window.ENV === 'production') {
         // COMMON MODULES
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
 
         // APP MODULES
         AccountingModule,
@@ -79,13 +89,12 @@ if (window.ENV === 'production') {
         InitModule,
         SalesModule,
         SettingsModule,
-        TimetrackingModule,
         UniQueryModule,
-        BankModule
+        BankModule,
     ],
     declarations: [
         App,
-        Dashboard
+        Dashboard,
     ],
     bootstrap: [App],
     providers: [
@@ -93,9 +102,9 @@ if (window.ENV === 'production') {
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
-    ]
+    ],
 })
 export class AppModule {
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule);
+// platformBrowserDynamic().bootstrapModule(AppModule);

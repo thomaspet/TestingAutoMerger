@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AltinnAuthenticationService} from './common/altinnAuthenticationService';
 import {AltinnIntegrationService} from './common/altinnIntegrationService';
 import {AltinnReceiptService} from './common/altinnReceiptService';
@@ -69,6 +69,7 @@ export * from './common/dimensionService';
 
 @NgModule({
     providers: [
+        ErrorService,
         AltinnAuthenticationService,
         AltinnIntegrationService,
         AltinnReceiptService,
@@ -92,7 +93,6 @@ export * from './common/dimensionService';
         StatusService,
         SettingsService,
         CompanyService,
-        ErrorService,
         PageStateService,
         FileService,
         EHFService,
@@ -103,5 +103,45 @@ export * from './common/dimensionService';
         StaticRegisterService
     ]
 })
-export class CommonServicesModule {}
+export class CommonServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: CommonServicesModule,
+            providers: [
+                ErrorService,
+                AltinnAuthenticationService,
+                AltinnIntegrationService,
+                AltinnReceiptService,
+                CompanySettingsService,
+                CompanyTypeService,
+                CurrencyService,
+                DepartmentService,
+                GuidService,
+                IntegrationServerCaller,
+                ProductService,
+                ProjectService,
+                SubEntityService,
+                UserService,
+                VatReportFormService,
+                UniQueryDefinitionService,
+                StatisticsService,
+                CountryService,
+                PostalCodeService,
+                UniMenuAim,
+                NumberFormat,
+                StatusService,
+                SettingsService,
+                CompanyService,
+                PageStateService,
+                FileService,
+                EHFService,
+                AgaZoneService,
+                MunicipalService,
+                BrowserStorageService,
+                UniCacheService,
+                StaticRegisterService
+            ]
+        };
+    }
+}
 
