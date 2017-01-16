@@ -55,19 +55,28 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public getPrevious(ID: number) {
-        return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
+        let year = this.getYear();
+        return super.GetAll(`filter=ID lt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
+            .map(resultSet => resultSet[0]);
     }
-    
+
     public getNext(ID: number) {
-        return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID ASC`).map(resultSet => resultSet[0]);
+        let year = this.getYear();
+        return super.GetAll(`filter=ID gt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID ASC`)
+            .map(resultSet => resultSet[0]);
     }
 
     public getLatest() {
         return super.GetAll(`filter=ID gt 0&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
     }
-    
+
+    public getYear(): number {
+        let financialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+        return financialYear && financialYear.Year ? financialYear.Year : undefined;
+    }
+
     public runSettling(ID: number) {
         return this.http
             .asPUT()
