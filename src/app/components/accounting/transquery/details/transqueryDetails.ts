@@ -12,7 +12,6 @@ import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
-import {BrowserStorageService} from '../../../../services/BrowserStorageService';
 import {
     JournalEntryLineService,
     JournalEntryService,
@@ -20,7 +19,8 @@ import {
     NumberFormat,
     StatisticsService,
 	AccountService,
-	FinancialYearService
+	FinancialYearService,
+    BrowserStorageService
 } from '../../../../services/services';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
