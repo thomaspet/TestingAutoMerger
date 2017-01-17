@@ -1,6 +1,6 @@
 # test directories
 __tests__
-test
+#test #Removed because ts-lint doesn't work if yarn removes test dir
 tests
 powered-test
 
