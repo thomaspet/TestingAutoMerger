@@ -3,7 +3,8 @@ import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear
+    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear,
+    WageType
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
@@ -25,7 +26,8 @@ import {
     SubEntityService,
     EmployeeTaxCardService,
     ErrorService,
-    NumberFormat
+    NumberFormat,
+    WageTypeService
 } from '../../../services/services';
 
 declare var _; // lodash
@@ -53,6 +55,7 @@ export class EmployeeDetails extends UniView {
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
     private employeeTaxCard: EmployeeTaxCard;
+    private wageTypes: WageType[] = [];
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -114,7 +117,8 @@ export class EmployeeDetails extends UniView {
         private errorService: ErrorService,
         private http: UniHttp,
         private numberformat: NumberFormat,
-        private employeeTaxCardService: EmployeeTaxCardService
+        private employeeTaxCardService: EmployeeTaxCardService,
+        private wageTypeService: WageTypeService
     ) {
 
         super(router.url, cacheService);
@@ -237,6 +241,10 @@ export class EmployeeDetails extends UniView {
 
             super.getStateSubject('departments').subscribe((departments) => {
                 this.departments = departments;
+            });
+
+            super.getStateSubject('wageTypes').subscribe((wageTypes: WageType[]) => {
+                this.wageTypes = wageTypes;
             });
 
             super.getStateSubject('employeeTaxCard').subscribe((employeeTaxCard) => {
@@ -576,7 +584,16 @@ export class EmployeeDetails extends UniView {
     }
 
     private getEmployments() {
-        this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
+        this.getEmploymentsObservable()
+            .subscribe((employments) => {
+                super.updateState('employments', employments, false);
+            }, err => this.errorService.handle(err));
+    }
+
+    private getEmploymentsObservable(): Observable<Employment[]> {
+        return this.employments 
+        ? Observable.of(this.employments) 
+        : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
             .map(employments => {
                 employments
                     .filter(employment => !employment.DimensionsID)
@@ -584,10 +601,7 @@ export class EmployeeDetails extends UniView {
                         x.Dimensions = new Dimensions();
                     });
                 return employments;
-            })
-            .subscribe((employments) => {
-                super.updateState('employments', employments, false);
-            }, err => this.errorService.handle(err));
+            });
     }
 
     private getRecurringPosts() {
@@ -595,9 +609,11 @@ export class EmployeeDetails extends UniView {
         Observable.forkJoin(
             this.salaryTransService.GetAll('filter=' + filter, ['Supplements.WageTypeSupplement', 'Dimensions']),
             this.getProjectsObservable(),
-            this.getDepartmentsObservable())
-            .subscribe((response: [SalaryTransaction[], Project[], Department[]]) => {
-                let [transes, projects, departments] = response;
+            this.getDepartmentsObservable(),
+            this.getWageTypesObservable(),
+            this.getEmploymentsObservable())
+            .subscribe((response: [SalaryTransaction[], Project[], Department[], WageType[], Employment[]]) => {
+                let [transes, projects, departments, wageTypes, employments] = response;
 
                 transes.map(trans => {
                     if (trans.Dimensions) {
@@ -607,12 +623,23 @@ export class EmployeeDetails extends UniView {
                         trans['_Project'] = trans['_Project'] || projects
                             .find(x => x.ID === trans.Dimensions.ProjectID);
                     }
+                    trans['_Wagetype'] = wageTypes.find(x => x.ID === trans.WageTypeID);
+                    if (trans['EmploymentID']) {
+                        trans['_Employment'] = employments.find(x => x.ID === trans.EmploymentID);
+                    }
                 });
 
                 super.updateState('projects', projects, false);
                 super.updateState('departments', departments, false);
+                super.updateState('wageTypes', wageTypes, false);
                 super.updateState('recurringPosts', transes, false);
             }, err => this.errorService.handle(err));
+    }
+
+    private getWageTypesObservable(): Observable<WageType[]> {
+        return this.wageTypes && this.wageTypes.length 
+        ? Observable.of(this.wageTypes) 
+        : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
     }
 
     private getProjects() {
