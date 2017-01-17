@@ -83,12 +83,14 @@ export class AmeldingPeriodSummaryView {
                         }
                     });
                 } else {
-                    const pr = alleMottak.kalendermaaned;
-                    const period = parseInt(pr.split('-').pop());
-                    if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                        this.forfallsdato = moment(alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
-                        this.checkLeveranser(alleMottak.mottattLeveranse, period);
-                        this.checkMottattPeriode(alleMottak);
+                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                        const pr = alleMottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop());
+                        if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                            this.forfallsdato = moment(alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
+                            this.checkLeveranser(alleMottak.mottattLeveranse, period);
+                            this.checkMottattPeriode(alleMottak);
+                        }
                     }
                 }
 

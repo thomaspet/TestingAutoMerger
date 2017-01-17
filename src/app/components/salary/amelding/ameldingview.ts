@@ -289,7 +289,7 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-            if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length -1].ID) {
+            if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                 let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
                 if (statusTextObject) {
                     this.currentSumUp._sumupStatusText = statusTextObject.statusText;
@@ -318,10 +318,12 @@ export class AMeldingView implements OnInit {
                         }
                     });
                 } else {
-                    const pr = alleMottak.kalendermaaned;
-                    const period = parseInt(pr.split('-').pop());
-                    if ((period === amelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
-                        mottakObject = this.checkMottattPeriode(alleMottak, typeData);
+                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                        const pr = alleMottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop());
+                        if ((period === amelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                            mottakObject = this.checkMottattPeriode(alleMottak, typeData);
+                        }
                     }
                 }
             }

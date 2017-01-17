@@ -67,11 +67,16 @@ export class AmeldingReceiptView {
                         }
                     });
                 } else {
-                    const pr = alleMottak.kalendermaaned;
-                    const period = parseInt(pr.split('-').pop()); 
-                    this.setMottattLeveranser(alleMottak.mottattLeveranse, period);
-                    if (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year) {
-                        this.getAvvikRec(alleMottak, period);
+                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                        const pr = alleMottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop());
+                        this.setMottattLeveranser(alleMottak.mottattLeveranse, period);
+                        if (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year) {
+                            this.getAvvikRec(alleMottak, period);
+                        }
+                    } else {
+                        // When altinn would not accept sent amelding, check for avvik
+                        this.getAvvikRec(alleMottak, this.currentAMelding.period);
                     }
                 }
                 this.groupAvvik();
@@ -93,6 +98,18 @@ export class AmeldingReceiptView {
                         if (obj.hasOwnProperty('yrke')) {
                             avvik.yrke = obj['yrke'];
                         }
+                        if (obj.hasOwnProperty('beloep')) {
+                            avvik.beloep = obj['beloep'];
+                        }
+                        if (obj.hasOwnProperty('fordel')) {
+                            avvik.fordel = obj['fordel'];
+                        }
+                        if (obj.hasOwnProperty('loennsinntekt')) {
+                            let loennObj = obj['loennsinntekt'];
+                            if (loennObj.hasOwnProperty('beskrivelse')) {
+                                avvik.loennsinntektBeskrivelse = loennObj['beskrivelse'];
+                            }
+                        }
                         avvik.belongsToPeriod = period;
                         this.alleAvvikNoder.push(avvik);
                     });
@@ -100,6 +117,18 @@ export class AmeldingReceiptView {
                     let avvik = obj[propname];
                     if (obj.hasOwnProperty('arbeidsforholdId')) {
                         avvik.arbeidsforholdId = obj['arbeidsforholdId'];
+                    }
+                    if (obj.hasOwnProperty('beloep')) {
+                        avvik.beloep = obj['beloep'];
+                    }
+                    if (obj.hasOwnProperty('fordel')) {
+                        avvik.fordel = obj['fordel'];
+                    }
+                    if (obj.hasOwnProperty('loennsinntekt')) {
+                        let loennObj = obj['loennsinntekt'];
+                        if (loennObj.hasOwnProperty('beskrivelse')) {
+                            avvik.loennsinntektBeskrivelse = loennObj['beskrivelse'];
+                        }
                     }
                     avvik.belongsToPeriod = period;
                     this.alleAvvikNoder.push(avvik);
