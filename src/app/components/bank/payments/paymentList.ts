@@ -277,7 +277,7 @@ export class PaymentList {
             return;
         }
 
-        let rowsWithOldDates = selectedRows.filter(x => moment(x.PaymentDate).isBefore(moment().toDate()));
+        let rowsWithOldDates = selectedRows.filter(x => moment(x.PaymentDate).isBefore(moment().startOf('day')));
 
         if (rowsWithOldDates.length > 0) {
             this.confirmModal.confirm(
@@ -324,11 +324,12 @@ export class PaymentList {
                         .subscribe((paymentBatch: PaymentBatch) => {
                             this.toastService.addToast(`Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`, ToastType.good, 5);
 
+                            // refresh list after paymentbatch has been generated
+                            this.loadData();
+
                             // kjør action for å generere utbetalingsfil basert på batch
                             this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
                                 .subscribe((updatedPaymentBatch: PaymentBatch) => {
-                                    // refresh list after paymentbatch has been generated
-                                    this.loadData();
 
                                     if (updatedPaymentBatch.PaymentFileID) {
                                         this.toastService.addToast('Utbetalingsfil laget, henter fil...', ToastType.good, 5);
