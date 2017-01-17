@@ -129,13 +129,24 @@
 </head>
 
 <body>
-
     <uni-app>
+		<p class="appLoading">Laster, vennligst vent...</p>
+	</uni-app>
+	<script type="text/javascript" src="hammer.min.js"></script>
+	<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=console.*,Intl.~locale.en&gated=1"></script>
+	<div id="str-dlls">
+		<%= '<' %>script src="/polyfill.dll.js"<%= '>' %><%= '<' %>/script<%= '>' %>
+		<%= '<' %>script src="/vendor.dll.js"<%= '>' %><%= '<' %>/script<%= '>' %>
+	</div>
+
+	<script src="/vendors.bundle.js"></script>
+	<script src="/index.js"></script>
+
+    <!--
+        <uni-app>
         <p class="appLoading">Laster, vennligst vent…</p>
         <uni-app>
 
-            <!-- SCRIPTS
-     ------------------------------------------------------------------------->
             <script crossorigin="anonymous" src="vendors.bundle.js?v=<%= version %>"></script>
             <script crossorigin="anonymous" src="app.bundle.js?v=<%= version %>"></script>
             <script>
@@ -147,6 +158,7 @@
                 }).catch(console.error.bind(console));
             </script>
             <%= raygunApiKeyCode %>
+    -->
 </body>
 
 </html>

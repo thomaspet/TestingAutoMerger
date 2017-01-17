@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Account, VatType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {StatisticsService} from '../common/StatisticsService';
+import {StatisticsService} from '../common/statisticsService';
 
 @Injectable()
 export class AccountService extends BizHttp<Account> {
@@ -10,7 +10,7 @@ export class AccountService extends BizHttp<Account> {
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 
-        //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..               
+        //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..
         this.relativeURL = Account.RelativeUrl;
 
         this.entityType = Account.EntityType;
@@ -55,7 +55,7 @@ export class AccountService extends BizHttp<Account> {
         return accounts;
     }
 
-    /*    
+    /*
      //if you need something special that is not supported by the base class, implement your own
      //method - either using the Get/Post/Put/Remove methods in the base class or by using the
      //base class' http-service directly

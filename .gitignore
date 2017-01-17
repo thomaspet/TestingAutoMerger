@@ -250,6 +250,7 @@ dist/
 jspm_packages
 bower_components
 .vscode
+.awcache/
 
 src/.DS_Store
 src/styles/main.css
