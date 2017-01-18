@@ -10,11 +10,11 @@ import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthentic
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {
-    SalaryTransactionService,
     PayrollrunService,
     AMeldingService,
     ErrorService,
-    NumberFormat
+    NumberFormat,
+    SalarySumsService
 } from '../../../services/services';
 
 declare var moment;
@@ -62,7 +62,7 @@ export class AMeldingView implements OnInit {
         private _ameldingService: AMeldingService,
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
-        private _salarytransService: SalaryTransactionService,
+        private _salarySumsService: SalarySumsService,
         private numberformat: NumberFormat,
         private errorService: ErrorService
     ) {
@@ -184,7 +184,7 @@ export class AMeldingView implements OnInit {
     }
 
     private getSumsInPeriod() {
-        this._salarytransService
+        this._salarySumsService
         .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeFinancialYear.Year)
             .subscribe((response) => {
                 this.currentSumsInPeriod = response;

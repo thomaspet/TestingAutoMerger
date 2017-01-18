@@ -12,7 +12,8 @@ import {
     UniCacheService,
     AgaZoneService,
     NumberFormat,
-    ErrorService
+    ErrorService,
+    SalarySumsService
 } from '../../../services/services';
 
 declare var _;
@@ -29,8 +30,6 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private agaZone: AGAZone;
     private payrollRunID: number;
     private payrollRun: PayrollRun;
-
-    private employeeTotals: SalaryTransactionSums;
     private summary: ISummaryConfig[] = [];
 
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
@@ -44,6 +43,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         private _employeeService: EmployeeService,
         private _payrollRunService: PayrollrunService,
         private _agaZoneService: AgaZoneService,
+        private _salarySumsService: SalarySumsService,
         private numberFormat: NumberFormat,
         private route: ActivatedRoute,
         private router: Router,
@@ -93,15 +93,15 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 if (rowModel.BankAccounts) {
                     let error = '';
                     let taxError = !rowModel.TaxCards
-                    || !rowModel.TaxCards.length
-                    || (!rowModel.TaxCards[0].TaxTable
-                    && !rowModel.TaxCards[0].TaxPercentage);
+                        || !rowModel.TaxCards.length
+                        || (!rowModel.TaxCards[0].TaxTable
+                            && !rowModel.TaxCards[0].TaxPercentage);
                     let accountError = (!rowModel.BankAccounts)
-                    || !rowModel.BankAccounts.some(x => x.Active === true);
+                        || !rowModel.BankAccounts.some(x => x.Active === true);
                     let notUpdated = !taxError
-                    && rowModel.TaxCards
-                    && this.payrollRun
-                    && rowModel.TaxCards[0].Year < new Date(this.payrollRun.PayDate).getFullYear();
+                        && rowModel.TaxCards
+                        && this.payrollRun
+                        && rowModel.TaxCards[0].Year < new Date(this.payrollRun.PayDate).getFullYear();
 
                     if (taxError || accountError || notUpdated) {
                         if (accountError && taxError) {
@@ -115,10 +115,10 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                             error += 'Skattekort er ikke oppdatert';
                         }
                         return '{#<em class="missing-info" title="'
-                        + error
-                        + '" role="presentation">'
-                        + error
-                        + '</em>#}';
+                            + error
+                            + '" role="presentation">'
+                            + error
+                            + '</em>#}';
                     } else {
                         return "{#<em role='presentation'></em>#}# ";
                     }
@@ -143,14 +143,13 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public rowSelected(event) {
         this.selectedIndex = event.rowModel['_originalIndex'];
         this.getAga();
-        this.employeeTotals = null;
-        this.setSums();
+        this.setSums(null);
         this.setSummarySource();
     }
 
     private getAga() {
         let employee = this.employeeList[this.selectedIndex];
-        if (!this.agaZone || (employee.SubEntity && employee.SubEntity.AgaZone !== this.agaZone.ID) ) {
+        if (!this.agaZone || (employee.SubEntity && employee.SubEntity.AgaZone !== this.agaZone.ID)) {
             this._agaZoneService
                 .Get(employee.SubEntity.AgaZone)
                 .subscribe((agaResponse: AGAZone) => {
@@ -161,44 +160,42 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         }
     }
 
-    private setSums() {
-        let employee = this.employeeList[this.selectedIndex]
+    private setSums(employeeTotals: SalaryTransactionSums) {
+        let employee = this.employeeList[this.selectedIndex];
         let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
 
         this.summary = [{
-            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.percentTax),
+            value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
             title: `Prosenttrekk` + (taxCard ? ` (${taxCard.TaxPercentage}%)` : ''),
-            description: this.employeeTotals
-            && this.employeeTotals.basePercentTax
-            ? `av ${this.numberFormat.asMoney(this.employeeTotals.basePercentTax)}` : null
+            description: employeeTotals
+                && employeeTotals.basePercentTax
+                ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
         }, {
-            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.tableTax),
+            value: employeeTotals && this.numberFormat.asMoney(employeeTotals.tableTax),
             title: 'Tabelltrekk' + (taxCard ? ` (${taxCard.TaxTable})` : ''),
-            description: this.employeeTotals
-            && this.employeeTotals.baseTableTax
-            ? `av ${this.numberFormat.asMoney(this.employeeTotals.baseTableTax)}` : null
+            description: employeeTotals
+                && employeeTotals.baseTableTax
+                ? `av ${this.numberFormat.asMoney(employeeTotals.baseTableTax)}` : null
         }, {
             title: 'Utbetalt beløp',
-            value: this.employeeTotals && this.numberFormat.asMoney(this.employeeTotals.netPayment)
+            value: employeeTotals && this.numberFormat.asMoney(employeeTotals.netPayment)
         }, {
             title: 'Beregnet AGA',
-            value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.calculatedAGA) : null
+            value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.calculatedAGA) : null
         }, {
             title: 'Gr.lag feriepenger',
-            value: this.employeeTotals ? this.numberFormat.asMoney(this.employeeTotals.baseVacation) : null
+            value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.baseVacation) : null
         }];
     }
 
     private setSummarySource() {
         if (this.payrollRunID > 0 && this.employeeList[this.selectedIndex]) {
-            this._employeeService.getTotals(this.payrollRunID, this.employeeList[this.selectedIndex].ID)
-            .debounceTime(200)
-            .subscribe((response) => {
-                if (response) {
-                    this.employeeTotals = response;
-                    this.setSums();
-                }
-            }, err => this.errorService.handle(err));
+            this._salarySumsService
+                .getFromPayrollRun(this.payrollRunID, `EmployeeID eq ${this.employeeList[this.selectedIndex].ID}`)
+                .debounceTime(200)
+                .subscribe(
+                employeeTotals => this.setSums(employeeTotals),
+                err => this.errorService.handle(err));
         }
     }
 

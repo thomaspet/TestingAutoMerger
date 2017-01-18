@@ -27,7 +27,8 @@ import {
     EmployeeTaxCardService,
     ErrorService,
     NumberFormat,
-    WageTypeService
+    WageTypeService,
+    SalarySumsService
 } from '../../../services/services';
 
 declare var _; // lodash
@@ -118,6 +119,7 @@ export class EmployeeDetails extends UniView {
         private http: UniHttp,
         private numberformat: NumberFormat,
         private employeeTaxCardService: EmployeeTaxCardService,
+        private salarySumsService: SalarySumsService,
         private wageTypeService: WageTypeService
     ) {
 
@@ -377,7 +379,7 @@ export class EmployeeDetails extends UniView {
 
             if (employee.ID) {
                 let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-                this.salaryTransService
+                this.salarySumsService
                     .getSumsInYear(financialYear.Year, this.employeeID)
                     .subscribe((data) => {
                         if (data.netPayment) {

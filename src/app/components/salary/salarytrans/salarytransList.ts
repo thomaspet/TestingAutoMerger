@@ -9,7 +9,7 @@ import {
 import {
     SalaryTransactionService, AccountService,
     ReportDefinitionService, UniCacheService,
-    ErrorService, NumberFormat
+    ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
@@ -51,7 +51,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private deleteButton: IDeleteButton;
 
     constructor(
-        private salarytransService: SalaryTransactionService,
+        private wageTypeService: WageTypeService,
         private router: Router,
         private route: ActivatedRoute,
         private numberFormat: NumberFormat,
@@ -400,7 +400,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private getRate(rowModel: SalaryTransaction) {
-        return this.salarytransService
+        return this.wageTypeService
             .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
     }
 

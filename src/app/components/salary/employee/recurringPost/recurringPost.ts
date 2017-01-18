@@ -32,7 +32,6 @@ export class RecurringPost extends UniView {
     constructor(
         public router: Router,
         private wagetypeService: WageTypeService,
-        private salarytransService: SalaryTransactionService,
         cacheService: UniCacheService,
         route: ActivatedRoute,
         private _accountService: AccountService,
@@ -374,7 +373,7 @@ export class RecurringPost extends UniView {
     }
 
     private getRate(rowModel: SalaryTransaction) {
-        return this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+        return this.wagetypeService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {

@@ -9,8 +9,8 @@ import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} f
 import {
     SalaryTransactionService,
     PayrollrunService,
-    EmployeeService,
-    ErrorService
+    ErrorService,
+    SalarySumsService
 } from '../../../../app/services/services';
 
 declare var _; // lodash
@@ -35,10 +35,10 @@ export class ControlModalContent {
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
-        private _employeeService: EmployeeService,
         private _router: Router,
         private route: ActivatedRoute,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private salarySumsService: SalarySumsService
     ) {
         this.route.params.subscribe(params => {
             this.payrollRunID = +params['id'];
@@ -50,7 +50,7 @@ export class ControlModalContent {
         this.busy = true;
         return Observable.forkJoin(
             this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true'),
-            this._employeeService.getTotals(this.payrollRunID),
+            this.salarySumsService.getFromPayrollRun(this.payrollRunID),
             this._payrollRunService.getPaymentList(this.payrollRunID),
             this._payrollRunService.Get(this.payrollRunID)
         );

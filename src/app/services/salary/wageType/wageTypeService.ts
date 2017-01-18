@@ -73,17 +73,34 @@ export class WageTypeService extends BizHttp<WageType> {
             .send()
             .map(response => response.json());
     }
-    
+
     public getPrevious(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID desc`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
-    
+
     public getNext(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
-    
+
+    public getRate(wageTypeID: number, employmentID: number, employeeID: number) {
+
+        employmentID = employmentID ? employmentID : 0;
+        employeeID = employeeID ? employeeID : 0;
+
+        if (wageTypeID) {
+            return this.http
+                .usingBusinessDomain()
+                .asGET()
+                .withEndPoint(this.relativeURL + `?action=get-rate&wagetypeID=${wageTypeID}&employmentID=${employmentID}&employeeID=${employeeID}`)
+                .send()
+                .map(response => response.json());
+        } else {
+            return Observable.of(0);
+        }
+    }
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
