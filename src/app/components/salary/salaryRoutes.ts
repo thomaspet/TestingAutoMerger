@@ -15,6 +15,9 @@ import {PaymentList} from './payrollrun/paymentList';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
 import {routes as WageTypeRoutes} from './wagetype/wagetypeRoutes';
 import {AMeldingView} from './amelding/ameldingview';
+import {CategoryList} from './category/categoryList';
+import {CategoryView} from './category/categoryView';
+import {routes as CategoryRoutes} from './category/categoryRoutes';
 
 // Maps entitytype to frontend route
 // Important for notifications to work properly!
@@ -66,6 +69,16 @@ export const childRoutes = [
     {
         path: 'amelding',
         component: AMeldingView
+    },
+    {
+        path: 'employeecategories',
+        component: CategoryList
+    },
+    {
+        path: 'employeecategories/:id',
+        component: CategoryView,
+        children: CategoryRoutes,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

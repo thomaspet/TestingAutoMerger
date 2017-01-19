@@ -25,7 +25,7 @@ declare var jQuery;
 
             <div class="poster_tags_addDropdown" [ngClass]="{'-is-active': addingTags}">
 
-                <input type="text" placeholder="Søk kategorierier…"
+                <input type="text" placeholder="Søk kategorier…"
                 [(ngModel)]="catName" (keyup)="filterCategories(catName)" autofocus/>
 
                 <ul (click)="addingTags = false; catName = ''" *ngIf="catName">
