@@ -2,10 +2,10 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom
+    TaxType, StdWageType, GetRateFrom, FinancialYear
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { WageTypeService, UniCacheService, ErrorService } from '../../../services/services';
+import { WageTypeService, UniCacheService, ErrorService, FinancialYearService } from '../../../services/services';
 import { ToastService } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -40,7 +40,8 @@ export class WageTypeView extends UniView {
         private router: Router,
         private tabService: TabService,
         public cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private financialYearService: FinancialYearService
     ) {
 
         super(router.url, cacheService);
@@ -143,6 +144,8 @@ export class WageTypeView extends UniView {
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
         }
+        
+        this.checkValidYearAndCreateNew();
 
         this.wageType.SupplementaryInformations.forEach(supplement => {
             if (supplement['_setDelete']) {
@@ -165,6 +168,21 @@ export class WageTypeView extends UniView {
                 done('Lagring feilet');
                 this.errorService.handle(error);
             });
+    }
+
+    private checkValidYearAndCreateNew() {
+        this.financialYearService.getActiveFinancialYearEntity()
+            .subscribe((financialYear: FinancialYear) => {
+                if (this.wageType.ValidYear !== financialYear.Year) {
+                this.wageType.ID = 0;
+                this.wageType.ValidYear = financialYear.Year;
+                
+                this.wageType.SupplementaryInformations.forEach(supplement => {
+                    supplement.ID = 0;
+                    supplement.WageTypeID = 0;
+                });
+            }
+        });
     }
 
     private checkDirty() {

@@ -541,48 +541,6 @@ export class AGAZone extends UniEntity {
 }
 
 
-export class bilOgBaat extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'bilOgBaat';
-
-    public antallKilometer: string;
-    public bilregistreringsnummer: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public erBilPool: string;
-    public erBilUtenforStandardregelen: number;
-    public heravAntallKilometerMellomHjemOgArbeid: string;
-    public ID: number;
-    public listeprisForBil: string;
-    public nettoloennID: number;
-    public personklassifiseringAvBilbruker: string;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public nettoloenn: nettoloenn;
-    public CustomFields: any;
-}
-
-
-export class bonusFraForsvaret extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'bonusFraForsvaret';
-
-    public aaretUtbetalingenGjelderFor: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
 export class Company extends UniEntity {
     public static RelativeUrl = 'companies';
     public static EntityType = 'Company';
@@ -599,6 +557,7 @@ export class Company extends UniEntity {
     public SchemaName: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public WebHookSubscriberId: string;
     public CustomFields: any;
 }
 
@@ -675,24 +634,6 @@ export class CurrencyEntry extends UniEntity {
 }
 
 
-export class dagmammaIEgenBolig extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'dagmammaIEgenBolig';
-
-    public antallBarn: string;
-    public antallMaaneder: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
 export class EmploymentValidValues extends UniEntity {
     public static RelativeUrl = 'employmentvalidvalues';
     public static EntityType = 'EmploymentValidValues';
@@ -723,150 +664,6 @@ export class EmploymentValidValues extends UniEntity {
     public UserDefinedRate: boolean;
     public WorkingHoursScheme: boolean;
     public WorkPercent: boolean;
-    public CustomFields: any;
-}
-
-
-export class etterbetalingsperiode extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'etterbetalingsperiode';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public sluttdato: string;
-    public startdato: string;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class Inntekt extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'Inntekt';
-
-    public arbeidsforholdID: number;
-    public beloep: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public fordel: string;
-    public gammelkode: string;
-    public gyldigfraogmed: string;
-    public gyldigtil: string;
-    public ID: number;
-    public inngaarIGrunnlagForTrekk: number;
-    public KunFraNAV: string;
-    public loennsinntektID: number;
-    public naeringsinntektID: number;
-    public pensjonEllerTrygdID: number;
-    public Postnr: string;
-    public skatteOgAvgiftsregel: string;
-    public sluttdatoOpptjeningsperiode: Date;
-    public startdatoOpptjeningsperiode: Date;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public utloeserArbeidsgiveravgift: number;
-    public loennsinntekt: loennsinntekt;
-    public naeringsinntekt: naeringsinntekt;
-    public pensjonEllerTrygd: pensjonEllerTrygd;
-    public CustomFields: any;
-}
-
-
-export class inntektPaaNorskKontinentalsokkel extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'inntektPaaNorskKontinentalsokkel';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public gjelderLoennFoerste60Dager: number;
-    public ID: number;
-    public sluttdato: string;
-    public startdato: string;
-    public tidsrom: string;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class inntjeningsforhold extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'inntjeningsforhold';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Inntjeningsforhold: string;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class livrente extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'livrente';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public tilleggsinformasjonID: number;
-    public totaltUtbetaltBeloep: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class loennsinntekt extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'loennsinntekt';
-
-    public antall: string;
-    public beskrivelse: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public InntektID: number;
-    public spesifikasjonID: number;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Inntekt: Inntekt;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public spesifikasjon: spesifikasjon;
-    public CustomFields: any;
-}
-
-
-export class lottOgPart extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'lottOgPart';
-
-    public antallDager: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
     public CustomFields: any;
 }
 
@@ -906,45 +703,6 @@ export class MunicipalAGAZone extends UniEntity {
 }
 
 
-export class naeringsinntekt extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'naeringsinntekt';
-
-    public beskrivelse: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public InntektID: number;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Inntekt: Inntekt;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class nettoloenn extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'nettoloenn';
-
-    public betaltSkattebeloepIUtlandet: string;
-    public bilOgBaatID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public oppgrossingstabellnummer: string;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public bilOgBaat: bilOgBaat;
-    public CustomFields: any;
-}
-
-
 export class PaymentCode extends UniEntity {
     public static RelativeUrl = 'paymentCodes';
     public static EntityType = 'PaymentCode';
@@ -959,148 +717,6 @@ export class PaymentCode extends UniEntity {
     public PaymentGroup: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class pensjon extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'pensjon';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public grunnpensjonsbeloep: string;
-    public heravEtterlattepensjon: string;
-    public ID: number;
-    public pensjonsgrad: string;
-    public tidsrom: string;
-    public tilleggsinformasjonID: number;
-    public tilleggspensjonbeloep: string;
-    public ufoeregrad: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class pensjonEllerTrygd extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'pensjonEllerTrygd';
-
-    public beskrivelse: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public InntektID: number;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Inntekt: Inntekt;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class reiseKostOgLosji extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'reiseKostOgLosji';
-
-    public antallreiser: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public persontype: string;
-    public tilleggsinformasjonID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class tilleggsinformasjon extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'tilleggsinformasjon';
-
-    public bilOgBaatID: number;
-    public bonusFraForsvaretID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public dagmammaIEgenBoligID: number;
-    public Deleted: boolean;
-    public etterbetalingsperiodeID: number;
-    public ID: number;
-    public inntektPaaNorskKontinentalsokkelID: number;
-    public inntjeningsforholdID: number;
-    public livrenteID: number;
-    public loennsinntektID: number;
-    public lottOgPartID: number;
-    public naeringsinntektID: number;
-    public nettoloennID: number;
-    public pensjonEllerTrygdID: number;
-    public pensjonID: number;
-    public reiseKostOgLosjiID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public utenlandskArtistID: number;
-    public loennsinntekt: loennsinntekt;
-    public naeringsinntekt: naeringsinntekt;
-    public pensjonEllerTrygd: pensjonEllerTrygd;
-    public bilOgBaat: bilOgBaat;
-    public dagmammaIEgenBolig: dagmammaIEgenBolig;
-    public etterbetalingsperiode: etterbetalingsperiode;
-    public inntektPaaNorskKontinentalsokkel: inntektPaaNorskKontinentalsokkel;
-    public inntjeningsforhold: inntjeningsforhold;
-    public livrente: livrente;
-    public lottOgPart: lottOgPart;
-    public nettoloenn: nettoloenn;
-    public pensjon: pensjon;
-    public reiseKostOgLosji: reiseKostOgLosji;
-    public utenlandskArtist: utenlandskArtist;
-    public bonusFraForsvaret: bonusFraForsvaret;
-    public CustomFields: any;
-}
-
-
-export class utenlandskArtist extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'utenlandskArtist';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public inntektsaar: string;
-    public oppgrossingsgrunnlag: string;
-    public tilleggsinformasjonID: number;
-    public trukketArtistskatt: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public tilleggsinformasjon: tilleggsinformasjon;
-    public CustomFields: any;
-}
-
-
-export class spesifikasjon extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'spesifikasjon';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public erOpptjentPaaHjelpefartoey: number;
-    public erOpptjentPaaKontinentalsokkel: number;
-    public ID: number;
-    public loennsinntektID: number;
-    public opptjeningsland: string;
-    public skattemessigBosattILand: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public loennsinntekt: loennsinntekt;
     public CustomFields: any;
 }
 
@@ -1234,54 +850,6 @@ export class VatTypeSetup extends UniEntity {
 }
 
 
-export class LanguageCode extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'LanguageCode';
-
-    public Code: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class Translation extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'Translation';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public IsTemplate: boolean;
-    public Key: string;
-    public LanguageCode: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Value: string;
-    public CustomFields: any;
-}
-
-
-export class TranslationKey extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'TranslationKey';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Key: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
 export class PeriodSeries extends UniEntity {
     public static RelativeUrl = 'period-series';
     public static EntityType = 'PeriodSeries';
@@ -1370,6 +938,47 @@ export class ReportDefinitionParameter extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Visible: boolean;
+    public CustomFields: any;
+}
+
+
+export class Model extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Model';
+
+    public Admin: boolean;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Label: string;
+    public LabelPlural: string;
+    public Name: string;
+    public Shared: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Fields: Array<Field>;
+    public CustomFields: any;
+}
+
+
+export class Field extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Field';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public HelpText: string;
+    public ID: number;
+    public Label: string;
+    public ModelID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Model: Model;
     public CustomFields: any;
 }
 
@@ -2488,6 +2097,7 @@ export class WageType extends UniEntity {
     public taxtype: TaxType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public ValidYear: number;
     public WageTypeName: string;
     public WageTypeNumber: number;
     public SupplementaryInformations: Array<WageTypeSupplement>;
@@ -3552,9 +3162,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public CustomFields: any;
 }
 
@@ -3695,7 +3305,10 @@ export class PaymentBatch extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public ID: number;
+    public IsCustomerPayment: boolean;
     public NumberOfPayments: number;
+    public OcrHeadingStrings: string;
+    public OcrTransmissionNumber: number;
     public PaymentFileID: number;
     public PaymentReferenceID: string;
     public PaymentStatusReportFileID: number;
@@ -3726,6 +3339,7 @@ export class Payment extends UniEntity {
     public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
+    public OcrPaymentStrings: string;
     public PaymentBatchID: number;
     public PaymentCodeID: number;
     public PaymentDate: Date;
@@ -4081,11 +3695,11 @@ export class Account extends UniEntity {
     public UsePostPost: boolean;
     public VatTypeID: number;
     public Visible: boolean;
+    public VatType: VatType;
+    public MainAccount: Account;
     public Currency: Currency;
     public AccountGroup: AccountGroup;
     public TopLevelAccountGroup: AccountGroup;
-    public VatType: VatType;
-    public MainAccount: Account;
     public Customer: Customer;
     public Supplier: Supplier;
     public Employee: Employee;
@@ -4813,6 +4427,28 @@ export class JournalEntryLineRequestSummary extends UniEntity {
 }
 
 
+export class JournalEntryLinePostPostData extends UniEntity {
+    public AccountYear: number;
+    public Amount: number;
+    public Description: string;
+    public DueDate: Date;
+    public FinancialDate: Date;
+    public ID: number;
+    public InvoiceNumber: string;
+    public JournalEntryNumber: string;
+    public JournalEntryNumberNumeric: number;
+    public JournalEntryTypeName: string;
+    public MarkedAgainstJournalEntryLineID: number;
+    public MarkedAgainstJournalEntryNumber: string;
+    public NumberOfPayments: number;
+    public PeriodNo: number;
+    public RestAmount: number;
+    public StatusCode: number;
+    public SumPostPostAmount: number;
+    public Markings: Array<JournalEntryLinePostPostData>;
+}
+
+
 export class JournalEntryLineCouple extends UniEntity {
 }
 
@@ -4981,461 +4617,461 @@ export class Totals extends UniEntity {
 
 
 export enum WorkBalanceTypeEnum{
-	Hours = 1,
-	Flex = 11,
-	Overtime = 12,
-	Vacation = 13,
-	SickLeave = 20,
+    Hours = 1,
+    Flex = 11,
+    Overtime = 12,
+    Vacation = 13,
+    SickLeave = 20,
 }
 
 
 export enum WorkTypeEnum{
-	IsHours = 1,
-	IsPaidTimeOff = 9,
-	IsTimeOff = 10,
-	IsFlex = 11,
-	IsOvertime = 12,
-	IsVacation = 13,
-	IsSickLeave = 20,
+    IsHours = 1,
+    IsPaidTimeOff = 9,
+    IsTimeOff = 10,
+    IsFlex = 11,
+    IsOvertime = 12,
+    IsVacation = 13,
+    IsSickLeave = 20,
 }
 
 
 export enum Alignment{
-	Right = 0,
-	Left = 1,
-	Middle = 2,
+    Right = 0,
+    Left = 1,
+    Middle = 2,
 }
 
 
 export enum FieldType{
-	AUTOCOMPLETE = 0,
-	COMBOBOX = 1,
-	DATE_TIME_PICKER = 2,
-	DROPDOWN = 3,
-	MASKED = 4,
-	MULTISELECT = 5,
-	NUMERIC = 6,
-	RADIO = 7,
-	CHECKBOX = 8,
-	RADIOGROUP = 9,
-	TEXT = 10,
-	EMAIL = 11,
-	PASSWORD = 12,
-	HYPERLINK = 13,
-	MULTIVALUE = 14,
-	URL = 15,
-	TEXTAREA = 16,
-	LOCAL_DATE_PICKER = 17,
+    AUTOCOMPLETE = 0,
+    COMBOBOX = 1,
+    DATE_TIME_PICKER = 2,
+    DROPDOWN = 3,
+    MASKED = 4,
+    MULTISELECT = 5,
+    NUMERIC = 6,
+    RADIO = 7,
+    CHECKBOX = 8,
+    RADIOGROUP = 9,
+    TEXT = 10,
+    EMAIL = 11,
+    PASSWORD = 12,
+    HYPERLINK = 13,
+    MULTIVALUE = 14,
+    URL = 15,
+    TEXTAREA = 16,
+    LOCAL_DATE_PICKER = 17,
 }
 
 
 export enum PlanTypeEnum{
-	NS4102 = 1,
+    NS4102 = 1,
 }
 
 
 export enum CurrencySourceEnum{
-	NORGESBANK = 1,
+    NORGESBANK = 1,
 }
 
 
 export enum TypeOfEmployment{
-	notSet = 0,
-	OrdinaryEmployment = 1,
-	MaritimeEmployment = 2,
-	FrilancerContratorFeeRecipient = 3,
-	PensionOrOtherNonEmployedBenefits = 4,
+    notSet = 0,
+    OrdinaryEmployment = 1,
+    MaritimeEmployment = 2,
+    FrilancerContratorFeeRecipient = 3,
+    PensionOrOtherNonEmployedBenefits = 4,
 }
 
 
 export enum RenumerationType{
-	notSet = 0,
-	Salaried = 1,
-	HourlyPaid = 2,
-	PaidOnCommission = 3,
-	Fees = 4,
-	Piecework = 5,
+    notSet = 0,
+    Salaried = 1,
+    HourlyPaid = 2,
+    PaidOnCommission = 3,
+    Fees = 4,
+    Piecework = 5,
 }
 
 
 export enum PeriodSeriesType{
-	m = 0,
-	r = 1,
+    m = 0,
+    r = 1,
 }
 
 
 export enum PhoneTypeEnum{
-	PtPhone = 150101,
-	PtMobile = 150102,
-	PtFax = 150103,
+    PtPhone = 150101,
+    PtMobile = 150102,
+    PtFax = 150103,
 }
 
 
 export enum AmeldingType{
-	Standard = 0,
-	Employments = 1,
-	Nullstilling = 2,
+    Standard = 0,
+    Employments = 1,
+    Nullstilling = 2,
 }
 
 
 export enum SalaryRegistry{
-	Employee = 0,
-	Employment = 1,
-	Trans = 2,
-	Svalbard = 3,
-	Permisjon = 4,
+    Employee = 0,
+    Employment = 1,
+    Trans = 2,
+    Svalbard = 3,
+    Permisjon = 4,
 }
 
 
 export enum Valuetype{
-	IsString = 1,
-	IsDate = 2,
-	IsBool = 3,
-	IsMoney = 4,
-	Period = 5,
+    IsString = 1,
+    IsDate = 2,
+    IsBool = 3,
+    IsMoney = 4,
+    Period = 5,
 }
 
 
 export enum CompanySalaryPaymentInterval{
-	Monthly = 0,
-	Pr14Days = 1,
-	Weekly = 2,
+    Monthly = 0,
+    Pr14Days = 1,
+    Weekly = 2,
 }
 
 
 export enum WageDeductionDueToHolidayType{
-	Deduct4PartsOf26 = 0,
-	Deduct3PartsOf22 = 1,
-	Add1PartOf26 = 2,
-	Deduct1PartOf26 = 3,
+    Deduct4PartsOf26 = 0,
+    Deduct3PartsOf22 = 1,
+    Add1PartOf26 = 2,
+    Deduct1PartOf26 = 3,
 }
 
 
 export enum Leavetype{
-	NotSet = 0,
-	Leave = 1,
-	LayOff = 2,
+    NotSet = 0,
+    Leave = 1,
+    LayOff = 2,
 }
 
 
 export enum ShipRegistry{
-	notSet = 0,
-	NorwegianInternationalShipRegister = 1,
-	NorwegianOrdinaryShipRegister = 2,
-	ForeignShipRegister = 3,
+    notSet = 0,
+    NorwegianInternationalShipRegister = 1,
+    NorwegianOrdinaryShipRegister = 2,
+    ForeignShipRegister = 3,
 }
 
 
 export enum ShipTypeOfShip{
-	notSet = 0,
-	Other = 1,
-	DrillingPlatform = 2,
-	Tourist = 3,
+    notSet = 0,
+    Other = 1,
+    DrillingPlatform = 2,
+    Tourist = 3,
 }
 
 
 export enum ShipTradeArea{
-	notSet = 0,
-	Domestic = 1,
-	Foreign = 2,
+    notSet = 0,
+    Domestic = 1,
+    Foreign = 2,
 }
 
 
 export enum WorkingHoursScheme{
-	notSet = 0,
-	NonShift = 1,
-	OffshoreWork = 2,
-	SemiContinousShiftAndRotaWork = 3,
-	ContinuousShiftAndOtherSchemes = 4,
-	ShiftWork = 5,
+    notSet = 0,
+    NonShift = 1,
+    OffshoreWork = 2,
+    SemiContinousShiftAndRotaWork = 3,
+    ContinuousShiftAndOtherSchemes = 4,
+    ShiftWork = 5,
 }
 
 
 export enum TaxDrawFactor{
-	Standard = 1,
-	Half = 2,
-	None = 3,
+    Standard = 1,
+    Half = 2,
+    None = 3,
 }
 
 
 export enum GetRateFrom{
-	WageType = 0,
-	MonthlyPayEmployee = 1,
-	HourlyPayEmployee = 2,
-	FreeRateEmployee = 3,
+    WageType = 0,
+    MonthlyPayEmployee = 1,
+    HourlyPayEmployee = 2,
+    FreeRateEmployee = 3,
 }
 
 
 export enum LimitType{
-	None = 0,
-	Amount = 1,
-	Sum = 2,
+    None = 0,
+    Amount = 1,
+    Sum = 2,
 }
 
 
 export enum RateTypeColumn{
-	none = 0,
-	Employment = 1,
-	Employee = 2,
-	Salary_scale = 3,
+    none = 0,
+    Employment = 1,
+    Employee = 2,
+    Salary_scale = 3,
 }
 
 
 export enum SpecialAgaRule{
-	Regular = 0,
-	AgaRefund = 1,
-	AgaPension = 2,
+    Regular = 0,
+    AgaRefund = 1,
+    AgaPension = 2,
 }
 
 
 export enum SpecialTaxAndContributionsRule{
-	Standard = 0,
-	NettoPayment = 1,
-	SpesialDeductionForMaritim = 2,
-	Svalbard = 3,
-	PayAsYouEarnTaxOnPensions = 4,
-	JanMayenAndBiCountries = 5,
-	NettoPaymentForMaritim = 6,
+    Standard = 0,
+    NettoPayment = 1,
+    SpesialDeductionForMaritim = 2,
+    Svalbard = 3,
+    PayAsYouEarnTaxOnPensions = 4,
+    JanMayenAndBiCountries = 5,
+    NettoPaymentForMaritim = 6,
 }
 
 
 export enum StdWageType{
-	None = 0,
-	TaxDrawTable = 1,
-	TaxDrawPercent = 2,
-	HolidayPayThisYear = 3,
-	HolidayPayLastYear = 4,
-	HolidayPayWithTaxDeduction = 5,
+    None = 0,
+    TaxDrawTable = 1,
+    TaxDrawPercent = 2,
+    HolidayPayThisYear = 3,
+    HolidayPayLastYear = 4,
+    HolidayPayWithTaxDeduction = 5,
 }
 
 
 export enum TaxType{
-	Tax_None = 0,
-	Tax_Table = 1,
-	Tax_Percent = 2,
-	Tax_0 = 3,
+    Tax_None = 0,
+    Tax_Table = 1,
+    Tax_Percent = 2,
+    Tax_0 = 3,
 }
 
 
 export enum StdSystemType{
-	None = 0,
-	PercentTaxDeduction = 1,
-	HolidayPayBasisLastYear = 2,
-	TableTaxDeduction = 4,
-	Holidaypay = 5,
+    None = 0,
+    PercentTaxDeduction = 1,
+    HolidayPayBasisLastYear = 2,
+    TableTaxDeduction = 4,
+    Holidaypay = 5,
 }
 
 
 export enum ForeignWorker{
-	notSet = 0,
-	ForeignWorkerUSA_Canada = 1,
-	ForeignWorkerFixedAga = 2,
+    notSet = 0,
+    ForeignWorkerUSA_Canada = 1,
+    ForeignWorkerFixedAga = 2,
 }
 
 
 export enum InternationalIDType{
-	notSet = 0,
-	Passportnumber = 1,
-	SocialSecurityNumber = 2,
-	TaxIdentificationNumber = 3,
-	ValueAddedTaxNumber = 4,
+    notSet = 0,
+    Passportnumber = 1,
+    SocialSecurityNumber = 2,
+    TaxIdentificationNumber = 3,
+    ValueAddedTaxNumber = 4,
 }
 
 
 export enum PaymentInterval{
-	Standard = 0,
-	Monthly = 1,
-	Pr14Days = 2,
-	Weekly = 3,
+    Standard = 0,
+    Monthly = 1,
+    Pr14Days = 2,
+    Weekly = 3,
 }
 
 
 export enum ProductTypeEnum{
-	PStorage = 1,
-	PHour = 2,
-	POther = 3,
+    PStorage = 1,
+    PHour = 2,
+    POther = 3,
 }
 
 
 export enum StatusCategoryCode{
-	Draft = 10000,
-	Pending = 20000,
-	Active = 30000,
-	Completed = 40000,
-	InActive = 50000,
-	Deviation = 60000,
-	Error = 70000,
-	Deleted = 90000,
+    Draft = 10000,
+    Pending = 20000,
+    Active = 30000,
+    Completed = 40000,
+    InActive = 50000,
+    Deviation = 60000,
+    Error = 70000,
+    Deleted = 90000,
 }
 
 
 export enum OperationType{
-	Create = 10,
-	Update = 20,
-	CreateAndUpdate = 30,
-	Delete = 40,
+    Create = 10,
+    Update = 20,
+    CreateAndUpdate = 30,
+    Delete = 40,
 }
 
 
 export enum Operator{
-	Min = 0,
-	Max = 1,
-	MinIncl = 2,
-	MaxIncl = 3,
-	MinLength = 4,
-	MaxLength = 5,
-	EqualsLength = 6,
-	Required = 7,
-	Equals = 8,
-	NotEquals = 9,
-	RegExp = 10,
+    Min = 0,
+    Max = 1,
+    MinIncl = 2,
+    MaxIncl = 3,
+    MinLength = 4,
+    MaxLength = 5,
+    EqualsLength = 6,
+    Required = 7,
+    Equals = 8,
+    NotEquals = 9,
+    RegExp = 10,
 }
 
 
 export enum TaskType{
-	Task = 0,
-	Approval = 1,
+    Task = 0,
+    Approval = 1,
 }
 
 
 export enum TypeOfLogin{
-	none = 0,
-	AltinnPin = 1,
-	SMSPin = 2,
-	TaxPin = 3,
+    none = 0,
+    AltinnPin = 1,
+    SMSPin = 2,
+    TaxPin = 3,
 }
 
 
 export enum ValidationLevel{
-	Info = 1,
-	Warning = 20,
-	Error = 30,
+    Info = 1,
+    Warning = 20,
+    Error = 30,
 }
 
 
 export enum OnConflict{
-	Replace = 0,
-	Ignore = 1,
-	ManualResolve = 2,
+    Replace = 0,
+    Ignore = 1,
+    ManualResolve = 2,
 }
 
 
 export enum AltinnGetVatReportDataFromAltinnStatus{
-	WaitingForAltinnResponse = 1,
-	RejectedByAltinn = 2,
-	ReportReceived = 3,
+    WaitingForAltinnResponse = 1,
+    RejectedByAltinn = 2,
+    ReportReceived = 3,
 }
 
 
 export enum NotificationStatus{
-	New = 900010,
-	Read = 900020,
-	Marked = 900030,
+    New = 900010,
+    Read = 900020,
+    Marked = 900030,
 }
 
 
 export enum StatusCodeCustomerInvoice{
-	Draft = 42001,
-	Invoiced = 42002,
-	PartlyPaid = 42003,
-	Paid = 42004,
+    Draft = 42001,
+    Invoiced = 42002,
+    PartlyPaid = 42003,
+    Paid = 42004,
 }
 
 
 export enum StatusCodeCustomerInvoiceItem{
-	Draft = 41301,
-	Invoiced = 41302,
+    Draft = 41301,
+    Invoiced = 41302,
 }
 
 
 export enum StatusCodeCustomerOrder{
-	Draft = 41001,
-	Registered = 41002,
-	PartlyTransferredToInvoice = 41003,
-	TransferredToInvoice = 41004,
-	Completed = 41005,
+    Draft = 41001,
+    Registered = 41002,
+    PartlyTransferredToInvoice = 41003,
+    TransferredToInvoice = 41004,
+    Completed = 41005,
 }
 
 
 export enum StatusCodeCustomerOrderItem{
-	Draft = 41101,
-	Registered = 41102,
-	TransferredToInvoice = 41103,
-	Completed = 41104,
+    Draft = 41101,
+    Registered = 41102,
+    TransferredToInvoice = 41103,
+    Completed = 41104,
 }
 
 
 export enum StatusCodeCustomerQuote{
-	Draft = 40101,
-	Registered = 40102,
-	ShippedToCustomer = 40103,
-	CustomerAccepted = 40104,
-	TransferredToOrder = 40105,
-	TransferredToInvoice = 40106,
-	Completed = 40107,
+    Draft = 40101,
+    Registered = 40102,
+    ShippedToCustomer = 40103,
+    CustomerAccepted = 40104,
+    TransferredToOrder = 40105,
+    TransferredToInvoice = 40106,
+    Completed = 40107,
 }
 
 
 export enum InternalAmeldingStatus{
-	IN_PROGRESS = 0,
-	GENERATED = 1,
-	SENT = 2,
-	STATUS_FROM_ALTINN_RECEIVED = 3,
+    IN_PROGRESS = 0,
+    GENERATED = 1,
+    SENT = 2,
+    STATUS_FROM_ALTINN_RECEIVED = 3,
 }
 
 
 export enum ApprovalStatus{
-	Active = 50120,
-	Approved = 50130,
-	Rejected = 50140,
+    Active = 50120,
+    Approved = 50130,
+    Rejected = 50140,
 }
 
 
 export enum TaskStatus{
-	Active = 50020,
-	Complete = 50030,
-	Pending = 50040,
+    Active = 50020,
+    Complete = 50030,
+    Pending = 50040,
 }
 
 
 export enum StatusCodeAltinnSigning{
-	NotSigned = 43001,
-	PartialSigned = 43002,
-	Signed = 43003,
-	AlreadySigned = 43004,
-	Failed = 43005,
+    NotSigned = 43001,
+    PartialSigned = 43002,
+    Signed = 43003,
+    AlreadySigned = 43004,
+    Failed = 43005,
 }
 
 
 export enum StatusCodeJournalEntryLine{
-	Open = 31001,
-	PartlyMarked = 31002,
-	Marked = 31003,
-	Credited = 31004,
+    Open = 31001,
+    PartlyMarked = 31002,
+    Marked = 31003,
+    Credited = 31004,
 }
 
 
 export enum StatusCodeVatReport{
-	Executed = 32001,
-	Submitted = 32002,
-	Rejected = 32003,
-	Approved = 32004,
-	Adjusted = 32005,
+    Executed = 32001,
+    Submitted = 32002,
+    Rejected = 32003,
+    Approved = 32004,
+    Adjusted = 32005,
 }
 
 
 export enum StatusCodeSupplierInvoice{
-	Draft = 30101,
-	ForApproval = 30102,
-	Approved = 30103,
-	Journaled = 30104,
-	ToPayment = 30105,
-	PartlyPayed = 30106,
-	Payed = 30107,
+    Draft = 30101,
+    ForApproval = 30102,
+    Approved = 30103,
+    Journaled = 30104,
+    ToPayment = 30105,
+    PartlyPayed = 30106,
+    Payed = 30107,
 }
 
 
 export enum CustomFieldStatus{
-	Draft = 110100,
-	Active = 110101,
+    Draft = 110100,
+    Active = 110101,
 }
