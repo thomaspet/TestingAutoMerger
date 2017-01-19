@@ -3,7 +3,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
 import {AltinnIntegrationService,ErrorService} from '../../../../../app/services/services';
 
-declare var _;
+
 @Component({
     selector: 'altinn-response-modal-content',
     templateUrl: './altinnResponseModalContent.html',

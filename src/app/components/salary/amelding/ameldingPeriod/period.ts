@@ -3,8 +3,7 @@ import { Component, Input } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { AmeldingData } from '../../../../unientities';
 import { ISummaryConfig } from '../../../common/summary/summary';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'amelding-periodsummary-view',

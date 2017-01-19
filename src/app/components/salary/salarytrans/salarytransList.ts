@@ -15,7 +15,7 @@ import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 
 import { UniView } from '../../../../framework/core/uniView';
-declare var _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'salary-transactions-employee',

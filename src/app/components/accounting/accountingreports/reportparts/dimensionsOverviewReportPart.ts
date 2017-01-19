@@ -11,9 +11,6 @@ import {
     DimensionTypes
 } from '../../../../services/services';
 
-declare const moment;
-declare const _; // lodash
-
 export class DimensionSummaryData {
     public dimensionId: number;
     public dimensionNumber: number;

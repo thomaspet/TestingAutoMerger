@@ -1,7 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {Payment, PaymentCode, File, PaymentBatch} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {File, PaymentBatch} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
@@ -13,9 +12,6 @@ import {
     PaymentBatchService,
     FileService
 } from '../../../services/services';
-
-declare const moment;
-declare const saveAs; // filesaver.js
 
 @Component({
     selector: 'payment-batches',

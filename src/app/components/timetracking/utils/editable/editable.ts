@@ -3,7 +3,7 @@ import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearc
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';
-declare var $;
+import * as $ from 'jquery';
 
 export interface ICopyEventDetails { event: any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?: any; };
 
@@ -134,7 +134,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         var flagAsChanged = false;
 
         if (this.config && this.config.events && this.config.events.onStartEdit) {
-            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt, flagChanged: flagAsChanged }; 
+            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt, flagChanged: flagAsChanged };
             this.raiseEvent('onStartEdit', startDetails);
             if (startDetails.cancel) {
                 return;
@@ -255,7 +255,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         setTimeout(() => {
             this.onResize();
             this.loadTextIntoEditor();
-        });     
+        });
     }
 
     private raiseEvent(name: string, cargo: any): any {

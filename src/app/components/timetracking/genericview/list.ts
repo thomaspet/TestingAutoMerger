@@ -4,7 +4,7 @@ import {View} from '../../../models/view/view';
 import {UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService} from '../../../services/timetracking/workerService';
 import {ErrorService} from '../../../services/services';
 
 

@@ -16,8 +16,7 @@ import {
     NumberFormat,
     SalarySumsService
 } from '../../../services/services';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'amelding-view',
@@ -248,10 +247,11 @@ export class AMeldingView implements OnInit {
                     _substatuses.push({
                         title: 'A-melding ' + amelding.ID,
                         state: amelding.ID === this.currentAMelding.ID ? UniStatusTrack.States.Active : UniStatusTrack.States.Obsolete,
-                        timestamp: amelding.UpdatedAt ? new Date(amelding.UpdatedAt) : new Date(amelding.CreatedAt),
+                        timestamp: amelding.UpdatedAt ? new Date(<any> amelding.UpdatedAt) : new Date(<any> amelding.CreatedAt),
                         data: amelding
                     });
                 });
+
             }
 
             statustrack[indx] = {

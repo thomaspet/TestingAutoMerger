@@ -2,8 +2,7 @@ import {Component, Input} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {PayrollrunService, ErrorService} from '../../../../app/services/services';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'postingsummary-modal-content',
@@ -17,7 +16,7 @@ export class PostingsummaryModalContent {
     private payrollrunID: number;
     private summary: any;
     private journalNumber: string;
-    private journalDate: Date;
+    private journalDate: string;
     private headerString: string = 'Konteringssammendrag';
 
     constructor(

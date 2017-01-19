@@ -1,8 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {ErrorService, NumberFormat} from '../services/services';
 
-declare const moment;
-
 @Pipe({name: 'uninumberformat'})
 export class UniNumberFormatPipe implements PipeTransform {
 

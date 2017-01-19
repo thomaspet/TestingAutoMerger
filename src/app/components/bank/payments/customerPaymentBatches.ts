@@ -1,17 +1,12 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {StatisticsService, PaymentBatchService, FileService} from '../../../services/services';
-import {Payment, PaymentCode, File, PaymentBatch} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {StatisticsService, PaymentBatchService, FileService, ErrorService} from '../../../services/services';
+import {File, PaymentBatch} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
-import {ErrorService} from '../../../services/common/ErrorService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-
-declare const moment;
-declare const saveAs; // filesaver.js
 
 @Component({
     selector: 'customer-payment-batches',

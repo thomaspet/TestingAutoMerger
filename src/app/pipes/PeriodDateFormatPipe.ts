@@ -1,8 +1,7 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {Period} from '../unientities';
 import {ErrorService} from '../services/services';
-
-declare const moment;
+import * as moment from 'moment';
 
 @Pipe({name: 'periodDateFormat'})
 export class PeriodDateFormatPipe implements PipeTransform {

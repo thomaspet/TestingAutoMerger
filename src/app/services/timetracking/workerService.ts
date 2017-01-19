@@ -6,9 +6,8 @@ import {Observable} from 'rxjs/Rx';
 import {UserService} from '../../services/services';
 import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/timetracking/utils/utils';
-import {ErrorService} from '../common/ErrorService';
-
-declare var moment;
+import {ErrorService} from '../common/errorService';
+import * as moment from 'moment';
 
 export enum ItemInterval {
     all = 0,
@@ -36,42 +35,42 @@ export class WorkerService extends BizHttp<Worker> {
         name: '',
         email: '',
         company: ''
-    };    
-    
+    };
+
     constructor(http: UniHttp, private userService: UserService, private errorService: ErrorService) {
         super(http);
         this.relativeURL = Worker.RelativeUrl;
         this.entityType = Worker.EntityType;
-        this.DefaultOrderBy = null;        
+        this.DefaultOrderBy = null;
         this.getCurrentUserId();
     }
-    
-    
+
+
     public getRelationsForUser(id: number): Observable<WorkRelation[]> {
         var obs = this.getWorkerFromUser(id);
         return obs.flatMap((worker: Worker) => {
             return this.getRelationsForWorker(worker.ID);
         });
     }
-    
-    public getRelationsForWorker(workerId: number): Observable<WorkRelation[]> {  
+
+    public getRelationsForWorker(workerId: number): Observable<WorkRelation[]> {
         return this.getWorkRelations(workerId).flatMap((list: WorkRelation[]) => {
             // Try to create initial workrelation for this worker
             if ((!list) || list.length === 0) {
                 return this.getWorkProfiles().flatMap((profiles: WorkProfile[]) => {
                     return this.createInitialWorkRelation(workerId, profiles[0]).flatMap((item: WorkRelation) => {
-                        return Observable.of([item]); 
+                        return Observable.of([item]);
                     });
                 });
             }
             return Observable.of(list);
         });
     }
-    
+
     public getWorkers(): Observable<Array<Worker>> {
         return super.GetAll<Worker>('', ['info']);
     }
-    
+
     public getCurrentUserId(): Promise<number> {
         return new Promise( (resolve, reject) => {
             this.userService.getCurrentUser().subscribe( usr => {
@@ -83,21 +82,21 @@ export class WorkerService extends BizHttp<Worker> {
             }, err => {
                 reject(err.statusText);
             });
-        });        
+        });
     }
-    
+
     public getWorkerFromUser(userid: number): Observable<Worker> {
         return super.PostAction<Worker>(null, 'create-worker-from-user', 'userid=' + userid);
     }
-    
+
     public getWorkRelations(workerId: number): Observable<WorkRelation[]> {
         return this.GET('workrelations', { filter: 'workerid eq ' + workerId, expand: 'workprofile'});
     }
 
     public get<T>(route: string, params?: any): Observable<T> {
         return this.GET(route, params);
-    }    
-    
+    }
+
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {
         var route = 'workrelations';
         var rel = {
@@ -108,10 +107,10 @@ export class WorkerService extends BizHttp<Worker> {
             StartDate: moment([moment().year(), moment().month(), 1]).toDate(),
             IsActive: true,
             WorkProfileID: profile.ID
-        };        
+        };
         return this.POST(route, undefined, rel);
     }
-    
+
     public getWorkProfiles(): Observable<WorkProfile[]> {
         return this.GET('workprofiles');
     }
@@ -130,9 +129,9 @@ export class WorkerService extends BizHttp<Worker> {
                 return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" + toIso(moment().endOf('month').toDate()) + "'";
             case ItemInterval.thisYear:
                 return "date ge '" + toIso(moment().startOf('year').toDate()) + "' and date le '" + toIso(moment().endOf('year').toDate()) + "'";
-            default: 
+            default:
                 return '';
-        }        
+        }
     }
 
     public getIntervalItems(): Array<IFilter> {
@@ -144,7 +143,7 @@ export class WorkerService extends BizHttp<Worker> {
             { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
             { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
             { name: 'all', label: 'Alt', interval: ItemInterval.all}
-        ];        
+        ];
     }
 
     private getLastWorkDay(): Date {
@@ -153,7 +152,7 @@ export class WorkerService extends BizHttp<Worker> {
         if (dayNumber === 1) {
             dt.add(-3, 'days');
         } else {
-            dt.add(-1, 'days');            
+            dt.add(-1, 'days');
         }
         return dt.toDate();
     }
@@ -161,7 +160,7 @@ export class WorkerService extends BizHttp<Worker> {
     private getLastWorkDayName(): string {
         return capitalizeFirstLetter(moment(this.getLastWorkDay()).format('dddd'));
     }
-    
+
     public getWorkItems(workRelationID: number, interval: ItemInterval = ItemInterval.all): Observable<WorkItem[]> {
         var filter = 'WorkRelationID eq ' + workRelationID;
         var intervalFilter = this.getIntervalFilter(interval);
@@ -170,11 +169,11 @@ export class WorkerService extends BizHttp<Worker> {
         }
         return this.GET('workitems', { filter: filter, expand: 'WorkType,Dimensions,Dimensions.Project,CustomerOrder', orderBy: 'StartTime' });
     }
-    
+
     public getWorkItemById(id: number): Observable<WorkItem> {
         return this.GET('workitems/' + id, { expand: 'WorkType'});
     }
-    
+
     public saveWorkItem(item: WorkItem): Observable<WorkItem> {
         return this.saveByID(item, 'workitems');
     }
@@ -182,12 +181,12 @@ export class WorkerService extends BizHttp<Worker> {
     public deleteWorkitem(id: number): Observable<WorkItem> {
         return this.deleteByID(id, 'workitems');
     }
-    
+
     public queryWithUrlParams(params?: URLSearchParams, route = 'worktypes', expand?: string): Observable<WorkType[]> {
         if (params && expand) { params.append('expand', expand); }
         return this.http
             .usingBusinessDomain()
-            .asGET()            
+            .asGET()
             .withEndPoint(route)
             .send({}, params);
     }
@@ -197,7 +196,7 @@ export class WorkerService extends BizHttp<Worker> {
         if (itemX && itemX.ID) {
             return this.PUT(baseRoute + '/' + itemX.ID, undefined, item );
         }
-        return this.POST(baseRoute, undefined, item );            
+        return this.POST(baseRoute, undefined, item );
     }
 
     public deleteByID(id: any, baseRoute: string): Observable<any> {
@@ -207,16 +206,16 @@ export class WorkerService extends BizHttp<Worker> {
     public getByID<T>(id: number, baseRoute: string, expand?: string): Observable<T> {
         return this.GET(baseRoute + '/' + id, { expand: expand});
     }
-    
+
     public getStatistics(query: string): Observable<any> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint('?' + query).send()
         .map(response => response.json());
 
     }
-   
+
     // http helpers (less verbose?)
- 
+
     private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
@@ -231,7 +230,7 @@ export class WorkerService extends BizHttp<Worker> {
             return this.http.asPOST().usingBusinessDomain()
             .withEndPoint(route).send(params)
             .map(response => response.json());
-        }        
+        }
     }
     private PUT(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
@@ -242,7 +241,7 @@ export class WorkerService extends BizHttp<Worker> {
             return this.http.asPUT().usingBusinessDomain()
             .withEndPoint(route).send(params)
             .map(response => response.json());
-        }        
-    }      
-    
+        }
+    }
+
 }

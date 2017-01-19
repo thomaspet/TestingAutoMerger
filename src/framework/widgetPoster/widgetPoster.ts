@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { UniHttp } from '../core/http/http';
 import { UserService, NumberFormat, ErrorService } from '../../app/services/services';
-declare var Chart;
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'uni-widget-poster',

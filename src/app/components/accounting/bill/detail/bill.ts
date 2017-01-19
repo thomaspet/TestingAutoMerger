@@ -1,6 +1,6 @@
 import {ViewChild, Component} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount} from '../../../../unientities';
@@ -27,8 +27,8 @@ import {
     checkGuid
 } from '../../../../services/services';
 
-declare const moment;
-declare const _; // lodash
+import * as moment from 'moment';
+import * as _ from 'lodash';
 
 interface ITab {
     name: string;

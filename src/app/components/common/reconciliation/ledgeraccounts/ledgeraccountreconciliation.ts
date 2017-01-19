@@ -1,20 +1,21 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
-import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, StatisticsService, JournalEntryLineService, PostPostService} from '../../../../services/services';
-import {Observable} from 'rxjs/Observable';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {DimensionService, DimensionTypes} from '../../../../services/common/DimensionService';
-import {JournalEntryLine, StatusCodeJournalEntryLine} from '../../../../unientities';
+import {Router} from '@angular/router';
+import {StatusCodeJournalEntryLine} from '../../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
-import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {
+    ErrorService,
+    StatisticsService,
+    JournalEntryLineService,
+    PostPostService,
+    NumberFormat
+} from '../../../../services/services';
 
-declare const moment;
-declare const _; // lodash
+import * as moment from 'moment';
+import * as _ from 'lodash';
 
 class JournalEntryLineCouple {
     public JournalEntryLineId1: number;

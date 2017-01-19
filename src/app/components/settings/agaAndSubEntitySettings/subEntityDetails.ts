@@ -3,8 +3,8 @@ import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService, 
 import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
+import * as _ from 'lodash';
 
-declare var _; // lodash
 @Component({
     selector: 'sub-entity-details',
     templateUrl: './subEntityDetails.html'

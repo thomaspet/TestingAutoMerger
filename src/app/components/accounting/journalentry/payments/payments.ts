@@ -11,7 +11,7 @@ import {
     CompanySettingsService
 } from '../../../../services/services';
 
-declare const moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'payments',

@@ -24,9 +24,8 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService
 } from '../../../services/services';
-
-declare var _;
-declare var moment;
+import * as _ from 'lodash';
+import * as moment from 'moment';
 
 @Component({
     selector: 'payrollrun-details',
@@ -449,28 +448,23 @@ export class PayrollrunDetails extends UniView {
             let lastTodate = moment(latest.ToDate);
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
-            let fromdateAsDate = new Date(lastFromdate);
-            let todateAsDate: Date;
 
-            this.payrollrun.FromDate = fromdateAsDate;
+            this.payrollrun.FromDate = lastFromdate.toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
-                    todateAsDate = new Date(lastTodate);
-                    this.payrollrun.ToDate = todateAsDate;
+                    this.payrollrun.ToDate = lastTodate.toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
-                    todateAsDate = new Date(lastTodate);
-                    this.payrollrun.ToDate = todateAsDate;
+                    this.payrollrun.ToDate = lastTodate.toDate();
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
-                    todateAsDate = new Date(lastTodate);
-                    this.payrollrun.ToDate = todateAsDate;
+                    this.payrollrun.ToDate = lastTodate.toDate();
                     break;
             }
         }

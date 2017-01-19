@@ -3,7 +3,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../../services/services';
-declare var _;
+
 
 @Component({
     selector: 'vacationpay-modal',

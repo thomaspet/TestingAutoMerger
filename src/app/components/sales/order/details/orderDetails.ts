@@ -40,8 +40,7 @@ import {
     AddressService,
     ReportDefinitionService
 } from '../../../../services/services';
-
-declare const _;
+import * as _ from 'lodash';
 
 // TODO: this can be removed when refactor is complete
 class CustomerOrderExt extends CustomerOrder {
@@ -241,7 +240,7 @@ export class OrderDetails {
         this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
         this.newOrderItem = <any> this.tradeItemHelper.getDefaultTradeItemData(order);
         this.orderItems = order.Items;
-        this.order = _.cloneDeep(order);
+        this.order = <any> _.cloneDeep(order);
         this.isDirty = false;
         this.setTabTitle();
         this.updateToolbar();

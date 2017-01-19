@@ -5,16 +5,20 @@ import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
     Address, Municipal, SubEntity, EmployeeTaxCard
 } from '../../../../unientities';
-import { EmployeeService, MunicipalService, EmployeeTaxCardService } from '../../../../services/services';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
 import { UniFieldLayout } from 'uniform-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService } from '../../../../services/services';
-import { ErrorService } from '../../../../services/common/ErrorService';
 import { Observable } from 'rxjs/Observable';
-declare var _;
+import {
+    EmployeeService,
+    MunicipalService,
+    EmployeeTaxCardService,
+    ErrorService
+} from '../../../../services/services';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'employee-personal-details',

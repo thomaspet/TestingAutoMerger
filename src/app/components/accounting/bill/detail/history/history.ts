@@ -2,8 +2,7 @@ import {Component, Input} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {StatisticsService, SupplierInvoiceService, ErrorService} from '../../../../../services/services';
 import {URLSearchParams} from '@angular/http';
-
-declare const moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-bill-history',

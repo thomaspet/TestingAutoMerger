@@ -22,9 +22,8 @@ import {
     PaymentBatchService,
     FileService
 } from '../../../services/services';
-
-declare const moment;
-declare const saveAs; // filesaver.js
+import {saveAs} from 'file-saver';
+import * as moment from 'moment';
 
 @Component({
     selector: 'payment-list',

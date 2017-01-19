@@ -8,7 +8,7 @@ import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'balance-general-ledger-filter-form',
-    templateUrl: './BalanceReportFilterModal.html'
+    templateUrl: '../balanceList/BalanceReportFilterModal.html'
 })
 export class BalanceGeneralLedgerFilterForm implements OnInit {
     @Input('config')

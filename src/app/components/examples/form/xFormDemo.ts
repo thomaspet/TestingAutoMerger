@@ -3,8 +3,7 @@ import {EmployeeService} from '../../../services/services';
 import {UniForm} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {Employee, Employment, FieldType} from '../../../unientities';
-
-declare var _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-form-demo-2',

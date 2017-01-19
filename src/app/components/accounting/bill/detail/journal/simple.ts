@@ -1,7 +1,7 @@
 import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
 import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
 import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
-import {ToastService, ToastType} from '../../../../../../framework/unitoast/toastservice';
+import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
 import {

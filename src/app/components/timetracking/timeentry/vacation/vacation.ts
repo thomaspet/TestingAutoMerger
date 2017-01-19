@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {WorkerService} from '../../../../services/timetracking/workerservice';
+import {WorkerService} from '../../../../services/timetracking/workerService';
 import {WorkTimeOff} from '../../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, FieldSize, ControlTypes} from '../../utils/utils';

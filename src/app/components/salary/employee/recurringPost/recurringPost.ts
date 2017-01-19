@@ -10,7 +10,6 @@ import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
 
-declare var _;
 
 @Component({
     selector: 'reccuringpost-list',

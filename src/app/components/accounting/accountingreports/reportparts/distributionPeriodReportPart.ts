@@ -8,7 +8,7 @@ import {
     DimensionService,
     ErrorService
 } from '../../../../services/services';
-declare const moment;
+import * as moment from 'moment';
 
 export class DistributionPeriodData {
     public periodNo: number;

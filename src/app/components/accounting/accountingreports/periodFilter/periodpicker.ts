@@ -1,8 +1,6 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {PeriodFilter, PeriodFilterHelper} from './periodFilter';
-
-declare const moment;
-declare const _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'period-picker',

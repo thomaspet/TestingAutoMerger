@@ -3,8 +3,7 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Address, FieldType, Country, PostalCode} from '../../../unientities';
 import {AddressService, CountryService, PostalCodeService, ErrorService} from '../../../services/services';
-
-declare const _; // lodash
+import * as _ from 'lodash';
 
 // Reusable address form
 @Component({

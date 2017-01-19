@@ -5,8 +5,7 @@ import {Observable} from 'rxjs/Rx';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt} from '../../components/timetracking/utils/utils';
 import {Dimension} from '../common/dimensionservice';
 import {URLSearchParams} from '@angular/http';
-
-declare var moment;
+import * as moment from 'moment';
 
 export class ValueItem {
     constructor(public name: string, public value: any, public rowIndex?: number, public lookupValue?: any) { }
@@ -64,7 +63,7 @@ export class TimeSheet {
             return result.saved;
         });
     }
-    
+
     public hasPaidLunch(): boolean {
         if (this.currentRelation && this.currentRelation.WorkProfile) {
             return !!this.currentRelation.WorkProfile.LunchIncluded;
@@ -290,7 +289,7 @@ export class TimesheetService {
                var first = list[0];
                var ts = this.newTimeSheet(first);
                this.workRelations = list;
-               return Observable.of(ts);            
+               return Observable.of(ts);
         });
     }
 
@@ -304,7 +303,7 @@ export class TimesheetService {
         return this.workerService.getWorkItems(workRelationID, interval);
     }
 
-    public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]): 
+    public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]):
         Observable<{ original: WorkItem, saved: WorkItem }> {
 
         var obsSave = Observable.from(items).flatMap((item: WorkItem) => {
@@ -342,10 +341,10 @@ export class TimesheetService {
             var dt = moment(item.Date);
             if (item.StartTime) {
                 item.StartTime = toIso(moment(item.StartTime).year(dt.year())
-                    .month(dt.month()).date(dt.date()), true);
+                    .month(dt.month()).date(dt.date()).toDate(), true);
             }
             if (item.EndTime) {
-                item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
+                item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()).toDate(), true);
             }
         }
     }

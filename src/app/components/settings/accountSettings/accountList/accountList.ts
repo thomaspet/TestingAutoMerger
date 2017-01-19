@@ -4,7 +4,6 @@ import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
 import {AccountService, ErrorService} from '../../../../services/services';
 
-declare var _;
 
 @Component({
     selector: 'account-list',

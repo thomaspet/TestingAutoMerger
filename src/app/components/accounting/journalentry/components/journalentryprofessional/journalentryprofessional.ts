@@ -17,8 +17,7 @@ import {
     ErrorService
 } from '../../../../../services/services';
 
-declare const _;
-declare const moment;
+import * as moment from 'moment';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({

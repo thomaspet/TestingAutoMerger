@@ -30,8 +30,7 @@ import {
     WageTypeService,
     SalarySumsService
 } from '../../../services/services';
-
-declare var _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-employee-details',

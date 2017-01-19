@@ -6,10 +6,7 @@ import {ToastService} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Rx';
 import {UniForm} from 'uniform-ng2/main';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../services/services';
-
-declare const _;
-declare const moment;
+import {ErrorService} from '../../../services/services';;
 
 @Component({
     selector: 'save-query-definition-form',

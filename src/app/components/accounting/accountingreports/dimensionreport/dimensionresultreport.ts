@@ -17,9 +17,6 @@ import {
 
 } from '../../../../services/services';
 
-declare const moment;
-declare const _; // lodash
-
 @Component({
     selector: 'dimension-result-report',
     templateUrl: './dimensionresultreport.html',

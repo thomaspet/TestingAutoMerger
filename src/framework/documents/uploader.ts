@@ -1,7 +1,6 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {FileUploadService} from './FileUploadService';
-
-declare var jQuery;
+import * as $ from 'jquery';
 
 @Component({
     selector: 'uni-document-uploader',
@@ -41,7 +40,7 @@ export class UniDocumentUploader {
 
     public ngAfterViewInit() {
         // Using jQuery here, so we don't have to split the event listeners
-        let $el = jQuery(this.elem.nativeElement.querySelector('label'));
+        let $el = $(this.elem.nativeElement.querySelector('label'));
         $el.on('drag dragstart dragend dragover dragenter dragleave drop', (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -100,7 +99,7 @@ export class UniDocumentUploader {
 
     private cleanInput() {
         this.files = undefined;
-        let $el = jQuery(this.elem.nativeElement.querySelector('input[type=file]'));
+        let $el = $(this.elem.nativeElement.querySelector('input[type=file]'));
         $el.val('');
     }
 

@@ -8,10 +8,11 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {ReportDefinitionDataSourceService, EmailService} from '../services';
+import {ReportDefinitionDataSourceService} from './reportDefinitionDataSourceService';
+import {EmailService} from '../services';
 import {SendEmail} from '../../models/sendEmail';
 import {AuthService} from '../../../framework/core/authService';
-import {ErrorService} from '../common/ErrorService';
+import {ErrorService} from '../common/errorService';
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;

@@ -11,8 +11,8 @@ import {
     CustomerInvoiceService
 } from '../../../../../services/services';
 
-declare var _;
-declare var moment;
+import * as _ from 'lodash';
+import * as moment from 'moment';
 
 @Component({
     selector: 'journal-entry-simple-form',

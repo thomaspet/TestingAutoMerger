@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'amelding-summary-view',

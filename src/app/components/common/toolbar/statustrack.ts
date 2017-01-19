@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-declare const moment;
+import * as moment from 'moment';
 
 export module UniStatusTrack {
 

@@ -10,9 +10,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import moment from 'moment';
-
-declare var jQuery;
 
 @Component({
     selector: 'order-list',

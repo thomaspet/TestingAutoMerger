@@ -2,14 +2,16 @@ import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { EmployeeTaxCard, FieldType, FinancialYear } from '../../../unientities';
-import { ErrorService, FinancialYearService } from '../../services';
+import { FinancialYearService } from '../../services';
+import { ErrorService } from '../../common/errorService';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     constructor(protected http: UniHttp,
+        private financialYearService: FinancialYearService,
         private errorService: ErrorService,
-        private financialYearService: FinancialYearService) {
+        ) {
         super(http);
         this.relativeURL = EmployeeTaxCard.RelativeUrl;
         this.entityType = EmployeeTaxCard.EntityType;

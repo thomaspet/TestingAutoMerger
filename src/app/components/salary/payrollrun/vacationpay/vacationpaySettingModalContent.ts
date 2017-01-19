@@ -4,7 +4,7 @@ import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unit
 import {CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService} from '../../../../services/services';
 import {FieldType, CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',

@@ -4,7 +4,6 @@ import {UniForm} from 'uniform-ng2/main';
 import {TaxCardRequest} from './taxCardRequest';
 import {ReadTaxCard} from './readTaxCard';
 
-declare var _;
 
 @Component({
     selector: 'tax-card-modal-content',

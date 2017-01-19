@@ -36,9 +36,8 @@ import {
     ErrorService,
     EHFService
 } from '../../../../services/services';
-import moment from 'moment';
-
-declare const _;
+import * as moment from 'moment';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-invoice',

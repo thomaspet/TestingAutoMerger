@@ -3,7 +3,7 @@ import {FieldType, Address} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {UniForm} from 'uniform-ng2/main';
 import {AddressModal} from '../../common/modals/modals';
-declare const _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'tof-delivery-form',
@@ -142,7 +142,7 @@ export class TofDeliveryForm {
         }
 
         // remove entries with equal _createguid
-        this.entity.Customer.Info.Addresses = _.uniq(this.entity.Customer.Info.Addresses, '_createguid');
+        this.entity.Customer.Info.Addresses = _.uniqBy(this.entity.Customer.Info.Addresses, '_createguid');
 
         // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.entity.Customer.Info.ID, this.entity.Customer.Info).subscribe((info) => {

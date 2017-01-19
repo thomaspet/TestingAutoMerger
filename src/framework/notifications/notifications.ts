@@ -4,8 +4,7 @@ import { UniHttp } from '../core/http/http';
 import { ErrorService } from '../../app/services/services';
 import { Notification, NotificationStatus } from '../../app/unientities';
 import { Observable } from 'rxjs/Observable';
-import moment from 'moment';
-declare const _;
+import * as moment from 'moment';
 
 import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
 import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';

@@ -10,7 +10,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
 import {routes as BankRoutes} from './bankRoutes';
@@ -21,6 +20,8 @@ import {PaymentList} from './payments/paymentList';
 import {PaymentBatchDetails} from './payments/paymentBatchDetails';
 import {PaymentBatches} from './payments/paymentBatches';
 import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationModal';
+import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
+import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetails';
 
 @NgModule({
     imports: [
@@ -40,7 +41,6 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
         // App Modules
         LayoutModule,
         AppCommonModule,
-        // AppServicesModule,
 
         // Route module
         BankRoutes
@@ -52,7 +52,9 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
         PaymentBatches,
         PaymentRelationsModal,
         PaymentRelationsTable,
-        PaymentBatchDetails
+        PaymentBatchDetails,
+        CustomerPaymentBatches,
+        CustomerPaymentBatchDetails
     ],
     entryComponents: [
         PaymentRelationsTable

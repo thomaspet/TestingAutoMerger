@@ -14,7 +14,7 @@ import { UniView } from '../../../../framework/core/uniView';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 
 import { Observable } from 'rxjs/Observable';
-declare var _; // lodash
+
 
 @Component({
     selector: 'uni-wagetype-view',

@@ -1,14 +1,14 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {File as UniFile} from '../../app/unientities';
+import * as _ from 'lodash';
+
 export interface IFileMetaData {
     Name: string;
     Description: string;
     // Space: string;
     // Pages: number;
 }
-
-declare var _; // lodash
 
 @Injectable()
 export class FileUploadService<T> {

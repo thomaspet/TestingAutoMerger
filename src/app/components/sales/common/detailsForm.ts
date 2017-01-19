@@ -1,7 +1,6 @@
 import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniForm} from 'uniform-ng2/main';
 import {FieldType} from '../../../unientities';
-declare const _;
 
 @Component({
     selector: 'tof-details-form',

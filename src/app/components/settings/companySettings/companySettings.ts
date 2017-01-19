@@ -35,8 +35,7 @@ import {
     ErrorService,
     CompanyService
 } from '../../../services/services';
-
-declare const _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'settings',

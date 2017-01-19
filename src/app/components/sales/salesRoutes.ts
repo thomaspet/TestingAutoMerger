@@ -1,7 +1,7 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from '../../authGuard';
-import {CanDeactivateGuard} from '../../candeactivateGuard';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {Customer} from './customer/customer';
 import {routes as CustomerRoutes} from './customer/customerRoutes';

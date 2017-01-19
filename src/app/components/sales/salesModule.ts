@@ -6,7 +6,6 @@ import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppServicesModule} from '../../services/servicesModule';
 import {routes as SalesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
 import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
@@ -59,7 +58,6 @@ import {TradeItemTable} from './common/tradeitemTable';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        // AppServicesModule,
         ReportsModule,
 
         // Route module

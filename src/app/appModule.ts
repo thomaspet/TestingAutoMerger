@@ -1,3 +1,4 @@
+/// <reference path="../../typings/index.d.ts" />
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
 import {enableProdMode, NgModule, ErrorHandler} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
@@ -59,8 +60,8 @@ if (window.ENV === 'production') {
 
         // REVISIT SERVICES!
         CommonServicesModule.forRoot(),
-        AccountingServicesModule.forRoot(),
         ReportServicesModule.forRoot(),
+        AccountingServicesModule.forRoot(),
         SalaryServicesModule.forRoot(),
         SalesServicesModule.forRoot(),
         TimeTrackingServicesModule.forRoot(),

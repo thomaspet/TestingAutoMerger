@@ -21,6 +21,21 @@ import * as _ from 'lodash'
  *
  */
 
+// import * as _ from 'lodash';
+// import * as moment from 'moment';
+// import * as Chart from 'chart.js';
+declare module 'jwt-decode' {
+  function decode(token: string): any;
+  namespace decode {}  // notice how we have to create a namespace that is equal to the function we're assigning the export to
+  export = decode;
+}
+
+// declare module 'chart.js';
+// declare module 'immutable';
+declare module 'jquery';
+declare module 'stimulsoft';
+// declare module 'file-saver';
+
 // Extra variables that live on Global that will be replaced by webpack DefinePlugin
 declare var AOT: boolean;
 declare var ENV: string;

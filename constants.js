@@ -53,23 +53,24 @@ exports.MY_COPY_FOLDERS = [
   // use this for folders you want to be copied in to Client dist
   // src/assets and index.html are already copied by default.
   // format is { from: 'folder_name', to: 'folder_name' }
+  {from: 'stimulsoft', to: 'stimulsoft'}
 ]
 
 exports.MY_VENDOR_DLLS = [
   // list vendors that you want to be included in your dlls files
   // this will speed up initial dev server build and incremental builds.
   // Be sure to run `npm run build:dll` if you make changes to this array.
-  'unitable-ng2',
-  'uniform-ng2',
   'moment',
-  // 'file-saver',
+  'file-saver',
   'base64-js',
   'accounting',
-  // 'chart.js',
+  'chart.js',
   'immutable',
   'lodash',
   'jwt-decode',
-  'jquery'
+  'jquery',
+  'unitable-ng2',
+  'uniform-ng2'
 ]
 
 exports.MY_CLIENT_PLUGINS = [

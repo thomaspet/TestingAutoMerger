@@ -3,7 +3,7 @@ import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService} from '../common/subEntityService';
-import {IntegrationServerCaller} from './IntegrationServerCaller';
+import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 

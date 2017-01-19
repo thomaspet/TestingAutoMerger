@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
-
-    <!-- PAGE DEFINITIONS
-     ------------------------------------------------------------------------->
+    <!-- PAGE DEFINITIONS -->
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="chrome=1,ie=edge">
     <meta name="robots" content="noindex,nofollow">
@@ -15,8 +12,7 @@
     <title>Uni Economy</title>
 
 
-    <!-- CONTENT DEFINITIONS
-     ------------------------------------------------------------------------->
+    <!-- CONTENT DEFINITIONS -->
     <meta name="application-name" content="Uni Economy">
     <meta name="keywords" content="Uni Economy, Uni Micro, Faktura, Lønn, Regnskap">
     <meta name="description" content="Uni Economy fra Uni Micro AS">
@@ -24,13 +20,10 @@
     <meta name="copyright" content="Uni Micro AS">
     <meta name="owner" content="Uni Micro AS">
 
-    <!-- ONE SIGNAL (It nust be the first link.)
-     ------------------------------------------------------------------------->
+    <!-- ONE SIGNAL (It nust be the first link.) -->
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script>
-        window.ENV = '<%= environment %>';
-
         if (window.location.hostname.indexOf('localhost') >= 0) {
             window.ENV = 'development';
         } else {
@@ -49,15 +42,13 @@
         }
     </script>
 
-    <!-- METADATA
-     ------------------------------------------------------------------------->
+    <!-- METADATA -->
     <link rel="logo" type="image/svg" href="">
     <link rel="shortlink" href="">
     <link rel="me" type="text/html" href="http://unimicro.no">
 
 
-    <!-- APPLE PLATFORM TAGS
-     ------------------------------------------------------------------------->
+    <!-- APPLE PLATFORM TAGS -->
     <meta name="viewport" content="user-scalable=no, width=device-width" />
     <meta name="apple-mobile-web-app-title" content="Economy">
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,8 +57,7 @@
     <meta name="format-detection" content="telephone=no">
 
 
-    <!-- SYNDICATION AND NOTIFICATIONS
-     ------------------------------------------------------------------------->
+    <!-- SYNDICATION AND NOTIFICATIONS -->
     <link rel="alternate" type="application/rss+xml" title="RSS" href="">
     <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="">
     <meta name="msapplication-notification" content="frequency=30;
@@ -76,16 +66,14 @@
                    polling-uri3=.xml">
 
 
-    <!-- APPLICATION ICONS AND STARTUP SCREENS
-     ------------------------------------------------------------------------->
+    <!-- APPLICATION ICONS AND STARTUP SCREENS -->
     <link rel="manifest" href="assets/manifest.json">
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="icon" type="image/png" href="assets/favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="assets/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="assets/favicon-96x96.png" sizes="96x96">
 
-    <!-- APPLE SPECIFIC-ish
-     ------------------------------------------------------------------------->
+    <!-- APPLE SPECIFIC-ish -->
     <link rel="apple-touch-startup-image" href="">
     <link rel="apple-touch-icon" sizes="57x57" href="assets/apple-touch-icon-precomposed-57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="assets/apple-touch-icon-precomposed-114.png">
@@ -96,22 +84,19 @@
     <link rel="apple-touch-icon" sizes="76x76" href="assets/apple-touch-icon-precomposed-76.png">
     <link rel="apple-touch-icon" sizes="152x152" href="assets/apple-touch-icon-precomposed-152.png">
 
-    <!-- MICROSOFT SPECIFIC
-     ------------------------------------------------------------------------->
+    <!-- MICROSOFT SPECIFIC -->
     <meta name="msapplication-TileColor" content="#1492d5">
     <meta name="msapplication-TileImage" content="assets/apple-touch-icon-precomposed-144.png">
     <meta name="msapplication-config" content="assets/browserconfig.xml" />
 
 
-    <!-- EXTERNAL PROFILES
-     ------------------------------------------------------------------------->
+    <!-- EXTERNAL PROFILES -->
     <link rel='profile' title='Microformats' href='http://microformats.org/profile/specs/'>
 
 
-    <!-- STYLESHEETS
-     ------------------------------------------------------------------------->
+    <!-- STYLESHEETS -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700">
-    <link rel="stylesheet" href="main.min.css?v=<%= version %>">
+    <link rel="stylesheet" href="/main.min.css">
 
     <base href="/">
     <script type="text/javascript">
@@ -139,26 +124,7 @@
 		<%= '<' %>script src="/vendor.dll.js"<%= '>' %><%= '<' %>/script<%= '>' %>
 	</div>
 
-	<script src="/vendors.bundle.js"></script>
 	<script src="/index.js"></script>
 
-    <!--
-        <uni-app>
-        <p class="appLoading">Laster, vennligst vent…</p>
-        <uni-app>
-
-            <script crossorigin="anonymous" src="vendors.bundle.js?v=<%= version %>"></script>
-            <script crossorigin="anonymous" src="app.bundle.js?v=<%= version %>"></script>
-            <script>
-                APP_VERSION = "<%= gitRevision %>";
-            </script>
-            <script>
-                System.import('system.config.js').then(function() {
-                    System.import('app/appModule');
-                }).catch(console.error.bind(console));
-            </script>
-            <%= raygunApiKeyCode %>
-    -->
 </body>
-
 </html>

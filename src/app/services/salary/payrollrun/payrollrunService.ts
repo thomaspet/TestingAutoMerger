@@ -3,11 +3,11 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, FieldType, VacationPayInfo, TaxDrawFactor} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../common/ErrorService';
+import {ErrorService} from '../../common/errorService';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
-    
+
     public payStatusTable: any = [
         {ID: null, text: 'Opprettet'},
         {ID: 0, text: 'Opprettet'},
@@ -18,7 +18,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         {ID: 5, text: 'Bokført'},
         {ID: 6, text: 'Slettet'}
     ];
-    
+
     constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
@@ -38,7 +38,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             return super.Get(id);
         }
     }
-      
+
     public getStatus(payrollRun: PayrollRun) {
         if (payrollRun) {
             return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
@@ -87,7 +87,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public controlPayroll(ID) {
         return this.http
             .asPUT()
@@ -96,7 +96,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public resetSettling(ID: number) {
         return this.http
         .asPUT()
@@ -105,7 +105,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         .send()
         .map(response => response.json());
     }
-    
+
     public getPaymentList(ID: number) {
         return this.http
             .usingBusinessDomain()
@@ -114,7 +114,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send({action: 'paymentlist'})
             .map(response => response.json());
     }
-    
+
     public getPostingsummary(ID: number) {
         return this.http
             .asGET()
@@ -123,7 +123,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public postTransactions(ID: number) {
         return this.http
             .asPUT()
@@ -150,7 +150,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withBody(payList)
             .send();
     }
-    
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -352,7 +352,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Legend: '',
                     Options: {
                         source: [
-                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'}, 
+                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'},
                             {Indx: TaxDrawFactor.Half, Name: 'Halv skatt'},
                             {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
                         displayProperty: 'Name',
@@ -380,7 +380,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     hasLineBreak: true,
                     Options: {
                         source: [
-                            {Indx: 0, Name: 'Vanlig'}, 
+                            {Indx: 0, Name: 'Vanlig'},
                             {Indx: 1, Name: 'Ferielønn (+1/26)'},
                             {Indx: 2, Name: 'Ferielønn (-1/26)'},
                             {Indx: 1, Name: 'Ferielønn (-4/26)'},

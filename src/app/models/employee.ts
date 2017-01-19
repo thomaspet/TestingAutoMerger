@@ -11,7 +11,6 @@ import {
     SubEntity
 } from "../unientities";
 
-declare var _;
 
 export class EmployeeModel extends Employee {
     BusinessRelationID: number = 0;

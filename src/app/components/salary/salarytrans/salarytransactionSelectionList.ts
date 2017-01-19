@@ -15,8 +15,7 @@ import {
     ErrorService,
     SalarySumsService
 } from '../../../services/services';
-
-declare var _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'salarytrans',
@@ -245,7 +244,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
-        let notUpdated = !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
+        let notUpdated = !noTax && this.payrollRun && taxCard.Year < new Date(<any> this.payrollRun.PayDate).getFullYear();
         let ret: string = '';
         if (notUpdated) {
             ret += 'Skattekort er ikke oppdatert.';
@@ -261,7 +260,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
-        return !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
+        return !noTax && this.payrollRun && taxCard.Year < new Date(<any> this.payrollRun.PayDate).getFullYear();
     }
 
     public hasError(): boolean {

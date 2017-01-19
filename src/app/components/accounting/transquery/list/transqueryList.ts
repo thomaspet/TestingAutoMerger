@@ -11,9 +11,7 @@ import {
     AccountService,
     JournalEntryService
 } from '../../../../services/services';
-
-declare var jQuery;
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'customer-list',

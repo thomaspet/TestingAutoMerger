@@ -15,10 +15,9 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../services/services';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
-
+import * as _ from 'lodash';
 
 declare const saveAs; // filesaver.js
-declare const _; // lodash
 
 @Component({
     selector: 'uni-query-details',

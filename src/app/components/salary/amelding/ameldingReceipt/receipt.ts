@@ -1,8 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn, ISortInfo} from 'unitable-ng2/main';
 import {AmeldingData} from '../../../../unientities';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'amelding-receipt-view',

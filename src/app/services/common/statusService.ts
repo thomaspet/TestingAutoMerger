@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Rx';
 import {StatisticsService} from './statisticsService';
-import {ErrorService} from './ErrorService';
+import {ErrorService} from './errorService';
 
 @Injectable()
 export class StatusService {

@@ -5,9 +5,8 @@ import {StatusCodeCustomerOrder} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../common/ErrorService';
-
-declare var moment;
+import {ErrorService} from '../common/errorService';
+import * as moment from 'moment';
 
 @Injectable()
 export class CustomerOrderService extends BizHttp<CustomerOrder> {

@@ -25,8 +25,6 @@ import {
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
-declare const _; // lodash
-
 @Component({
     selector: 'transquery-details',
     templateUrl: './transqueryDetails.html',

@@ -4,15 +4,14 @@ import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, WorkType} from '../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Rx';
-import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
+import {WorkerService, ItemInterval} from '../../../services/timetracking/workerService';
+import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {setDeepValue} from '../utils/utils';
 import {ErrorService} from '../../../services/services';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime', false, '', RegisterTime);
-
-declare var moment;
+import * as moment from 'moment';
 
 interface IFilter {
     name: string;

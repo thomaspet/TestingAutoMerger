@@ -7,8 +7,6 @@ import {ProductService, ErrorService} from '../../../../services/services';
 import {Product} from '../../../../unientities';
 import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
-declare var jQuery;
-
 @Component({
     selector: 'product-list',
     templateUrl: './productList.html'

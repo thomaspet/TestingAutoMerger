@@ -5,9 +5,8 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
-import {ErrorService} from '../common/ErrorService';
-
-declare var moment;
+import {ErrorService} from '../common/errorService';
+import * as moment from 'moment';
 
 
 @Injectable()

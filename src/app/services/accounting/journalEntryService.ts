@@ -11,7 +11,6 @@ import {JournalEntryAccountCalculationSummary} from '../../models/accounting/Jou
 import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
 import {BrowserStorageService} from '../common/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
-declare const _; // lodash
 
 class JournalEntryLineCalculation {
     amountGross: number;
@@ -25,7 +24,7 @@ export class JournalEntrySettings {
     public DefaultVisibleFields: string[];
 }
 
-declare var moment;
+import * as moment from 'moment';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {

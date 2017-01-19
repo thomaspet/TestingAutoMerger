@@ -1,3 +1,4 @@
+/// <reference path="../../../../typings/modules/chart.js/index.d.ts" />
 import {Component, EventEmitter} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -5,9 +6,8 @@ import {Router} from '@angular/router';
 import {ErrorService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
 import {Company} from '../../unientities';
-
-declare var Chart;
-declare var moment;
+import * as moment from 'moment';
+import * as Chart from 'chart.js';
 
 export interface IChartDataSet {
     label: string;
@@ -45,7 +45,9 @@ export class Dashboard {
         private authService: AuthService
     ) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
-        Chart.defaults.global.maintainAspectRatio = false;
+
+        // Avoid compile error. Seems to be something weird with the chart.js typings file
+        (<any> Chart).defaults.global.maintainAspectRatio = false;
 
         this.getCompany().subscribe(
             (data) => { this.current = data[0]; },
@@ -56,6 +58,7 @@ export class Dashboard {
             company => this.loadReload.emit(company)
             /* No error handling neccesary */
         );
+
     }
 
     public ngAfterViewInit() {
@@ -246,7 +249,12 @@ export class Dashboard {
     //Generates a new Chart
     private chartGenerator(elementID: string, data: IChartDataSet) {
         let myElement = document.getElementById(elementID);
-        let myChart = new Chart(myElement, {
+
+        let chartSettings: Chart.ChartSettings = {
+
+        }
+
+        let myChart = new Chart(<any> myElement, {
             type: data.chartType,
             data: {
                 labels: data.labels,

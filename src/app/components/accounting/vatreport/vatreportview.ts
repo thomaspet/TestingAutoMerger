@@ -24,8 +24,6 @@ import {
     CompanySettingsService
 } from '../../../services/services';
 
-declare const moment;
-
 @Component({
     selector: 'vat-report-view',
     templateUrl: './vatreportview.html'

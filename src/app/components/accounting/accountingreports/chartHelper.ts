@@ -1,10 +1,10 @@
-declare const Chart;
+import * as Chart from 'chart.js';
 
 export class ChartHelper {
     public static generateChart(elementID: string, data: IChartDataSet) {
         let element = document.getElementById(elementID);
 
-        let chart = Chart.Line(element, {
+        let chart = Chart.Line(<any> element, {
             data: {
                 labels: data.labels,
                 datasets: data.datasets ? data.datasets : [

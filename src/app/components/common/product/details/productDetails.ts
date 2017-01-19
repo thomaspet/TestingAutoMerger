@@ -17,10 +17,9 @@ import {
     VatTypeService,
     ProjectService,
     DepartmentService,
-	CompanySettingsService
+    CompanySettingsService
 } from '../../../../services/services';
-
-declare const _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'product-details',

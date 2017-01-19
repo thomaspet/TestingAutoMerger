@@ -14,8 +14,8 @@ import {
     SupplierInvoiceService,
     JournalEntryService
 } from '../../../../services/services';
+import * as moment from 'moment';
 
-declare const moment;
 
 @Component({
     selector: 'supplier-invoice-list',

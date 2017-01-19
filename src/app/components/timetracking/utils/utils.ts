@@ -1,6 +1,5 @@
 export {ChangeMap} from './changeMap';
-
-declare var moment;
+import * as moment from 'moment';
 
 export enum ControlTypes {
     AutocompleteInput = 0,
@@ -69,7 +68,7 @@ export function safeDec(value: any) {
     return tmp;
 }
 
-export function createFormField(name: string, label: string, fieldType: any = ControlTypes.TextInput, 
+export function createFormField(name: string, label: string, fieldType: any = ControlTypes.TextInput,
     size = FieldSize.Normal, hideLabel = false, section = 0, sectionHeader?: string, fieldSet = 0, options?: any): any {
     return {
         Property: name, Label: label,
@@ -187,9 +186,9 @@ export function parseDate(value: any, allowMacros = true): Date {
     if (value.indexOf('.') > 0) {
         switch (value.split('.').length) {
             case 3:
-                return moment(value, 'DD.MM.YYYY');
+                return moment(value, 'DD.MM.YYYY').toDate();
             case 2:
-                return moment(value, 'DD.MM');
+                return moment(value, 'DD.MM').toDate();
         }
     }
 
@@ -272,8 +271,8 @@ export function parseTime(value: string, allowMacros = true, date?: Date): Date 
     return timeSerial(h, m, date);
 }
 
-export function addTime(value: Date, amount: number, addType = 'hours') {
-    return moment(value).add(amount, addType).toDate();
+export function addTime(value: Date, amount: number, addType: any = 'hours') {
+    return moment(value).add('' + amount, addType).toDate();
 }
 
 function timeSerial(hour: number, minute: number, date?: Date): Date {
@@ -362,10 +361,10 @@ export function capitalizeSentence(value: string, limitWords = 5) {
     var words = value.split(' ');
     var output = [];
     for (var i = 0; i < words.length; i++) {
-        output.push(capitalizeFirstLetter(words[i])); 
+        output.push(capitalizeFirstLetter(words[i]));
         if (i >= limitWords - 1) {
             break;
-        } 
+        }
     }
-    return output.join(' ');    
+    return output.join(' ');
 }

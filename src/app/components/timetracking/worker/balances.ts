@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkBalance, WorkRelation} from '../../../unientities';
 import {ErrorService} from '../../../services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';

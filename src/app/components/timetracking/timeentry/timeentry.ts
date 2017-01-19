@@ -2,22 +2,21 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerservice';
+import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch,
     ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
 import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength, roundTo} from '../utils/utils';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
+import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
-import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-
-declare var moment;
+import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';

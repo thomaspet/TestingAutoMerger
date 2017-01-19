@@ -4,9 +4,8 @@ import {Address} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
 import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
-import {ErrorService} from '../common/ErrorService';
+import {ErrorService} from '../common/errorService';
 
-declare var _;
 
 @Injectable()
 export class AddressService extends BizHttp<Address> {

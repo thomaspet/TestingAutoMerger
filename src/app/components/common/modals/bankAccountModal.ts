@@ -6,8 +6,7 @@ import {BankService, AccountService, AddressService, ErrorService} from '../../.
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BankData} from '../../../models/models';
 import {Observable} from 'rxjs/Observable';
-
-declare var _;
+import * as _ from 'lodash';
 
 // Reusable bankaccount form
 @Component({

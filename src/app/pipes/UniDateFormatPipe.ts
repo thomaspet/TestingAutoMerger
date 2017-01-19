@@ -1,7 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {ErrorService} from '../services/services';
-
-declare const moment;
+import * as moment from 'moment';
 
 @Pipe({name: 'unidateformat'})
 export class UniDateFormatPipe implements PipeTransform {

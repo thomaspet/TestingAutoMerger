@@ -8,8 +8,6 @@ import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportMod
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 
-declare const moment;
-
 @Component({
     selector: 'accounting-balance-report',
     templateUrl: './balancereport.html',

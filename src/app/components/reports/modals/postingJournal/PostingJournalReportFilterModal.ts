@@ -6,8 +6,8 @@ import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/services';
+import * as _ from 'lodash';
 
-declare var _; // lodash
 @Component({
     selector: 'balance-report-filter-form',
     templateUrl: './PostingJournalReportFilterModal.html'

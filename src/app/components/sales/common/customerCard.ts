@@ -5,7 +5,6 @@ import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsM
 import {AddressModal} from '../../common/modals/modals';
 import {AddressService, CustomerService, EHFService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
-declare const _;
 
 @Component({
     selector: 'tof-customer-card',

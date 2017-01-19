@@ -11,7 +11,6 @@ import {
     DimensionService,
     ErrorService
 } from '../../../../services/services';
-declare const moment;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({

@@ -1,4 +1,4 @@
-declare const moment;
+import * as moment from 'moment';
 
 export class AltinnAuthenticationData {
     public userID: string;

@@ -6,7 +6,7 @@ import { SubEntityService, AgaZoneService, MunicipalService, ErrorService } from
 import { SubEntity, Municipal, AGAZone } from '../../../unientities';
 import { SubEntityDetails } from './subEntityDetails';
 
-declare var _; // lodash
+
 @Component({
     selector: 'sub-entity-list',
     templateUrl: './subEntityList.html'

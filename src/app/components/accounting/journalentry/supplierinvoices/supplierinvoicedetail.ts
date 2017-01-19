@@ -23,8 +23,8 @@ import {
     DepartmentService
 } from '../../../../services/services';
 
-declare var moment;
-declare const _;
+import * as _ from 'lodash';
+import * as moment from 'moment';
 
 @Component({
     selector: 'supplier-invoice-detail',

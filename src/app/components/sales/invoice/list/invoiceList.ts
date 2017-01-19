@@ -12,7 +12,7 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import moment from 'moment';
+import * as moment from 'moment';
 import {
     CustomerInvoiceService,
     ReportDefinitionService,

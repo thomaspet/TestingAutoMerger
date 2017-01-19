@@ -8,8 +8,6 @@ import {CustomerService, ErrorService} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Customer} from '../../../../unientities';
 
-declare var jQuery;
-
 @Component({
     selector: 'customer-list',
     templateUrl: './customerList.html'

@@ -8,8 +8,7 @@ import {
 import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
-
-declare var _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'vacationpay-modal-content',
