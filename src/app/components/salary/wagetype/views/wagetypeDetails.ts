@@ -143,7 +143,7 @@ export class WagetypeDetail extends UniView {
             this.wageService.layout('WagetypeDetails'),
             this.inntektService.getSalaryValidValueTypes(),
             this.accountService.GetAll(null),
-            this.wageService.usedInPayrollrun(this.wagetypeID)
+            this.wageService.usedInPayrollrun(this.wageType.WageTypeNumber)
         ).subscribe(
             (response: any) => {
                 let [layout, validvaluesTypes, accounts, usedInPayrollrun] = response;
