@@ -37,12 +37,6 @@ exports.DEV_SERVER_WATCH_OPTIONS = {
   aggregateTimeout: 300
 }
 
-/**
- * specifies which @ngrx dev tools will be available when you build and load
- * your app in dev mode. Options are: monitor | logger | both | none
- */
-exports.STORE_DEV_TOOLS = 'monitor'
-
 exports.EXCLUDE_SOURCE_MAPS = [
   // these packages have problems with their sourcemaps
   root('node_modules/@angular'),
@@ -60,15 +54,15 @@ exports.MY_VENDOR_DLLS = [
   // list vendors that you want to be included in your dlls files
   // this will speed up initial dev server build and incremental builds.
   // Be sure to run `npm run build:dll` if you make changes to this array.
-  'moment',
-  'file-saver',
-  'base64-js',
-  'accounting',
-  'chart.js',
-  'immutable',
-  'lodash',
-  'jwt-decode',
-  'jquery',
+  'moment/min/moment.min.js',
+  'file-saver/FileSaver.min.js',
+  'base64-js/base64js.min.js',
+  'accounting/accounting.min.js',
+  'chart.js/dist/Chart.min.js',
+  'immutable/dist/immutable.min.js',
+  'lodash/lodash.min.js',
+  'jwt-decode/build/jwt-decode.min.js',
+  'jquery/dist/jquery.min.js',
   'unitable-ng2',
   'uniform-ng2'
 ]
@@ -83,10 +77,11 @@ exports.MY_CLIENT_PRODUCTION_PLUGINS = [
 
 exports.MY_CLIENT_RULES = [
   // use this to import your own rules for Client webpack config.
-]
-
-exports.MY_SERVER_RULES = [
-  // use this to import your own rules for Universal Server webpack config.
+  {
+    test: /\.sass$/,
+    exclude: /node_modules/,
+    loaders: ['raw-loader', 'sass-loader'] // sass-loader not scss-loader
+  }
 ]
 
 exports.MY_TEST_RULES = [

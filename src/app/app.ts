@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ViewEncapsulation} from '@angular/core';
 import {AuthService} from '../framework/core/authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
@@ -16,7 +16,9 @@ declare const window;
 
 @Component({
     selector: 'uni-app',
-    templateUrl: './app.html'
+    templateUrl: './app.html',
+    styleUrls: ['../styles/main.sass'],
+    encapsulation: ViewEncapsulation.None,
 })
 export class App {
     private isAuthenticated: boolean = false;
@@ -31,7 +33,6 @@ export class App {
         private errorService: ErrorService,
         private userService: UserService
     ) {
-
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
               event.preventDefault();
