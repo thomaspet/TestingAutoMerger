@@ -39,73 +39,79 @@ export class AltinnSettings implements OnInit {
     }
 
     public check() {
-        this.loginErr = '';
-        if (this.altinn == undefined) {
-            this.altinn = new Altinn();
-        }
 
+        this.loginErr = '';
         let company = JSON.parse(localStorage.getItem('companySettings'));
 
         this.busy = true;
-        this.integrate
-            .checkSystemLogin(
-            company.OrganizationNumber,
-            this.altinn.SystemID,
-            this.altinn.SystemPw,
-            this.altinn.Language)
+        this._altinnService
+            .getPassword()
+            .flatMap((password: string) => password
+                ? this.integrate.checkSystemLogin(
+                    company.OrganizationNumber,
+                    this.altinn.SystemID,
+                    password,
+                    this.altinn.Language)
+                    .map(result => result
+                        ? 'Login ok'
+                        : 'Failed to log in with given credentials')
+                : Observable.of('Missing password'))
             .finally(() => this.busy = false)
-            .subscribe((response) => {
-                if (response !== true) {
-                    this.loginErr = 'Failed to log in with given credentials';
-                } else {
-                    this.loginErr = 'Login ok';
-                }
-            }, (err) => {
+            .subscribe((loginError: string) => {
+                this.loginErr = loginError;
+            }
+            , (err) => {
                 this.errorService.handle(err);
                 this.loginErr = err;
             });
-
     }
 
     private getData() {
         Observable.forkJoin(
-            this._altinnService.GetAll(''),
-            this._altinnService.getLayout()).subscribe((response: any) => {
+            this._altinnService
+                .GetAll('')
+                .flatMap((altinn: Altinn[]) =>
+                    altinn.length ? Observable.of(altinn[0]) : this._altinnService.GetNewEntity([], 'altinn')),
+            this._altinnService.getLayout()).subscribe((response: [Altinn, any]) => {
                 let [altinn, layout] = response;
-                if (altinn.length !== 0) {
-                    this.altinn = altinn[0];
-                    this.formConfig = layout.Fields;
-                } else {
-                    this._altinnService.GetNewEntity().subscribe((newAltinn: Altinn) => {
-                        this.altinn = new Altinn();
-                        this.formConfig = layout.Fields;
-                    });
-                }
+                this.altinn = altinn;
+                this.formConfig = this.prepareLayout(layout.Fields, altinn);
             }, err => this.errorService.handle(err));
     }
 
     public saveAltinn(done) {
         this.altinn.Language = this.altinn.Language || '1044'; // Code 1044 == bokmål
-        if (this.altinn.ID) {
-            this._altinnService.Put(this.altinn.ID, this.altinn).subscribe((response: Altinn) => {
+
+        let saveObs = this.altinn.ID
+            ? this._altinnService.Put(this.altinn.ID, this.altinn)
+            : this._altinnService.Post(this.altinn);
+
+        saveObs
+            .flatMap((altinn: Altinn) =>
+                this.altinn.SystemPw
+                    ? this._altinnService
+                        .setPassword(this.altinn.SystemPw)
+                        .map(x => {
+                            altinn.SystemPw = x;
+                            return altinn;
+                        })
+                    : Observable.of(altinn)
+            )
+            .finally(() => this.saveactions[0].disabled = false)
+            .subscribe((response: Altinn) => {
                 this.altinn = response;
+                this.formConfig = this.prepareLayout(this.formConfig, response);
                 this.check();
                 done('altinninnstillinger lagret: ');
-                this.saveactions[0].disabled = false;
             }, error => {
                 this.errorService.handle(error);
-                this.saveactions[0].disabled = false;
+                done('feil ved lagring: ');
             });
-        } else {
-            this._altinnService.Post(this.altinn).subscribe((response: Altinn) => {
-                this.altinn = response;
-                this.check();
-                done('altinninnstillinger lagret: ');
-                this.saveactions[0].disabled = false;
-            }, error => {
-                this.errorService.handle(error);
-                this.saveactions[0].disabled = false;
-            });
-        }
+    }
+
+    private prepareLayout(fields: UniFieldLayout[], altinn: Altinn): UniFieldLayout[] {
+        let field = fields.find(x => x.Property === 'SystemPw');
+        field.Placeholder = altinn['HasPasswordValue'] ? '********' : '';
+        return fields;
     }
 }

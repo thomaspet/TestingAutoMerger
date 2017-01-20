@@ -30,6 +30,24 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         this.inServer = integrate;
     }
 
+    public getPassword(): Observable<string> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=getpassword')
+            .send()
+            .map(response => response.json());
+    }
+
+    public setPassword(password: string): Observable<string> {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=setpassword&password=' + password)
+            .send()
+            .map(response => response.json());
+    }
+
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
