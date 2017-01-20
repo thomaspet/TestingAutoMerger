@@ -69,7 +69,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getLatest() {
-        return super.GetAll(`filter=ID gt 0&top=1&orderBy=ID DESC`).map(resultSet => resultSet[0]);
+        let year = this.getYear();
+        return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
+            .map(resultSet => resultSet[0]);
     }
 
     public getYear(): number {

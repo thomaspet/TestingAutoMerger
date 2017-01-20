@@ -2,8 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
-    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, CompanySettings,
-    FinancialYear
+    CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -21,19 +20,11 @@ import { PreviewModal } from '../../reports/modals/preview/previewModal';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import 'rxjs/add/observable/forkJoin';
 import {
-    PayrollrunService,
-    UniCacheService,
-    SalaryTransactionService,
-    EmployeeService,
-    WageTypeService,
-    ReportDefinitionService,
-    CompanySalaryService,
-    ProjectService,
-    DepartmentService,
-    EmployeeTaxCardService,
-    CompanySettingsService,
-    ErrorService
+    PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
+    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
+    FinancialYearService, ErrorService
 } from '../../../services/services';
+
 declare var _;
 declare var moment;
 
@@ -65,11 +56,11 @@ export class PayrollrunDetails extends UniView {
     private disableFilter: boolean;
     private saveActions: any[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
+    private activeFinancialYear: FinancialYear;
 
     private employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
     private wagetypes: WageType[];
-    private employments: Employment[];
     private projects: Project[];
     private departments: Department[];
 
@@ -88,7 +79,7 @@ export class PayrollrunDetails extends UniView {
         private _projectService: ProjectService,
         private _departmentService: DepartmentService,
         private _employeeTaxCardService: EmployeeTaxCardService,
-        private _companySettingsService: CompanySettingsService
+        private _financialYearService: FinancialYearService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -130,7 +121,11 @@ export class PayrollrunDetails extends UniView {
                     },
                     {
                         title: this.payDate ?
-                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
+                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', 
+                                {
+                                    day: 'numeric', month: 'short', year: 'numeric'
+                                }
+                            )
                             : 'Utbetalingsdato ikke satt'
                     }],
                     navigation: {
@@ -391,19 +386,19 @@ export class PayrollrunDetails extends UniView {
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
                 this._companySalaryService.getCompanySalary(),
-                this._companySettingsService.Get(1)
+                this._financialYearService.getActiveFinancialYearEntity()
             ).subscribe((dataSet: any) => {
-                let [payroll, last, salaries, settings] = dataSet;
+                let [payroll, last, salaries, activeYear] = dataSet;
 
                 this.payrollrun = payroll;
                 this.setDefaults();
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
-                let companysettings: CompanySettings = settings;
+                this.activeFinancialYear = activeYear;
 
                 if (this.payrollrun && this.payrollrun.ID === 0) {
                     this.payrollrun.ID = null;
-                    this.suggestFromToDates(latest, companysalary, companysettings);
+                    this.suggestFromToDates(latest, companysalary);
                 }
 
                 if (this.payrollrun) {
@@ -427,27 +422,26 @@ export class PayrollrunDetails extends UniView {
         this.payrollrun.taxdrawfactor = TaxDrawFactor.Standard;
     }
 
-    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, companysettings: CompanySettings) {
-        const currentYear = companysettings.CurrentAccountingYear;
+    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary) {
         if (!latest) {
             // First payrollrun for the year
             let todate: Date;
-            let fromdate = new Date(currentYear, 0, 1);
+            let fromdate = new Date(this.activeFinancialYear.Year, 0, 1);
             this.payrollrun.FromDate = fromdate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
-                    todate = new Date(currentYear, 0, 14);
+                    todate = new Date(this.activeFinancialYear.Year, 0, 14);
                     this.payrollrun.ToDate = todate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
-                    todate = new Date(currentYear, 0, 7);
+                    todate = new Date(this.activeFinancialYear.Year, 0, 7);
                     this.payrollrun.ToDate = todate;
                     break;
 
                 default: // Monthly
-                    todate = new Date(currentYear, 0, 31);
+                    todate = new Date(this.activeFinancialYear.Year, 0, 31);
                     this.payrollrun.ToDate = todate;
                     break;
             }
@@ -709,7 +703,8 @@ export class PayrollrunDetails extends UniView {
             if (!section.isOpen) {
                 if (section.sectionId === 1 && (!this.payrollrun.Description || this.payrollrun.Description === '')) {
                     this.uniform.section(1).toggle();
-                    this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
+                    this._toastService
+                    .addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
                     this.uniform.field('Description').focus();
                 } else if (this.selectionList) {
                     this.selectionList.focusRow();
@@ -727,7 +722,8 @@ export class PayrollrunDetails extends UniView {
     private saveAll(done: (message: string) => void) {
 
         if (!this.payrollrun.PayDate) {
-            this._toastService.addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
+            this._toastService
+            .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
             this.uniform.field('PayDate').focus();
             done('');
             return;
