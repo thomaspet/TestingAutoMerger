@@ -8,7 +8,7 @@
                 Objektiv
                 <uni-select [config]="objectiveSelectConfig"
                             [items]="objectiveNames"
-                            (valueChange)="onObjectiveSelect($event)">
+                            (valueChange)="onObjectiveSelectForNewSubscription($event)">
                 </uni-select>
             </label>
         </td>
@@ -17,7 +17,7 @@
                 Handling
                 <uni-select [config]="actionSelectConfig"
                             [items]="actionNames"
-                            (valueChange)="onActionSelect($event)">
+                            (valueChange)="onActionSelectForNewSubscription($event)">
                 </uni-select>
             </label>
         </td>
@@ -47,7 +47,7 @@
                 Objektiv
                 <uni-select [config]="objectiveSelectConfig"
                             [items]="objectiveNames"
-                            (valueChange)="onObjectiveSelect(item, $event)"
+                            (valueChange)="onObjectiveSelectForExistingSubscription(item, $event)"
                             [value]="this.getObjectiveName(item.ObjectiveId)">
                 </uni-select>
             </label>
@@ -57,7 +57,7 @@
                 Handling
                 <uni-select [config]="actionSelectConfig"
                             [items]="actionNames"
-                            (valueChange)="onActionSelect(item, $event)"
+                            (valueChange)="onActionSelectForExistingSubscription(item, $event)"
                             [value]="this.getActionName(item.ActionId)">
                 </uni-select>
             </label>

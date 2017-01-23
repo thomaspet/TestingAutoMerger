@@ -33,6 +33,7 @@ import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
 import {UniSearchConfigGeneratorService} from './common/uniSearchConfigGeneratorService';
+import {UmhService} from './common/umhService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -103,7 +104,8 @@ export * from './common/uniSearchConfigGeneratorService';
         BrowserStorageService,
         UniCacheService,
         StaticRegisterService,
-        UniSearchConfigGeneratorService
+        UniSearchConfigGeneratorService,
+        UmhService
     ]
 })
 export class CommonServicesModule {}

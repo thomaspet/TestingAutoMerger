@@ -140,12 +140,40 @@ export class WebHookSettings {
         );
     }
     
-    private onActionSelect(event: string, subscription?: IUmhSubscription) {
-        const action = this.actions.find(o => o.Name === event);
+    private onObjectiveSelectForNewSubscription(event) {
+        var objective = this.objectives.find(o => o.Name === event);
 
-        if (subscription === undefined) {
-            subscription = this.subscription;
+        if (objective !== undefined) {
+            this.subscription.ObjectiveId = objective.id;
+         } else {
+            this.subscription.ObjectiveId = this.noFilter;
         }
+    }
+
+    private onActionSelectForNewSubscription(event) {
+        var action = this.actions.find(o => o.Name === event);
+
+        if (action !== undefined) {
+            this.subscription.ActionId = action.id;
+         } else {
+            this.subscription.ActionId = this.noFilter;
+        }
+    }
+
+    private onObjectiveSelectForExistingSubscription(subscription: IUmhSubscription, event: string) {
+        var objective = this.objectives.find(o => o.Name === event);
+
+        if (objective !== undefined) {
+            subscription.ObjectiveId = objective.id;
+         } else {
+            subscription.ObjectiveId = this.noFilter;
+        }
+
+        this.updateSubscription(subscription);
+    }
+
+    private onActionSelectForExistingSubscription(subscription: IUmhSubscription, event: string) {
+        var action = this.actions.find(o => o.Name === event);
 
         if (action !== undefined) {
             subscription.ActionId = action.id;
@@ -156,22 +184,6 @@ export class WebHookSettings {
         this.updateSubscription(subscription);
     }
 
-
-    private onObjectiveSelect(event: string, subscription?: IUmhSubscription) {
-        const objective = this.objectives.find(o => o.Name === event);
-
-        if (subscription === undefined) {
-            subscription = this.subscription;
-        }
-
-        if (objective !== undefined) {
-            subscription.ObjectiveId = objective.id;
-         } else {
-            subscription.ObjectiveId = this.noFilter;
-        }
-
-        this.updateSubscription(subscription);
-    }
 
     private onToggle(item: IUmhSubscription) {
         item.Enabled = !item.Enabled;
