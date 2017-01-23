@@ -10,8 +10,7 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
-import {routes as SalaryRoutes} from './salaryRoutes';
+import {salaryRoutes} from './salaryRoutes';
 import {UniSalary} from './salary';
 import {AMeldingView} from './amelding/ameldingview';
 import {AmeldingAgaView} from './amelding/ameldingAga/aga';
@@ -78,26 +77,17 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(salaryRoutes),
+
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        // AppServicesModule,
         ReportsModule,
-
-        // routes
-        SalaryRoutes
     ],
     declarations: [
         UniSalary,
@@ -242,5 +232,4 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CategoryDetail
     ]
 })
-export class SalaryModule {
-}
+export class SalaryModule {}

@@ -25,12 +25,40 @@ export const routes = ([
         canActivate: [AuthGuard]
     },
 
-    // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {
-        path: '**',
-        redirectTo: '',
-        pathMatch: 'full'
+        path: 'accounting',
+        loadChildren: './components/accounting/accountingModule#AccountingModule'
     },
+    {
+        path: 'salary',
+        loadChildren: './components/salary/salaryModule#SalaryModule'
+    },
+    {
+        path: 'sales',
+        loadChildren: './components/sales/salesModule#SalesModule'
+    },
+    {
+        path: 'timetracking',
+        loadChildren: './components/timetracking/timetrackingModule#TimetrackingModule'
+    },
+    {
+        path: 'settings',
+        loadChildren: './components/settings/settingsModule#SettingsModule'
+    },
+    {
+        path: 'bank',
+        loadChildren: './components/bank/bankModule#BankModule'
+    }
+
+
+
+
+    // // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
+    // {
+    //     path: '**',
+    //     redirectTo: '',
+    //     pathMatch: 'full'
+    // },
 ]);
 
 export const APP_ROUTES = RouterModule.forRoot(routes);

@@ -8,8 +8,7 @@ import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppServicesModule} from '../../services/servicesModule';
-import {routes as SettingRoutes} from './settingsRoutes';
+import {settingsRoutes} from './settingsRoutes';
 import {Settings} from './settings';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {DimensionList} from './accountSettings/dimensionList/dimensionList';
@@ -34,24 +33,15 @@ import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(settingsRoutes),
+
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
-        // AppServicesModule,
-
-        // Route module
-        SettingRoutes
     ],
     declarations: [
         Settings,

@@ -1,5 +1,4 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 
 import {JournalEntry} from './journalentry/journalentry';
 import {Transquery} from './transquery/transquery';
@@ -25,7 +24,7 @@ export const entityTypeMap: any = {
     'supplierinvoiceitem': 'bill/:id'
 };
 
-export const childRoutes = [
+export const accountingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
@@ -70,19 +69,19 @@ export const childRoutes = [
 ];
 
 
-const accountingRoutes: Routes = [
-    {
-        path: 'accounting',
-        component: UniAccounting,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+// const accountingRoutes: Routes = [
+//     {
+//         path: 'accounting',
+//         component: UniAccounting,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(accountingRoutes);
+// export const routes: ModuleWithProviders = RouterModule.forChild(accountingRoutes);
 

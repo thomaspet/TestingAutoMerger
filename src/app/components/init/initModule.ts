@@ -6,7 +6,6 @@ import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppServicesModule} from '../../services/servicesModule';
 import {routes as InitRoutes} from './initRoutes';
 import {LoginModal} from './loginModal';
 import {UniInit} from './init';
@@ -25,16 +24,11 @@ import {UniFormModule} from 'uniform-ng2/main';
         HttpModule,
         RouterModule,
 
-        // Framework
         UniFrameworkModule,
         UniFormModule,
-
-        // App Modules
         LayoutModule,
         AppCommonModule,
-        // AppServicesModule,
 
-        // Route module
         InitRoutes
     ],
     declarations: [

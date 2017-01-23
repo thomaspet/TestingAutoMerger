@@ -123,7 +123,7 @@ export class EmployeeDetails extends UniView {
     ) {
 
         super(router.url, cacheService);
-
+        console.log('hello from employee.ts');
         this.childRoutes = [
             { name: 'Detaljer', path: 'personal-details' },
             { name: 'Arbeidsforhold', path: 'employments' },
@@ -592,8 +592,8 @@ export class EmployeeDetails extends UniView {
     }
 
     private getEmploymentsObservable(): Observable<Employment[]> {
-        return this.employments 
-        ? Observable.of(this.employments) 
+        return this.employments
+        ? Observable.of(this.employments)
         : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
             .map(employments => {
                 employments
@@ -638,8 +638,8 @@ export class EmployeeDetails extends UniView {
     }
 
     private getWageTypesObservable(): Observable<WageType[]> {
-        return this.wageTypes && this.wageTypes.length 
-        ? Observable.of(this.wageTypes) 
+        return this.wageTypes && this.wageTypes.length
+        ? Observable.of(this.wageTypes)
         : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
     }
 

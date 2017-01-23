@@ -9,7 +9,7 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppServicesModule} from '../../services/servicesModule';
-import {routes as TimetrackingRoutes} from './timetrackingRoutes';
+import {timetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
@@ -31,31 +31,22 @@ import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
-
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(timetrackingRoutes),
+
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
-        // AppServicesModule,
-
-        // Route module
-        TimetrackingRoutes
     ],
     declarations: [
         UniTimetracking,
@@ -81,7 +72,7 @@ import {View as WorkBalancesView} from './worker/balances';
     ],
     providers: [
         Lookupservice,
-
+        CanDeactivateGuard
     ],
     exports: [
         UniTimetracking,

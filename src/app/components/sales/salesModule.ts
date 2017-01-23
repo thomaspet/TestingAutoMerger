@@ -6,7 +6,7 @@ import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {routes as SalesRoutes} from './salesRoutes';
+import {salesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
 import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
@@ -38,13 +38,16 @@ import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
+
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
+
+        RouterModule.forChild(salesRoutes),
 
         // Unitable
         UniTableModule,
@@ -61,7 +64,7 @@ import {TradeItemTable} from './common/tradeItemTable';
         ReportsModule,
 
         // Route module
-        SalesRoutes
+        // SalesRoutes
     ],
     declarations: [
         UniSales,
@@ -97,7 +100,8 @@ import {TradeItemTable} from './common/tradeItemTable';
     ],
     providers: [
         TradeItemHelper,
-        TofHelper
+        TofHelper,
+        CanDeactivateGuard
     ],
     exports: [
         UniSales,

@@ -31,7 +31,7 @@ export const entityTypeMap: any = {
     'customerinvoiceitem': 'invoices/:id',
 };
 
-export const childRoutes = [
+export const salesRoutes: Routes = [
     {
         path: 'customer',
         component: Customer,
@@ -79,18 +79,18 @@ export const childRoutes = [
 
 ];
 
-const salesRoutes: Routes = [
-    {
-        path: 'sales',
-        component: UniSales,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+// const salesRoutes: Routes = [
+//     {
+//         path: 'sales',
+//         component: UniSales,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(salesRoutes);
+// export const routes: ModuleWithProviders = RouterModule.forChild(salesRoutes);

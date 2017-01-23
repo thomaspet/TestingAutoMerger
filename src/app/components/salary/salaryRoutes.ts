@@ -1,5 +1,4 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 
 import {UniSalary} from './salary';
 import {AuthGuard} from '../../authGuard';
@@ -27,7 +26,7 @@ export const entityTypeMap: any = {
     'payrollrun': 'payrollrun/:id'
 };
 
-export const childRoutes = [
+export const salaryRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
@@ -83,18 +82,22 @@ export const childRoutes = [
 ];
 
 
-const salaryRoutes: Routes = [
-    {
-        path: 'salary',
-        component: UniSalary,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+// export const salaryRoutes: Routes = [
+//     {
+//         path: 'salary',
+//         component: UniSalary,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(salaryRoutes);
+// @NgModule({
+//     imports: [RouterModule.forChild(routes)],
+//     exports: [RouterModule]
+// })
+// export const salaryRoutes: ModuleWithProviders = RouterModule.forChild(routes);

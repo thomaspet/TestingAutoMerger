@@ -12,7 +12,7 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 
 // routes
-import {routes as BankRoutes} from './bankRoutes';
+import {bankRoutes} from './bankRoutes';
 
 // specific imports
 import {BankComponent} from './bankComponent';
@@ -22,6 +22,7 @@ import {PaymentBatches} from './payments/paymentBatches';
 import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationModal';
 import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
 import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetails';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
     imports: [
@@ -30,21 +31,14 @@ import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetail
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(bankRoutes),
+
         UniTableModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
-
-        // Route module
-        BankRoutes
-
     ],
     declarations: [
         BankComponent,
@@ -60,6 +54,7 @@ import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetail
         PaymentRelationsTable
     ],
     providers: [
+        CanDeactivateGuard
     ],
     exports: [
         PaymentList,

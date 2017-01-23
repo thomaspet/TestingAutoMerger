@@ -12,10 +12,9 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
-import {routes as AccountingRoutes} from './accountingRoutes';
+import {accountingRoutes} from './accountingRoutes';
 
 // specific imports
 import {UniAccounting} from './accounting';
@@ -56,36 +55,28 @@ import {SalesModule} from '../sales/salesModule';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
-import {TimetrackingModule} from '../timetracking/timetrackingmodule';
+import {TimetrackingModule} from '../timetracking/timetrackingModule';
 import {BillHistoryView} from './bill/detail/history/history';
+
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
     imports: [
-        // Angular modules
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(accountingRoutes),
+
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        // AppServicesModule,
         SettingsModule,
-
-        // Route module
-        AccountingRoutes,
         SalesModule,
         TimetrackingModule
     ],
@@ -142,6 +133,7 @@ import {BillHistoryView} from './bill/detail/history/history';
         AccountDetailsReport
     ],
     providers: [
+        CanDeactivateGuard
     ],
     exports: [
         // journalentry

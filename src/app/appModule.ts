@@ -19,17 +19,13 @@ import 'moment/locale/nb';
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
-import {AccountingModule} from './components/accounting/accountingModule';
+import {UniQueryModule} from './components/uniquery/uniQueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {Dashboard} from './components/dashboard/dashboard';
 import {ExamplesModule} from './components/examples/examplesModule';
 import {ReportsModule} from './components/reports/reportsModule';
-import {UniQueryModule} from './components/uniquery/uniqueryModule';
-import {SalaryModule} from './components/salary/salaryModule';
 import {InitModule} from './components/init/initModule';
-import {SalesModule} from './components/sales/salesModule';
-import {SettingsModule} from './components/settings/settingsModule';
 import {BankModule} from './components/bank/bankModule';
 
 // TODO: REVISIT SERVICES (we probably dont need all to be singletons)
@@ -81,17 +77,10 @@ if (window.ENV === 'production') {
         // COMMON MODULES
         LayoutModule,
         AppCommonModule,
-
-        // APP MODULES
-        AccountingModule,
+        UniQueryModule,
         ExamplesModule,
         ReportsModule,
-        SalaryModule,
         InitModule,
-        SalesModule,
-        SettingsModule,
-        UniQueryModule,
-        BankModule,
     ],
     declarations: [
         App,

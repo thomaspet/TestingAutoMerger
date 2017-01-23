@@ -61,7 +61,7 @@ import {UniReports} from './reports';
         AppCommonModule,
         AppPipesModule,
         // AppServicesModule,
-        UniQueryModule,
+        // UniQueryModule,
 
         // Route module
         ReportRoutes

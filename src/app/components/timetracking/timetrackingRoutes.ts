@@ -1,5 +1,4 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 
 import {WorkerListview} from './worker/workers';
 import {WorkerDetailview} from './worker/worker';
@@ -25,7 +24,7 @@ export const entityTypeMap: any = {
     'worktype': 'worktypes/:id',
 };
 
-export const childRoutes: any = [
+export const timetrackingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
@@ -70,18 +69,18 @@ export const childRoutes: any = [
     }
 ];
 
-const timetrackingRoutes: Routes = [
-    {
-        path: 'timetracking',
-        component: UniTimetracking,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+// const timetrackingRoutes: Routes = [
+//     {
+//         path: 'timetracking',
+//         component: UniTimetracking,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(timetrackingRoutes);
+// export const routes: ModuleWithProviders = RouterModule.forChild(timetrackingRoutes);
