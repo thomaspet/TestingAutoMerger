@@ -36,7 +36,7 @@ import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
-import {TradeItemTable} from './common/tradeitemTable';
+import {TradeItemTable} from './common/tradeItemTable';
 
 @NgModule({
     imports: [

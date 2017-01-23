@@ -4,7 +4,7 @@ import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
 import {PushMapper} from './models/PushMapper';
-import {AppConfig} from './AppConfig';
+import {AppConfig} from './appConfig';
 import {
     UserService,
     ErrorService,

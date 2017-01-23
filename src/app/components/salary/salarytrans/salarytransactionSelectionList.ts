@@ -100,7 +100,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                     let notUpdated = !taxError
                         && rowModel.TaxCards
                         && this.payrollRun
-                        && rowModel.TaxCards[0].Year < new Date(this.payrollRun.PayDate).getFullYear();
+                        && rowModel.TaxCards[0].Year < new Date(<any> this.payrollRun.PayDate).getFullYear();
 
                     if (taxError || accountError || notUpdated) {
                         if (accountError && taxError) {

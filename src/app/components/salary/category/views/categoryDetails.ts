@@ -9,11 +9,9 @@ import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService} from '../../../../services/services';
 
-declare var _; // lodash
-
 @Component({
     selector: 'category-details',
-    templateUrl: 'app/components/salary/category/views/categoryDetails.html'
+    templateUrl: './categoryDetails.html'
 })
 export class CategoryDetail extends UniView {
     private currentCategory: EmployeeCategory;
@@ -65,7 +63,7 @@ export class CategoryDetail extends UniView {
         ).subscribe(
             (response: any) => {
                 let [layout, catOnEmps, catOnPayrolls] = response;
-                
+
                 this.fields = layout.Fields;
                 this.categoriesUsedInEmployees = catOnEmps;
                 this.categoriesUsedInPayrollruns = catOnPayrolls;
@@ -76,7 +74,7 @@ export class CategoryDetail extends UniView {
             err => this.errorService.handle(err)
         );
     }
-    
+
     private setupEmployeesInCategoryConfig() {
         let numberCol = new UniTableColumn('EmployeeNumber', 'Ansattnr', UniTableColumnType.Number);
         numberCol.setWidth('7rem');
@@ -102,6 +100,6 @@ export class CategoryDetail extends UniView {
     }
 
     public toggle(section) {
-        
+
     }
 }

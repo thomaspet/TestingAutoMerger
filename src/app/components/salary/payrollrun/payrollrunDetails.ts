@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
 import { PostingsummaryModal } from './postingsummaryModal';
-import { VacationpayModal } from './vacationpay/VacationpayModal';
+import { VacationpayModal } from './vacationpay/vacationPayModal';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -120,7 +120,7 @@ export class PayrollrunDetails extends UniView {
                     },
                     {
                         title: this.payDate ?
-                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', 
+                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no',
                                 {
                                     day: 'numeric', month: 'short', year: 'numeric'
                                 }

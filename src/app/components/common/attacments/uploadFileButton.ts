@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AppConfig} from '../../../AppConfig';
+import {AppConfig} from '../../../appConfig';
 import {ErrorService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 

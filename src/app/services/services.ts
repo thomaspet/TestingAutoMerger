@@ -3,7 +3,7 @@ export * from './salaryServicesModule';
 export * from './salesServicesModule';
 export * from './commonServicesModule';
 export * from './reportServicesModule';
-export * from './timeTrackingServicesModule';
+export * from './timetrackingServicesModule';
 
 // Accounting
 // export * from './accounting/accountService';

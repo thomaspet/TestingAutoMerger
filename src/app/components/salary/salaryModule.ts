@@ -31,7 +31,7 @@ import {EmployeeList} from './employee/employeeList';
 import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
-import {TaxCardModal, TaxCardModalContent} from './employee/modals/TaxCardModal';
+import {TaxCardModal, TaxCardModalContent} from './employee/modals/taxCardModal';
 import {AltinnResponseModal, AltinnResponseModalContent} from './employee/modals/altinnResponseModal';
 import {ReadTaxCard} from './employee/modals/readTaxCard';
 import {TaxCardRequest} from './employee/modals/taxCardRequest';
@@ -56,7 +56,7 @@ import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 
 import {
-    SalaryTransactionSupplementsModal, 
+    SalaryTransactionSupplementsModal,
     SalaryTransactionSupplementsModalContent
 } from './modals/salaryTransactionSupplementsModal';
 

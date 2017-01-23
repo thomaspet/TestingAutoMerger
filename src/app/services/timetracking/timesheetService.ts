@@ -3,7 +3,7 @@ import {WorkItem, WorkRelation, WorkBalance} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
 import {Observable} from 'rxjs/Rx';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt} from '../../components/timetracking/utils/utils';
-import {Dimension} from '../common/dimensionservice';
+import {Dimension} from '../common/dimensionService';
 import {URLSearchParams} from '@angular/http';
 import * as moment from 'moment';
 
