@@ -95,19 +95,47 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         if (changes['journalEntryLines'] && this.journalEntryLines && this.journalEntryLines.length > 0) {
             // when the journalEntryLines changes, we need to update the sameornew alternatives,
-            // e.g. the items that it is possible to select in the journalentrynumber dropdown
+            // i.e. the items that it is possible to select in the journalentrynumber dropdown
             setTimeout(() => {
                 this.setupSameNewAlternatives();
             });
         }
+
+        // if the disabled input is changed and the table is loaded, reload it (should hide addrow)
+        if (changes['disabled'] && this.table) {
+            this.setupUniTable();
+        }
     }
 
     public setJournalEntryData(data) {
+        // if data is retrieved from the server, the netamount needs to be recalculated
+        if (data) {
+            data.forEach(row => {
+                if (!row.SameOrNewDetails && row.JournalEntryNo) {
+                    row.SameOrNewDetails = { ID: row.JournalEntryNo, Name: row.JournalEntryNo };
+                }
+
+                if (!row.NetAmount) {
+                    this.calculateNetAmount(row);
+                }
+            });
+        }
+
         this.journalEntryLines = data;
 
-        // when the journalEntryLines changes, we need to update the sameornew alternatives,
-        // e.g. the items that it is possible to select in the journalentrynumber dropdown
         setTimeout(() => {
+            if (this.table) {
+                this.table.focusRow(0);
+            } else {
+                setTimeout(() => {
+                    if (this.table) {
+                        this.table.focusRow(0);
+                    }
+                }, 500);
+            }
+
+            // when the journalEntryLines changes, we need to update the sameornew alternatives,
+            // i.e. the items that it is possible to select in the journalentrynumber dropdown
             this.setupSameNewAlternatives();
         });
     }
@@ -245,12 +273,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private setDebitVatTypeProperties(rowModel) {
         let vattype = rowModel.DebitVatType;
-        rowModel.DebitVatTypeID = vattype != null ? vattype.ID : null;
+        rowModel.DebitVatTypeID = vattype ? vattype.ID : null;
     }
 
     private setCreditVatTypeProperties(rowModel) {
         let vattype = rowModel.CreditVatType;
-        rowModel.CreditVatTypeID = vattype != null ? vattype.ID : null;
+        rowModel.CreditVatTypeID = vattype ? vattype.ID : null;
     }
 
     private setProjectProperties(rowModel) {
@@ -505,23 +533,25 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         if (this.defaultVisibleColumns.length > 0) {
-        columns.forEach(col => {
-            if (this.defaultVisibleColumns.find(x => x === col.field)) {
-                col.visible = true;
-            } else {
-                col.visible = false;
-            }
-        });
+            columns.forEach(col => {
+                if (this.defaultVisibleColumns.find(x => x === col.field)) {
+                    col.visible = true;
+                } else {
+                    col.visible = false;
+                }
+            });
         }
 
-        this.journalEntryTableConfig = new UniTableConfig(!this.disabled, false, 100)
+        this.journalEntryTableConfig = new UniTableConfig(true, false, 100)
             .setColumns(columns)
-            .setAutoAddNewRow(true)
+            .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
+            .setIsRowReadOnly((rowModel) => rowModel.JournalEntryID)
             .setContextMenu([
+
                 {
                     action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return this.disabled; },
+                    disabled: (item) => { return (this.disabled || item.JournalEntryID); },
                     label: 'Slett linje'
                 }
             ])
@@ -594,10 +624,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.setupSameNewAlternatives();
 
             if (!this.table) {
-                // if for some reason unitable has not loaded yet, wait 100 ms and try again one last time
+                // if for some reason unitable has not loaded yet, wait 500 ms and try again one last time
                 setTimeout(() => {
-                    this.table.focusRow(0);
-                }, 100);
+                    if (this.table) {
+                        this.table.focusRow(0);
+                    }
+                }, 500);
             } else {
                 this.table.focusRow(0);
             }
@@ -639,38 +671,48 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private setupSameNewAlternatives() {
 
-        if (this.firstAvailableJournalEntryNumber
-            && this.firstAvailableJournalEntryNumber !== ''
-            && this.journalEntryTableConfig
+        if (this.journalEntryTableConfig
             && this.journalEntryTableConfig.columns
             && this.journalEntryTableConfig.columns.length > 0
             && this.journalEntryTableConfig.columns[0].field === 'SameOrNewDetails') {
 
-            this.journalEntryNumberAlternatives = [];
+            if (this.journalEntryID && this.journalEntryLines && this.journalEntryLines.length > 0) {
+                // if this is an existing journalentry, dont allow selecting "new" as an option for journalentryno
+                this.journalEntryNumberAlternatives = [];
+                this.journalEntryNumberAlternatives.push({
+                    ID: this.journalEntryLines[0].JournalEntryNo,
+                    Name: this.journalEntryLines[0].JournalEntryNo
+                });
 
-            let currentRow: any;
+            } else if (this.firstAvailableJournalEntryNumber
+                && this.firstAvailableJournalEntryNumber !== '') {
 
-            // add list of possible numbers from start to end if we have any table data
-            if (this.table) {
-                currentRow = this.table.getCurrentRow();
-                let tableData = this.table.getTableData();
+                this.journalEntryNumberAlternatives = [];
 
-                if (tableData.length > 0) {
-                    let range = this.journalEntryService.findJournalNumbersFromLines(tableData);
-                    if (range) {
-                        this.lastUsedJournalEntryNumber = range.lastNumber;
-                        this.firstAvailableJournalEntryNumber = range.nextNumber;
+                let currentRow: any;
 
-                        for (let i = 0; i <= (range.last - range.first); i++) {
-                            let jn = `${i + range.first}-${range.year}`;
-                            this.journalEntryNumberAlternatives.push({ID: jn, Name: jn});
+                // add list of possible numbers from start to end if we have any table data
+                if (this.table) {
+                    currentRow = this.table.getCurrentRow();
+                    let tableData = this.table.getTableData();
+
+                    if (tableData.length > 0) {
+                        let range = this.journalEntryService.findJournalNumbersFromLines(tableData);
+                        if (range) {
+                            this.lastUsedJournalEntryNumber = range.lastNumber;
+                            this.firstAvailableJournalEntryNumber = range.nextNumber;
+
+                            for (let i = 0; i <= (range.last - range.first); i++) {
+                                let jn = `${i + range.first}-${range.year}`;
+                                this.journalEntryNumberAlternatives.push({ID: jn, Name: jn});
+                            }
                         }
                     }
                 }
-            }
 
-            // new always last one
-            this.journalEntryNumberAlternatives.push(this.newAlternative);
+                // new always last one
+                this.journalEntryNumberAlternatives.push(this.newAlternative);
+            }
 
             // update editor with new options
             this.journalEntryTableConfig.columns[0].editorOptions.resource = this.journalEntryNumberAlternatives;

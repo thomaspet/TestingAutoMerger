@@ -48,7 +48,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private currentJournalEntryData: JournalEntryData;
 
     private financialYears: Array<FinancialYear>;
-    private currentFinancialYear: FinancialYear;
+    public currentFinancialYear: FinancialYear;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
     private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
@@ -59,6 +59,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public journalEntrySettings: JournalEntrySettings;
 
     public saveactions: IUniSaveAction[];
+    public isDirty: boolean = false;
 
     constructor(
         private journalEntryService: JournalEntryService,
@@ -83,24 +84,78 @@ export class JournalEntryManual implements OnChanges, OnInit {
             err => this.errorService.handle(err)
         );
 
+        this.loadData();
+        this.setupSaveConfig();
+
+        this.setSums();
+        this.setupSubscriptions();
+    }
+
+    public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
+        if (changes['supplierInvoice'] || changes['journalEntryID']) {
+            this.loadData();
+            this.setupSaveConfig();
+        } else if (changes['disabled'] || changes['journalEntryID'] || changes['runAsSubComponent']) {
+            this.setupSaveConfig();
+        }
+
+        this.setupSubscriptions();
+    }
+
+    public clearJournalEntryInfo() {
+        this.showImagesForJournalEntryNo = null;
+        this.currentJournalEntryImages = [];
+        this.validationResult = null;
+        this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
+        this.currentJournalEntryData = null;
+        this.accountBalanceInfoData = new Array<AccountBalanceInfo>();
+        this.itemAccountInfoData = new JournalEntryAccountCalculationSummary();
+        this.isDirty = false;
+    }
+
+    private setupSaveConfig() {
+        if (!this.runAsSubComponent) {
+            this.saveactions = [
+                {
+                    label: 'Lagre og bokfør',
+                    action: (completeEvent) => this.postJournalEntryData(completeEvent),
+                    main: true,
+                    disabled: this.disabled
+                },
+                {
+                    label: 'Slett alle bilag i listen',
+                    action: (completeEvent) => this.removeJournalEntryData(completeEvent),
+                    main: false,
+                    disabled: this.disabled
+                }
+            ];
+        }
+    }
+
+    public loadData() {
+        this.clearJournalEntryInfo();
+
         if (this.supplierInvoice) {
             this.mode = JournalEntryMode.Supplier;
-
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.setJournalEntryData(data);
                 }, err => this.errorService.handle(err));
         } else if (this.journalEntryID > 0) {
-            this.mode = JournalEntryMode.JournalEntryView;
-
+            this.disabled = true;
             this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
                 .subscribe((data: Array<JournalEntryData>) => {
                     this.setJournalEntryData(data);
+                    this.calculateItemSums(data);
                 }, err => this.errorService.handle(err));
         } else {
+            this.disabled = false;
+
             let data = this.journalEntryService.getSessionData(this.mode);
 
             if (data && data.length > 0) {
+                this.isDirty = true;
+
                 // if we have any unsaved data in our sessionStorage, show this data. This needs to happen after a setTimeout
                 // to let Angular create the child components first
                 setTimeout(() => {
@@ -118,28 +173,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         this.validateJournalEntryData(data);
                     }
                 });
+            } else {
+                this.setJournalEntryData([]);
             }
         }
-
-        if (!this.runAsSubComponent) {
-            this.saveactions = [
-                {
-                    label: 'Lagre og bokfør',
-                    action: (completeEvent) => this.postJournalEntryData(completeEvent),
-                    main: true,
-                    disabled: false
-                },
-                {
-                    label: 'Slett alle bilag i listen',
-                    action: (completeEvent) => this.removeJournalEntryData(completeEvent),
-                    main: false,
-                    disabled: false
-                }
-            ];
-        }
-
-        this.setSums();
-        this.setupSubscriptions();
     }
 
     public setJournalEntryMode(newMode: string) {
@@ -198,6 +235,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private onFileListReady(files) {
+        if (this.journalEntryID > 0) {
+            // don't look for changes if this is a presaved journalentry - we wont
+            // persist the changes anyway, it this analysis could cause incorrect
+            // dirty checking if the API is slow or the user really fast
+            return;
+        }
+
         let fileIds: number[] = [];
 
         files.forEach(file => {
@@ -236,6 +280,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
 
         if (didChangeAnything) {
+            this.isDirty = true;
+
             // something was updated, update datasource for unitable
             this.setJournalEntryData(data);
 
@@ -251,6 +297,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public addJournalEntryData(data: JournalEntryData) {
         data.SameOrNew = '1';
+        this.isDirty = true;
 
         if (this.journalEntryProfessional) {
             this.journalEntryProfessional.addJournalEntryLine(data);
@@ -275,10 +322,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
         } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.setJournalEntryData(lines);
         }
-    }
-
-    public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        this.setupSubscriptions();
     }
 
     private setupSubscriptions() {
@@ -308,6 +351,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryService.setSessionData(this.mode, null);
             return;
         }
+
+        this.isDirty = true;
 
         if (this.currentJournalEntryData) {
             let updatedCurrentJournalEntryData = data.find(x => x['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
@@ -444,16 +489,24 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     );
                     completeCallback('Lagring avbrutt');
                 } else {
-                    this.journalEntrySimple.postJournalEntryData(completeCallback);
+                    this.journalEntrySimple.postJournalEntryData((result: string) => {
+                        completeCallback(result);
+                        this.clearJournalEntryInfo();
+                    });
                 }
             } else if (this.journalEntryProfessional) {
-                this.journalEntryProfessional.postJournalEntryData(completeCallback);
+                this.journalEntryProfessional.postJournalEntryData((result: string) => {
+                    completeCallback(result);
+                    this.clearJournalEntryInfo();
+                });
                 this.onShowImageForJournalEntry(null);
             }
         });
     }
 
     private removeJournalEntryData(completeCallback) {
+        this.clearJournalEntryInfo();
+
         if (this.journalEntrySimple) {
             this.journalEntrySimple.removeJournalEntryData(completeCallback);
         } else if (this.journalEntryProfessional) {

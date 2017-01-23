@@ -320,14 +320,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     public calculateJournalEntryAccountSummaryLocal(journalDataEntries: Array<JournalEntryData>, accountBalances: Array<AccountBalanceInfo>, currentLine: JournalEntryData): JournalEntryAccountCalculationSummary {
 
         let sum: JournalEntryAccountCalculationSummary = {
-            debitAccount: currentLine.DebitAccount,
+            debitAccount: currentLine ? currentLine.DebitAccount : null,
             debitOriginalBalance: 0,
             debitNetChange: 0,
             debitNetChangeCurrentLine: 0,
             debitIncomingVatCurrentLine: 0,
             debitOutgoingVatCurrentLine: 0,
             debitNewBalance: 0,
-            creditAccount: currentLine.CreditAccount,
+            creditAccount: currentLine ? currentLine.CreditAccount : null,
             creditOriginalBalance: 0,
             creditNetChange: 0,
             creditNetChangeCurrentLine: 0,
@@ -337,6 +337,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         };
 
         let accountsToCheck: Array<number> = [];
+
+        if (!currentLine) {
+            return sum;
+        }
 
         // get opening balance for the debit / credit account, and set the currentline net change
         if (currentLine.DebitAccount) {
@@ -354,8 +358,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             } else {
                 sum.debitNetChangeCurrentLine += currentLine['Amount'];
             }
-
-
 
             accountsToCheck.push(currentLine.DebitAccount.ID);
         }
@@ -597,6 +599,20 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             nextNumber: `${last + (journalEntryLines.length ? 1 : 0)}-${year}`,
             lastNumber: `${last}-${year}`
         };
+    }
+
+    public getPreviousJournalEntry(journalEntryYear, journalEntryNumber): Observable<any> {
+        let filterNumber = journalEntryNumber ? `and JournalEntryNumberNumeric lt ${journalEntryNumber}` : '';
+
+        return this.statisticsService.GetAll(`model=JournalEntry&select=ID,JournalEntryNumber as JournalEntryNumber,JournalEntryNumberNumeric&orderby=JournalEntryNumberNumeric desc&top=1&expand=FinancialYear&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`)
+            .map(data => data.Data);
+    }
+
+    public getNextJournalEntry(journalEntryYear, journalEntryNumber): Observable<any> {
+        let filterNumber = journalEntryNumber ? `and JournalEntryNumberNumeric gt ${journalEntryNumber}` : '';
+
+        return this.statisticsService.GetAll(`model=JournalEntry&select=ID,JournalEntryNumber as JournalEntryNumber,JournalEntryNumberNumeric&orderby=JournalEntryNumberNumeric asc&top=1&expand=FinancialYear&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`)
+            .map(data => data.Data);
     }
 }
 
