@@ -26,11 +26,11 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     }
 
     public registerCustomerPaymentFile(file: File): Observable<any> {
-        return super.PutAction(null, 'register-ocr-giro-file', `fileID=${file.ID}`);
+        return super.PutAction(null, 'register-customer-payment-file', `fileID=${file.ID}`);
     }
 
     public completeCustomerPayment(paymentBatchID: number) {
-        return super.PutAction(null, 'complete-ocr-payment-registration', `ID=${paymentBatchID}`);
+        return super.PutAction(null, 'complete-customer-payment-registration', `ID=${paymentBatchID}`);
     }
 
     public getStatusText(statusCode: number, isCustomerPayment: boolean): string {

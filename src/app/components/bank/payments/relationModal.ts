@@ -31,7 +31,7 @@ export class PaymentRelationsTable implements OnInit {
         private statisticsService: StatisticsService,
         private toastService: ToastService,
         private errorService: ErrorService
-    ) {}
+    ) { }
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
@@ -59,6 +59,8 @@ export class PaymentRelationsTable implements OnInit {
                     .setTemplate(data => {
                         if (data.TracelinkSourceEntityName === 'SupplierInvoice') {
                             return `<a href='/#/accounting/bill/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
+                        } else if (data.TracelinkSourceEntityName === 'CustomerInvoice') {
+                            return `<a href='/#/sales/invoices/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
                         } else {
                             return data.TracelinkSourceEntityName;
                         }
