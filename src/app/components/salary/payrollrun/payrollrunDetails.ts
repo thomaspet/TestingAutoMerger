@@ -63,6 +63,7 @@ export class PayrollrunDetails extends UniView {
     private wagetypes: WageType[];
     private projects: Project[];
     private departments: Department[];
+    private detailsActive: Boolean = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -121,12 +122,17 @@ export class PayrollrunDetails extends UniView {
                     },
                     {
                         title: this.payDate ?
-                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', 
+                            'Utbetales ' + this.payDate.toLocaleDateString('no',
                                 {
                                     day: 'numeric', month: 'short', year: 'numeric'
                                 }
                             )
                             : 'Utbetalingsdato ikke satt'
+                    },
+                    {
+                        title: 'Detaljer',
+                        classname: this.detailsActive ? 'entityDetails_toggle -is-active' : 'entityDetails_toggle',
+                        event: this.toggleDetailsView.bind(this)
                     }],
                     navigation: {
                         prev: this.previousPayrollrun.bind(this),
@@ -271,6 +277,34 @@ export class PayrollrunDetails extends UniView {
                 }
             }
         });
+    }
+
+    public toggleDetailsView(setValue?: boolean): void {
+
+        if (this.detailsActive && !this.payrollrun.Description) {
+            this._toastService.addToast('Beskrivelse mangler',
+                ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
+            return;
+        }
+
+        if (setValue !== undefined) {
+            this.detailsActive = setValue;
+        } else {
+            this.detailsActive = !this.detailsActive;
+        }
+
+        if (this.payrollrun && !this.detailsActive && this.selectionList) {
+            this.selectionList.focusRow();
+        }
+
+        let _toolbarconfig = this.toolbarconfig,
+            _subhead = _toolbarconfig.subheads[_toolbarconfig.subheads.length - 1];
+        if (this.detailsActive) {
+            _subhead.classname = 'entityDetails_toggle -is-active';
+        } else {
+            _subhead.classname = 'entityDetails_toggle';
+        }
+        this.toolbarconfig = _toolbarconfig;
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -542,9 +576,7 @@ export class PayrollrunDetails extends UniView {
                     this.payrollrunID = 0;
                     this.payDate = null;
                     this.router.navigateByUrl(this.url + this.payrollrun.ID);
-                    if (!this.uniform.section(1).isOpen) {
-                        this.uniform.section(1).toggle();
-                    }
+                    this.toggleDetailsView(true);
                 },
                     err => this.errorService.handle(err));
             }
@@ -581,7 +613,6 @@ export class PayrollrunDetails extends UniView {
                     .subscribe((previous) => {
                         if (previous) {
                             this.payrollrun = previous;
-                            this.setSection();
                             this.router.navigateByUrl(this.url + previous.ID);
                         }
                     }, err => this.errorService.handle(err));
@@ -599,7 +630,6 @@ export class PayrollrunDetails extends UniView {
             .subscribe((next) => {
                 if (next) {
                     this.payrollrun = next;
-                    this.setSection();
                     this.router.navigateByUrl(this.url + next.ID);
                 }
             }, err => this.errorService.handle(err));
@@ -688,34 +718,8 @@ export class PayrollrunDetails extends UniView {
         this.fields = _.cloneDeep(this.fields);
     }
 
-    private setSection() {
-        if (this.payrollrun) {
-            if (!this.payrollrun.Description && !this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
-            } else if (this.payrollrun.Description && this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
-            }
-        }
-    }
-
-    public toggle(section) {
-        if (this.payrollrun) {
-            if (!section.isOpen) {
-                if (section.sectionId === 1 && (!this.payrollrun.Description || this.payrollrun.Description === '')) {
-                    this.uniform.section(1).toggle();
-                    this._toastService
-                    .addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
-                    this.uniform.field('Description').focus();
-                } else if (this.selectionList) {
-                    this.selectionList.focusRow();
-                }
-            }
-        }
-    }
-
     public ready(value) {
         this.setEditMode();
-        this.setSection();
         this.formIsReady = true;
     }
 
@@ -735,7 +739,6 @@ export class PayrollrunDetails extends UniView {
             .flatMap((payrollRun: PayrollRun) => {
 
                 this.payrollrun = payrollRun;
-                this.setSection();
                 super.updateState('payrollRun', this.payrollrun, false);
 
                 if (!this.payrollrunID) {

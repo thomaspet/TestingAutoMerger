@@ -9,16 +9,14 @@
     </section>
 
 </header>
-<section class="application" [attr.aria-busy]="busy">
+
+<section class="entityDetails" [attr.aria-busy]="busy" [attr.aria-expanded]="detailsActive">
     <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="payrollrun" (changeEvent)="change($event)" (readyEvent)="ready($event)" (toggleEvent)="toggle($event)"></uni-form>
 </section>
-<section *ngIf="formIsReady && uniform">
-    <section [attr.aria-busy]="busy" [hidden]="uniform.section(1).isOpen">
-        <section class="salarytrans-filter">
-            <salarytrans-filter [isDisabled]="disableFilter" (filtStringChange)="changeFilter($event)"></salarytrans-filter>
-        </section>
-        <salarytrans></salarytrans>
-    </section>
+
+<section class="content" [attr.aria-disabled]="detailsActive">
+    <!--<salarytrans-filter [isDisabled]="disableFilter" (filtStringChange)="changeFilter($event)"></salarytrans-filter>-->
+    <salarytrans></salarytrans>
 </section>
 <report-preview-modal></report-preview-modal>
 <uni-confirm-modal></uni-confirm-modal>

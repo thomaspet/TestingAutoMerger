@@ -7,7 +7,7 @@ import {ErrorService} from '../../common/ErrorService';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
-    
+
     public payStatusTable: any = [
         {ID: null, text: 'Opprettet'},
         {ID: 0, text: 'Opprettet'},
@@ -18,7 +18,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         {ID: 5, text: 'Bokført'},
         {ID: 6, text: 'Slettet'}
     ];
-    
+
     constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
@@ -38,7 +38,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             return super.Get(id);
         }
     }
-      
+
     public getStatus(payrollRun: PayrollRun) {
         if (payrollRun) {
             return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
@@ -87,7 +87,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public controlPayroll(ID) {
         return this.http
             .asPUT()
@@ -96,7 +96,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public resetSettling(ID: number) {
         return this.http
         .asPUT()
@@ -105,7 +105,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         .send()
         .map(response => response.json());
     }
-    
+
     public getPaymentList(ID: number) {
         return this.http
             .usingBusinessDomain()
@@ -114,7 +114,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send({action: 'paymentlist'})
             .map(response => response.json());
     }
-    
+
     public getPostingsummary(ID: number) {
         return this.http
             .asGET()
@@ -123,7 +123,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send()
             .map(response => response.json());
     }
-    
+
     public postTransactions(ID: number) {
         return this.http
             .asPUT()
@@ -150,7 +150,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withBody(payList)
             .send();
     }
-    
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -165,17 +165,17 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldType: FieldType.TEXT,
                     ReadOnly: true,
                     LookupField: false,
-                    Label: 'Nr',
+                    Label: 'Nummer',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: 'La stå tom for neste ledige',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: 'DETALJER',
                     hasLineBreak: false,
+                    Classes: 'payrollDetails_ID',
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -197,11 +197,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
+                    Classes: 'payrollDetails_description',
                     Legend: '',
                     hasLineBreak: false,
                     Validations: [
@@ -225,13 +226,41 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
                     hasLineBreak: true,
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'payrollrun',
+                    Property: 'taxdrawfactor',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Skattetrekk',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: null,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Classes: 'payrollDetails_taxdrawfactor',
+                    Legend: '',
+                    Options: {
+                        source: [
+                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'},
+                            {Indx: TaxDrawFactor.Half, Name: 'Halv skatt'},
+                            {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
+                        displayProperty: 'Name',
+                        valueProperty: 'Indx'
+                    }
                 },
                 {
                     ComponentLayoutID: 1,
@@ -246,11 +275,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
+                    Classes: 'payrollDetails_payDate',
                     Legend: '',
                     hasLineBreak: false,
                     Validations: [
@@ -279,11 +309,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
+                    Classes: 'payrollDetails_fromDate',
                     Legend: '',
                     hasLineBreak: false,
                     Validations: [
@@ -312,11 +343,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
+                    Classes: 'payrollDetails_toDate',
                     Legend: '',
                     hasLineBreak: true,
                     Validations: [
@@ -335,33 +367,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'taxdrawfactor',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Skattetrekk',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    Options: {
-                        source: [
-                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'}, 
-                            {Indx: TaxDrawFactor.Half, Name: 'Halv skatt'},
-                            {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
-                        displayProperty: 'Name',
-                        valueProperty: 'Indx'
-                    }
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'payrollrun',
                     Property: '',
                     Placement: 3,
                     Hidden: true,
@@ -372,7 +377,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
@@ -380,7 +385,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     hasLineBreak: true,
                     Options: {
                         source: [
-                            {Indx: 0, Name: 'Vanlig'}, 
+                            {Indx: 0, Name: 'Vanlig'},
                             {Indx: 1, Name: 'Ferielønn (+1/26)'},
                             {Indx: 2, Name: 'Ferielønn (-1/26)'},
                             {Indx: 1, Name: 'Ferielønn (-4/26)'},
@@ -414,12 +419,14 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
+                    Classes: 'payrollDetails_excludeRecurringPosts',
                     Legend: '',
+
                     hasLineBreak: false,
                     Validations: [
                         {
@@ -447,11 +454,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
+                    Classes: 'payrollDetails_holidayPayDeduction',
                     Legend: '',
                     hasLineBreak: false
                 },
@@ -468,7 +476,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -501,13 +509,13 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: null,
                     Placeholder: null,
                     Options: null,
-                    LineBreak: null,
+                    LineBreak: true,
                     Combo: null,
-                    Legend: '',
-                    Classes: 'half-width'
+                    Classes: 'payrollDetails_freeText',
+                    Legend: ''
                 },
             ]
         }]);
