@@ -199,7 +199,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Property: '_lastUpdated',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    FieldType: FieldType.DATE_TIME_PICKER,
                     ReadOnly: true,
                     LookupField: false,
                     Label: 'Sist oppdatert',
