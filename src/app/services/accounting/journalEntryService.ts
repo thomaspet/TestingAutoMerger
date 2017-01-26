@@ -161,7 +161,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         sortedJournalEntries.forEach(entry => {
             if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                if (currentSumDebit !== currentSumCredit * -1) {
+                if (this.round(currentSumDebit, 2) !== this.round(currentSumCredit * -1, 2)) {
                     let message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
                     message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
@@ -207,17 +207,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
             }
 
-            if (entry.DebitAccount) {
-                currentSumCredit += entry.Amount;
+            if ((entry.DebitAccount && entry.CreditAccount)
+                || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)) {
+                currentSumDebit += entry.Amount;
             }
-            if (entry.CreditAccount) {
+
+            if ((entry.DebitAccount && entry.CreditAccount)
+                || (!entry.DebitAccount && entry.CreditAccount)) {
                 currentSumCredit -= entry.Amount;
+            } else if (entry.DebitAccount && !entry.CreditAccount && entry.Amount < 0) {
+                currentSumCredit += entry.Amount;
             }
 
             lastJournalEntryFinancialDate = entry.FinancialDate;
         });
 
-        if (currentSumDebit !== currentSumCredit * -1) {
+        if (this.round(currentSumDebit, 2) !== this.round(currentSumCredit * -1, 2)) {
             let message = new ValidationMessage();
             message.Level = ValidationLevel.Error;
             message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
@@ -225,6 +230,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         return result;
+    }
+
+    private round(value, decimals) {
+        return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
 
     public validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {

@@ -10,7 +10,7 @@ export class AccountService extends BizHttp<Account> {
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 
-        //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..               
+        //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..
         this.relativeURL = Account.RelativeUrl;
 
         this.entityType = Account.EntityType;
@@ -22,7 +22,7 @@ export class AccountService extends BizHttp<Account> {
     public searchAccounts(filter: string, top: number = 500) {
         filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
 
-        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter} &orderby=AccountNumber&expand=VatType&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID`)
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter} &orderby=AccountNumber&expand=VatType&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
     }
@@ -37,6 +37,8 @@ export class AccountService extends BizHttp<Account> {
             account.AccountNumber = data.AccountAccountNumber;
             account.AccountName = data.AccountAccountName;
             account.VatTypeID = data.VatTypeID;
+            account.CustomerID = data.AccountCustomerID;
+            account.SupplierID = data.AccountSupplierID;
 
             if (data.VatTypeID) {
                 account.VatType = new VatType();
@@ -55,7 +57,7 @@ export class AccountService extends BizHttp<Account> {
         return accounts;
     }
 
-    /*    
+    /*
      //if you need something special that is not supported by the base class, implement your own
      //method - either using the Get/Post/Put/Remove methods in the base class or by using the
      //base class' http-service directly

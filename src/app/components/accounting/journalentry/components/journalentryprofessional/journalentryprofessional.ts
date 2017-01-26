@@ -2,10 +2,12 @@ import {Component, ViewChild, OnInit, OnChanges, SimpleChanges, Input, Output, E
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear} from '../../../../../unientities';
+import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, Payment, BusinessRelation, BankAccount} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
+import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
 import {
     VatTypeService,
     AccountService,
@@ -14,7 +16,8 @@ import {
     ProjectService,
     CustomerInvoiceService,
     CompanySettingsService,
-    ErrorService
+    ErrorService,
+    StatisticsService
 } from '../../../../../services/services';
 
 declare const _;
@@ -38,7 +41,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public currentFinancialYear: FinancialYear;
 
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+
     private journalEntryTableConfig: UniTableConfig;
+    private paymentModalValueChanged: any;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -50,6 +57,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
+    private companySettings: CompanySettings;
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -72,7 +80,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private customerInvoiceService: CustomerInvoiceService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private statisticsService: StatisticsService
     ) {
 
     }
@@ -154,14 +163,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.projects = data[1];
                 this.vattypes = data[2];
 
-                let companySettings: CompanySettings = null;
                 if (data[4]) {
-                    companySettings = data[4][0];
+                    this.companySettings = data[4][0];
                 }
-                if (companySettings && companySettings[0]
-                    && companySettings[0].CompanyBankAccount
-                    && companySettings[0].CompanyBankAccount.Account) {
-                    this.defaultAccountPayments = companySettings[0].CompanyBankAccount.Account;
+                if (this.companySettings
+                    && this.companySettings.CompanyBankAccount
+                    && this.companySettings.CompanyBankAccount.Account) {
+                    this.defaultAccountPayments = this.companySettings.CompanyBankAccount.Account;
                 } else {
                     if (data[3]) {
                         this.defaultAccountPayments = data[3];
@@ -548,11 +556,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setMultiRowSelect(false)
             .setIsRowReadOnly((rowModel) => rowModel.JournalEntryID)
             .setContextMenu([
-
                 {
                     action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.JournalEntryID); },
+                    disabled: (item) => { return (this.disabled || item.StatusCode); },
                     label: 'Slett linje'
+                },
+                {
+                    action: (item) => this.addPayment(item),
+                    disabled: (item) => { return (this.disabled); },
+                    label: 'Registrer utbetaling'
                 }
             ])
             .setDefaultRowData(defaultRowData)
@@ -659,14 +671,141 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private deleteLine(line) {
-        if (confirm('Er du sikker på at du vil slette linjen?')) {
-            this.table.removeRow(line._originalIndex);
+        this.confirmModal.confirm(
+            'Er du sikker på at du vil slette linjen?',
+            'Bekreft sletting',
+            false,
+            {accept: 'Slett linjen', reject: 'Avbryt'}
+        )
+        .then((response: ConfirmActions) => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.table.removeRow(line._originalIndex);
 
-            setTimeout(() => {
-                var tableData = this.table.getTableData();
-                this.dataChanged.emit(tableData);
+                setTimeout(() => {
+                    var tableData = this.table.getTableData();
+                    this.dataChanged.emit(tableData);
+                });
+            }
+        });
+    }
+
+    private addPayment(item: JournalEntryData) {
+        let title: string = 'Legg til betaling';
+        let payment: Payment = null;
+        if (item.JournalEntryPaymentData && item.JournalEntryPaymentData.PaymentData) {
+            payment = item.JournalEntryPaymentData.PaymentData;
+            title = 'Endre betaling';
+            this.addPaymentModal.openModal(payment, title);
+        } else {
+            // generate suggestion for payment based on accounts used in item
+            payment = new Payment();
+            payment.Amount = item.Amount;
+
+            new Promise((resolve) => {
+                // try to set businessrelation based on selected accounts
+                if ((item.DebitAccount && item.DebitAccount.CustomerID)
+                    || (item.CreditAccount && item.CreditAccount.CustomerID)) {
+
+                    let customerID = item.DebitAccount && item.DebitAccount.CustomerID
+                                        ? item.DebitAccount.CustomerID
+                                        : item.CreditAccount.CustomerID;
+
+                    // get businessrelation and default account based on customerid
+                    this.statisticsService.GetAll(`model=Customer&expand=Info.DefaultBankAccount&filter=Customer.ID eq ${customerID}&select=DefaultBankAccount.ID as DefaultBankAccountID,DefaultBankAccount.AccountNumber as DefaultBankAccountAccountNumber,Info.Name as BusinessRelationName,Info.ID as BusinessRelationID`)
+                        .map(data => data.Data ? data.Data : [])
+                        .subscribe(brdata => {
+                            if (brdata && brdata.length > 0) {
+                                let br = brdata[0];
+                                payment.BusinessRelationID = br.BusinessRelationID;
+                                payment.BusinessRelation = this.getBusinessRelationDataFromStatisticsSearch(br);
+                                resolve();
+                            }
+
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                } else if ((item.DebitAccount && item.DebitAccount.SupplierID)
+                    || (item.CreditAccount && item.CreditAccount.SupplierID)) {
+                    let supplierID = item.DebitAccount && item.DebitAccount.SupplierID
+                                        ? item.DebitAccount.SupplierID
+                                        : item.CreditAccount.SupplierID;
+
+                    // get businessrelation and default account based on supplierid
+                    this.statisticsService.GetAll(`model=Supplier&expand=Info.DefaultBankAccount&filter=Supplier.ID eq ${supplierID}&select=DefaultBankAccount.ID as DefaultBankAccountID,DefaultBankAccount.AccountNumber as DefaultBankAccountAccountNumber,Info.Name as BusinessRelationName,Info.ID as BusinessRelationID`)
+                        .map(data => data.Data ? data.Data : [])
+                        .subscribe(brdata => {
+                            if (brdata && brdata.length > 0) {
+                                let br = brdata[0];
+                                payment.BusinessRelationID = br.BusinessRelationID;
+                                payment.BusinessRelation = this.getBusinessRelationDataFromStatisticsSearch(br);
+                                resolve();
+                            }
+
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                } else {
+                    // no businessrelation could be set based on account - continue to the other fields
+                    resolve();
+                }
+            }).then(() => {
+                // set default account if we found a businessrelation based on the accounts specified
+                if (payment.BusinessRelation) {
+                    payment.ToBankAccount = payment.BusinessRelation.DefaultBankAccount;
+                    payment.ToBankAccountID = payment.BusinessRelation.DefaultBankAccountID;
+                }
+
+                // set default fromaccount based on companysettings
+                if (this.companySettings) {
+                    payment.FromBankAccount = this.companySettings.CompanyBankAccount;
+                    payment.FromBankAccountID = this.companySettings.CompanyBankAccountID;
+                }
+
+                // we dont know what date to use, so just set the items financial date a suggestion
+                payment.PaymentDate = item.FinancialDate;
+                payment.DueDate = item.FinancialDate;
+
+                this.addPaymentModal.openModal(payment, title);
+
+                if (this.paymentModalValueChanged) {
+                    this.paymentModalValueChanged.unsubscribe();
+                }
+
+                this.paymentModalValueChanged = this.addPaymentModal.Changed.subscribe(modalval => {
+                    if (!item.JournalEntryPaymentData) {
+                        item.JournalEntryPaymentData = {
+                            PaymentData: modalval
+                        };
+                    } else {
+                        item.JournalEntryPaymentData.PaymentData = modalval;
+                    }
+
+                    // if the item is already booked, just add the payment through the API now
+                    /* if (item.StatusCode) {
+                        this.journalEntryService.LEGGTILBETALING()
+                        DETTE GJØRES MÅ GJØRES I NESTE SPRINT, TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
+                        https://github.com/unimicro/AppFramework/issues/2536
+                    }
+                    */
+                    this.table.updateRow(item['_originalIndex'], item);
+                });
             });
         }
+    }
+
+    private getBusinessRelationDataFromStatisticsSearch(statisticsdata): BusinessRelation {
+        let br = new BusinessRelation();
+        br.ID = statisticsdata.BusinessRelationID;
+        br.Name = statisticsdata.BusinessRelationName;
+        br.DefaultBankAccountID = statisticsdata.DefaultBankAccountID;
+
+        if (statisticsdata.DefaultBankAccountID) {
+            br.DefaultBankAccount = new BankAccount();
+            br.DefaultBankAccount.ID = statisticsdata.DefaultBankAccountID;
+            br.DefaultBankAccount.AccountNumber = statisticsdata.DefaultBankAccountAccountNumber;
+        }
+
+        return br;
     }
 
     private setupSameNewAlternatives() {
