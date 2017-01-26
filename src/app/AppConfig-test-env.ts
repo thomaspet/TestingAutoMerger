@@ -1,15 +1,15 @@
 export const AppConfig = ({
-    BASE_URL_INIT: 'https://pilot-api.unieconomy.no',
+    BASE_URL_INIT: 'https://test-api.unieconomy.no',
 
-    BASE_URL: 'https://pilot-api.unieconomy.no',
+    BASE_URL: 'https://test-api.unieconomy.no',
 
-    BASE_URL_INTEGRATION: 'https://pilot-integration.unieconomy.no/',
+    BASE_URL_INTEGRATION: 'https://test-integration.unieconomy.no/',
 
-    BASE_URL_FILES: 'https://pilot-unifiles.unieconomy.no/',
+    BASE_URL_FILES: 'http://test-unifiles.unieconomy.no/',
 
     UNI_PUSH_ADAPTER_URL: null,
 
-    UNI_MESSAGE_HUB_URL: 'https://pilot-unimessagehub.unieconomy.no',
+    UNI_MESSAGE_HUB_URL: 'https://test-unimessagehub.unieconomy.no/',
 
     API_DOMAINS: {
         INIT: '/api/init/',

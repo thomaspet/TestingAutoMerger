@@ -128,6 +128,20 @@ var tasks = {
         'system.config',
         'ts-source'
     ],
+    testEnv: [
+        'app-config-test-env',
+        'index.html.dev',
+        'apidoc.html',
+        'angular2',
+        'dependencies',
+        'stimulsoft',
+        'onesignal',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config',
+        'ts-source'
+    ],
     local: [
         'app-config-local',
         'index.html.dev',
@@ -189,6 +203,10 @@ gulp.task('build.dev', function(done) {
 
 gulp.task('build.pilot', function(done) {
     runSequence(tasks.pilot, done);
+});
+
+gulp.task('build.test.env', function(done) {
+    runSequence(tasks.testEnv, done);
 });
 
 gulp.task('build.dev.watch', function(done) {

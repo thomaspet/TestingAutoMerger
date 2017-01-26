@@ -10,6 +10,7 @@
         "build.dev": "gulp build.dev",
         "build.prod": "gulp build.prod",
         "build.pilot": "gulp build.pilot",
+        "build.test.env": "gulp build.test.env",
         "clean": "gulp clean.all"
     },
     "dependencies": {
