@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../framework/core/http/BizHttp';
-import { FinancialYear, Company, CompanySettings } from '../../unientities';
-import { CompanySettingsService, ErrorService } from '../services';
+import { FinancialYear, CompanySettings } from '../../unientities';
+import { ErrorService } from '../services';
+import { CompanySettingsService } from '../common/companySettingsService';
 import { UniHttp } from '../../../framework/core/http/http';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 
