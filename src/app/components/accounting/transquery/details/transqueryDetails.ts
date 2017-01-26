@@ -80,7 +80,7 @@ export class TransqueryDetails implements OnInit {
         // setup unitable and router parameter subscriptions
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYearEntity()
+            this.financialYearService.getActiveFinancialYear()
         ).subscribe(data => {
             this.financialYears = data[0];
             this.activeFinancialYear = data[1];

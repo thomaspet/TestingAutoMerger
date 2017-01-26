@@ -420,7 +420,7 @@ export class PayrollrunDetails extends UniView {
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
                 this._companySalaryService.getCompanySalary(),
-                this._financialYearService.getActiveFinancialYearEntity()
+                this._financialYearService.getActiveFinancialYear()
             ).subscribe((dataSet: any) => {
                 let [payroll, last, salaries, activeYear] = dataSet;
 

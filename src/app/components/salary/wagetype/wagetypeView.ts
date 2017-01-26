@@ -171,7 +171,7 @@ export class WageTypeView extends UniView {
     }
 
     private checkValidYearAndCreateNew() {
-        this.financialYearService.getActiveFinancialYearEntity()
+        this.financialYearService.getActiveFinancialYear()
             .subscribe((financialYear: FinancialYear) => {
                 if (this.wageType.ValidYear !== financialYear.Year) {
                 this.wageType.ID = 0;

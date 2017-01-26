@@ -414,7 +414,7 @@ export class BillSimpleJournalEntryView {
 
     private initYear() {
         var fc: FinancialYear;
-        fc = this.financialYearService.getActiveFinancialYearInLocalstorage();
+        fc = this.financialYearService.getYearInLocalStorage();
 
         if (fc) {
             this.financialYears = [fc];

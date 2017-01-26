@@ -76,7 +76,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYearEntity()
+            this.financialYearService.getActiveFinancialYear()
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];

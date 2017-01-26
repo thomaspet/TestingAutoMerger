@@ -60,7 +60,7 @@ export class AccountReportFilterForm implements OnInit {
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
-        this.yearService.getActiveFinancialYear().subscribe(res=> {
+        this.yearService.getActiveYear().subscribe(res=> {
         this.model.PeriodAccountYear=res;
         })
     }
