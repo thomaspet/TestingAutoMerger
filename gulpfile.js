@@ -62,7 +62,7 @@ require('./gulp/stimulsoft');
 /**
  * copy onesignal to dist folder
  */
-require('./gulp/onesignal');
+// require('./gulp/onesignal');
 
 /**
  *  copy assets to dist folder
@@ -108,7 +108,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -121,7 +121,21 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config',
+        'ts-source'
+    ],
+    testEnv: [
+        'app-config-test-env',
+        'index.html.dev',
+        'apidoc.html',
+        'angular2',
+        'dependencies',
+        'stimulsoft',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -135,7 +149,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -148,7 +162,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -162,7 +176,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -189,6 +203,10 @@ gulp.task('build.dev', function(done) {
 
 gulp.task('build.pilot', function(done) {
     runSequence(tasks.pilot, done);
+});
+
+gulp.task('build.test.env', function(done) {
+    runSequence(tasks.testEnv, done);
 });
 
 gulp.task('build.dev.watch', function(done) {

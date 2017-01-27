@@ -17,6 +17,6 @@ gulp.task('watch.html', function(done){
 });
 
 gulp.task('watch', function() {
-    gulp.watch(['./src/**/*.ts', './src/**/*.html'], ['watch.ts']);
-    gulp.watch('./src/styles/**/*.sass', ['watch.sass']);
+    gulp.watch(['./src/**/*.ts', './src/**/*.html'], { interval: 500 }, ['watch.ts']);
+    gulp.watch('./src/styles/**/*.sass', { interval: 500 }, ['watch.sass']);
 });

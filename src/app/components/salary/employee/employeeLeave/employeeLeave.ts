@@ -2,10 +2,8 @@ import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Employment, Employee, EmployeeLeave} from '../../../../unientities';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {UniCacheService} from '../../../../services/services';
-
+import {UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'employee-permision',
@@ -14,6 +12,7 @@ import {ErrorService} from '../../../../services/common/ErrorService';
 })
 export class EmployeeLeaves extends UniView {
     private employee: Employee;
+    private employeeID: number;
     private employments: Employment[] = [];
     private employeeleaveItems: EmployeeLeave[] = [];
     private tableConfig: UniTableConfig;
@@ -36,14 +35,16 @@ export class EmployeeLeaves extends UniView {
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
 
+            this.employeeID = +paramsChange['id'];
+
             super.getStateSubject('employee')
                 .subscribe(
-                    employee => this.employee = employee, 
+                    employee => this.employee = employee,
                     err => this.errorService.handle(err)
                 );
             super.getStateSubject('employeeLeave')
                 .subscribe(
-                    employeeleave => this.employeeleaveItems = employeeleave, 
+                    employeeleave => this.employeeleaveItems = employeeleave,
                     err => this.errorService.handle(err)
                 );
 
@@ -102,7 +103,7 @@ export class EmployeeLeaves extends UniView {
                 }
             });
 
-        this.tableConfig = new UniTableConfig()
+        this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
             .setDeleteButton(true)
             .setColumns([
                 fromDateCol, toDateCol, leavePercentCol,

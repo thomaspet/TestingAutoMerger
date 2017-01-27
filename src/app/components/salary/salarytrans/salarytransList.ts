@@ -1,4 +1,3 @@
-import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -9,11 +8,11 @@ import {
 } from '../../../unientities';
 import {
     SalaryTransactionService, AccountService,
-    ReportDefinitionService, UniCacheService
+    ReportDefinitionService, UniCacheService,
+    ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
-import { ErrorService } from '../../../services/common/ErrorService';
 
 import { UniView } from '../../../../framework/core/uniView';
 declare var _;
@@ -52,7 +51,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private deleteButton: IDeleteButton;
 
     constructor(
-        private salarytransService: SalaryTransactionService,
+        private wageTypeService: WageTypeService,
         private router: Router,
         private route: ActivatedRoute,
         private numberFormat: NumberFormat,
@@ -401,7 +400,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private getRate(rowModel: SalaryTransaction) {
-        return this.salarytransService
+        return this.wageTypeService
             .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
     }
 

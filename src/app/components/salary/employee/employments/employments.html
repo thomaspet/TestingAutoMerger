@@ -1,4 +1,4 @@
-<section class="splitview" *ngIf="employments">
+<section class="splitview">
     <nav class="splitview_list">
         <uni-table [config]="tableConfig" [resource]="employments" (rowSelected)="onRowSelected($event)"></uni-table>
         <button (click)="newEmployment()" [disabled]="employee?.ID === 0">
@@ -6,7 +6,7 @@
         </button>
         <br><small *ngIf="employee?.ID === 0">Ansatt må lagres før arbeidsforhold kan registreres</small>
     </nav>
-    <main class="splitview_detail">
+    <main class="splitview_detail" *ngIf="employments">
         <employment-details [employment]="employments[selectedIndex]"
                             [subEntities]="subEntities"
                             [projects]="projects"

@@ -2,7 +2,7 @@ import {Component, AfterViewInit, QueryList, ViewChildren, Type, Output, EventEm
 import {UniModal} from '../../../../framework/modals/modal';
 import {ActivatedRoute} from '@angular/router';
 import {PostingsummaryModalContent} from './postingsummaryModalContent';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'postingsummary-modal',

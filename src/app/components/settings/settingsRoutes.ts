@@ -7,6 +7,7 @@ import {Users} from './users/users';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {Settings} from "./settings";
 import {AuthGuard} from "../../authGuard";
+import {WebHookSettings} from './webHookSettings/webHookSettings';
 
 export const childRoutes: Routes = [
     {
@@ -21,6 +22,10 @@ export const childRoutes: Routes = [
     {
         path: 'aga-and-subentities',
         component: AgaAndSubEntitySettings
+    },
+    {
+        path: 'webhooks',
+        component: WebHookSettings
     },
     {
         path: 'user',

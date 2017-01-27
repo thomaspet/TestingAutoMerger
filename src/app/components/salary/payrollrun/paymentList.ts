@@ -1,10 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {PayrollrunService} from '../../../services/services';
+import {PayrollrunService, ErrorService} from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionPay, SalaryTransactionPayLine} from '../../../unientities';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'payrollrun-paymentlist',

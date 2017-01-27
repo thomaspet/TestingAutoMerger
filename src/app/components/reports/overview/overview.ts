@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../../unientities';
-import {ReportDefinitionService, UniQueryDefinitionService} from '../../../services/services';
+import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../../services/services';
 import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
@@ -14,7 +14,6 @@ import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportF
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Rx';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 class ReportCategory {
     public name: string;

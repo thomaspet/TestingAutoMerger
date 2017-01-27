@@ -3,8 +3,7 @@ import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
-import {DepartmentService} from '../../../../../services/common/DepartmentService';
-import {ErrorService} from '../../../../../services/common/ErrorService';
+import {DepartmentService, ErrorService} from '../../../../../services/services';
 
 @Component({
     selector: 'department-dimensions-list',

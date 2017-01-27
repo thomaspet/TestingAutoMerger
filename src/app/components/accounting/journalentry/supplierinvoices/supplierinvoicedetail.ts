@@ -1,7 +1,6 @@
 import {Component, Input, OnInit, ViewChild, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, ProjectService, DepartmentService} from '../../../../services/services';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {JournalEntryData} from '../../../../models/models';
 import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType, Project, Department} from '../../../../unientities';
@@ -14,7 +13,15 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    ErrorService,
+    SupplierInvoiceService,
+    SupplierService,
+    BankAccountService,
+    JournalEntryService,
+    ProjectService,
+    DepartmentService
+} from '../../../../services/services';
 
 declare var moment;
 declare const _;

@@ -1,14 +1,18 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {StatisticsService, PaymentBatchService, FileService} from '../../../services/services';
 import {Payment, PaymentCode, File, PaymentBatch} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
-import {ErrorService} from '../../../services/common/ErrorService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {
+    ErrorService,
+    StatisticsService,
+    PaymentBatchService,
+    FileService
+} from '../../../services/services';
 
 declare const moment;
 declare const saveAs; // filesaver.js

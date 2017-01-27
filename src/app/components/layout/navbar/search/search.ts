@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
 

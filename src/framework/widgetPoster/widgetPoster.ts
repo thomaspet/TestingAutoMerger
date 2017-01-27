@@ -1,7 +1,6 @@
 import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { UniHttp } from '../core/http/http';
-import { UserService, NumberFormat } from '../../app/services/services';
-import {ErrorService} from '../../app/services/common/ErrorService';
+import { UserService, NumberFormat, ErrorService } from '../../app/services/services';
 declare var Chart;
 
 @Component({

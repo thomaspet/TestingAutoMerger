@@ -17,6 +17,8 @@ export const AppConfig = ({
 
     UNI_PUSH_ADAPTER_URL: 'https://unipushadapter.azurewebsites.net',
 
+    UNI_MESSAGE_HUB_URL: 'https://devunimessagehub-unieconomy.azurewebsites.net',
+
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',

@@ -1,14 +1,10 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-
 import {Observable} from 'rxjs/Observable';
-
 import {Employee} from '../../../unientities';
-
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {EmployeeService} from '../../../services/services';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {EmployeeService, ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'employee-list',
@@ -34,7 +30,7 @@ export class EmployeeList {
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
 
         var emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail', 'Epost').setTemplate((employee: Employee) => {
-            
+
             if (!employee.BusinessRelationInfo || !employee.BusinessRelationInfo.DefaultEmail || !employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
                 return '';
             }

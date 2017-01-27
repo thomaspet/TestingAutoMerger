@@ -1,15 +1,16 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {JournalEntryService, StatisticsService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableConfig, UniTableColumnType, UniTable} from 'unitable-ng2/main';
 import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodReportPart';
-import {Account, JournalEntryLine, JournalEntry} from '../../../../unientities';
+import {JournalEntryLine, JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
-import {DimensionService} from '../../../../services/common/DimensionService';
-import {ErrorService} from '../../../../services/common/ErrorService';
-
+import {
+    StatisticsService,
+    DimensionService,
+    ErrorService
+} from '../../../../services/services';
 declare const moment;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 

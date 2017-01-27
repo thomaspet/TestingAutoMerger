@@ -2,16 +2,21 @@ import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
-import {SupplierInvoiceService, IStatTotal} from '../../../services/Accounting/SupplierinvoiceService';
-import {SettingsService, ViewSettings} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {safeInt} from '../../timetracking/utils/utils';
-import {ErrorService} from '../../../services/common/ErrorService';
-import {PageStateService} from '../../../services/common/PageStateService';
+
+import {
+    SettingsService,
+    ViewSettings,
+    SupplierInvoiceService,
+    IStatTotal,
+    ErrorService,
+    PageStateService
+} from '../../../services/services';
 
 declare const moment;
 

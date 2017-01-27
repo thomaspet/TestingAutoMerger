@@ -1,13 +1,11 @@
 import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {AltinnReceipt} from '../../../../../app/unientities';
-import {AltinnReceiptService, EmployeeService} from '../../../../../app/services/services';
+import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../../app/services/services';
 import {AltinnResponseModal} from './altinnResponseModal';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 declare var _; // lodash
 @Component({

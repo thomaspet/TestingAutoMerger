@@ -1,12 +1,15 @@
 import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {AccountGroupService, StatisticsService} from '../../../../services/services';
-import {DimensionService} from '../../../../services//common/DimensionService';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    AccountGroupService,
+    StatisticsService,
+    ErrorService,
+    DimensionService
+} from '../../../../services/services';
 
 declare const moment;
 declare const _; // lodash

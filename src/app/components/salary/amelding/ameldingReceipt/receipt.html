@@ -31,6 +31,18 @@
                         <th>Stillingskode</th>
                         <td>{{periodeavvik.yrke}}</td>
                     </tr>
+                    <tr *ngIf="periodeavvik.beloep">
+                        <th>Beløp</th>
+                        <td>{{periodeavvik.beloep}}</td>
+                    </tr>
+                    <tr *ngIf="periodeavvik.loennsinntektBeskrivelse">
+                        <th>Lønnsinntekt beskrivelse</th>
+                        <td>{{periodeavvik.loennsinntektBeskrivelse}}</td>
+                    </tr>
+                    <tr *ngIf="periodeavvik.fordel">
+                        <th>Fordel</th>
+                        <td>{{periodeavvik.fordel}}</td>
+                    </tr>
                     <tr>
                         <th>Detaljer</th>
                         <td colspan="3">{{periodeavvik.detaljer}}</td>
@@ -40,7 +52,7 @@
         </section>
     </ul>
 
-    <h1>Leveranser (a-meldinger)</h1>
+    <h1 *ngIf="mottattLeveranserIPerioden.length > 0">Leveranser (a-meldinger)</h1>
 
-    <uni-table [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
+    <uni-table *ngIf="mottattLeveranserIPerioden.length > 0" [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
 </section>

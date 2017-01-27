@@ -2,16 +2,18 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom
+    TaxType, StdWageType, GetRateFrom, FinancialYear
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { WageTypeService, UniCacheService } from '../../../services/services';
+import { WageTypeService, UniCacheService, ErrorService, FinancialYearService } from '../../../services/services';
 import { ToastService } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { ErrorService } from '../../../services/common/ErrorService';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+
+import { Observable } from 'rxjs/Observable';
 declare var _; // lodash
 
 @Component({
@@ -29,6 +31,7 @@ export class WageTypeView extends UniView {
     private toolbarConfig: IToolbarConfig;
 
     private childRoutes: any[];
+    @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -37,7 +40,8 @@ export class WageTypeView extends UniView {
         private router: Router,
         private tabService: TabService,
         public cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private financialYearService: FinancialYearService
     ) {
 
         super(router.url, cacheService);
@@ -74,21 +78,7 @@ export class WageTypeView extends UniView {
                     }
                 };
 
-                if (this.wageType.WageTypeNumber) {
-                    this.tabService.addTab({
-                        name: 'Lønnsartnr. ' + this.wageType.WageTypeNumber,
-                        url: this.url + this.wageType.ID,
-                        moduleID: UniModules.Wagetypes,
-                        active: true
-                    });
-                } else {
-                    this.tabService.addTab({
-                        name: 'Ny lønnsart',
-                        url: this.url + this.wagetypeID,
-                        moduleID: UniModules.Wagetypes,
-                        active: true
-                    });
-                }
+                this.updateTabStrip(this.wagetypeID, this.wageType);
 
                 this.checkDirty();
             }, err => this.errorService.handle(err));
@@ -111,12 +101,52 @@ export class WageTypeView extends UniView {
 
     }
 
+    public canDeactivate(): Observable<boolean> {
+        return Observable
+            .of(!super.isDirty())
+            .flatMap(result => {
+                return result
+                    ? Observable.of(result)
+                    : Observable
+                        .fromPromise(
+                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
+                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+            })
+            .map(canDeactivate => {
+                canDeactivate
+                    ? this.cacheService.clearPageCache(this.cacheKey)
+                    : this.updateTabStrip(this.wagetypeID, this.wageType);
+
+                return canDeactivate;
+            });
+    }
+
+    private updateTabStrip(wagetypeID, wageType: WageType) {
+        if (wageType.WageTypeNumber) {
+            this.tabService.addTab({
+                name: 'Lønnsartnr. ' + wageType.WageTypeNumber,
+                url: this.url + wageType.ID,
+                moduleID: UniModules.Wagetypes,
+                active: true
+            });
+        } else {
+            this.tabService.addTab({
+                name: 'Ny lønnsart',
+                url: this.url + wagetypeID,
+                moduleID: UniModules.Wagetypes,
+                active: true
+            });
+        }
+    }
+
     private saveWageType(done: (message: string) => void) {
 
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
         }
         
+        this.checkValidYearAndCreateNew();
+
         this.wageType.SupplementaryInformations.forEach(supplement => {
             if (supplement['_setDelete']) {
                 supplement['Deleted'] = true;
@@ -138,6 +168,21 @@ export class WageTypeView extends UniView {
                 done('Lagring feilet');
                 this.errorService.handle(error);
             });
+    }
+
+    private checkValidYearAndCreateNew() {
+        this.financialYearService.getActiveFinancialYear()
+            .subscribe((financialYear: FinancialYear) => {
+                if (this.wageType.ValidYear !== financialYear.Year) {
+                this.wageType.ID = 0;
+                this.wageType.ValidYear = financialYear.Year;
+                
+                this.wageType.SupplementaryInformations.forEach(supplement => {
+                    supplement.ID = 0;
+                    supplement.WageTypeID = 0;
+                });
+            }
+        });
     }
 
     private checkDirty() {
@@ -170,50 +215,51 @@ export class WageTypeView extends UniView {
     }
 
     public previousWagetype() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-
-        // TODO: should use BizHttp.getPreviousID() instead
-        this.wageTypeService.getPrevious(this.wageType.ID)
-            .subscribe((prev: WageType) => {
-                if (prev) {
-                    this.wageType = prev;
-                    let childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
-                }
-            }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                // TODO: should use BizHttp.getPreviousID() instead
+                this.wageTypeService.getPrevious(this.wageType.ID)
+                    .subscribe((prev: WageType) => {
+                        if (prev) {
+                            this.wageType = prev;
+                            let childRoute = this.router.url.split('/').pop();
+                            this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+                        }
+                    }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     public nextWagetype() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-        // TODO: should use BizHttp.getNextID() instead
-        this.wageTypeService.getNext(this.wageType.ID)
-            .subscribe((next: WageType) => {
-                if (next) {
-                    this.wageType = next;
-                    let childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
-                }
-            }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                // TODO: should use BizHttp.getNextID() instead
+                this.wageTypeService.getNext(this.wageType.ID)
+                    .subscribe((next: WageType) => {
+                        if (next) {
+                            this.wageType = next;
+                            let childRoute = this.router.url.split('/').pop();
+                            this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+                        }
+                    }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     public newWagetype() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-
-        this.wageTypeService.GetNewEntity().subscribe((response) => {
-            if (response) {
-                this.wageType = response;
-                if (this.wageType.ID === 0) {
-                    this.setDefaultValues();
-                }
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.wageTypeService.GetNewEntity().subscribe((response) => {
+                    if (response) {
+                        this.wageType = response;
+                        if (this.wageType.ID === 0) {
+                            this.setDefaultValues();
+                        }
+                        let childRoute = this.router.url.split('/').pop();
+                        this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
+                    }
+                }, err => this.errorService.handle(err));
             }
-        }, err => this.errorService.handle(err));
+        });
     }
 }

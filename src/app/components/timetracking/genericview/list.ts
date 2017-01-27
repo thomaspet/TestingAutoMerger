@@ -5,7 +5,7 @@ import {UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 
 
 export interface IViewConfig {
@@ -50,7 +50,7 @@ export class GenericListView {
         private errorService: ErrorService
     ) {
     }
-    
+
 
     public ngOnInit() {
         if (this.viewconfig) {

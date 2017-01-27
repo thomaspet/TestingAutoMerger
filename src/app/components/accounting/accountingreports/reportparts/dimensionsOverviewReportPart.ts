@@ -1,12 +1,15 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, StatisticsService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {DimensionService, DimensionTypes} from '../../../../services/common/DimensionService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    StatisticsService,
+    ErrorService,
+    DimensionService,
+    DimensionTypes
+} from '../../../../services/services';
 
 declare const moment;
 declare const _; // lodash

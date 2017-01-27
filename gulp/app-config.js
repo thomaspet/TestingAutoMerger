@@ -26,3 +26,9 @@ gulp.task('app-config-pilot', function() {
         .pipe(rename('AppConfig.ts'))
         .pipe(gulp.dest(DIST, {overwrite: true}));
 });
+
+gulp.task('app-config-test-env', function() {
+    return gulp.src('./src/app/AppConfig-test-env.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest(DIST, {overwrite: true}));
+});

@@ -4,7 +4,7 @@ import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../.
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 
 @Component({
     selector: 'balance-general-ledger-filter-form',
@@ -47,7 +47,7 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
-        this.yearService.getActiveFinancialYear().subscribe(res => {
+        this.yearService.getActiveYear().subscribe(res => {
             this.model.PeriodAccountYear = res;
         });
 

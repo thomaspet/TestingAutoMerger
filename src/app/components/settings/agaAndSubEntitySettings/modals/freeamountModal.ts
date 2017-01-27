@@ -1,11 +1,10 @@
 import { Component, AfterViewInit, ViewChild, Type, Input } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
-import { GrantService, SubEntityService } from '../../../../services/services';
+import { GrantService, SubEntityService, ErrorService } from '../../../../services/services';
 import { FieldType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'freeamount-modal-content',

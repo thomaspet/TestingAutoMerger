@@ -5,7 +5,7 @@ import {ReportDefinitionParameterService, FinancialYearService} from '../../../.
 import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout} from 'uniform-ng2/main';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 
 declare var _; // lodash
 @Component({
@@ -53,7 +53,7 @@ export class PostingJournalReportFilterForm implements OnInit {
 
     public ngOnInit() {
         this.fields = this.getComponentFields();
-        this.yearService.getActiveFinancialYear().subscribe(res => {
+        this.yearService.getActiveYear().subscribe(res => {
             this.model.PeriodAccountYear = res;
         });
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {

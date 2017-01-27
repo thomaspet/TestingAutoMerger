@@ -1,12 +1,13 @@
 import {Component, ViewChild, Input, OnChanges} from '@angular/core';
-import {StatisticsService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
 import {Account, JournalEntryLine} from '../../../../unientities';
-import {DimensionService} from '../../../../services//common/DimensionService';
-import {ErrorService} from '../../../../services/common/ErrorService';
-
+import {
+    StatisticsService,
+    DimensionService,
+    ErrorService
+} from '../../../../services/services';
 declare const moment;
 
 export class DistributionPeriodData {

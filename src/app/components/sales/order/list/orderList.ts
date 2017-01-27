@@ -3,14 +3,13 @@ import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
+import {CustomerOrderService, ReportDefinitionService, ErrorService} from '../../../../services/services';
 import {CustomerOrder, StatusCodeCustomerOrder} from '../../../../unientities';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../../services/common/ErrorService';
 import moment from 'moment';
 
 declare var jQuery;

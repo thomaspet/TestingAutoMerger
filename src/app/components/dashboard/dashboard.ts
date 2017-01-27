@@ -2,7 +2,7 @@ import {Component, EventEmitter} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
-import {ErrorService} from '../../services/common/ErrorService';
+import {ErrorService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
 import {Company} from '../../unientities';
 

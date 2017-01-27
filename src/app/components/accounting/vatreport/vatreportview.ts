@@ -2,15 +2,11 @@ import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {
     CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
     VatReportSummaryPerPost, VatReportNotReportedJournalEntryData, AltinnSigning, StatusCodeAltinnSigning
 } from '../../../unientities';
-import {VatReportService} from '../../../services/Accounting/VatReportService';
-import {AltinnAuthenticationService} from '../../../services/services';
 import {Observable, Subscription} from 'rxjs/Rx';
-import {VatTypeService} from '../../../services/Accounting/VatTypeService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
@@ -20,7 +16,13 @@ import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {PeriodDateFormatPipe} from '../../../pipes/PeriodDateFormatPipe';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    ErrorService,
+    VatReportService,
+    AltinnAuthenticationService,
+    VatTypeService,
+    CompanySettingsService
+} from '../../../services/services';
 
 declare const moment;
 
@@ -64,7 +66,7 @@ export class VatReportView implements OnInit, OnDestroy {
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
-    
+
         this.contextMenuItems = [
             {
                 label: 'Vis tidligere MVA meldinger',
@@ -80,7 +82,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 subheads: [
                     {
                         title: vatReport.Title + ', ' + this.periodDateFormat.transform(vatReport.TerminPeriod)
-                    }         
+                    }
                 ],
                 statustrack: this.getStatustrackConfig(),
                 navigation: {
@@ -88,7 +90,7 @@ export class VatReportView implements OnInit, OnDestroy {
                     next: this.onForwardPeriod.bind(this),
                 },
                 contextmenu: this.contextMenuItems
-            };            
+            };
         } /* No error handling necessary, can't produce errors */);
     }
 

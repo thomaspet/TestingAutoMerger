@@ -114,6 +114,10 @@ export class UniCompanyDropdown {
             err => this.errorService.handle(err)
         );
 
+        this.financialYearService.lastSelectedYear$.subscribe(year => {
+            this.activeYear = year;
+        });
+
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
         this.companyDropdownActive = false;
 
@@ -144,22 +148,7 @@ export class UniCompanyDropdown {
                 this.companySettings = res[0];
                 this.financialYears = res[1];
 
-                const cachedYear = localStorage.getItem('activeFinancialYear');
-                if (cachedYear) {
-                    const parsed = JSON.parse(cachedYear);
-                    this.activeYear = parsed;
-                } else {
-                    const fromCompanySettings = this.financialYears.find((year) => {
-                        return year.Year === this.companySettings.CurrentAccountingYear;
-                    });
-
-                    this.activeYear = fromCompanySettings || this.financialYears[this.financialYears.length - 1];
-                }
-
-                this.cdr.markForCheck();
-                if (this.activeYear) {
-                    localStorage.setItem('activeFinancialYear', JSON.stringify(this.activeYear));
-                }
+                this.cdr.markForCheck(); // not sure where this should be
             },
             err => this.errorService.handle(err)
         );
@@ -176,7 +165,7 @@ export class UniCompanyDropdown {
     private yearSelected(selectedYear: FinancialYear): void {
         this.close();
         this.activeYear = selectedYear;
-        localStorage.setItem('activeFinancialYear', JSON.stringify(selectedYear));
+        this.financialYearService.setActiveYear(selectedYear);
     }
 
     private close() {

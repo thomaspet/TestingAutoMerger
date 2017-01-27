@@ -1,8 +1,5 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-
-import {SupplierInvoiceService, AccountService, JournalEntryService} from '../../../../services/services';
-
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
@@ -10,13 +7,15 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-
 import {SupplierInvoice, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    ErrorService,
+    SupplierInvoiceService,
+    JournalEntryService
+} from '../../../../services/services';
 
 declare const moment;
-
 
 @Component({
     selector: 'supplier-invoice-list',
@@ -154,7 +153,7 @@ export class SupplierInvoiceList implements OnInit {
             .setTemplate((data: SupplierInvoice) => {return data.Dimensions && data.Dimensions.Department ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name : ''; });
         let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')
             .setTemplate((data: SupplierInvoice) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
-    
+
 
         //TODO: Skal denne vises?
         //const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)

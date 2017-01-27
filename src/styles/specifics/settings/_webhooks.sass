@@ -1,0 +1,50 @@
+
+.webhookTable
+    width: 100%
+    table-layout: fixed
+    border-collapse: separate
+    cursor: pointer
+    margin-top: 1rem
+    border-spacing: 20px 5px;
+
+.webhookTable td.col1
+    width: 20%
+
+.webhookTable td.col2
+    width: 20%
+
+.webhookTable td.col3
+    width: 25%
+
+.webhookTable td.col4
+    width: 20%
+
+.webhookTable td.col5
+    width: 15%
+
+.webhookTable td.col5a
+    padding-top: 1.5rem
+    padding-left: 0
+
+.webhookTable td.col5b
+    width: 1rem
+    padding-top: 1.3rem
+    padding-left: 0
+
+.webhookTable button.delete-webhook
+    width: 100%
+    margin: 0 0 0 0
+    padding: 0 0 0 0
+    background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
+    background-size: 0.9rem    
+    box-shadow: none
+    height: 1em
+  
+.webhookTable tr:hover button.delete-webhook
+    background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
+    background-size: 0.8rem  
+    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
+
+.webhookTable button.new-webhook
+    @extend .good
+    margin-top: 2rem

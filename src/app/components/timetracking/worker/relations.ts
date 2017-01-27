@@ -6,7 +6,7 @@ import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {ChangeMap} from '../utils/changeMap';
 import {Observable} from 'rxjs/Rx';
 import {IResult} from '../genericview/detail';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'workrelations',
@@ -72,7 +72,7 @@ export class View {
     }
 
     public onRegisterHours() {
-        this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId=' 
+        this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId='
         + this.currentRelation.ID );
     }
 
@@ -100,7 +100,7 @@ export class View {
     public saveChanges(parentID: number): Promise<IResult> {
         return new Promise((resolve, reject) => {
             var result = this.save(parentID);
-            if (result === null) { 
+            if (result === null) {
                 resolve({success: true});
             }
             result.subscribe( results => {
@@ -113,7 +113,7 @@ export class View {
     }
 
     private save(parentID: number): Observable<any> {
-        
+
         var items = this.changeMap.getValues();
         if (items.length > 0) {
             items.forEach( item => item.WorkerID = parentID );
@@ -161,7 +161,7 @@ export class View {
                 if (items.length > 0) {
                     this.onItemClicked(items[0]);
                 }
-                this.busy = false; 
+                this.busy = false;
             }, err => this.errorService.handle(err));
         } else {
             this.items.length = 0;
@@ -178,12 +178,12 @@ export class View {
             formFields: [
                 createFormField('WorkPercentage', 'Prosent',  ControlTypes.NumericInput),
                 createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, FieldSize.Double
-                    , false, 0, undefined, undefined, this.getComboOptions()),                
+                    , false, 0, undefined, undefined, this.getComboOptions()),
                 createFormField('CompanyName', 'Firmanavn',  ControlTypes.TextInput),
                 createFormField('Description', 'Beskrivelse',  ControlTypes.TextInput, FieldSize.Double),
                 createFormField('StartDate', 'Startdato',  ControlTypes.LocalDate ),
                 createFormField('EndTime', 'Sluttdato',  ControlTypes.LocalDate ),
-                createFormField('IsActive', 'Aktiv',  ControlTypes.CheckboxInput )                
+                createFormField('IsActive', 'Aktiv',  ControlTypes.CheckboxInput )
             ],
         };
 
@@ -193,10 +193,10 @@ export class View {
     private getComboOptions(): any {
         return {
                 source: this.workerService.getWorkProfiles(),
-                template: (obj) => `${obj.ID} - ${obj.Name}`, 
+                template: (obj) => `${obj.ID} - ${obj.Name}`,
                 valueProperty: 'ID',
                 displayProperty: 'Name',
                 debounceTime: 250,
-            };        
-    }     
+            };
+    }
 }

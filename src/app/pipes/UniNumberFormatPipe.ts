@@ -1,6 +1,5 @@
-import {NumberFormat} from './../services/common/NumberFormatService';
 import {Pipe, PipeTransform} from '@angular/core';
-import {ErrorService} from '../services/common/ErrorService';
+import {ErrorService, NumberFormat} from '../services/services';
 
 declare const moment;
 

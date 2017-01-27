@@ -55,13 +55,21 @@ import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
 import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 
-import {SalaryTransactionSupplementsModal, SalaryTransactionSupplementsModalContent} from './modals/salaryTransactionSupplementsModal';
+import {
+    SalaryTransactionSupplementsModal, 
+    SalaryTransactionSupplementsModalContent
+} from './modals/salaryTransactionSupplementsModal';
 
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WageTypeLimitValues} from './wagetype/views/wagetypeLimitValues';
 import {WagetypeList} from './wagetype/wagetypeList';
+
+import {CategoryList} from './category/categoryList';
+import {CategoryView} from './category/categoryView';
+import {CategoryDetail} from './category/views/categoryDetails';
+
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
@@ -148,7 +156,12 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WagetypeDetail,
         WagetypeList,
         WageTypeSettings,
-        WageTypeLimitValues
+        WageTypeLimitValues,
+
+        // Category
+        CategoryList,
+        CategoryView,
+        CategoryDetail
     ],
     entryComponents: [
         TaxCardModalContent,
@@ -221,7 +234,12 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WagetypeDetail,
         WagetypeList,
         WageTypeSettings,
-        WageTypeLimitValues
+        WageTypeLimitValues,
+
+        // Category
+        CategoryList,
+        CategoryView,
+        CategoryDetail
     ]
 })
 export class SalaryModule {

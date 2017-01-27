@@ -1,27 +1,36 @@
-import { NumberFormat } from './../../../services/common/NumberFormatService';
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear
+    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear,
+    WageType
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import {
-    EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
-    SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService,
-    FinancialYearService
-} from '../../../services/services';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
-
-
 import { UniView } from '../../../../framework/core/uniView';
-import { ErrorService } from '../../../services/common/ErrorService';
 import { TaxCardModal } from './modals/taxCardModal';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import {
+    EmployeeService,
+    EmploymentService,
+    EmployeeLeaveService,
+    DepartmentService,
+    ProjectService,
+    SalaryTransactionService,
+    UniCacheService,
+    SubEntityService,
+    EmployeeTaxCardService,
+    ErrorService,
+    NumberFormat,
+    WageTypeService,
+    SalarySumsService
+} from '../../../services/services';
+
 declare var _; // lodash
 
 @Component({
@@ -47,8 +56,10 @@ export class EmployeeDetails extends UniView {
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
     private employeeTaxCard: EmployeeTaxCard;
+    private wageTypes: WageType[] = [];
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private employeeWidgets: IPosterWidget[] = [
         {
@@ -107,7 +118,9 @@ export class EmployeeDetails extends UniView {
         private errorService: ErrorService,
         private http: UniHttp,
         private numberformat: NumberFormat,
-        private employeeTaxCardService: EmployeeTaxCardService
+        private employeeTaxCardService: EmployeeTaxCardService,
+        private salarySumsService: SalarySumsService,
+        private wageTypeService: WageTypeService
     ) {
 
         super(router.url, cacheService);
@@ -232,6 +245,10 @@ export class EmployeeDetails extends UniView {
                 this.departments = departments;
             });
 
+            super.getStateSubject('wageTypes').subscribe((wageTypes: WageType[]) => {
+                this.wageTypes = wageTypes;
+            });
+
             super.getStateSubject('employeeTaxCard').subscribe((employeeTaxCard) => {
                 this.employeeTaxCard = employeeTaxCard;
                 this.updateTaxAlerts(employeeTaxCard);
@@ -248,21 +265,7 @@ export class EmployeeDetails extends UniView {
             }
 
             // Update navbar tabs
-            if (this.employeeID) {
-                this.tabService.addTab({
-                    name: 'Ansattnr. ' + (this.employee ? this.employee.EmployeeNumber : this.employeeID),
-                    url: this.url + this.employeeID,
-                    moduleID: UniModules.Employees,
-                    active: true
-                });
-            } else {
-                this.tabService.addTab({
-                    name: 'Ny ansatt',
-                    url: this.url + this.employeeID,
-                    moduleID: UniModules.Employees,
-                    active: true
-                });
-            }
+            this.updateTabStrip(this.employeeID, this.employee);
         });
 
         // Subscribe to route changes and load necessary data
@@ -303,6 +306,44 @@ export class EmployeeDetails extends UniView {
         });
     }
 
+    private updateTabStrip(employeeID: number, employee: Employee) {
+        if (employeeID) {
+            this.tabService.addTab({
+                name: 'Ansattnr. ' + (employee ? employee.EmployeeNumber : employeeID),
+                url: this.url + employeeID,
+                moduleID: UniModules.Employees,
+                active: true
+            });
+        } else {
+            this.tabService.addTab({
+                name: 'Ny ansatt',
+                url: this.url + employeeID,
+                moduleID: UniModules.Employees,
+                active: true
+            });
+        }
+    }
+
+    public canDeactivate(): Observable<boolean> {
+        return Observable
+            .of(!super.isDirty())
+            .flatMap(result => {
+                return result
+                    ? Observable.of(result)
+                    : Observable
+                        .fromPromise(
+                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
+                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+            })
+            .map(canDeactivate => {
+                canDeactivate
+                    ? this.cacheService.clearPageCache(this.cacheKey)
+                    : this.updateTabStrip(this.employeeID, this.employee);
+
+                return canDeactivate;
+            });
+    }
+
     public updatePosterEmployee(employee: Employee) {
         if (employee.ID !== 0) {
 
@@ -338,7 +379,7 @@ export class EmployeeDetails extends UniView {
 
             if (employee.ID) {
                 let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-                this.salaryTransService
+                this.salarySumsService
                     .getSumsInYear(financialYear.Year, this.employeeID)
                     .subscribe((data) => {
                         if (data.netPayment) {
@@ -469,44 +510,44 @@ export class EmployeeDetails extends UniView {
     }
 
     public nextEmployee() {
-        if (!super.canDeactivate()) {
-            return;
-        }
 
-        // TODO: this should use BizHttp.getNextID()
-        this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
-            if (next) {
-                this.employee = next;
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
+                    if (next) {
+                        this.employee = next;
+                        let childRoute = this.router.url.split('/').pop();
+                        this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+                    }
+                }, err => this.errorService.handle(err));
             }
-        }, err => this.errorService.handle(err));
+        });
     }
 
-    // TODO: this should use BizHttp.getPreviousID()
     public previousEmployee() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-
-        this.employeeService.getPrevious(this.employee.ID).subscribe((prev: Employee) => {
-            if (prev) {
-                this.employee = prev;
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.employeeService.getPrevious(this.employee.ID).subscribe((prev: Employee) => {
+                    if (prev) {
+                        this.employee = prev;
+                        let childRoute = this.router.url.split('/').pop();
+                        this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+                    }
+                }, err => this.errorService.handle(err));
             }
-        }, err => this.errorService.handle(err));
+        });
     }
 
     public newEmployee() {
-        if (!super.canDeactivate()) {
-            return;
-        }
-        this.employeeService.get(0).subscribe((emp: Employee) => {
-            this.employee = emp;
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
-        }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.employeeService.get(0).subscribe((emp: Employee) => {
+                    this.employee = emp;
+                    let childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
+                }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     private getEmployee() {
@@ -545,7 +586,16 @@ export class EmployeeDetails extends UniView {
     }
 
     private getEmployments() {
-        this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
+        this.getEmploymentsObservable()
+            .subscribe((employments) => {
+                super.updateState('employments', employments, false);
+            }, err => this.errorService.handle(err));
+    }
+
+    private getEmploymentsObservable(): Observable<Employment[]> {
+        return this.employments 
+        ? Observable.of(this.employments) 
+        : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
             .map(employments => {
                 employments
                     .filter(employment => !employment.DimensionsID)
@@ -553,10 +603,7 @@ export class EmployeeDetails extends UniView {
                         x.Dimensions = new Dimensions();
                     });
                 return employments;
-            })
-            .subscribe((employments) => {
-                super.updateState('employments', employments, false);
-            }, err => this.errorService.handle(err));
+            });
     }
 
     private getRecurringPosts() {
@@ -564,9 +611,11 @@ export class EmployeeDetails extends UniView {
         Observable.forkJoin(
             this.salaryTransService.GetAll('filter=' + filter, ['Supplements.WageTypeSupplement', 'Dimensions']),
             this.getProjectsObservable(),
-            this.getDepartmentsObservable())
-            .subscribe((response: [SalaryTransaction[], Project[], Department[]]) => {
-                let [transes, projects, departments] = response;
+            this.getDepartmentsObservable(),
+            this.getWageTypesObservable(),
+            this.getEmploymentsObservable())
+            .subscribe((response: [SalaryTransaction[], Project[], Department[], WageType[], Employment[]]) => {
+                let [transes, projects, departments, wageTypes, employments] = response;
 
                 transes.map(trans => {
                     if (trans.Dimensions) {
@@ -576,12 +625,23 @@ export class EmployeeDetails extends UniView {
                         trans['_Project'] = trans['_Project'] || projects
                             .find(x => x.ID === trans.Dimensions.ProjectID);
                     }
+                    trans['_Wagetype'] = wageTypes.find(x => x.ID === trans.WageTypeID);
+                    if (trans['EmploymentID']) {
+                        trans['_Employment'] = employments.find(x => x.ID === trans.EmploymentID);
+                    }
                 });
 
                 super.updateState('projects', projects, false);
                 super.updateState('departments', departments, false);
+                super.updateState('wageTypes', wageTypes, false);
                 super.updateState('recurringPosts', transes, false);
             }, err => this.errorService.handle(err));
+    }
+
+    private getWageTypesObservable(): Observable<WageType[]> {
+        return this.wageTypes && this.wageTypes.length 
+        ? Observable.of(this.wageTypes) 
+        : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
     }
 
     private getProjects() {

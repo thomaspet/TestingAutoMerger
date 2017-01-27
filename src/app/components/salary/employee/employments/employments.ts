@@ -1,12 +1,10 @@
-import {Component, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {UniView} from '../../../../../framework/core/uniView';
-import {EmploymentService} from '../../../../services/services';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {Employee, Employment, SubEntity, Project, Department} from '../../../../unientities';
-
-import {UniCacheService} from '../../../../services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import { Component, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { UniView } from '../../../../../framework/core/uniView';
+import { EmploymentService } from '../../../../services/services';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { Employee, Employment, SubEntity, Project, Department } from '../../../../unientities';
+import { UniCacheService, ErrorService } from '../../../../services/services';
 
 @Component({
     selector: 'employments',
@@ -34,7 +32,9 @@ export class Employments extends UniView {
 
         super(router.url, cacheService);
 
-        this.tableConfig = new UniTableConfig(false).setColumns([
+        this.tableConfig = new UniTableConfig(false)
+        .setColumnMenuVisible(false)
+        .setColumns([
             new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
             new UniTableColumn('JobName', 'Stillingsnavn'),
             new UniTableColumn('JobCode', 'Stillingskode')
@@ -43,9 +43,10 @@ export class Employments extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+            this.selectedIndex = undefined;
 
             super.getStateSubject('subEntities')
-                .subscribe( subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
+                .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
 
             super.getStateSubject('employee')
                 .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
@@ -58,22 +59,9 @@ export class Employments extends UniView {
 
             super.getStateSubject('employments')
                 .subscribe((employments) => {
-                this.employments = employments || [];
-
-                // init selected to standard employment or first row in table
-                // checking for undefined here, as we dont want id === 0 to trigger the init
-                if (this.selectedIndex === undefined && this.employments.length) {
-                    let focusIndex = this.employments.findIndex(employment => employment.Standard);
-                    if (focusIndex === -1) {
-                        focusIndex = 0;
-                    }
-
-                    if (this.table) {
-                        this.table.focusRow(focusIndex);
-                    }
-                    this.selectedIndex = focusIndex;
-                }
-            }, err => this.errorService.handle(err));
+                    this.employments = employments || [];
+                    setTimeout(() => this.focusRow());
+                }, err => this.errorService.handle(err));
         });
     }
 
@@ -83,6 +71,19 @@ export class Employments extends UniView {
         if (employments.length !== this.employments.length) {
             let isDirty = employments.some(emp => emp['_isDirty']);
             super.updateState('employments', employments, isDirty);
+        }
+    }
+
+    private focusRow() {
+        if (this.selectedIndex === undefined && this.employments.length) {
+            let focusIndex = this.employments.findIndex(employment => employment.Standard);
+            if (focusIndex === -1) {
+                focusIndex = 0;
+            }
+
+            if (this.table) {
+                this.table.focusRow(focusIndex);
+            }
         }
     }
 

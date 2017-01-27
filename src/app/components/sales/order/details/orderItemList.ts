@@ -5,10 +5,9 @@ import {Router} from '@angular/router';
 
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
-import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
+import {ProductService, VatTypeService, CustomerOrderItemService, ErrorService} from '../../../../services/services';
 import {CustomerOrder, CustomerOrderItem, Product, VatType, StatusCodeCustomerOrderItem} from '../../../../unientities';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {ErrorService} from '../../../../services/common/ErrorService';
 
 @Component({
     selector: 'order-item-list',

@@ -3,7 +3,7 @@ import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
 import {AppConfig} from '../../../AppConfig';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 import moment from 'moment';
 declare var APP_VERSION;
 

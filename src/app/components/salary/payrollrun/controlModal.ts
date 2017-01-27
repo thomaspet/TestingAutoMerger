@@ -4,10 +4,14 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
-import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {
+    SalaryTransactionService,
+    PayrollrunService,
+    ErrorService,
+    SalarySumsService
+} from '../../../../app/services/services';
 
 declare var _; // lodash
 
@@ -31,10 +35,10 @@ export class ControlModalContent {
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
-        private _employeeService: EmployeeService,
         private _router: Router,
         private route: ActivatedRoute,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private salarySumsService: SalarySumsService
     ) {
         this.route.params.subscribe(params => {
             this.payrollRunID = +params['id'];
@@ -46,7 +50,7 @@ export class ControlModalContent {
         this.busy = true;
         return Observable.forkJoin(
             this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true'),
-            this._employeeService.getTotals(this.payrollRunID),
+            this.salarySumsService.getFromPayrollRun(this.payrollRunID),
             this._payrollRunService.getPaymentList(this.payrollRunID),
             this._payrollRunService.Get(this.payrollRunID)
         );
@@ -202,7 +206,7 @@ export class ControlModal implements AfterViewInit {
     public type: Type<any> = ControlModalContent;
 
     constructor(private route: ActivatedRoute, private errorService: ErrorService) {
-        
+
         this.modalConfig = {
             hasCancelButton: true,
             cancel: () => {

@@ -9,6 +9,7 @@ export interface IToolbarConfig {
         title: string;
         classname?: string;
         link?: string;
+        event?: () => void;
     }[];
     statustrack?: UniStatusTrack.IStatus[];
     navigation?: {

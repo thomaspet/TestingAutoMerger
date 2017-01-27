@@ -1,6 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {Period} from '../unientities';
-import {ErrorService} from '../services/common/ErrorService';
+import {ErrorService} from '../services/services';
 
 declare const moment;
 

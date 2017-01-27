@@ -1,5 +1,6 @@
 import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
 import {CustomerDetails} from './customerDetails';
+import {Customer} from '../../../../unientities';
 
 @Component({
     selector: 'customer-details-modal',
@@ -16,7 +17,7 @@ export class CustomerDetailsModal {
     @ViewChild(CustomerDetails)
     private customerDetails: CustomerDetails;
 
-    @Output() public customerUpdated: EventEmitter<number> = new EventEmitter<number>();
+    @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @Output() public cancel: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     public isOpen: boolean = false;
@@ -32,8 +33,8 @@ export class CustomerDetailsModal {
         });
     }
 
-    public onCustomerUpdated(customerID: number) {
-        this.customerUpdated.emit(customerID);
+    public onCustomerUpdated(customer: Customer) {
+        this.customerUpdated.emit(customer);
         this.isOpen = false;
     }
 

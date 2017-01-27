@@ -3,9 +3,8 @@ import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
-import {PayrollrunService} from '../../../services/services';
+import {PayrollrunService, ErrorService, FinancialYearService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 @Component({
     selector: 'payrollrun-list',
@@ -21,15 +20,17 @@ export class PayrollrunList implements OnInit {
         private router: Router,
         private tabSer: TabService,
         private payrollService: PayrollrunService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private financialYearService: FinancialYearService
     ) { }
 
     public ngOnInit() {
 
-        let year = JSON.parse(localStorage.getItem('activeFinancialYear'));
-        this.payrollRuns$ = this.payrollService
+        this.financialYearService.lastSelectedYear$.subscribe( year => {
+            this.payrollRuns$ = this.payrollService
             .GetAll('orderby=ID Desc' + (year && year.Year ? '&filter=year(PayDate) eq ' + year.Year : ''))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        });
 
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
             .setWidth('5rem');

@@ -4,10 +4,11 @@ import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeE
 import {ToastService, ToastType} from '../../../../../../framework/unitoast/toastservice';
 import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
-import {checkGuid} from '../../../../../services/common/dimensionservice';
-import {FinancialYearService} from '../../../../../services/services';
-import {ErrorService} from '../../../../../services/common/ErrorService';
-
+import {
+    FinancialYearService,
+    ErrorService,
+    checkGuid
+} from '../../../../../services/services';
 
 @Component({
     selector: 'bill-simple-journalentry',
@@ -413,7 +414,7 @@ export class BillSimpleJournalEntryView {
 
     private initYear() {
         var fc: FinancialYear;
-        fc = this.financialYearService.getActiveFinancialYearInLocalstorage();
+        fc = this.financialYearService.getYearInLocalStorage();
 
         if (fc) {
             this.financialYears = [fc];

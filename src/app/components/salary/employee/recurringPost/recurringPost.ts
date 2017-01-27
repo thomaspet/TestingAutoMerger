@@ -1,14 +1,14 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService } from '../../../../services/services';
+import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService, ErrorService} from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
-    SalaryTransactionSupplement, WageTypeSupplement, Account } from '../../../../unientities';
+    SalaryTransactionSupplement, WageTypeSupplement, Account, Employee
+} from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
-import { ErrorService } from '../../../../services/common/ErrorService';
 
 declare var _;
 
@@ -18,22 +18,21 @@ declare var _;
 })
 
 export class RecurringPost extends UniView {
+    private employeeID: number;
     private tableConfig: UniTableConfig;
     private recurringPosts: SalaryTransaction[] = [];
     private filteredPosts: SalaryTransaction[];
     private employments: Employment[] = [];
-    private wagetypes: WageType[];
+    private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
     private unsavedEmployments: boolean;
-    private employmentsMapped: boolean;
     @ViewChild(UniTable) private uniTable: UniTable;
     @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     constructor(
         public router: Router,
         private wagetypeService: WageTypeService,
-        private salarytransService: SalaryTransactionService,
         cacheService: UniCacheService,
         route: ActivatedRoute,
         private _accountService: AccountService,
@@ -45,29 +44,24 @@ export class RecurringPost extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
-            this.employmentsMapped = false;
 
-            // TODO: cache this?
-            if (!this.wagetypes) {
-                this.wagetypeService.GetAll('', ['SupplementaryInformations']).subscribe((wagetypes: WageType[]) => {
-                    this.wagetypes = wagetypes;
-                    if (this.recurringPosts) {
-                        this.mapWageTypes();
-                    }
-                },
-                err => this.errorService.handle(err));
-            }
+            this.employeeID = +paramsChange['id'];
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
             const employmentSubject = super.getStateSubject('employments');
             const projectSubject = super.getStateSubject('projects');
             const departmentSubject = super.getStateSubject('departments');
+            const wageTypesSubject = super.getStateSubject('wageTypes');
 
-            projectSubject.subscribe( projects => {
+            wageTypesSubject.take(1).subscribe(wageTypes => {
+                this.wagetypes = wageTypes;
+            });
+
+            projectSubject.take(1).subscribe(projects => {
                 this.projects = projects;
             });
 
-            departmentSubject.subscribe(departments => {
+            departmentSubject.take(1).subscribe(departments => {
                 this.departments = departments;
             });
 
@@ -77,57 +71,16 @@ export class RecurringPost extends UniView {
                 if (this.uniTable) {
                     this.uniTable.refreshTableData();
                 }
-            });
-
-            employmentSubject.subscribe( employments => {
-                this.employments = (employments || []).filter(emp => emp.ID > 0);
-                this.unsavedEmployments = this.employments.length !== employments.length;
-                if (this.tableConfig && !this.employmentsMapped) {
-                    this.mapEmployments();
+                if (!this.tableConfig) {
+                    this.buildTableConfig();
                 }
             });
 
-            if (!this.tableConfig) {
-                Observable.combineLatest(recurringPostSubject, employmentSubject)
-                    .take(1)
-                    .subscribe((res) => {
-                        let [recurring, employments] = res;
-                        this.employments = (employments || []).filter(emp => emp.ID > 0);
-                        this.recurringPosts = recurring;
-                        if (!this.employmentsMapped) {
-                            this.mapEmployments();
-                        }
-
-                        this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
-                        this.unsavedEmployments = this.employments.length !== employments.length;
-
-                        this.buildTableConfig();
-                    },
-                    err => this.errorService.handle(err)
-                );
-            }
+            employmentSubject.take(1).subscribe(employments => {
+                this.employments = (employments || []).filter(emp => emp.ID > 0);
+                this.unsavedEmployments = this.employments.length !== employments.length;
+            });
         });
-    }
-
-    private mapWageTypes() {
-        this.recurringPosts = this.recurringPosts.map((post) => {
-            if (post['WageTypeID']) {
-                post['_Wagetype'] = this.wagetypes.find(wt => wt.ID === post['WageTypeID']);
-            }
-            return post;
-        });
-    }
-
-    private mapEmployments() {
-        this.recurringPosts = this.recurringPosts.map((post) => {
-            if (post['EmploymentID']) {
-                post['_Employment'] = this.employments.find(emp => emp.ID === post['EmploymentID']);
-            }
-            return post;
-        });
-
-        this.employmentsMapped = true;
-        super.updateState('recurringPosts', this.recurringPosts, false);
     }
 
     // REVISIT (remove)!
@@ -151,12 +104,12 @@ export class RecurringPost extends UniView {
 
         if (this.recurringPosts[deletedIndex].ID) {
             this.recurringPosts[deletedIndex].Deleted = true;
+            this.recurringPosts[deletedIndex]['_originalIndex'] = null;
         } else {
             this.recurringPosts.splice(deletedIndex, 1);
             // Check if there are other rows in the array that are dirty
             hasDirtyRow = this.recurringPosts.some(post => post['_isDirty']);
         }
-        this.recurringPosts[deletedIndex]['_originalIndex'] = null;
         super.updateState('recurringPosts', this.recurringPosts, hasDirtyRow);
     }
 
@@ -235,7 +188,9 @@ export class RecurringPost extends UniView {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
+                    return this._accountService
+                        .GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`)
+                        .debounceTime(200);
                 }
             });
 
@@ -291,7 +246,7 @@ export class RecurringPost extends UniView {
 
 
 
-        this.tableConfig = new UniTableConfig()
+        this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
             .setDeleteButton(true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
@@ -349,12 +304,17 @@ export class RecurringPost extends UniView {
 
     private updateAndCacheSalaryTransactionRow(row, updateTable = false) {
         row['_isDirty'] = true;
-        this.recurringPosts[row['_originalIndex']] = row;
+
+        let updateIndex = this.recurringPosts.findIndex(x => x['_originalIndex'] === row['_originalIndex']);
+        if (updateIndex > -1) {
+            this.recurringPosts[updateIndex] = row;
+        } else {
+            this.recurringPosts.push(row);
+        }
 
         if (updateTable) {
             this.uniTable.updateRow(row['_originalIndex'], row);
         }
-
         super.updateState('recurringPosts', this.recurringPosts, true);
     }
 
@@ -416,7 +376,7 @@ export class RecurringPost extends UniView {
     }
 
     private getRate(rowModel: SalaryTransaction) {
-        return this.salarytransService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+        return this.wagetypeService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {

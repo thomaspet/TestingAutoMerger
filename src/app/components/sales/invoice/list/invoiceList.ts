@@ -2,7 +2,6 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
 import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
@@ -13,9 +12,13 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {NumberFormat} from '../../../../services/common/NumberFormatService';
 import moment from 'moment';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    CustomerInvoiceService,
+    ReportDefinitionService,
+    NumberFormat,
+    ErrorService,
+} from '../../../../services/services';
 
 @Component({
     selector: 'invoice-list',

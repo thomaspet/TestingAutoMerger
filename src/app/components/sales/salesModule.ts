@@ -39,6 +39,7 @@ import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeitemTable';
+import {UniSearchModule} from 'unisearch-ng2/main';
 
 @NgModule({
     imports: [
@@ -65,7 +66,8 @@ import {TradeItemTable} from './common/tradeitemTable';
         ReportsModule,
 
         // Route module
-        SalesRoutes
+        SalesRoutes,
+        UniSearchModule
     ],
     declarations: [
         UniSales,

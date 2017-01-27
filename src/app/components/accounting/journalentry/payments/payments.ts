@@ -2,10 +2,14 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
-import {CustomerInvoiceService, AccountService, CompanySettingsService} from '../../../../services/services';
 import {CustomerInvoice, JournalEntryData, Account, CompanySettings} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {
+    ErrorService,
+    CustomerInvoiceService,
+    AccountService,
+    CompanySettingsService
+} from '../../../../services/services';
 
 declare const moment;
 

@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
 import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, 
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch,
     ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
 import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength, roundTo} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
@@ -14,12 +14,12 @@ import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {ActivatedRoute} from '@angular/router';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 declare var moment;
 
-type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' | 
+type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
 
 export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
@@ -55,9 +55,9 @@ export class TimeEntry {
         ];
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) => 
+            { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) =>
                 this.regtimeTools.activate(ts, filter) },
-            { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => 
+            { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
                 this.regtimeTotals.activate(ts, filter) },
             { name: 'flex', label: 'Timesaldo', counter: 0, activate: () => this.onFlexTabActivate() },
             { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
@@ -66,7 +66,7 @@ export class TimeEntry {
 
     public toolbarConfig: any = {
         title: 'Registrering av timer',
-        omitFinalCrumb: true             
+        omitFinalCrumb: true
     };
 
     public filters: Array<IFilter>;
@@ -79,16 +79,16 @@ export class TimeEntry {
             new Column('WorkTypeID', 'Timeart', ColumnType.Integer, { route: 'worktypes' }),
             new Column('LunchInMinutes', 'Lunsj', ColumnType.Integer),
             new Column('Description'),
-            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, 
+            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer,
                 { route: 'projects', select: 'ProjectNumber,Name', visualKey: 'ProjectNumber' }),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer,
-                { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName', 
+                { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName',
                 visualKey: 'OrderNumber'}),
             new Column('Actions', '', ColumnType.Action)
             ],
         events: {
                 onChange: (event) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), 
+                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e),
                     (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
                 },
                 onInit: (instance: Editable) => {
@@ -140,7 +140,7 @@ export class TimeEntry {
         this.initWorker(workerId);
     }
 
-    public onWorkrelationChange(event: any) {        
+    public onWorkrelationChange(event: any) {
         var id = (event && event.target ? safeInt(event.target.value) : 0);
         this.setWorkRelationById(id);
     }
@@ -187,9 +187,9 @@ export class TimeEntry {
         return new Promise((resolve, reject) => {
             this.checkSave().then( (success: boolean) => {
                 resolve(success);
-                if (!success) { 
-                    this.initTab(); 
-                } 
+                if (!success) {
+                    this.initTab();
+                }
             });
         });
     }
@@ -206,9 +206,9 @@ export class TimeEntry {
     }
 
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
-        
+
         this.userName = name || this.userName;
-        
+
         var contextMenus = [];
         var list = workRelations || this.workRelations;
         if (list && list.length > 1) {
@@ -251,7 +251,7 @@ export class TimeEntry {
             alert('Current worker/user has no workrelations!');
         }
     }
-    
+
     public onVacationSaved() {
         this.loadFlex(this.timeSheet.currentRelation.ID);
     }
@@ -260,10 +260,10 @@ export class TimeEntry {
         this.incomingBalance = undefined;
         var isoToday = moment().format('YYYY-MM-DD');
         this.service.getStatistics(`model=workbalance&filter=workrelationid eq ${this.timeSheet.currentRelation.ID}` +
-            ` and balancedate le '${isoToday}' and balancetype eq 11` + 
+            ` and balancedate le '${isoToday}' and balancetype eq 11` +
             '&select=minutes as Minutes,balancedate as BalanceDate,description as Description' +
             '&orderby=BalanceDate DESC&top=1')
-        .subscribe( (result) => {            
+        .subscribe( (result) => {
             if (result && result.Data && result.Data.length > 0) {
                 this.incomingBalance = result.Data[0];
             }
@@ -298,7 +298,7 @@ export class TimeEntry {
                 this.currentBalance.lastDayBalance = x.LastDayActual - x.LastDayExpected;
                 this.currentBalance.lastDayBalanceHours = roundTo((x.LastDayActual - x.LastDayExpected) / 60, 1);
                 // this.currentBalance.lastDayHours = roundTo(x.LastDayActual / 60, 1);
-                // this.currentBalance.lastDayExpectedHours = roundTo(x.LastDayExpected / 60, 1);                
+                // this.currentBalance.lastDayExpectedHours = roundTo(x.LastDayExpected / 60, 1);
 
                 this.currentBalance.hours = roundTo( x.Minutes / 60, 1 );
                 this.currentBalance.expectedHours = roundTo( x.ExpectedMinutes / 60, 1);
@@ -412,7 +412,7 @@ export class TimeEntry {
                 details.copyAbove = false;
             }
         }
-        
+
     }
 
     private onStartEdit(details: IStartEdit) {
@@ -421,7 +421,7 @@ export class TimeEntry {
         if (!details.value) {
             switch (name) {
                 case 'Date':
-                    details.value = moment(this.getDefaultDate()).format('l'); 
+                    details.value = moment(this.getDefaultDate()).format('l');
                     details.flagChanged = true;
                     break;
 
@@ -438,7 +438,7 @@ export class TimeEntry {
                     } else {
                         details.value = '08:00';
                         details.flagChanged = true;
-                    }                
+                    }
                     break;
             }
         }
@@ -456,7 +456,7 @@ export class TimeEntry {
 
             default:
                 return moment(new Date()).toDate();
-        }          
+        }
     }
 
     private validate(): boolean {
@@ -472,7 +472,7 @@ export class TimeEntry {
         return true;
     }
 
-    private asyncValidationFailed(event: IChangeEvent) {        
+    private asyncValidationFailed(event: IChangeEvent) {
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
         if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
@@ -482,7 +482,7 @@ export class TimeEntry {
             event.userTypedValue = false;
             this.updateChange(event);
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, 
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3,
                 `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
     }
@@ -490,7 +490,7 @@ export class TimeEntry {
     private updateChange(event: IChangeEvent) {
 
         // Update value via timesheet
-        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name, 
+        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name,
             event.value, event.row, event.lookupValue))) {
             event.cancel = true;
             return;
@@ -521,7 +521,7 @@ export class TimeEntry {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
                 this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
-                .then( (userChoice: ConfirmActions) => {                    
+                .then( (userChoice: ConfirmActions) => {
                     switch (userChoice) {
                         case ConfirmActions.ACCEPT:
                             this.save().then( x => {

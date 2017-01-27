@@ -1,15 +1,14 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniForm} from 'uniform-ng2/main';
 import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
-import {AltinnIntegrationService} from '../../../../../app/services/services';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
 
 declare var _;
 @Component({
     selector: 'tax-card-request',
     templateUrl: 'app/components/salary/employee/modals/taxCardRequest.html',
     host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
-    
+
 })
 export class TaxCardRequest {
     public title: string = '';
@@ -120,10 +119,10 @@ export class TaxCardRequest {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn-forespørsel';
                 if (response.ErrorText === 'An error occurred') {
-                    this.error = 
+                    this.error =
                     ` Feilmelding fra Altinn: ${response.ErrorText}`
-                    + '\n Forslag:' 
-                    + '\n\t 1. Sjekk at systempålogging stemmer' 
+                    + '\n Forslag:'
+                    + '\n\t 1. Sjekk at systempålogging stemmer'
                     + '\n\t     (trykk "sjekk login info" på innstillinger under Altinn)'
                     + '\n'
                     + '\n\t 2. Gå til innstillinger og sjekk at orgnr stemmer overens'

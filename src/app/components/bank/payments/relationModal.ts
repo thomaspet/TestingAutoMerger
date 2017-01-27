@@ -1,11 +1,10 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {UniModal} from '../../../../framework/modals/modal';
-import {StatisticsService} from '../../../services/services';
+import {StatisticsService, ErrorService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import {ErrorService} from '../../../services/common/ErrorService';
 
 declare const _; // lodash
 declare const moment;
@@ -32,7 +31,7 @@ export class PaymentRelationsTable implements OnInit {
         private statisticsService: StatisticsService,
         private toastService: ToastService,
         private errorService: ErrorService
-    ) {}
+    ) { }
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
@@ -60,6 +59,8 @@ export class PaymentRelationsTable implements OnInit {
                     .setTemplate(data => {
                         if (data.TracelinkSourceEntityName === 'SupplierInvoice') {
                             return `<a href='/#/accounting/bill/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
+                        } else if (data.TracelinkSourceEntityName === 'CustomerInvoice') {
+                            return `<a href='/#/sales/invoices/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
                         } else {
                             return data.TracelinkSourceEntityName;
                         }

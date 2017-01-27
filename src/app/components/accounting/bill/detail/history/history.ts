@@ -1,9 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {SupplierInvoiceService} from '../../../../../services/Accounting/SupplierinvoiceService';
-import {StatisticsService} from '../../../../../services/services';
+import {StatisticsService, SupplierInvoiceService, ErrorService} from '../../../../../services/services';
 import {URLSearchParams} from '@angular/http';
-import {ErrorService} from '../../../../../services/common/ErrorService';
 
 declare const moment;
 
@@ -41,13 +39,13 @@ export class BillHistoryView {
     }
 
     public ngOnInit() {
-                
+
     }
 
     private checkRefresh() {
         if (this._isActive) {
             this.refreshList();
-        }                
+        }
     }
 
     public getNumberOfInvoices(supplierId: number, excludeCurrentId?: number) {
@@ -58,7 +56,7 @@ export class BillHistoryView {
         return this.supplierInvoiceService.getStatQuery(query).map( x => {
             if (x && x.length > 0) {
                 return x[0].countid;
-            } 
+            }
         });
     }
 
@@ -67,9 +65,9 @@ export class BillHistoryView {
         // No change?
         if (this.lastUpdatedSupplierID === this.currentID) {
             return;
-        }   
+        }
 
-        this.lastUpdatedSupplierID = this.currentID;   
+        this.lastUpdatedSupplierID = this.currentID;
 
         if (!this.currentID) {
             this.listOfInvoices.length = 0;
@@ -78,7 +76,7 @@ export class BillHistoryView {
             return;
         }
 
-        this.busy = true;     
+        this.busy = true;
         var params = new URLSearchParams();
         params.set('filter', 'SupplierID eq ' + this.currentID);
         params.set('top', '40');
@@ -92,7 +90,7 @@ export class BillHistoryView {
         },
             err => this.errorService.handle(err)
         );
-        
+
     }
 
     private sumList(list: Array<any>) {
@@ -103,7 +101,7 @@ export class BillHistoryView {
 
     private removeSelfFromList(list: Array<any>): boolean {
         if (list && list.length > 0 && this.parentID) {
-            let n = list.length - 1;                
+            let n = list.length - 1;
             for (var i = n; i >= 0; i--) {
                 if (list[i].ID === this.parentID ) {
                     list.splice(i, 1);
@@ -117,7 +115,7 @@ export class BillHistoryView {
     private createTableConfig(): UniTableConfig {
         var cols = [
             new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.LocalDate).setWidth('5.5em')
-                .setFilterOperator('eq')           
+                .setFilterOperator('eq')
                 .setFormat('DD.MM.YY'),
             new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('4em').setVisible(false)
                 .setFilterOperator('eq')
@@ -137,7 +135,7 @@ export class BillHistoryView {
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setVisible(true)
                 .setFilterOperator('startswith')
                 .setTemplate(item => {
-                    var key = item.JournalEntryJournalEntryNumber; 
+                    var key = item.JournalEntryJournalEntryNumber;
                     if (key) { return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`; }
                 }),
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
@@ -159,6 +157,6 @@ export class BillHistoryView {
         if (item) {
 
         }
-    } 
+    }
 
 }

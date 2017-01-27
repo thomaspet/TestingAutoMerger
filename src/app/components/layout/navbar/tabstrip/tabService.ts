@@ -42,6 +42,7 @@ export enum UniModules {
     Wagetypes       = 501,
     Payrollrun      = 502,
     Amelding        = 503,
+    Categories      = 504,
 
     WorkProfiles    = 600,
     Workers         = 601,

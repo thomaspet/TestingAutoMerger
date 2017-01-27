@@ -1,0 +1,95 @@
+@keyframes fadein
+    from
+        opacity: 0
+    to
+        opacity: 1
+
+@keyframes slideopen
+    from
+        transform: scaleY(0)
+    to
+        transform: scaleY(1)
+
+@keyframes slideclosed
+    to
+        transform: scaleY(0)
+    from
+        transform: scaleY(1)
+
+@keyframes slideblur
+    from
+        filter: blur(0)
+        transform: translateX(0)
+
+    to
+        filter: blur(.2rem)
+        transform: translateY(15rem)
+
+@keyframes slideunblur
+    to
+        filter: blur(0)
+        transform: translateX(0)
+
+    from
+        filter: blur(.2rem)
+        transform: translateY(15rem)
+
+
+.entityDetails_toggle
+    height: 2.5rem
+    cursor: pointer
+    -webkit-user-select: none
+    background-image: unicon-chevron-down($uni-color-negative)
+    background-position: left .6rem top .6rem
+    background-repeat: no-repeat
+    background-size: .8rem auto
+    padding: 0 1rem 0 1.8rem
+
+    &.-is-active
+        background-color: $uni-color-negative
+        background-image: unicon-chevron-down($uni-color-c2a)
+        color: $uni-color-c2a
+        border-radius: pxToRem(2) pxToRem(2) 0 0
+
+.entityDetails
+    background-color: $uni-color-negative
+    position: absolute
+    z-index: map-get($zindex, 'toolbar')
+    left: 0
+    right: 0
+    top: 8rem
+    height: 15rem
+    transform-origin: top
+
+    &[aria-expanded=true]
+        transform: scaleY(1)
+        animation: 300ms ease slideopen
+
+    &[aria-expanded=false]
+        transform: scaleY(0)
+        animation: 300ms ease slideclosed
+
+    & + .content
+        &[aria-disabled=true]
+            pointer-events: none
+            filter: blur(.2rem)
+            transform: translateY(15rem)
+            animation: 300ms ease slideblur
+
+        &[aria-disabled=false]
+            filter: none
+            transform: none
+            animation: 300ms ease slideunblur
+
+
+        &[aria-disabled=true]:before
+            content: ''
+            display: block
+            position: fixed
+            left: 0
+            right: 0
+            top: -100vh
+            bottom: -100vh
+            z-index: map-get($zindex, 'toolbar')
+            background: transparentize($uni-color-scale9, .25)
+            animation: 300ms ease fadein

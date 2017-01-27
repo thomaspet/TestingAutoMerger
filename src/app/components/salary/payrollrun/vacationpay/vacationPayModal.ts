@@ -2,7 +2,7 @@ import {Component, ViewChild, Output, EventEmitter, Type, AfterViewInit} from '@
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
-import {ErrorService} from '../../../../services/common/ErrorService';
+import {ErrorService} from '../../../../services/services';
 declare var _;
 
 @Component({
@@ -11,10 +11,10 @@ declare var _;
 })
 export class VacationpayModal implements AfterViewInit {
     @ViewChild(UniModal) private modal: UniModal;
-    private modalConfig: { 
-        hasCancelButton: boolean, 
-        cancel: (dueToHolidayChanged: boolean) => void, 
-        payrollRunID: number , 
+    private modalConfig: {
+        hasCancelButton: boolean,
+        cancel: (dueToHolidayChanged: boolean) => void,
+        payrollRunID: number ,
         submit: (dueToHolidayChanged: boolean) => void
     };
     @Output() public recalc: EventEmitter<any> = new EventEmitter<any>(true);

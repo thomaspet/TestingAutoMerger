@@ -2,14 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
-    Employment, CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, CompanySettings,
-    FinancialYear
+    CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear
 } from '../../../unientities';
-import {
-    PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
-    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
-    CompanySettingsService
-} from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
@@ -20,11 +14,16 @@ import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { ErrorService } from '../../../services/common/ErrorService';
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
 import { UniView } from '../../../../framework/core/uniView';
 import { PreviewModal } from '../../reports/modals/preview/previewModal';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import 'rxjs/add/observable/forkJoin';
+import {
+    PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
+    ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
+    FinancialYearService, ErrorService
+} from '../../../services/services';
 
 declare var _;
 declare var moment;
@@ -46,6 +45,7 @@ export class PayrollrunDetails extends UniView {
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
     @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     private isEditable: boolean;
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
@@ -56,13 +56,14 @@ export class PayrollrunDetails extends UniView {
     private disableFilter: boolean;
     private saveActions: any[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
+    private activeFinancialYear: FinancialYear;
 
     private employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
     private wagetypes: WageType[];
-    private employments: Employment[];
     private projects: Project[];
     private departments: Department[];
+    private detailsActive: Boolean = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -79,7 +80,7 @@ export class PayrollrunDetails extends UniView {
         private _projectService: ProjectService,
         private _departmentService: DepartmentService,
         private _employeeTaxCardService: EmployeeTaxCardService,
-        private _companySettingsService: CompanySettingsService
+        private _financialYearService: FinancialYearService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -121,8 +122,17 @@ export class PayrollrunDetails extends UniView {
                     },
                     {
                         title: this.payDate ?
-                            'Utbetalingsdato ' + this.payDate.toLocaleDateString('no', { day: 'numeric', month: 'short', year: 'numeric' })
+                            'Utbetales ' + this.payDate.toLocaleDateString('no',
+                                {
+                                    day: 'numeric', month: 'short', year: 'numeric'
+                                }
+                            )
                             : 'Utbetalingsdato ikke satt'
+                    },
+                    {
+                        title: 'Detaljer',
+                        classname: this.detailsActive ? 'entityDetails_toggle -is-active' : 'entityDetails_toggle',
+                        event: this.toggleDetailsView.bind(this)
                     }],
                     navigation: {
                         prev: this.previousPayrollrun.bind(this),
@@ -212,21 +222,7 @@ export class PayrollrunDetails extends UniView {
                 this.departments = departments;
             });
 
-            if (this.payrollrunID) {
-                this.tabSer.addTab({
-                    name: 'Lønnsavregning ' + this.payrollrunID,
-                    url: 'salary/payrollrun/' + this.payrollrunID,
-                    moduleID: UniModules.Payrollrun,
-                    active: true
-                });
-            } else {
-                this.tabSer.addTab({
-                    name: 'Ny lønnsavregning',
-                    url: this.url + this.payrollrunID,
-                    moduleID: UniModules.Payrollrun,
-                    active: true
-                });
-            }
+            this.updateTabStrip(this.payrollrunID);
         });
 
         this.contextMenuItems = [
@@ -281,6 +277,82 @@ export class PayrollrunDetails extends UniView {
                 }
             }
         });
+    }
+
+    public toggleDetailsView(setValue?: boolean): void {
+
+        if (this.detailsActive && !this.payrollrun.Description) {
+            this._toastService.addToast('Beskrivelse mangler',
+                ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
+            return;
+        }
+
+        if (setValue !== undefined) {
+            this.detailsActive = setValue;
+        } else {
+            this.detailsActive = !this.detailsActive;
+        }
+
+        if (this.payrollrun && !this.detailsActive && this.selectionList) {
+            this.selectionList.focusRow();
+        }
+
+        let _toolbarconfig = this.toolbarconfig,
+            _subhead = _toolbarconfig.subheads[_toolbarconfig.subheads.length - 1];
+        if (this.detailsActive) {
+            _subhead.classname = 'entityDetails_toggle -is-active';
+        } else {
+            _subhead.classname = 'entityDetails_toggle';
+        }
+        this.toolbarconfig = _toolbarconfig;
+    }
+
+    public canDeactivate(): Observable<boolean> {
+
+        return Observable
+            .of(!super.isDirty())
+            .flatMap(result => {
+                return result
+                    ? Observable.of(result)
+                    : Observable
+                        .fromPromise(
+                        this.confirmModal.confirm(
+                            'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
+                            'Lagre endringer?', true, {accept: 'Lagre', reject: 'Forkast'}))
+                        .map((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.saveAll((m) => {});
+                                return true;
+                            } else {
+                                return response === ConfirmActions.REJECT;
+                            }
+                        });
+            })
+            .map(canDeactivate => {
+                canDeactivate
+                    ? this.cacheService.clearPageCache(this.cacheKey)
+                    : this.updateTabStrip(this.payrollrunID);
+
+                return canDeactivate;
+            });
+    }
+
+    private updateTabStrip(payrollrunID) {
+        if (payrollrunID) {
+            this.tabSer.addTab({
+                name: 'Lønnsavregning ' + payrollrunID,
+                url: 'salary/payrollrun/' + payrollrunID,
+                moduleID: UniModules.Payrollrun,
+                active: true
+            });
+        } else {
+            this.tabSer.addTab({
+                name: 'Ny lønnsavregning',
+                url: this.url + payrollrunID,
+                moduleID: UniModules.Payrollrun,
+                active: true
+            });
+        }
     }
 
     private getLayout() {
@@ -357,19 +429,19 @@ export class PayrollrunDetails extends UniView {
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
                 this._companySalaryService.getCompanySalary(),
-                this._companySettingsService.Get(1)
+                this._financialYearService.getActiveFinancialYear()
             ).subscribe((dataSet: any) => {
-                let [payroll, last, salaries, settings] = dataSet;
+                let [payroll, last, salaries, activeYear] = dataSet;
 
                 this.payrollrun = payroll;
                 this.setDefaults();
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
-                let companysettings: CompanySettings = settings;
+                this.activeFinancialYear = activeYear;
 
                 if (this.payrollrun && this.payrollrun.ID === 0) {
                     this.payrollrun.ID = null;
-                    this.suggestFromToDates(latest, companysalary, companysettings);
+                    this.suggestFromToDates(latest, companysalary);
                 }
 
                 if (this.payrollrun) {
@@ -393,27 +465,26 @@ export class PayrollrunDetails extends UniView {
         this.payrollrun.taxdrawfactor = TaxDrawFactor.Standard;
     }
 
-    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, companysettings: CompanySettings) {
-        const currentYear = companysettings.CurrentAccountingYear;
+    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary) {
         if (!latest) {
             // First payrollrun for the year
             let todate: Date;
-            let fromdate = new Date(currentYear, 0, 1);
+            let fromdate = new Date(this.activeFinancialYear.Year, 0, 1);
             this.payrollrun.FromDate = fromdate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
-                    todate = new Date(currentYear, 0, 14);
+                    todate = new Date(this.activeFinancialYear.Year, 0, 14);
                     this.payrollrun.ToDate = todate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
-                    todate = new Date(currentYear, 0, 7);
+                    todate = new Date(this.activeFinancialYear.Year, 0, 7);
                     this.payrollrun.ToDate = todate;
                     break;
 
                 default: // Monthly
-                    todate = new Date(currentYear, 0, 31);
+                    todate = new Date(this.activeFinancialYear.Year, 0, 31);
                     this.payrollrun.ToDate = todate;
                     break;
             }
@@ -506,20 +577,19 @@ export class PayrollrunDetails extends UniView {
     }
 
     public newPayrollrun() {
-        if (!super.canDeactivate()) {
-            return;
-        }
 
-        this.payrollrunService.get(0).subscribe((payrollrun: PayrollRun) => {
-            this.payrollrun = payrollrun;
-            this.payrollrunID = 0;
-            this.payDate = null;
-            this.router.navigateByUrl(this.url + this.payrollrun.ID);
-            if (!this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
+        this.canDeactivate().subscribe(result => {
+            if (result) {
+                this.payrollrunService.get(0).subscribe((payrollrun: PayrollRun) => {
+                    this.payrollrun = payrollrun;
+                    this.payrollrunID = 0;
+                    this.payDate = null;
+                    this.router.navigateByUrl(this.url + this.payrollrun.ID);
+                    this.toggleDetailsView(true);
+                },
+                    err => this.errorService.handle(err));
             }
-        },
-            err => this.errorService.handle(err));
+        });
     }
 
     public openPostingSummaryModal(done) {
@@ -546,24 +616,22 @@ export class PayrollrunDetails extends UniView {
     }
 
     public previousPayrollrun() {
-
-        if (!super.canDeactivate()) {
-            return;
-        }
-
-        this.payrollrunService.getPrevious(this.payrollrunID)
-            .subscribe((previous) => {
-                if (previous) {
-                    this.payrollrun = previous;
-                    this.setSection();
-                    this.router.navigateByUrl(this.url + previous.ID);
-                }
-            }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(result => {
+            if (result) {
+                this.payrollrunService.getPrevious(this.payrollrunID)
+                    .subscribe((previous) => {
+                        if (previous) {
+                            this.payrollrun = previous;
+                            this.router.navigateByUrl(this.url + previous.ID);
+                        }
+                    }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     public nextPayrollrun() {
 
-        if (!super.canDeactivate()) {
+        if (!this.canDeactivate()) {
             return;
         }
 
@@ -571,7 +639,6 @@ export class PayrollrunDetails extends UniView {
             .subscribe((next) => {
                 if (next) {
                     this.payrollrun = next;
-                    this.setSection();
                     this.router.navigateByUrl(this.url + next.ID);
                 }
             }, err => this.errorService.handle(err));
@@ -660,40 +727,16 @@ export class PayrollrunDetails extends UniView {
         this.fields = _.cloneDeep(this.fields);
     }
 
-    private setSection() {
-        if (this.payrollrun) {
-            if (!this.payrollrun.Description && !this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
-            } else if (this.payrollrun.Description && this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
-            }
-        }
-    }
-
-    public toggle(section) {
-        if (this.payrollrun) {
-            if (!section.isOpen) {
-                if (section.sectionId === 1 && (!this.payrollrun.Description || this.payrollrun.Description === '')) {
-                    this.uniform.section(1).toggle();
-                    this._toastService.addToast('Beskrivelse mangler', ToastType.bad, 3, 'Vi må ha en beskrivelse før vi kan vise lønnspostene');
-                    this.uniform.field('Description').focus();
-                } else if (this.selectionList) {
-                    this.selectionList.focusRow();
-                }
-            }
-        }
-    }
-
     public ready(value) {
         this.setEditMode();
-        this.setSection();
         this.formIsReady = true;
     }
 
     private saveAll(done: (message: string) => void) {
 
         if (!this.payrollrun.PayDate) {
-            this._toastService.addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
+            this._toastService
+            .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
             this.uniform.field('PayDate').focus();
             done('');
             return;
@@ -705,7 +748,6 @@ export class PayrollrunDetails extends UniView {
             .flatMap((payrollRun: PayrollRun) => {
 
                 this.payrollrun = payrollRun;
-                this.setSection();
                 super.updateState('payrollRun', this.payrollrun, false);
 
                 if (!this.payrollrunID) {

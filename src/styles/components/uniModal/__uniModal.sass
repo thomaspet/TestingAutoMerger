@@ -20,10 +20,9 @@ dialog.uniModal
     box-sizing: border-box
     border: none
     padding: 2rem
-    backdrop-filter: blur(1rem)
     transition: opacity 300ms ease
     opacity: 1
-    background: transparentize($uni-color-negative, .3)
+    background: transparentize($uni-color-scale4, .3)
     display: flex
     align-items: center
     justify-content: center
@@ -31,7 +30,7 @@ dialog.uniModal
     z-index: map-get($zindex, modal)
     @supports (backdrop-filter: blur(.2rem))
         backdrop-filter: blur(.2rem)
-        background: transparentize($uni-color-negative, .4)
+        background: transparentize($uni-color-scale4, .4)
 
     .closeBtn
         @extend %hideText
@@ -61,7 +60,8 @@ dialog.uniModal
         width: 62.5vw
         margin: 0 auto
         background: $uni-color-negative
-        box-shadow: 0 0 2rem transparentize($uni-color-positive, .9)
+        box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
+        border: 1px solid $uni-color-scale9
         padding: 2rem
         box-sizing: border-box
         border-radius: pxToRem(5)

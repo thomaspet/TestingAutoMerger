@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {WorkBalance, WorkRelation} from '../../../unientities';
-import {ErrorService} from '../../../services/common/ErrorService';
+import {ErrorService} from '../../../services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
 import {MinutesToHoursPipe} from '../utils/pipes';
 import {ChangeMap} from '../utils/changeMap';
@@ -18,7 +18,7 @@ export class View {
         this.loadList(id);
     }
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
-    
+
     @ViewChild(UniTable) private tableView: UniTable;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
@@ -74,7 +74,7 @@ export class View {
         var item = this.createNewItem();
         this.tableView.addRow( JSON.parse( JSON.stringify(item) ) );
         setTimeout( () => {
-            this.tableView.focusRow(this.list.length);    
+            this.tableView.focusRow(this.list.length);
         }, 50);
     }
 
@@ -90,7 +90,7 @@ export class View {
         return new Promise( (resolve, reject) => {
             if (!this.hasUnsavedChanges()) { resolve(true); }
             this.saveChanges(this.currentId).finally( () => this.busy = false )
-                .subscribe( result => { 
+                .subscribe( result => {
                     this.flagSavedChanges(false);
                     if (reloadAfter) { this.reset(); }
                     resolve(true);
@@ -102,7 +102,7 @@ export class View {
     }
 
     private saveChanges(parentID: number): Observable<any> {
-        
+
         var items = this.changeMap.getValues();
         if (items.length > 0) {
             items.forEach( item => item.WorkerID = parentID );
@@ -149,7 +149,7 @@ export class View {
                         case ConfirmActions.ACCEPT:
                             this.save(reloadAfter).then(success => {
                                 resolve(true);
-                            }).catch( () => 
+                            }).catch( () =>
                                 resolve(false) );
                             break;
                         case ConfirmActions.REJECT:
@@ -157,7 +157,7 @@ export class View {
                             break;
                         default: // CANCEL
                             resolve(false);
-                    } 
+                    }
                 });
             } else {
                 resolve(true);
@@ -187,11 +187,11 @@ export class View {
 
     private loadBalances(workRelationId: number) {
         this.busy = true;
-        this.workerService.get('workbalances', 
+        this.workerService.get('workbalances',
         { filter: `workrelationid eq ${workRelationId}`, orderBy: 'BalanceDate Desc'})
             .finally( () => this.busy = false )
             .subscribe( x => {
-            this.list = <any>x;            
+            this.list = <any>x;
             this.list.forEach( (item: any) => item.Hours = safeDec(item.Minutes / 60));
             this.tableConfig = this.createTableConfig();
             this.flagSavedChanges(false);
@@ -238,14 +238,14 @@ export class View {
             .setColumnMenuVisible(true)
             .setEditable(true)
             .setChangeCallback( x => this.onEditChange(x) )
-            .setDeleteButton(true);            
+            .setDeleteButton(true);
 
         cfg.autoAddNewRow = false;
 
         return cfg;
-    }    
+    }
 
-    public onDeleteRow(event) {        
+    public onDeleteRow(event) {
         var rowModel = event.rowModel;
         if (!rowModel) { return; }
         var index = rowModel._originalIndex;
@@ -253,7 +253,7 @@ export class View {
             this.changeMap.addRemove(index, rowModel);
             this.flagSavedChanges(true);
         }
-        this.changeMap.remove(index, true);        
+        this.changeMap.remove(index, true);
     }
 
     private createNewItem(): WorkBalance {
@@ -285,5 +285,5 @@ export class View {
         this.flagSavedChanges(true);
         return event.rowModel;
     }
-   
+
 }

@@ -39,6 +39,7 @@ import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 
 @NgModule({
     imports: [
@@ -94,6 +95,8 @@ import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledge
         UniUploadFileButton,
         ActivateAPForm,
         ActivateAPModal,
+        AddPaymentModal,
+        AddPaymentForm,
 
         // reconciliation
         LedgerAccountReconciliation
@@ -109,7 +112,8 @@ import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledge
         SendEmailModal,
         ImageModalContent,
         ActivateAPForm,
-        ActivateAPModal
+        ActivateAPModal,
+        AddPaymentForm
     ],
     exports: [
         UniDimensions,
@@ -153,6 +157,8 @@ import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledge
         UniUploadFileButton,
         ActivateAPForm,
         ActivateAPModal,
+        AddPaymentModal,
+        AddPaymentForm,
 
         // reconciliation
         LedgerAccountReconciliation
