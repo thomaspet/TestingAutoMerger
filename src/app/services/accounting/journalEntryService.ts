@@ -332,6 +332,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             debitAccount: currentLine ? currentLine.DebitAccount : null,
             debitOriginalBalance: 0,
             debitNetChange: 0,
+            debitNetChangeSubstractOriginal: 0,
             debitNetChangeCurrentLine: 0,
             debitIncomingVatCurrentLine: 0,
             debitOutgoingVatCurrentLine: 0,
@@ -339,6 +340,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             creditAccount: currentLine ? currentLine.CreditAccount : null,
             creditOriginalBalance: 0,
             creditNetChange: 0,
+            creditNetChangeSubstractOriginal: 0,
             creditNetChangeCurrentLine: 0,
             creditIncomingVatCurrentLine: 0,
             creditOutgoingVatCurrentLine: 0,
@@ -397,38 +399,60 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             // a debit account and credit account on either of the other journalentries.
             // Calculate the total net  change for the account using the correct amount
             // and correct +/-
+            let debitNetChange = 0;
+
             if (entry.DebitAccount && currentLine.DebitAccount
                 && entry.DebitAccount.ID === currentLine.DebitAccount.ID) {
                 if (entry.DebitVatTypeID) {
-                    sum.debitNetChange += entry['NetAmount'];
+                    debitNetChange += entry['NetAmount'];
                 } else {
-                    sum.debitNetChange += entry['Amount'];
+                    debitNetChange += entry['Amount'];
                 }
             } else if (entry.CreditAccount && currentLine.DebitAccount
                 && entry.CreditAccount.ID === currentLine.DebitAccount.ID) {
                 if (entry.CreditVatTypeID) {
-                    sum.debitNetChange += entry['NetAmount'] * -1;
+                    debitNetChange += entry['NetAmount'] * -1;
                 } else {
-                    sum.debitNetChange += entry['Amount'] * -1;
+                    debitNetChange += entry['Amount'] * -1;
                 }
             }
+
+            let creditNetChange = 0;
 
             if (entry.CreditAccount && currentLine.CreditAccount
                 && entry.CreditAccount.ID === currentLine.CreditAccount.ID) {
                 if (entry.CreditVatTypeID) {
-                    sum.creditNetChange += entry['NetAmount'] * -1;
+                    creditNetChange += entry['NetAmount'] * -1;
                 } else {
-                    sum.creditNetChange += entry['Amount'] * -1;
+                    creditNetChange += entry['Amount'] * -1;
                 }
             } else if (entry.DebitAccount && currentLine.CreditAccount
                 && entry.DebitAccount.ID === currentLine.CreditAccount.ID) {
                 if (entry.DebitVatTypeID) {
-                    sum.creditNetChange += entry['NetAmount'];
+                    creditNetChange += entry['NetAmount'];
                 } else {
-                    sum.creditNetChange += entry['Amount'];
+                    creditNetChange += entry['Amount'];
                 }
             }
+
+            sum.debitNetChange += debitNetChange;
+            sum.creditNetChange += creditNetChange;
+
+            if (entry.StatusCode) {
+                sum.debitNetChangeSubstractOriginal += debitNetChange;
+                sum.creditNetChangeSubstractOriginal += creditNetChange;
+            }
         });
+
+        // amounts for existing/saved journalentries should not be calculated twice, so lines that have
+        // previously been journaled are first "removed" from the original balance before readding it
+        // to show the effect this journalentry had on the new balance
+        if (sum.debitNetChangeSubstractOriginal !== 0) {
+            sum.debitOriginalBalance = sum.debitOriginalBalance - sum.debitNetChangeSubstractOriginal;
+        }
+        if (sum.creditNetChangeSubstractOriginal !== 0) {
+            sum.creditOriginalBalance = sum.creditOriginalBalance - sum.creditNetChangeSubstractOriginal;
+        }
 
         // set new balance based on the original balance and the total net change for the account
         // (not the change in the current line)

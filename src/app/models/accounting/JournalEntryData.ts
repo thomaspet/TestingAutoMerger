@@ -42,6 +42,8 @@ export class JournalEntryData {
 
     SameOrNew: string;
 
+    StatusCode: number;
+
     JournalEntryPaymentData: JournalEntryPaymentData;
 }
 
