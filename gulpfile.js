@@ -62,7 +62,7 @@ require('./gulp/stimulsoft');
 /**
  * copy onesignal to dist folder
  */
-require('./gulp/onesignal');
+// require('./gulp/onesignal');
 
 /**
  *  copy assets to dist folder
@@ -108,7 +108,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -121,7 +121,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -135,7 +135,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -149,7 +149,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -162,7 +162,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
@@ -176,7 +176,7 @@ var tasks = {
         'angular2',
         'dependencies',
         'stimulsoft',
-        'onesignal',
+        // 'onesignal',
         'templates',
         'assets',
         'web.config',
