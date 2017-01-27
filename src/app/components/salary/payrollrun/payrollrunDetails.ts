@@ -316,8 +316,17 @@ export class PayrollrunDetails extends UniView {
                     ? Observable.of(result)
                     : Observable
                         .fromPromise(
-                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
-                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+                        this.confirmModal.confirm(
+                            'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
+                            'Lagre endringer?', true, {accept: 'Lagre', reject: 'Forkast'}))
+                        .map((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.saveAll((m) => {});
+                                return true;
+                            } else {
+                                return response === ConfirmActions.REJECT;
+                            }
+                        });
             })
             .map(canDeactivate => {
                 canDeactivate
