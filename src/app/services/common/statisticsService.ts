@@ -25,20 +25,24 @@ export class StatisticsService extends BizHttp<string> {
         return this.GetAllByUrlSearchParams(params).map(response => response.json());
     }
 
-    public GetAll(filter: string) {
+    public GetAll(queryString: string) {
         return this.http
             .usingRootDomain()
             .asGET()
-            .withEndPoint(this.relativeURL + '?' + filter)
+            .withEndPoint(this.relativeURL + '?' + queryString)
             .send({})
             .map(response => {
-                const body = response.json();
-                if (!body.Success) {
-                    throw new Error(body.Message);
+                const obj = response.json();
+                if (!obj.Success) {
+                    throw new Error(obj.Message);
                 }
-                return response;
-            })
-            .map(resp => resp.json());
+                return obj;
+            });
+    }
+
+    public GetAllUnwrapped(queryString: string) {
+        return this.GetAll(queryString)
+            .map(response => response.Data);
     }
 
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {

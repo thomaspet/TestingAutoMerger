@@ -5978,9 +5978,9 @@ unique-stream@^2.0.2:
     json-stable-stringify "^1.0.0"
     through2-filter "^2.0.0"
 
-unisearch-ng2@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.1.tgz#7fb84d0dc872b2c3b31f5fed69b69a6b309c9b19"
+unisearch-ng2@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.5.tgz#7868d9cfe4c877aec370407dd2613dd864ae323d"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"

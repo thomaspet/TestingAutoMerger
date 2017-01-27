@@ -1,12 +1,10 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {FormControl} from '@angular/forms';
 import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
-import {AddressService, CustomerService, EHFService, ErrorService} from '../../../services/services';
+import {AddressService, EHFService, UniSearchConfigGeneratorService} from '../../../services/services';
 import {Observable} from 'rxjs/Rx';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
-import {UniSearchConfigGeneratorService} from '../../../services/services';
 declare const _;
 
 @Component({
@@ -78,8 +76,6 @@ export class TofCustomerCard {
 
     constructor(
         private addressService: AddressService,
-        private customerService: CustomerService,
-        private errorService: ErrorService,
         private ehfService: EHFService,
         private elementRef: ElementRef,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
@@ -118,9 +114,7 @@ export class TofCustomerCard {
 
     public openCustomerModal(): Observable<Customer> {
         this.customerDetailsModal.open(this.entity.CustomerID);
-        return this.customerDetailsModal.customerUpdated
-            .switchMap(ID => this.customerService.Get(ID, this.customerExpands))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        return this.customerDetailsModal.customerUpdated;
     }
 
     public openAddressModal() {
