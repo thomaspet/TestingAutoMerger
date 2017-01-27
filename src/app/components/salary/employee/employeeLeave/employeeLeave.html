@@ -1,6 +1,7 @@
 <article class="application" *ngIf="employeeleaveItems">
+    <small *ngIf="employee?.ID === 0">Ansatt må lagres før permisjoner kan registreres<br><br></small>
     <small *ngIf="unsavedEmployments">
-        Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før lagring er kjørt.<br><br>
+        Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før du har lagret.<br><br>
     </small>
     <uni-table [resource]="employeeleaveItems" [config]="tableConfig" (rowDeleted)="onRowDeleted($event)"></uni-table>
 </article>

@@ -12,6 +12,7 @@ import {UniView} from '../../../../../framework/core/uniView';
 })
 export class EmployeeLeaves extends UniView {
     private employee: Employee;
+    private employeeID: number;
     private employments: Employment[] = [];
     private employeeleaveItems: EmployeeLeave[] = [];
     private tableConfig: UniTableConfig;
@@ -33,6 +34,8 @@ export class EmployeeLeaves extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+
+            this.employeeID = +paramsChange['id'];
 
             super.getStateSubject('employee')
                 .subscribe(
@@ -100,7 +103,7 @@ export class EmployeeLeaves extends UniView {
                 }
             });
 
-        this.tableConfig = new UniTableConfig()
+        this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
             .setDeleteButton(true)
             .setColumns([
                 fromDateCol, toDateCol, leavePercentCol,
