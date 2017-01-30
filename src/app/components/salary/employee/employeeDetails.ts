@@ -16,19 +16,9 @@ import { UniView } from '../../../../framework/core/uniView';
 import { TaxCardModal } from './modals/taxCardModal';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import {
-    EmployeeService,
-    EmploymentService,
-    EmployeeLeaveService,
-    DepartmentService,
-    ProjectService,
-    SalaryTransactionService,
-    UniCacheService,
-    SubEntityService,
-    EmployeeTaxCardService,
-    ErrorService,
-    NumberFormat,
-    WageTypeService,
-    SalarySumsService
+    EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
+    SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
+    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService
 } from '../../../services/services';
 
 declare var _; // lodash
@@ -57,6 +47,7 @@ export class EmployeeDetails extends UniView {
     private toolbarConfig: IToolbarConfig;
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
+    private financialYear: FinancialYear;
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -120,7 +111,8 @@ export class EmployeeDetails extends UniView {
         private numberformat: NumberFormat,
         private employeeTaxCardService: EmployeeTaxCardService,
         private salarySumsService: SalarySumsService,
-        private wageTypeService: WageTypeService
+        private wageTypeService: WageTypeService,
+        private financialYearService: FinancialYearService
     ) {
 
         super(router.url, cacheService);
@@ -131,6 +123,11 @@ export class EmployeeDetails extends UniView {
             { name: 'Faste poster', path: 'recurring-post' },
             { name: 'Permisjon', path: 'employee-leave' }
         ];
+
+        this.financialYearService.getActiveFinancialYear()
+            .subscribe((financialyear: FinancialYear) => {
+                this.financialYear = financialyear;
+            }, err => this.errorService.handle(err));
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
@@ -378,9 +375,8 @@ export class EmployeeDetails extends UniView {
             this.employeeWidgets[0] = posterContact;
 
             if (employee.ID) {
-                let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
                 this.salarySumsService
-                    .getSumsInYear(financialYear.Year, this.employeeID)
+                    .getSumsInYear(this.financialYear.Year, this.employeeID)
                     .subscribe((data) => {
                         if (data.netPayment) {
                             let add = Math.floor(data.netPayment / 80);
@@ -469,19 +465,22 @@ export class EmployeeDetails extends UniView {
 
     private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
         let alerts = this.employeeWidgets[2].config.alerts;
-        let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-        let checks = this.taxBoolChecks(employeeTaxCard, financialYear.Year);
-        // Tax info ok?
-        alerts[1] = {
-            text: checks.hasTaxCard
-                ? (checks.taxCardIsUpToDate
-                    ? 'Skattekort ok'
-                    : 'Skattekortet er ikke oppdatert')
-                : 'Skattekort mangler',
-            class: checks.hasTaxCard && checks.taxCardIsUpToDate
-                ? 'success'
-                : 'error'
-        };
+        this.financialYearService.getActiveFinancialYear()
+            .subscribe((financialyear: FinancialYear) => {
+                this.financialYear = financialyear;
+                let checks = this.taxBoolChecks(employeeTaxCard, this.financialYear.Year);
+                // Tax info ok?
+                alerts[1] = {
+                    text: checks.hasTaxCard
+                        ? (checks.taxCardIsUpToDate
+                            ? 'Skattekort ok'
+                            : 'Skattekortet er ikke oppdatert')
+                        : 'Skattekort mangler',
+                    class: checks.hasTaxCard && checks.taxCardIsUpToDate
+                        ? 'success'
+                        : 'error'
+                };
+            });
     }
 
     private checkDirty() {
@@ -571,7 +570,7 @@ export class EmployeeDetails extends UniView {
         let getNewTax = !this.employeeTaxCard || this.employeeID !== this.employeeTaxCard.EmployeeID;
         return getNewTax
             ? this.employeeTaxCardService
-                .GetTaxCard(this.employeeID)
+                .GetTaxCard(this.employeeID, this.financialYear.Year)
                 .flatMap(taxCard => {
                     return taxCard
                         ? Observable.of(taxCard)
@@ -815,12 +814,9 @@ export class EmployeeDetails extends UniView {
     private saveTax(done: (message: string) => void) {
         super.getStateSubject('employeeTaxCard').take(1)
             .subscribe((employeeTaxCard: EmployeeTaxCard) => {
-
-                let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-
-                if (employeeTaxCard.Year !== financialYear.Year) {
+                if (employeeTaxCard.Year !== this.financialYear.Year) {
                     employeeTaxCard.ID = undefined;
-                    employeeTaxCard.Year = financialYear.Year;
+                    employeeTaxCard.Year = this.financialYear.Year;
                 }
 
                 if (employeeTaxCard) {
