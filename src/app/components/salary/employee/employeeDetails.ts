@@ -592,17 +592,17 @@ export class EmployeeDetails extends UniView {
     }
 
     private getEmploymentsObservable(): Observable<Employment[]> {
-        return this.employments 
-        ? Observable.of(this.employments) 
-        : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
-            .map(employments => {
-                employments
-                    .filter(employment => !employment.DimensionsID)
-                    .map(x => {
-                        x.Dimensions = new Dimensions();
-                    });
-                return employments;
-            });
+        return this.employments
+            ? Observable.of(this.employments)
+            : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
+                .map(employments => {
+                    employments
+                        .filter(employment => !employment.DimensionsID)
+                        .map(x => {
+                            x.Dimensions = new Dimensions();
+                        });
+                    return employments;
+                });
     }
 
     private getRecurringPosts() {
@@ -638,9 +638,9 @@ export class EmployeeDetails extends UniView {
     }
 
     private getWageTypesObservable(): Observable<WageType[]> {
-        return this.wageTypes && this.wageTypes.length 
-        ? Observable.of(this.wageTypes) 
-        : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
+        return this.wageTypes && this.wageTypes.length
+            ? Observable.of(this.wageTypes)
+            : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
     }
 
     private getProjects() {
@@ -917,7 +917,14 @@ export class EmployeeDetails extends UniView {
                         }
 
                         if (post.Dimensions && !post.DimensionsID) {
-                            post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
+                            if (Object.keys(post.Dimensions)
+                                .filter(x => x.indexOf('ID') > -1)
+                                .some(key => post.Dimensions[key])) {
+                                post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
+                            } else {
+                                post.Dimensions = null;
+                            }
+
                         }
 
                         let source = (post.ID > 0)

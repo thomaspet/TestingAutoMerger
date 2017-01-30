@@ -389,7 +389,6 @@ export class PayrollrunDetails extends UniView {
         )
             .map((response: [SalaryTransaction[], Project[], Department[]]) => {
                 let [transes, projects, departments] = response;
-
                 if (this.selectionList) {
                     this.selectionList.updateSums();
                 }
@@ -736,7 +735,7 @@ export class PayrollrunDetails extends UniView {
 
         if (!this.payrollrun.PayDate) {
             this._toastService
-            .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
+                .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
             this.uniform.field('PayDate').focus();
             done('');
             return;
@@ -813,7 +812,13 @@ export class PayrollrunDetails extends UniView {
                             });
                     }
                     if (!trans.DimensionsID && trans.Dimensions) {
-                        trans.Dimensions['_createguid'] = this._salaryTransactionService.getNewGuid();
+                        if (Object.keys(trans.Dimensions)
+                            .filter(x => x.indexOf('ID') > -1)
+                            .some(key => trans.Dimensions[key])) {
+                            trans.Dimensions['_createguid'] = this._salaryTransactionService.getNewGuid();
+                        } else {
+                            trans.Dimensions = null;
+                        }
                     }
                 }
                 trans.Wagetype = null;
