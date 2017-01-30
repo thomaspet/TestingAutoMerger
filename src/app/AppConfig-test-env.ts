@@ -5,7 +5,7 @@ export const AppConfig = ({
 
     BASE_URL_INTEGRATION: 'https://test-integration.unieconomy.no/',
 
-    BASE_URL_FILES: 'http://test-unifiles.unieconomy.no/',
+    BASE_URL_FILES: 'https://test-unifiles.unieconomy.no/',
 
     UNI_PUSH_ADAPTER_URL: null,
 
