@@ -3,7 +3,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
 import {UniModal} from '../../../../framework/modals/modal';
 import {StatisticsService, ErrorService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 
 declare const _; // lodash
@@ -39,7 +39,7 @@ export class PaymentRelationsTable implements OnInit {
             this.getTableData(urlParams).catch(this.errorService.handleRxCatch);
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<any[]> {
+    private getTableData(urlParams: URLSearchParams): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
 
         urlParams.set('model', 'Tracelink');

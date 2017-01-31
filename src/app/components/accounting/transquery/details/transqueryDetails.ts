@@ -3,7 +3,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {JournalEntryLine, JournalEntry, Account, FieldType, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -108,7 +108,7 @@ export class TransqueryDetails implements OnInit {
         });
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
+    private getTableData(urlParams: URLSearchParams): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
