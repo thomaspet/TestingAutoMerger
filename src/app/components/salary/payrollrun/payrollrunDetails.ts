@@ -18,14 +18,13 @@ import { SalaryTransactionSelectionList } from '../salarytrans/salarytransaction
 import { UniView } from '../../../../framework/core/uniView';
 import { PreviewModal } from '../../reports/modals/preview/previewModal';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { IUniSaveAction } from '../../../../framework/save/save';
 import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService
 } from '../../../services/services';
-
-import { Subscription } from 'rxjs/Rx';
 
 declare var _;
 declare var moment;
@@ -56,7 +55,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private toolbarconfig: IToolbarConfig;
     private filter: string = '';
     private disableFilter: boolean;
-    private saveActions: any[] = [];
+    private saveActions: IUniSaveAction[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
     private activeFinancialYear: FinancialYear;
 
@@ -67,7 +66,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private departments: Department[];
     private detailsActive: Boolean = false;
     private categories: EmployeeCategory[];
-    private subscriptions: Subscription[] = [];
 
     public categoryFilter: any[] = [];
     public tagConfig: any = {
@@ -271,7 +269,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.subscriptions.map(x => x.unsubscribe());
         this.payrollrunID = undefined;
     }
 
@@ -573,11 +570,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private checkDirty() {
-        if (this.saveActions && this.saveActions.length) {
+        if (this.saveActions && this.saveActions.length && this.payrollrun && !this.payrollrun.StatusCode) {
+            let saveButton = this.saveActions.find(x => x.label === 'Lagre');
+            let calculateButton = this.saveActions.find(x => x.label === 'Avregn');
             if (super.isDirty()) {
-                this.saveActions[0].disabled = false;
+                saveButton.disabled = false;
+                saveButton.main = true;
+                calculateButton.main = false;
             } else {
-                this.saveActions[0].disabled = true;
+                saveButton.disabled = true;
+                if (saveButton.main) {
+                    saveButton.main = false;
+                    calculateButton.main = true;
+                }
             }
         }
     }
@@ -675,11 +680,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public runSettling(done: (message: string) => void) {
-        this.saveActions[0].main = false;
-        this.saveActions[0].disabled = true;
-        this.saveActions[2].main = true;
-        this.saveActions[2].disabled = true;
-        this.saveActions = _.cloneDeep(this.saveActions);
         this.payrollrunService.runSettling(this.payrollrunID)
             .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
@@ -692,11 +692,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             (err) => {
                 done('Feil ved avregning');
                 this.errorService.handle(err);
-                this.saveActions[2].main = false;
-                this.saveActions[2].disabled = false;
-                this.saveActions[0].main = true;
                 this.checkDirty();
-                this.saveActions = _.cloneDeep(this.saveActions);
             });
     }
 
@@ -766,7 +762,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
         if (!this.payrollrun.PayDate) {
             this._toastService
-                .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Må ha utbetalingsdato før vi kan lagre');
+                .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Du må angi utbetalingsdato før du kan lagre');
             this.uniform.field('PayDate').focus();
             done('');
             return;
