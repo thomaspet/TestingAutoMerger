@@ -58,11 +58,9 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             this.payrollRunID = +param['id'];
             super.updateCacheKey(router.url);
             super.getStateSubject('employees').subscribe((employees: Employee[]) => {
-
                 this.selectedIndex = 0;
-                if (employees && employees[0].TaxCards) {
-                    this.employeeList = employees || [];
-                }
+                this.employeeList = _.cloneDeep(employees) || [];
+
                 if (this.employeeList && this.employeeList.length) {
                     this.focusRow(0);
                 }

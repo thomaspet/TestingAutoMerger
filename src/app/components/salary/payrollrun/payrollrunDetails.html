@@ -1,4 +1,10 @@
-<uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()">
+<uni-toolbar [config]="toolbarconfig"
+             [contextmenu]="contextMenuItems"
+             [saveactions]="saveActions"
+             [statustrack]="getStatustrackConfig()"
+             [tags]="categoryFilter"
+             [tagConfig]="tagConfig"
+             (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
 <header class="poster" [attr.aria-busy]="busy">
@@ -15,7 +21,6 @@
 </section>
 
 <section class="content" [attr.aria-disabled]="detailsActive">
-    <!--<salarytrans-filter [isDisabled]="disableFilter" (filtStringChange)="changeFilter($event)"></salarytrans-filter>-->
     <salarytrans></salarytrans>
 </section>
 <report-preview-modal></report-preview-modal>

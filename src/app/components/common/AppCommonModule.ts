@@ -24,6 +24,7 @@ import {RegisterPaymentModal} from './modals/registerPaymentModal';
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
+import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniDimensions} from './dimensions/UniDimensions';
 import {ProjectList} from './dimensions/project/list/projectList';
@@ -95,6 +96,7 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         UniUploadFileButton,
         ActivateAPForm,
         ActivateAPModal,
+        UniTags,
         AddPaymentModal,
         AddPaymentForm,
 
@@ -157,6 +159,7 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         UniUploadFileButton,
         ActivateAPForm,
         ActivateAPModal,
+        UniTags,
         AddPaymentModal,
         AddPaymentForm,
 
