@@ -142,7 +142,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             : 'Utbetalingsdato ikke satt'
                     },
                     {
-                        title: 'Detaljer',
+                        title: 'Oppsett',
                         classname: this.detailsActive ? 'entityDetails_toggle -is-active' : 'entityDetails_toggle',
                         event: this.toggleDetailsView.bind(this)
                     }],
