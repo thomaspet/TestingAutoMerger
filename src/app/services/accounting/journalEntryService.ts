@@ -304,7 +304,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         filter = `(${filter}) ` +
-                `and (isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
+                `and (( isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 and Period.AccountYear le ${currentFinancialYear.Year}) or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
 
         return this.statisticsService.GetAll(`model=JournalEntryLine` +
             `&expand=Account.TopLevelAccountGroup,SubAccount,Period` +
