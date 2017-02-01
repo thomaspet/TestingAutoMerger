@@ -146,11 +146,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private createTableConfig() {
-        let wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
+        let wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text).setWidth('9rem');
         let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
         let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
         let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
-        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
+        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('5rem');
         let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
         let employmentidCol = new UniTableColumn('employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
@@ -183,7 +183,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 lookupFunction: (searchValue) => {
                     return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
                 }
-            });
+            })
+            .setWidth('4rem');
 
         let projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
@@ -250,19 +251,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 } else {
                     return 'Nei';
                 }
-            });
-
-        let transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number, false)
-            .setTemplate((dataItem) => {
-                if (dataItem.IsRecurringPost === undefined || dataItem.IsRecurringPost === null) {
-                    return;
-                }
-                if (dataItem.IsRecurringPost) {
-                    return 'Fast';
-                } else {
-                    return 'Variabel';
-                }
-            });
+            })
+            .setWidth('5.3rem');
 
         let wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
@@ -279,9 +269,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                         }
                     });
                 }
-            });
-
-
+            })
+            .setWidth('5rem');
 
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun ? this.payrollRun.StatusCode < 1 : true)
             .setContextMenu([{
@@ -291,8 +280,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             }])
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
-                fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
-                transtypeCol, payoutCol, projectCol, departmentCol
+                fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol
             ])
             .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
