@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
     selector: 'uni-tags',
@@ -15,7 +15,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 
             <small *ngIf="config?.helpText">{{config.helpText}}</small>
 
-            <ul class="tags_list">
+            <ul class="tags_list" [attr.aria-readonly]="config?.readOnly">
                 <li class="tags_tag"
                     *ngFor="let tag of tags">
                     {{tag.title}}
@@ -26,7 +26,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
                     </button>
                 </li>
             </ul>
-            <section class="tags_lookup">
+            <section class="tags_lookup" *ngIf="config && !config.readOnly">
                 <label>
                     {{config?.lookupLabel || 'Søk opp kategori'}}
 
@@ -48,6 +48,7 @@ export class UniTags {
         helpText?: string;
         lookupLabel?: string;
         truncate?: number;
+        readOnly?: boolean;
     };
     @Input() public tags: any[];
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();
@@ -81,13 +82,15 @@ export class UniTags {
     }
 
     public remove(tag: string): void {
-        this.tags.splice(this.tags.indexOf(tag), 1);
-        this.tagsChange.emit(this.tags);
+        if (!this.config.readOnly) {
+            this.tags.splice(this.tags.indexOf(tag), 1);
+            this.tagsChange.emit(this.tags);
+        }
     }
 
     public add(tag: string): void {
         if (tag === '') { return; };
-        this.tags.push({title: tag});
+        this.tags.push({ title: tag });
         this.newTag = '';
         this.tagsChange.emit(this.tags);
     }

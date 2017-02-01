@@ -206,6 +206,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
             super.getStateSubject('salaryTransactions').subscribe((salaryTransactions: SalaryTransaction[]) => {
                 this.salaryTransactions = salaryTransactions;
+                this.tagConfig.readOnly = this.salaryTransactions.some(x => x.ID && !x.IsRecurringPost);
                 this.checkDirty();
             });
 
