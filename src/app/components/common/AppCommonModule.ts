@@ -127,7 +127,7 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         ActivateAPModal,
         ReminderSettingsForm,
         ReminderSettingsModal,
-        ReminderSettings
+        ReminderSettings,
         AddPaymentForm
     ],
     exports: [

@@ -32,8 +32,7 @@ export const AppConfig = ({
     },
 
     DEFAULT_HEADERS: {
-        'Content-Type': 'application/json',
-        'Client': 'economytestas'
+        'Content-Type': 'application/json'
     },
 
     STYLES_SRC: '/styles/',
