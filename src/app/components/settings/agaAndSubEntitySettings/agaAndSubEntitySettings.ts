@@ -250,6 +250,20 @@ export class AgaAndSubEntitySettings implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
+        let postTax = new UniFieldLayout();
+        postTax.Label = 'Poster skattetrekk automatisk';
+        postTax.EntityType = 'CompanySalary';
+        postTax.Property = 'PostToTaxDraw';
+        postTax.FieldType = FieldType.MULTISELECT;
+        postTax.ReadOnly = false;        
+        postTax.Hidden = false;
+        postTax.Section = 2;        
+        postTax.Options = {
+            source: this.companySalary,
+            valueProperty: 'PostToTaxDraw'
+        };
+        
+
         let paymentInterval = new UniFieldLayout();
         paymentInterval.EntityType = 'CompanySalary';
         paymentInterval.Label = 'Lønnsintervall';
@@ -284,7 +298,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountAllocatedAgaVacation,
             mainAccountCostAgaVacation,
             interrimRemit,
-            paymentInterval
+            paymentInterval,
+            postTax
         ];
     }
 
