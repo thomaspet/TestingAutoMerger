@@ -777,7 +777,7 @@ export class EmployeeDetails extends UniView {
             brInfo.DefaultBankAccount = null;
         }
 
-        if (brInfo.DefaultBankAccount !== null && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
+        if (brInfo.DefaultBankAccount !== null && brInfo.DefaultBankAccount !== undefined && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
             brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
         }
 
