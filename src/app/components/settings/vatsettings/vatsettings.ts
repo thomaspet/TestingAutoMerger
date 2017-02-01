@@ -6,6 +6,7 @@ import {VatType} from '../../../unientities';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {VatDeductionSettings} from './vatdeductions/vatdeductionsettings';
 
 @Component({
     selector: 'vat-settings',
@@ -14,27 +15,56 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 export class VatSettings {
     @ViewChild(VatTypeList) private vatTypeList: VatTypeList;
     @ViewChild(VatTypeDetails) private vatTypeDetails: VatTypeDetails;
+    @ViewChild(VatDeductionSettings) private vatDeductionSettings: VatDeductionSettings;
 
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({ name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: UniModules.Vatsettings, active: true });
+
+        this.showTab('vatsettings');
     }
 
     private vatType: VatType;
     private hasChanges: boolean = false;
-    private toolbarconfig: IToolbarConfig = {
-        title: 'MVA-innstillinger',
-        omitFinalCrumb: true
-    };
+    private activeTab: string = '';
 
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (completeEvent) => this.saveSettings(completeEvent),
-            main: true,
-            disabled: false
+    private toolbarconfig: IToolbarConfig;
+
+    private saveactions: IUniSaveAction[];
+
+    private showTab(newTab: string) {
+        this.activeTab = newTab;
+
+        if (newTab === 'vatsettings') {
+            this.saveactions = [
+                {
+                    label: 'Lagre innstillinger',
+                    action: (completeEvent) => this.saveSettings(completeEvent),
+                    main: true,
+                    disabled: false
+                }
+            ];
+
+            this.toolbarconfig = {
+                title: 'MVA-innstillinger',
+                omitFinalCrumb: true
+            };
+        } else if (newTab === 'deductions') {
+            this.saveactions = [
+                {
+                    label: 'Lagre',
+                    action: (completeEvent) => this.saveSettings(completeEvent),
+                    main: true,
+                    disabled: false
+                }
+            ];
+
+            this.toolbarconfig = {
+                title: 'Forholdsvis MVA-innstillinger',
+                omitFinalCrumb: true
+            };
         }
-    ];
+    }
 
     public changeVatType(vatType) {
 
@@ -64,7 +94,11 @@ export class VatSettings {
     }
 
     private saveSettings(completeEvent) {
-        this.vatTypeDetails.saveVatType(completeEvent);
+        if (this.vatTypeDetails) {
+            this.vatTypeDetails.saveVatType(completeEvent);
+        } else if (this.vatDeductionSettings) {
+            this.vatDeductionSettings.saveVatDeductions(completeEvent);
+        }
     }
 }
 

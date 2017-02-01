@@ -1,20 +1,13 @@
 <article class="application employee-personal-details" [attr.aria-busy]="busy">
 
-    <uni-form *ngIf="employee"
-              [config]="config"
-              [fields]="fields"
-              [model]="employee"
-              (changeEvent)="onFormChange($event)"
-              (readyEvent)="onFormReady($event)">
+    <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (changeEvent)="onFormChange($event)" (readyEvent)="onFormReady($event)">
     </uni-form>
-    <uni-form [config]="config"
-              [fields]="taxFields"
-              [model]="employeeTaxCard"
-              (changeEvent)="onTaxFormChange($event)">
+    <uni-form [config]="config" [fields]="taxFields" [model]="employeeTaxCard" (changeEvent)="onTaxFormChange($event)">
 
     </uni-form>
 
     <email-modal></email-modal>
     <phone-modal></phone-modal>
     <address-modal></address-modal>
+    <bankaccount-modal></bankaccount-modal>
 </article>

@@ -59,6 +59,7 @@ section.salarytrans-filter
     margin: 0
     padding: 0
     position: relative
+    min-height: 2rem
 
 .detail_header_info
     width: 100%
@@ -233,3 +234,60 @@ salarytrans
     .splitview_detail
         max-width: 80%
         min-width: 80%
+
+payrollrun-details .entityDetails uni-section
+    @extend .application
+    flex-basis: auto
+    position: relative
+
+    @include media(medium, min-width)
+        padding-top: 1rem
+
+        & *
+            order: 9
+
+        .payrollDetails_ID
+            order: 1
+            max-width: 5rem
+
+        .payrollDetails_description
+            order: 2
+            max-width: 15rem
+
+        .payrollDetails_taxdrawfactor
+            order: 3
+            max-width: 10rem
+
+        .payrollDetails_excludeRecurringPosts
+            order: 4
+
+        uni-linebreak:nth-of-type(1)
+            order: 5
+
+        .payrollDetails_payDate,
+        .payrollDetails_fromDate,
+        .payrollDetails_toDate,
+            order: 6
+            max-width: 10rem
+
+        .payrollDetails_excludeRecurringPosts,
+        .payrollDetails_holidayPayDeduction
+
+            uni-checkbox-input
+                text-align: center
+                width: calc(87.5vw - 67rem)
+
+            label
+                @extend label.toggle
+                width: 15rem
+                display: inline-block
+
+        .payrollDetails_freeText
+            position: absolute
+            top: 1rem
+            right: 0
+            width: calc(87.5vw - 57rem)
+            max-width: 30rem
+
+            textarea
+                height: 6rem

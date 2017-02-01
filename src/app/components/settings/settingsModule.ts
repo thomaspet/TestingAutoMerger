@@ -24,8 +24,10 @@ import {UserSettings} from './userSettings/userSettings';
 import {VatSettings} from './vatsettings/vatsettings';
 import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
+import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {GrantsModal, GrantsModalContent} from './agaAndSubEntitySettings/modals/grantsModal';
 import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings/modals/freeamountModal';
+import {WebHookSettings} from './webHookSettings/webHookSettings';
 
 @NgModule({
     imports: [
@@ -59,10 +61,12 @@ import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings
         VatSettings,
         VatTypeDetails,
         VatTypeList,
+        VatDeductionSettings,
         GrantsModal,
         GrantsModalContent,
         FreeamountModal,
-        FreeamountModalContent
+        FreeamountModalContent,
+        WebHookSettings
     ],
     entryComponents: [
         GrantsModalContent,
@@ -84,6 +88,7 @@ import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings
         VatSettings,
         VatTypeDetails,
         VatTypeList,
+        VatDeductionSettings,
         GrantsModal,
         GrantsModalContent,
         FreeamountModal,

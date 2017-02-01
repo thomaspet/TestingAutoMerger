@@ -1,28 +1,21 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { EmployeeTaxCard, FieldType, FinancialYear } from '../../../unientities';
-import { FinancialYearService } from '../../services';
-import { ErrorService } from '../../common/errorService';
+import { EmployeeTaxCard, FieldType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
-    constructor(protected http: UniHttp,
-        private financialYearService: FinancialYearService,
-        private errorService: ErrorService,
-        ) {
+    constructor(protected http: UniHttp) {
         super(http);
         this.relativeURL = EmployeeTaxCard.RelativeUrl;
         this.entityType = EmployeeTaxCard.EntityType;
     }
 
-    public GetTaxCard(employeeID: number): Observable<EmployeeTaxCard> {
-
-        let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+    public GetTaxCard(employeeID: number, activeYear: number): Observable<EmployeeTaxCard> {
         return this.GetAll(
             'filter=EmployeeID eq ' + employeeID
-            + ' and Year le ' + financialYear.Year
+            + ' and Year le ' + activeYear
             + '&orderby=Year DESC'
             + '&top=1')
             .map(response => response[0]);
@@ -201,7 +194,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Property: '_lastUpdated',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    FieldType: FieldType.DATE_TIME_PICKER,
                     ReadOnly: true,
                     LookupField: false,
                     Label: 'Sist oppdatert',

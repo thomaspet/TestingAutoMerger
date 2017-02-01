@@ -54,7 +54,7 @@ export class VacationpayModalContent {
 
         Observable.forkJoin(
             this._basicamountService.getBasicAmounts(),
-            this._financialYearService.getActiveFinancialYearEntity()
+            this._financialYearService.getActiveFinancialYear()
         )
             .subscribe((response: any) => {
                 let [basics, financial] = response;

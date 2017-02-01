@@ -32,7 +32,7 @@ import * as _ from 'lodash';
 export class CustomerDetails {
     @Input() public customerID: any;
     @Input() public modalMode: boolean;
-    @Output() public customerUpdated: EventEmitter<number> = new EventEmitter<number>();
+    @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -542,7 +542,7 @@ export class CustomerDetails {
                 (customer) => {
                     completeEvent('Kunde lagret');
                     if (this.modalMode) {
-                        this.customerUpdated.next(this.customer.ID);
+                        this.customerUpdated.next(this.customer);
                     } else {
                         this.customerService.Get(this.customer.ID, this.expandOptions).subscribe(customer => {
                             this.customer = customer;
@@ -560,7 +560,7 @@ export class CustomerDetails {
                 (newCustomer) => {
                     completeEvent('Kunde lagret');
                     if (this.modalMode) {
-                        this.customerUpdated.next(newCustomer.ID);
+                        this.customerUpdated.next(newCustomer);
                     } else {
                         this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
                     }

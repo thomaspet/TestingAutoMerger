@@ -505,6 +505,12 @@ export class InvoiceDetails {
             }
         }
 
+        if (!this.invoice.PaymentDueDate) {
+            this.invoice.PaymentDueDate = <any>new LocalDate(
+                moment(this.invoice.InvoiceDate).add(this.invoice.CreditDays, 'days').toDate()
+            );
+        }
+
         if (!this.invoice.DeliveryDate) {
             // TODO: Remove <any> when backend is ready
             this.invoice.DeliveryDate = this.invoice.InvoiceDate || <any>new LocalDate();

@@ -4,7 +4,7 @@ import { WageTypeService, SalaryTransactionService, UniCacheService, AccountServ
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
-    SalaryTransactionSupplement, WageTypeSupplement, Account
+    SalaryTransactionSupplement, WageTypeSupplement, Account, Employee
 } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
@@ -17,6 +17,7 @@ import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactio
 })
 
 export class RecurringPost extends UniView {
+    private employeeID: number;
     private tableConfig: UniTableConfig;
     private recurringPosts: SalaryTransaction[] = [];
     private filteredPosts: SalaryTransaction[];
@@ -42,6 +43,8 @@ export class RecurringPost extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+
+            this.employeeID = +paramsChange['id'];
 
             const recurringPostSubject = super.getStateSubject('recurringPosts');
             const employmentSubject = super.getStateSubject('employments');
@@ -242,7 +245,7 @@ export class RecurringPost extends UniView {
 
 
 
-        this.tableConfig = new UniTableConfig()
+        this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
             .setDeleteButton(true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {

@@ -11,7 +11,7 @@ import {
     StaticRegisterService
 } from './services/services';
 
-declare const OneSignal;
+// declare const OneSignal;
 declare const window;
 
 @Component({
@@ -57,33 +57,32 @@ export class App {
         } /* don't need error handling */);
     }
 
-    private setOneSignal() {
+    // private setOneSignal() {
+    //     if (AppConfig.UNI_PUSH_ADAPTER_URL) {
+    //         OneSignal.push(() => {
+    //             OneSignal.getUserId((userID) => {
+    //                 this.userService.getCurrentUser().subscribe(
+    //                     (user) => {
+    //                         const body: PushMapper = {
+    //                             DeviceToken: userID,
+    //                             UserIdentity: user.GlobalIdentity
+    //                         };
 
-        if (AppConfig.UNI_PUSH_ADAPTER_URL) {
-            OneSignal.push(() => {
-                OneSignal.getUserId((userID) => {
-                    this.userService.getCurrentUser().subscribe(
-                        (user) => {
-                            const body: PushMapper = {
-                                DeviceToken: userID,
-                                UserIdentity: user.GlobalIdentity
-                            };
-
-                            this.http.asPOST()
-                                .withBody(body)
-                                .withHeader('Content-Type', 'application/json')
-                                .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
-                                .subscribe(
-                                    res => null,
-                                    err => this.errorService.handle(err)
-                                );
-                        },
-                        err => this.errorService.handle(err)
-                    );
-                });
-            });
-        }
-    }
+    //                         this.http.asPOST()
+    //                             .withBody(body)
+    //                             .withHeader('Content-Type', 'application/json')
+    //                             .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
+    //                             .subscribe(
+    //                                 res => null,
+    //                                 err => this.errorService.handle(err)
+    //                             );
+    //                     },
+    //                     err => this.errorService.handle(err)
+    //                 );
+    //             });
+    //         });
+    //     }
+    // }
 
     private initialize() {
 
@@ -114,8 +113,8 @@ export class App {
         // this.staticRegisterService.checkForStaticRegisterUpdate();
 
         // OneSignal
-        if (window.ENV === 'production') {
-            this.setOneSignal();
-        }
+        // if (window.ENV === 'production') {
+        //     this.setOneSignal();
+        // }
     }
 }

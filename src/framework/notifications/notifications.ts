@@ -10,7 +10,7 @@ import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRo
 import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';
 import { entityTypeMap as accountingMap } from '../../app/components/accounting/accountingRoutes';
 import { entityTypeMap as timetrackingMap } from '../../app/components/timetracking/timetrackingRoutes';
-declare const OneSignal;
+// declare const OneSignal;
 
 @Component({
     selector: 'uni-notifications',
@@ -29,11 +29,11 @@ export class UniNotifications {
         private cdr: ChangeDetectorRef
     ) {
         this.getNotifications();
-        if (typeof (OneSignal) !== 'undefined') {
-            OneSignal.on('notificationDisplay', (event) => {
-                this.getNotifications();
-            });
-        }
+        // if (typeof (OneSignal) !== 'undefined') {
+        //     OneSignal.on('notificationDisplay', (event) => {
+        //         this.getNotifications();
+        //     });
+        // }
     }
 
     private getNotifications() {

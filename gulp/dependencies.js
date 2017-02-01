@@ -23,6 +23,11 @@ gulp.task('dependencies', function() {
             './node_modules/uniform-ng2/**/*.css',
             './node_modules/uniform-ng2/**/*.html',
 
+            './node_modules/unisearch-ng2/**/*.js',
+            './node_modules/unisearch-ng2/**/*.js.map',
+            './node_modules/unisearch-ng2/**/*.css',
+            './node_modules/unisearch-ng2/**/*.html',
+
             // Moment
             './node_modules/moment/min/moment.min.js',
             './node_modules/moment/locale/nb.js',

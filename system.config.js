@@ -8,6 +8,10 @@ var packages = {
         main: 'main',
         defaultExtension: 'js'
     },
+    'unisearch-ng2': {
+        main: 'main',
+        defaultExtension: 'js'
+    },
     'moment': {
         main: 'moment',
         defaultExtension: 'js'

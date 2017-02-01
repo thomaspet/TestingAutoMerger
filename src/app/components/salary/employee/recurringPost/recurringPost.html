@@ -1,10 +1,8 @@
 <article class="application" *ngIf="recurringPosts">
+    <small *ngIf="employee?.ID === 0">Ansatt må lagres før faste poster kan registreres<br><br></small>
     <small *ngIf="unsavedEmployments">
-        Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før lagring er kjørt.<br><br>
+        Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før du har lagret.<br><br>
     </small>
-    <uni-table [resource]="filteredPosts"
-               [config]="tableConfig"
-               (rowDeleted)="onRowDeleted($event)">
-    </uni-table>
+    <uni-table [resource]="filteredPosts" [config]="tableConfig" (rowDeleted)="onRowDeleted($event)"></uni-table>
 </article>
 <sal-trans-supplements-modal (updatedSalaryTransaction)="updateSupplementsOnTransaction($event)"></sal-trans-supplements-modal>

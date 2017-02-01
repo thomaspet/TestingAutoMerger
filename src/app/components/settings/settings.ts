@@ -54,6 +54,7 @@ export class Settings {
         this.childRoutes = [
             { name: 'Firma', path: 'company' },
             { name: 'Lønn', path: 'aga-and-subentities' },
+            { name: 'Integrasjoner', path: 'webhooks' },
             { name: 'Bruker', path: 'user' },
             { name: 'Roller', path: 'users' },
             { name: 'Altinn', path: 'altinn' },

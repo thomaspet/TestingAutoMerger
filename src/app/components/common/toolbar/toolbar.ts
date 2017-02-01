@@ -1,14 +1,14 @@
-import { IUniSaveAction } from './../../../../framework/save/save';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { UniStatusTrack } from '../../common/toolbar/statustrack';
+import {IUniSaveAction} from './../../../../framework/save/save';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
-
 export interface IToolbarConfig {
     title?: string;
     subheads?: {
         title: string;
         classname?: string;
         link?: string;
+        event?: () => void;
     }[];
     statustrack?: UniStatusTrack.IStatus[];
     navigation?: {
@@ -35,6 +35,12 @@ export interface ICommentsConfig {
 })
 export class UniToolbar {
     @Input()
+    public tags: any;
+
+    @Input()
+    public tagConfig: any;
+
+    @Input()
     public config: IToolbarConfig;
 
     @Input()
@@ -48,6 +54,9 @@ export class UniToolbar {
 
     @Input()
     public commentsConfig: ICommentsConfig;
+
+    @Output()
+    public tagsChange: EventEmitter<any> = new EventEmitter();
 
     @Output()
     public statusSelectEvent: EventEmitter<any> = new EventEmitter();
@@ -75,5 +84,9 @@ export class UniToolbar {
 
     public selectStatus(event) {
         this.statusSelectEvent.emit(event);
+    }
+
+    public tagsChangeEvent(tags) {
+        this.tagsChange.emit(tags);
     }
 }

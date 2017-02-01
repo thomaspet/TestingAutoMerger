@@ -1,41 +1,58 @@
-import {Routes} from '@angular/router';
+import {ModuleWithProviders} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
-import {Settings} from './settings';
+import {Settings} from "./settings";
+import {AuthGuard} from "../../authGuard";
+import {WebHookSettings} from './webHookSettings/webHookSettings';
 
-export const settingsRoutes: Routes = [
+export const childRoutes: Routes = [
     {
         path: '',
-        component: Settings,
-        children: [
-            {
-                path: '',
-                pathMatch: 'full',
-                redirectTo: 'company'
-            },
-            {
-                path: 'company',
-                component: CompanySettingsComponent
-            },
-            {
-                path: 'aga-and-subentities',
-                component: AgaAndSubEntitySettings
-            },
-            {
-                path: 'user',
-                component: UserSettings
-            },
-            {
-                path: 'users',
-                component: Users
-            },
-            {
-                path: 'altinn',
-                component: AltinnSettings
-            }
-        ]
+        redirectTo: 'company',
+        pathMatch: 'full'
+    },
+    {
+        path: 'company',
+        component: CompanySettingsComponent
+    },
+    {
+        path: 'aga-and-subentities',
+        component: AgaAndSubEntitySettings
+    },
+    {
+        path: 'webhooks',
+        component: WebHookSettings
+    },
+    {
+        path: 'user',
+        component: UserSettings
+    },
+    {
+        path: 'users',
+        component: Users
+    },
+    {
+        path: 'altinn',
+        component: AltinnSettings
     }
 ];
+
+const settingsRoutes: Routes = [
+    {
+        path: 'settings',
+        component: Settings,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: childRoutes
+        }],
+
+    }
+];
+
+export const routes: ModuleWithProviders = RouterModule.forChild(settingsRoutes);

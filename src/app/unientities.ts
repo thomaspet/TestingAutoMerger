@@ -404,6 +404,23 @@ export class AccountVisibilityGroup extends UniEntity {
 }
 
 
+export class PaymentBatchType extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'PaymentBatchType';
+
+    public Code: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class PostalCode extends UniEntity {
     public static RelativeUrl = 'postalcodes';
     public static EntityType = 'PostalCode';
@@ -1007,6 +1024,68 @@ export class Notification extends UniEntity {
 }
 
 
+export class CustomerInvoiceReminderRule extends UniEntity {
+    public static RelativeUrl = 'invoicereminderrules';
+    public static EntityType = 'CustomerInvoiceReminderRule';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerInvoiceReminderSettingsID: number;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public MinimumDaysFromDueDate: number;
+    public ReminderFee: number;
+    public ReminderNumber: number;
+    public StatusCode: number;
+    public Title: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UseMaximumLegalReminderFee: boolean;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public CustomFields: any;
+}
+
+
+export class CustomerInvoiceReminderSettings extends UniEntity {
+    public static RelativeUrl = 'invoiceremindersettings';
+    public static EntityType = 'CustomerInvoiceReminderSettings';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public MinimumAmountToRemind: number;
+    public RemindersBeforeDebtCollection: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
+    public CustomFields: any;
+}
+
+
+export class CustomerInvoiceReminder extends UniEntity {
+    public static RelativeUrl = 'invoicereminders';
+    public static EntityType = 'CustomerInvoiceReminder';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerInvoiceID: number;
+    public Deleted: boolean;
+    public DueDate: LocalDate;
+    public ID: number;
+    public RemindedDate: LocalDate;
+    public ReminderFee: number;
+    public ReminderNumber: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomerInvoice: CustomerInvoice;
+    public CustomFields: any;
+}
+
+
 export class Customer extends UniEntity {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
@@ -1015,9 +1094,11 @@ export class Customer extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreditDays: number;
+    public CustomerInvoiceReminderSettingsID: number;
     public CustomerNumber: number;
     public Deleted: boolean;
     public DimensionsID: number;
+    public DontSendReminders: boolean;
     public GLN: string;
     public ID: number;
     public OrgNumber: string;
@@ -1028,6 +1109,7 @@ export class Customer extends UniEntity {
     public WebUrl: string;
     public Info: BusinessRelation;
     public Dimensions: Dimensions;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomFields: any;
 }
 
@@ -1055,6 +1137,7 @@ export class CustomerInvoice extends UniEntity {
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
+    public DontSendReminders: boolean;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -1724,6 +1807,25 @@ export class EmployeeTaxCard extends UniEntity {
 }
 
 
+export class PayrollRunCategoryLink extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'PayrollRunCategoryLink';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EmployeeCategoryID: number;
+    public ID: number;
+    public PayrollRunID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public EmployeeCategory: EmployeeCategory;
+    public PayrollRun: PayrollRun;
+    public CustomFields: any;
+}
+
+
 export class SalaryTransactionSupplement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SalaryTransactionSupplement';
@@ -2307,6 +2409,7 @@ export class CompanySettings extends UniEntity {
     public CurrentAccountingYear: number;
     public CustomerAccountID: number;
     public CustomerCreditDays: number;
+    public CustomerInvoiceReminderSettingsID: number;
     public DefaultAddressID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
@@ -2333,17 +2436,18 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: Date;
     public VatReportFormID: number;
     public WebAddress: string;
-    public CompanyBankAccount: BankAccount;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomFields: any;
 }
 
@@ -3162,9 +3266,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public CustomFields: any;
 }
 
@@ -3309,6 +3413,7 @@ export class PaymentBatch extends UniEntity {
     public NumberOfPayments: number;
     public OcrHeadingStrings: string;
     public OcrTransmissionNumber: number;
+    public PaymentBatchTypeID: number;
     public PaymentFileID: number;
     public PaymentReferenceID: string;
     public PaymentStatusReportFileID: number;
@@ -3319,6 +3424,7 @@ export class PaymentBatch extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Payments: Array<Payment>;
+    public PaymentBatchType: PaymentBatchType;
     public CustomFields: any;
 }
 
@@ -3695,11 +3801,11 @@ export class Account extends UniEntity {
     public UsePostPost: boolean;
     public VatTypeID: number;
     public Visible: boolean;
-    public VatType: VatType;
-    public MainAccount: Account;
     public Currency: Currency;
     public AccountGroup: AccountGroup;
     public TopLevelAccountGroup: AccountGroup;
+    public VatType: VatType;
+    public MainAccount: Account;
     public Customer: Customer;
     public Supplier: Supplier;
     public Employee: Employee;
@@ -3843,9 +3949,9 @@ export class FinancialYear extends UniEntity {
 }
 
 
-export class VatCodeDeduction extends UniEntity {
-    public static RelativeUrl = 'vatcodedeductions';
-    public static EntityType = 'VatCodeDeduction';
+export class VatDeduction extends UniEntity {
+    public static RelativeUrl = 'vatdeductions';
+    public static EntityType = 'VatDeduction';
 
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3857,11 +3963,8 @@ export class VatCodeDeduction extends UniEntity {
     public UpdatedBy: string;
     public ValidFrom: Date;
     public ValidTo: Date;
-    public VatTypeID: number;
-    public VatType: VatType;
     public CustomFields: any;
 }
-
 
 export class VatType extends UniEntity {
     public static RelativeUrl = 'vattypes';
@@ -3892,7 +3995,6 @@ export class VatType extends UniEntity {
     public Visible: boolean;
     public IncomingAccount: Account;
     public OutgoingAccount: Account;
-    public Deductions: Array<VatCodeDeduction>;
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
@@ -4132,8 +4234,8 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public Previous: BalanceInfo;
     public WorkRelation: WorkRelation;
+    public Previous: BalanceInfo;
     public CustomFields: any;
 }
 
@@ -4215,6 +4317,36 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
     public MessageID: string;
     public period: number;
     public TaxDraw: number;
+}
+
+
+export class SalaryTransactionSums extends UniEntity {
+    public baseAGA: number;
+    public basePercentTax: number;
+    public baseTableTax: number;
+    public baseVacation: number;
+    public calculatedAGA: number;
+    public calculatedVacationPay: number;
+    public Employee: number;
+    public grossPayment: number;
+    public netPayment: number;
+    public paidAdvance: number;
+    public paidPension: number;
+    public Payrun: number;
+    public percentTax: number;
+    public tableTax: number;
+}
+
+
+export class SalaryTransactionPeriodSums extends UniEntity {
+    public AgaRate: number;
+    public AgaZone: string;
+    public FromPeriod: number;
+    public MunicipalName: string;
+    public OrgNumber: string;
+    public ToPeriod: number;
+    public Year: number;
+    public Sums: SalaryTransactionSums;
 }
 
 
@@ -4305,36 +4437,6 @@ export class Fradrag extends UniEntity {
 
 
 export class Forskuddstrekk extends UniEntity {
-}
-
-
-export class SalaryTransactionSums extends UniEntity {
-    public baseAGA: number;
-    public basePercentTax: number;
-    public baseTableTax: number;
-    public baseVacation: number;
-    public calculatedAGA: number;
-    public calculatedVacationPay: number;
-    public Employee: number;
-    public grossPayment: number;
-    public netPayment: number;
-    public paidAdvance: number;
-    public paidPension: number;
-    public Payrun: number;
-    public percentTax: number;
-    public tableTax: number;
-}
-
-
-export class SalaryTransactionPeriodSums extends UniEntity {
-    public AgaRate: number;
-    public AgaZone: string;
-    public FromPeriod: number;
-    public MunicipalName: string;
-    public OrgNumber: string;
-    public ToPeriod: number;
-    public Year: number;
-    public Sums: SalaryTransactionSums;
 }
 
 
@@ -4967,6 +5069,10 @@ export enum NotificationStatus{
     New = 900010,
     Read = 900020,
     Marked = 900030,
+}
+
+
+export enum StatusCodeCustomerInvoiceReminder{
 }
 
 

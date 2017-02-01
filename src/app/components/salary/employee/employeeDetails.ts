@@ -16,19 +16,9 @@ import { UniView } from '../../../../framework/core/uniView';
 import { TaxCardModal } from './modals/taxCardModal';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import {
-    EmployeeService,
-    EmploymentService,
-    EmployeeLeaveService,
-    DepartmentService,
-    ProjectService,
-    SalaryTransactionService,
-    UniCacheService,
-    SubEntityService,
-    EmployeeTaxCardService,
-    ErrorService,
-    NumberFormat,
-    WageTypeService,
-    SalarySumsService
+    EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
+    SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
+    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService
 } from '../../../services/services';
 import * as _ from 'lodash';
 
@@ -56,6 +46,7 @@ export class EmployeeDetails extends UniView {
     private toolbarConfig: IToolbarConfig;
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
+    private financialYear: FinancialYear;
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -119,7 +110,9 @@ export class EmployeeDetails extends UniView {
         private numberformat: NumberFormat,
         private employeeTaxCardService: EmployeeTaxCardService,
         private salarySumsService: SalarySumsService,
-        private wageTypeService: WageTypeService
+        private wageTypeService: WageTypeService,
+        private financialYearService: FinancialYearService,
+        private bankaccountService: BankAccountService
     ) {
 
         super(router.url, cacheService);
@@ -130,6 +123,11 @@ export class EmployeeDetails extends UniView {
             { name: 'Faste poster', path: 'recurring-post' },
             { name: 'Permisjon', path: 'employee-leave' }
         ];
+
+        this.financialYearService.getActiveFinancialYear()
+            .subscribe((financialyear: FinancialYear) => {
+                this.financialYear = financialyear;
+            }, err => this.errorService.handle(err));
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
@@ -377,9 +375,8 @@ export class EmployeeDetails extends UniView {
             this.employeeWidgets[0] = posterContact;
 
             if (employee.ID) {
-                let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
                 this.salarySumsService
-                    .getSumsInYear(financialYear.Year, this.employeeID)
+                    .getSumsInYear(this.financialYear.Year, this.employeeID)
                     .subscribe((data) => {
                         if (data.netPayment) {
                             let add = Math.floor(data.netPayment / 80);
@@ -468,19 +465,22 @@ export class EmployeeDetails extends UniView {
 
     private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
         let alerts = this.employeeWidgets[2].config.alerts;
-        let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-        let checks = this.taxBoolChecks(employeeTaxCard, financialYear.Year);
-        // Tax info ok?
-        alerts[1] = {
-            text: checks.hasTaxCard
-                ? (checks.taxCardIsUpToDate
-                    ? 'Skattekort ok'
-                    : 'Skattekortet er ikke oppdatert')
-                : 'Skattekort mangler',
-            class: checks.hasTaxCard && checks.taxCardIsUpToDate
-                ? 'success'
-                : 'error'
-        };
+        this.financialYearService.getActiveFinancialYear()
+            .subscribe((financialyear: FinancialYear) => {
+                this.financialYear = financialyear;
+                let checks = this.taxBoolChecks(employeeTaxCard, this.financialYear.Year);
+                // Tax info ok?
+                alerts[1] = {
+                    text: checks.hasTaxCard
+                        ? (checks.taxCardIsUpToDate
+                            ? 'Skattekort ok'
+                            : 'Skattekortet er ikke oppdatert')
+                        : 'Skattekort mangler',
+                    class: checks.hasTaxCard && checks.taxCardIsUpToDate
+                        ? 'success'
+                        : 'error'
+                };
+            });
     }
 
     private checkDirty() {
@@ -497,7 +497,7 @@ export class EmployeeDetails extends UniView {
     private employeeBoolChecks(employee: Employee): { hasSSN: boolean, hasAccountNumber: boolean } {
         return {
             hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
-            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
+            hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
         };
     }
 
@@ -570,7 +570,7 @@ export class EmployeeDetails extends UniView {
         let getNewTax = !this.employeeTaxCard || this.employeeID !== this.employeeTaxCard.EmployeeID;
         return getNewTax
             ? this.employeeTaxCardService
-                .GetTaxCard(this.employeeID)
+                .GetTaxCard(this.employeeID, this.financialYear.Year)
                 .flatMap(taxCard => {
                     return taxCard
                         ? Observable.of(taxCard)
@@ -592,17 +592,16 @@ export class EmployeeDetails extends UniView {
     }
 
     private getEmploymentsObservable(): Observable<Employment[]> {
-        return this.employments
-        ? Observable.of(this.employments)
-        : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
-            .map(employments => {
-                employments
-                    .filter(employment => !employment.DimensionsID)
-                    .map(x => {
-                        x.Dimensions = new Dimensions();
-                    });
-                return employments;
-            });
+            ? Observable.of(this.employments)
+            : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
+                .map(employments => {
+                    employments
+                        .filter(employment => !employment.DimensionsID)
+                        .map(x => {
+                            x.Dimensions = new Dimensions();
+                        });
+                    return employments;
+                });
     }
 
     private getRecurringPosts() {
@@ -639,8 +638,8 @@ export class EmployeeDetails extends UniView {
 
     private getWageTypesObservable(): Observable<WageType[]> {
         return this.wageTypes && this.wageTypes.length
-        ? Observable.of(this.wageTypes)
-        : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
+            ? Observable.of(this.wageTypes)
+            : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
     }
 
     private getProjects() {
@@ -772,8 +771,28 @@ export class EmployeeDetails extends UniView {
             return Observable.of(this.employee);
         }
 
-        if (this.employee.BankAccounts.length && !this.employee.BankAccounts[0].ID) {
-            this.employee.BankAccounts[0]['_createguid'] = this.employeeService.getNewGuid();
+        if (brInfo.DefaultBankAccount && (!brInfo.DefaultBankAccount.AccountNumber || brInfo.DefaultBankAccount.AccountNumber === '')) {
+            brInfo.DefaultBankAccount = null;
+        }
+
+        if (brInfo.DefaultBankAccount !== null && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
+            brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
+        }
+
+        if (brInfo.BankAccounts) {
+            brInfo.BankAccounts.forEach(bankaccount => {
+                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                }
+            });
+
+            if (brInfo.DefaultBankAccount) {
+                brInfo.BankAccounts = brInfo.BankAccounts.filter(x => x !== brInfo.DefaultBankAccount);
+            }
+        }
+
+        if (brInfo.DefaultBankAccount) {
+            brInfo.DefaultBankAccount.BankAccountType = 'employee';
         }
 
         brInfo.Emails.forEach((email) => {
@@ -805,7 +824,7 @@ export class EmployeeDetails extends UniView {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-
+        
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
@@ -814,12 +833,9 @@ export class EmployeeDetails extends UniView {
     private saveTax(done: (message: string) => void) {
         super.getStateSubject('employeeTaxCard').take(1)
             .subscribe((employeeTaxCard: EmployeeTaxCard) => {
-
-                let financialYear: FinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-
-                if (employeeTaxCard.Year !== financialYear.Year) {
+                if (employeeTaxCard.Year !== this.financialYear.Year) {
                     employeeTaxCard.ID = undefined;
-                    employeeTaxCard.Year = financialYear.Year;
+                    employeeTaxCard.Year = this.financialYear.Year;
                 }
 
                 if (employeeTaxCard) {
@@ -920,7 +936,14 @@ export class EmployeeDetails extends UniView {
                         }
 
                         if (post.Dimensions && !post.DimensionsID) {
-                            post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
+                            if (Object.keys(post.Dimensions)
+                                .filter(x => x.indexOf('ID') > -1)
+                                .some(key => post.Dimensions[key])) {
+                                post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
+                            } else {
+                                post.Dimensions = null;
+                            }
+
                         }
 
                         let source = (post.ID > 0)

@@ -1,28 +1,40 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {FinancialYear, Company, CompanySettings} from '../../unientities';
-import {CompanySettingsService} from '../common/companySettingsService';
-import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Rx';
+import { Injectable } from '@angular/core';
+import { BizHttp } from '../../../framework/core/http/BizHttp';
+import { FinancialYear, CompanySettings } from '../../unientities';
+import { ErrorService } from '../services';
+import { CompanySettingsService } from '../common/companySettingsService';
+import { UniHttp } from '../../../framework/core/http/http';
+import { Observable, ReplaySubject } from 'rxjs/Rx';
 
 
 @Injectable()
 export class FinancialYearService extends BizHttp<FinancialYear> {
     private ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY: string = 'activeFinancialYear';
+    private lastSelectedYear: ReplaySubject<FinancialYear>;
+    public lastSelectedYear$: Observable<FinancialYear>;
 
-    constructor(http: UniHttp, private companySettingsService: CompanySettingsService) {
+    constructor(
+        http: UniHttp, 
+        private companySettingsService: CompanySettingsService,
+        private errorService: ErrorService) {
         super(http);
 
         this.relativeURL = FinancialYear.RelativeUrl;
         this.entityType = FinancialYear.EntityType;
         this.DefaultOrderBy = null;
+        this.lastSelectedYear = new ReplaySubject<FinancialYear>(1);
+        this.lastSelectedYear$ = this.lastSelectedYear.asObservable();
+        this.getActiveFinancialYear().subscribe(financialYear => this.lastSelectedYear.next(financialYear));
     }
 
-    public storeActiveFinancialYearInLocalstorage(financialYear: FinancialYear, companyName: string) {
-        localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear));
+    public setActiveYear(financialYear: FinancialYear) {
+        if (financialYear) {
+            localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear));
+            this.lastSelectedYear.next(financialYear);
+        }
     }
 
-    public getActiveFinancialYearInLocalstorage(): FinancialYear {
+    public getYearInLocalStorage(): FinancialYear {
         const local = localStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
         if (local !== null) {
             const instance = new FinancialYear();
@@ -32,24 +44,29 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         return null;
     }
 
-    public getActiveFinancialYear(): Observable<number> {
-        let financialYear = this.getActiveFinancialYearInLocalstorage() ;
-
-        if (financialYear) {
-            return Observable.of(financialYear.Year);
-        } else {
-            return this.companySettingsService.Get(1).map((res: CompanySettings) => res.CurrentAccountingYear);
-        }
+    public getActiveYear(): Observable<number> {
+        return this.getActiveFinancialYear().map(x => x.Year);
     }
 
-    public getActiveFinancialYearEntity(): Observable<FinancialYear> {
-        let financialYear = this.getActiveFinancialYearInLocalstorage() ;
-
-        if (financialYear) {
-            return Observable.of(financialYear);
+    public getActiveFinancialYear(): Observable<FinancialYear> {
+        let cached = this.getYearInLocalStorage();
+        if (cached) {
+            return Observable.of(cached);
         } else {
-            return this.companySettingsService.Get(1)
-                .switchMap((res: CompanySettings) => this.GetAll('filter=Year eq ' + res.CurrentAccountingYear));
+            return Observable.forkJoin(
+                this.companySettingsService.Get(1),
+                this.GetAll(null))
+                .map((res: [CompanySettings, FinancialYear[]]) => {
+                    let [companySettings, financialYears] = res;
+                    const fromCompanySettings = financialYears.find((year) => {
+                        return year.Year === companySettings.CurrentAccountingYear;
+                    });
+                    return fromCompanySettings || financialYears[financialYears.length - 1];
+                }, err => this.errorService.handle(err))
+                .map(financialYear => {
+                    this.setActiveYear(financialYear);
+                    return financialYear;
+                });
         }
     }
 }

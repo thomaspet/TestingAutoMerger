@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, UniTable} from 'unitable-ng2/main';
@@ -70,7 +70,7 @@ export class AccountDetailsReport {
         });
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
+    private getTableData(urlParams: URLSearchParams): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];

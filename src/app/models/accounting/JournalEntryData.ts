@@ -1,4 +1,4 @@
-import {JournalEntry, Account, VatType, Dimensions} from '../../unientities';
+import {JournalEntry, Account, VatType, Dimensions, Payment} from '../../unientities';
 
 export class JournalEntryData {
     JournalEntryID: number;
@@ -22,10 +22,12 @@ export class JournalEntryData {
     CreditVatTypeID: number;
     CreditVatType: VatType;
 
+    VatDeductionPercent: number;
+
     Description: string;
-    
+
     FinancialDate: Date;
-      
+
     CustomerInvoiceID: number;
     SupplierInvoiceID: number;
     InvoiceNumber: string;
@@ -41,4 +43,12 @@ export class JournalEntryData {
     FileIDs: number[];
 
     SameOrNew: string;
+
+    StatusCode: number;
+
+    JournalEntryPaymentData: JournalEntryPaymentData;
+}
+
+export class JournalEntryPaymentData {
+    PaymentData: Payment;
 }

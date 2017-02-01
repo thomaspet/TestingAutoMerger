@@ -37,8 +37,8 @@ import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
-
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {UniSearchModule} from 'unisearch-ng2/main';
 
 @NgModule({
     imports: [
@@ -65,6 +65,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         // Route module
         // SalesRoutes
+        UniSearchModule
     ],
     declarations: [
         UniSales,

@@ -3,22 +3,28 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { UniForm } from 'uniform-ng2/main';
 import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
-    Address, Municipal, SubEntity, EmployeeTaxCard
+    Address, Municipal, SubEntity, EmployeeTaxCard, BankAccount
 } from '../../../../unientities';
+
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
 import { UniFieldLayout } from 'uniform-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
-import { UniCacheService } from '../../../../services/services';
 import { Observable } from 'rxjs/Observable';
+
 import {
     EmployeeService,
     MunicipalService,
     EmployeeTaxCardService,
-    ErrorService
+	BankAccountService,
+    ErrorService,
+	UniCacheService
 } from '../../../../services/services';
 import * as _ from 'lodash';
+import {BankAccountModal} from '../../../common/modals/modals';
+
+
 
 @Component({
     selector: 'employee-personal-details',
@@ -27,12 +33,6 @@ import * as _ from 'lodash';
 export class PersonalDetails extends UniView {
 
     public busy: boolean;
-    public expands: any = [
-        'BusinessRelationInfo.Addresses',
-        'BusinessRelationInfo.Emails',
-        'BusinessRelationInfo.Phones',
-        'BankAccounts',
-    ];
     public config: any = {};
     public fields: any[] = [];
     public taxFields: any[] = [];
@@ -43,8 +43,8 @@ export class PersonalDetails extends UniView {
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
-
-
+    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
+    private bankAccountChanged: any;
     private employee: Employee;
 
     constructor(
@@ -54,7 +54,8 @@ export class PersonalDetails extends UniView {
         route: ActivatedRoute,
         cacheService: UniCacheService,
         private errorService: ErrorService,
-        private employeeTaxCardService: EmployeeTaxCardService
+        private employeeTaxCardService: EmployeeTaxCardService,
+        private bankaccountService: BankAccountService
     ) {
 
         super(router.url, cacheService);
@@ -186,13 +187,6 @@ export class PersonalDetails extends UniView {
     }
 
     public onFormChange(employee: Employee) {
-        if (this.employee.BankAccounts[0]) {
-            if (!this.employee.BankAccounts[0].AccountNumber) {
-                this.employee.BankAccounts[0].Active = false;
-            } else {
-                this.employee.BankAccounts[0].Active = true;
-            }
-        }
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
@@ -293,6 +287,30 @@ export class PersonalDetails extends UniView {
                 return displayVal;
             }
 
+        };
+
+        let defaultBankAccount: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultBankAccount');
+        defaultBankAccount.Options = {
+            entity: 'BankAccount',
+            listProperty: 'BusinessRelationInfo.BankAccounts',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            storeResultInProperty: 'BusinessRelationInfo.DefaultBankAccountID',
+            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
+                if (!bankaccount) {
+                    bankaccount = new BankAccount();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                    bankaccount.BankAccountType = 'employee';
+                    bankaccount.ID = 0;
+                }
+
+                this.bankAccountModal.openModal(bankaccount, false);
+
+                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
+                    this.bankAccountChanged.unsubscribe();
+                    resolve(bankaccount);
+                });
+            })
         };
     }
 
