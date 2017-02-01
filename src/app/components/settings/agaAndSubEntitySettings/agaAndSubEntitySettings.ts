@@ -6,8 +6,12 @@ import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { SubEntityList } from './subEntityList';
 import {
     FieldType, CompanySalary, Account,
-    SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval } from '../../../unientities';
-import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService, ErrorService } from '../../../services/services';
+    SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval 
+} from '../../../unientities';
+import { 
+    CompanySalaryService, AccountService, SubEntityService, 
+    AgaZoneService, ErrorService 
+} from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
 
@@ -238,12 +242,12 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         var interrimRemit = new UniFieldLayout();
         interrimRemit.EntityType = 'CompanySalary';
-        interrimRemit.Label = 'Mellomkonto remittering';
+        interrimRemit.Label = 'Hovedbokskonto netto utbetalt';
         interrimRemit.Property = 'InterrimRemitAccount';
         interrimRemit.FieldType = FieldType.AUTOCOMPLETE;
         interrimRemit.Section = 2;
         interrimRemit.Options = {
-            source: this.accounts,
+            source: this.accounts.filter(x => x.AccountNumber >= 1000 && x.AccountNumber <= 2999),
             valueProperty: 'AccountNumber',
             displayProperty: 'AccountNumber',
             debounceTime: 200,
@@ -377,6 +381,4 @@ export class AgaAndSubEntitySettings implements OnInit {
     public mainOrgChange(event) {
         this.mainOrganization['_isDirty'] = true;
     }
-
-    //#endregion Test data
 }
