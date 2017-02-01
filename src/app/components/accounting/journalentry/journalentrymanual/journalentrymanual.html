@@ -19,22 +19,27 @@
                                     [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
                                     [financialYears]="financialYears"
                                     [currentFinancialYear]="currentFinancialYear"
+                                    [vatDeductions]="vatDeductions"
                                     *ngIf="journalEntryMode == 'PROFESSIONAL'">
         </journal-entry-professional>
 
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
 
-
         <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
             <tr>
-                <th style="width:20%;min-width: 90px"></th>
-                <th style="width:40%">Debet</th>
-                <th style="width:40%">Kredit</th>
+                <th class="first_col"></th>
+                <th class="other_cols">Debet</th>
+                <th class="other_cols">Kredit</th>
             </tr>
             <tr>
                 <td>Kontonavn</td>
                 <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
                 <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
+            </tr>
+            <tr *ngIf="(itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent)">
+                <td>Fradragsprosent MVA</td>
+                <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
             </tr>
             <tr>
                 <td>Saldo ({{currentFinancialYear.Year}})</td>

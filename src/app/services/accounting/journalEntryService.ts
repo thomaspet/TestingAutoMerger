@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, Dimensions, FinancialYear} from '../../unientities';
+import {Account, VatType, Dimensions, FinancialYear, VatDeduction} from '../../unientities';
 import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
@@ -16,6 +16,7 @@ declare const _; // lodash
 class JournalEntryLineCalculation {
     amountGross: number;
     amountNet: number;
+    taxBasisAmount: number;
     outgoingVatAmount: number;
     incomingVatAmount: number;
 }
@@ -326,7 +327,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             });
     }
 
-    public calculateJournalEntryAccountSummaryLocal(journalDataEntries: Array<JournalEntryData>, accountBalances: Array<AccountBalanceInfo>, currentLine: JournalEntryData): JournalEntryAccountCalculationSummary {
+    public calculateJournalEntryAccountSummaryLocal(journalDataEntries: Array<JournalEntryData>, accountBalances: Array<AccountBalanceInfo>, vatdeductions: Array<VatDeduction>, currentLine: JournalEntryData): JournalEntryAccountCalculationSummary {
 
         let sum: JournalEntryAccountCalculationSummary = {
             debitAccount: currentLine ? currentLine.DebitAccount : null,
@@ -344,13 +345,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             creditNetChangeCurrentLine: 0,
             creditIncomingVatCurrentLine: 0,
             creditOutgoingVatCurrentLine: 0,
-            creditNewBalance: 0
+            creditNewBalance: 0,
+            deductionPercent: 0
         };
 
         let accountsToCheck: Array<number> = [];
 
         if (!currentLine) {
             return sum;
+        } else {
+            sum.deductionPercent = currentLine.VatDeductionPercent;
         }
 
         // get opening balance for the debit / credit account, and set the currentline net change
@@ -362,7 +366,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 sum.debitNetChangeCurrentLine += currentLine['NetAmount'];
 
                 var lineCalc =
-                    this.calculateJournalEntryData(currentLine.DebitAccount, currentLine.DebitVatType, currentLine.Amount, null);
+                    this.calculateJournalEntryData(
+                        currentLine.DebitAccount,
+                        currentLine.DebitVatType,
+                        currentLine.Amount,
+                        null,
+                        currentLine
+                    );
 
                 sum.debitIncomingVatCurrentLine = lineCalc.incomingVatAmount;
                 sum.debitOutgoingVatCurrentLine = lineCalc.outgoingVatAmount;
@@ -381,7 +391,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 sum.creditNetChangeCurrentLine += currentLine['NetAmount'] * -1;
 
                 var lineCalc =
-                    this.calculateJournalEntryData(currentLine.CreditAccount, currentLine.CreditVatType, currentLine.Amount, null);
+                    this.calculateJournalEntryData(
+                        currentLine.CreditAccount,
+                        currentLine.CreditVatType,
+                        currentLine.Amount,
+                        null,
+                        currentLine
+                    );
 
                 sum.creditIncomingVatCurrentLine = lineCalc.incomingVatAmount * -1;
                 sum.creditOutgoingVatCurrentLine = lineCalc.outgoingVatAmount * -1;
@@ -462,7 +478,24 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return sum;
     }
 
-    public calculateJournalEntrySummaryLocal(journalDataEntries: Array<JournalEntryData>): JournalEntrySimpleCalculationSummary {
+    public getVatDeductionPercent(vatdeductions: Array<VatDeduction>, account: Account, date: Date): number {
+        if (!account || !account.UseDeductivePercent || !date) {
+            return 0;
+        }
+
+        if (!vatdeductions) {
+            return 0;
+        }
+
+        let validdeduction =
+            vatdeductions.find(x => moment(date).isSameOrAfter(moment(x.ValidFrom))
+                && (!x.ValidTo || moment(date).isBefore(moment(x.ValidTo)))
+            );
+
+        return validdeduction ? validdeduction.DeductionPercent : 0;
+    }
+
+    public calculateJournalEntrySummaryLocal(journalDataEntries: Array<JournalEntryData>, vatdeductions: Array<VatDeduction>): JournalEntrySimpleCalculationSummary {
         let sum: JournalEntrySimpleCalculationSummary = {
             IncomingVat: 0,
             OutgoingVat: 0,
@@ -475,13 +508,26 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (journalDataEntries) {
             journalDataEntries.forEach(entry => {
-                let debitData = this.calculateJournalEntryData(entry.DebitAccount, entry.DebitVatType, entry.Amount, null);
-                let creditData =  this.calculateJournalEntryData(entry.CreditAccount, entry.CreditVatType, entry.Amount * -1, null);
+                let debitData = this.calculateJournalEntryData(
+                    entry.DebitAccount,
+                    entry.DebitVatType,
+                    entry.Amount,
+                    null,
+                    entry
+                );
+                let creditData =  this.calculateJournalEntryData(
+                    entry.CreditAccount,
+                    entry.CreditVatType,
+                    entry.Amount * -1,
+                    null,
+                    entry
+                );
 
-                // normally a user will use the debit field for positive amounts and credit field for negative amounts.
-                // however if they use the debit field and a negative amount, that is the same as using the credit field
-                // and a positive amount. Therefore we add the sum to the correct sum (this will also be done automatically
-                // in the API, because there we have no concept of debit/credit, just +/-)
+                // normally a user will use the debit field for positive amounts and credit field
+                // for negative amounts. However if they use the debit field and a negative amount,
+                // that is the same as using the credit field and a positive amount. Therefore we
+                // add the sum to the correct sum (this will also be done automatically in the
+                // API, because there we have no concept of debit/credit, just +/-)
                 if (debitData.amountNet > 0) {
                     sum.SumDebet += debitData.amountNet;
                 } else {
@@ -519,10 +565,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return sum;
     }
 
-    public calculateJournalEntryData(account: Account, vattype: VatType, grossAmount: number, netAmount: number): JournalEntryLineCalculation {
+    public calculateJournalEntryData(account: Account, vattype: VatType, grossAmount: number, netAmount: number, journalEntryData: JournalEntryData): JournalEntryLineCalculation {
+
         let res: JournalEntryLineCalculation = {
             amountGross: 0,
             amountNet: 0,
+            taxBasisAmount: 0,
             incomingVatAmount: 0,
             outgoingVatAmount: 0
         };
@@ -533,16 +581,39 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (account) {
             if (vattype) {
+                let deductionpercent =
+                    journalEntryData.VatDeductionPercent &&
+                    (journalEntryData.StatusCode || account.UseDeductivePercent)
+                    ? journalEntryData.VatDeductionPercent
+                    : 0;
+
+                // if no deductions exist, assume we get deduction for the entire amounts, i.e. 100%
+                // because this simplifies the expressions further down in this function
+                if (deductionpercent === 0) {
+                    deductionpercent = 100;
+                }
+
                 if (grossAmount) {
                     res.amountGross = grossAmount;
 
-                    res.amountNet = vattype.ReversedTaxDutyVat ?
-                        vattype.IncomingAccountID && vattype.OutgoingAccountID ?
-                            res.amountGross
-                            : res.amountGross * (1 + (vattype.VatPercent / 100))
-                        : res.amountGross / (1 + (vattype.VatPercent / 100));
+                    res.amountNet =
+                        vattype.ReversedTaxDutyVat ?
+                            vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                                (res.amountGross * deductionpercent / 100)
+                                : (res.amountGross * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
+                            : res.amountGross * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
+
+                    if (res.amountGross !== 100) {
+                        res.amountNet += vattype.ReversedTaxDutyVat ?
+                            res.amountGross * (100 - deductionpercent) / 100 + (res.amountGross * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
+                                        : res.amountGross - res.amountNet - res.amountNet * vattype.VatPercent / 100;
+                    }
                 } else if (netAmount) {
                     res.amountNet = netAmount;
+
+                    if (deductionpercent > 0 && deductionpercent < 100) {
+                        console.error('calculateJournalEntryData called for netAmount with deduction percent set, this is not supported');
+                    }
 
                     res.amountGross = vattype.ReversedTaxDutyVat ?
                         vattype.IncomingAccountID && vattype.OutgoingAccountID ?
@@ -551,24 +622,26 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         : res.amountNet * (1 + (vattype.VatPercent / 100));
                 }
 
-                let taxBasisAmount = vattype.ReversedTaxDutyVat ? res.amountGross : res.amountGross / (1 + (vattype.VatPercent / 100));
+                let taxBasisAmount =
+                    vattype.ReversedTaxDutyVat ?
+                            res.amountGross
+                            : res.amountGross / (1 + vattype.VatPercent / 100);
 
                 if (vattype.ReversedTaxDutyVat) {
                     if (vattype.OutgoingAccountID) {
                         res.outgoingVatAmount += -1 * (taxBasisAmount * vattype.VatPercent / 100);
                     } else if (vattype.IncomingAccountID) {
-                        res.incomingVatAmount += -1 * (taxBasisAmount * vattype.VatPercent / 100);
+                        res.incomingVatAmount += (-1 * (taxBasisAmount * vattype.VatPercent / 100)) * (deductionpercent / 100);
                     }
                 }
 
                 if (!(vattype.ReversedTaxDutyVat && !vattype.IncomingAccountID)) {
                     if (vattype.IncomingAccountID) {
-                        res.incomingVatAmount += (taxBasisAmount * vattype.VatPercent) / 100;
+                        res.incomingVatAmount += ((taxBasisAmount * vattype.VatPercent) / 100) * (deductionpercent / 100);
                     } else if (vattype.OutgoingAccountID) {
                         res.outgoingVatAmount += (taxBasisAmount * vattype.VatPercent) / 100;
                     }
                 }
-
             } else {
                 if (grossAmount) {
                     res.amountGross = grossAmount;

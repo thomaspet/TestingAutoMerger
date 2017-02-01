@@ -12,7 +12,7 @@ import {PeriodService} from './accounting/periodService';
 import {SupplierInvoiceItemService} from './accounting/supplierInvoiceItemService';
 import {SupplierInvoiceService} from './accounting/supplierInvoiceService';
 import {SupplierService} from './accounting/supplierService';
-import {VatCodeDeductionService} from './accounting/vatCodeDeductionService';
+import {VatDeductionService} from './accounting/vatDeductionService';
 import {VatCodeGroupService} from './accounting/vatCodeGroupService';
 import {VatPostService} from './accounting/vatPostService';
 import {VatReportService} from './accounting/vatReportService';
@@ -37,7 +37,7 @@ export * from './accounting/periodService';
 export * from './accounting/supplierInvoiceItemService';
 export * from './accounting/supplierInvoiceService';
 export * from './accounting/supplierService';
-export * from './accounting/vatCodeDeductionService';
+export * from './accounting/vatDeductionService';
 export * from './accounting/vatCodeGroupService';
 export * from './accounting/vatPostService';
 export * from './accounting/vatReportService';
@@ -64,7 +64,7 @@ export * from './accounting/postPostService';
         SupplierInvoiceItemService,
         SupplierInvoiceService,
         SupplierService,
-        VatCodeDeductionService,
+        VatDeductionService,
         VatCodeGroupService,
         VatPostService,
         VatReportService,

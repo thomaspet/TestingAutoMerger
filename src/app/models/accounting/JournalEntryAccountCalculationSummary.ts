@@ -17,4 +17,5 @@ export class JournalEntryAccountCalculationSummary {
     public creditIncomingVatCurrentLine: number;
     public creditOutgoingVatCurrentLine: number;
     public creditNewBalance: number;
+    public deductionPercent: number;
 }
