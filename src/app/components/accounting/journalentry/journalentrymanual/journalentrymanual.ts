@@ -1,7 +1,7 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel} from '../../../../unientities';
+import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel, VatDeduction} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -16,7 +16,8 @@ import {
     NumberFormat,
     ErrorService,
     JournalEntryService,
-    FinancialYearService
+    FinancialYearService,
+    VatDeductionService
 } from '../../../../services/services';
 
 export enum JournalEntryMode {
@@ -49,6 +50,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private financialYears: Array<FinancialYear>;
     public currentFinancialYear: FinancialYear;
+    private vatDeductions: Array<VatDeduction>;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
     private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
@@ -66,7 +68,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private financialYearService: FinancialYearService,
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private vatDeductionService: VatDeductionService
     ) {
     }
 
@@ -76,19 +79,21 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYear()
+            this.financialYearService.getActiveFinancialYear(),
+            this.vatDeductionService.GetAll(null)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
+                this.vatDeductions = data[2];
+
+                this.loadData();
+                this.setupSaveConfig();
+
+                this.setSums();
+                this.setupSubscriptions();
             },
             err => this.errorService.handle(err)
         );
-
-        this.loadData();
-        this.setupSaveConfig();
-
-        this.setSums();
-        this.setupSubscriptions();
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
@@ -386,20 +391,20 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 .subscribe(accountBalanceData => {
                     this.accountBalanceInfoData = accountBalanceData;
                     this.itemAccountInfoData =
-                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.currentJournalEntryData);
+                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
                 });
         }
     }
 
     private calculateItemSums(data: JournalEntryData[]) {
-        this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data);
+        this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data, this.vatDeductions);
 
         if (this.currentJournalEntryData) {
             this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
                 .subscribe(accountBalanceData => {
                     this.accountBalanceInfoData = accountBalanceData;
                     this.itemAccountInfoData =
-                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.currentJournalEntryData);
+                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
                 });
 
         }

@@ -3949,9 +3949,9 @@ export class FinancialYear extends UniEntity {
 }
 
 
-export class VatCodeDeduction extends UniEntity {
-    public static RelativeUrl = 'vatcodedeductions';
-    public static EntityType = 'VatCodeDeduction';
+export class VatDeduction extends UniEntity {
+    public static RelativeUrl = 'vatdeductions';
+    public static EntityType = 'VatDeduction';
 
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3963,11 +3963,8 @@ export class VatCodeDeduction extends UniEntity {
     public UpdatedBy: string;
     public ValidFrom: Date;
     public ValidTo: Date;
-    public VatTypeID: number;
-    public VatType: VatType;
     public CustomFields: any;
 }
-
 
 export class VatType extends UniEntity {
     public static RelativeUrl = 'vattypes';
@@ -3998,7 +3995,6 @@ export class VatType extends UniEntity {
     public Visible: boolean;
     public IncomingAccount: Account;
     public OutgoingAccount: Account;
-    public Deductions: Array<VatCodeDeduction>;
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;

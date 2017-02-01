@@ -77,7 +77,6 @@ export class AccountDetails implements OnInit {
     }
 
     private change(event) {
-
     }
 
     private extendFormConfig() {
@@ -417,7 +416,7 @@ export class AccountDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
-                    Property: 'UseDeductionPercent',
+                    Property: 'UseDeductivePercent',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTISELECT,

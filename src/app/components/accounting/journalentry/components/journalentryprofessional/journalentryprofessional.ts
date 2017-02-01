@@ -2,10 +2,10 @@ import {Component, ViewChild, OnInit, OnChanges, SimpleChanges, Input, Output, E
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, Payment, BusinessRelation, BankAccount} from '../../../../../unientities';
+import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, Payment, BusinessRelation, BankAccount, VatDeduction} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
-import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
 import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
 import {
@@ -17,7 +17,8 @@ import {
     CustomerInvoiceService,
     CompanySettingsService,
     ErrorService,
-    StatisticsService
+    StatisticsService,
+    NumberFormat
 } from '../../../../../services/services';
 
 declare const _;
@@ -39,7 +40,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public defaultVisibleColumns: Array<string> = [];
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
-
+    @Input() public vatDeductions: Array<VatDeduction>;
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -81,7 +82,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private numberFormatService: NumberFormat
     ) {
 
     }
@@ -134,10 +136,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         setTimeout(() => {
             if (this.table) {
+                this.table.blur();
                 this.table.focusRow(0);
             } else {
                 setTimeout(() => {
                     if (this.table) {
+                        this.table.blur();
                         this.table.focusRow(0);
                     }
                 }, 500);
@@ -228,10 +232,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private calculateNetAmount(rowModel) {
         if (rowModel.Amount && rowModel.Amount !== 0) {
             if (rowModel.DebitAccount && rowModel.DebitVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, rowModel.Amount, null);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.DebitAccount,
+                    rowModel.DebitVatType,
+                    rowModel.Amount,
+                    null,
+                    rowModel
+                );
                 rowModel.NetAmount = calc.amountNet;
             } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, rowModel.Amount, null);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.CreditAccount,
+                    rowModel.CreditVatType,
+                    rowModel.Amount,
+                    null,
+                    rowModel
+                );
                 rowModel.NetAmount = calc.amountNet;
             } else {
                 rowModel.NetAmount = rowModel.Amount;
@@ -244,10 +260,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private calculateGrossAmount(rowModel) {
         if (rowModel.NetAmount && rowModel.NetAmount !== 0) {
             if (rowModel.DebitAccount && rowModel.DebitVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, null, rowModel.NetAmount);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.DebitAccount,
+                    rowModel.DebitVatType,
+                    null,
+                    rowModel.NetAmount,
+                    rowModel
+                );
                 rowModel.Amount = calc.amountGross;
             } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.CreditAccount,
+                    rowModel.CreditVatType,
+                    null,
+                    rowModel.NetAmount,
+                    rowModel
+                );
                 rowModel.Amount = calc.amountGross;
             } else {
                 rowModel.Amount = rowModel.NetAmount;
@@ -263,6 +291,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.DebitAccountID = account.ID;
             rowModel.DebitVatType = account.VatType;
             rowModel.DebitVatTypeID = account.VatTypeID;
+
+            this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.DebitAccountID = null;
         }
@@ -274,8 +304,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.CreditAccountID = account.ID;
             rowModel.CreditVatType = account.VatType;
             rowModel.CreditVatTypeID = account.VatTypeID;
+
+            this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.CreditAccountID = null;
+        }
+    }
+
+    private setVatDeductionPercent(rowModel: JournalEntryData) {
+        let deductivePercent: number = 0;
+        rowModel.VatDeductionPercent = null;
+
+        if (rowModel.DebitAccount && rowModel.DebitAccount.UseDeductivePercent) {
+             deductivePercent = this.journalEntryService.getVatDeductionPercent(this.vatDeductions, rowModel.DebitAccount, rowModel.FinancialDate);
+        }
+
+        if (deductivePercent === 0 && rowModel.CreditAccount && rowModel.CreditAccount.UseDeductivePercent) {
+            deductivePercent = this.journalEntryService.getVatDeductionPercent(this.vatDeductions, rowModel.CreditAccount, rowModel.FinancialDate);
+        }
+
+        if (deductivePercent !== 0) {
+            rowModel.VatDeductionPercent = deductivePercent;
         }
     }
 
@@ -287,6 +336,31 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private setCreditVatTypeProperties(rowModel) {
         let vattype = rowModel.CreditVatType;
         rowModel.CreditVatTypeID = vattype ? vattype.ID : null;
+    }
+
+    private setVatDeductionProrperties(newRow) {
+        if (newRow.VatDeductionPercent &&
+            (newRow.VatDeductionPercent <= 0 || newRow.VatDeductionPercent > 100)) {
+            this.toastService.addToast(
+                'Ugyldig verdi angitt for Fradragprosent',
+                ToastType.warn,
+                ToastTime.short,
+                'Verdien er erstattet med standardverdien'
+            );
+            this.setVatDeductionPercent(newRow);
+        } else if (newRow.VatDeductionPercent &&
+            !((newRow.DebitAccount && newRow.DebitAccount.UseDeductivePercent) || (newRow.CreditAccount && newRow.CreditAccount.UseDeductivePercent))) {
+            this.toastService.addToast(
+                'Fradragsprosent kan ikke angis',
+                ToastType.warn,
+                ToastTime.short,
+                'Ingen konto med forholdsvis mva er valgt, og fradragsprosent kan derfor ikke angis.'
+            );
+            this.setVatDeductionPercent(newRow);
+        } else if (!newRow.VatDeductionPercent) {
+            this.setVatDeductionPercent(newRow);
+        }
+        this.calculateNetAmount(newRow);
     }
 
     private setProjectProperties(rowModel) {
@@ -453,8 +527,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+        let deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
+            .setWidth('90px')
+            .setSkipOnEnterKeyNavigation(true)
+            .setVisible(false);
+
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('90px');
-        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('90px').setSkipOnEnterKeyNavigation(true);
+        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Text).setWidth('90px')
+            .setSkipOnEnterKeyNavigation(true)
+            .setAlignment('right')
+            .setTemplate((row: JournalEntryData) => {
+                if (row['NetAmount'] && row.VatDeductionPercent && row.VatDeductionPercent !== 0
+                    && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
+                        || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
+                    return `<span title="Nettobeløp kan ikke settes når en konto med forholdsvis mva er brukt">${this.numberFormatService.asMoney(row['NetAmount'])}</span>`;
+                } else if (row['NetAmount']) {
+                    return this.numberFormatService.asMoney(row['NetAmount']);
+                }
+            })
+            .setEditable((row: JournalEntryData) => {
+                if (row.VatDeductionPercent && row.VatDeductionPercent !== 0
+                    && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
+                        || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
+                    return false;
+                }
+                return true;
+            });
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth('8%')
@@ -521,7 +619,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (this.mode === JournalEntryMode.Supplier) {
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
 
-            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, amountCol, netAmountCol,
+            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, deductionPercentCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol];
         } else if (this.mode === JournalEntryMode.Payment) {
             debitAccountCol.setSkipOnEnterKeyNavigation(true);
@@ -532,11 +630,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             defaultRowData.Description = 'Innbetaling';
 
-            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
+            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, deductionPercentCol, amountCol,
                  descriptionCol, fileCol];
         } else {
 
-            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
+            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, deductionPercentCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol, fileCol];
         }
 
@@ -608,6 +706,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.calculateNetAmount(newRow);
                 } else if (event.field === 'NetAmount') {
                     this.calculateGrossAmount(newRow);
+                } else if (event.field === 'FinancialDate') {
+                    this.setVatDeductionPercent(newRow);
+                    this.calculateNetAmount(newRow);
                 } else if (event.field === 'DebitAccount') {
                     this.setDebitAccountProperties(newRow);
                     this.calculateNetAmount(newRow);
@@ -620,6 +721,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (event.field === 'CreditVatType') {
                     this.setCreditVatTypeProperties(newRow);
                     this.calculateNetAmount(newRow);
+                } else if (event.field === 'VatDeductionPercent') {
+                    this.setVatDeductionProrperties(newRow);
                 } else if (event.field === 'Dimensions.Department') {
                     this.setDepartmentProperties(newRow);
                 } else if (event.field === 'Dimensions.Project') {

@@ -22,6 +22,8 @@ export class JournalEntryData {
     CreditVatTypeID: number;
     CreditVatType: VatType;
 
+    VatDeductionPercent: number;
+
     Description: string;
 
     FinancialDate: Date;

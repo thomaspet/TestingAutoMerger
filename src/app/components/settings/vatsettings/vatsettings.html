@@ -1,14 +1,35 @@
 <uni-toolbar [config]="toolbarconfig"
              [saveactions]="saveactions">
 </uni-toolbar>
+
+<div class="horizontal_nav">
+    <ul>
+        <li>
+            <a [class]="activeTab === 'vatsettings' ? 'router-link-active' : ''"
+                (click)="showTab('vatsettings')">
+                MVA innstillinger
+            </a>
+        </li>
+        <li>
+            <a [class]="activeTab === 'deductions' ? 'router-link-active' : ''"
+                (click)="showTab('deductions')">
+                Forholdsvis MVA / fradrag
+            </a>
+        </li>
+    </ul>
+</div>
+
 <section class="application">
-    <section class="splitview">
+    <section class="splitview" *ngIf="activeTab === 'vatsettings'">
         <nav class="splitview_list">
             <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
         </nav>
         <main class="splitview_detail">
             <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)" (change)="onChange($event)"></vattype-details>
         </main>
+    </section>
+    <section  *ngIf="activeTab === 'deductions'">
+        <vat-deduction-settings></vat-deduction-settings>
     </section>
 </section>
 <div style="height: 70px">&nbsp;</div>
