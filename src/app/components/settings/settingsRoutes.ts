@@ -1,15 +1,12 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
-import {Settings} from "./settings";
-import {AuthGuard} from "../../authGuard";
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 
-export const childRoutes: Routes = [
+export const settingsRoutes: Routes = [
     {
         path: '',
         redirectTo: 'company',
@@ -41,18 +38,18 @@ export const childRoutes: Routes = [
     }
 ];
 
-const settingsRoutes: Routes = [
-    {
-        path: 'settings',
-        component: Settings,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+// const settingsRoutes: Routes = [
+//     {
+//         path: 'settings',
+//         component: Settings,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(settingsRoutes);
+// export const routes: ModuleWithProviders = RouterModule.forChild(settingsRoutes);

@@ -8,7 +8,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
 
 @Component({
     selector: 'vat-deduction-settings',
-    templateUrl: 'app/components/settings/vatsettings/vatdeductions/vatdeductionsettings.html'
+    templateUrl: './vatdeductionsettings.html'
 })
 export class VatDeductionSettings {
     @ViewChild(UniTable) public unitable: UniTable;

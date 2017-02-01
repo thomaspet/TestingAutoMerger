@@ -2,19 +2,19 @@ import {Component, ViewChild} from '@angular/core';
 
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 
-import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription} from '../../../services/common/umhService';
-import {CompanyService} from '../../../services/common/CompanyService';
+import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription} from '../../../services/common/UmhService';
 import {AuthService} from '../../../../framework/core/authService';
+import {CompanyService} from '../../../services/services';
 
 @Component({
     selector: 'webhook-settings',
-    templateUrl: 'app/components/settings/webHookSettings/webHookSettings.html',
+    templateUrl: './webHookSettings.html',
 })
 
 export class WebHookSettings {
     //@ViewChild(UniForm) public form: UniForm;
     @ViewChild(UniSelect)
-    
+
     private actionSelectConfig: ISelectConfig;
     private objectiveSelectConfig: ISelectConfig;
     private objectives: Array<IUmhObjective>;
@@ -46,7 +46,7 @@ export class WebHookSettings {
                          Name: 'All'
                     };
                     this.actionNames.push('All');
-                    
+
                     action.id = this.noFilter;
                     action.Name = 'All';
                     this.actions.push(action);
@@ -139,7 +139,7 @@ export class WebHookSettings {
             }
         );
     }
-    
+
     private onObjectiveSelectForNewSubscription(event) {
         var objective = this.objectives.find(o => o.Name === event);
 
@@ -207,7 +207,7 @@ export class WebHookSettings {
     private updateSubscription(subscription: IUmhSubscription) {
         this.umhSerivce.updateSubscription(this.subscription.SubscriberId, subscription).subscribe(
             res => console.log(res),
-            err => console.error("@TODO check umh return value") 
+            err => console.error("@TODO check umh return value")
         );
     }
 

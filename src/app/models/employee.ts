@@ -10,7 +10,7 @@ import {
     VacationRateEmployee,
     SubEntity
 } from "../unientities";
-
+import * as _ from 'lodash';
 
 export class EmployeeModel extends Employee {
     BusinessRelationID: number = 0;

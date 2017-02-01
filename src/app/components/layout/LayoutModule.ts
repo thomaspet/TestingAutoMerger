@@ -8,7 +8,7 @@ import {UniNavbar} from './navbar/navbar';
 import {HamburgerMenu} from './navbar/hamburgerMenu/hamburgerMenu';
 import {RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
 import {NavbarSearch} from './navbar/search/search';
-import {UniTabStrip} from './navbar/tabstrip/tabstrip';
+import {UniTabStrip} from './navbar/tabstrip/tabStrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';

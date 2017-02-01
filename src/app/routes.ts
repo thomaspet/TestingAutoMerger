@@ -27,7 +27,7 @@ export const routes = ([
 
     {
         path: 'accounting',
-        loadChildren: './components/accounting/accountingModule#AccountingModule'
+        loadChildren: './components/accounting/AccountingModule#AccountingModule'
     },
     {
         path: 'salary',

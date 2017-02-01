@@ -95,7 +95,7 @@ export class AccountingServicesModule {
                 SupplierInvoiceItemService,
                 SupplierInvoiceService,
                 SupplierService,
-                VatCodeDeductionService,
+                VatDeductionService,
                 VatCodeGroupService,
                 VatPostService,
                 VatReportService,

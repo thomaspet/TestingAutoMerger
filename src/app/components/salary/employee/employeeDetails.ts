@@ -592,6 +592,7 @@ export class EmployeeDetails extends UniView {
     }
 
     private getEmploymentsObservable(): Observable<Employment[]> {
+        return this.employments
             ? Observable.of(this.employments)
             : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
                 .map(employments => {
@@ -824,7 +825,7 @@ export class EmployeeDetails extends UniView {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-        
+
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);

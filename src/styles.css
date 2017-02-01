@@ -1,9 +1,0 @@
-h2 { color: #444; font-weight: lighter; }
-body { margin: 2em; }
-body, input[text], button { color: #888; font-family: Cambria, Georgia; }
-button {padding: 0.2em; font-size: 14px}
-.ng-touched.ng-invalid {
-    border-color: #b7312c !important;
-    background: rgba(183, 49, 44, 0.1) !important;
-}
-.k-autocomplete { width: 100% }
