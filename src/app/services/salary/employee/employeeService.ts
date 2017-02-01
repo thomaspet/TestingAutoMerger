@@ -17,7 +17,7 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        'BankAccounts'
+        'BusinessRelationInfo.BankAccounts'
     ];
     public debounceTime: number = 500;
 
@@ -246,10 +246,10 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'Employee',
-                    Property: 'BankAccounts[0].AccountNumber',
-                    Placement: 5,
+                    Property: 'BusinessRelationInfo.DefaultBankAccount',
+                    Placement: 4,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Kontonummer',
@@ -262,22 +262,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false,
-                    Options: {
-                        mask: '0000 00 00000'
-                    },
-                    Validations: [
-                        {
-                            Value: '^\\d{11}$',
-                            ErrorMessage: 'Accountnumber should fit the pattern',
-                            Operator: Operator.RegExp,
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: Operator.Required
-                        }
-                    ]
+                    Options: null
                 },
                 {
                     ComponentLayoutID: 1,

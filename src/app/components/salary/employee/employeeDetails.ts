@@ -18,7 +18,7 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService
+    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService
 } from '../../../services/services';
 
 declare var _; // lodash
@@ -112,7 +112,8 @@ export class EmployeeDetails extends UniView {
         private employeeTaxCardService: EmployeeTaxCardService,
         private salarySumsService: SalarySumsService,
         private wageTypeService: WageTypeService,
-        private financialYearService: FinancialYearService
+        private financialYearService: FinancialYearService,
+        private bankaccountService: BankAccountService
     ) {
 
         super(router.url, cacheService);
@@ -497,7 +498,7 @@ export class EmployeeDetails extends UniView {
     private employeeBoolChecks(employee: Employee): { hasSSN: boolean, hasAccountNumber: boolean } {
         return {
             hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
-            hasAccountNumber: employee.BankAccounts[0] !== undefined && employee.BankAccounts[0] !== null && employee.BankAccounts[0].AccountNumber !== undefined && employee.BankAccounts[0].AccountNumber !== '' && employee.BankAccounts[0].AccountNumber !== null
+            hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
         };
     }
 
@@ -772,8 +773,28 @@ export class EmployeeDetails extends UniView {
             return Observable.of(this.employee);
         }
 
-        if (this.employee.BankAccounts.length && !this.employee.BankAccounts[0].ID) {
-            this.employee.BankAccounts[0]['_createguid'] = this.employeeService.getNewGuid();
+        if (brInfo.DefaultBankAccount && (!brInfo.DefaultBankAccount.AccountNumber || brInfo.DefaultBankAccount.AccountNumber === '')) {
+            brInfo.DefaultBankAccount = null;
+        }
+
+        if (brInfo.DefaultBankAccount !== null && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
+            brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
+        }
+
+        if (brInfo.BankAccounts) {
+            brInfo.BankAccounts.forEach(bankaccount => {
+                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                }
+            });
+
+            if (brInfo.DefaultBankAccount) {
+                brInfo.BankAccounts = brInfo.BankAccounts.filter(x => x !== brInfo.DefaultBankAccount);
+            }
+        }
+
+        if (brInfo.DefaultBankAccount) {
+            brInfo.DefaultBankAccount.BankAccountType = 'employee';
         }
 
         brInfo.Emails.forEach((email) => {
@@ -805,7 +826,7 @@ export class EmployeeDetails extends UniView {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-
+        
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
