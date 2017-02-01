@@ -28,11 +28,19 @@
             ></uni-image>
         </div>
     </article>
+
+    <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}">
+        <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
+        <div class="collapsable-content">
+            <reminder-settings></reminder-settings>
+        </div>
+    </article>
 </article>
 
 <section style="display:none">
     <br />
     <i>Test knapper før opprettelse av klientdata er helt klart</i><br>
+    <button (click)="syncAll()">Synkroniser kontoplan og mva</button>
     <button (click)="syncAS()">Synkroniser kontoplan</button>
     <button (click)="syncVat()">Synkroniser mva</button>
     <button (click)="syncCurrency()">Last ned valuta</button>

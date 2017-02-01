@@ -38,7 +38,7 @@ export class InvoiceList implements OnInit {
         {label: 'Alle'},
         {label: 'Kladd', statuscode: StatusCodeCustomerInvoice.Draft},
         {label: 'Fakturert', statuscode: StatusCodeCustomerInvoice.Invoiced},
-        {label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid},
+        {label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid}
     ];
     private activeTab: any = this.filterTabs[0];
 
@@ -102,6 +102,10 @@ export class InvoiceList implements OnInit {
 
     public createInvoice() {
         this.router.navigateByUrl('/sales/invoices/0');
+    }
+
+    public onReminder() {
+        this.router.navigateByUrl('/sales/reminders');
     }
 
     public onFilterTabClick(tab) {

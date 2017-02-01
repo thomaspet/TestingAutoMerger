@@ -1,4 +1,4 @@
-import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
+import {IToolbarConfig} from '../../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';

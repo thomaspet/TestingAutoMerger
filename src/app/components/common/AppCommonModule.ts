@@ -40,6 +40,10 @@ import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/settingsModal';
+import {ReminderSettings} from './reminder/settings/reminderSettings';
+import {ReminderRules} from './reminder/settings/reminderRules';
+import {ReminderRuleDetails} from './reminder/settings/ruleDetails';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 
 @NgModule({
@@ -101,7 +105,13 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         AddPaymentForm,
 
         // reconciliation
-        LedgerAccountReconciliation
+        LedgerAccountReconciliation,
+
+        ReminderSettings,
+        ReminderSettingsModal,
+        ReminderSettingsForm,
+        ReminderRules,
+        ReminderRuleDetails
     ],
     entryComponents: [
         AddressForm,
@@ -115,6 +125,9 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         ImageModalContent,
         ActivateAPForm,
         ActivateAPModal,
+        ReminderSettingsForm,
+        ReminderSettingsModal,
+        ReminderSettings
         AddPaymentForm
     ],
     exports: [
@@ -164,7 +177,10 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         AddPaymentForm,
 
         // reconciliation
-        LedgerAccountReconciliation
+        LedgerAccountReconciliation,
+
+        ReminderSettings,
+        ReminderSettingsModal
     ]
 })
 export class AppCommonModule {

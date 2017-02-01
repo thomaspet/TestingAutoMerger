@@ -1,0 +1,12 @@
+<article class='modal-content' *ngIf="config">
+    <h1>Innstillinger for purring</h1>
+    <reminder-settings></reminder-settings>
+    <footer>
+        <button *ngIf="config?.actions?.accept" (click)="config?.actions?.accept?.method()" class="good">
+            {{config?.actions?.accept?.text}}
+        </button>
+        <button *ngIf="config?.actions?.cancel" (click)="config?.actions?.cancel?.method()">
+            {{config?.actions?.cancel?.text}}
+        </button>
+    </footer>
+</article>

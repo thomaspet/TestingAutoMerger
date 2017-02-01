@@ -17,6 +17,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniField} from 'uniform-ng2/main';
+import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
     CompanySettingsService,
     CurrencyService,
@@ -48,6 +49,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
+    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -76,7 +78,8 @@ export class CompanySettingsComponent implements OnInit {
     private bankAccountChanged: any;
 
     private showImageSection: boolean = false; // used in template
-    private imageUploadOptions: IUploadConfig;
+    private showReminderSection: boolean = false; // used in template
+    private imageUploadOptions: IUploadConfig; // used in template
 
     private addressChanged: any;
     private emailChanged: any;
@@ -269,20 +272,20 @@ export class CompanySettingsComponent implements OnInit {
             this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.SalaryBankAccount);
         }
 
-        this.companySettingsService
-            .Put(this.company.ID, this.company)
-            .subscribe(
-            (response) => {
+        this.companySettingsService.Put(this.company.ID, this.company).subscribe(
+            (reponse) => {
                 this.companySettingsService.Get(1).subscribe(company => {
                     this.company = this.setupCompanySettingsData(company);
                     this.showExternalSearch = this.company.OrganizationNumber === '-';
 
-                    this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
-                    complete('Innstillinger lagret');
+                    this.reminderSettings.save().then(() => {
+                        this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
+                        complete('Innstillinger lagret');
+                    });
                 });
             },
-            err => this.errorService.handle(err)
-            );
+            (err) => this.errorService.handle(err)
+        );
     }
 
     private updateMunicipalityName() {
@@ -1151,28 +1154,39 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     //#region Test data
+    public syncAll() {
+        console.log('SYNKRONISERER');
+        this.accountService.PutAction(null, 'synchronize-ns4102-as')
+            .subscribe(() => {
+                console.log('1/2 Kontoplan synkronisert for AS');
+                this.vatTypeService.PutAction(null, 'synchronize')
+                    .subscribe(() => {
+                        console.log('2/2 VatTypes synkronisert');
+                    },
+                    err => this.errorService.handle(err)
+                    );
+            },
+            err => this.errorService.handle(err));
+    }
+
     public syncAS() {
         console.log('SYNKRONISER KONTOPLAN');
-        this.accountService
-            .PutAction(null, 'synchronize-ns4102-as')
+        this.accountService.PutAction(null, 'synchronize-ns4102-as')
             .subscribe(
             (response: any) => {
                 console.log('Kontoplan synkronisert for AS');
             },
-            err => this.errorService.handle(err)
-            );
+            err => this.errorService.handle(err));
     }
 
     public syncVat() {
         console.log('SYNKRONISER MVA');
-        this.vatTypeService
-            .PutAction(null, 'synchronize')
+        this.vatTypeService.PutAction(null, 'synchronize')
             .subscribe(
             (response: any) => {
                 console.log('VatTypes synkronisert');
             },
-            err => this.errorService.handle(err)
-            );
+            err => this.errorService.handle(err));
     }
 
     public syncCurrency() {
@@ -1182,10 +1196,8 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 alert('Valuta lasted ned');
             },
-            err => this.errorService.handle(err)
-            );
+            err => this.errorService.handle(err));
     }
-
 
     //#endregion Test data
 }

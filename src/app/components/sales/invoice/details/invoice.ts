@@ -387,12 +387,15 @@ export class InvoiceDetails {
         let netSumText = 'Netto kr ';
         netSumText += this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat : this.invoice.TaxInclusiveAmount;
 
+        let reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
+
         let toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
                 {title: customerText},
                 {title: netSumText},
-                {title: GetPrintStatusText(this.invoice.PrintStatus)}
+                {title: GetPrintStatusText(this.invoice.PrintStatus)},
+                {title: reminderStopText}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -462,6 +465,12 @@ export class InvoiceDetails {
             action: (done) => this.payInvoice(done),
             disabled: !transitions || !transitions['pay'],
             main: id > 0 && transitions['pay']
+        });
+
+        this.saveActions.push({
+            label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
+            action: (done) => this.reminderStop(done),
+            disabled: this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
         });
 
         this.saveActions.push({
@@ -558,6 +567,22 @@ export class InvoiceDetails {
             },
             (err) => {
                 done('Noe gikk galt under fakturering');
+                this.errorService.handle(err);
+            }
+        );
+    }
+
+    private reminderStop(done) {
+        this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
+
+        this.saveInvoice().subscribe(
+            (invoice) => {
+                this.isDirty = false;
+                this.updateToolbar();
+                this.updateSaveActions();
+                done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet')
+            }, (err) => {
+                done('Lagring feilet');
                 this.errorService.handle(err);
             }
         );
