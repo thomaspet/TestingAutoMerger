@@ -416,9 +416,9 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('eq')
                     .setVisible(false)
                     .setTemplate(line => line.JournalEntryLineInvoiceNumber),
-                new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime)
+                new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
                     .setTemplate(line => line.JournalEntryLineDueDate)
-                    .setFilterOperator('eq')
+                    .setFilterOperator('contains')
                     .setVisible(false),
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
