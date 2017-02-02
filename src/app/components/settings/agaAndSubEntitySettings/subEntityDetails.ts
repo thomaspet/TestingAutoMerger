@@ -121,7 +121,7 @@ export class SubEntityDetails {
     }
 
     public saveSubentities() {
-        if (this.currentSubEntity['_isDirty']) {
+        if (this.currentSubEntity && this.currentSubEntity['_isDirty']) {
             if (this.currentSubEntity.BusinessRelationInfo) {
                 if (!this.currentSubEntity.BusinessRelationID) {
                     this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
