@@ -70,7 +70,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public categoryFilter: any[] = [];
     public tagConfig: any = {
-        description: 'Utvalg: ',
+        description: 'Utvalg ',
         helpText: 'Ansatte i følgende kategorier er med i denne lønnsavregningen:',
         truncate: 20
     };
@@ -103,6 +103,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
             this.changedPayroll = true;
             this.payrollrunID = +params['id'];
+            this.tagConfig.readOnly = !this.payrollrunID;
             if (!this.payrollrunID) {
                 this.setEditableOnChildren(false);
             }
@@ -843,6 +844,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private populateCategoryFilters() {
         this.categoryFilter = [];
         this.categories.map(x => this.categoryFilter.push({ id: x.ID, title: x.Name }));
+        this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
     private setEditableOnChildren(isEditable: boolean) {
@@ -933,12 +935,11 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
         })
             .subscribe(
-            x => x,
-            err => this.errorService.handle(err),
-            () => {
+            x => { 
                 this.getEmployeeCategories();
                 this.getEmployees();
                 this.getSalaryTransactions();
-            });
+             },
+            err => this.errorService.handle(err));
     }
 }

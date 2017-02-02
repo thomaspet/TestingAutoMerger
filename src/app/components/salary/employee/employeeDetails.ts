@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear,
-    WageType
+    WageType, EmployeeCategory
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
@@ -18,7 +18,7 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService
+    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService, EmployeeCategoryService
 } from '../../../services/services';
 
 declare var _; // lodash
@@ -48,6 +48,14 @@ export class EmployeeDetails extends UniView {
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
     private financialYear: FinancialYear;
+    private categories: EmployeeCategory[];
+
+    public categoryFilter: any[] = [];
+    public tagConfig: any = {
+        description: 'Utvalg ',
+        helpText: 'Kategorier på ansatt: ',
+        truncate: 20
+    };
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -113,7 +121,8 @@ export class EmployeeDetails extends UniView {
         private salarySumsService: SalarySumsService,
         private wageTypeService: WageTypeService,
         private financialYearService: FinancialYearService,
-        private bankaccountService: BankAccountService
+        private bankaccountService: BankAccountService,
+        private employeeCategoryService: EmployeeCategoryService
     ) {
 
         super(router.url, cacheService);
@@ -132,6 +141,7 @@ export class EmployeeDetails extends UniView {
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
+            this.tagConfig.readOnly = !this.employeeID;
 
             if (!this.employeeID) {
                 // If we're dealing with a new employee, just fire up an empty state poster
@@ -183,6 +193,7 @@ export class EmployeeDetails extends UniView {
             this.employeeLeave = undefined;
             this.recurringPosts = undefined;
             this.employeeTaxCard = undefined;
+            this.categories = undefined;
 
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
@@ -273,6 +284,10 @@ export class EmployeeDetails extends UniView {
 
                 if (!this.employee) {
                     this.getEmployee();
+                }
+
+                if (!this.categories) {
+                    this.getEmployeeCategories();
                 }
 
                 this.getTax();
@@ -555,6 +570,15 @@ export class EmployeeDetails extends UniView {
             this.employee = employee;
             super.updateState('employee', employee, false);
         }, err => this.errorService.handle(err));
+    }
+
+    private getEmployeeCategories() {
+        if (this.employeeID) {
+            this.employeeService.getEmployeeCategories(this.employeeID).subscribe(categories => {
+                this.categories = categories;
+                this.populateCategoryFilters(categories);
+            });
+        }
     }
 
     private getTax(): void {
@@ -1067,6 +1091,39 @@ export class EmployeeDetails extends UniView {
                 }
             });
         }, err => this.errorService.handle(err));
+    }
+
+    private populateCategoryFilters(categories) {
+        this.categoryFilter = categories.map(x => {
+            return {id: x.ID, title: x.Name};
+        });
+        this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
+    }
+
+    public filterChange(tags: any[]) {
+        let filter = tags.filter(x => !x.id).map(x => `Name eq '${x.title}'`).join(' or ');
+        let categoryObs = filter ? this.employeeCategoryService.GetAll('filter=' + filter) : Observable.of([]);
+
+        categoryObs.switchMap((response: EmployeeCategory[]) => {
+            let categoriesToDelete = this.categories
+                .filter(x => !tags.some(y => y.id === x.ID))
+                .map(x => x.ID);
+
+            let categoriesToAdd = response;
+            let saveObs: Observable<any>[] = categoriesToAdd
+                .map(x => this.employeeService
+                    .saveEmployeeCategory(this.employeeID, x)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)))
+                .concat(categoriesToDelete
+                    .map(x => this.employeeService
+                        .deleteEmployeeCategory(this.employeeID, x)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))));
+
+            return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
+        })
+            .subscribe(
+            x => this.getEmployeeCategories(),
+            err => this.errorService.handle(err));
     }
 
 }
