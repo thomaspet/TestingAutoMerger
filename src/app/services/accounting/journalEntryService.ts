@@ -4,7 +4,7 @@ import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel} from '../../unientities';
+import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -140,7 +140,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>): ValidationResult {
+    public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>, companySettings: CompanySettings): ValidationResult {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
@@ -151,6 +151,30 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             message.Level = ValidationLevel.Error;
             message.Message = 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene';
             result.Messages.push(message);
+        }
+
+        if (companySettings && companySettings.AccountingLockedDate) {
+            let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
+                && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
+
+            if (invalidDates.length > 0) {
+                let message = new ValidationMessage();
+                message.Level = ValidationLevel.Error;
+                message.Message = `Regnskapet er låst til ${moment(companySettings.AccountingLockedDate).format('L')}, ${invalidDates.length} linje${invalidDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                result.Messages.push(message);
+            }
+        }
+        if (companySettings && companySettings.VatLockedDate) {
+
+            let invalidVatDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
+                && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate)));
+
+            if (invalidVatDates.length > 0) {
+                let message = new ValidationMessage();
+                message.Level = ValidationLevel.Error;
+                message.Message = `MVA er låst til ${moment(companySettings.VatLockedDate).format('L')}, ${invalidVatDates.length} linje${invalidVatDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                result.Messages.push(message);
+            }
         }
 
         let sortedJournalEntries = journalDataEntries.sort((a, b) => a.JournalEntryNo > b.JournalEntryNo ? 1 : 0);

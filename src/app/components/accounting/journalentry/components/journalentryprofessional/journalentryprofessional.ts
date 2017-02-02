@@ -41,6 +41,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
+    @Input() public companySettings: CompanySettings;
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -58,7 +59,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-    private companySettings: CompanySettings;
+
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -81,7 +82,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private customerInvoiceService: CustomerInvoiceService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
         private numberFormatService: NumberFormat
     ) {
@@ -159,17 +159,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
-            this.accountService.GetAll('filter=AccountNumber eq 1920'),
-            this.companySettingsService.GetAll(null)
+            this.accountService.GetAll('filter=AccountNumber eq 1920')
         ).subscribe(
             (data) => {
                 this.departments = data[0];
                 this.projects = data[1];
                 this.vattypes = data[2];
 
-                if (data[4]) {
-                    this.companySettings = data[4][0];
-                }
                 if (this.companySettings
                     && this.companySettings.CompanyBankAccount
                     && this.companySettings.CompanyBankAccount.Account) {

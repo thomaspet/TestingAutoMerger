@@ -1,7 +1,7 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel, VatDeduction} from '../../../../unientities';
+import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -17,7 +17,8 @@ import {
     ErrorService,
     JournalEntryService,
     FinancialYearService,
-    VatDeductionService
+    VatDeductionService,
+    CompanySettingsService
 } from '../../../../services/services';
 
 export enum JournalEntryMode {
@@ -48,6 +49,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private currentJournalEntryImages: number[] = [];
     private currentJournalEntryData: JournalEntryData;
 
+    private companySettings: CompanySettings;
     private financialYears: Array<FinancialYear>;
     public currentFinancialYear: FinancialYear;
     private vatDeductions: Array<VatDeduction>;
@@ -69,7 +71,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private vatDeductionService: VatDeductionService
+        private vatDeductionService: VatDeductionService,
+        private companySettingsService: CompanySettingsService
     ) {
     }
 
@@ -80,11 +83,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
-            this.vatDeductionService.GetAll(null)
+            this.vatDeductionService.GetAll(null),
+            this.companySettingsService.Get(1)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
                 this.vatDeductions = data[2];
+                this.companySettings = data[3];
 
                 this.loadData();
                 this.setupSaveConfig();
@@ -425,7 +430,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private validateJournalEntryData(data: JournalEntryData[]) {
-        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data, this.currentFinancialYear, this.financialYears);
+        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data, this.currentFinancialYear, this.financialYears, this.companySettings);
 
         /*
         KE 08.11.2016: Switch to running the validations locally. The serverside validation is executed when posting anyway
