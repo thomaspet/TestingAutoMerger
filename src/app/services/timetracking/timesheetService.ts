@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {WorkItem, WorkRelation, WorkBalance} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt} from '../../components/timetracking/utils/utils';
 import {Dimension} from '../common/dimensionService';
 import {URLSearchParams} from '@angular/http';

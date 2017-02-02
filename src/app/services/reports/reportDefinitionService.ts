@@ -9,7 +9,7 @@ import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/rep
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {ReportDefinitionDataSourceService} from './reportDefinitionDataSourceService';
-import {EmailService} from '../services';
+import {EmailService} from '../common/emailService';
 import {SendEmail} from '../../models/sendEmail';
 import {AuthService} from '../../../framework/core/authService';
 import {ErrorService} from '../common/errorService';

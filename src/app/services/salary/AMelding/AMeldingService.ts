@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AmeldingData} from '../../../unientities';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             return this.Get(id);
         }
     }
-    
+
     public getAMeldingForPeriod(periode: number, currentYear: number): Observable<AmeldingData[]> {
         return this.http
             .asGET()
@@ -75,7 +75,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             'x-altinn-pinmethod': authData.preferredLogin,
             'x-altinn-pin': authData.pin
         };
-        
+
         return this.http
             .asPUT()
             .usingBusinessDomain()

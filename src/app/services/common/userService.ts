@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class UserService extends BizHttp<User> {

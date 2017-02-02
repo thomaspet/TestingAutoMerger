@@ -29,19 +29,20 @@ module.exports = {
         //     'uniform-ng2/main',
         //     'unitable-ng2/main'
         // ],
-        vendors: [
-            'moment/min/moment.min.js',
-            'file-saver/FileSaver.min.js',
-            'base64-js/base64js.min.js',
-            'accounting/accounting.min.js',
-            'chart.js/dist/Chart.min.js',
-            'immutable/dist/immutable.min.js',
-            'lodash/lodash.min.js',
-            'jwt-decode/build/jwt-decode.min.js',
-            'jquery/dist/jquery.min.js',
-            'uniform-ng2/main',
-            'unitable-ng2/main'
-        ],
+        // vendors: [
+        //     // 'moment/min/moment.min.js',
+        //     // 'file-saver/FileSaver.min.js',
+        //     // 'base64-js/base64js.min.js',
+        //     // 'accounting/accounting.min.js',
+        //     // 'chart.js/dist/Chart.min.js',
+        //     // 'immutable/dist/immutable.min.js',
+        //     // 'lodash/lodash.min.js',
+        //     // 'jwt-decode/build/jwt-decode.min.js',
+        //     // 'jquery/dist/jquery.min.js',
+        //     // 'uniform-ng2/main',
+        //     // 'unitable-ng2/main'
+        //     './src/vendor.ts'
+        // ],
         app: [
             'core-js/client/shim',
             'reflect-metadata',
@@ -95,10 +96,10 @@ module.exports = {
         // new webpack.optimize.CommonsChunkPlugin({
         //     name: ['vendors']
         // }),
-        // new webpack.DllReferencePlugin({
-        //     context: '.',
-        //     manifest: require(helpers.root('dist') + '/vendors-manifest.json')
-        // }),
+        new webpack.DllReferencePlugin({
+            context: '.',
+            manifest: require(helpers.root('dist') + '/vendors-manifest.json')
+        }),
         // new webpack.DllReferencePlugin({
         //     context: '.',
         //     manifest: require(helpers.root('dist') + '/polyfills-manifest.json')
@@ -115,13 +116,13 @@ module.exports = {
             {} // a map of your routes
         ),
 
-        new HtmlWebpackPlugin({
-            template: 'src/index.html'
-        }),
+        // new HtmlWebpackPlugin({
+        //     template: 'src/index.html'
+        // }),
 
-        new webpack.optimize.CommonsChunkPlugin({
-            name: ["vendors", "app"]
-        })
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: ["app", "vendors"]
+        // })
         // new webpack.optimize.UglifyJsPlugin({
         //     beautify: false,
         //     comments: false,

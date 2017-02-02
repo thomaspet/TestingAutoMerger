@@ -23,7 +23,6 @@ import {UniQueryModule} from './components/uniquery/uniQueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {Dashboard} from './components/dashboard/dashboard';
-import {ExamplesModule} from './components/examples/examplesModule';
 import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/initModule';
 import {BankModule} from './components/bank/bankModule';
@@ -78,7 +77,6 @@ if (window.ENV === 'production') {
         LayoutModule,
         AppCommonModule,
         UniQueryModule,
-        ExamplesModule,
         ReportsModule,
         InitModule,
     ],

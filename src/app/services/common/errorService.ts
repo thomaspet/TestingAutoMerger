@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Logger} from '../../../framework/core/logger';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {ObservableInput} from 'rxjs/Observable';
 
 @Injectable()

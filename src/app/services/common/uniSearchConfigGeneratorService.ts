@@ -1,8 +1,12 @@
 import {Injectable} from '@angular/core';
 import {IUniSearchConfig} from 'unisearch-ng2/main';
 import {Customer, BusinessRelation, Address, Phone, Email, UniEntity} from '../../unientities';
-import {BehaviorSubject, Observable} from 'rxjs/Rx';
-import {StatisticsService, IntegrationServerCaller} from '../services';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/catch';
+import {StatisticsService} from './statisticsService';
+import {IntegrationServerCaller} from './integrationServerCaller';
 import {BusinessRelationSearch} from '../../models/Integration/BusinessRelationSearch';
 import {CustomerService} from '../sales/customerService';
 import {ErrorService} from './errorService';
@@ -38,7 +42,7 @@ export class UniSearchConfigGeneratorService {
         classType: UniEntity,
         expands: [string] = ['Info.Addresses'],
         newItemModalFn?: () => Observable<UniEntity>
-    ): IUniSearchConfig {
+    ): any {
         switch (classType) {
             case Customer: return {
                 lookupFn: searchTerm => this

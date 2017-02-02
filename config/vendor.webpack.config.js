@@ -5,8 +5,8 @@ var helpers = require('./helpers');
 module.exports = {
     entry: {
         vendors: [
-            'core-js/client/shim',
-            'reflect-metadata',
+            // 'core-js/client/shim',
+            // 'reflect-metadata',
             // 'zone.js/dist/zone',
 
             '@angular/common',
@@ -19,6 +19,8 @@ module.exports = {
             '@angular/router',
 
             'moment/min/moment.min.js',
+            'moment/locale/nb.js',
+            'moment/locale/en-gb.js',
             'file-saver/FileSaver.min.js',
             'base64-js/base64js.min.js',
             'accounting/accounting.min.js',
@@ -28,14 +30,16 @@ module.exports = {
             'jwt-decode/build/jwt-decode.min.js',
             'jquery/dist/jquery.min.js',
             'uniform-ng2/main',
-            'unitable-ng2/main'
+            'unitable-ng2/main',
+            'unisearch-ng2/main'
         ]
     },
 
     output: {
-        filename: '[name].standalone.js',
+        filename: '[name].bundle.js',
         path: 'dist/',
         library: '[name]_lib',
+        sourceMapFilename: '[file].map'
     },
 
     // module: {
@@ -70,12 +74,14 @@ module.exports = {
         }),
 
 
-        new webpack.optimize.UglifyJsPlugin({
-            beautify: false,
-            comments: false,
-            compress: {
-                warnings: false,
-            }
-        })
-    ]
+        // new webpack.optimize.UglifyJsPlugin({
+        //     beautify: false,
+        //     comments: false,
+        //     compress: {
+        //         warnings: false,
+        //     }
+        // })
+    ],
+
+    devtool: 'source-map'
 }

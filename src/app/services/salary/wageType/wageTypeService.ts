@@ -3,7 +3,7 @@ import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { WageType, FieldType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/Rx';
+import 'rxjs/Observable';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -50,7 +50,7 @@ export class WageTypeService extends BizHttp<WageType> {
             .send()
             .map(response => response.json());
     }
-    
+
     public getWageType(id: number | string, expand: string[] = null): Observable<any> {
         if (id === 0) {
             if (expand) {
