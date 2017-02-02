@@ -596,7 +596,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.payrollrunID
             ? this.payrollrunService
                 .getEmployeesOnPayroll(this.payrollrunID,
-                ['Employments.Dimensions', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts'])
+                ['Employments.Dimensions', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BusinessRelationInfo.BankAccounts'])
                 .subscribe((employees: Employee[]) => {
                     this.updateTax(employees);
                     this.updateState('employees', employees, false);
