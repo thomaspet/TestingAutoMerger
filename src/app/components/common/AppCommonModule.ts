@@ -40,11 +40,14 @@ import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {AccrualForm} from './modals/accrualModal';
+import {AccrualModal} from './modals/accrualModal';
 import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/settingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
 import {ReminderRuleDetails} from './reminder/settings/ruleDetails';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
+
 
 @NgModule({
     imports: [
@@ -71,6 +74,8 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         ProductList,
         AddressForm,
         AddressModal,
+        AccrualForm,
+        AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
         BankAccountForm,
@@ -115,6 +120,7 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
     ],
     entryComponents: [
         AddressForm,
+        AccrualForm,
         BankAccountForm,
         EmailForm,
         PhoneForm,
@@ -143,6 +149,8 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         ProductList,
         AddressForm,
         AddressModal,
+        AccrualForm,
+        AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
         BankAccountForm,

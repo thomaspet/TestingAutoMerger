@@ -371,7 +371,7 @@ export class AddPaymentForm implements OnInit {
 @Component({
     selector: 'add-payment-modal',
     template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]="type" [config]="modalConfig" ></uni-modal>
     `
 })
 export class AddPaymentModal {

@@ -199,6 +199,26 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 lastJournalEntryFinancialDate = null;
             }
 
+            if (entry.JournalEntryDataAccrual) {
+                let isDebitResultAccount = (entry.DebitAccount && entry.DebitAccount.TopLevelAccountGroup
+                    && entry.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
+                let isCreditResultAccount = (entry.CreditAccount && entry.CreditAccount.TopLevelAccountGroup
+                    && entry.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
+
+                if ((isDebitResultAccount && isCreditResultAccount) ||
+                    (!isDebitResultAccount && !isCreditResultAccount)) {
+
+                    let message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    if(isDebitResultAccount) {
+                        message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
+                    } else {
+                        message.Message = `Bilag ${lastJournalEntryNo} har en periodisering uten resultatkonto `;
+                    }
+                    result.Messages.push(message);
+                }
+            }
+
             let financialYearEntry: FinancialYear;
 
             if (entry.FinancialDate) {

@@ -2,7 +2,7 @@ uni-toast-list
     position: fixed
     top: 0
     right: 0
-    z-index: map-get($zindex, modal)
+    z-index: #{map-get($zindex, modal) + 1}
 
     & ol.toast-list
         margin: 0
