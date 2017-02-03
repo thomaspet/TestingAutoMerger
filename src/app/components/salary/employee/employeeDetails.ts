@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
@@ -27,7 +27,7 @@ declare var _; // lodash
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html'
 })
-export class EmployeeDetails extends UniView {
+export class EmployeeDetails extends UniView implements OnDestroy {
 
     public busy: boolean;
     private url: string = '/salary/employees/';
@@ -279,9 +279,8 @@ export class EmployeeDetails extends UniView {
 
         // Subscribe to route changes and load necessary data
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event.constructor.name === 'NavigationEnd' && this.employeeID !== undefined) {
                 let childRoute = event.url.split('/').pop();
-
                 if (!this.employee) {
                     this.getEmployee();
                 }
@@ -289,8 +288,10 @@ export class EmployeeDetails extends UniView {
                 if (!this.categories) {
                     this.getEmployeeCategories();
                 }
-
-                this.getTax();
+                
+                if (!this.employeeTaxCard) {
+                    this.getTax();
+                }
 
                 if (!this.employments) {
                     this.getEmployments();
@@ -335,6 +336,10 @@ export class EmployeeDetails extends UniView {
                 active: true
             });
         }
+    }
+
+    public ngOnDestroy() {
+        this.employeeID = undefined;
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -592,10 +597,9 @@ export class EmployeeDetails extends UniView {
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
-        let getNewTax = !this.employeeTaxCard || this.employeeID !== this.employeeTaxCard.EmployeeID;
-        return getNewTax
-            ? this.employeeTaxCardService
-                .GetTaxCard(this.employeeID, this.financialYear.Year)
+        return this.getFinancialYearObs()
+                .switchMap(financialYear => this.employeeTaxCardService
+                    .GetTaxCard(this.employeeID, financialYear.Year))
                 .flatMap(taxCard => {
                     return taxCard
                         ? Observable.of(taxCard)
@@ -605,8 +609,7 @@ export class EmployeeDetails extends UniView {
                                 response.EmployeeID = this.employeeID;
                                 return response;
                             });
-                })
-            : Observable.of(this.employeeTaxCard);
+                });
     }
 
     private getEmployments() {
@@ -716,6 +719,12 @@ export class EmployeeDetails extends UniView {
                         ? subEntities.filter(x => x.SuperiorOrganizationID > 0)
                         : subEntities;
                 });
+    }
+
+    private getFinancialYearObs() {
+        return this.financialYear
+            ? Observable.of(this.financialYear)
+            : this.financialYearService.getActiveFinancialYear();
     }
 
     private checkForSaveDone(done) {
@@ -850,7 +859,7 @@ export class EmployeeDetails extends UniView {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-        
+
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
@@ -1095,7 +1104,7 @@ export class EmployeeDetails extends UniView {
 
     private populateCategoryFilters(categories) {
         this.categoryFilter = categories.map(x => {
-            return {id: x.ID, title: x.Name};
+            return { id: x.ID, title: x.Name };
         });
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
