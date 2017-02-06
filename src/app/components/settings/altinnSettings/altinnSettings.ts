@@ -4,6 +4,7 @@ import { Altinn } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from '../../../services/services';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'altinn-settings',
@@ -11,8 +12,9 @@ import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from 
 
 })
 export class AltinnSettings implements OnInit {
-    private formConfig: UniFieldLayout[] = [];
-    private altinn: Altinn;
+    private formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private altinn$: BehaviorSubject<Altinn> = new BehaviorSubject(null);
     private busy: boolean;
 
     public saveactions: IUniSaveAction[] = [
@@ -44,14 +46,15 @@ export class AltinnSettings implements OnInit {
         let company = JSON.parse(localStorage.getItem('companySettings'));
 
         this.busy = true;
+        let altinn = this.altinn$.getValue();
         this._altinnService
             .getPassword()
             .flatMap((password: string) => password
                 ? this.integrate.checkSystemLogin(
                     company.OrganizationNumber,
-                    this.altinn.SystemID,
+                    altinn.SystemID,
                     password,
-                    this.altinn.Language)
+                    altinn.Language)
                     .map(result => result
                         ? 'Login ok'
                         : 'Failed to log in with given credentials')
@@ -74,33 +77,34 @@ export class AltinnSettings implements OnInit {
                     altinn.length ? Observable.of(altinn[0]) : this._altinnService.GetNewEntity([], 'altinn')),
             this._altinnService.getLayout()).subscribe((response: [Altinn, any]) => {
                 let [altinn, layout] = response;
-                this.altinn = altinn;
-                this.formConfig = this.prepareLayout(layout.Fields, altinn);
+                this.altinn$.next(altinn);
+                this.fields$.next(this.prepareLayout(layout.Fields, altinn));
             }, err => this.errorService.handle(err));
     }
 
     public saveAltinn(done) {
-        this.altinn.Language = this.altinn.Language || '1044'; // Code 1044 == bokmål
+        let altinn = this.altinn$.getValue();
+        altinn.Language = altinn.Language || '1044'; // Code 1044 == bokmål
 
-        let saveObs = this.altinn.ID
-            ? this._altinnService.Put(this.altinn.ID, this.altinn)
-            : this._altinnService.Post(this.altinn);
+        let saveObs = altinn.ID
+            ? this._altinnService.Put(altinn.ID, altinn)
+            : this._altinnService.Post(altinn);
 
         saveObs
-            .flatMap((altinn: Altinn) =>
-                this.altinn.SystemPw
+            .flatMap((retrievedAltinn: Altinn) =>
+                altinn.SystemPw
                     ? this._altinnService
-                        .setPassword(this.altinn.SystemPw)
+                        .setPassword(altinn.SystemPw)
                         .map(x => {
-                            altinn.SystemPw = x;
-                            return altinn;
+                            retrievedAltinn.SystemPw = x;
+                            return retrievedAltinn;
                         })
-                    : Observable.of(altinn)
+                    : Observable.of(retrievedAltinn)
             )
             .finally(() => this.saveactions[0].disabled = false)
             .subscribe((response: Altinn) => {
-                this.altinn = response;
-                this.formConfig = this.prepareLayout(this.formConfig, response);
+                this.altinn$.next(response);
+                this.fields$.next(this.prepareLayout(this.fields$.getValue(), response));
                 this.check();
                 done('altinninnstillinger lagret: ');
             }, error => {

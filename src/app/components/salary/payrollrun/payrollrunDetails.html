@@ -17,7 +17,7 @@
 </header>
 
 <section class="entityDetails" [attr.aria-busy]="busy" [attr.aria-expanded]="detailsActive">
-    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="payrollrun" (changeEvent)="change($event)" (readyEvent)="ready($event)" (toggleEvent)="toggle($event)"></uni-form>
+    <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
 </section>
 
 <section class="content" [attr.aria-disabled]="detailsActive">

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { EmployeeTaxCard, FieldType } from '../../../unientities';
+import { EmployeeTaxCard} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
@@ -33,7 +34,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Property: 'TaxBtn',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.COMBOBOX,
+                    FieldType: FieldType.BUTTON,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Elektronisk skattekort',
@@ -142,7 +143,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Property: 'NotMainEmployer',
                     Placement: 6,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Biarbeidsgiver',

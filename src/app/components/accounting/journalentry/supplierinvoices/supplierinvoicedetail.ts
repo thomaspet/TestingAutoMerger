@@ -1,9 +1,9 @@
-import {Component, Input, OnInit, ViewChild, OnDestroy} from '@angular/core';
+import {Component, Input, OnInit, ViewChild, OnDestroy, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {JournalEntryData} from '../../../../models/models';
-import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, FieldType, Project, Department} from '../../../../unientities';
+import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice, Project, Department} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -22,6 +22,8 @@ import {
     ProjectService,
     DepartmentService
 } from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {FieldType} from 'uniform-ng2/main';
 
 declare var moment;
 declare const _;
@@ -32,7 +34,6 @@ declare const _;
 })
 export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     @Input() private invoiceId: any;
-    private supplierInvoice: SupplierInvoice;
     private suppliers: Supplier[];
     private bankAccounts: BankAccount[];
     private errors: any;
@@ -47,8 +48,9 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
 
-    public config: any = {};
-    public fields: any[] = [];
+    private supplierInvoice$: BehaviorSubject<SupplierInvoice>;
+    public config$: BehaviorSubject<any> = new BehaviorSubject<any>({});
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject<UniFieldLayout[]>([]);
 
     private actions: IUniSaveAction[];
 
@@ -83,7 +85,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let activeStatus = this.supplierInvoice.StatusCode;
+        let activeStatus = this.supplierInvoice$.getValue().StatusCode;
 
         this._supplierInvoiceService.statusTypes.forEach((s, i) => {
             let _state: UniStatusTrack.States;
@@ -109,14 +111,17 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
         this.subscriptions.push(
             this.supplierDetailsModal.change.subscribe(newSupplier => {
-                this.fields = this.fields.map(field => {
+                let fields = this.fields$.getValue();
+                let supplierInvoice = this.supplierInvoice$.getValue();
+                fields = fields.map(field => {
                     if (field.Property === 'SupplierID') {
                         field.Options.source = this.suppliers.concat([newSupplier]);
-                        this.supplierInvoice.SupplierID = newSupplier.ID;
-                        return _.cloneDeep(field);
+                        supplierInvoice.SupplierID = newSupplier.ID;
+                        return field;
                     }
                     return field;
                 });
+                this.fields$.next(fields);
                 this.form.field('InvoiceDate').focus();
             })
         );
@@ -128,8 +133,8 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         this._supplierInvoiceService
             .Get(this.invoiceId, ['JournalEntry', 'Supplier.Info'])
             .subscribe((res) => {
-                this.supplierInvoice = res;
-                //this.setActionsDisabled();
+                this.supplierInvoice$.next(res);
+                // this.setActionsDisabled();
                 this.updateSaveActions();
                 this.updateToolbar();
                 this.setTabTitle();
@@ -141,8 +146,14 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private setTabTitle() {
-        let tabTitle = this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)';
-        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/' + this.invoiceId, name: tabTitle, active: true, moduleID: UniModules.Accounting });
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        let tabTitle = supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)';
+        this.tabService.addTab({
+            url: '/accounting/journalentry/supplierinvoices/' + this.invoiceId,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Accounting
+        });
     }
 
     private loadFormAndData() {
@@ -154,7 +165,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             this.departmentService.GetAll(null)
         ).subscribe((response: any) => {
             let [invoice, suppliers, bac, projects, departments] = response;
-            this.supplierInvoice = invoice;
+            this.supplierInvoice$.next(invoice);
             this.suppliers = suppliers;
             this.bankAccounts = bac;
             this.projects = projects;
@@ -172,24 +183,26 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private updateToolbar() {
+        const supplierInvoice = this.supplierInvoice$.getValue();
         this.toolbarconfig = {
-            title: this.supplierInvoice !== null && this.supplierInvoice.ID > 0 ? (this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : '') : '',
+            title: supplierInvoice !== null && supplierInvoice.ID > 0 ? (supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + supplierInvoice.InvoiceNumber : '') : '',
             subheads: [
-                {title: this.supplierInvoice.Supplier ? ' ' + this.supplierInvoice.Supplier.Info.Name : ''},
-                {title: this.supplierInvoice !== null && this.supplierInvoice.ID > 0 ? 'bilagsnr: ' + (this.supplierInvoice.JournalEntry !== null && this.supplierInvoice.JournalEntry.JournalEntryNumber !== null ? this.supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført') : ''}
+                {title: supplierInvoice.Supplier ? ' ' + supplierInvoice.Supplier.Info.Name : ''},
+                {title: supplierInvoice !== null && supplierInvoice.ID > 0 ? 'bilagsnr: ' + (supplierInvoice.JournalEntry !== null && supplierInvoice.JournalEntry.JournalEntryNumber !== null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført') : ''}
             ],
             statustrack: this.getStatustrackConfig()
         };
     }
 
     private updateSaveActions() {
+        const supplierInvoice = this.supplierInvoice$.getValue();
         this.actions = [];
 
         this.actions.push({
             label: 'Lagre',
             action: (done) => this.saveSupplierInvoice(done),
             main: true,
-            disabled: (this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
+            disabled: (supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
         });
 
         this.actions.push({
@@ -201,7 +214,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         this.actions.push({
             label: 'Kjør smartbokføring på ny',
             action: (done) => this.saveAndRunSmartBooking(done),
-            disabled: (this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
+            disabled: (supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
         });
 
         this.actions.push({
@@ -212,25 +225,29 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private IsJournalActionDisabled() {
-        return this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft;
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        return supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft;
     }
     private IsRegisterPaymentActionDisabled() {
-        return !(this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled ||
-        this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
-        this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed);
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        return !(supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled ||
+        supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
+        supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed);
     }
 
     private saveSupplierInvoiceTransition(done: any, transition: string, doneText: string) {
-        this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, transition).subscribe(() => {
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        this._supplierInvoiceService.Transition(supplierInvoice.ID, supplierInvoice, transition).subscribe(() => {
             console.log('== TRANSITION OK ' + transition + ' ==');
-            this.refreshFormData(this.supplierInvoice);
+            this.refreshFormData(supplierInvoice);
             done(doneText);
         }, err => this.errorService.handle(err));
     }
 
     private payInvoice(done: any) {
-        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled) {
-            this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'sendForPayment').subscribe(() => {
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        if (supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+            this._supplierInvoiceService.Transition(supplierInvoice.ID, supplierInvoice, 'sendForPayment').subscribe(() => {
                 console.log('== TRANSITION OK sendForPayment ==');
                 this.registerPayment(done);
                 done('Betalt');
@@ -248,31 +265,32 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
 
 
     private save(runSmartBooking: boolean, done) {
-        if (!this.supplierInvoice.SupplierID) {
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        if (!supplierInvoice.SupplierID) {
             this.showError({Message: 'Leverandør må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
 
-        if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
+        if ((supplierInvoice.PaymentID || '').trim().length == 0 && (supplierInvoice.PaymentInformation || '').trim().length == 0) {
             this.showError({Message: 'KID eller melding må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
 
-        if (this.supplierInvoice.Dimensions && (!this.supplierInvoice.DimensionsID || this.supplierInvoice.DimensionsID === 0)) {
-            this.supplierInvoice.Dimensions['_createguid'] = this._supplierInvoiceService.getNewGuid();
+        if (supplierInvoice.Dimensions && (!supplierInvoice.DimensionsID || supplierInvoice.DimensionsID === 0)) {
+            supplierInvoice.Dimensions['_createguid'] = this._supplierInvoiceService.getNewGuid();
         }
 
-        if (!!this.supplierInvoice.JournalEntryID) {
+        if (!!supplierInvoice.JournalEntryID) {
             let journalEntryData = this.journalEntryManual.getJournalEntryData();
 
             Observable.forkJoin(
                 this._journalEntryService.saveJournalEntryData(journalEntryData),
-                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
+                this._supplierInvoiceService.Put(supplierInvoice.ID, supplierInvoice)
             ).subscribe((response: any) => {
                 if (runSmartBooking) {
-                    this.runSmartBooking(this.supplierInvoice, done);
+                    this.runSmartBooking(supplierInvoice, done);
                 } else {
                     let lines = response[0];
                     lines.forEach((line) => {
@@ -280,7 +298,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                     });
 
                     this.journalEntryManual.setJournalEntryData(lines);
-                    this.refreshFormData(this.supplierInvoice);
+                    this.refreshFormData(supplierInvoice);
                     done('Lagret');
                 }
             }, (error) => {
@@ -288,10 +306,10 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 done('Lagring feilet');
             });
         } else {
-            this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
+            this._supplierInvoiceService.Put(supplierInvoice.ID, supplierInvoice)
                 .subscribe((result: SupplierInvoice) => {
-                    //always run smartbooking for new supplier invoices, ignore input parameter
-                    this.runSmartBooking(this.supplierInvoice, done);
+                    // always run smartbooking for new supplier invoices, ignore input parameter
+                    this.runSmartBooking(supplierInvoice, done);
                 },
                 (error) => {
                     this.errorService.handle(error);
@@ -310,6 +328,8 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
     }
 
     private saveAndBook(done) {
+        const supplierInvoice = this.supplierInvoice$.getValue();
+
         // save and run transition to booking
         let journalEntryData = this.journalEntryManual.getJournalEntryData();
 
@@ -328,7 +348,7 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                 });
                 this.journalEntryManual.setJournalEntryData(newJournalEntryData);
 
-                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
+                this._supplierInvoiceService.Put(supplierInvoice.ID, supplierInvoice)
                     .subscribe((res) => {
                         let sum = newJournalEntryData
                                     .filter(line => line.CreditAccountID !== null)
@@ -337,14 +357,14 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
                                         return (a > 0 ? a : 0) + (b > 0 ? b : 0)
                                     });
 
-                        if (sum !== this.supplierInvoice.TaxInclusiveAmount) {
+                        if (sum !== supplierInvoice.TaxInclusiveAmount) {
                             this.showError({ Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp' });
                             done('Bokføring feilet');
                         } else {
-                            this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
+                            this._supplierInvoiceService.Transition(supplierInvoice.ID, supplierInvoice, 'journal')
                                 .subscribe((resBooking) => {
                                     done('Bokført');
-                                    this.refreshFormData(this.supplierInvoice);
+                                    this.refreshFormData(supplierInvoice);
                                 },
                                 (error) => {
                                     this.errorService.handle(error);
@@ -514,17 +534,14 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
             debounceTime: 200
         };
 
-        self.fields = [supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber,
-            bankAccount, paymentID, paymentInformation, project, department];
+        self.fields$.next([supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber,
+            bankAccount, paymentID, paymentInformation, project, department]);
 
-        this.config = {
-        };
     }
 
     private ready(event) {
-        this.setupSubscriptions(null);
-
-        if (this.supplierInvoice.StatusCode < StatusCodeSupplierInvoice.Journaled) {
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        if (supplierInvoice.StatusCode < StatusCodeSupplierInvoice.Journaled) {
             this.form.editMode();
             this.disabled = false;
         } else {
@@ -533,29 +550,31 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         }
     }
 
-    private setupSubscriptions(event) {
-        this.form.field('SupplierID')
-             .changeEvent
-             .subscribe((data) => {
-                if (data) {
-                    this._supplierService.Get(this.supplierInvoice.SupplierID, ['Dimensions', 'Dimensions.Project', 'Dimensions.Department']).subscribe((supplier: Supplier) => {
-                        this.supplierInvoice.Dimensions = _.cloneDeep(supplier.Dimensions);
-                        this.supplierInvoice = _.cloneDeep(this.supplierInvoice);
+    private change(change: SimpleChanges) {
+        if (change['SupplierID']) {
+            const value = change['SupplierID'].currentValue;
+            if (value) {
+                let supplierInvoice = this.supplierInvoice$.getValue();
+                this._supplierService.Get(supplierInvoice.SupplierID, ['Dimensions', 'Dimensions.Project', 'Dimensions.Department'])
+                    .subscribe((supplier: Supplier) => {
+                        supplierInvoice.Dimensions = supplier.Dimensions;
+                        this.supplierInvoice$.next(supplierInvoice);
                         this.updateToolbar();
                     }, err => this.errorService.handle(err));
-                }
-             });
+            }
+        }
     }
 
     private registerPayment(done) {
-        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
+        const supplierInvoice = this.supplierInvoice$.getValue();
+        const title = `Register betaling${supplierInvoice.InvoiceNumber ? ', Faktura ' + supplierInvoice.InvoiceNumber : ''}${supplierInvoice.InvoiceReceiverName ? ', ' + supplierInvoice.InvoiceReceiverName : ''}`;
 
         // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.registerPaymentModal.changed.observers.length === 0) {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
                 this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-                    this.refreshFormData(this.supplierInvoice);
+                    this.refreshFormData(supplierInvoice);
                     done('Betaling registrert');
                 }, (error) => {
                     this.showError(error);
@@ -565,11 +584,11 @@ export class SupplierInvoiceDetail implements OnInit, OnDestroy {
         }
 
         const invoiceData: InvoicePaymentData = {
-            Amount: this.supplierInvoice.RestAmount,
+            Amount: supplierInvoice.RestAmount,
             PaymentDate: new Date()
         };
 
-        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
+        this.registerPaymentModal.openModal(supplierInvoice.ID, title, invoiceData);
     }
 
     public ngOnDestroy() {

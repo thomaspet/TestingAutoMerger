@@ -16,9 +16,9 @@
 
 <section *ngIf="product" class="product-details application">
     <uni-form
-            [config]="config"
-            [fields]="fields"
-            [model]="product"
+            [config]="config$"
+            [fields]="fields$"
+            [model]="product$"
             (readyEvent)="ready($event)">
     </uni-form>
 

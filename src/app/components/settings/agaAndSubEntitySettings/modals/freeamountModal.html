@@ -1,7 +1,7 @@
 <article class="modal-content" *ngIf="config">
     <h1 *ngIf="config.title">{{config.title}}</h1>
     <uni-table [config]="freeamountTableConfig" [resource]="freeamountData"></uni-table>
-    <uni-form [config]="formConfig" [fields]="fields" [model]="freeamountModel"></uni-form>
+    <uni-form [config]="formConfig$" [fields]="fields$" [model]="freeamountModel$"></uni-form>
     <footer>
         <button class="bad" (click)="config.cancel()">Lukk</button>
     </footer>

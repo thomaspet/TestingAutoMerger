@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges, Renderer} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {Department, Project, VatType, Account, FieldType} from '../../../../../unientities';
+import {Department, Project, VatType, Account} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
@@ -10,6 +10,8 @@ import {
     JournalEntryService,
     CustomerInvoiceService
 } from '../../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {FieldType} from 'uniform-ng2/main';
 
 declare var _;
 declare var moment;
@@ -31,8 +33,9 @@ export class JournalEntrySimpleForm implements OnChanges {
 
     @ViewChild(UniForm) public form: UniForm;
 
-    private config: any = {};
-    private fields: any[] = [];
+    private journalEntryLine$: BehaviorSubject<JournalEntryData>;
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private departments: Department[];
     private projects: Project[];
@@ -70,9 +73,9 @@ export class JournalEntrySimpleForm implements OnChanges {
 
     public ngOnInit() {
         if (!this.isEditMode) {
-            this.journalEntryLine.SameOrNew = this.mode == JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+            this.journalEntryLine.SameOrNew = this.mode === JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
         }
-
+        this.journalEntryLine$.next(this.journalEntryLine);
         this.setupFields();
         this.setupSameNewAlternatives();
 
@@ -100,13 +103,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalalternatives.push(this.newAlternative);
 
         // Update source
-        this.fields[0].Options.source = this.journalalternatives;
-        this.fields = _.cloneDeep(this.fields);
+        let fields = this.fields$.getValue();
+        fields[0].Options.source = this.journalalternatives;
+        this.fields$.next(fields);
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
 
-        if (this.fields.length === 0) {
+        if (this.fields$.getValue().length === 0) {
             this.setupFields();
         }
 
@@ -122,13 +126,14 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.projects.unshift(null);
 
                 // Refresh sources
-                this.fields[3].Options.source = this.accounts;
-                this.fields[4].Options.source = this.vattypes;
-                this.fields[5].Options.source = this.accounts;
-                this.fields[6].Options.source = this.vattypes;
-                this.fields[8].Options.source = this.departments;
-                this.fields[9].Options.source = this.projects;
-                this.fields = _.cloneDeep(this.fields);
+                let fields = this.fields$.getValue();
+                fields[3].Options.source = this.accounts;
+                fields[4].Options.source = this.vattypes;
+                fields[5].Options.source = this.accounts;
+                fields[6].Options.source = this.vattypes;
+                fields[8].Options.source = this.departments;
+                fields[9].Options.source = this.projects;
+                this.fields$.next(fields);
 
                 setTimeout(() => {
                     this.form.field('FinancialDate').focus();
@@ -137,12 +142,9 @@ export class JournalEntrySimpleForm implements OnChanges {
         });
 
         if (changes['journalEntryLine']) {
-            this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+            this.journalEntryLine$.next(this.journalEntryLine);
             this.isEditMode = true;
         }
-    }
-
-    public submit(line) {
     }
 
     public change(line) {
@@ -266,7 +268,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-
+        this.journalEntryLine$.next(this.journalEntryLine);
         this.isDirty = false;
 
         setTimeout(() => {
@@ -309,7 +311,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                                             this.journalEntryLine.CreditAccount = line.Account;
                                         }
 
-                                        this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+                                        this.journalEntryLine$.next(this.journalEntryLine);
                                         break;
                                     }
                                 }
@@ -402,7 +404,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                         if (account && account.VatType) {
                             this.journalEntryLine.DebitVatTypeID = account.VatTypeID;
                             this.journalEntryLine.DebitVatType = account.VatType;
-                            this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+                            this.journalEntryLine$.next(this.journalEntryLine);
                         }
                     }
                 },
@@ -459,7 +461,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                         if (account && account.VatType) {
                             this.journalEntryLine.CreditVatTypeID = account.VatTypeID;
                             this.journalEntryLine.CreditVatType = account.VatType;
-                            this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+                            this.journalEntryLine$.next(this.journalEntryLine);
                         }
                     }
                 },
@@ -554,7 +556,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         addButton.Property = 'AddButton';
         addButton.Section = 0;
         addButton.Combo = 0;
-        addButton.FieldType = FieldType.COMBOBOX;
+        addButton.FieldType = FieldType.BUTTON;
         addButton.Label = 'Legg til';
         addButton.ReadOnly = false;
         addButton.Hidden = this.isEditMode;
@@ -570,7 +572,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         updateButton.Property = 'UpdateButton';
         updateButton.Section = 0;
         updateButton.Combo = 0;
-        updateButton.FieldType = FieldType.COMBOBOX;
+        updateButton.FieldType = FieldType.BUTTON;
         updateButton.Label = 'Oppdater';
         updateButton.ReadOnly = false;
         updateButton.Hidden = !this.isEditMode;
@@ -586,7 +588,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         emptyButton.Property = 'EmptyButton';
         emptyButton.Section = 0;
         emptyButton.Combo = 0;
-        emptyButton.FieldType = FieldType.COMBOBOX;
+        emptyButton.FieldType = FieldType.BUTTON;
         emptyButton.Label = 'Tøm';
         emptyButton.ReadOnly = false;
         emptyButton.Hidden = this.isEditMode;
@@ -601,7 +603,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         abortButton.Property = 'AbortButton';
         abortButton.Section = 0;
         abortButton.Combo = 0;
-        abortButton.FieldType = FieldType.COMBOBOX;
+        abortButton.FieldType = FieldType.BUTTON;
         abortButton.Label = 'Avbryt';
         abortButton.ReadOnly = false;
         abortButton.Hidden = !this.isEditMode;
@@ -616,7 +618,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         deleteButton.Property = 'DeleteButton';
         deleteButton.Section = 0;
         deleteButton.Combo = 0;
-        deleteButton.FieldType = FieldType.COMBOBOX;
+        deleteButton.FieldType = FieldType.BUTTON;
         deleteButton.Label = 'Slett';
         deleteButton.ReadOnly = false;
         deleteButton.Hidden = !this.isEditMode;
@@ -628,10 +630,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         };
 
 
-        this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
-                        debitAccount, debitVat, creditAccount, creditVat,
-                        amount, department, project, description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
-
-        this.config = {};
+        this.fields$.next([
+            sameOrNewAlternative, finanicalDate, invoiceNumber,
+            debitAccount, debitVat, creditAccount, creditVat,
+            amount, department, project, description,
+            addButton, updateButton, emptyButton, abortButton/*, deleteButton */]);
     }
 }

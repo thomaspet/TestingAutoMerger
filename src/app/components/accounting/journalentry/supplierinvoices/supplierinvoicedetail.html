@@ -2,11 +2,11 @@
 
 <section class="supplier-invoice-detail">
     <section class="poster_overview">
-        <uni-widget-poster [model]="supplierInvoice">
-            <section class="application" *ngIf="supplierInvoice">
-                <section>Restsum kr. {{supplierInvoice.RestAmount }}</section>
+        <uni-widget-poster [model]="supplierInvoice$ | async">
+            <section class="application" *ngIf="supplierInvoice$ | async">
+                <section>Restsum kr. {{(supplierInvoice$ | async)?.RestAmount }}</section>
                 <section style="display:none">
-                    Kreditert kr. {{supplierInvoice.CreditedAmount }}
+                    Kreditert kr. {{(supplierInvoice$ | async)?.CreditedAmount }}
                 </section>
             </section>
         </uni-widget-poster>
@@ -20,25 +20,26 @@
             </span>
         </p>
 
-        <uni-form *ngIf='supplierInvoice'
-                  [config]='config'
-                  [fields]='fields'
-                  [model]='supplierInvoice'
-                  (readyEvent)="ready($event)">
-        </uni-form>
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="supplierInvoice$"
+            (readyEvent)="ready($event)"
+            (changeEvent)="change($event)"
+        ></uni-form>
 
     </article>
 
     <register-payment-modal></register-payment-modal>
 
     <article class="supplier-invoice-detail-booking">
-        <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.JournalEntryID"></journal-entry-manual>
+        <journal-entry-manual [supplierInvoice]="supplierInvoice$ | async" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="(supplierInvoice$ | async)?.JournalEntryID"></journal-entry-manual>
     </article>
 
 </section>
 
 <article class="supplier-invoice-detail-document">
-    <uni-image [entity]="'SupplierInvoice'" [entityID]="supplierInvoice?.ID"></uni-image>
+    <uni-image [entity]="'SupplierInvoice'" [entityID]="(supplierInvoice$ | async)?.ID"></uni-image>
 </article>
 
 

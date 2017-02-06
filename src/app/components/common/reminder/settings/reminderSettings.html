@@ -1,4 +1,4 @@
-    <uni-form [config]="config" [fields]="fields" [model]="settings"></uni-form>
+    <uni-form [config]="config$" [fields]="fields$" [model]="settings$"></uni-form>
     <reminder-rules
-        [settings]="settings">
+        [settings]="settings$ | async">
     </reminder-rules>

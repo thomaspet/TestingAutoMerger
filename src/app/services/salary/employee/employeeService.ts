@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, Operator, SalaryTransaction, EmployeeCategory, FieldType } from '../../../unientities';
+import { Employee, Operator, EmployeeCategory } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { ErrorService } from '../../common/ErrorService';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {

@@ -1,11 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
-import {CustomerInvoiceReminderRule, FieldType} from '../../../../unientities';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {
-    ErrorService,
-    CustomerInvoiceReminderRuleService
-} from '../../../../services/services';
+import {CustomerInvoiceReminderRule} from '../../../../unientities';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const moment;
 
@@ -17,20 +13,20 @@ export class ReminderRuleDetails {
     @Input() public rule: CustomerInvoiceReminderRule;
     @Output() public change: EventEmitter<CustomerInvoiceReminderRule> = new EventEmitter<CustomerInvoiceReminderRule>();
 
-    private config: any = {};
-    private fields: any[] = [];
+    private rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    constructor(private router: Router,
-                private errorService: ErrorService,
-                private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService) {
+    constructor() {
     }
 
     public ngOnInit() {
+        this.rule$.next(this.rule);
         this.setupForm();
     }
 
-    public onRulesChange(rule) {
-
+    public ngOnChanges() {
+        this.rule$.next(this.rule);
     }
 
     private setupForm() {
@@ -69,10 +65,10 @@ export class ReminderRuleDetails {
         let useMaximumLegalReminderFee = new UniFieldLayout();
         useMaximumLegalReminderFee.EntityType = 'CustomerInvoiceReminderRule';
         useMaximumLegalReminderFee.Property = 'UseMaximumLegalReminderFee';
-        useMaximumLegalReminderFee.FieldType = FieldType.MULTISELECT;
+        useMaximumLegalReminderFee.FieldType = FieldType.DROPDOWN;
         useMaximumLegalReminderFee.Label = 'Bruk forskriftens makssats';
 
-        this.fields = [reminderNumber, title, reminderFee, useMaximumLegalReminderFee,
-                       minimumDaysFromDueDate, description];
+        this.fields$.next([reminderNumber, title, reminderFee, useMaximumLegalReminderFee,
+                       minimumDaysFromDueDate, description]);
     }
 }

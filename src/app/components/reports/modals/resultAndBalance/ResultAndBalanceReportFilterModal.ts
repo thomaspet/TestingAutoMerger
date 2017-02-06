@@ -1,9 +1,10 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService, ErrorService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'result-and-balance-report-filter-form',
@@ -12,8 +13,9 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 export class ResultAndBalanceReportFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: UniFieldLayout[];
-    public model: {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{
         ReportYear: number,
         fromPeriod: number,
         toPeriod: number,
@@ -30,7 +32,7 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         resultlastgroup: number,
         balancefirstgroup: number,
         balancelastgroup: number
-    } = {
+    }> = new BehaviorSubject({
         ReportYear: new Date().getFullYear(),
         fromPeriod: 1,
         toPeriod: 12,
@@ -47,7 +49,7 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         resultlastgroup: 99,
         balancefirstgroup: 92,
         balancelastgroup: 93
-    };
+    });
 
     private typeOfReportFor: {ID: string, Label: string}[] = [
         {ID: 'both', Label: 'Begge'},
@@ -61,10 +63,13 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
     }
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
+        this.config$.next(this.config);
+        this.fields$.next(this.getComponentFields());
         this.yearService.getActiveYear().subscribe(res => {
-                this.model.ReportYear = res;
-            });
+            let model = this.model$.getValue();
+            model.ReportYear = res;
+            this.model$.next(model);
+        });
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -109,22 +114,22 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
                 Label: 'Fra prosjekt',
                 Property: 'fromProjectNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til prosjekt',
                 Property: 'toProjectNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Fra avdeling',
                 Property: 'fromDepartmentNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Til avdeling',
                 Property: 'toDepartmentNo'
             },
-            <UniFieldLayout>{
+            <any>{
                 FieldType: FieldType.RADIO,
                 Label: 'Vis udisp. beløp som del av EK',
                 Property: 'showUnallocated'
@@ -166,13 +171,13 @@ export class ResultAndBalanceReportFilterModal {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
                                 switch (parameter.Name) {
                                     case 'odatafilter':
-                                        parameter.value = `Period.AccountYear eq '${component.model.ReportYear}'`
-                                            + ` and Period.No ge ${component.model.fromPeriod}`
-                                            + ` and Period.No le ${component.model.toPeriod}`
-                                            + ` and isnull(Project.ProjectNumber\,0) ge ${component.model.fromProjectNo}`
-                                            + ` and isnull(Project.ProjectNumber\,0) le ${component.model.toProjectNo}`
-                                            + ` and isnull(Department.DepartmentNumber\,0) ge ${component.model.fromDepartmentNo}`
-                                            + ` and isnull(Department.DepartmentNumber\,0) le ${component.model.toDepartmentNo}`;
+                                        parameter.value = `Period.AccountYear eq '${component.model$.getValue().ReportYear}'`
+                                            + ` and Period.No ge ${component.model$.getValue().fromPeriod}`
+                                            + ` and Period.No le ${component.model$.getValue().toPeriod}`
+                                            + ` and isnull(Project.ProjectNumber\,0) ge ${component.model$.getValue().fromProjectNo}`
+                                            + ` and isnull(Project.ProjectNumber\,0) le ${component.model$.getValue().toProjectNo}`
+                                            + ` and isnull(Department.DepartmentNumber\,0) ge ${component.model$.getValue().fromDepartmentNo}`
+                                            + ` and isnull(Department.DepartmentNumber\,0) le ${component.model$.getValue().toDepartmentNo}`;
                                         break;
                                     case 'ReportYear':
                                     case 'showLastYear':
@@ -182,10 +187,10 @@ export class ResultAndBalanceReportFilterModal {
                                     case 'resultlastgroup':
                                     case 'balancefirstgroup':
                                     case 'balancelastgroup':
-                                        parameter.value = component.model[parameter.Name];
+                                        parameter.value = component.model$.getValue()[parameter.Name];
                                         break;
                                     case 'ReportLastYear':
-                                        parameter.value = component.model['ReportYear'] - 1;
+                                        parameter.value = component.model$.getValue()['ReportYear'] - 1;
                                         break;
                                 }
                             }
@@ -193,32 +198,32 @@ export class ResultAndBalanceReportFilterModal {
                             // Add report parameters
                             let periodFromParam = new CustomReportDefinitionParameter();
                             periodFromParam.Name = 'PeriodFrom';
-                            periodFromParam.value = component.model.fromPeriod;
+                            periodFromParam.value = component.model$.getValue().fromPeriod;
 
                             let periodToParam = new CustomReportDefinitionParameter();
                             periodToParam.Name = 'PeriodTo';
-                            periodToParam.value = component.model.toPeriod;
+                            periodToParam.value = component.model$.getValue().toPeriod;
 
                             //Project
                             let projectNoFromParam = new CustomReportDefinitionParameter();
                             projectNoFromParam.Name = 'ProjectNoFrom';
-                            projectNoFromParam.value = component.model.fromProjectNo;
+                            projectNoFromParam.value = component.model$.getValue().fromProjectNo;
 
                             let projectNoToParam = new CustomReportDefinitionParameter();
                             projectNoToParam.Name = 'ProjectNoTo';
-                            projectNoToParam.value = component.model.toProjectNo;
+                            projectNoToParam.value = component.model$.getValue().toProjectNo;
 
                             let departmentNoFromParam = new CustomReportDefinitionParameter();
                             departmentNoFromParam.Name = 'DepartmentNoFrom';
-                            departmentNoFromParam.value = component.model.fromDepartmentNo;
+                            departmentNoFromParam.value = component.model$.getValue().fromDepartmentNo;
 
                             let departmentNoToParam = new CustomReportDefinitionParameter();
                             departmentNoToParam.Name = 'DepartmentNoTo';
-                            departmentNoToParam.value = component.model.toDepartmentNo;
+                            departmentNoToParam.value = component.model$.getValue().toDepartmentNo;
 
                             let unallocatedParam = new CustomReportDefinitionParameter();
                             unallocatedParam.Name = 'showUnallocated';
-                            unallocatedParam.value = component.model.showUnallocated;
+                            unallocatedParam.value = component.model$.getValue().showUnallocated;
 
                             this.modalConfig.report.parameters.push(periodFromParam);
                             this.modalConfig.report.parameters.push(periodToParam);

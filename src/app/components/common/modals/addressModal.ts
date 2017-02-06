@@ -1,8 +1,13 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
+import {
+    Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange,
+    SimpleChanges
+} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {Address, FieldType, Country, PostalCode} from '../../../unientities';
+import {Address, Country, PostalCode} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {AddressService, CountryService, PostalCodeService, ErrorService} from '../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const _; // lodash
 
@@ -13,7 +18,7 @@ declare const _; // lodash
     template: `
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-form *ngIf="config" [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="change($event)"></uni-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -32,9 +37,9 @@ export class AddressForm implements OnChanges {
     private enableSave: boolean;
     private save: boolean;
 
-
-    private fields: any[] = [];
-    private formConfig: any = {};
+    private model$: BehaviorSubject<Address> = new BehaviorSubject(null);
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     private countries: Array<Country>;
 
@@ -47,17 +52,17 @@ export class AddressForm implements OnChanges {
     }
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
         this.setupForm();
         this.setupQuestionCheckbox();
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        this.model$.next(this.config.model);
         this.setupForm();
     }
 
     private setupForm() {
-        this.fields = this.getFields();
-
         if (!this.countries) {
             this.countryService.GetAll('orderby=Name')
                 .subscribe(countries => {
@@ -69,16 +74,36 @@ export class AddressForm implements OnChanges {
                     }
                     this.countries = countries;
 
-                    this.extendFormConfig();
+                    this.createFormFields();
                 },
                 err => this.errorService.handle(err)
             );
         }
     }
 
-    private extendFormConfig() {
+    public change(changes: SimpleChanges) {
+        if (changes['PostalCode']) {
+            const postalCode = changes['PostalCode'].currentValue;
+            const model = this.model$.getValue();
+            this.postalCodeService.GetAll(`filter=Code eq ${postalCode}&top=1`)
+                .subscribe((postalCodes: Array<PostalCode>) => {
+                    if (postalCodes.length > 0) {
+                        model.PostalCode = postalCodes[0].Code;
+                        model.City = postalCodes[0].City;
+                        this.model$.next(model);
+                        this.config.model = _.cloneDeep(model);
+                    } else {
+                        model.City = '';
+                        this.model$.next(model);
+                        this.config.model = _.cloneDeep(model);
+                    }
+                });
+        }
+    }
 
-        let country: UniFieldLayout = this.fields.find(x => x.Property === 'Country');
+    private createFormFields() {
+        let fields = this.getFields();
+        let country: UniFieldLayout = <any>fields.find(x => x.Property === 'Country');
         country.Options = {
             source: this.countries,
             valueProperty: 'Name',
@@ -87,29 +112,7 @@ export class AddressForm implements OnChanges {
                 blur: () => this.setCountryCodeBasedOnCountry()
             }
         };
-
-        this.fields = _.cloneDeep(this.fields);
-
-        setTimeout(() => {
-            this.form.field('PostalCode')
-                .changeEvent
-                .subscribe((address: Address) => {
-                    if (address.PostalCode) {
-                        // set city based on postalcode
-                        this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
-                            .subscribe((postalCodes: Array<PostalCode>) => {
-                                if (postalCodes.length > 0) {
-                                    address.PostalCode = postalCodes[0].Code;
-                                    address.City = postalCodes[0].City;
-                                    this.config.model = _.cloneDeep(address);
-                                } else {
-                                    address.City = '';
-                                    this.config.model = _.cloneDeep(address);
-                                }
-                            });
-                    }
-                }, err => this.errorService.handle(err));
-        });
+        this.fields$.next(fields);
     }
 
     private setCountryCodeBasedOnCountry() {
@@ -305,13 +308,15 @@ export class AddressForm implements OnChanges {
     }
 
     private setupQuestionCheckbox() {
-        this.fields.push({
+        let fields = this.fields$.getValue();
+        fields.push({
             Property: '_question',
             Hidden: (this.config.question || '').length == 0,
-            FieldType: FieldType.MULTISELECT,
+            FieldType: FieldType.CHECKBOX,
             Label: this.config.question,
             ReadOnly: this.config.disableQuestion
         });
+        this.fields$.next(fields);
     }
 
 }

@@ -3464,6 +3464,7 @@ export class PaymentBatch extends UniEntity {
     public static RelativeUrl = 'paymentbatches';
     public static EntityType = 'PaymentBatch';
 
+    public Camt054CMsgId: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;

@@ -2,7 +2,7 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
-import {FieldType} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 
 @Component({
     selector: 'register-payment-form',

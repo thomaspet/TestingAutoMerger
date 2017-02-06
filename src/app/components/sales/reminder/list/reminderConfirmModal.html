@@ -1,6 +1,6 @@
 <article class='modal-content' *ngIf="config">
     <h1>Klargjøre purrejobb for utsending</h1>
-    <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+    <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
     <footer>
         Vil du Klargjøre {{config.reminders.length}} purringer?
         <button *ngIf="config?.actions?.accept" (click)="config?.actions?.accept?.method()" class="good">

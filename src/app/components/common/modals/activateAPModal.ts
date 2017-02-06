@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
-import {FieldType} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {ActivateAP} from '../../../models/activateAP';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {
@@ -61,12 +61,12 @@ export class ActivateAPForm {
             },
             {
                 Property: 'incommingInvoice',
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Inngående faktura'
             },
             {
                 Property: 'outgoingInvoice',
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Utgående faktura'
             }
         ];

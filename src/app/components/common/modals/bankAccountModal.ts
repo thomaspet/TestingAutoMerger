@@ -1,7 +1,8 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
-import {BankAccount, FieldType, Account} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
+import {BankAccount, Account} from '../../../unientities';
 import {BankService, AccountService, AddressService, ErrorService} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BankData} from '../../../models/models';

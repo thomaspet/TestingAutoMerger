@@ -1,14 +1,14 @@
 import {Component, Input} from '@angular/core';
-import {Router} from '@angular/router';
-import {CustomerInvoiceReminderSettings, CustomerInvoiceReminderRule, FieldType} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {URLSearchParams} from '@angular/http';
+import {CustomerInvoiceReminderSettings} from '../../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
+import {UniFieldLayout} from 'uniform-ng2/main';
+
 import {
     CompanySettingsService,
     CustomerInvoiceReminderSettingsService,
     ErrorService
 } from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const moment;
 
@@ -19,17 +19,22 @@ declare const moment;
 export class ReminderSettings {
     @Input() private settings: CustomerInvoiceReminderSettings;
 
-    private config: any = {};
-    private fields: any[] = [];
+    private settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    constructor(private router: Router,
-                private companySettingsService: CompanySettingsService,
+    constructor(private companySettingsService: CompanySettingsService,
                 private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
                 private errorService: ErrorService) {
     }
 
     public ngOnInit() {
+        this.settings$.next(this.settings);
         this.setupForm();
+    }
+
+    public ngOnChanges() {
+        this.settings$.next(this.settings);
     }
 
     public save(): Promise<any> {
@@ -48,6 +53,7 @@ export class ReminderSettings {
             this.companySettingsService.Get(1, ['CustomerInvoiceReminderSettings','CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules'])
                 .subscribe((settings) => {
                     this.settings = settings.CustomerInvoiceReminderSettings;
+                    this.settings$.next(this.settings);
                 });
         }
 
@@ -63,6 +69,6 @@ export class ReminderSettings {
         remindersBeforeDebtCollection.FieldType = FieldType.NUMERIC;
         remindersBeforeDebtCollection.Label = 'Antall purringer før inkasso';
 
-        this.fields = [minimumAmountToRemind, remindersBeforeDebtCollection];
+        this.fields$.next([minimumAmountToRemind, remindersBeforeDebtCollection]);
     }
 }

@@ -5,23 +5,24 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilt
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import {JournalEntryLine, JournalEntry, Account, FieldType, FinancialYear} from '../../../../unientities';
+import {JournalEntry, Account, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-import {UniForm, UniField, UniFieldLayout} from 'uniform-ng2/main';
 import {
     JournalEntryLineService,
     JournalEntryService,
     ErrorService,
     NumberFormat,
     StatisticsService,
-	AccountService,
-	FinancialYearService,
+    AccountService,
+    FinancialYearService,
     BrowserStorageService
 } from '../../../../services/services';
+import {FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -43,9 +44,9 @@ export class TransqueryDetails implements OnInit {
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
 
-    private searchParams: any;
-    private config: any;
-    private fields: any[] = [];
+    private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
@@ -73,7 +74,12 @@ export class TransqueryDetails implements OnInit {
         private financialYearService: FinancialYearService,
         private storageService: BrowserStorageService
     ) {
-        this.tabService.addTab({ 'name': 'Forespørsel bilag', url: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails, active: true });
+        this.tabService.addTab({
+            'name': 'Forespørsel bilag',
+            url: '/accounting/transquery/details',
+            moduleID: UniModules.TransqueryDetails,
+            active: true
+        });
     }
 
     public ngOnInit() {
@@ -86,19 +92,21 @@ export class TransqueryDetails implements OnInit {
             this.activeFinancialYear = data[1];
 
             // set default value for filtering
-            this.searchParams = {
+            let searchParams = {
                 AccountID: null,
                 AccountNumber: null,
                 AccountYear: null
             };
 
             if (this.activeFinancialYear) {
-                this.searchParams.AccountYear = this.activeFinancialYear.Year;
+                searchParams.AccountYear = this.activeFinancialYear.Year;
             }
 
+            this.searchParams$.next(searchParams);
+
             // setup uniform (filters in the top of the page)
-            this.config = {};
-            this.fields = this.getLayout().Fields;
+
+            this.fields$.next(this.getLayout().Fields);
 
             this.route.params.subscribe(params => {
                 const unitableFilter = this.generateUnitableFilters(params);
@@ -130,18 +138,18 @@ export class TransqueryDetails implements OnInit {
 
             filters[0] = newFilters.join(' and ');
         }
-
+        let searchParams = this.searchParams$.getValue();
         if (this.allowManualSearch) {
-            if (this.searchParams.AccountYear) {
-                filters.push(`Period.AccountYear eq ${this.searchParams.AccountYear}`);
+            if (searchParams.AccountYear) {
+                filters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
             }
 
-            if (this.searchParams.AccountNumber) {
-                filters.push(`Account.AccountNumber eq ${this.searchParams.AccountNumber}`);
+            if (searchParams.AccountNumber) {
+                filters.push(`Account.AccountNumber eq ${searchParams.AccountNumber}`);
             }
 
-            if (this.searchParams.AccountID) {
-                filters.push(`Account.ID eq ${this.searchParams.AccountID}`);
+            if (searchParams.AccountID) {
+                filters.push(`Account.ID eq ${searchParams.AccountID}`);
             }
         }
 
@@ -241,12 +249,12 @@ export class TransqueryDetails implements OnInit {
         this.allowManualSearch = true;
         this.configuredFilter = '';
         const filter: ITableFilter[] = [];
-
+        let searchParams = this.searchParams$.getValue();
         if (this.isEmpty(routeParams)) {
-            if (this.searchParams.AccountID || this.searchParams.AccountNumber) {
-                this.searchParams.AccountID = null;
-                this.searchParams.AccountNumber = null;
-                this.searchParams = _.cloneDeep(this.searchParams);
+            if (searchParams.AccountID || searchParams.AccountNumber) {
+                searchParams.AccountID = null;
+                searchParams.AccountNumber = null;
+                this.searchParams$.next(searchParams);
             }
         } else if (
             routeParams['Account_AccountNumber']
@@ -273,9 +281,9 @@ export class TransqueryDetails implements OnInit {
                 filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod, group: 0});
             }
         } else if (routeParams['Account_AccountNumber']) {
-            this.searchParams.AccountID = null;
-            this.searchParams.AccountNumber = routeParams['Account_AccountNumber'];
-            this.searchParams = _.cloneDeep(this.searchParams);
+            searchParams.AccountID = null;
+            searchParams.AccountNumber = routeParams['Account_AccountNumber'];
+            this.searchParams$.next(searchParams);
         } else if (
             routeParams['vatCodesAndAccountNumbers']
             && routeParams['vatFromDate']
@@ -335,7 +343,7 @@ export class TransqueryDetails implements OnInit {
                         this.toastService.addToast('Kreditering utført', ToastType.good, 5);
                         this.table.refreshTableData();
 
-                        //recalc summary
+                        // recalc summary
                         if (this.lastFilterString) {
                             this.onFiltersChange(this.lastFilterString);
                         }
@@ -555,10 +563,11 @@ export class TransqueryDetails implements OnInit {
                     CustomFields: null,
                     Options: {
                         getDefaultData: () => {
-                            if (this.searchParams.AccountID) {
-                                return this.accountService.searchAccounts(`ID eq ${this.searchParams.AccountID}`);
-                            } else if (this.searchParams.AccountNumber) {
-                                return this.accountService.searchAccounts(`AccountNumber eq ${this.searchParams.AccountNumber}`);
+                            let searchParams = this.searchParams$.getValue();
+                            if (searchParams.AccountID) {
+                                return this.accountService.searchAccounts(`ID eq ${searchParams.AccountID}`);
+                            } else if (searchParams.AccountNumber) {
+                                return this.accountService.searchAccounts(`AccountNumber eq ${searchParams.AccountNumber}`);
                             }
                             return Observable.of([]);
                         },

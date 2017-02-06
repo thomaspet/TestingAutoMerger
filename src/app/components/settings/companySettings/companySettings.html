@@ -6,15 +6,15 @@
 <article *ngIf="company">
 
     <uni-form class="companySettings"
-              [config]="config"
-              [fields]="fields"
-              [model]="company">
+              [config]="config$"
+              [fields]="fields$"
+              [model]="company$">
     </uni-form>
 
     <uni-form class="company"
-              [config]="onlyCompanyConfig"
-              [fields]="onlyCompanyFields"
-              [model]="onlyCompanyModel">
+              [config]="onlyCompanyConfig$"
+              [fields]="onlyCompanyFields$"
+              [model]="onlyCompanyModel$">
     </uni-form>
 
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">

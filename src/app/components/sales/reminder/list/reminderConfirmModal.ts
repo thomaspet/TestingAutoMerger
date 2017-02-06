@@ -1,10 +1,11 @@
 import {Component, Type, Input, ViewChild, OnInit} from '@angular/core';
-import {FieldType} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ErrorService} from '../../../../services/services';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {ConfirmActions, IModalAction} from '../../../../../framework/modals/confirm';
 import {LocalDate} from '../../../../unientities';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 
 declare const moment;
 
@@ -24,8 +25,9 @@ export interface IReminderConfirmModalConfig {
 })
 export class ReminderConfirmForm implements OnInit {
     @Input() public config: any = {};
-    private formConfig: any = {};
-    private fields: any[] = [];
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(
         private toastService: ToastService,
@@ -33,19 +35,20 @@ export class ReminderConfirmForm implements OnInit {
     ) {}
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
         this.setupForm();
     }
 
     private setupForm() {
-       this.fields = [
-            {
+       this.fields$.next([
+            <any>{
                 EntityType: 'CustomerInvoiceReminder',
                 Property: 'ReminderDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Purredato',
                 LineBreak: true
             }
-       ];
+       ]);
     }
 }
 

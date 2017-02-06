@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import {Component, ViewChild, SimpleChanges} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
@@ -10,6 +10,7 @@ import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService} from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare var _; // lodash
 
@@ -19,7 +20,7 @@ declare var _; // lodash
 })
 export class WagetypeDetail extends UniView {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
-    private wageType: WageType;
+    private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
     private accounts: Account[];
     private incomeTypeDatasource: any[] = [];
@@ -40,15 +41,15 @@ export class WagetypeDetail extends UniView {
     private currentPackage: string;
     private rateIsReadOnly: boolean;
     private basePayment: boolean;
-    public config: any = {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({
         autofocus: true,
         submitText: '',
         sections: {
             '1': { isOpen: true },
             '2': { isOpen: true }
         }
-    };
-    public fields: any[] = [];
+    });
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     @ViewChild(UniForm) public uniform: UniForm;
 
@@ -106,11 +107,11 @@ export class WagetypeDetail extends UniView {
             super.updateCacheKey(router.url);
             super.getStateSubject('wagetype').subscribe((wageType: WageType) => {
                 if (wageType.ID !== this.wagetypeID) {
-                    this.wageType = wageType;
+                    this.wageType$.next(wageType);
                     this.wagetypeID = wageType.ID;
                     this.updateBaseOptions();
 
-                    this.rateIsReadOnly = this.wageType.GetRateFrom !== GetRateFrom.WageType;
+                    this.rateIsReadOnly = wageType.GetRateFrom !== GetRateFrom.WageType;
 
                     this.incomeTypeDatasource = [];
                     this.benefitDatasource = [];
@@ -125,29 +126,41 @@ export class WagetypeDetail extends UniView {
 
     private updateBaseOptions() {
         this.baseOptions = [];
-        if (this.wageType.Base_Vacation) {
+        if (this.wageType$.getValue().Base_Vacation) {
             this.baseOptions.push(WageTypeBaseOptions.VacationPay);
         }
-        if (this.wageType.Base_EmploymentTax) {
+        if (this.wageType$.getValue().Base_EmploymentTax) {
             this.baseOptions.push(WageTypeBaseOptions.AGA);
         }
-        if (this.wageType.Base_div1) {
+        if (this.wageType$.getValue().Base_div1) {
             this.baseOptions.push(WageTypeBaseOptions.Pension);
         }
         this.baseOptionsCounter = this.baseOptions.length;
-        this.wageType['_baseOptions'] = this.baseOptions;
+        let wageType = this.wageType$.getValue();
+        wageType['_baseOptions'] = this.baseOptions;
+        this.wageType$.next(wageType);
+    }
+
+    private getSetupSources() {
+        let sources = [
+            this.wageService.layout('WagetypeDetails'),
+            this.inntektService.getSalaryValidValueTypes(),
+            this.accountService.GetAll(null)
+        ];
+        if (this.wageType$.getValue().WageTypeNumber) {
+            sources.push(this.wageService.usedInPayrollrun(this.wageType$.getValue().WageTypeNumber));
+        }
+        return sources;
     }
 
     private setup() {
-        Observable.forkJoin(
-            this.wageService.layout('WagetypeDetails'),
-            this.inntektService.getSalaryValidValueTypes(),
-            this.accountService.GetAll(null),
-            this.wageService.usedInPayrollrun(this.wageType.WageTypeNumber)
-        ).subscribe(
+        const sources = this.getSetupSources();
+        Observable.forkJoin(sources).subscribe(
             (response: any) => {
                 let [layout, validvaluesTypes, accounts, usedInPayrollrun] = response;
-                this.fields = layout.Fields;
+                if (layout.Fields) {
+                    this.fields$.next(layout.Fields);
+                }
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
                 this.wageetypeUsedFieldIsReadOnly = usedInPayrollrun;
@@ -171,7 +184,7 @@ export class WagetypeDetail extends UniView {
         basePaymentField.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let wageTypeNumber: UniFieldLayout = this.findByProperty('WageTypeNumber');
-        wageTypeNumber.ReadOnly = this.wageType.ID > 0;
+        wageTypeNumber.ReadOnly = this.wageType$.getValue().ID > 0;
 
         let accountNumber: UniFieldLayout = this.findByProperty('AccountNumber');
         accountNumber.Options = {
@@ -186,8 +199,8 @@ export class WagetypeDetail extends UniView {
             valueProperty: 'AccountNumber',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
-        accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
-        this.basePayment = this.wageType.Base_Payment;
+        accountNumberBalance.ReadOnly = this.wageType$.getValue().Base_Payment;
+        this.basePayment = this.wageType$.getValue().Base_Payment;
 
         let specialAgaRule: UniFieldLayout = this.findByProperty('SpecialAgaRule');
         specialAgaRule.Options = {
@@ -216,7 +229,7 @@ export class WagetypeDetail extends UniView {
         };
         taxtype.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
-        let getRateFrom = this.fields.find(x => x.Property === 'GetRateFrom');
+        let getRateFrom = this.fields$.getValue().find(x => x.Property === 'GetRateFrom');
         getRateFrom.Options = {
             source: this.getRateFrom,
             displayProperty: 'Name',
@@ -230,7 +243,7 @@ export class WagetypeDetail extends UniView {
             valueProperty: 'ID',
             events: {
                 tab: (event) => {
-                    if (this.wageType.Base_Payment) {
+                    if (this.wageType$.getValue().Base_Payment) {
                         this.uniform.field('GetRateFrom').focus();
                     } else {
                         this.uniform.field('AccountNumber_balance').focus();
@@ -244,7 +257,7 @@ export class WagetypeDetail extends UniView {
         };
         standardWageTypeFor.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
-        let specialTaxAndContributionsRule = this.fields.find(x => x.Property === 'SpecialTaxAndContributionsRule');
+        let specialTaxAndContributionsRule = this.fields$.getValue().find(x => x.Property === 'SpecialTaxAndContributionsRule');
         specialTaxAndContributionsRule.Options = {
             source: this.specialTaxAndContributionsRule,
             displayProperty: 'Name',
@@ -254,7 +267,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private checkAmeldingInfo() {
-        if (this.wageType.SupplementaryInformations && this.wageType.SupplementaryInformations.length > 0) {
+        if (this.wageType$.getValue().SupplementaryInformations && this.wageType$.getValue().SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
             this.findByProperty('SupplementPackage').Hidden = false;
         } else {
@@ -262,22 +275,22 @@ export class WagetypeDetail extends UniView {
             this.findByProperty('SupplementPackage').Hidden = true;
         }
 
-        if (this.wageType.Benefit !== '') {
-            this.benefitDatasource.push({ text: this.wageType.Benefit });
+        if (this.wageType$.getValue().Benefit !== '') {
+            this.benefitDatasource.push({ text: this.wageType$.getValue().Benefit });
         }
 
-        if (this.wageType.Description !== '') {
-            this.descriptionDatasource.push({ text: this.wageType.Description });
+        if (this.wageType$.getValue().Description !== '') {
+            this.descriptionDatasource.push({ text: this.wageType$.getValue().Description });
         }
 
         this.setupTypes(this.validValuesTypes);
 
-        if (this.wageType.IncomeType !== null) {
+        if (this.wageType$.getValue().IncomeType !== null) {
             this.showBenefitAndDescriptionAsReadonly = false;
             this.filterSupplementPackages();
         }
 
-        this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
+        this.wageType$.getValue()['_AMeldingHelp'] = this.aMeldingHelp;
 
         this.updateUniformFields();
 
@@ -299,8 +312,8 @@ export class WagetypeDetail extends UniView {
                     this.findByProperty('SupplementPackage').Hidden = true;
                     this.filterSupplementPackages(model.IncomeType, true, false, false);
                     this.showBenefitAndDescriptionAsReadonly = false;
-                    this.wageType.Description = '';
-                    this.wageType.Benefit = '';
+                    this.wageType$.getValue().Description = '';
+                    this.wageType$.getValue().Benefit = '';
                     this.uniform.field('Benefit').focus();
                 },
                 shift_tab: (event) => {
@@ -322,7 +335,7 @@ export class WagetypeDetail extends UniView {
                     this.findByProperty('SupplementPackage').Hidden = true;
                     this.filterSupplementPackages(model.IncomeType, true, true, false);
                     this.setDescriptionDataSource();
-                    this.wageType.Description = '';
+                    this.wageType$.getValue().Description = '';
                 },
                 shift_tab: (event) => {
                     this.uniform.field('IncomeType').focus();
@@ -363,7 +376,7 @@ export class WagetypeDetail extends UniView {
         };
         tilleggsinfo.ReadOnly = this.hidePackageDropdown;
 
-        this.fields = _.cloneDeep(this.fields);
+        this.fields$.next(this.fields$.getValue());
     }
 
     private setupTypes(types: any[]) {
@@ -374,7 +387,7 @@ export class WagetypeDetail extends UniView {
 
     private filterSupplementPackages(selectedType: string = '', setSources: boolean = true, filterByFordel: boolean = true, filterByDescription: boolean = true) {
         if (selectedType !== '') {
-            selectedType = this.wageType.IncomeType;
+            selectedType = this.wageType$.getValue().IncomeType;
         }
         this.inntektService.getSalaryValidValue(selectedType)
             .subscribe(response => {
@@ -417,7 +430,7 @@ export class WagetypeDetail extends UniView {
         let tmp: any[] = [];
 
         this.descriptionDatasource.forEach(dp => {
-            if (dp.fordel === this.wageType.Benefit) {
+            if (dp.fordel === this.wageType$.getValue().Benefit) {
                 tmp.push(dp);
             }
         });
@@ -430,7 +443,7 @@ export class WagetypeDetail extends UniView {
         if (selType) {
             selectedType = selType;
         } else {
-            selectedType = this.wageType.IncomeType;
+            selectedType = this.wageType$.getValue().IncomeType;
         }
         let incometypeChild: any;
         if (selectedType) {
@@ -474,7 +487,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private setupTilleggsPakker() {
-        let selectedType: string = this.wageType.IncomeType;
+        let selectedType: string = this.wageType$.getValue().IncomeType;
         let packs: any[] = [];
 
         // Ta bort alle objekter som har 'skatteOgAvgiftsregel' som noe annet enn null
@@ -502,9 +515,9 @@ export class WagetypeDetail extends UniView {
     private setPackagesFilteredByFordel() {
         let filtered: any[] = [];
 
-        if (this.wageType.Benefit !== '' && this.benefitDatasource.length > 0) {
+        if (this.wageType$.getValue().Benefit !== '' && this.benefitDatasource.length > 0) {
             this.supplementPackages.forEach(tp => {
-                if (tp.fordel === this.wageType.Benefit) {
+                if (tp.fordel === this.wageType$.getValue().Benefit) {
                     filtered.push(tp);
                 }
             });
@@ -514,11 +527,11 @@ export class WagetypeDetail extends UniView {
 
     private setPackagesFilteredByDescription() {
         let filtered: any[] = [];
-        if (this.wageType.Description !== '' && this.descriptionDatasource.length > 0) {
+        if (this.wageType$.getValue().Description !== '' && this.descriptionDatasource.length > 0) {
             this.supplementPackages.forEach(tp => {
-                let incometypeChild: any = this.getIncometypeChildObject(tp, this.wageType.IncomeType);
+                let incometypeChild: any = this.getIncometypeChildObject(tp, this.wageType$.getValue().IncomeType);
                 if (incometypeChild) {
-                    if (this.wageType.Description === incometypeChild.beskrivelse) {
+                    if (this.wageType$.getValue().Description === incometypeChild.beskrivelse) {
                         filtered.push(tp);
                     }
                 }
@@ -546,7 +559,7 @@ export class WagetypeDetail extends UniView {
                                     wtSupp.Name = prop;
                                     wtSupp.ameldingType = key;
                                     wtSupp.SuggestedValue = this.removeAndReturnValue(obj[prop]);
-                                    wtSupp.WageTypeID = this.wageType.ID;
+                                    wtSupp.WageTypeID = this.wageType$.getValue().ID;
                                     wtSupp['_createguid'] = this.wageService.getNewGuid();
                                     additions.push(wtSupp);
                                 }
@@ -557,7 +570,7 @@ export class WagetypeDetail extends UniView {
                         wtSupp.Name = key;
                         wtSupp.ameldingType = key;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
-                        wtSupp.WageTypeID = this.wageType.ID;
+                        wtSupp.WageTypeID = this.wageType$.getValue().ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
                         additions.push(wtSupp);
                     }
@@ -572,7 +585,7 @@ export class WagetypeDetail extends UniView {
                         let wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = props;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(spesiObj[props]);
-                        wtSupp.WageTypeID = this.wageType.ID;
+                        wtSupp.WageTypeID = this.wageType$.getValue().ID;
                         wtSupp['_createguid'] = this.wageService.getNewGuid();
                         additions.push(wtSupp);
                     }
@@ -615,39 +628,39 @@ export class WagetypeDetail extends UniView {
             });
 
             if (supInfo && supInfo.length > 0) {
-                this.wageType.SupplementaryInformations = this.setDeleteOnDuplicates(supInfo);
+                this.wageType$.getValue().SupplementaryInformations = this.setDeleteOnDuplicates(supInfo);
             } else {
-                this.wageType.SupplementaryInformations.forEach(supplement => {
+                this.wageType$.getValue().SupplementaryInformations.forEach(supplement => {
                     supplement['_setDelete'] = true;
                 });
             }
 
-            if (this.wageType.SupplementaryInformations.length > 0) {
+            if (this.wageType$.getValue().SupplementaryInformations.length > 0) {
                 this.showSupplementaryInformations = true;
                 this.findByProperty('SupplementPackage').Hidden = false;
             }
             
-            super.updateState('wagetype', this.wageType, true);
+            super.updateState('wagetype', this.wageType$.getValue(), true);
         }
     }
 
     private setDeleteOnDuplicates(additions) {
         // set delete for those supplements thats not in selected addition-package
-        if (this.wageType.SupplementaryInformations && this.wageType.SupplementaryInformations.length) {
-            for (var g = 0; g < this.wageType.SupplementaryInformations.length; g++) {
+        if (this.wageType$.getValue().SupplementaryInformations && this.wageType$.getValue().SupplementaryInformations.length) {
+            for (var g = 0; g < this.wageType$.getValue().SupplementaryInformations.length; g++) {
                 let setDelete = true;
                 for (var h = 0; h < additions.length; h++) {
-                    if (additions[h].Name === this.wageType.SupplementaryInformations[g].Name) {
+                    if (additions[h].Name === this.wageType$.getValue().SupplementaryInformations[g].Name) {
                         setDelete = false;
                     }
                 }
                 if (setDelete) {
-                    this.wageType.SupplementaryInformations[g].Deleted = true;
+                    this.wageType$.getValue().SupplementaryInformations[g].Deleted = true;
                 }
             }
         }
         
-        let array = this.wageType.SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
+        let array = this.wageType$.getValue().SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
         
         // ensure no duplicates
         for (var i = array.length - 1; i > 0; i--) {
@@ -671,42 +684,42 @@ export class WagetypeDetail extends UniView {
             .setAutoAddNewRow(false);
     }
 
-    public change(model) {
-        if (this.currentPackage !== this.wageType['SupplementPackage']) {
-            this.currentPackage = this.wageType['SupplementPackage'];
-            this.showTilleggsPakker(model);
+    public change(changes: SimpleChanges) {
+        if (this.currentPackage !== this.wageType$.getValue()['SupplementPackage']) {
+            this.currentPackage = this.wageType$.getValue()['SupplementPackage'];
+            this.showTilleggsPakker(this.wageType$.getValue());
         }
-        let newRateIsReadOnly = this.wageType.GetRateFrom !== GetRateFrom.WageType;
+        let newRateIsReadOnly = this.wageType$.getValue().GetRateFrom !== GetRateFrom.WageType;
         if (this.rateIsReadOnly !== newRateIsReadOnly) {
             this.rateIsReadOnly = newRateIsReadOnly;
             let rate: UniFieldLayout = this.findByProperty('Rate');
             rate.ReadOnly = this.rateIsReadOnly;
         }
 
-        if (this.basePayment !== this.wageType.Base_Payment) {
-            this.basePayment = this.wageType.Base_Payment;
+        if (this.basePayment !== this.wageType$.getValue().Base_Payment) {
+            this.basePayment = this.wageType$.getValue().Base_Payment;
             let accountNumberBalance: UniFieldLayout = this.findByProperty('AccountNumber_balance');
-            accountNumberBalance.ReadOnly = this.wageType.Base_Payment;
+            accountNumberBalance.ReadOnly = this.wageType$.getValue().Base_Payment;
         }
 
         this.checkBaseOptions();
 
-        super.updateState('wagetype', model, true);
+        super.updateState('wagetype', this.wageType$.getValue(), true);
     }
 
     private checkBaseOptions() {
         if (this.baseOptionsCounter !== this.baseOptions.length) {
             this.baseOptionsCounter = this.baseOptions.length;
-            this.wageType.Base_Vacation = this.baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
-            this.wageType.Base_EmploymentTax = this.baseOptions.some(x => x === WageTypeBaseOptions.AGA);
-            this.wageType.Base_div1 = this.baseOptions.some(x => x === WageTypeBaseOptions.Pension);
+            this.wageType$.getValue().Base_Vacation = this.baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
+            this.wageType$.getValue().Base_EmploymentTax = this.baseOptions.some(x => x === WageTypeBaseOptions.AGA);
+            this.wageType$.getValue().Base_div1 = this.baseOptions.some(x => x === WageTypeBaseOptions.Pension);
         }
     }
 
     public toggle(section) {
         if (section.sectionId === 2) {
             if (section.isOpen) {
-                if (this.wageType.SupplementaryInformations.length > 0) {
+                if (this.wageType$.getValue().SupplementaryInformations.length > 0) {
                     this.showSupplementaryInformations = true;
                 }
             } else {
@@ -716,7 +729,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private findByProperty(name) {
-        return this.fields.find((fld) => fld.Property === name);
+        return this.fields$.getValue().find((fld) => fld.Property === name);
     }
 
     public log(title: string, err) {

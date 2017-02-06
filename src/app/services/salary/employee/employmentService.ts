@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import {
-    Employment, FieldType, TypeOfEmployment, RenumerationType,
+    Employment, TypeOfEmployment, RenumerationType,
     WorkingHoursScheme, Department, Project
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -142,7 +143,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Property: 'Standard',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Standard',

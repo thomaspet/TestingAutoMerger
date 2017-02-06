@@ -2,9 +2,9 @@
 
 <section [attr.aria-busy]="busy" class="application" [hidden]="hiddenform" >
     <uni-form
-            [config]="config"
-            [fields]="fields"
-            [model]="current"
+            [config]="config$"
+            [fields]="fields$"
+            [model]="current$"
             (changeEvent)="onChange($event)"
             (readyEvent)="onReady($event)">
     </uni-form>    

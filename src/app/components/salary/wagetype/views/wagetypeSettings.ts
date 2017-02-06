@@ -3,15 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { WageType } from '../../../../unientities';
 import { WageTypeService, UniCacheService, ErrorService } from '../../../../services/services';
 import { UniView } from '../../../../../framework/core/uniView';
-
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-wagetype-settings',
     templateUrl: 'app/components/salary/wagetype/views/wagetypeSettings.html'
 })
 export class WageTypeSettings extends UniView {
-    private wageType: WageType;
-    private fields: any[];
-    private config: any;
+    private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -20,21 +20,20 @@ export class WageTypeSettings extends UniView {
         protected cacheService: UniCacheService
     ) {
         super(router.url, cacheService);
-        this.config = {};
         this.route.parent.params.subscribe(params => {
             super.updateCacheKey(router.url);
             super.getStateSubject('wagetype').subscribe((wagetype: WageType) => {
-                this.wageType = wagetype;
+                this.wageType$.next(wagetype);
             });
         });
 
         wagetypeService.specialSettingsLayout('').subscribe(layout => {
-            this.fields = layout.Fields;
+            this.fields$.next(layout.Fields);
         });
 
     }
 
     private change(event) {
-        super.updateState('wagetype', this.wageType, true);
+        super.updateState('wagetype', this.wageType$.getValue(), true);
     }
 }

@@ -2,17 +2,17 @@ import {Component, Input, ViewChild, Output, EventEmitter, OnInit} from '@angula
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
+import {FieldType} from 'uniform-ng2/main';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
-import {Supplier, Email, Phone, Address, FieldType, BankAccount} from '../../../../unientities';
+import {Supplier, Email, Phone, Address, BankAccount} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {BankAccountModal} from '../../../common/modals/modals';
-import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
@@ -26,6 +26,8 @@ import {
     ErrorService,
     UniQueryDefinitionService,
 } from '../../../../services/services';
+
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare var _; // lodash
 
@@ -45,15 +47,15 @@ export class SupplierDetails implements OnInit {
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
     private supplierID: number;
-    private config: any = {autofocus: true};
-    private fields: any[] = [];
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private addressChanged: any;
     private phoneChanged: any;
     private emailChanged: any;
     private bankAccountChanged: any;
 
     private dropdownData: any;
-    private supplier: Supplier;
+    private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     private searchText: string;
 
     private emptyPhone: Phone;
@@ -122,7 +124,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public nextSupplier() {
-        this.supplierService.getNextID(this.supplier.ID)
+        this.supplierService.getNextID(this.supplier$.getValue().ID)
             .subscribe((ID) => {
                     if (ID) {
                         this.router.navigateByUrl('/sales/suppliers/' + ID);
@@ -134,7 +136,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public previousSupplier() {
-        this.supplierService.PreviousSupplier(this.supplier.ID)
+        this.supplierService.PreviousSupplier(this.supplier$.getValue().ID)
             .subscribe((ID) => {
                     if (ID) {
                         this.router.navigateByUrl('/sales/suppliers/' + ID);
@@ -150,8 +152,10 @@ export class SupplierDetails implements OnInit {
     }
 
     public ready() {
-        if (this.supplier.ID === 0) {
+        this.formIsInitialized = true;
+        if (this.supplier$.getValue().ID === 0) {
             this.form.field('Info.Name')
+                .Component
                 .control
                 .valueChanges
                 .debounceTime(300)
@@ -163,12 +167,13 @@ export class SupplierDetails implements OnInit {
     }
 
     private setTabTitle() {
+        const supplier = this.supplier$.getValue();
         if (this.modalMode) { return; }
-        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Ny leverandør';
-        this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
+        let tabTitle = supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
+        this.tabService.addTab({ url: '/sales/suppliers/' + supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
 
-        this.toolbarconfig.title = this.supplier.ID ? this.supplier.Info.Name : 'Ny leverandør';
-        this.toolbarconfig.subheads = this.supplier.ID ? [{title: 'Leverandørnr. ' + this.supplier.SupplierNumber}] : [];
+        this.toolbarconfig.title = supplier.ID ? supplier.Info.Name : 'Ny leverandør';
+        this.toolbarconfig.subheads = supplier.ID ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
     }
 
     public showTab(tab: string, reportid: number = null) {
@@ -221,7 +226,7 @@ export class SupplierDetails implements OnInit {
         this.showReportWithID = null;
 
         if (!this.formIsInitialized) {
-            this.fields = this.getComponentLayout().Fields;
+            this.fields$.next(this.getComponentLayout().Fields);
 
             Observable.forkJoin(
                 this.departmentService.GetAll(null),
@@ -245,16 +250,10 @@ export class SupplierDetails implements OnInit {
                 this.emptyBankAccount = response[6];
 
                 let supplier = response[2];
-                this.supplier = supplier;
+                this.supplier$.next(supplier);
 
                 this.setTabTitle();
                 this.extendFormConfig();
-
-                this.formIsInitialized = true;
-
-                setTimeout(() => {
-                    this.ready();
-                });
             }, err => this.errorService.handle(err));
 
         } else {
@@ -266,7 +265,7 @@ export class SupplierDetails implements OnInit {
                 )
             ).subscribe(response => {
                 let supplier = response[0];
-                this.supplier = supplier;
+                this.supplier$.next(supplier);
                 this.setTabTitle();
 
                 setTimeout(() => {
@@ -277,62 +276,63 @@ export class SupplierDetails implements OnInit {
     }
 
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
-        if (this.supplier !== null) {
+        let supplier = this.supplier$.getValue();
+        if (supplier !== null) {
 
-            this.supplier.Info.Name = selectedSearchInfo.navn;
-            this.supplier.OrgNumber = selectedSearchInfo.orgnr;
+            supplier.Info.Name = selectedSearchInfo.navn;
+            supplier.OrgNumber = selectedSearchInfo.orgnr;
 
-            this.supplier.Info.Addresses = [];
-            this.supplier.Info.Phones = [];
-            this.supplier.Info.Emails = [];
-            this.supplier.Info.InvoiceAddress = null;
-            this.supplier.Info.ShippingAddress = null;
-            this.supplier.Info.DefaultPhone = null;
+            supplier.Info.Addresses = [];
+            supplier.Info.Phones = [];
+            supplier.Info.Emails = [];
+            supplier.Info.InvoiceAddress = null;
+            supplier.Info.ShippingAddress = null;
+            supplier.Info.DefaultPhone = null;
 
-            var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
-            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
-            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
-            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
+            let businessaddressPromise = this.addressService.businessAddressFromSearch(selectedSearchInfo);
+            let postaladdressPromise = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            let phonePromise = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            let mobilePromise = this.phoneService.mobileFromSearch(selectedSearchInfo);
 
-            Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
-                var businessaddress: any = results[0];
-                var postaladdress: any = results[1];
-                var phone: any = results[2];
-                var mobile: any = results[3];
+            Promise.all([businessaddressPromise, postaladdressPromise, phonePromise, mobilePromise]).then(results => {
+                let businessaddress: any = results[0];
+                let postaladdress: any = results[1];
+                let phone: any = results[2];
+                let mobile: any = results[3];
 
                 if (postaladdress) {
-                    if (!this.supplier.Info.Addresses.find(x => x === postaladdress)) {
-                        this.supplier.Info.Addresses.push(postaladdress);
+                    if (!supplier.Info.Addresses.find(x => x === postaladdress)) {
+                        supplier.Info.Addresses.push(postaladdress);
                     }
-                    this.supplier.Info.InvoiceAddress = postaladdress;
+                    supplier.Info.InvoiceAddress = postaladdress;
                 }
 
                 if (businessaddress) {
-                    if (!this.supplier.Info.Addresses.find(x => x === businessaddress)) {
-                        this.supplier.Info.Addresses.push(businessaddress);
+                    if (!supplier.Info.Addresses.find(x => x === businessaddress)) {
+                        supplier.Info.Addresses.push(businessaddress);
                     }
-                    this.supplier.Info.ShippingAddress = businessaddress;
+                    supplier.Info.ShippingAddress = businessaddress;
                 } else if (postaladdress) {
-                    this.supplier.Info.ShippingAddress = postaladdress;
+                    supplier.Info.ShippingAddress = postaladdress;
                 }
 
                 if (mobile) {
-                    this.supplier.Info.Phones.unshift(mobile);
+                    supplier.Info.Phones.unshift(mobile);
                 }
 
                 if (phone) {
-                    this.supplier.Info.Phones.unshift(phone);
-                    this.supplier.Info.DefaultPhone = phone;
+                    supplier.Info.Phones.unshift(phone);
+                    supplier.Info.DefaultPhone = phone;
                 } else if (mobile) {
-                    this.supplier.Info.DefaultPhone = mobile;
+                    supplier.Info.DefaultPhone = mobile;
                 }
 
                 // set ID to make multivalue editors work with the new values...
-                this.supplier.Info.DefaultPhoneID = 0;
-                this.supplier.Info.InvoiceAddressID = 0;
-                this.supplier.Info.ShippingAddressID = 0;
+                supplier.Info.DefaultPhoneID = 0;
+                supplier.Info.InvoiceAddressID = 0;
+                supplier.Info.ShippingAddressID = 0;
 
-                this.supplier = _.cloneDeep(this.supplier);
+                this.supplier$.next(supplier);
 
                 setTimeout(() => {
                     this.ready();
@@ -344,8 +344,8 @@ export class SupplierDetails implements OnInit {
     }
 
     public extendFormConfig() {
-
-        var department: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartmentID');
+        let fields = this.fields$.getValue();
+        var department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
@@ -355,7 +355,7 @@ export class SupplierDetails implements OnInit {
             debounceTime: 200
         };
 
-        var project: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.ProjectID');
+        var project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
@@ -366,7 +366,7 @@ export class SupplierDetails implements OnInit {
         };
 
         // MultiValue
-        var phones: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultPhone');
+        var phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
 
         phones.Options = {
             entity: Phone,
@@ -389,7 +389,7 @@ export class SupplierDetails implements OnInit {
             })
         };
 
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'Info.InvoiceAddress');
+        var invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
 
         invoiceaddress.Options = {
             entity: Address,
@@ -418,7 +418,7 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        var emails: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultEmail');
+        var emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
 
         emails.Options = {
             entity: Email,
@@ -441,7 +441,7 @@ export class SupplierDetails implements OnInit {
             })
         };
 
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'Info.ShippingAddress');
+        var shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
@@ -469,7 +469,7 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        let defaultBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultBankAccount');
         defaultBankAccount.Options = {
             entity: 'BankAccount',
             listProperty: 'Info.BankAccounts',
@@ -492,97 +492,100 @@ export class SupplierDetails implements OnInit {
                 });
             })
         };
+        this.fields$.next(fields);
     }
 
     private saveSupplier(completeEvent: any) {
-        //add createGuid for new entities and remove duplicate entities
-        this.supplier.Info.Emails.forEach(email => {
+        let supplier = this.supplier$.getValue();
+        // add createGuid for new entities and remove duplicate entities
+        supplier.Info.Emails.forEach(email => {
             if (email.ID === 0) {
                 email['_createguid'] = this.supplierService.getNewGuid();
             }
         });
 
-        if (this.supplier.Info.DefaultEmail) {
-            this.supplier.Info.Emails = this.supplier.Info.Emails.filter(x => x !== this.supplier.Info.DefaultEmail);
+        if (supplier.Info.DefaultEmail) {
+            supplier.Info.Emails = supplier.Info.Emails.filter(x => x !== supplier.Info.DefaultEmail);
         }
 
-        this.supplier.Info.Phones.forEach(phone => {
+        supplier.Info.Phones.forEach(phone => {
             if (phone.ID === 0) {
                 phone['_createguid'] = this.supplierService.getNewGuid();
             }
         });
 
-        if (this.supplier.Info.DefaultPhone) {
-            this.supplier.Info.Phones = this.supplier.Info.Phones.filter(x => x !== this.supplier.Info.DefaultPhone);
+        if (supplier.Info.DefaultPhone) {
+            supplier.Info.Phones = supplier.Info.Phones.filter(x => x !== supplier.Info.DefaultPhone);
         }
 
-        this.supplier.Info.Addresses.forEach(address => {
+        supplier.Info.Addresses.forEach(address => {
             if (address.ID === 0) {
                 address['_createguid'] = this.supplierService.getNewGuid();
             }
         });
 
-        if (this.supplier.Info.ShippingAddress) {
-            this.supplier.Info.Addresses = this.supplier.Info.Addresses.filter(x => x !== this.supplier.Info.ShippingAddress);
+        if (supplier.Info.ShippingAddress) {
+            supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.ShippingAddress);
         }
 
-        if (this.supplier.Info.InvoiceAddress) {
-            this.supplier.Info.Addresses = this.supplier.Info.Addresses.filter(x => x !== this.supplier.Info.InvoiceAddress);
+        if (supplier.Info.InvoiceAddress) {
+            supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.InvoiceAddress);
         }
 
-        if (this.supplier.Info.DefaultPhone === null && this.supplier.Info.DefaultPhoneID === 0) {
-            this.supplier.Info.DefaultPhoneID = null;
+        if (supplier.Info.DefaultPhone === null && supplier.Info.DefaultPhoneID === 0) {
+            supplier.Info.DefaultPhoneID = null;
         }
 
-        if (this.supplier.Info.DefaultEmail === null && this.supplier.Info.DefaultEmailID === 0) {
-            this.supplier.Info.DefaultEmailID = null;
+        if (supplier.Info.DefaultEmail === null && supplier.Info.DefaultEmailID === 0) {
+            supplier.Info.DefaultEmailID = null;
         }
 
-        if (this.supplier.Info.ShippingAddress === null && this.supplier.Info.ShippingAddressID === 0) {
-            this.supplier.Info.ShippingAddressID = null;
+        if (supplier.Info.ShippingAddress === null && supplier.Info.ShippingAddressID === 0) {
+            supplier.Info.ShippingAddressID = null;
         }
 
-        if (this.supplier.Info.InvoiceAddress === null && this.supplier.Info.InvoiceAddressID === 0) {
-            this.supplier.Info.InvoiceAddressID = null;
+        if (supplier.Info.InvoiceAddress === null && supplier.Info.InvoiceAddressID === 0) {
+            supplier.Info.InvoiceAddressID = null;
         }
 
-        if (this.supplier.Dimensions !== null && (!this.supplier.Dimensions.ID || this.supplier.Dimensions.ID === 0)) {
-            this.supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
+        if (supplier.Dimensions !== null && (!supplier.Dimensions.ID || supplier.Dimensions.ID === 0)) {
+            supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (this.supplier.Info.DefaultBankAccount && (!this.supplier.Info.DefaultBankAccount.AccountNumber || this.supplier.Info.DefaultBankAccount.AccountNumber === '')) {
-            this.supplier.Info.DefaultBankAccount = null;
+        if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.AccountNumber || supplier.Info.DefaultBankAccount.AccountNumber === '')) {
+            supplier.Info.DefaultBankAccount = null;
         }
 
-        if (this.supplier.Info.DefaultBankAccount !== null && (!this.supplier.Info.DefaultBankAccount.ID || this.supplier.Info.DefaultBankAccount.ID === 0)) {
-            this.supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
+        if (supplier.Info.DefaultBankAccount !== null && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)) {
+            supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (this.supplier.Info.BankAccounts) {
-            this.supplier.Info.BankAccounts.forEach(bankaccount => {
+        if (supplier.Info.BankAccounts) {
+            supplier.Info.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                 }
             });
 
-            if (this.supplier.Info.DefaultBankAccount) {
-                this.supplier.Info.BankAccounts = this.supplier.Info.BankAccounts.filter(x => x !== this.supplier.Info.DefaultBankAccount);
+            if (supplier.Info.DefaultBankAccount) {
+                supplier.Info.BankAccounts = supplier.Info.BankAccounts
+                    .filter(x => x !== supplier.Info.DefaultBankAccount);
             }
         }
 
-        if (this.supplier.Info.DefaultBankAccount) {
-            this.supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
+        if (supplier.Info.DefaultBankAccount) {
+            supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
         }
 
         if (this.supplierID > 0) {
-            this.supplierService.Put(this.supplier.ID, this.supplier)
+            this.supplierService.Put(supplier.ID, supplier)
                 .subscribe(
                     (updatedValue) => {
                         completeEvent('Leverandør lagret');
 
-                        this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(supplier => {
+                        this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(supplier => {
                             supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
-                            this.supplier = supplier;
+                            this.supplier$.next(supplier);
                             this.setTabTitle();
                         });
                     },
@@ -592,7 +595,7 @@ export class SupplierDetails implements OnInit {
                     }
                 );
         } else {
-            this.supplierService.Post(this.supplier)
+            this.supplierService.Post(supplier)
                 .subscribe(
                     (newSupplier) => {
                         if (!this.modalMode) {

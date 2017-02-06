@@ -3,7 +3,7 @@
 
     <header class="payrollControl_header">
         <h3>Hovedtall for lønnsavregningen: </h3>
-        <uni-form [config]="formConfig" [fields]="fields" [model]="model"></uni-form>
+        <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
     </header>
 
     <ol *ngIf="payList" class="payrollControl_payList">
