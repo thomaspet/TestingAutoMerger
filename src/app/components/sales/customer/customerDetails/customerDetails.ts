@@ -1,7 +1,7 @@
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
@@ -23,7 +23,7 @@ import {
     UniQueryDefinitionService,
     ErrorService
 } from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'customer-details',

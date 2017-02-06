@@ -21,7 +21,7 @@ import {
     ErrorService,
 	UniCacheService
 } from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 import {BankAccountModal} from '../../../common/modals/modals';
 
 

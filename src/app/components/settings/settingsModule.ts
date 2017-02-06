@@ -68,10 +68,10 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
         FreeamountModalContent,
         WebHookSettings
     ],
-    entryComponents: [
-        GrantsModalContent,
-        FreeamountModalContent
-    ],
+    // entryComponents: [
+    //     GrantsModalContent,
+    //     FreeamountModalContent
+    // ],
     exports: [
         Settings,
         AccountSettings,

@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {TofCustomerCard} from './customerCard';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'uni-tof-head',

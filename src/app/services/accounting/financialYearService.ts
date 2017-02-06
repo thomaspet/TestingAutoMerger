@@ -6,7 +6,7 @@ import { CompanySettingsService } from '../common/companySettingsService';
 import { UniHttp } from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
-
+import 'rxjs/add/observable/of';
 
 @Injectable()
 export class FinancialYearService extends BizHttp<FinancialYear> {

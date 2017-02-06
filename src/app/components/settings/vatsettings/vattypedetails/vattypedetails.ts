@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
 
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 import {FieldType, VatReportReference} from '../../../../unientities';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';

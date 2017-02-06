@@ -6,7 +6,8 @@ import {
     CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
     VatReportSummaryPerPost, VatReportNotReportedJournalEntryData, AltinnSigning, StatusCodeAltinnSigning
 } from '../../../unientities';
-import {Observable, Subscription} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';

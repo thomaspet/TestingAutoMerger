@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {File as UniFile} from '../../app/unientities';
-import * as _ from 'lodash';
+declare var _;
 
 export interface IFileMetaData {
     Name: string;

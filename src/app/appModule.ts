@@ -1,5 +1,6 @@
 /// <reference path="../../typings/index.d.ts" />
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
+
 import {enableProdMode, NgModule, ErrorHandler} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';

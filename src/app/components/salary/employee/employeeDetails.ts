@@ -20,8 +20,7 @@ import {
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService
 } from '../../../services/services';
-import * as _ from 'lodash';
-
+declare var _;
 @Component({
     selector: 'uni-employee-details',
     templateUrl: './employeeDetails.html'

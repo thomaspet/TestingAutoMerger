@@ -12,7 +12,7 @@ import {
     ErrorService,
     SalarySumsService
 } from '../../../../app/services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'control-modal-content',

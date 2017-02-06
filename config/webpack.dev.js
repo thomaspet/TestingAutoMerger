@@ -48,6 +48,7 @@ module.exports = {
             'reflect-metadata',
             'zone.js/dist/zone',
 
+            './src/rxjs.imports.ts',
             './src/main.ts'
         ],
 
@@ -100,6 +101,7 @@ module.exports = {
             context: '.',
             manifest: require(helpers.root('dist') + '/vendors-manifest.json')
         }),
+        new webpack.optimize.CommonsChunkPlugin('app'),
         // new webpack.DllReferencePlugin({
         //     context: '.',
         //     manifest: require(helpers.root('dist') + '/polyfills-manifest.json')
@@ -139,7 +141,8 @@ module.exports = {
                 loaders: [
                     'awesome-typescript-loader',
                     'angular2-template-loader',
-                    'angular2-router-loader'
+                    // 'angular2-router-loader',
+                    'angular-router-loader'
                 ],
                 exclude: [/\.(spec|e2e|d)\.ts$/]
             },

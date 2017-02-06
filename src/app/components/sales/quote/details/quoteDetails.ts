@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerQuote} from '../../../../unientities';
@@ -31,7 +31,7 @@ import {
     CompanySettingsService
 } from '../../../../services/services';
 import * as moment from 'moment';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'quote-details',

@@ -1,6 +1,6 @@
 import {ITypeSearch, IJQItem} from './interfaces';
 import {DomEvents} from './domevents';
-import * as $ from 'jquery';
+declare var $;
 
 export enum DropListNavigation {
     UP = 38,

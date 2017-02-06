@@ -3,7 +3,7 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {UniQueryDefinition, FieldType} from '../../../../app/unientities';
 import {UniQueryDefinitionService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {UniForm} from 'uniform-ng2/main';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService} from '../../../services/services';;

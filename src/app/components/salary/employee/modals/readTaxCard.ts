@@ -6,7 +6,7 @@ import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../.
 import {AltinnResponseModal} from './altinnResponseModal';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'read-tax-card',

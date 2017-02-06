@@ -8,7 +8,7 @@ import {
 import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'vacationpay-modal-content',
@@ -191,7 +191,7 @@ export class VacationpayModalContent {
         }
 
         this.getVacationpayData();
-        
+
     }
 
     private createFormConfig() {

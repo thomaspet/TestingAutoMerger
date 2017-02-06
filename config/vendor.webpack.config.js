@@ -1,14 +1,9 @@
 var webpack = require('webpack');
 var helpers = require('./helpers');
-// var NormalModuleReplacementPlugin = require('webpack/lib/NormalModuleReplacementPlugin');
 
 module.exports = {
     entry: {
         vendors: [
-            // 'core-js/client/shim',
-            // 'reflect-metadata',
-            // 'zone.js/dist/zone',
-
             '@angular/common',
             '@angular/compiler',
             '@angular/core',
@@ -18,20 +13,20 @@ module.exports = {
             '@angular/platform-browser-dynamic',
             '@angular/router',
 
-            'moment/min/moment.min.js',
             'moment/locale/nb.js',
             'moment/locale/en-gb.js',
             'file-saver/FileSaver.min.js',
             'base64-js/base64js.min.js',
             'accounting/accounting.min.js',
-            'chart.js/dist/Chart.min.js',
             'immutable/dist/immutable.min.js',
-            'lodash/lodash.min.js',
             'jwt-decode/build/jwt-decode.min.js',
+
             'jquery/dist/jquery.min.js',
+            'lodash/lodash.min.js',
+
             'uniform-ng2/main',
             'unitable-ng2/main',
-            'unisearch-ng2/main'
+            'unisearch-ng2',
         ]
     },
 
@@ -42,26 +37,16 @@ module.exports = {
         sourceMapFilename: '[file].map'
     },
 
-    // module: {
-    //     // REVISIT: not needed?
-    //     loaders: [
-    //         {
-    //             test: /\.ts$/,
-    //             loaders: ['awesome-typescript-loader', 'angular2-template-loader']
-    //         }
-    //     ]
-    // },
-
     plugins: [
+        // Only load english and norwegian locales with moment
+        new webpack.ContextReplacementPlugin(/moment[\\\/]locale$/, /^\.\/(en|no|)$/),
+
         new webpack.ContextReplacementPlugin(
             // The (\\|\/) piece accounts for path separators in *nix and Windows
             /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
             helpers.root('./src'), // location of your src
             {} // a map of your routes
         ),
-        // new webpack.optimize.CommonsChunkPlugin({
-        //     name: ['angular']
-        // }),
         new webpack.DllPlugin({
             // The path to the manifest file which maps between
             // modules included in a bundle and the internal IDs
@@ -72,6 +57,14 @@ module.exports = {
             // output.library option above
             name: '[name]_lib'
         }),
+
+        new webpack.ProvidePlugin({
+            $: 'jquery/dist/jquery.min.js',
+            jQuery: 'jquery/dist/jquery.min.js',
+            _: 'lodash/lodash.min.js',
+            lodash: 'lodash/lodash.min.js',
+            // moment: 'moment/min/moment.min.js'
+        })
 
 
         // new webpack.optimize.UglifyJsPlugin({

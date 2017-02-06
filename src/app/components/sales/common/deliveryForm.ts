@@ -3,7 +3,7 @@ import {FieldType, Address} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {UniForm} from 'uniform-ng2/main';
 import {AddressModal} from '../../common/modals/modals';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'tof-delivery-form',

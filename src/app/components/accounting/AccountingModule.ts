@@ -127,11 +127,11 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         DimensionResultReport,
         DrilldownBalanceReportPart
     ],
-    entryComponents: [
-        HistoricVatReportTable,
-        CreateCorrectedVatReportForm,
-        AccountDetailsReport
-    ],
+    // entryComponents: [
+    //     HistoricVatReportTable,
+    //     CreateCorrectedVatReportForm,
+    //     AccountDetailsReport
+    // ],
     providers: [
         CanDeactivateGuard
     ],

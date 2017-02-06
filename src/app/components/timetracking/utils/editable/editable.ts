@@ -3,7 +3,7 @@ import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearc
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';
-import * as $ from 'jquery';
+declare var $;
 
 export interface ICopyEventDetails { event: any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?: any; };
 

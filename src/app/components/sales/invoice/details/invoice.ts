@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -37,7 +37,7 @@ import {
     EHFService
 } from '../../../../services/services';
 import * as moment from 'moment';
-import * as _ from 'lodash';
+declare const _;
 
 @Component({
     selector: 'uni-invoice',

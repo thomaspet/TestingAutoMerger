@@ -4,7 +4,7 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {StatisticsService, ErrorService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams, Response} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'payment-relations-table',

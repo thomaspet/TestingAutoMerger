@@ -23,7 +23,7 @@ import {
     DepartmentService
 } from '../../../../services/services';
 
-import * as _ from 'lodash';
+declare var _;
 import * as moment from 'moment';
 
 @Component({

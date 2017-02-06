@@ -12,7 +12,6 @@ import {
 } from './services/services';
 
 // declare const OneSignal;
-declare const window;
 
 @Component({
     selector: 'uni-app',
@@ -33,6 +32,7 @@ export class App {
         private errorService: ErrorService,
         private userService: UserService
     ) {
+
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
               event.preventDefault();
@@ -55,6 +55,7 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
+
     }
 
     // private setOneSignal() {

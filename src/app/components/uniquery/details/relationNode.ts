@@ -1,7 +1,7 @@
 import {Component, ViewChild, OnChanges, Input, Output, EventEmitter} from '@angular/core';
 import {StatisticsService} from '../../../services/services';
 import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'dynamic-report-relation-node',

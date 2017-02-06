@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
@@ -40,7 +40,7 @@ import {
     AddressService,
     ReportDefinitionService
 } from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 // TODO: this can be removed when refactor is complete
 class CustomerOrderExt extends CustomerOrder {

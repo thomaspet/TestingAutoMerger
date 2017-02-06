@@ -10,7 +10,7 @@ import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService} from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'wagetype-details',

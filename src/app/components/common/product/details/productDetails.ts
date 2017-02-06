@@ -19,7 +19,7 @@ import {
     DepartmentService,
     CompanySettingsService
 } from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'product-details',

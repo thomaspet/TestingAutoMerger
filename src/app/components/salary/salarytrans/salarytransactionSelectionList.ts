@@ -15,7 +15,7 @@ import {
     ErrorService,
     SalarySumsService
 } from '../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'salarytrans',

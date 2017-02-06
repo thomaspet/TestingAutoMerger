@@ -26,7 +26,7 @@ import {
     ErrorService,
     UniQueryDefinitionService,
 } from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'supplier-details',

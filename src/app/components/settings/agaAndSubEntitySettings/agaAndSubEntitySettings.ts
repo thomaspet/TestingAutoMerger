@@ -10,7 +10,7 @@ import {
 import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService, ErrorService } from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'aga-and-subentities-settings',

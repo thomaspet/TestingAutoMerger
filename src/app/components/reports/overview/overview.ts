@@ -13,7 +13,7 @@ import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportF
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 class ReportCategory {
     public name: string;

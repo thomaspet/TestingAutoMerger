@@ -25,7 +25,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService
 } from '../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 import * as moment from 'moment';
 
 @Component({

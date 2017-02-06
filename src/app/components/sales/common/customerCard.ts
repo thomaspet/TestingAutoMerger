@@ -3,7 +3,7 @@ import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
 import {AddressService, EHFService, UniSearchConfigGeneratorService} from '../../../services/services';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
 
 

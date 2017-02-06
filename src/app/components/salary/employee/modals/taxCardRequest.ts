@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniForm} from 'uniform-ng2/main';
 import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'tax-card-request',

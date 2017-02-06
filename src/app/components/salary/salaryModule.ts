@@ -153,17 +153,17 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CategoryView,
         CategoryDetail
     ],
-    entryComponents: [
-        TaxCardModalContent,
-        AltinnResponseModalContent,
-        VacationpayModalContent,
-        VacationpaySettingModalContent,
-        ControlModalContent,
-        PostingsummaryModalContent,
-        SalarytransFilterContent,
-        SelectAmeldingTypeModalContent,
-        SalaryTransactionSupplementsModalContent
-    ],
+    // entryComponents: [
+    //     TaxCardModalContent,
+    //     AltinnResponseModalContent,
+    //     VacationpayModalContent,
+    //     VacationpaySettingModalContent,
+    //     ControlModalContent,
+    //     PostingsummaryModalContent,
+    //     SalarytransFilterContent,
+    //     SelectAmeldingTypeModalContent,
+    //     SalaryTransactionSupplementsModalContent
+    // ],
     providers: [
         CanDeactivateGuard
     ],

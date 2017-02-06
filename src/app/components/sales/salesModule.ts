@@ -38,7 +38,7 @@ import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {UniSearchModule} from 'unisearch-ng2/main';
+import {UniSearchModule} from 'unisearch-ng2';
 
 @NgModule({
     imports: [
@@ -95,10 +95,10 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         SupplierDetails,
         SupplierList
     ],
-    entryComponents: [
-        OrderToInvoiceModalType,
-        OrderToInvoiceTable
-    ],
+    // entryComponents: [
+    //     OrderToInvoiceModalType,
+    //     OrderToInvoiceTable
+    // ],
     providers: [
         TradeItemHelper,
         TofHelper,

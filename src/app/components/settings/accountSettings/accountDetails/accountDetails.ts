@@ -10,7 +10,7 @@ import {
     CurrencyService,
     AccountService
 } from '../../../../services/services';
-import * as _ from 'lodash';
+declare var _;
 
 @Component({
     selector: 'account-details',

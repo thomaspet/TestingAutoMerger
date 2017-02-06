@@ -1,5 +1,4 @@
 import * as Chart from 'chart.js';
-
 export class ChartHelper {
     public static generateChart(elementID: string, data: IChartDataSet) {
         let element = document.getElementById(elementID);

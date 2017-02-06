@@ -28,7 +28,7 @@ import {
 } from '../../../../services/services';
 
 import * as moment from 'moment';
-import * as _ from 'lodash';
+declare var _;
 
 interface ITab {
     name: string;

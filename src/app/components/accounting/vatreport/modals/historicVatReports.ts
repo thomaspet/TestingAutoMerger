@@ -5,7 +5,7 @@ import {VatReport} from '../../../../../app/unientities';
 import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {
     VatReportService,
     PeriodService,

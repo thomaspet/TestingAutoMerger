@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {IUniSearchConfig} from 'unisearch-ng2/main';
 import {Customer, BusinessRelation, Address, Phone, Email, UniEntity} from '../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

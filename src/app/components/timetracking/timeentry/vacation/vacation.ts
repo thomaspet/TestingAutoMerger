@@ -4,7 +4,7 @@ import {WorkTimeOff} from '../../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, FieldSize, ControlTypes} from '../../utils/utils';
 import {ChangeMap} from '../../utils/changeMap';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {IResult} from '../../genericview/detail';
 import {ErrorService} from '../../../../services/services';
 

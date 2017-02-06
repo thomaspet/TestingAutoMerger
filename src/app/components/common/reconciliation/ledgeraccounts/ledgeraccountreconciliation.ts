@@ -15,7 +15,7 @@ import {
 } from '../../../../services/services';
 
 import * as moment from 'moment';
-import * as _ from 'lodash';
+declare var _;
 
 class JournalEntryLineCouple {
     public JournalEntryLineId1: number;

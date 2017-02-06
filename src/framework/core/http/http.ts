@@ -1,6 +1,6 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
-import {Http, Headers, URLSearchParams, Request, Response, RequestMethod} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
+import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../../app/appConfig';
 import {AuthService} from '../authService';
 
