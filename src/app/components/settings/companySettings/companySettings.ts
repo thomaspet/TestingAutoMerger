@@ -170,7 +170,7 @@ export class CompanySettingsComponent implements OnInit {
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[6]));
 
-                this.showExternalSearch = this.company$.getValue().OrganizationNumber === '-';
+                this.showExternalSearch = this.company$.getValue().OrganizationNumber === '';
 
                 if (this.showExternalSearch) {
                     setTimeout(() => {
@@ -235,7 +235,7 @@ export class CompanySettingsComponent implements OnInit {
 
     public saveSettings(complete) {
         let company = this.company$.getValue();
-        if (company.OrganizationNumber === '-'
+        if (company.OrganizationNumber === ''
             || isNaN(<any>company.OrganizationNumber)) {
             alert('Vennligst oppgi et gyldig organisasjonsnr');
             complete('Ugyldig organisasjonsnr, lagring avbrutt');
@@ -278,7 +278,7 @@ export class CompanySettingsComponent implements OnInit {
             (reponse) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
                     this.company$.next(this.setupCompanySettingsData(retrievedCompany));
-                    this.showExternalSearch = retrievedCompany.OrganizationNumber === '-';
+                    this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
 
                     this.reminderSettings.save().then(() => {
                         this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
@@ -604,7 +604,7 @@ export class CompanySettingsComponent implements OnInit {
                 Combo: null,
                 Sectionheader: '',
                 hasLineBreak: false,
-                Validations: []
+                Validations: []                
             },
             {
                 ComponentLayoutID: 1,
