@@ -31,7 +31,6 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     templateUrl: 'app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html',
 })
 export class JournalEntryProfessional implements OnInit, OnChanges {
-    @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
     @Input() public mode: number = JournalEntryMode.Manual;
@@ -188,13 +187,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setJournalEntryNumberProperties(newRow) {
-
-        if (newRow.JournalEntryID) {
-            // if this is a saved journalentry, dont try to updated JournalEntryNo, this will normally not
-            // be displayed to the user anyway in these cases
-            return;
-        }
-
         let data = this.table.getTableData();
 
         if (newRow.SameOrNewDetails) {
@@ -616,12 +608,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         let columns: Array<UniTableColumn> = [];
 
-        if (this.mode === JournalEntryMode.Supplier) {
-            creditAccountCol.setSkipOnEnterKeyNavigation(true);
-
-            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, deductionPercentCol, amountCol, netAmountCol,
-                projectCol, departmentCol, descriptionCol];
-        } else if (this.mode === JournalEntryMode.Payment) {
+        if (this.mode === JournalEntryMode.Payment) {
             debitAccountCol.setSkipOnEnterKeyNavigation(true);
             debitVatTypeCol.setSkipOnEnterKeyNavigation(true);
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
@@ -630,10 +617,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             defaultRowData.Description = 'Innbetaling';
 
-            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, deductionPercentCol, amountCol,
+            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
                  descriptionCol, fileCol];
         } else {
-
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, deductionPercentCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol, fileCol];
         }
@@ -652,7 +638,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setColumns(columns)
             .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
-            .setIsRowReadOnly((rowModel) => rowModel.JournalEntryID)
+            .setIsRowReadOnly((rowModel) => rowModel.StatusCode)
             .setContextMenu([
                 {
                     action: (item) => this.deleteLine(item),
@@ -666,7 +652,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 {
                     action: (item) => this.addPayment(item),
-                    disabled: (item) => { return (this.disabled); },
+                    disabled: (item) => { return item.StatusCode ? true : false; },
                     label: 'Registrer utbetaling'
                 }
             ])
@@ -675,6 +661,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
+
+                if (this.journalEntryID && !newRow.JournalEntryID) {
+                    newRow.JournalEntryID = this.journalEntryID;
+                }
 
                 if (event.field === 'SameOrNewDetails' || !newRow.JournalEntryNo) {
                     let originalJournalEntryNo = newRow.JournalEntryNo;
@@ -1085,29 +1075,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         );
     }
 
-    public removeJournalEntryData(completeCallback) {
-        if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
-            this.journalEntryLines = new Array<JournalEntryData>();
-            this.dataChanged.emit(this.journalEntryLines);
-
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                .subscribe(data => {
-                    this.firstAvailableJournalEntryNumber = data;
-                    this.setupSameNewAlternatives();
-
-                    if (this.table) {
-                        this.table.focusRow(0);
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
-
-            completeCallback('Listen er tømt');
+    public removeJournalEntryData(completeCallback, isDirty) {
+        if (isDirty) {
+            this.confirmModal.confirm(
+                'Er du sikker på at du vil forkaste alle endringene dine?',
+                'Forkaste endringer?',
+                false,
+                {accept: 'Forkast endringer', reject: 'Avbryt'})
+            .then((response: ConfirmActions) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.clearListInternal(completeCallback);
+                } else {
+                    completeCallback(null);
+                }
+            });
         } else {
-            completeCallback('');
+            this.clearListInternal(completeCallback);
         }
+    }
+
+    private clearListInternal(completeCallback: (msg: string) => void) {
+        this.journalEntryLines = new Array<JournalEntryData>();
+        this.dataChanged.emit(this.journalEntryLines);
+
+        let journalentrytoday: JournalEntryData = new JournalEntryData();
+        journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+        this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+            .subscribe(data => {
+                this.firstAvailableJournalEntryNumber = data;
+                this.setupSameNewAlternatives();
+
+                if (this.table) {
+                    this.table.focusRow(0);
+                }
+            },
+            err => this.errorService.handle(err)
+        );
+
+        completeCallback('Listen er tømt');
     }
 
     public addJournalEntryLine(data) {

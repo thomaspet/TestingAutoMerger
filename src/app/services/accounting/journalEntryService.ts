@@ -30,7 +30,6 @@ declare var moment;
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
-    private JOURNALENTRYMODE_LOCALSTORAGE_KEY: string = 'PreferredJournalEntryMode';
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
     private JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY: string = 'JournalEntrySettings';
 
@@ -41,26 +40,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         this.DefaultOrderBy = null;
     }
 
-    public getJournalEntryMode(): string {
-        let mode = this.storageService.get(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY);
-
-        if (!mode) {
-            mode = 'PROFESSIONAL';
-        }
-
-        if (mode !== 'SIMPLE' && mode !== 'PROFESSIONAL') {
-            mode = 'PROFESSIONAL';
-        }
-
-        return mode;
-    }
-
-    public setJournalEntryMode(newMode: string) {
-        this.storageService.save(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY, newMode);
-    }
-
-    public getJournalEntrySettings(): JournalEntrySettings {
-        let settingsJson = this.storageService.get(this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY);
+    public getJournalEntrySettings(mode: number): JournalEntrySettings {
+        let settingsJson = this.storageService.get(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`);
         let settings: JournalEntrySettings;
 
         if (!settingsJson) {
@@ -73,8 +54,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return settings;
     }
 
-    public setJournalEntrySettings(settings: JournalEntrySettings) {
-        this.storageService.save(this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY, JSON.stringify(settings));
+    public setJournalEntrySettings(settings: JournalEntrySettings, mode: number) {
+        this.storageService.save(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`, JSON.stringify(settings));
     }
 
     public getSessionData(mode: number): Array<JournalEntryData> {
@@ -121,10 +102,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+
+        // don't post lines that are already posted again
+        let journalEntriesNew = journalDataEntries.filter(x => !x.StatusCode);
+
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withBody(journalDataEntries)
+            .withBody(journalEntriesNew)
             .withEndPoint(this.relativeURL + '?action=post-journal-entry-data')
             .send()
             .map(response => response.json());

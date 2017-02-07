@@ -1,6 +1,6 @@
 import {IToolbarConfig} from '../../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
@@ -72,7 +72,8 @@ export class TransqueryDetails implements OnInit {
         private journalEntryService: JournalEntryService,
         private accountService: AccountService,
         private financialYearService: FinancialYearService,
-        private storageService: BrowserStorageService
+        private storageService: BrowserStorageService,
+        private router: Router
     ) {
         this.tabService.addTab({
             'name': 'Forespørsel bilag',
@@ -353,6 +354,31 @@ export class TransqueryDetails implements OnInit {
             }
         });
     }
+
+    private editJournalEntry(journalEntryID, journalEntryNumber) {
+
+        let data = this.journalEntryService.getSessionData(0);
+
+        // avoid loosing changes if user navigates to a new journalentry with unsaved changes
+        // without saving or discarding changes first
+        if (data && data.length > 0
+            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
+               this.confirmModal.confirm(
+                    'Du har gjort endringer i bilag som ikke er lagret - hvis du fortsetter vil disse forkastes',
+                    'Forkast endringer?',
+                    false,
+                    {accept: 'Forkast endringer', reject: 'Avbryt'}
+                ).then((response: ConfirmActions) => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.journalEntryService.setSessionData(0, []);
+                        this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+                    }
+                });
+        } else {
+            this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+        }
+    }
+
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
 
         let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
@@ -483,6 +509,11 @@ export class TransqueryDetails implements OnInit {
                     action: (item) => this.creditJournalEntry(item.JournalEntryLineJournalEntryNumber),
                     disabled: (item) => false,
                     label: 'Krediter bilag'
+                },
+                {
+                    action: (item) => this.editJournalEntry(item.JournalEntryID, item.JournalEntryLineJournalEntryNumber),
+                    disabled: (item) => false,
+                    label: 'Rediger bilag'
                 }
             ])
             .setColumns(columns);
