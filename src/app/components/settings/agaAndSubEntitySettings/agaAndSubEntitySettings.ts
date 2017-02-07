@@ -36,7 +36,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public accountformConfig: BehaviorSubject<any> = new BehaviorSubject({});
+    public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     private companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
     private accounts: Account[] = [];

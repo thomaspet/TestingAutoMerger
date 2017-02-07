@@ -272,7 +272,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.showPaymentList();
                 },
                 disabled: (rowModel) => {
-                    return this.payrollrun && this.payrollrunID ? this.payrollrun.StatusCode < 1 : true;
+                    return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode < 1 : true;
                 }
             }
         ];
@@ -749,7 +749,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public showPaymentList() {
         this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
             this.previewModal.openWithId(report, this.payrollrun$.getValue().ID, 'RunID');
-            done('');
         });
     }
 

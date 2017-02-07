@@ -264,6 +264,8 @@ export class WagetypeDetail extends UniView {
             valueProperty: 'ID',
             debounceTime: 500
         };
+
+        this.fields$.next(this.fields$.getValue());
     }
 
     private checkAmeldingInfo() {

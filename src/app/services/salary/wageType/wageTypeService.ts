@@ -122,11 +122,13 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: 'La stå tom for neste ledige',
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false
+                    hasLineBreak: false,
+                    Options: {
+                        format: 'none'
+                    }
                 },
                 {
                     ComponentLayoutID: 1,
@@ -218,7 +220,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: '_baseOptions',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOXGROUP,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Med i grunnlag for: ',

@@ -3,7 +3,7 @@
     <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" [helpText]="'Registrer informasjon i feltene under, eller trykk på et av selskapene under for å fylle inn informasjon automatisk. Søket vil oppdatere seg hvis du endrer Firmanavn'"></external-search>
 </section>
 
-<article *ngIf="company">
+<article *ngIf="company$ | async">
 
     <uni-form class="companySettings"
               [config]="config$"
@@ -21,10 +21,10 @@
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
         <div class="collapsable-content">
             <uni-image
-                    [entity]="'companysettings'"
-                    [entityID]="1"
-                    [uploadConfig]="imageUploadOptions"
-                    [singleImage]="true"
+                [entity]="'companysettings'"
+                [entityID]="1"
+                [uploadConfig]="imageUploadOptions"
+                [singleImage]="true"
             ></uni-image>
         </div>
     </article>
