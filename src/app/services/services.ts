@@ -59,7 +59,6 @@ export * from './timetrackingServicesModule';
 // export * from './sales/customerInvoiceItemService'
 // export * from './sales/addressService';
 // export * from './sales/phoneService';
-// export * from './sales/emailService';
 
 
 // Timetracking

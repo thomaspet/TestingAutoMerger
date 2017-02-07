@@ -50,9 +50,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CustomerPaymentBatches,
         CustomerPaymentBatchDetails
     ],
-    // entryComponents: [
-    //     PaymentRelationsTable
-    // ],
+    entryComponents: [
+        PaymentRelationsTable
+    ],
     providers: [
         CanDeactivateGuard
     ],

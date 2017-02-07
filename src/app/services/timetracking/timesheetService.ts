@@ -33,7 +33,7 @@ export class TimeSheet {
     public loadItems(interval?: ItemInterval): Observable<number> {
         this.changeMap.clear();
         var obs = this.ts.getWorkItems(this.currentRelation.ID, interval);
-        return <Observable<number>>obs.flatMap((items: WorkItem[]) => {
+        return <Observable<number>>obs.switchMap((items: WorkItem[]) => {
             this.analyzeItems(items);
             this.items = items;
             return Observable.of(items.length);
@@ -273,9 +273,9 @@ export class TimesheetService {
     public initUser(userid= 0): Observable<TimeSheet> {
         if (userid === 0) {
             var p = this.workerService.getCurrentUserId();
-            return Observable.fromPromise(p).flatMap((id: number) => this.initUser(id));
+            return Observable.fromPromise(p).switchMap((id: number) => this.initUser(id));
         } else {
-           return this.workerService.getRelationsForUser(userid).flatMap((list: WorkRelation[]) => {
+           return this.workerService.getRelationsForUser(userid).switchMap((list: WorkRelation[]) => {
                var first = list[0];
                var ts = this.newTimeSheet(first);
                this.workRelations = list;
@@ -285,7 +285,7 @@ export class TimesheetService {
     }
 
     public initWorker(workerId: number): Observable<TimeSheet> {
-        return this.workerService.getRelationsForWorker(workerId).flatMap((list: WorkRelation[]) => {
+        return this.workerService.getRelationsForWorker(workerId).switchMap((list: WorkRelation[]) => {
                var first = list[0];
                var ts = this.newTimeSheet(first);
                this.workRelations = list;
@@ -306,7 +306,7 @@ export class TimesheetService {
     public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]):
         Observable<{ original: WorkItem, saved: WorkItem }> {
 
-        var obsSave = Observable.from(items).flatMap((item: WorkItem) => {
+        var obsSave = Observable.from(items).switchMap((item: WorkItem) => {
             var originalId = item.ID;
             item.ID = item.ID < 0 ? 0 : item.ID;
             this.preSaveWorkItem(item);
@@ -317,7 +317,7 @@ export class TimesheetService {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).flatMap( (item: WorkItem) => {
+            let obsDel = Observable.from(deletables).switchMap( (item: WorkItem) => {
                 return this.workerService.deleteWorkitem(item.ID).map((event) => {
                     return { original: item, saved: null };
                 });

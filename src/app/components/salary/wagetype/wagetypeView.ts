@@ -104,7 +104,7 @@ export class WageTypeView extends UniView {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable
@@ -144,7 +144,7 @@ export class WageTypeView extends UniView {
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
         }
-        
+
         this.checkValidYearAndCreateNew();
 
         this.wageType.SupplementaryInformations.forEach(supplement => {
@@ -176,7 +176,7 @@ export class WageTypeView extends UniView {
                 if (this.wageType.ValidYear !== financialYear.Year) {
                 this.wageType.ID = 0;
                 this.wageType.ValidYear = financialYear.Year;
-                
+
                 this.wageType.SupplementaryInformations.forEach(supplement => {
                     supplement.ID = 0;
                     supplement.WageTypeID = 0;

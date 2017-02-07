@@ -46,7 +46,7 @@ export class AltinnSettings implements OnInit {
         this.busy = true;
         this._altinnService
             .getPassword()
-            .flatMap((password: string) => password
+            .switchMap((password: string) => password
                 ? this.integrate.checkSystemLogin(
                     company.OrganizationNumber,
                     this.altinn.SystemID,
@@ -70,7 +70,7 @@ export class AltinnSettings implements OnInit {
         Observable.forkJoin(
             this._altinnService
                 .GetAll('')
-                .flatMap((altinn: Altinn[]) =>
+                .switchMap((altinn: Altinn[]) =>
                     altinn.length ? Observable.of(altinn[0]) : this._altinnService.GetNewEntity([], 'altinn')),
             this._altinnService.getLayout()).subscribe((response: [Altinn, any]) => {
                 let [altinn, layout] = response;
@@ -87,7 +87,7 @@ export class AltinnSettings implements OnInit {
             : this._altinnService.Post(this.altinn);
 
         saveObs
-            .flatMap((altinn: Altinn) =>
+            .switchMap((altinn: Altinn) =>
                 this.altinn.SystemPw
                     ? this._altinnService
                         .setPassword(this.altinn.SystemPw)

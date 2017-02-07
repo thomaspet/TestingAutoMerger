@@ -110,7 +110,6 @@ export class TimeEntry {
     ) {
 
         this.filters = service.getIntervalItems();
-
         this.initTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -363,6 +362,7 @@ export class TimeEntry {
                 list.push(row);
             }
         });
+
         exportToFile(arrayToCsv(list), `Timeentries_${this.userName}.csv`);
         done('Fil eksportert');
     }
@@ -481,8 +481,8 @@ export class TimeEntry {
             event.userTypedValue = false;
             this.updateChange(event);
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3,
-                `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+            const message = `Ugyldig ${event.columnDefinition.label}: ${event.value}`
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, message);
         }
     }
 

@@ -48,17 +48,18 @@ import {DrilldownResultReportPart} from './accountingreports/reportparts/drilldo
 import {DistributionPeriodReportPart} from './accountingreports/reportparts/distributionPeriodReportPart';
 import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dimensionsOverviewReportPart';
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
-import {SettingsModule} from '../settings/settingsModule';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
-import {SalesModule} from '../sales/salesModule';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
-import {TimetrackingModule} from '../timetracking/timetrackingModule';
 import {BillHistoryView} from './bill/detail/history/history';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+
+// REVISIT: Must be refactored! This causes duplicate code when lazy loading
+import {TimetrackingModule} from '../timetracking/timetrackingModule';
+import {SettingsModule} from '../settings/settingsModule';
 
 @NgModule({
     imports: [
@@ -67,8 +68,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         ReactiveFormsModule,
         HttpModule,
 
-        RouterModule.forChild(accountingRoutes),
-
         UniTableModule,
         UniFormModule,
         UniFrameworkModule,
@@ -76,12 +75,15 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
+        TimetrackingModule,
         SettingsModule,
-        SalesModule,
-        TimetrackingModule
+
+        RouterModule.forChild(accountingRoutes)
     ],
     declarations: [
         UniAccounting,
+
+        // SupplierDetailsModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -127,11 +129,11 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         DimensionResultReport,
         DrilldownBalanceReportPart
     ],
-    // entryComponents: [
-    //     HistoricVatReportTable,
-    //     CreateCorrectedVatReportForm,
-    //     AccountDetailsReport
-    // ],
+    entryComponents: [
+        HistoricVatReportTable,
+        CreateCorrectedVatReportForm,
+        AccountDetailsReport
+    ],
     providers: [
         CanDeactivateGuard
     ],

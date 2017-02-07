@@ -97,7 +97,7 @@ export class CategoryView extends UniView {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable

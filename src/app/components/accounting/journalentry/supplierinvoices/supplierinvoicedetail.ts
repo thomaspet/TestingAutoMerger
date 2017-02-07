@@ -10,7 +10,7 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Subscription} from 'rxjs';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
+import {SupplierDetailsModal} from '../../../common/supplier/details/supplierDetailModal';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {

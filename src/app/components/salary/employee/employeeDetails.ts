@@ -323,7 +323,7 @@ export class EmployeeDetails extends UniView {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable
@@ -570,7 +570,7 @@ export class EmployeeDetails extends UniView {
         return getNewTax
             ? this.employeeTaxCardService
                 .GetTaxCard(this.employeeID, this.financialYear.Year)
-                .flatMap(taxCard => {
+                .switchMap(taxCard => {
                     return taxCard
                         ? Observable.of(taxCard)
                         : this.employeeTaxCardService
@@ -958,7 +958,7 @@ export class EmployeeDetails extends UniView {
                                     this.getDepartmentsObservable(),
                                     this.getDimension(trans));
                             })
-                            .flatMap(x => x)
+                            .switchMap(x => x)
                             .map((response: [SalaryTransaction, Project[], Department[], Dimensions]) => {
                                 let [trans, projects, departments, dimensions] = response;
                                 trans.Dimensions = dimensions;

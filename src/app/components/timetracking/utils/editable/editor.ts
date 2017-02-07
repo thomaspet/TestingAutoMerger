@@ -1,7 +1,7 @@
 import {IJQItem, IPos, IRect, IEditEvents, IEditor} from './interfaces';
 import {DomEvents} from './domevents';
 import {debounce} from '../utils';
-declare var $;
+import * as $ from 'jquery';
 
 const editorTemplate = `<div style='position:absolute;display:none;white-space:nowrap' class="inline_editor">
     <input type='text'></input><button class='editable_cellbutton'></button>

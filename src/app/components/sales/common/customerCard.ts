@@ -91,7 +91,7 @@ export class TofCustomerCard {
 
     public ngAfterViewInit() {
         this.searchInput = this.elementRef.nativeElement.querySelector('input');
-        this.searchInput.focus();
+        this.focus();
     }
 
     public ngOnChanges(changes) {
@@ -109,7 +109,9 @@ export class TofCustomerCard {
     }
 
     public focus() {
-        this.searchInput.focus();
+        if (this.searchInput) {
+            this.searchInput.focus();
+        }
     }
 
     public openCustomerModal(): Observable<Customer> {

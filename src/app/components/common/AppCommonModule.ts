@@ -21,7 +21,6 @@ import {AddressModal} from './modals/addressModal';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
 import {BankAccountModal} from './modals/bankAccountModal';
 import {RegisterPaymentModal} from './modals/registerPaymentModal';
-import {routes as AppCommonRoutes} from './appCommonRoutes';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
@@ -41,6 +40,13 @@ import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWi
 import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
+
+import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
+import {SupplierDetails} from './supplier/details/supplierDetails';
+import {SupplierList} from './supplier/list/supplierList';
+
+import {routes as AppCommonRoutes} from './appCommonRoutes';
+
 
 @NgModule({
     imports: [
@@ -99,6 +105,10 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
+
+        SupplierList,
+        SupplierDetails,
+        SupplierDetailsModal,
 
         // reconciliation
         LedgerAccountReconciliation
@@ -162,6 +172,10 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
+
+        SupplierList,
+        SupplierDetails,
+        SupplierDetailsModal,
 
         // reconciliation
         LedgerAccountReconciliation

@@ -6,10 +6,10 @@ import { Notification, NotificationStatus } from '../../app/unientities';
 import { Observable } from 'rxjs/Observable';
 import * as moment from 'moment';
 
-import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
-import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';
-import { entityTypeMap as accountingMap } from '../../app/components/accounting/accountingRoutes';
-import { entityTypeMap as timetrackingMap } from '../../app/components/timetracking/timetrackingRoutes';
+// import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
+// import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';
+// import { entityTypeMap as accountingMap } from '../../app/components/accounting/accountingRoutes';
+// import { entityTypeMap as timetrackingMap } from '../../app/components/timetracking/timetrackingRoutes';
 // declare const OneSignal;
 
 @Component({
@@ -75,15 +75,15 @@ export class UniNotifications {
         const entityType = notification.EntityType;
         let route = '';
 
-        if (accountingMap[entityType]) {
-            route = '/accounting/' + accountingMap[entityType];
-        } else if (salesMap[entityType]) {
-            route = '/sales/' + salesMap[entityType];
-        } else if (salaryMap[entityType]) {
-            route = '/salary/' + salaryMap[entityType];
-        } else if (timetrackingMap[entityType]) {
-            route = '/timetracking/' + timetrackingMap[entityType];
-        }
+        // if (accountingMap[entityType]) {
+        //     route = '/accounting/' + accountingMap[entityType];
+        // } else if (salesMap[entityType]) {
+        //     route = '/sales/' + salesMap[entityType];
+        // } else if (salaryMap[entityType]) {
+        //     route = '/salary/' + salaryMap[entityType];
+        // } else if (timetrackingMap[entityType]) {
+        //     route = '/timetracking/' + timetrackingMap[entityType];
+        // }
 
         route = route.replace(/:id/i, notification.EntityID.toString());
         this.router.navigateByUrl(route);

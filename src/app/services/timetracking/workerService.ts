@@ -48,17 +48,17 @@ export class WorkerService extends BizHttp<Worker> {
 
     public getRelationsForUser(id: number): Observable<WorkRelation[]> {
         var obs = this.getWorkerFromUser(id);
-        return obs.flatMap((worker: Worker) => {
+        return obs.switchMap((worker: Worker) => {
             return this.getRelationsForWorker(worker.ID);
         });
     }
 
     public getRelationsForWorker(workerId: number): Observable<WorkRelation[]> {
-        return this.getWorkRelations(workerId).flatMap((list: WorkRelation[]) => {
+        return this.getWorkRelations(workerId).switchMap((list: WorkRelation[]) => {
             // Try to create initial workrelation for this worker
             if ((!list) || list.length === 0) {
-                return this.getWorkProfiles().flatMap((profiles: WorkProfile[]) => {
-                    return this.createInitialWorkRelation(workerId, profiles[0]).flatMap((item: WorkRelation) => {
+                return this.getWorkProfiles().switchMap((profiles: WorkProfile[]) => {
+                    return this.createInitialWorkRelation(workerId, profiles[0]).switchMap((item: WorkRelation) => {
                         return Observable.of([item]);
                     });
                 });

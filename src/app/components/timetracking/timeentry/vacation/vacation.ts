@@ -152,7 +152,7 @@ export class View {
     }
 
     private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
-        var obsSave = Observable.from(items).flatMap((item: any) => {
+        var obsSave = Observable.from(items).switchMap((item: any) => {
             item.ID = item.ID < 0 ? 0 : item.ID;
             return this.workerService.saveByID<any>(item, route).map((savedItem: WorkTimeOff) => {
                 this.changeMap.remove(item._rowIndex, true);
@@ -161,7 +161,7 @@ export class View {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).flatMap( (item: any) => {
+            let obsDel = Observable.from(deletables).switchMap( (item: any) => {
                 return this.workerService.deleteByID(item.ID, route).map((event) => {
                     this.changeMap.removables.remove(item.ID, false);
                 });

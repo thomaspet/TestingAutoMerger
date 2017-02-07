@@ -37,6 +37,15 @@ module.exports = {
         sourceMapFilename: '[file].map'
     },
 
+    module: {
+        loaders: [
+            {
+                test: /\.css$/,
+                loaders: ['to-string-loader', 'style-loader', 'css-loader']
+            },
+        ]
+    },
+
     plugins: [
         // Only load english and norwegian locales with moment
         new webpack.ContextReplacementPlugin(/moment[\\\/]locale$/, /^\.\/(en|no|)$/),
@@ -59,8 +68,8 @@ module.exports = {
         }),
 
         new webpack.ProvidePlugin({
-            $: 'jquery/dist/jquery.min.js',
-            jQuery: 'jquery/dist/jquery.min.js',
+            // $: 'jquery',
+            // jQuery: 'jquery',
             _: 'lodash/lodash.min.js',
             lodash: 'lodash/lodash.min.js',
             // moment: 'moment/min/moment.min.js'

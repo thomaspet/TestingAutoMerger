@@ -124,7 +124,7 @@ export class SupplierDetails implements OnInit {
         this.supplierService.getNextID(this.supplier.ID)
             .subscribe((ID) => {
                     if (ID) {
-                        this.router.navigateByUrl('/sales/suppliers/' + ID);
+                        this.router.navigateByUrl('/suppliers/' + ID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
                     }
@@ -136,7 +136,7 @@ export class SupplierDetails implements OnInit {
         this.supplierService.PreviousSupplier(this.supplier.ID)
             .subscribe((ID) => {
                     if (ID) {
-                        this.router.navigateByUrl('/sales/suppliers/' + ID);
+                        this.router.navigateByUrl('/suppliers/' + ID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
                     }
@@ -145,7 +145,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public addSupplier() {
-        this.router.navigateByUrl('/sales/suppliers/0');
+        this.router.navigateByUrl('/suppliers/0');
     }
 
     public ready() {
@@ -164,7 +164,7 @@ export class SupplierDetails implements OnInit {
     private setTabTitle() {
         if (this.modalMode) { return; }
         let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Ny leverandør';
-        this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
+        this.tabService.addTab({ url: '/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
 
         this.toolbarconfig.title = this.supplier.ID ? this.supplier.Info.Name : 'Ny leverandør';
         this.toolbarconfig.subheads = this.supplier.ID ? [{title: 'Leverandørnr. ' + this.supplier.SupplierNumber}] : [];
@@ -595,7 +595,7 @@ export class SupplierDetails implements OnInit {
                 .subscribe(
                     (newSupplier) => {
                         if (!this.modalMode) {
-                            this.router.navigateByUrl('/sales/suppliers/' + newSupplier.ID);
+                            this.router.navigateByUrl('/suppliers/' + newSupplier.ID);
                             this.setTabTitle();
                         }
                         completeEvent('Ny leverandør lagret');

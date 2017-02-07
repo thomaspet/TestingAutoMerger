@@ -1,13 +1,8 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {AuthGuard} from '../../authGuard';
+import {Routes} from '@angular/router';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {Customer} from './customer/customer';
 import {routes as CustomerRoutes} from './customer/customerRoutes';
-
-import {SupplierList} from './supplier/list/supplierList';
-import {SupplierDetails} from './supplier/details/supplierDetails';
 
 import {QuoteList} from './quote/list/quoteList';
 import {QuoteDetails} from './quote/details/quoteDetails';
@@ -17,12 +12,11 @@ import {InvoiceDetails} from './invoice/details/invoice';
 
 import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
-import {UniSales} from './sales';
 
 // Maps entitytype to frontend route
 // Important for notifications to work properly!
 export const entityTypeMap: any = {
-    'supplier': 'suppliers/:id',
+    // 'supplier': 'suppliers/:id',
     'customerquote': 'quotes/:id',
     'customerquoteitem': 'quotes/:id',
     'customerorder': 'orders/:id',
@@ -38,15 +32,15 @@ export const salesRoutes: Routes = [
         children: CustomerRoutes
     },
 
-    {
-        path: 'suppliers',
-        component: SupplierList
-    },
-    {
-        path: 'suppliers/:id',
-        component: SupplierDetails,
-        canDeactivate: [CanDeactivateGuard]
-    },
+    // {
+    //     path: 'suppliers',
+    //     component: SupplierList
+    // },
+    // {
+    //     path: 'suppliers/:id',
+    //     component: SupplierDetails,
+    //     canDeactivate: [CanDeactivateGuard]
+    // },
 
     {
         path: 'quotes',

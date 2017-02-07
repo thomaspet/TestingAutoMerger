@@ -372,7 +372,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable
@@ -797,7 +797,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.setEditableOnChildren(false);
 
         this.savePayrollrun()
-            .flatMap((payrollRun: PayrollRun) => {
+            .switchMap((payrollRun: PayrollRun) => {
 
                 this.payrollrun = payrollRun;
                 super.updateState('payrollRun', this.payrollrun, false);

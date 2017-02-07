@@ -32,11 +32,12 @@ import {BrowserStorageService} from './common/browserStorageService';
 import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
+import {EmailService} from './common/emailService';
 import {UniSearchConfigGeneratorService} from './common/uniSearchConfigGeneratorService';
 import {UmhService} from './common/UmhService';
 
 export * from './common/altinnAuthenticationService';
-export * from './common/altinnIntegrationService';''
+export * from './common/altinnIntegrationService';
 export * from './common/altinnReceiptService';
 export * from './common/companySettingsService';
 export * from './common/companyTypeService';
@@ -69,6 +70,7 @@ export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/uniSearchConfigGeneratorService';
+export * from './common/emailService';
 
 @NgModule({
     providers: [
@@ -105,7 +107,9 @@ export * from './common/uniSearchConfigGeneratorService';
         UniCacheService,
         StaticRegisterService,
         UniSearchConfigGeneratorService,
-        UmhService
+        UmhService,
+        DimensionService,
+        EmailService
     ]
 })
 export class CommonServicesModule {
@@ -144,7 +148,9 @@ export class CommonServicesModule {
                 MunicipalService,
                 BrowserStorageService,
                 UniCacheService,
-                StaticRegisterService
+                StaticRegisterService,
+                DimensionService,
+                EmailService
             ]
         };
     }

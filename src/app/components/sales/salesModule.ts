@@ -23,9 +23,7 @@ import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
 import {QuoteDetails} from './quote/details/quoteDetails';
 import {QuoteList} from './quote/list/quoteList';
-import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
-import {SupplierDetails} from './supplier/details/supplierDetails';
-import {SupplierList} from './supplier/list/supplierList';
+
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
@@ -90,15 +88,12 @@ import {UniSearchModule} from 'unisearch-ng2';
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
         QuoteDetails,
-        QuoteList,
-        SupplierDetailsModal,
-        SupplierDetails,
-        SupplierList
+        QuoteList
     ],
-    // entryComponents: [
-    //     OrderToInvoiceModalType,
-    //     OrderToInvoiceTable
-    // ],
+    entryComponents: [
+        OrderToInvoiceModalType,
+        OrderToInvoiceTable
+    ],
     providers: [
         TradeItemHelper,
         TofHelper,
@@ -119,10 +114,7 @@ import {UniSearchModule} from 'unisearch-ng2';
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
         QuoteDetails,
-        QuoteList,
-        SupplierDetailsModal,
-        SupplierDetails,
-        SupplierList
+        QuoteList
     ]
 })
 export class SalesModule {

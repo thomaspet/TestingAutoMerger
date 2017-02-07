@@ -128,7 +128,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Regnskap og økonomi',
                 componentListUrl: '/accounting',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting', moduleID: UniModules.Accounting},
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting/journalentry', moduleID: UniModules.Accounting},
                     {componentName: 'Fakturamottak', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
@@ -138,7 +138,7 @@ export class HamburgerMenu {
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
                     {componentName: 'MVA-melding', componentUrl: '/accounting/vatreport', moduleID: UniModules.VatReport},
-                    {componentName: 'Leverandører', componentUrl: '/sales/suppliers', moduleID: UniModules.Suppliers}
+                    {componentName: 'Leverandører', componentUrl: '/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },
             {

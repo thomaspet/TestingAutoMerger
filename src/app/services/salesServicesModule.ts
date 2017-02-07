@@ -8,7 +8,6 @@ import {CustomerInvoiceItemService} from './sales/customerInvoiceItemService';
 import {CustomerQuoteItemService} from './sales/customerQuoteItemService';
 import {CustomerQuoteService} from './sales/customerQuoteService';
 import {CustomerService} from './sales/customerService';
-import {EmailService} from './sales/emailService';
 import {PhoneService} from './sales/phoneService';
 
 export * from './sales/addressService';
@@ -20,7 +19,6 @@ export * from './sales/customerInvoiceItemService';
 export * from './sales/customerQuoteItemService';
 export * from './sales/customerQuoteService';
 export * from './sales/customerService';
-export * from './sales/emailService';
 export * from './sales/phoneService';
 
 @NgModule({
@@ -34,7 +32,6 @@ export * from './sales/phoneService';
         CustomerQuoteItemService,
         CustomerQuoteService,
         CustomerService,
-        EmailService,
         PhoneService
     ]
 })
@@ -52,7 +49,6 @@ export class SalesServicesModule {
                 CustomerQuoteItemService,
                 CustomerQuoteService,
                 CustomerService,
-                EmailService,
                 PhoneService
             ]
         };
