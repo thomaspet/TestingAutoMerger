@@ -180,8 +180,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         disabled: this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode > 0 : true
                     },
                     {
-                        label: 'Utbetalingsliste',
-                        action: this.showPaymentList.bind(this),
+                        label: 'Til utbetaling',
+                        action: this.sendPaymentList.bind(this),
                         main: payrollRun ? payrollRun.StatusCode > 1 : false,
                         disabled: payrollRun ? payrollRun.StatusCode < 1 : true
                     },
@@ -264,6 +264,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         return true;
                     }
 
+                }
+            },
+            {
+                label: 'Utbetalingsliste',
+                action: () => {
+                    this.showPaymentList();
+                },
+                disabled: (rowModel) => {
+                    return this.payrollrun && this.payrollrunID ? this.payrollrun.StatusCode < 1 : true;
                 }
             }
         ];
@@ -737,11 +746,23 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             });
     }
 
-    public showPaymentList(done) {
+    public showPaymentList() {
         this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
             this.previewModal.openWithId(report, this.payrollrun$.getValue().ID, 'RunID');
             done('');
         });
+    }
+
+    public sendPaymentList(done) {
+        this.payrollrunService.sendPaymentList(this.payrollrunID)
+            .subscribe((response: boolean) => {
+                done('');
+                this.router.navigateByUrl('/bank/payments');
+            },
+            (err) => {
+                done('Kunne ikke opprette betaling');
+                this.errorService.handle(err);
+            });
     }
 
     public resetSettling() {

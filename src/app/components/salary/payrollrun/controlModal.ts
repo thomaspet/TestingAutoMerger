@@ -200,7 +200,7 @@ export class ControlModalContent {
     public showPaymentList() {
         this._router.navigateByUrl('/salary/paymentlist/' + this.payrollRunID);
     }
-
+    
     public toggleCollapsed(index: number) {
         this.payList[index].collapsed = !this.payList[index].collapsed;
     }

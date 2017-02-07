@@ -116,6 +116,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
+    public sendPaymentList(payrollrunID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asPOST()
+            .withEndPoint(this.relativeURL + '/' + payrollrunID)
+            .send({ action: 'sendpaymentlist'})
+            .map(response => response.json());
+    }
+
     public getPostingsummary(ID: number) {
         return this.http
             .asGET()
