@@ -10,10 +10,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {settingsRoutes} from './settingsRoutes';
 import {Settings} from './settings';
-import {AccountSettings} from './accountSettings/accountSettings';
-import {DimensionList} from './accountSettings/dimensionList/dimensionList';
-import {AccountList} from './accountSettings/accountList/accountList';
-import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
+
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {SubEntityDetails} from './agaAndSubEntitySettings/subEntityDetails';
 import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
@@ -21,10 +18,7 @@ import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {Users} from './users/users';
 import {UserSettings} from './userSettings/userSettings';
-import {VatSettings} from './vatsettings/vatsettings';
-import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
-import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
-import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
+
 import {GrantsModal, GrantsModalContent} from './agaAndSubEntitySettings/modals/grantsModal';
 import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings/modals/freeamountModal';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
@@ -47,10 +41,6 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
     ],
     declarations: [
         Settings,
-        AccountSettings,
-        DimensionList,
-        AccountList,
-        AccountDetails,
         AgaAndSubEntitySettings,
         SubEntityDetails,
         SubEntityList,
@@ -58,10 +48,7 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
         CompanySettingsComponent,
         Users,
         UserSettings,
-        VatSettings,
-        VatTypeDetails,
-        VatTypeList,
-        VatDeductionSettings,
+
         GrantsModal,
         GrantsModalContent,
         FreeamountModal,
@@ -74,10 +61,7 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
     ],
     exports: [
         Settings,
-        AccountSettings,
-        DimensionList,
-        AccountList,
-        AccountDetails,
+
         AgaAndSubEntitySettings,
         SubEntityDetails,
         SubEntityList,
@@ -85,10 +69,7 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
         CompanySettingsComponent,
         Users,
         UserSettings,
-        VatSettings,
-        VatTypeDetails,
-        VatTypeList,
-        VatDeductionSettings,
+
         GrantsModal,
         GrantsModalContent,
         FreeamountModal,

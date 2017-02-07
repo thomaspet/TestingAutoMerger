@@ -55,11 +55,21 @@ import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
 
+import {AccountSettings} from './accountSettings/accountSettings';
+import {DimensionList} from './accountSettings/dimensionList/dimensionList';
+import {AccountList} from './accountSettings/accountList/accountList';
+import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
+import {VatSettings} from './vatsettings/vatsettings';
+import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
+import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
+import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
+
+
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 // REVISIT: Must be refactored! This causes duplicate code when lazy loading
 import {TimetrackingModule} from '../timetracking/timetrackingModule';
-import {SettingsModule} from '../settings/settingsModule';
+// import {SettingsModule} from '../settings/settingsModule';
 
 @NgModule({
     imports: [
@@ -76,14 +86,21 @@ import {SettingsModule} from '../settings/settingsModule';
         AppCommonModule,
         AppPipesModule,
         TimetrackingModule,
-        SettingsModule,
 
         RouterModule.forChild(accountingRoutes)
     ],
     declarations: [
         UniAccounting,
 
-        // SupplierDetailsModal,
+        AccountSettings,
+        DimensionList,
+        AccountList,
+        AccountDetails,
+
+        VatSettings,
+        VatTypeDetails,
+        VatTypeList,
+        VatDeductionSettings,
 
         // journalentry
         JournalEntryProfessional,
@@ -138,6 +155,16 @@ import {SettingsModule} from '../settings/settingsModule';
         CanDeactivateGuard
     ],
     exports: [
+        AccountSettings,
+        DimensionList,
+        AccountList,
+        AccountDetails,
+
+        VatSettings,
+        VatTypeDetails,
+        VatTypeList,
+        VatDeductionSettings,
+
         // journalentry
         JournalEntryProfessional,
         JournalEntrySimple,

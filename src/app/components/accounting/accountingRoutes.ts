@@ -2,8 +2,8 @@ import {Routes} from '@angular/router';
 
 import {JournalEntry} from './journalentry/journalentry';
 import {Transquery} from './transquery/transquery';
-import {AccountSettings} from '../settings/accountSettings/accountSettings';
-import {VatSettings} from '../settings/vatsettings/vatsettings';
+import {AccountSettings} from './accountSettings/accountSettings';
+import {VatSettings} from './vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
 import {AccountingReports} from './accountingreports/accountingreports';
 
