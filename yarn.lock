@@ -5996,9 +5996,9 @@ unisearch-ng2@0.0.5:
     typings "^0.7.12"
     zone.js "^0.6.21"
 
-unitable-ng2@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.1.tgz#33b0bf621841295b04bc6ab3e67a1af800c9115d"
+unitable-ng2@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.2.tgz#fc0b9e7d5850d42e5021b1f36c6a7f45ab178d04"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
