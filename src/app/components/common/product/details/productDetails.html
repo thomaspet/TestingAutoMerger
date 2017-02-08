@@ -19,7 +19,7 @@
             [config]="config$"
             [fields]="fields$"
             [model]="product$"
-            (readyEvent)="ready($event)">
+            (changeEvent)="change($event)">
     </uni-form>
 
     <article class="collapsable" [ngClass]="{'-is-open': showImageComponent}">

@@ -162,12 +162,11 @@ export class BillView {
     }
 
     private initForm() {
-        let current: SupplierInvoice = this.current.getValue();
-
         var supIdCol = createFormField('SupplierID', lang.col_supplier, ControlTypes.AutocompleteInput, FieldSize.Full);
         supIdCol.Options = {
             source: this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info'),
             template: (data) => {
+                let current: SupplierInvoice = this.current.getValue();
                 if (data === undefined && (current && current.Supplier && current.Supplier.Info) ) {
                     data = { SupplierNumber: current.Supplier.SupplierNumber, InfoName: current.Supplier.Info.Name };
                 }
@@ -181,7 +180,7 @@ export class BillView {
                 return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=ID eq ' + this.currentSupplierID);
             },
             search: (txt: string) => {
-                var filter = `contains(info.name,'${txt}')`;
+                let filter = `contains(info.name,'${txt}')`;
                 return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=' + filter);
             },
             valueProperty: 'ID'
@@ -205,6 +204,7 @@ export class BillView {
             linkProperty: 'ID',
             storeResultInProperty: 'BankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+                let current: SupplierInvoice = this.current.getValue();
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();

@@ -136,7 +136,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public previousSupplier() {
-        this.supplierService.PreviousSupplier(this.supplier$.getValue().ID)
+        this.supplierService.getPreviousID(this.supplier$.getValue().ID)
             .subscribe((ID) => {
                     if (ID) {
                         this.router.navigateByUrl('/sales/suppliers/' + ID);
