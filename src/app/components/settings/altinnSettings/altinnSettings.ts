@@ -115,7 +115,7 @@ export class AltinnSettings implements OnInit {
 
     private prepareLayout(fields: UniFieldLayout[], altinn: Altinn): UniFieldLayout[] {
         let field = fields.find(x => x.Property === 'SystemPw');
-        field.Placeholder = altinn['HasPasswordValue'] ? '********' : '';
+        field.Placeholder = altinn['HasSystemPw'] ? '********' : '';
         return fields;
     }
 }
