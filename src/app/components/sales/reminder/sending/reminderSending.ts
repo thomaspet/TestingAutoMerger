@@ -136,7 +136,6 @@ export class ReminderSending implements OnInit {
 
         this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
             if (report) {
-                console.log('print', prints);
                 let filter = prints.map((r) => 'InvoiceNumber eq ' + r.InvoiceNumber).join(' or ');
                 this.previewModal.openWithFilter(report, filter);
             }

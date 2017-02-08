@@ -92,8 +92,6 @@ export class ReminderSendingModal {
         return new Promise((resolve, reject) => {
 
             this.modal.getContent().then((component: ReminderSendingModalContent) => {
-                console.log('content', component);
-                console.log('reminders', reminders);
                 component.reminderSending.updateReminderList(reminders);
             });
 

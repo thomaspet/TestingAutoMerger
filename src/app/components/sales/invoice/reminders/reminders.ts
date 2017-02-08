@@ -27,7 +27,7 @@ export class InvoiceReminders {
     private reminderList: any;
     private sumFee: number = 0;
 
-    private reminderQuery = 'model=CustomerInvoiceReminder&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity&select=ID,RemindedDate as RemindedDate,ReminderNumber as ReminderNumber,DueDate as DueDate,ReminderFee as ReminderFee,User.DisplayName as CreatedBy&orderby=ID desc&filter=customerinvoiceid%20eq%20';
+    private reminderQuery = 'model=CustomerInvoiceReminder&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity&select=ID,StatusCode as StatusCode,RemindedDate as RemindedDate,ReminderNumber as ReminderNumber,DueDate as DueDate,ReminderFee as ReminderFee,User.DisplayName as CreatedBy&orderby=ID desc&filter=customerinvoiceid%20eq%20';
 
     constructor(
         private router: Router,
