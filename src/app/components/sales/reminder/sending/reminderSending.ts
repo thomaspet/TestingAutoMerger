@@ -28,7 +28,7 @@ export class ReminderSending implements OnInit {
     private remindersPrint: any;
     private remindersAll: any;
     private reminderTable: UniTableConfig;
-    private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,ReminderNumber as ReminderNumber,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.CustomerName as CustomerName,DefaultEmail.EmailAddress as EmailAddress,CustomerInvoice.RestAmount as RestAmount,CustomerInvoice.TaxInclusiveAmount as TaxInclusiveAmount&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail&filter=';
+    private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,DueDate as DueDate,ReminderNumber as ReminderNumber,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.CustomerName as CustomerName,DefaultEmail.EmailAddress as EmailAddress,CustomerInvoice.RestAmount as RestAmount,CustomerInvoice.TaxInclusiveAmount as TaxInclusiveAmount&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail&filter=';
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Purringer',
@@ -145,15 +145,21 @@ export class ReminderSending implements OnInit {
 
     private setupReminderTable() {
         if (!this.modalMode) {
-            this.reminderService.GetAll('orderby=CustomerInvoiceID desc,ReminderNumber desc').subscribe((reminders) => this.updateReminderList(reminders));
+            this.reminderService.GetAll('orderby=CustomerInvoiceID desc,ReminderNumber desc')
+                .subscribe((reminders) => this.updateReminderList(reminders));
         }
 
-        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
-        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
-        let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text).setFilterOperator('contains');
-        let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text).setFilterOperator('contains');
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Fakturabeløp', UniTableColumnType.Number)
-            .setWidth('12%')
+        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
+            .setWidth('8%').setFilterOperator('contains');
+        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
+            .setWidth('8%').setFilterOperator('contains');
+        let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+        let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
+            .setFilterOperator('contains')
+            .setWidth('20%');
+        let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
+            .setFilterOperator('contains');
+        var amountCol = new UniTableColumn('TaxInclusiveAmount', 'Fakturabeløp', UniTableColumnType.Number)
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setConditionalCls((item) => {
@@ -168,6 +174,6 @@ export class ReminderSending implements OnInit {
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNameCol, emailCol, taxInclusiveAmountCol]);
+            .setColumns([reminderNumberCol, invoiceNumberCol, dueDateCol, customerNameCol, emailCol, amountCol]);
     }
 }

@@ -32,6 +32,7 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
+import {InvoiceReminders} from './invoice/reminders/reminders';
 import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
 import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/ReminderConfirmModal';
@@ -108,14 +109,16 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         ReminderConfirmForm,
         ReminderSending,
         ReminderSendingModalContent,
-        ReminderSendingModal
+        ReminderSendingModal,
+        InvoiceReminders
     ],
     entryComponents: [
         OrderToInvoiceModalType,
         OrderToInvoiceTable,
         ReminderConfirmForm,
         ReminderSendingModalContent,
-        ReminderSending
+        ReminderSending,
+        InvoiceReminders
     ],
     providers: [
         TradeItemHelper,
@@ -143,7 +146,8 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         Reminder,
         ReminderList,
         ReminderSending,
-        ReminderSendingModal
+        ReminderSendingModal,
+        InvoiceReminders
     ]
 })
 export class SalesModule {

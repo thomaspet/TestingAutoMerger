@@ -6,13 +6,14 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
+import {ComponentLayout, Customer, Email, Phone, Address, CustomerInvoiceReminderSettings} from '../../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
 import {
     DepartmentService,
     ProjectService,
@@ -22,7 +23,8 @@ import {
     EmailService,
     BusinessRelationService,
     UniQueryDefinitionService,
-    ErrorService
+    ErrorService,
+    CustomerInvoiceReminderSettingsService
 } from '../../../../services/services';
 
 declare var _; // lodash
@@ -41,12 +43,14 @@ export class CustomerDetails {
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
+    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
     private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private addressChanged: any;
     private emailChanged: any;
     private phoneChanged: any;
+    private showReminderSection: boolean = false; // used in template
 
     public dropdownData: any;
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
@@ -84,7 +88,7 @@ export class CustomerDetails {
         ]
     };
 
-    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
+    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'CustomerInvoiceReminderSettings', 'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules'];
 
     private formIsInitialized: boolean = false;
 
@@ -110,7 +114,8 @@ export class CustomerDetails {
         private businessRealtionService: BusinessRelationService,
         private tabService: TabService,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService
     ) {}
 
     public ngOnInit() {
@@ -268,6 +273,12 @@ export class CustomerDetails {
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
+
+                let customer = this.customer$.getValue();
+                if (customer.CustomerInvoiceReminderSettings === null) {
+                    customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
+                    customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
+                }
 
                 this.setTabTitle();
                 this.extendFormConfig();
@@ -546,6 +557,12 @@ export class CustomerDetails {
 
         if (customer.Dimensions !== null && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
             customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
+        }
+
+        if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
+            !customer.CustomerInvoiceReminderSettingsID) &&
+            !this.reminderSettings.isDirty) {
+                customer.CustomerInvoiceReminderSettings = null;
         }
 
         if (this.customerID > 0) {

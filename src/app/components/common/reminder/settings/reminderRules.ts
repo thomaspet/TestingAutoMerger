@@ -1,12 +1,8 @@
-import {Component, ViewChild, Input, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {CustomerInvoiceReminderSettings, CustomerInvoiceReminderRule} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {URLSearchParams} from '@angular/http';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {
     ErrorService,
     CustomerInvoiceReminderRuleService
@@ -19,13 +15,14 @@ declare const _;
     selector: 'reminder-rules',
     templateUrl: 'app/components/common/reminder/settings/reminderRules.html',
 })
-export class ReminderRules {
+export class ReminderRules implements AfterViewInit {
     @ViewChild(UniTable) private table: UniTable;
     @Input() public settings: CustomerInvoiceReminderSettings;
+    @Output() public change: EventEmitter<any> = new EventEmitter();
+
     private rulesTableConfig: UniTableConfig;
     private rule: CustomerInvoiceReminderRule;
     private selectedIndex: number;
-    private rules: any;
 
     constructor(private router: Router,
                 private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService,
@@ -39,17 +36,30 @@ export class ReminderRules {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['settings'] && changes['settings'].currentValue) {
-            this.rules = this.settings.CustomerInvoiceReminderRules;
+            if (!this.settings.CustomerInvoiceReminderRules) {
+                this.settings.CustomerInvoiceReminderRules = [];
+            }
         }
     }
 
     private onRowSelected(event) {
-        this.rule = event.rowModel;
         this.selectedIndex = event.rowModel['_originalIndex'];
+        this.rule = this.settings.CustomerInvoiceReminderRules[this.selectedIndex];
     }
 
     private onRuleChange(rule: CustomerInvoiceReminderRule) {
         this.settings.CustomerInvoiceReminderRules[this.selectedIndex] = rule;
+        this.change.emit();
+    }
+
+    public ngAfterViewInit() {
+        this.focusRow(0);
+    }
+
+    public focusRow(index = undefined) {
+        if (this.table) {
+            this.table.focusRow(index === undefined ? this.selectedIndex : index);
+        }
     }
 
     private onNewRule() {
@@ -58,12 +68,14 @@ export class ReminderRules {
                 rule['_createguid'] = this.customerInvoiceReminderRuleService.getNewGuid();
                 this.table.addRow(rule);
                 this.table.refreshTableData();
+                this.change.emit();
             });
     }
 
     private setupTable() {
         // Define columns to use in the table
-        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number).setWidth('12%');
+        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number)
+            .setWidth('12%');
         let titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text);
 
         let contextMenuItems: IContextMenuItem[] = [];

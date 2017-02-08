@@ -265,7 +265,7 @@ export class ReminderList {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        var allowanceAmountCol = new UniTableColumn('Fee', 'Gebyr', UniTableColumnType.Number)
+        var feeAmountCol = new UniTableColumn('Fee', 'Gebyr', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -282,6 +282,6 @@ export class ReminderList {
             .setAutoAddNewRow(false)
             //.setFilters(this.defaultTableFilter()) // TODO: later on
             .setColumns([reminderNumberCol, invoiceNumberCol, customerNameCol, emailCol,
-                         taxInclusiveAmountCol, restAmountCol, allowanceAmountCol, invoiceDateCol, dueDateCol]);
+                         taxInclusiveAmountCol, restAmountCol, feeAmountCol, invoiceDateCol, dueDateCol]);
     }
 }

@@ -99,13 +99,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     }
 
     public getStatusText(statusCode: number): string {
-        var text = '';
-        this.statusTypes.forEach((status) => {
-            if (status.Code === statusCode) {
-                text = status.Text;
-                return;
-            }
-        });
-        return text;
+        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+        return statusType ? statusType.Text : '';
     };
 }

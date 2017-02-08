@@ -2,7 +2,6 @@ import {Component, Input} from '@angular/core';
 import {CustomerInvoiceReminderSettings} from '../../../../unientities';
 import {FieldType} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
-
 import {
     CompanySettingsService,
     CustomerInvoiceReminderSettingsService,
@@ -19,6 +18,7 @@ declare const moment;
 export class ReminderSettings {
     @Input() private settings: CustomerInvoiceReminderSettings;
 
+    public isDirty: boolean = false;
     private settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
     private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -40,12 +40,17 @@ export class ReminderSettings {
     public save(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.customerInvoiceReminderSettingsService.Put(this.settings.ID, this.settings).subscribe(() => {
+                this.isDirty = false;
                 resolve();
             }, (err) => {
                 this.errorService.handle(err);
                 reject();
             });
         });
+    }
+
+    public onChange(data) {
+        this.isDirty = true;
     }
 
     private setupForm() {

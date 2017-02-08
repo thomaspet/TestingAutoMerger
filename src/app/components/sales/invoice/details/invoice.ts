@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -25,6 +25,7 @@ import {TofHead} from '../../common/tofHead';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
+import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
@@ -34,7 +35,8 @@ import {
     CustomerService,
     NumberFormat,
     ErrorService,
-    EHFService
+    EHFService,
+    CustomerInvoiceReminderService
 } from '../../../../services/services';
 import moment from 'moment';
 
@@ -65,6 +67,9 @@ export class InvoiceDetails {
 
     @ViewChild(ActivateAPModal)
     public activateAPModal: ActivateAPModal;
+
+    @ViewChild(ReminderSendingModal)
+    public reminderSendingModal: ReminderSendingModal;
 
     @Input()
     public invoiceID: any;
@@ -104,7 +109,8 @@ export class InvoiceDetails {
         private tradeItemHelper: TradeItemHelper,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private ehfService: EHFService
+        private ehfService: EHFService,
+        private customerInvoiceReminderService: CustomerInvoiceReminderService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -173,53 +179,73 @@ export class InvoiceDetails {
         this.contextMenuItems = [
             {
                 label: this.companySettings.APActivated && this.companySettings.APGuid ? 'Send EHF' : 'Aktiver og send EHF',
-                action: () => {
-                    if (this.companySettings.APActivated && this.companySettings.APGuid) {
-                        this.sendEHF();
-                    } else {
-                        this.activateAPModal.openModal();
-
-                        if (this.activateAPModal.Changed.observers.length === 0) {
-                            this.activateAPModal.Changed.subscribe((activate) => {
-                                this.ehfService.Activate(activate).subscribe((ok) => {
-                                    if (ok) {
-                                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                                        this.sendEHF();
-                                    } else {
-                                        this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
-                                    }
-                                },
-                                (err) => {
-                                    this.errorService.handle(err);
-                                });
-                            });
-                        }
-                    }
-                },
+                action: () => this.sendEHFAction(),
                 disabled: () => {
                     return this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced;
                 }
             },
             {
                 label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerInvoice';
-                    sendemail.EntityID = this.invoice.ID;
-                    sendemail.CustomerID = this.invoice.CustomerID;
-                    sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-                    this.sendEmailModal.openModal(sendemail);
-
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
-                        });
-                    }
-                },
+                action: () => this.sendEmailAction(),
                 disabled: () => !this.invoice.ID
+            },
+            {
+                label: 'Send purring',
+                action: () => this.sendReminderAction(),
+                disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
             }
         ];
+    }
+
+    private sendEHFAction() {
+        if (this.companySettings.APActivated && this.companySettings.APGuid) {
+            this.sendEHF();
+        } else {
+            this.activateAPModal.openModal();
+
+            if (this.activateAPModal.Changed.observers.length === 0) {
+                this.activateAPModal.Changed.subscribe((activate) => {
+                    this.ehfService.Activate(activate).subscribe((ok) => {
+                        if (ok) {
+                            this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                            this.sendEHF();
+                        } else {
+                            this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                        }
+                    },
+                    (err) => {
+                        this.errorService.handle(err);
+                    });
+                });
+            }
+        }
+    }
+
+    private sendEmailAction() {
+        let sendemail = new SendEmail();
+        sendemail.EntityType = 'CustomerInvoice';
+        sendemail.EntityID = this.invoice.ID;
+        sendemail.CustomerID = this.invoice.CustomerID;
+        sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+        sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+        this.sendEmailModal.openModal(sendemail);
+
+        if (this.sendEmailModal.Changed.observers.length === 0) {
+            this.sendEmailModal.Changed.subscribe((email) => {
+                this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+            });
+        }
+    }
+
+    private sendReminderAction() {
+        this.customerInvoiceReminderService.getInvoiceRemindersForInvoicelist([this.invoice.ID])
+            .subscribe((reminders) => {
+                this.reminderSendingModal.confirm(reminders).then((action) => {
+                    if (action !== ConfirmActions.CANCEL) {
+                        this.updateToolbar();
+                    }
+                });
+            });
     }
 
     @HostListener('keydown', ['$event'])

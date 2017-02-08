@@ -27,6 +27,12 @@ export class TofHead extends OnChanges {
         }
     }
 
+    public ngOnInit() {
+        if (this.entityName === 'CustomerInvoice') {
+            this.tabs.push('Purringer');
+        }
+    }
+
     public focus() {
         if (this.customerCard) {
             this.customerCard.focus();
