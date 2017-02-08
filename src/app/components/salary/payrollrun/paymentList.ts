@@ -41,20 +41,21 @@ export class PaymentList implements OnInit {
 
             this.payrollRunID = +params['id'];
 
-            //Dummy moduleID, going to be removed!
-            this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: UniModules.PaymentList, active: true });
-            this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
-                this.paymentList = [response];
-                this.payLines = this.paymentList[0].PayList;
-                this.paymentList[0].PayList.forEach((payLine) => {
-                    this.empSum += payLine.NetPayment;
-                });
-                this.sum = this.empSum + this.paymentList[0].Withholding;
-                this.payDate = new Date(this.paymentList[0].PaymentDate.toString());
-                this.account = this.paymentList[0].CompanyAccount;
-                this.buildTableConfigs();
-                this.busy = false;
-            }, err => this.errorService.handle(err));
+            // //Dummy moduleID, going to be removed!
+            // this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: UniModules.PaymentList, active: true });
+            // this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
+            //     console.log('utbetalingsliste', response);
+            //     this.paymentList = [response];
+            //     this.payLines = this.paymentList[0].PayList;
+            //     this.payLines.forEach((payLine) => {
+            //         this.empSum += payLine.NetPayment;
+            //     });
+            //     this.sum = this.empSum + this.paymentList[0].Withholding;
+            //     this.payDate = new Date(this.paymentList[0].PaymentDate.toString());
+            //     this.account = this.paymentList[0].CompanyName;
+            //     this.buildTableConfigs();
+            //     this.busy = false;
+            // }, err => this.errorService.handle(err));
 
         });
 
