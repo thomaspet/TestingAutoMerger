@@ -49,6 +49,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     public ngOnChanges() {
+        this.vatType$.next(this.vatType);
         this.deletedVatReportReferences = [];
     }
 

@@ -7,6 +7,7 @@ import {BankService, AccountService, AddressService, ErrorService} from '../../.
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BankData} from '../../../models/models';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare var _;
 
@@ -17,7 +18,7 @@ declare var _;
     template: `
         <article class="modal-content bankaccount-modal" *ngIf="config.model">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (readyEvent)="ready($event)"></uni-form>
+           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
            <footer [attr.aria-busy]="busy">
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -28,10 +29,10 @@ declare var _;
 })
 export class BankAccountForm {
     @ViewChild(UniForm) public form: UniForm;
-
     private config: any = {};
-    private fields: any[] = [];
-    private formConfig: any = {};
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private model$: BehaviorSubject<any>=new BehaviorSubject(null);
     private busy: boolean = false;
     private accounts: Account[] = [];
 
@@ -45,11 +46,10 @@ export class BankAccountForm {
     }
 
     public ngOnInit() {
-        this.setupForm();
-
+        this.model$.next(this.config.model);
         this.accountService.GetAll('filter=AccountNumber lt 3000 and Visible eq true&orderby=AccountNumber').subscribe((accounts) => {
             this.accounts = accounts;
-            this.fields = this.extendFields();
+            this.fields$.next(this.extendFields());
 
             // This is here instead of in ready() because this.extendFields() runs _.cloneDeep which destroys bindings
             setTimeout(() =>
@@ -63,7 +63,8 @@ export class BankAccountForm {
 
     }
 
-    public ready(value) {
+    public ngOnChanges() {
+        this.ngOnInit();
     }
 
     public lookupBankAccountNumber(bankaccount) {
@@ -92,14 +93,15 @@ export class BankAccountForm {
     }
 
     private extendFields() {
-        var accountNumber = this.fields.find(x => x.Property === 'AccountNumber');
+        const fields = this.setupForm();
+        let accountNumber = <any>fields.find(x => x.Property === 'AccountNumber');
         accountNumber.Options = {
             mask: '0000 00 00000',
             events: {
             }
         };
 
-        var accountID = this.fields.find(x => x.Property === 'AccountID');
+        let accountID = <any>fields.find(x => x.Property === 'AccountID');
         accountID.Options = {
             source: this.accounts,
             displayProperty: 'AccountName',
@@ -109,14 +111,14 @@ export class BankAccountForm {
             debounceTime: 200,
             search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
         };
-        return _.cloneDeep(this.fields);
+        return fields;
     }
 
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
 
-        this.fields = [
+        return [
             {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',

@@ -3,13 +3,14 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
 import {FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'register-payment-form',
     template: `
         <article class='modal-content register-payment-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
-            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (changeEvent)="onSubmit($event)" (submitEvent)="onSubmit($event)"></uni-form>
+            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="onSubmit($event)" (submitEvent)="onSubmit($event)"></uni-form>
             <footer>
                 <button *ngFor='let action of config.actions; let i=index' (click)='action.method()' [ngClass]='action.class' type='button'>
                     {{action.text}}
@@ -29,11 +30,12 @@ export class RegisterPaymentForm {
     public formSubmitted: EventEmitter<InvoicePaymentData> = new EventEmitter<InvoicePaymentData>();
 
     // TODO: Jorge: I have to use any to hide errors. Don't use any. Use FieldLayout, but respect interface
-    public fields: any[];
-    public formConfig: any = {};
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
-        this.fields = [
+        this.fields$.next([
             {
                 ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
@@ -90,7 +92,7 @@ export class RegisterPaymentForm {
                 UpdatedBy: null,
                 CustomFields: null
             }
-        ];
+        ]);
     }
 
     public onSubmit(invoicePaymentData: InvoicePaymentData) {
@@ -152,6 +154,7 @@ export class RegisterPaymentModal {
         this.invoiceID = invoiceId;
         this.modalConfig.title = title;        
         this.modalConfig.model = invoicePaymentData;
+        this.modal.getContent().then(cmp => cmp.model$.next(invoicePaymentData));
         this.modal.open();
     }
 }

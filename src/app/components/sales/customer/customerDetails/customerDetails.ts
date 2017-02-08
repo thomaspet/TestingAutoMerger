@@ -365,7 +365,6 @@ export class CustomerDetails {
                 customer.Info.ShippingAddressID = 0;
 
                 this.customer$.next(customer);
-
                 setTimeout(() => {
                    this.ready();
                 });
@@ -374,7 +373,6 @@ export class CustomerDetails {
     }
 
     public extendFormConfig() {
-
         let fields: UniFieldLayout[] = this.fields$.getValue();
         var department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {

@@ -86,6 +86,12 @@ export class GenericDetailview {
         }
     }
 
+    public ngOnChanges() {
+        if (this.viewconfig) {
+            this.fields$.next(this.viewconfig.formFields);
+        }
+    }
+
     private initToolbar(title: string, subTitle: string) {
         this.toolbarConfig = {
             title: title,

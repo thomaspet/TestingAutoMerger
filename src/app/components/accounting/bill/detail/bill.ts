@@ -166,6 +166,7 @@ export class BillView {
 
         var supIdCol = createFormField('SupplierID', lang.col_supplier, ControlTypes.AutocompleteInput, FieldSize.Full);
         supIdCol.Options = {
+            source: this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info'),
             template: (data) => {
                 if (data === undefined && (current && current.Supplier && current.Supplier.Info) ) {
                     data = { SupplierNumber: current.Supplier.SupplierNumber, InfoName: current.Supplier.Info.Name };
@@ -175,6 +176,9 @@ export class BillView {
                 } else {
                     return '';
                 }
+            },
+            getDefaultData: () => {
+                return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=ID eq ' + this.currentSupplierID);
             },
             search: (txt: string) => {
                 var filter = `contains(info.name,'${txt}')`;

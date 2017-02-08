@@ -36,8 +36,7 @@
     <uni-form *ngIf="activeTab === 'details'"
               [config]="config$"
               [fields]="fields$"
-              [model]="supplier$"
-              (readyEvent)="ready">
+              [model]="supplier$">
     </uni-form>
     <ledger-account-reconciliation [supplierID]="(supplier$|async)?.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
     <uni-query-read-only

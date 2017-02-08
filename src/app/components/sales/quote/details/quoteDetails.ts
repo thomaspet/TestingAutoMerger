@@ -73,21 +73,20 @@ export class QuoteDetails {
 
     private commentsConfig: any;
 
-    constructor(
-        private customerService: CustomerService,
-        private customerQuoteService: CustomerQuoteService,
-        private customerQuoteItemService: CustomerQuoteItemService,
-        private reportDefinitionService: ReportDefinitionService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
-        private userService: UserService,
-        private numberFormat: NumberFormat,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService
-    ) {}
+    constructor(private customerService: CustomerService,
+                private customerQuoteService: CustomerQuoteService,
+                private customerQuoteItemService: CustomerQuoteItemService,
+                private reportDefinitionService: ReportDefinitionService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
+                private userService: UserService,
+                private numberFormat: NumberFormat,
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper,
+                private errorService: ErrorService) {
+    }
 
     public ngOnInit() {
         this.setSums();
@@ -215,10 +214,10 @@ export class QuoteDetails {
 
         this.onQuoteChange(quote);
         this.readonly = quote.StatusCode && (
-            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-        );
+                quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+            );
 
         this.newQuoteItem = <any> this.tradeItemHelper.getDefaultTradeItemData(quote);
         this.isDirty = false;
@@ -320,9 +319,9 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: quoteText,
             subheads: [
-                { title: customerText},
-                { title: netSumText},
-                { title: GetPrintStatusText(this.quote.PrintStatus) }
+                {title: customerText},
+                {title: netSumText},
+                {title: GetPrintStatusText(this.quote.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -536,26 +535,26 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
-                title: 'Avgiftsfritt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
-                title: 'Avgiftsgrunnlag',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
-                title: 'Sum rabatt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
-                title: 'Nettosum',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
-                title: 'Mva',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
-                title: 'Øreavrunding',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
-                title: 'Totalsum',
-            }];
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
+            title: 'Avgiftsfritt',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
+            title: 'Avgiftsgrunnlag',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
+            title: 'Sum rabatt',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
+            title: 'Nettosum',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
+            title: 'Mva',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
+            title: 'Øreavrunding',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
+            title: 'Totalsum',
+        }];
     }
 }

@@ -34,6 +34,11 @@ export class SubEntityDetails {
         this.currentSubEntity$.next(this.currentSubEntity);
     }
 
+    public ngOnChanges() {
+        this.currentSubEntity$.next(this.currentSubEntity);
+    }
+
+
     private createForm() {
         this._subEntityService.getLayout('subEntities').subscribe((layout: any) => {
             let agaZoneField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaZone');

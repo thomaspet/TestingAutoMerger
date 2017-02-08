@@ -4,7 +4,7 @@ import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {FieldType} from 'uniform-ng2/main';
 import {Phone} from '../../../unientities';
 import {PhoneService} from '../../../services/services';
-
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 // Reusable address form
 @Component({
     selector: 'phone-form',
@@ -12,7 +12,7 @@ import {PhoneService} from '../../../services/services';
     template: `
         <article class="modal-content phone-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -23,11 +23,19 @@ import {PhoneService} from '../../../services/services';
 })
 export class PhoneForm {
     @ViewChild(UniForm) public form: UniForm;
-    private config: any = {};
-    private fields: any[] = [];
-    public formConfig: any = {};
+    public config: any;
+    public model$: BehaviorSubject<Phone> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
+        this.setupForm();
+        this.extendFormConfig();
+    }
+
+    public ngOnChanges() {
+        this.model$.next(this.config.model);
         this.setupForm();
         this.extendFormConfig();
     }
@@ -35,7 +43,7 @@ export class PhoneForm {
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-       this.fields = [
+       this.fields$.next([
             {
                 ComponentLayoutID: 1,
                 EntityType: 'Phone',
@@ -148,11 +156,12 @@ export class PhoneForm {
                 UpdatedBy: null,
                 CustomFields: null
             }
-        ];
+        ]);
     }
 
     private extendFormConfig() {
-        var typeField: UniFieldLayout = this.fields.find(x => x.Property === 'Type');
+        let fields = this.fields$.getValue();
+        var typeField: UniFieldLayout = fields.find(x => x.Property === 'Type');
 
         typeField.Options = {
             source:  [
@@ -163,6 +172,7 @@ export class PhoneForm {
             valueProperty: 'ID',
             displayProperty: 'Name'
         };
+        this.fields$.next(fields);
     }
 }
 
@@ -215,6 +225,7 @@ export class PhoneModal {
 
     public openModal(phone: Phone) {
         this.modalConfig.model = phone;
+        this.modal.getContent().then(cmp => cmp.model$.next(phone))
         this.modal.open();
     }
 }

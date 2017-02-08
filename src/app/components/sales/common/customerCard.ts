@@ -79,9 +79,7 @@ export class TofCustomerCard {
         private ehfService: EHFService,
         private elementRef: ElementRef,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
-    ) {}
-
-    public ngOnInit() {
+    ) {
         this.uniSearchConfig = this.uniSearchConfigGeneratorService.generateUniSearchConfig(
             Customer,
             this.customerExpands,

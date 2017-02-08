@@ -7,16 +7,19 @@ import {ChangeMap} from '../utils/changeMap';
 import {Observable} from 'rxjs/Rx';
 import {IResult} from '../genericview/detail';
 import {ErrorService} from '../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'workrelations',
     templateUrl: 'app/components/timetracking/worker/relations.html',
 })
 export class View {
-    @Input() public set workerid(id: number) {
+    @Input()
+    public set workerid(id: number) {
         this.currentId = id;
         this.loadList();
     }
+
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
 
     public collapseView: boolean = false;
@@ -24,8 +27,10 @@ export class View {
     public busy: boolean = false;
     private initialized: boolean = false;
 
-    public formConfig: any = {};
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public layout: any;
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<any> = new BehaviorSubject([]);
 
     public currentId: number = 0;
     public currentRelation: WorkRelation = new WorkRelation();
@@ -34,6 +39,7 @@ export class View {
 
     constructor(private workerService: WorkerService, private router: Router, private errorService: ErrorService) {
         this.layout = this.createLayout();
+        this.fields$.next(this.layout.formFields);
     }
 
     public ngOnInit() {
@@ -53,11 +59,13 @@ export class View {
     public onItemClicked(item: WorkRelation) {
         this.flagSelected(item);
         this.currentRelation = item;
+        this.model$.next(this.currentRelation);
     }
 
     private flagSelected(item: any) {
         item._isSelected = true;
         (<any>this.currentRelation)._isSelected = false;
+        this.model$.next(this.currentRelation);
     }
 
     public onAddNew() {
@@ -73,7 +81,7 @@ export class View {
 
     public onRegisterHours() {
         this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId='
-        + this.currentRelation.ID );
+            + this.currentRelation.ID);
     }
 
     public onDelete() {
@@ -90,6 +98,7 @@ export class View {
             } else {
                 if (this.items.length === 0) {
                     this.currentRelation = this.layout.data.factory();
+                    this.model$.next(this.currentRelation);
                 } else {
                     this.onItemClicked(this.items[this.items.length - 1]);
                 }
@@ -103,11 +112,11 @@ export class View {
             if (result === null) {
                 resolve({success: true});
             }
-            result.subscribe( results => {
-                resolve({ success: true });
+            result.subscribe(results => {
+                resolve({success: true});
             }, err => {
                 // debugger;
-                reject({ success: false, msg: err._body });
+                reject({success: false, msg: err._body});
             });
         });
     }
@@ -116,7 +125,7 @@ export class View {
 
         var items = this.changeMap.getValues();
         if (items.length > 0) {
-            items.forEach( item => item.WorkerID = parentID );
+            items.forEach(item => item.WorkerID = parentID);
         }
 
         var removables = this.changeMap.getRemovables();
@@ -139,7 +148,7 @@ export class View {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).flatMap( (item: any) => {
+            let obsDel = Observable.from(deletables).flatMap((item: any) => {
                 return this.workerService.deleteByID(item.ID, route).map((event) => {
                     this.changeMap.removables.remove(item.ID, false);
                 });
@@ -152,11 +161,14 @@ export class View {
     }
 
     private loadList() {
-        if (!this.initialized) { return; }
+        if (!this.initialized) {
+            return;
+        }
         this.currentRelation = this.layout.data.factory();
+        this.model$.next(this.currentRelation);
         if (this.currentId) {
             this.busy = true;
-            this.workerService.getWorkRelations(this.currentId).subscribe( (items) => {
+            this.workerService.getWorkRelations(this.currentId).subscribe((items) => {
                 this.items = items;
                 if (items.length > 0) {
                     this.onItemClicked(items[0]);
@@ -173,17 +185,19 @@ export class View {
         var layout = {
             data: {
                 route: 'workrelations',
-                factory: () => { return new WorkRelation(); }
+                factory: () => {
+                    return new WorkRelation();
+                }
             },
             formFields: [
-                createFormField('WorkPercentage', 'Prosent',  ControlTypes.NumericInput),
+                createFormField('WorkPercentage', 'Prosent', ControlTypes.NumericInput),
                 createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, FieldSize.Double
                     , false, 0, undefined, undefined, this.getComboOptions()),
-                createFormField('CompanyName', 'Firmanavn',  ControlTypes.TextInput),
-                createFormField('Description', 'Beskrivelse',  ControlTypes.TextInput, FieldSize.Double),
-                createFormField('StartDate', 'Startdato',  ControlTypes.LocalDate ),
-                createFormField('EndTime', 'Sluttdato',  ControlTypes.LocalDate ),
-                createFormField('IsActive', 'Aktiv',  ControlTypes.CheckboxInput )
+                createFormField('CompanyName', 'Firmanavn', ControlTypes.TextInput),
+                createFormField('Description', 'Beskrivelse', ControlTypes.TextInput, FieldSize.Double),
+                createFormField('StartDate', 'Startdato', ControlTypes.LocalDate),
+                createFormField('EndTime', 'Sluttdato', ControlTypes.LocalDate),
+                createFormField('IsActive', 'Aktiv', ControlTypes.CheckboxInput)
             ],
         };
 
@@ -192,11 +206,11 @@ export class View {
 
     private getComboOptions(): any {
         return {
-                source: this.workerService.getWorkProfiles(),
-                template: (obj) => `${obj.ID} - ${obj.Name}`,
-                valueProperty: 'ID',
-                displayProperty: 'Name',
-                debounceTime: 250,
-            };
+            source: this.workerService.getWorkProfiles(),
+            template: (obj) => `${obj.ID} - ${obj.Name}`,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 250,
+        };
     }
 }

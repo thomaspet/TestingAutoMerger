@@ -192,7 +192,7 @@ export class PersonalDetails extends UniView {
 
     public onFormChange(change: SimpleChanges) {
         let employee = this.employee$.getValue();
-        if (employee.BankAccounts[0]) {
+        if (employee.BankAccounts && employee.BankAccounts[0]) {
             if (!employee.BankAccounts[0].AccountNumber) {
                 employee.BankAccounts[0].Active = false;
             } else {

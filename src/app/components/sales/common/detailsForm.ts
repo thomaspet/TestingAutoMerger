@@ -1,4 +1,4 @@
-import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniForm, FieldType} from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -33,6 +33,7 @@ export class TofDetailsForm {
     }
 
     public ngOnChanges(changes) {
+        this.entity$.next(this.entity);
         if (changes['entityType'] && this.entityType) {
             this.initFormFields();
         }
@@ -54,7 +55,11 @@ export class TofDetailsForm {
         }
     }
 
-    public onFormChange(changes) {
+    public onFormChange(changes: SimpleChanges) {
+        var keys = Object.keys(changes);
+        keys.forEach(key => {
+            _.set(this.entity, key, changes[key].currentValue);
+        });
         this.entityChange.emit(this.entity);
     }
 
