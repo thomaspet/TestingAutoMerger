@@ -1,13 +1,18 @@
 ﻿import { Component, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
-import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
+import { FieldType, UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { SubEntityList } from './subEntityList';
 import {
-    FieldType, CompanySalary, Account,
-    SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval } from '../../../unientities';
-import { CompanySalaryService, AccountService, SubEntityService, AgaZoneService, ErrorService } from '../../../services/services';
+    CompanySalary, Account,
+    SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval 
+} from '../../../unientities';
+import { 
+    CompanySalaryService, AccountService, SubEntityService, 
+    AgaZoneService, ErrorService 
+} from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
 declare var _;
@@ -27,14 +32,14 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
-    private fields: UniFieldLayout[] = [];
-    private accountfields: UniFieldLayout[] = [];
-    public formConfig: any = {};
-    public accountformConfig: any = {};
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    private companySalary: CompanySalary;
+    private companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
     private accounts: Account[] = [];
-    private mainOrganization: SubEntity;
+    private mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
 
@@ -56,11 +61,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         private agazoneService: AgaZoneService,
         private errorService: ErrorService
     ) {
-        this.formConfig = {
+        this.formConfig$.next({
             sections: {
                 1: { isOpen: true }
             }
-        };
+        });
     }
 
     public ngOnInit() {
@@ -78,16 +83,15 @@ export class AgaAndSubEntitySettings implements OnInit {
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
                 let [companysalaries, accounts, mainOrg, zones, rules] = dataset;
-                this.companySalary = companysalaries[0];
+                this.companySalary$.next(companysalaries[0]);
                 this.accounts = accounts;
-                this.mainOrganization = mainOrg[0];
                 this.agaZones = zones;
                 this.agaRules = rules;
 
                 this.buildForms();
 
-                this.mainOrganization['_AgaSoneLink'] = this.agaSoneOversiktUrl;
-
+                mainOrg[0]['_AgaSoneLink'] = this.agaSoneOversiktUrl;
+                this.mainOrganization$.next(mainOrg[0]);
             },
             err => this.errorService.handle(err)
             );
@@ -146,7 +150,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         grantBtn.Label = 'Tilskudd';
         grantBtn.EntityType = 'mainOrganization';
         grantBtn.Property = 'TilskuddBtn';
-        grantBtn.FieldType = FieldType.COMBOBOX;
+        grantBtn.FieldType = FieldType.BUTTON;
         grantBtn.Section = 1;
         grantBtn.Options = {
             click: (event) => {
@@ -158,7 +162,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         freeAmountBtn.Label = 'Oversikt fribeløp';
         freeAmountBtn.EntityType = 'mainOrganization';
         freeAmountBtn.Property = 'FreeAmountBtn';
-        freeAmountBtn.FieldType = FieldType.COMBOBOX;
+        freeAmountBtn.FieldType = FieldType.BUTTON;
         freeAmountBtn.Section = 1;
         freeAmountBtn.Options = {
             click: (event) => {
@@ -237,17 +241,31 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         var interrimRemit = new UniFieldLayout();
         interrimRemit.EntityType = 'CompanySalary';
-        interrimRemit.Label = 'Mellomkonto remittering';
+        interrimRemit.Label = 'Hovedbokskonto netto utbetalt';
         interrimRemit.Property = 'InterrimRemitAccount';
         interrimRemit.FieldType = FieldType.AUTOCOMPLETE;
         interrimRemit.Section = 2;
         interrimRemit.Options = {
-            source: this.accounts,
+            source: this.accounts.filter(x => x.AccountNumber >= 1000 && x.AccountNumber <= 2999),
             valueProperty: 'AccountNumber',
             displayProperty: 'AccountNumber',
             debounceTime: 200,
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
+
+        let postTax = new UniFieldLayout();
+        postTax.Label = 'Poster skattetrekk automatisk';
+        postTax.EntityType = 'CompanySalary';
+        postTax.Property = 'PostToTaxDraw';
+        postTax.FieldType = FieldType.CHECKBOX;
+        postTax.ReadOnly = false;        
+        postTax.Hidden = false;
+        postTax.Section = 2;        
+        postTax.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'PostToTaxDraw'
+        };
+        
 
         let paymentInterval = new UniFieldLayout();
         paymentInterval.EntityType = 'CompanySalary';
@@ -266,7 +284,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             displayProperty: 'name'
         };
 
-        this.fields = [
+        this.fields$.next([
             mainOrgName,
             mainOrgOrg,
             mainOrgZone,
@@ -275,16 +293,17 @@ export class AgaAndSubEntitySettings implements OnInit {
             grantBtn,
             freeAmountBtn,
             agaSoneLink
-        ];
+        ]);
 
-        this.accountfields = [
+        this.accountfields$.next([
             mainAccountAlocatedAga,
             mainAccountCostAga,
             mainAccountAllocatedAgaVacation,
             mainAccountCostAgaVacation,
             interrimRemit,
-            paymentInterval
-        ];
+            paymentInterval,
+            postTax
+        ]);
     }
 
     public openGrantsModal() {
@@ -302,12 +321,12 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public saveAgaAndSubEntities(done) {
         let saveObs: Observable<any>[] = [];
-
-        if (this.companySalary) {
+        let companySalary = this.companySalary$.getValue();
+        if (companySalary) {
             let companySaveObs: Observable<CompanySalary>;
-            companySaveObs = this.companySalary['_isDirty']
-            ? this.companySalaryService.Put(this.companySalary.ID, this.companySalary)
-            : Observable.of(this.companySalary);
+            companySaveObs = companySalary['_isDirty']
+            ? this.companySalaryService.Put(companySalary.ID, companySalary)
+            : Observable.of(companySalary);
 
             saveObs.push(companySaveObs);
         }
@@ -315,23 +334,23 @@ export class AgaAndSubEntitySettings implements OnInit {
         if (this.subEntityList) {
             saveObs.push(this.subEntityList.saveSubEntity());
         }
-
-        if (this.mainOrganization) {
+        let mainOrganization = this.mainOrganization$.getValue();
+        if (mainOrganization) {
             let mainOrgSave: Observable<SubEntity> = null;
 
-            if (this.mainOrganization['_isDirty']) {
-                mainOrgSave = this.mainOrganization.ID
-                    ? this.subentityService.Put(this.mainOrganization.ID, this.mainOrganization)
-                    : this.subentityService.Post(this.mainOrganization);
+            if (mainOrganization['_isDirty']) {
+                mainOrgSave = mainOrganization.ID
+                    ? this.subentityService.Put(mainOrganization.ID, mainOrganization)
+                    : this.subentityService.Post(mainOrganization);
             } else {
-                mainOrgSave = Observable.of(this.mainOrganization);
+                mainOrgSave = Observable.of(mainOrganization);
             }
 
             saveObs.push(mainOrgSave);
         }
         Observable.forkJoin(saveObs).subscribe((response: any) => {
-            this.companySalary = response[0];
-            this.mainOrganization = response[2];
+            this.companySalary$.next(response[0]);
+            this.mainOrganization$.next(response[2]);
             done('Sist lagret: ');
         },
             err => this.errorService.handle(err),
@@ -355,12 +374,14 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public companySalarychange(event) {
-        this.companySalary['_isDirty'] = true;
+        let value = this.companySalary$.getValue();
+        value['_isDirty'] = true;
+        this.companySalary$.next(value);
     }
 
     public mainOrgChange(event) {
-        this.mainOrganization['_isDirty'] = true;
+        let value = this.mainOrganization$.getValue();
+        value['_isDirty'] = true;
+        this.mainOrganization$.next(value);
     }
-
-    //#endregion Test data
 }

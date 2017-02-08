@@ -13,6 +13,9 @@ import {InvoiceDetails} from './invoice/details/invoice';
 import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
 
+import {Reminder} from './reminder/reminder';
+import {routes as ReminderRoutes} from './reminder/reminderRoutes';
+
 // Maps entitytype to frontend route
 // Important for notifications to work properly!
 export const entityTypeMap: any = {
@@ -70,6 +73,12 @@ export const salesRoutes: Routes = [
         component: OrderDetails,
         canDeactivate: [CanDeactivateGuard]
     },
+
+    {
+        path: 'reminders',
+        component: Reminder,
+        children: ReminderRoutes
+    }
 
 ];
 

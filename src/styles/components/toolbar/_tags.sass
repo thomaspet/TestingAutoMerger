@@ -44,6 +44,9 @@ uni-tags
             font-size: 1rem
             margin: 0 0 1rem
 
+        li:hover
+            background: $uni-color-scale4
+
     .tags_tag.tags_tag // Double class specificity hack. 💩
         display: inline-flex
         background: $uni-color-scale4
@@ -57,15 +60,7 @@ uni-tags
         height: 1.5rem
         margin: 0 1rem 0 0
         padding: 0 .5rem 0 0
-        cursor: normal
-
-        &:hover,
-        &:focus
-            background: $uni-color-scale4
-
-            .tags_tag_removeBtn
-                background-image: unicon-close($uni-color-negative)
-                background-size: .45rem auto
+        cursor: initial
 
         .tags_tag_removeBtn
             @extend %hideText
@@ -83,11 +78,15 @@ uni-tags
             background-size: .2rem auto
             cursor: pointer
 
-            &:hover,
-            &:focus
-                background-color: $uni-color-scale3
-                background-image:  unicon-close($uni-color-negative)
-                background-size: .45rem auto
+    .tags_list:not([aria-readonly=true]) .tags_tag.tags_tag:hover,
+    .tags_list:not([aria-readonly=true]) .tags_tag.tags_tag:focus
+        background: $uni-color-scale4
+
+        .tags_tag_removeBtn
+            background-image: unicon-close($uni-color-negative)
+            background-size: .45rem auto
+            cursor: pointer
+
     .tags_lookup
         display: block
         color: $uni-color-positive

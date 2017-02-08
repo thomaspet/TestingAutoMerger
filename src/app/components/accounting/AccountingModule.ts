@@ -19,8 +19,6 @@ import {accountingRoutes} from './accountingRoutes';
 // specific imports
 import {UniAccounting} from './accounting';
 import {JournalEntryProfessional} from './journalentry/components/journalentryprofessional/journalentryprofessional';
-import {JournalEntrySimple} from './journalentry/components/journalentrysimple/journalentrysimple';
-import {JournalEntrySimpleForm} from './journalentry/components/journalentrysimple/journalentrysimpleform';
 import {JournalEntryManual} from './journalentry/journalentrymanual/journalentrymanual';
 import {CheckListVat} from './vatreport/checkList/checkList';
 import {VatReportJournalEntry} from './vatreport/JournalEntry/vatReportJournalEntry';
@@ -33,8 +31,6 @@ import {TransqueryDetails} from './transquery/details/transqueryDetails';
 import {Transquery} from './transquery/transquery';
 import {JournalEntries} from './journalentry/journalentries/journalentries';
 import {Payments} from './journalentry/payments/payments';
-import {SupplierInvoiceList} from './journalentry/supplierinvoices/supplierinvoicelist';
-import {SupplierInvoiceDetail} from './journalentry/supplierinvoices/supplierinvoicedetail';
 import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
 import {ResultReport} from './accountingreports/resultreport/resultreport';
@@ -104,14 +100,10 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
 
         // journalentry
         JournalEntryProfessional,
-        JournalEntrySimple,
-        JournalEntrySimpleForm,
         JournalEntryManual,
         JournalEntry,
         JournalEntries,
         Payments,
-        SupplierInvoiceList,
-        SupplierInvoiceDetail,
         BillsView,
         BillView,
         BillSimpleJournalEntryView, BillHistoryView,
@@ -167,14 +159,10 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
 
         // journalentry
         JournalEntryProfessional,
-        JournalEntrySimple,
-        JournalEntrySimpleForm,
         JournalEntryManual,
         JournalEntry,
         JournalEntries,
         Payments,
-        SupplierInvoiceList,
-        SupplierInvoiceDetail,
         BillsView,
 
         // vatreport

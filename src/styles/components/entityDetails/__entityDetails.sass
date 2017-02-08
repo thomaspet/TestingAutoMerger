@@ -48,6 +48,7 @@
     background-color: mix($uni-color-positive, $uni-color-toolbar, 15%)
     border-radius: pxToRem(3)
     border: pxToRem(1) solid mix($uni-color-toolbar, $uni-color-negative, 80%)
+    order: 2
 
     &:hover
         background-color: mix($uni-color-positive, $uni-color-toolbar, 35%)
@@ -61,11 +62,12 @@
         background-size: .8rem auto
         color: $uni-color-c2a
         border-radius: pxToRem(2) pxToRem(2) 0 0
+        border-color: transparent
 
 .entityDetails
     background-color: $uni-color-negative
     position: absolute
-    z-index: map-get($zindex, 'toolbar')
+    z-index: #{map-get($zindex, 'toolbar') - 1}
     left: 0
     right: 0
     top: 8rem
@@ -101,6 +103,6 @@
             right: 0
             top: -100vh
             bottom: -100vh
-            z-index: map-get($zindex, 'toolbar')
+            z-index: #{map-get($zindex, 'toolbar') - 1}
             background: transparentize($uni-color-scale9, .25)
             animation: 300ms ease fadein

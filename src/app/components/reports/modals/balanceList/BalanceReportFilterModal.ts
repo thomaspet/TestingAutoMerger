@@ -1,13 +1,14 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {
     ReportDefinitionParameterService,
     ErrorService,
     FinancialYearService
 } from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'balance-report-filter-form',
@@ -16,29 +17,33 @@ import {
 export class BalanceReportFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: UniFieldLayout[];
-    public model: {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{
         journalYear: number,
         fromPeriod: number,
         toPeriod: number,
         includezerobalance: boolean,
         orderBy: string
-    } = {
+    }> = new BehaviorSubject({
         journalYear: new Date().getFullYear(),
         fromPeriod: 1,
         toPeriod: 12,
         includezerobalance: false,
         orderBy: 'AccountNumber'
-    };
+    });
 
     constructor(
         private yearService: FinancialYearService
     ) {}
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
+        this.config$.next(this.config);
+        this.fields$.next(this.getComponentFields());
         this.yearService.getActiveYear().subscribe(res => {
-            this.model.journalYear = res;
+            let model = this.model$.getValue();
+            model.journalYear = res;
+            this.model$.next(model);
         });
     }
 
@@ -100,15 +105,15 @@ export class BalanceReportFilterModal {
                         this.modal.getContent().then((component: BalanceReportFilterForm) => {
                             for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
                                 if (parameter.Name === 'odatafilter') {
-                                    parameter.value = `Period.AccountYear eq '${component.model.journalYear}'`
-                                        + ` and Period.No ge ${component.model.fromPeriod}`
-                                        + ` and Period.No le ${component.model.toPeriod}`;
+                                    parameter.value = `Period.AccountYear eq '${component.model$.getValue().journalYear}'`
+                                        + ` and Period.No ge ${component.model$.getValue().fromPeriod}`
+                                        + ` and Period.No le ${component.model$.getValue().toPeriod}`;
                                 } else if (parameter.Name === 'includezerobalancecustomer') {
-                                    parameter.value = component.model.includezerobalance;
+                                    parameter.value = component.model$.getValue().includezerobalance;
                                 } else if (parameter.Name === 'includezerobalancesupplier') {
-                                    parameter.value = component.model.includezerobalance;
+                                    parameter.value = component.model$.getValue().includezerobalance;
                                 } else if (parameter.Name === 'orderby') {
-                                    parameter.value = component.model.orderBy;
+                                    parameter.value = component.model$.getValue().orderBy;
                                 }
                             }
 
@@ -117,15 +122,15 @@ export class BalanceReportFilterModal {
                             // use them in the report
                             let accountYearParam = new AttilasCustomReportDefinitionParameter();
                             accountYearParam.Name = 'PeriodAccountYear';
-                            accountYearParam.value = component.model.journalYear;
+                            accountYearParam.value = component.model$.getValue().journalYear;
 
                             let periodFromParam = new AttilasCustomReportDefinitionParameter();
                             periodFromParam.Name = 'PeriodFrom';
-                            periodFromParam.value = component.model.fromPeriod;
+                            periodFromParam.value = component.model$.getValue().fromPeriod;
 
                             let periodToParam = new AttilasCustomReportDefinitionParameter();
                             periodToParam.Name = 'PeriodTo';
-                            periodToParam.value = component.model.toPeriod;
+                            periodToParam.value = component.model$.getValue().toPeriod;
 
                             this.modalConfig.report.parameters.push(accountYearParam);
                             this.modalConfig.report.parameters.push(periodFromParam);

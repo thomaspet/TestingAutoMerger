@@ -39,6 +39,12 @@ import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {AccrualForm} from './modals/accrualModal';
+import {AccrualModal} from './modals/accrualModal';
+import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/settingsModal';
+import {ReminderSettings} from './reminder/settings/reminderSettings';
+import {ReminderRules} from './reminder/settings/reminderRules';
+import {ReminderRuleDetails} from './reminder/settings/ruleDetails';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 
 import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
@@ -73,6 +79,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ProductList,
         AddressForm,
         AddressModal,
+        AccrualForm,
+        AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
         BankAccountForm,
@@ -111,10 +119,17 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SupplierDetailsModal,
 
         // reconciliation
-        LedgerAccountReconciliation
+        LedgerAccountReconciliation,
+
+        ReminderSettings,
+        ReminderSettingsModal,
+        ReminderSettingsForm,
+        ReminderRules,
+        ReminderRuleDetails
     ],
     entryComponents: [
         AddressForm,
+        AccrualForm,
         BankAccountForm,
         EmailForm,
         PhoneForm,
@@ -125,6 +140,9 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ImageModalContent,
         ActivateAPForm,
         ActivateAPModal,
+        ReminderSettingsForm,
+        ReminderSettingsModal,
+        ReminderSettings,
         AddPaymentForm
     ],
     exports: [
@@ -140,6 +158,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ProductList,
         AddressForm,
         AddressModal,
+        AccrualForm,
+        AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
         BankAccountForm,
@@ -178,7 +198,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SupplierDetailsModal,
 
         // reconciliation
-        LedgerAccountReconciliation
+        LedgerAccountReconciliation,
+
+        ReminderSettings,
+        ReminderSettingsModal
     ]
 })
 export class AppCommonModule {

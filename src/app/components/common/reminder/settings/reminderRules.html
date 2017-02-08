@@ -1,0 +1,16 @@
+<section class="splitview" *ngIf="settings">
+    <nav class="splitview_list">
+        <uni-table
+            [resource]="settings.CustomerInvoiceReminderRules"
+            [config]="rulesTableConfig"
+            (rowSelected)="onRowSelected($event)">
+        </uni-table>
+        <button (click)="onNewRule()">Ny regel</button>
+    </nav>
+    <main class="splitview_detail">
+        <reminder-rule-details
+            [rule]="rule"
+            (change)="onRuleChange(rule)">
+        </reminder-rule-details>
+    </main>
+</section>

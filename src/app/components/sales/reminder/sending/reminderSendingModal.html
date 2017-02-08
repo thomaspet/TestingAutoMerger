@@ -1,0 +1,16 @@
+<article class='modal-content'>
+    <h1>Utsendelse av purringer</h1>
+    <footer>
+        <reminder-sending [modalMode]="true"></reminder-sending>
+
+        <button *ngIf="config?.actions?.send" (click)="config?.actions?.send?.method()" class="good">
+            {{config?.actions?.send?.text}}
+        </button>
+        <button *ngIf="config?.actions?.print" (click)="config?.actions?.print?.method()" class="good">
+            {{config?.actions?.print?.text}}
+        </button>
+        <button *ngIf="config?.actions?.cancel" (click)="config?.actions?.cancel?.method()">
+            {{config?.actions?.cancel?.text}}
+        </button>
+    </footer>
+</article>

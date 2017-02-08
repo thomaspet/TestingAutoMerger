@@ -208,12 +208,14 @@ export class SubEntityList implements OnInit {
 
     public saveSubEntity() {
         return this.subEntityDetails.saveSubentities().map(x => {
-            let index = this.currentSubEntity['_originalIndex'];
-            this.allSubEntities[index] = x;
-            this.allSubEntities[index]['_originalIndex'] = index;
-            this.currentSubEntity = this.allSubEntities[index];
-            this.table.updateRow(index, this.allSubEntities[index]);
-            this.table.focusRow(index);
+            if (x) {
+                let index = this.currentSubEntity['_originalIndex'];
+                this.allSubEntities[index] = x;
+                this.allSubEntities[index]['_originalIndex'] = index;
+                this.currentSubEntity = this.allSubEntities[index];
+                this.table.updateRow(index, this.allSubEntities[index]);
+                this.table.focusRow(index);
+            }
             return x;
         });
     }

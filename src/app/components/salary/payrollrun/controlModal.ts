@@ -1,10 +1,11 @@
 import {Component, Type, ViewChild, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
+import {PayrollRun, SalaryTransaction} from '../../../../app/unientities';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
 import {
     SalaryTransactionService,
@@ -20,16 +21,25 @@ declare var _;
 })
 export class ControlModalContent {
     private busy: boolean;
-    public formConfig: any = {};
-    public payList: { employeeInfo: { name: string, payment: number, hasTaxInfo: boolean }, paymentLines: SalaryTransaction[], collapsed: boolean }[] = null;
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public payList: {
+        employeeInfo: { name: string, payment: number, hasTaxInfo: boolean },
+        paymentLines: SalaryTransaction[], collapsed: boolean
+    }[] = null;
     private payrollRun: PayrollRun;
     private payrollRunID: number;
-    @Input('config')
-    private config: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[], payrollRunID: number };
+    @Input() private config: {
+        hasCancelButton: boolean,
+        cancel: any,
+        actions: { text: string, method: any }[], payrollRunID: number
+    };
     private transes: SalaryTransaction[];
-    private model: { sums: SalaryTransactionSums, salaryTransactionPay: SalaryTransactionPay } = { sums: null, salaryTransactionPay: null };
+    private model$: BehaviorSubject<{
+        sums: SalaryTransactionSums,
+        salaryTransactionPay: SalaryTransactionPay
+    }> = new BehaviorSubject({ sums: null, salaryTransactionPay: null });
     public tableConfig: UniTableConfig;
-    public fields: UniFieldLayout[] = [];
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
@@ -61,9 +71,10 @@ export class ControlModalContent {
         this.transes = salaryTrans;
         this.transes = _.cloneDeep(this.transes);
 
-        this.model.sums = sums;
-        this.model.salaryTransactionPay = transPay;
-        this.model = _.cloneDeep(this.model);
+        let model = this.model$.getValue();
+        model.sums = sums;
+        model.salaryTransactionPay = transPay;
+        this.model$.next(model);
 
         this.payrollRun = payrollrun;
         this.payrollRun = _.cloneDeep(this.payrollRun);
@@ -128,7 +139,14 @@ export class ControlModalContent {
             format: 'money'
         };
 
-        this.fields = [withholdingField, baseVacationPay, baseAga, netPayment, calculatedVacationPay, calculatedAga];
+        this.fields$.next([
+            withholdingField,
+            baseVacationPay,
+            baseAga,
+            netPayment,
+            calculatedVacationPay,
+            calculatedAga
+        ]);
     }
 
     private generateTableConfigs() {
@@ -145,8 +163,8 @@ export class ControlModalContent {
 
         this.tableConfig = new UniTableConfig(false, false)
             .setColumns([wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol]);
-        if (this.model.salaryTransactionPay.PayList) {
-            this.model.salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
+        if (this.model$.getValue().salaryTransactionPay.PayList) {
+            this.model$.getValue().salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
 
                 let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.payrollRunID);
                 let section: { employeeInfo: { name: string, payment: number, hasTaxInfo: boolean }, paymentLines: SalaryTransaction[], collapsed: boolean } = {
@@ -181,7 +199,7 @@ export class ControlModalContent {
     public showPaymentList() {
         this._router.navigateByUrl('/salary/paymentlist/' + this.payrollRunID);
     }
-
+    
     public toggleCollapsed(index: number) {
         this.payList[index].collapsed = !this.payList[index].collapsed;
     }

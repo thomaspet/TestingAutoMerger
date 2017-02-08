@@ -3,29 +3,36 @@
     <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" [helpText]="'Registrer informasjon i feltene under, eller trykk på et av selskapene under for å fylle inn informasjon automatisk. Søket vil oppdatere seg hvis du endrer Firmanavn'"></external-search>
 </section>
 
-<article *ngIf="company">
+<article *ngIf="company$ | async">
 
     <uni-form class="companySettings"
-              [config]="config"
-              [fields]="fields"
-              [model]="company">
+              [config]="config$"
+              [fields]="fields$"
+              [model]="company$">
     </uni-form>
 
     <uni-form class="company"
-              [config]="onlyCompanyConfig"
-              [fields]="onlyCompanyFields"
-              [model]="onlyCompanyModel">
+              [config]="onlyCompanyConfig$"
+              [fields]="onlyCompanyFields$"
+              [model]="onlyCompanyModel$">
     </uni-form>
 
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
         <div class="collapsable-content">
             <uni-image
-                    [entity]="'companysettings'"
-                    [entityID]="1"
-                    [uploadConfig]="imageUploadOptions"
-                    [singleImage]="true"
+                [entity]="'companysettings'"
+                [entityID]="1"
+                [uploadConfig]="imageUploadOptions"
+                [singleImage]="true"
             ></uni-image>
+        </div>
+    </article>
+
+    <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}">
+        <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
+        <div class="collapsable-content">
+            <reminder-settings></reminder-settings>
         </div>
     </article>
 </article>
@@ -33,6 +40,7 @@
 <section style="display:none">
     <br />
     <i>Test knapper før opprettelse av klientdata er helt klart</i><br>
+    <button (click)="syncAll()">Synkroniser kontoplan og mva</button>
     <button (click)="syncAS()">Synkroniser kontoplan</button>
     <button (click)="syncVat()">Synkroniser mva</button>
     <button (click)="syncCurrency()">Last ned valuta</button>

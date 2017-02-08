@@ -6,21 +6,14 @@ declare var _;
     selector: 'uni-tof-head',
     templateUrl: './tofHead.html'
 })
-export class TofHead extends OnChanges{
-    @ViewChild(TofCustomerCard)
-    private customerCard: TofCustomerCard;
+export class TofHead extends OnChanges {
+    @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;
 
-    @Input()
-    public entityName: string;
+    @Input() public entityName: string;
+    @Input() public readonly: boolean;
+    @Input() private data: any; // type?
 
-    @Input()
-    public readonly: boolean;
-
-    @Input()
-    private data: any; // type?
-
-    @Output()
-    public dataChange: EventEmitter<any> = new EventEmitter();
+    @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
     public tabs: string[] = ['Detaljer', 'Levering', 'Dokumenter'];
     public activeTabIndex: number = 0;

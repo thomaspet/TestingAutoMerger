@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import {Component, ViewChild, SimpleChanges} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniForm } from 'uniform-ng2/main';
 import {
@@ -9,7 +9,6 @@ import {
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
 import { UniFieldLayout } from 'uniform-ng2/main';
-
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 
@@ -22,6 +21,7 @@ import {
 	UniCacheService
 } from '../../../../services/services';
 declare var _;
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {BankAccountModal} from '../../../common/modals/modals';
 
 
@@ -33,16 +33,25 @@ import {BankAccountModal} from '../../../common/modals/modals';
 export class PersonalDetails extends UniView {
 
     public busy: boolean;
-    public config: any = {};
-    public fields: any[] = [];
-    public taxFields: any[] = [];
+    public expands: any = [
+        'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.Phones',
+        'BankAccounts',
+    ];
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public taxFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private subEntities: SubEntity[];
-    private employeeTaxCard: EmployeeTaxCard;
+    private employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
+    private employee$: BehaviorSubject<Employee> = new BehaviorSubject(new Employee());
+
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
+
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
     private bankAccountChanged: any;
     private employee: Employee;
@@ -60,13 +69,13 @@ export class PersonalDetails extends UniView {
 
         super(router.url, cacheService);
 
-        this.config = {
+        this.config$.next({
             submitText: '',
             sections: {
                 1: { isOpen: true },
                 2: { isOpen: true }
             }
-        };
+        });
 
         // (re)subscribe when param changes (different tab)
         route.parent.params.subscribe((paramsChange) => {
@@ -77,7 +86,7 @@ export class PersonalDetails extends UniView {
                     return employee;
                 })
                 .subscribe(
-                employee => this.employee = employee,
+                employee => this.employee$.next(employee),
                 err => this.errorService.handle(err)
                 );
             super.getStateSubject('employeeTaxCard')
@@ -86,11 +95,11 @@ export class PersonalDetails extends UniView {
                     return taxCard;
                 })
                 .subscribe(
-                taxCard => this.employeeTaxCard = taxCard,
+                taxCard => this.employeeTaxCard$.next(taxCard),
                 err => this.errorService.handle(err)
                 );
 
-            if (!this.subEntities || !this.fields || !this.fields.length) {
+            if (!this.subEntities || this.fields$.getValue().length === 0) {
                 super.getStateSubject('subEntities')
                     .take(1)
                     .subscribe((subEntity: SubEntity[]) => {
@@ -98,7 +107,7 @@ export class PersonalDetails extends UniView {
                         this.getLayout();
                     }, err => this.errorService.handle(err));
             }
-            if (!this.taxFields || !this.taxFields.length) {
+            if (!this.taxFields$.getValue().length) {
                 Observable.combineLatest(
                     super.getStateSubject('taxCardModalCallback'),
                     super.getStateSubject('employee')
@@ -113,18 +122,17 @@ export class PersonalDetails extends UniView {
     }
 
     private toggleTaxButtonActive(employee: Employee) {
-        if (employee && this.taxFields.length) {
-            let field = this.findByProperty(this.taxFields, 'TaxBtn');
+        if (employee && this.taxFields$.getValue().length) {
+            let taxFields = this.taxFields$.getValue();
+            let field = this.findByProperty(taxFields, 'TaxBtn');
             field.ReadOnly = super.isDirty('employee') || !employee.SocialSecurityNumber;
-            this.taxFields = _.cloneDeep(this.taxFields); // tried without this, didn't update when employee was updated
+            this.taxFields$.next(taxFields); // tried without this, didn't update when employee was updated
         }
     }
 
     private getTaxLayout(taxCardOptions: { openModal: () => void }, employee: Employee) {
         this.employeeTaxCardService.getLayout('EmployeeTaxCardForm').subscribe(layout => {
-
-            this.taxFields = layout.Fields;
-            let taxButton = this.findByProperty(this.taxFields, 'TaxBtn');
+            let taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
             taxButton.Options = {
                 click: (event) => {
                     taxCardOptions.openModal();
@@ -133,11 +141,11 @@ export class PersonalDetails extends UniView {
 
             this.toggleTaxButtonActive(employee);
 
-            let municipality = this.findByProperty(this.taxFields, 'MunicipalityNo');
+            let municipality = this.findByProperty(layout.Fields, 'MunicipalityNo');
             municipality.Options = {
-                getDefaultData: () => this.employeeTaxCard && this.employeeTaxCard.MunicipalityNo
+                getDefaultData: () => this.employeeTaxCard$.getValue() && this.employeeTaxCard$.getValue().MunicipalityNo
                     ? this.municipalService
-                        .GetAll(`filter=MunicipalityNo eq ${this.employeeTaxCard.MunicipalityNo}`)
+                        .GetAll(`filter=MunicipalityNo eq ${this.employeeTaxCard$.getValue().MunicipalityNo}`)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     : Observable.of([]),
                 search: (query: string) => this.municipalService
@@ -154,6 +162,7 @@ export class PersonalDetails extends UniView {
                     + obj.MunicipalityName.substr(1).toLowerCase()}`
                     : ''
             };
+            this.taxFields$.next(layout.Fields);
         }, err => this.errorService.handle(err));
     }
 
@@ -171,8 +180,7 @@ export class PersonalDetails extends UniView {
                     'ID': 1,
                     'Deleted': false
                 }];
-
-                this.fields = layout.Fields;
+                this.fields$.next(layout.Fields);
                 this.extendFormConfig();
 
             }
@@ -186,23 +194,32 @@ export class PersonalDetails extends UniView {
         this.uniform.field('BusinessRelationInfo.Name').focus();
     }
 
-    public onFormChange(employee: Employee) {
+    public onFormChange(change: SimpleChanges) {
+        let employee = this.employee$.getValue();
+        if (employee.BankAccounts[0]) {
+            if (!employee.BankAccounts[0].AccountNumber) {
+                employee.BankAccounts[0].Active = false;
+            } else {
+                employee.BankAccounts[0].Active = true;
+            }
+        }
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
-        this.employee = _.cloneDeep(employee);
+        this.employee$.next(employee);
         super.updateState('employee', employee, true);
     }
 
-    public onTaxFormChange(employeeTaxCard: EmployeeTaxCard) {
-        super.updateState('employeeTaxCard', employeeTaxCard, true);
+    public onTaxFormChange(changes: SimpleChanges) {
+        super.updateState('employeeTaxCard', this.employeeTaxCard$.getValue(), true);
     }
 
     private extendFormConfig() {
-        const subEntityField = this.fields.find(field => field.Property === 'SubEntityID');
+        let fields = this.fields$.getValue();
+        const subEntityField = fields.find(field => field.Property === 'SubEntityID');
         subEntityField.Options.source = this.subEntities;
 
-        let multiValuePhone: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultPhone');
+        let multiValuePhone: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultPhone');
         let phoneModalSubscription;
         multiValuePhone.Options = {
             entity: Phone,
@@ -232,7 +249,7 @@ export class PersonalDetails extends UniView {
             }
         };
 
-        let multiValueEmail: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultEmail');
+        let multiValueEmail: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultEmail');
 
         let emailModalSubscription;
         multiValueEmail.Options = {
@@ -257,7 +274,7 @@ export class PersonalDetails extends UniView {
             })
         };
 
-        let multiValueAddress: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress');
+        let multiValueAddress: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.InvoiceAddress');
 
         let addressModalSubscription;
         multiValueAddress.Options = {
@@ -283,13 +300,14 @@ export class PersonalDetails extends UniView {
             }),
             display: (address: Address) => {
 
-                let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '') + (address.PostalCode || '') + ' ' + (address.City || '') + (address.CountryCode ? ', ' + address.CountryCode : '');
+                let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '')
+                    + (address.PostalCode || '') + ' ' + (address.City || '')
+                    + (address.CountryCode ? ', ' + address.CountryCode : '');
                 return displayVal;
             }
 
         };
-
-        let defaultBankAccount: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultBankAccount');
         defaultBankAccount.Options = {
             entity: 'BankAccount',
             listProperty: 'BusinessRelationInfo.BankAccounts',
@@ -312,6 +330,7 @@ export class PersonalDetails extends UniView {
                 });
             })
         };
+        this.fields$.next(fields);
     }
 
     private findByProperty(fields, name): UniFieldLayout {
@@ -320,12 +339,13 @@ export class PersonalDetails extends UniView {
     }
 
     private updateInfoFromSSN() {
-        if (this.employee.SocialSecurityNumber && this.employee.SocialSecurityNumber.length === 11) {
+        let employee = this.employee$.getValue();
+        if (employee.SocialSecurityNumber && employee.SocialSecurityNumber.length === 11) {
 
-            let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
-            let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);
-            let year: number = +this.employee.SocialSecurityNumber.substring(4, 6);
-            let controlNumbers: number = +this.employee.SocialSecurityNumber.substring(6, 9);
+            let day: number = +employee.SocialSecurityNumber.substring(0, 2);
+            let month: number = +employee.SocialSecurityNumber.substring(2, 4);
+            let year: number = +employee.SocialSecurityNumber.substring(4, 6);
+            let controlNumbers: number = +employee.SocialSecurityNumber.substring(6, 9);
 
             let yearToday = +new Date().getFullYear().toString().substring(2, 4);
 
@@ -338,13 +358,12 @@ export class PersonalDetails extends UniView {
                 if (month > 0) {
                     month -= 1;
                 }
-                this.employee.BirthDate = new Date(year, month, day, 12);
+                employee.BirthDate = new Date(year, month, day, 12);
             }
 
-            this.employee.Sex = (controlNumbers % 2) + 1;
-
-            this.employee = _.cloneDeep(this.employee);
-            super.updateState('employee', this.employee, true);
+            employee.Sex = (controlNumbers % 2) + 1;
+            this.employee$.next(employee);
+            super.updateState('employee', employee, true);
         }
 
     }

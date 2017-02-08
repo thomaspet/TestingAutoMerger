@@ -7,7 +7,7 @@
         <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="showSearch(customerID)"></external-search>
     </section>
 
-    <div class="horizontal_nav" *ngIf="customer?.ID">
+    <div class="horizontal_nav" *ngIf="(customer$|async)?.ID">
         <ul>
             <li>
                 <a [class]="activeTab === 'details' ? 'router-link-active' : ''"
@@ -31,19 +31,19 @@
     </div>
 
 </header>
-<section *ngIf='customer' class="customer-details application">
+<section class="customer-details application">
     <uni-form *ngIf="activeTab === 'details'"
-              [config]="config"
-              [fields]="fields"
-              [model]="customer">
+              [config]="config$"
+              [fields]="fields$"
+              [model]="customer$">
     </uni-form>
-    <ledger-account-reconciliation [customerID]="customer.ID" *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
+    <ledger-account-reconciliation [customerID]="(customer$ | async)?.ID" *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"
             [ngClass]="{'hidden': showReportWithID != link.id}"
             [queryDefinitionID]="link.id"
-            [externalID]="customer.ID"
+            [externalID]="(customer$ | async)?.ID"
     ></uni-query-read-only>
 
 </section>

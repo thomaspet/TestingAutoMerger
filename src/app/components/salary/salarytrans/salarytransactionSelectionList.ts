@@ -5,7 +5,7 @@ import { UniHttp } from '../../../../framework/core/http/http';
 import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard } from '../../../unientities';
 import { ISummaryConfig } from '../../common/summary/summary';
 import { UniView } from '../../../../framework/core/uniView';
-import {SalaryTransactionEmployeeList} from './salarytransList';
+import { SalaryTransactionEmployeeList } from './salarytransList';
 import {
     EmployeeService,
     PayrollrunService,
@@ -15,11 +15,12 @@ import {
     ErrorService,
     SalarySumsService
 } from '../../../services/services';
+
 declare var _;
 
 @Component({
     selector: 'salarytrans',
-    templateUrl: './salarytransactionSelectionList.html'
+    templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
 })
 
 export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
@@ -87,41 +88,35 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
             .setCls('icon-column')
             .setTemplate((rowModel: Employee) => {
-                if (rowModel.BankAccounts) {
-                    let error = '';
-                    let taxError = !rowModel.TaxCards
-                        || !rowModel.TaxCards.length
-                        || (!rowModel.TaxCards[0].TaxTable
-                            && !rowModel.TaxCards[0].TaxPercentage);
-                    let accountError = (!rowModel.BankAccounts)
-                        || !rowModel.BankAccounts.some(x => x.Active === true);
-                    let notUpdated = !taxError
-                        && rowModel.TaxCards
-                        && this.payrollRun
-                        && rowModel.TaxCards[0].Year < new Date(<any> this.payrollRun.PayDate).getFullYear();
+                let error = '';
+                let taxError = !rowModel.TaxCards
+                    || !rowModel.TaxCards.length
+                    || (!rowModel.TaxCards[0].TaxTable
+                        && !rowModel.TaxCards[0].TaxPercentage);
+                let accountError = !rowModel.BusinessRelationInfo.DefaultBankAccountID;
+                let notUpdated = !taxError
+                    && rowModel.TaxCards
+                    && this.payrollRun
+                    && rowModel.TaxCards[0].Year < new Date(this.payrollRun.PayDate).getFullYear();
 
-                    if (taxError || accountError || notUpdated) {
-                        if (accountError && taxError) {
-                            error = 'Skatteinfo og kontonummer mangler.';
-                        } else if (accountError) {
-                            error = 'Kontonummer mangler. ';
-                        } else if (taxError) {
-                            error = 'Skatteinfo mangler. ';
-                        }
-                        if (notUpdated) {
-                            error += 'Skattekort er ikke oppdatert';
-                        }
-                        return '{#<em class="missing-info" title="'
-                            + error
-                            + '" role="presentation">'
-                            + error
-                            + '</em>#}';
-                    } else {
-                        return "{#<em role='presentation'></em>#}# ";
+                if (taxError || accountError || notUpdated) {
+                    if (accountError && taxError) {
+                        error = 'Skatteinfo og kontonummer mangler.';
+                    } else if (accountError) {
+                        error = 'Kontonummer mangler. ';
+                    } else if (taxError) {
+                        error = 'Skatteinfo mangler. ';
                     }
-
+                    if (notUpdated) {
+                        error += 'Skattekort er ikke oppdatert';
+                    }
+                    return '{#<em class="missing-info" title="'
+                        + error
+                        + '" role="presentation">'
+                        + error
+                        + '</em>#}';
                 } else {
-                    return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
+                    return "{#<em role='presentation'></em>#}# ";
                 }
             })
             .setWidth('2rem');
@@ -216,15 +211,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         }
     }
 
-    public noActiveBankAccounts(): boolean {
-        return !this.employeeList[this.selectedIndex].BankAccounts.some(x => x.Active === true);
-    }
-
     public generateErrorMessage(): string {
         let employee: Employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
         let error = `Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet for ${employee.BusinessRelationInfo.Name}</a> for å legge inn `;
-        let noBankAccounts = (!employee.BankAccounts) || this.noActiveBankAccounts();
+        let noBankAccounts = !employee.BusinessRelationInfo.DefaultBankAccountID;
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
 
         if (noBankAccounts && noTax) {
@@ -242,7 +233,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
-        let notUpdated = !noTax && this.payrollRun && taxCard.Year < new Date(<any> this.payrollRun.PayDate).getFullYear();
+        let notUpdated = !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
         let ret: string = '';
         if (notUpdated) {
             ret += 'Skattekort er ikke oppdatert.';
@@ -258,13 +249,13 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
-        return !noTax && this.payrollRun && taxCard.Year < new Date(<any> this.payrollRun.PayDate).getFullYear();
+        return !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
     }
 
     public hasError(): boolean {
         let employee: Employee = this.employeeList[this.selectedIndex];
         let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
-        let noBankAccounts = (!employee.BankAccounts) || this.noActiveBankAccounts();
+        let noBankAccounts = !employee.BusinessRelationInfo.DefaultBankAccountID;
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
 
         return noBankAccounts || noTax;

@@ -1,8 +1,9 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {UniForm} from 'uniform-ng2/main';
-import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {UniForm, FieldType} from 'uniform-ng2/main';
+import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
-declare var _;
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+declare const _;
 
 @Component({
     selector: 'tax-card-request',
@@ -18,15 +19,16 @@ export class TaxCardRequest {
     public error: string = '';
     public isActive: boolean = false;
 
-    @Input()
-    private employeeID: number;
+    @Input() private employeeID: number;
 
-    @Output()
-    public newReceipt: EventEmitter<boolean> = new EventEmitter<boolean>(true);
+    @Output() public newReceipt: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
-    public model: { singleEmpChoice: number, multiEmpChoice: number } = { singleEmpChoice: 1, multiEmpChoice: 1 };
-    public fields: FieldLayout[] = [];
-    public formConfig: any = {};
+    public model$: BehaviorSubject<{
+        singleEmpChoice: number,
+        multiEmpChoice: number
+    }> = new BehaviorSubject({ singleEmpChoice: 1, multiEmpChoice: 1 });
+    public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     @ViewChild(UniForm)
     public uniform: UniForm;
@@ -53,7 +55,7 @@ export class TaxCardRequest {
         this.title = 'Send forespørsel om skattekort';
         this.exitButton = 'Avbryt';
         this.error = '';
-        this.model = { singleEmpChoice: 1, multiEmpChoice: 1 };
+        this.model$.next({ singleEmpChoice: 1, multiEmpChoice: 1 });
         var singleChoice: any = {
             FieldSet: 0,
             Section: 0,
@@ -91,13 +93,13 @@ export class TaxCardRequest {
                 valueProperty: 'id'
             }
         };
-        this.fields = [singleChoice, multipleChoice];
+        this.fields$.next([singleChoice, multipleChoice]);
         this.busy = false;
     }
 
     public submit() {
-        if (this.model.singleEmpChoice === 2) {
-            switch (this.model.multiEmpChoice) {
+        if (this.model$.getValue().singleEmpChoice === 2) {
+            switch (this.model$.getValue().multiEmpChoice) {
                 case 1:
                     this.taxRequest('ALL_EMPS');
                     break;
@@ -144,14 +146,15 @@ export class TaxCardRequest {
 
     }
 
-    public change(value) {
+    public change(changes: SimpleChanges) {
         this.uniform.Hidden = false;
-        if (this.model.singleEmpChoice === 2) {
-            this.fields[1].Hidden = false;
+        let fields = this.fields$.getValue();
+        if (this.model$.getValue().singleEmpChoice === 2) {
+            fields[1].Hidden = false;
         } else {
-            this.fields[1].Hidden = true;
+            fields[1].Hidden = true;
         }
-        this.fields = _.cloneDeep(this.fields);
+        this.fields$.next(fields);
     }
 
     public close() {

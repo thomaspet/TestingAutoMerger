@@ -1,11 +1,12 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
+import {Altinn, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService} from '../common/subEntityService';
 import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {

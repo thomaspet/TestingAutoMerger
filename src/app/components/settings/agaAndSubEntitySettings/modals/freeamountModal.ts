@@ -2,9 +2,9 @@ import { Component, AfterViewInit, ViewChild, Type, Input } from '@angular/core'
 import { UniModal } from '../../../../../framework/modals/modal';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { GrantService, SubEntityService, ErrorService } from '../../../../services/services';
-import { FieldType } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout } from 'uniform-ng2/main';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 
 @Component({
     selector: 'freeamount-modal-content',
@@ -15,9 +15,11 @@ export class FreeamountModalContent {
     private freeamountTableConfig: UniTableConfig;
     private freeamountData: any[] = [];
 
-    private freeamountModel: any = {};
-    private fields: any[] = [];
-    private formConfig: any = {submitText: ''};
+    //
+    // Jorge: can't understand why model is not used. Which is then the point of the form?
+    private freeamountModel$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any>= new BehaviorSubject({submitText: ''});
 
     constructor(
         private _subentityService: SubEntityService,
@@ -75,7 +77,7 @@ export class FreeamountModalContent {
         totalFreeamountField.Options = null;
         totalFreeamountField.ReadOnly = true;
 
-        this.fields = [totalFreeamountField];
+        this.fields$.next([totalFreeamountField]);
     }
 }
 

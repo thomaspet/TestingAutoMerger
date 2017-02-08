@@ -22,6 +22,7 @@ export class UniModal implements AfterViewInit {
     @Output('close') public closeEvent: EventEmitter<any> = new EventEmitter();
     @Input('config') public config: any;
     @Input('type') public componentType: Type<any>;
+    @Input('destroyOnClose') public destroyOnClose: boolean;
     @ViewChild('modalContainer', {read: ViewContainerRef}) public container: ViewContainerRef;
 
     private isOpen: boolean = false;
@@ -81,6 +82,10 @@ export class UniModal implements AfterViewInit {
     public close() {
         this.isOpen = false;
         this.closeEvent.emit();
+        if (this.destroyOnClose) {
+            this.container.clear();
+            this.componentIsResolved = false;
+        }
     }
 
     public getContent() {

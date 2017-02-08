@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnChanges } from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
 import { Employment, Account, SubEntity, Project, Department } from '../../../../unientities';
 import { UniForm } from 'uniform-ng2/main';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {
     EmployeeService,
     ErrorService,
@@ -16,38 +17,28 @@ declare var _;
     selector: 'employment-details',
     template: `
         <section *ngIf="employment" [attr.aria-busy]="busy">
-            <uni-form *ngIf="employment"
-                      [config]="config"
-                      [fields]="fields"
-                      [model]="employment"
+            <uni-form [config]="config$"
+                      [fields]="fields$"
+                      [model]="employment$"
                       (changeEvent)="onFormChange($event)">
             </uni-form>
         </section>
     `
 })
 export class EmploymentDetails implements OnChanges {
-    @ViewChild(UniForm)
-    private form: UniForm;
+    @ViewChild(UniForm) private form: UniForm;
 
-    @Input()
-    private employment: Employment;
+    @Input() private employment: Employment;
+    @Input() private subEntities: SubEntity[];
+    @Input() private projects: Project[];
+    @Input() private departments: Department[];
 
-    @Input()
-    private subEntities: SubEntity[];
+    @Output() private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
-    @Input()
-    private projects: Project[];
-
-    @Input()
-    private departments: Department[];
-
-    @Output()
-    private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
-
-    private config: any = {};
-    private fields: UniFieldLayout[] = [];
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formReady: boolean;
-
+    private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment())
     constructor(
         private employeeService: EmployeeService,
         private employmentService: EmploymentService,
@@ -57,9 +48,17 @@ export class EmploymentDetails implements OnChanges {
     ) {
     }
 
+    public ngOnInit() {
+        this.employment$.next(this.employment);
+    }
+
     public ngOnChanges(change) {
         if (!this.formReady) {
             this.buildForm();
+        }
+
+        if (change['employment'] && change['employment'].currentValue) {
+            this.employment$.next(change['employment'].currentValue);
         }
 
         if (change['subEntities'] && change['subEntities'].currentValue) {
@@ -78,14 +77,13 @@ export class EmploymentDetails implements OnChanges {
     private buildForm() {
         this.employmentService.layout('EmploymentDetails').subscribe((layout: any) => {
             // Expand A-meldings section by default
-            this.config = {
+            this.config$.next({
                 sections: {
                     '1': { isOpen: true }
                 }
-            };
+            });
 
-            this.fields = layout.Fields;
-            let jobCodeField = this.fields.find(field => field.Property === 'JobCode');
+            let jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
                 getDefaultData: () => this.employment
                     ? this.statisticsService
@@ -108,37 +106,44 @@ export class EmploymentDetails implements OnChanges {
                     }
                 }
             };
-            let ledgerAccountField = this.fields.find(field => field.Property === 'LedgerAccount');
+            let ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
             let accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
                 ? this.accountService.GetAll(`filter=AccountNumber eq ${this.employment.LedgerAccount}` + '&top=1')
                 : Observable.of([{ AccountName: '', AccountNumber: null }]);
             ledgerAccountField.Options = {
                 getDefaultData: () => accountObs,
-                search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+                search: (query: string) => {
+                    const filter = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
+                    return this.accountService.GetAll(filter);
+                },
                 displayProperty: 'AccountName',
                 valueProperty: 'AccountNumber',
                 template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             };
-
+            this.fields$.next(layout.Fields);
             this.formReady = true;
         }, err => this.errorService.handle(err));
     }
 
     private setSourceOn(searchField: string, source: any) {
-        const currentField = this.fields.find(field => field.Property === searchField);
+        let fields = this.fields$.getValue();
+        let currentField = fields.find(field => field.Property === searchField);
         if (currentField) {
             currentField.Options.source = source;
         }
+        this.fields$.next(fields);
     }
 
     private updateTitle(styrk) {
         if (styrk) {
-            this.statisticsService.GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
+            this.statisticsService
+                .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
                 .map(x => x.Data)
                 .subscribe(styrkObjArray => {
                     if (styrkObjArray && styrkObjArray.length > 0) {
-                        this.employment.JobName = styrkObjArray[0].tittel;
-                        this.employment = _.cloneDeep(this.employment);
+                        let employment = this.employment$.getValue();
+                        employment.JobName = styrkObjArray[0].tittel;
+                        this.employment$.next(employment);
 
                         setTimeout(() => {
                             this.form.field('WorkPercent').focus();
@@ -148,7 +153,7 @@ export class EmploymentDetails implements OnChanges {
         }
     }
 
-    private onFormChange(value: Employment) {
-        this.employmentChange.emit(value);
+    private onFormChange(value: SimpleChanges) {
+        this.employmentChange.emit(this.employment$.getValue());
     }
 }

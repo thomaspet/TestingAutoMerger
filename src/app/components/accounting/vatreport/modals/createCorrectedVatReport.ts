@@ -1,8 +1,12 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
-import {FieldLayout, Period, VatReport, FieldType} from '../../../../../app/unientities';
+import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
 import {
     PeriodService,
     VatReportService,
@@ -14,7 +18,7 @@ import {
     template: `
         <article class='modal-content' *ngIf="config">
             <h1>{{title}}</h1>
-            <uni-form [config]="formConfig" [fields]="fields" [model]="model" (submitEvent)="onSubmit($event)"></uni-form>
+            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (submitEvent)="onSubmit($event)"></uni-form>
             <p>{{error}}</p>
             <footer>
                 <button *ngIf="createButtonVisible" (click)="submit()">Opprett endringsmelding</button>
@@ -30,9 +34,9 @@ export class CreateCorrectedVatReportForm implements OnInit {
 
     @Output() public formSubmitted: EventEmitter<number> = new EventEmitter<number>();
 
-    public fields: FieldLayout[] = [];
-    public model: { correctionChoice: number } = { correctionChoice: 1 };
-    public formConfig: any = {};
+    public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{ correctionChoice: number }> = new BehaviorSubject({ correctionChoice: 1 });
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public title: string = 'Opprett endringsmelding';
     public error: string = '';
     public exitButton: string = 'Avbryt';
@@ -76,11 +80,11 @@ export class CreateCorrectedVatReportForm implements OnInit {
                 valueProperty: 'id'
             }
         };
-        this.fields = [radioGroup];
+        this.fields$.next([radioGroup]);
     }
 
     public submit() {
-        switch (this.model.correctionChoice) {
+        switch (this.model$.getValue().correctionChoice) {
             case 1:
                 console.log('submit() this.model.correctionChoice 1 for periodID: ' + this.period.ID);
                 this.createAdjustedVatReport();
@@ -140,7 +144,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
     }
 
     public onSubmit() {
-        this.formSubmitted.emit(this.model.correctionChoice);
+        this.formSubmitted.emit(this.model$.getValue().correctionChoice);
     }
 
     public close() {
@@ -213,7 +217,7 @@ export class CreateCorrectedVatReportModal {
 
                     modalContent.vatReportID = this.vatReportID;
                     modalContent.period = this.period;
-                    modalContent.model = { correctionChoice: 1 };
+                    modalContent.model$.next({ correctionChoice: 1 });
                     modalContent.title = 'Opprett endringsmelding for termin: ' + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
                 });
             },

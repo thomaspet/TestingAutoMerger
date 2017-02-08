@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Account, VatType} from '../../unientities';
+import {Account, VatType, AccountGroup} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {StatisticsService} from '../common/statisticsService';
 
@@ -21,8 +21,7 @@ export class AccountService extends BizHttp<Account> {
 
     public searchAccounts(filter: string, top: number = 500) {
         filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
-
-        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter} &orderby=AccountNumber&expand=VatType&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter} &orderby=AccountNumber&expand=VatType,TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,TopLevelAccountGroup.GroupNumber,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
     }
@@ -40,6 +39,10 @@ export class AccountService extends BizHttp<Account> {
             account.CustomerID = data.AccountCustomerID;
             account.SupplierID = data.AccountSupplierID;
             account.UseDeductivePercent = data.AccountUseDeductivePercent;
+            if (data.TopLevelAccountGroupGroupNumber) {
+                account.TopLevelAccountGroup = new AccountGroup();
+                account.TopLevelAccountGroup.GroupNumber = data.TopLevelAccountGroupGroupNumber;
+            }
 
             if (data.VatTypeID) {
                 account.VatType = new VatType();

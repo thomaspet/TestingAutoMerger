@@ -2,8 +2,8 @@
 
     <article class="poster_toolbar">
         <section>
-            <h1>{{project?.ID ? project.Name : 'Nytt prosjekt'}}</h1>
-            <p>{{project?.ID ? 'Prosjektnr. ' + project.ProjectNumber : '&nbsp;'}}</p>
+            <h1>{{(project$ | async)?.ID ? (project$ | async).Name : 'Nytt prosjekt'}}</h1>
+            <p>{{(project$ | async)?.ID ? 'Prosjektnr. ' + (project$ | async).ProjectNumber : '&nbsp;'}}</p>
         </section>
 
         <nav class="poster_toolbar_tools">
@@ -15,10 +15,9 @@
 </header>
 
 <section class="supplier-details application">
-    <uni-form *ngIf='project'
-              [config]="config"
-              [fields]="fields"
-              [model]="project">
+    <uni-form [config]="config$"
+              [fields]="fields$"
+              [model]="project$">
     </uni-form>
 </section>
 

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { PayrollRun, FieldType, VacationPayInfo, TaxDrawFactor, EmployeeCategory } from '../../../unientities';
+import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../../common/errorService';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
@@ -112,6 +113,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asGET()
             .withEndPoint(this.relativeURL + '/' + ID)
             .send({ action: 'paymentlist' })
+            .map(response => response.json());
+    }
+
+    public sendPaymentList(payrollrunID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asPOST()
+            .withEndPoint(this.relativeURL + '/' + payrollrunID)
+            .send({ action: 'sendpaymentlist'})
             .map(response => response.json());
     }
 
@@ -453,7 +463,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'ExcludeRecurringPosts',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT, // FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fastlønnsposter utelates',
@@ -488,7 +498,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'HolidayPayDeduction',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT, // FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Trekk i fastlønn for ferie',
@@ -510,7 +520,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: '1',
                     Placement: 4,
                     Hidden: true,
-                    FieldType: FieldType.MULTISELECT, // FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: true,
                     LookupField: false,
                     Label: 'Ansatte med negativ lønn utelates',

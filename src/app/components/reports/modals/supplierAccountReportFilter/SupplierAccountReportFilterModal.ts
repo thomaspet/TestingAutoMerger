@@ -1,9 +1,10 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService, ErrorService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'supplier-account-report-filter-form',
@@ -13,8 +14,9 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 export class SupplierAccountReportFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: UniFieldLayout[];
-    public model: {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{
         FromAccountNumber: number,
         ToAccountNumber: number,
         PeriodAccountYear: number,
@@ -24,7 +26,7 @@ export class SupplierAccountReportFilterForm implements OnInit {
         HideAccounts: boolean,
         OrderBy: string,
         ShowFilter: string
-    } = {
+    }> = new BehaviorSubject({
         FromAccountNumber: 200000,
         ToAccountNumber: 299999,
         PeriodAccountYear: new Date().getFullYear(),
@@ -34,7 +36,7 @@ export class SupplierAccountReportFilterForm implements OnInit {
         HideAccounts: false,
         OrderBy: 'SupplierNrAndJournalNr',
         ShowFilter: 'withoutCorrections'
-    };
+    });
 
     private typeOfOrderBy: { ID: string, Label: string }[] = [
         { ID: 'SupplierNrAndJournalNr', Label: 'Leverandørnr og bilagsnr' },
@@ -55,12 +57,17 @@ export class SupplierAccountReportFilterForm implements OnInit {
     }
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
+        this.config$.next(this.config);
+        this.fields$.next(this.getComponentFields());
         this.yearService.getActiveYear().subscribe(res => {
-            this.model.PeriodAccountYear = res;
+            let model = this.model$.getValue();
+            model.PeriodAccountYear = res;
+            this.model$.next(model);
         });
-        if (this.model.PeriodAccountYear) {
-            this.model.PeriodAccountLastYear = this.model.PeriodAccountYear - 1;
+        if (this.model$.getValue().PeriodAccountYear) {
+            let model = this.model$.getValue();
+            model.PeriodAccountLastYear = model.PeriodAccountYear - 1;
+            this.model$.next(model);
         }
     }
 
@@ -159,13 +166,13 @@ export class SupplierAccountReportFilterModal {
                                     case 'ToPeriodNo':
                                     case 'PeriodAccountYear':
                                     case 'PeriodAccountLastYear':
-                                        parameter.value = component.model[parameter.Name];
+                                        parameter.value = component.model$.getValue()[parameter.Name];
                                         break;
                                     case 'PeriodAccountLastYear':
-                                        parameter.value = component.model['PeriodAccountYear'] - 1;
+                                        parameter.value = component.model$.getValue()['PeriodAccountYear'] - 1;
                                         break;
                                     case 'OrderBy':
-                                        switch (component.model['OrderBy']) {
+                                        switch (component.model$.getValue()['OrderBy']) {
                                             case 'SupplierNrAndJournalNr':
                                             case 'SupplierNameAndJournalNr':
                                                 parameter.value = 'JournalEntryNumber';
@@ -177,7 +184,7 @@ export class SupplierAccountReportFilterModal {
                                         }
                                         break;
                                     case 'OrderByGroup':
-                                        switch (component.model['OrderBy']) {
+                                        switch (component.model$.getValue()['OrderBy']) {
                                             case 'SupplierNameAndJournalNr':
                                             case 'SupplierNameAndDate':
                                                 parameter.value = 'name';

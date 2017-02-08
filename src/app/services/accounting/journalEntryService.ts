@@ -4,7 +4,7 @@ import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel} from '../../unientities';
+import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -29,7 +29,6 @@ import * as moment from 'moment';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
-    private JOURNALENTRYMODE_LOCALSTORAGE_KEY: string = 'PreferredJournalEntryMode';
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
     private JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY: string = 'JournalEntrySettings';
 
@@ -40,26 +39,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         this.DefaultOrderBy = null;
     }
 
-    public getJournalEntryMode(): string {
-        let mode = this.storageService.get(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY);
-
-        if (!mode) {
-            mode = 'PROFESSIONAL';
-        }
-
-        if (mode !== 'SIMPLE' && mode !== 'PROFESSIONAL') {
-            mode = 'PROFESSIONAL';
-        }
-
-        return mode;
-    }
-
-    public setJournalEntryMode(newMode: string) {
-        this.storageService.save(this.JOURNALENTRYMODE_LOCALSTORAGE_KEY, newMode);
-    }
-
-    public getJournalEntrySettings(): JournalEntrySettings {
-        let settingsJson = this.storageService.get(this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY);
+    public getJournalEntrySettings(mode: number): JournalEntrySettings {
+        let settingsJson = this.storageService.get(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`);
         let settings: JournalEntrySettings;
 
         if (!settingsJson) {
@@ -72,8 +53,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return settings;
     }
 
-    public setJournalEntrySettings(settings: JournalEntrySettings) {
-        this.storageService.save(this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY, JSON.stringify(settings));
+    public setJournalEntrySettings(settings: JournalEntrySettings, mode: number) {
+        this.storageService.save(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`, JSON.stringify(settings));
     }
 
     public getSessionData(mode: number): Array<JournalEntryData> {
@@ -120,10 +101,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+
+        // don't post lines that are already posted again
+        let journalEntriesNew = journalDataEntries.filter(x => !x.StatusCode);
+
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withBody(journalDataEntries)
+            .withBody(journalEntriesNew)
             .withEndPoint(this.relativeURL + '?action=post-journal-entry-data')
             .send()
             .map(response => response.json());
@@ -139,7 +124,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>): ValidationResult {
+    public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>, companySettings: CompanySettings): ValidationResult {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
@@ -150,6 +135,30 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             message.Level = ValidationLevel.Error;
             message.Message = 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene';
             result.Messages.push(message);
+        }
+
+        if (companySettings && companySettings.AccountingLockedDate) {
+            let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
+                && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
+
+            if (invalidDates.length > 0) {
+                let message = new ValidationMessage();
+                message.Level = ValidationLevel.Error;
+                message.Message = `Regnskapet er låst til ${moment(companySettings.AccountingLockedDate).format('L')}, ${invalidDates.length} linje${invalidDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                result.Messages.push(message);
+            }
+        }
+        if (companySettings && companySettings.VatLockedDate) {
+
+            let invalidVatDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
+                && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate)));
+
+            if (invalidVatDates.length > 0) {
+                let message = new ValidationMessage();
+                message.Level = ValidationLevel.Error;
+                message.Message = `MVA er låst til ${moment(companySettings.VatLockedDate).format('L')}, ${invalidVatDates.length} linje${invalidVatDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                result.Messages.push(message);
+            }
         }
 
         let sortedJournalEntries = journalDataEntries.sort((a, b) => a.JournalEntryNo > b.JournalEntryNo ? 1 : 0);
@@ -172,6 +181,26 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 currentSumCredit = 0;
                 currentSumDebit = 0;
                 lastJournalEntryFinancialDate = null;
+            }
+
+            if (entry.JournalEntryDataAccrual) {
+                let isDebitResultAccount = (entry.DebitAccount && entry.DebitAccount.TopLevelAccountGroup
+                    && entry.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
+                let isCreditResultAccount = (entry.CreditAccount && entry.CreditAccount.TopLevelAccountGroup
+                    && entry.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
+
+                if ((isDebitResultAccount && isCreditResultAccount) ||
+                    (!isDebitResultAccount && !isCreditResultAccount)) {
+
+                    let message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    if(isDebitResultAccount) {
+                        message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
+                    } else {
+                        message.Message = `Bilag ${lastJournalEntryNo} har en periodisering uten resultatkonto `;
+                    }
+                    result.Messages.push(message);
+                }
             }
 
             let financialYearEntry: FinancialYear;
@@ -303,7 +332,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         filter = `(${filter}) ` +
-                `and (isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
+                `and (( isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 and Period.AccountYear le ${currentFinancialYear.Year}) or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
 
         return this.statisticsService.GetAll(`model=JournalEntryLine` +
             `&expand=Account.TopLevelAccountGroup,SubAccount,Period` +

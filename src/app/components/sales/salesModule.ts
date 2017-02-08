@@ -28,6 +28,11 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
+import {Reminder} from './reminder/reminder';
+import {ReminderList} from './reminder/list/reminderList';
+import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/ReminderConfirmModal';
+import {ReminderSendingModal, ReminderSendingModalContent} from './reminder/sending/reminderSendingModal';
+import {ReminderSending} from './reminder/sending/reminderSending';
 
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
@@ -88,11 +93,22 @@ import {UniSearchModule} from 'unisearch-ng2';
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
         QuoteDetails,
-        QuoteList
+        QuoteList,
+        Reminder,
+        ReminderList,
+        ReminderConfirmModal,
+        ReminderConfirmForm,
+        ReminderSending,
+        ReminderSendingModalContent,
+        ReminderSendingModal
+
     ],
     entryComponents: [
         OrderToInvoiceModalType,
-        OrderToInvoiceTable
+        OrderToInvoiceTable,
+        ReminderConfirmForm,
+        ReminderSendingModalContent,
+        ReminderSending
     ],
     providers: [
         TradeItemHelper,
@@ -114,7 +130,19 @@ import {UniSearchModule} from 'unisearch-ng2';
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
         QuoteDetails,
+        QuoteList,
+        SupplierDetailsModal,
+        SupplierDetails,
+        SupplierList
         QuoteList
+        QuoteList,
+        SupplierDetailsModal,
+        SupplierDetails,
+        SupplierList,
+        Reminder,
+        ReminderList,
+        ReminderSending,
+        ReminderSendingModal
     ]
 })
 export class SalesModule {

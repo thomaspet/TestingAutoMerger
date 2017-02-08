@@ -7,6 +7,7 @@ import {ChangeMap} from '../../utils/changeMap';
 import {Observable} from 'rxjs/Observable';
 import {IResult} from '../../genericview/detail';
 import {ErrorService} from '../../../../services/services';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'vacation',
@@ -26,16 +27,16 @@ export class View {
     private initialized: boolean = false;
     public hasUnsavedChanges: boolean = false;
 
-    public formConfig: any = {};
-    public layout: any;
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public layout$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     public parentId: number = 0;
-    public current: WorkTimeOff = new WorkTimeOff();
+    public current$: BehaviorSubject<WorkTimeOff> = new BehaviorSubject(new WorkTimeOff());
 
     private changeMap: ChangeMap = new ChangeMap();
 
     constructor(private workerService: WorkerService, private router: Router, private errorService: ErrorService) {
-        this.layout = this.createLayout();
+        this.layout$.next(this.createLayout());
     }
 
     public ngOnInit() {
@@ -47,31 +48,31 @@ export class View {
     }
 
     public onChange(event: any) {
-        this.valueChange.emit(this.current);
-        var ix = this.items.indexOf(this.current);
-        this.changeMap.add(ix, this.current);
+        this.valueChange.emit(this.current$.getValue());
+        var ix = this.items.indexOf(this.current$.getValue());
+        this.changeMap.add(ix, this.current$.getValue());
         this.hasUnsavedChanges = true;
     }
 
     public onItemClicked(item: WorkTimeOff) {
         this.flagSelected(item);
-        this.current = item;
+        this.current$.next(item);
     }
 
     private flagSelected(item: any) {
         item._isSelected = true;
-        (<any>this.current)._isSelected = false;
+        (<any>this.current$.getValue())._isSelected = false;
     }
 
     public onAddNew() {
-        var item: WorkTimeOff = this.layout.data.factory();
+        var item: WorkTimeOff = this.layout$.getValue().data.factory();
         item.TimeoffType = 2; // Vacation
         item.Description = 'Ny ferie';
         item.WorkRelationID = this.parentId;
         this.items.push(item);
         this.onItemClicked(item);
-        this.changeMap.add(this.items.indexOf(item), this.current);
-        this.valueChange.emit(this.current);
+        this.changeMap.add(this.items.indexOf(item), this.current$.getValue());
+        this.valueChange.emit(this.current$.getValue());
     }
 
     public onReset() {
@@ -80,7 +81,7 @@ export class View {
     }
 
     public onDelete() {
-        var rel = this.current;
+        var rel = this.current$.getValue();
         if (rel) {
             if (rel.ID) {
                 this.changeMap.addRemove(rel.ID, rel);
@@ -97,7 +98,7 @@ export class View {
                 this.onItemClicked(this.items[ix]);
             } else {
                 if (this.items.length === 0) {
-                    this.current = this.layout.data.factory();
+                    this.current$.next(this.layout$.getValue().data.factory());
                 } else {
                     this.onItemClicked(this.items[this.items.length - 1]);
                 }
@@ -175,7 +176,7 @@ export class View {
 
     private loadList() {
         if (!this.initialized) { return; }
-        this.current = this.layout.data.factory();
+        this.current$.next(this.layout$.getValue().data.factory());
         if (this.parentId) {
             this.busy = true;
             this.workerService.get<WorkTimeOff>('worktimeoff',
@@ -200,7 +201,7 @@ export class View {
                 route: 'worktimeoff',
                 factory: () => { return new WorkTimeOff(); }
             },
-            formFields: [
+            Fields: [
                 createFormField('Description', 'Beskrivelse av ferie/fri',  ControlTypes.TextInput, FieldSize.Full),
                 createFormField('FromDate', 'Fra og med dato',  ControlTypes.LocalDate, FieldSize.Double ),
                 createFormField('ToDate', 'Til og med dato',  ControlTypes.LocalDate, FieldSize.Double )

@@ -115,6 +115,7 @@ export class EmployeeLeaves extends UniView {
                     this.mapEmploymentToPermision(row);
                 } else if (this.employments && !row.ID && !row['_isDirty']) {
                     row.Employment = this.employments.find(x => x.Standard);
+                    row['LeaveType'] = this.leaveTypes[0].typeID;
                     row.EmploymentID = row.Employment ? row.Employment.ID : undefined;
                 }
 

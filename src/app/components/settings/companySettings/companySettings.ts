@@ -1,14 +1,15 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
-import {UniForm} from 'uniform-ng2/main';
+import {UniForm, FieldType, UniField} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {
-    CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account,
+    CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, AccountGroup, Account,
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
 import {BankAccountModal} from '../../common/modals/modals';
@@ -16,7 +17,7 @@ import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
-import {UniField} from 'uniform-ng2/main';
+import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
     CompanySettingsService,
     CurrencyService,
@@ -47,6 +48,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
+    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -61,8 +63,8 @@ export class CompanySettingsComponent implements OnInit {
         'DefaultSalesAccount'
     ];
 
-    private company: CompanySettings;
-    public onlyCompanyModel: Company;
+    private company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
+    public onlyCompanyModel$: BehaviorSubject<Company> = new BehaviorSubject(null);
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
@@ -75,7 +77,8 @@ export class CompanySettingsComponent implements OnInit {
     private bankAccountChanged: any;
 
     private showImageSection: boolean = false; // used in template
-    private imageUploadOptions: IUploadConfig;
+    private showReminderSection: boolean = false; // used in template
+    private imageUploadOptions: IUploadConfig; // used in template
 
     private addressChanged: any;
     private emailChanged: any;
@@ -87,10 +90,10 @@ export class CompanySettingsComponent implements OnInit {
     private showExternalSearch: boolean = false;
     private searchText: string = '';
 
-    public config: any = {};
-    public fields: any[] = [];
-    public onlyCompanyConfig: any = {};
-    public onlyCompanyFields: any[] = this.generateOnlyCompanyFields();
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public onlyCompanyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public onlyCompanyFields$: BehaviorSubject<any[]> = new BehaviorSubject(this.generateOnlyCompanyFields());
 
     public saveactions: IUniSaveAction[] = [
         {
@@ -126,7 +129,7 @@ export class CompanySettingsComponent implements OnInit {
     public ngOnInit() {
         this.getDataAndSetupForm();
         this.companyService.Get(this.authService.activeCompany.ID).subscribe(
-            company => this.onlyCompanyModel = company,
+            company => this.onlyCompanyModel$.next(company),
             err => this.errorService.handle(err)
         );
     }
@@ -164,13 +167,13 @@ export class CompanySettingsComponent implements OnInit {
 
                 console.log(dataset[6]);
                 // do this after getting emptyPhone/email/address
-                this.company = this.setupCompanySettingsData(dataset[6]);
+                this.company$.next(this.setupCompanySettingsData(dataset[6]));
 
-                this.showExternalSearch = this.company.OrganizationNumber === '-';
+                this.showExternalSearch = this.company$.getValue().OrganizationNumber === '';
 
                 if (this.showExternalSearch) {
                     setTimeout(() => {
-                        this.searchText = this.company.CompanyName;
+                        this.searchText = this.company$.getValue().CompanyName;
                     });
                 }
 
@@ -179,6 +182,7 @@ export class CompanySettingsComponent implements OnInit {
                 setTimeout(() => {
                     if (this.showExternalSearch) {
                         this.form.field('CompanyName')
+                            .Component
                             .control
                             .valueChanges
                             .debounceTime(300)
@@ -209,7 +213,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private addSearchInfo(searchInfo: SearchResultItem) {
-        let company = this.company;
+        let company = this.company$.getValue();
 
         company.OrganizationNumber = searchInfo.orgnr;
         company.CompanyName = searchInfo.navn;
@@ -225,78 +229,80 @@ export class CompanySettingsComponent implements OnInit {
             company.CompanyTypeID = companyType.ID;
         }
 
-        this.company = _.cloneDeep(company);
+        this.company$.next(company);
     }
 
     public saveSettings(complete) {
-
-        if (this.company.OrganizationNumber === '-' || isNaN(<any>this.company.OrganizationNumber)) {
+        let company = this.company$.getValue();
+        if (company.OrganizationNumber === ''
+            || isNaN(<any>company.OrganizationNumber)) {
             alert('Vennligst oppgi et gyldig organisasjonsnr');
             complete('Ugyldig organisasjonsnr, lagring avbrutt');
             return;
         }
 
-        if (this.company.BankAccounts) {
-            this.company.BankAccounts.forEach(bankaccount => {
+        if (company.BankAccounts) {
+            company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
                 }
             });
         }
 
-        if (this.company.DefaultAddress.ID === 0 && !this.company.DefaultAddress['_createguid']) {
-            this.company.DefaultAddress['_createguid'] = this.addressService.getNewGuid();
+        if (company.DefaultAddress.ID === 0 && !company.DefaultAddress['_createguid']) {
+            company.DefaultAddress['_createguid'] = this.addressService.getNewGuid();
         }
 
-        if (this.company.DefaultEmail.ID === 0 && !this.company.DefaultEmail['_createguid']) {
-            this.company.DefaultEmail['_createguid'] = this.emailService.getNewGuid();
+        if (company.DefaultEmail.ID === 0 && !company.DefaultEmail['_createguid']) {
+            company.DefaultEmail['_createguid'] = this.emailService.getNewGuid();
         }
 
-        if (this.company.DefaultPhone.ID === 0 && !this.company.DefaultPhone['_createguid']) {
-            this.company.DefaultPhone['_createguid'] = this.phoneService.getNewGuid();
+        if (company.DefaultPhone.ID === 0 && !company.DefaultPhone['_createguid']) {
+            company.DefaultPhone['_createguid'] = this.phoneService.getNewGuid();
         }
 
-        if (this.company.CompanyBankAccount) {
-            this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.CompanyBankAccount);
+        if (company.CompanyBankAccount) {
+            company.BankAccounts = company.BankAccounts.filter(x => x !== company.CompanyBankAccount);
         }
 
-        if (this.company.TaxBankAccount) {
-            this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.TaxBankAccount);
+        if (company.TaxBankAccount) {
+            company.BankAccounts = company.BankAccounts.filter(x => x !== company.TaxBankAccount);
         }
 
-        if (this.company.SalaryBankAccount) {
-            this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.SalaryBankAccount);
+        if (company.SalaryBankAccount) {
+            company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
         }
 
-        this.companySettingsService
-            .Put(this.company.ID, this.company)
-            .subscribe(
-            (response) => {
-                this.companySettingsService.Get(1).subscribe(company => {
-                    this.company = this.setupCompanySettingsData(company);
-                    this.showExternalSearch = this.company.OrganizationNumber === '-';
+        this.companySettingsService.Put(company.ID, company).subscribe(
+            (reponse) => {
+                this.companySettingsService.Get(1).subscribe(retrievedCompany => {
+                    this.company$.next(this.setupCompanySettingsData(retrievedCompany));
+                    this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
 
-                    this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
-                    complete('Innstillinger lagret');
+                    this.reminderSettings.save().then(() => {
+                        this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
+                        complete('Innstillinger lagret');
+                    });
                 });
             },
-            err => this.errorService.handle(err)
-            );
+            (err) => this.errorService.handle(err)
+        );
     }
 
     private updateMunicipalityName() {
-        this.municipalService.GetAll(`filter=MunicipalityNo eq '${this.company.OfficeMunicipalityNo}'`)
+        let company = this.company$.getValue();
+        this.municipalService.GetAll(`filter=MunicipalityNo eq '${company.OfficeMunicipalityNo}'`)
             .subscribe((data) => {
-                if (data != null && data.length > 0) {
-                    this.company['MunicipalityName'] = data[0].MunicipalityName;
-                    this.company = _.cloneDeep(this.company);
+                if (data && data.length > 0) {
+                    company['MunicipalityName'] = data[0].MunicipalityName;
+                    this.company$.next(company);
                 }
             }, err => this.errorService.handle(err));
     }
 
     private extendFormConfig() {
-
-        var defaultAddress: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultAddress');
+        let fields = this.fields$.getValue();
+        var defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
             allowAddValue: false,
             allowDeleteValue: false,
@@ -326,7 +332,7 @@ export class CompanySettingsComponent implements OnInit {
             }
         };
 
-        var phones: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultPhone');
+        var phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
 
         phones.Options = {
             allowAddValue: false,
@@ -351,7 +357,7 @@ export class CompanySettingsComponent implements OnInit {
             })
         };
 
-        var emails: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultEmail');
+        var emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
 
         emails.Options = {
             allowAddValue: false,
@@ -378,7 +384,7 @@ export class CompanySettingsComponent implements OnInit {
 
 
         this.accountGroupSets.unshift(null);
-        let accountGroupSetID: UniFieldLayout = this.fields.find(x => x.Property === 'AccountGroupSetID');
+        let accountGroupSetID: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupSetID');
         accountGroupSetID.Options = {
             source: this.accountGroupSets,
             valueProperty: 'ID',
@@ -387,7 +393,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.accountVisibilityGroups.unshift(null);
-        let accountVisibilityGroupID: UniFieldLayout = this.fields.find(x => x.Property === 'AccountVisibilityGroupID');
+        let accountVisibilityGroupID: UniFieldLayout = fields.find(x => x.Property === 'AccountVisibilityGroupID');
         accountVisibilityGroupID.Options = {
             source: this.accountVisibilityGroups,
             valueProperty: 'ID',
@@ -396,7 +402,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.companyTypes.unshift(null);
-        let companyTypeID: UniFieldLayout = this.fields.find(x => x.Property === 'CompanyTypeID');
+        let companyTypeID: UniFieldLayout = fields.find(x => x.Property === 'CompanyTypeID');
         companyTypeID.Options = {
             source: this.companyTypes,
             valueProperty: 'ID',
@@ -405,7 +411,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.vatReportForms.unshift(null);
-        let vatReportFormID: UniFieldLayout = this.fields.find(x => x.Property === 'VatReportFormID');
+        let vatReportFormID: UniFieldLayout = fields.find(x => x.Property === 'VatReportFormID');
         vatReportFormID.Options = {
             source: this.vatReportForms,
             valueProperty: 'ID',
@@ -414,7 +420,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.currencies.unshift(null);
-        let baseCurrency: UniFieldLayout = this.fields.find(x => x.Property === 'BaseCurrency');
+        let baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrency');
         baseCurrency.Options = {
             source: this.currencies,
             valueProperty: 'Code',
@@ -422,7 +428,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let supplierAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'SupplierAccountID');
+        let supplierAccountID: UniFieldLayout = fields.find(x => x.Property === 'SupplierAccountID');
         supplierAccountID.Options = {
             source: this.accounts,
             valueProperty: 'ID',
@@ -431,7 +437,7 @@ export class CompanySettingsComponent implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
-        let customerAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerAccountID');
+        let customerAccountID: UniFieldLayout = fields.find(x => x.Property === 'CustomerAccountID');
         customerAccountID.Options = {
             source: this.accounts,
             valueProperty: 'ID',
@@ -440,7 +446,7 @@ export class CompanySettingsComponent implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
-        let defaultSalesAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'DefaultSalesAccountID');
+        let defaultSalesAccountID: UniFieldLayout = fields.find(x => x.Property === 'DefaultSalesAccountID');
         defaultSalesAccountID.Options = {
             source: this.accounts,
             valueProperty: 'ID',
@@ -449,7 +455,7 @@ export class CompanySettingsComponent implements OnInit {
             template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
-        let officeMunicipality: UniFieldLayout = this.fields.find(x => x.Property === 'OfficeMunicipalityNo');
+        let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
             source: this.municipalities,
             valueProperty: 'MunicipalityNo',
@@ -458,7 +464,7 @@ export class CompanySettingsComponent implements OnInit {
             template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
         };
 
-        let periodSeriesAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'PeriodSeriesAccountID');
+        let periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
         periodSeriesAccountID.Options = {
             source: this.periodSeries.filter((value) => value.SeriesType == 1),
             valueProperty: 'ID',
@@ -466,7 +472,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let periodSeriesVatID: UniFieldLayout = this.fields.find(x => x.Property === 'PeriodSeriesVatID');
+        let periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
         periodSeriesVatID.Options = {
             source: this.periodSeries.filter((value) => value.SeriesType == 0),
             valueProperty: 'ID',
@@ -474,14 +480,16 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let companyBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'CompanyBankAccount');
+        let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
         companyBankAccount.Options = this.getBankAccountOptions('CompanyBankAccountID', 'company');
 
-        let taxBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'TaxBankAccount');
+        let taxBankAccount: UniFieldLayout = fields.find(x => x.Property === 'TaxBankAccount');
         taxBankAccount.Options = this.getBankAccountOptions('TaxBankAccountID', 'tax');
 
-        let salaryBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'SalaryBankAccount');
+        let salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccountID', 'salary');
+
+        this.fields$.next(fields);
     }
 
     private getBankAccountOptions(storeResultInProperty, bankAccountType) {
@@ -496,7 +504,7 @@ export class CompanySettingsComponent implements OnInit {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
-                    bankaccount.CompanySettingsID = this.company.ID;
+                    bankaccount.CompanySettingsID = this.company$.getValue().ID;
                     bankaccount.ID = 0;
                 }
 
@@ -506,9 +514,9 @@ export class CompanySettingsComponent implements OnInit {
                     this.bankAccountChanged.unsubscribe();
 
                     // update BankAccounts list only active is updated directly
-                    this.company.BankAccounts.forEach((ba, i) => {
+                    this.company$.getValue().BankAccounts.forEach((ba, i) => {
                         if ((ba.ID && ba.ID == changedBankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == changedBankaccount._createguid)) {
-                            this.company.BankAccounts[i] = changedBankaccount;
+                            this.company$.getValue().BankAccounts[i] = changedBankaccount;
                         }
                     });
 
@@ -521,7 +529,7 @@ export class CompanySettingsComponent implements OnInit {
     private generateInvoiceEmail() {
         this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
             .subscribe(
-            company => this.onlyCompanyModel = company,
+            company => this.onlyCompanyModel$.next(company),
             err => this.errorService.handle(err)
             );
     }
@@ -538,7 +546,7 @@ export class CompanySettingsComponent implements OnInit {
                 ReadOnly: true
             },
             <any>{
-                FieldType: FieldType.COMBOBOX,
+                FieldType: FieldType.BUTTON,
                 Label: 'Generer faktura epost adresse',
                 Sectionheader: 'Diverse',
                 Section: 1,
@@ -551,9 +559,8 @@ export class CompanySettingsComponent implements OnInit {
 
     private getFormLayout() {
 
-        this.config = {};
-
-        this.fields = [
+        this.config$.next({});
+        this.fields$.next([
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
@@ -596,7 +603,7 @@ export class CompanySettingsComponent implements OnInit {
                 Combo: null,
                 Sectionheader: '',
                 hasLineBreak: false,
-                Validations: []
+                Validations: []                
             },
             {
                 ComponentLayoutID: 1,
@@ -744,7 +751,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'CompanyRegistered',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Foretaksregistert',
@@ -766,7 +773,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'TaxMandatory',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Mva-pliktig',
@@ -1005,6 +1012,50 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
+                Property: 'AccountingLockedDate',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Regnskap låst til',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'VatLockedDate',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'MVA låst til',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
                 Property: 'CompanyBankAccount',
                 Placement: 1,
                 Hidden: false,
@@ -1096,7 +1147,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'UseXtraPaymentOrgXmlTag',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Betaling fra DnB konto',
@@ -1115,7 +1166,7 @@ export class CompanySettingsComponent implements OnInit {
 
 
 
-        ];
+        ]);
 
         /*
         KE 08062016: Fjernet foreløpig, disse skal sannsynligvis inn et annet sted, men brukes ikke PT
@@ -1150,28 +1201,39 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     //#region Test data
+    public syncAll() {
+        console.log('SYNKRONISERER');
+        this.accountService.PutAction(null, 'synchronize-ns4102-as')
+            .subscribe(() => {
+                console.log('1/2 Kontoplan synkronisert for AS');
+                this.vatTypeService.PutAction(null, 'synchronize')
+                    .subscribe(() => {
+                        console.log('2/2 VatTypes synkronisert');
+                    },
+                    err => this.errorService.handle(err)
+                    );
+            },
+            err => this.errorService.handle(err));
+    }
+
     public syncAS() {
         console.log('SYNKRONISER KONTOPLAN');
-        this.accountService
-            .PutAction(null, 'synchronize-ns4102-as')
+        this.accountService.PutAction(null, 'synchronize-ns4102-as')
             .subscribe(
             (response: any) => {
                 console.log('Kontoplan synkronisert for AS');
             },
-            err => this.errorService.handle(err)
-            );
+            err => this.errorService.handle(err));
     }
 
     public syncVat() {
         console.log('SYNKRONISER MVA');
-        this.vatTypeService
-            .PutAction(null, 'synchronize')
+        this.vatTypeService.PutAction(null, 'synchronize')
             .subscribe(
             (response: any) => {
                 console.log('VatTypes synkronisert');
             },
-            err => this.errorService.handle(err)
-            );
+            err => this.errorService.handle(err));
     }
 
     public syncCurrency() {
@@ -1181,10 +1243,8 @@ export class CompanySettingsComponent implements OnInit {
             (response: any) => {
                 alert('Valuta lasted ned');
             },
-            err => this.errorService.handle(err)
-            );
+            err => this.errorService.handle(err));
     }
-
 
     //#endregion Test data
 }

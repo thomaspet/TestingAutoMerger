@@ -2,10 +2,11 @@ import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {ComponentLayout, Customer, Email, Phone, Address, FieldType} from '../../../../unientities';
+import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -40,14 +41,14 @@ export class CustomerDetails {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
-    private config: any = {autofocus: true};
-    private fields: any[] = [];
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private addressChanged: any;
     private emailChanged: any;
     private phoneChanged: any;
 
     public dropdownData: any;
-    public customer: Customer;
+    public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public searchText: string;
     public emptyPhone: Phone;
     public emptyEmail: Email;
@@ -124,8 +125,9 @@ export class CustomerDetails {
     }
 
     public ready() {
-        if (this.customer.ID === 0) {
+        if (this.customer$.getValue().ID === 0) {
             this.form.field('Info.Name')
+                .Component
                 .control
                 .valueChanges
                 .debounceTime(300)
@@ -135,7 +137,7 @@ export class CustomerDetails {
     }
 
     public nextCustomer() {
-        this.customerService.getNextID(this.customer ? this.customer.ID : 0)
+        this.customerService.getNextID(this.customer$.getValue() ? this.customer$.getValue().ID : 0)
             .subscribe(id => {
                     if (id) {
                         this.router.navigateByUrl('/sales/customer/' + id);
@@ -148,7 +150,7 @@ export class CustomerDetails {
     }
 
     public previousCustomer() {
-        this.customerService.getPreviousID(this.customer ? this.customer.ID : 0)
+        this.customerService.getPreviousID(this.customer$.getValue() ? this.customer$.getValue().ID : 0)
             .subscribe(id => {
                     if (id) {
                         this.router.navigateByUrl('/sales/customer/' + id);
@@ -168,12 +170,17 @@ export class CustomerDetails {
         if (this.modalMode) {
             return;
         }
+        const customer = this.customer$.getValue();
+        let tabTitle = customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
+        this.tabService.addTab({
+            url: '/sales/customer/' + (customer.ID || 'new'),
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Customers
+        });
 
-        let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Ny kunde';
-        this.tabService.addTab({ url: '/sales/customer/' + (this.customer.ID || 'new'), name: tabTitle, active: true, moduleID: UniModules.Customers });
-
-        this.toolbarconfig.title = this.customer.ID ? this.customer.Info.Name : 'Ny kunde';
-        this.toolbarconfig.subheads = this.customer.ID ? [{title: 'Kundenr. ' + this.customer.CustomerNumber}] : [];
+        this.toolbarconfig.title = customer.ID ? customer.Info.Name : 'Ny kunde';
+        this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
 
     }
 
@@ -241,7 +248,7 @@ export class CustomerDetails {
 
         if (!this.formIsInitialized) {
             var layout: ComponentLayout = this.getComponentLayout(); // results
-            this.fields = layout.Fields;
+            this.fields$.next(layout.Fields);
 
             Observable.forkJoin(
                 this.departmentService.GetAll(null),
@@ -256,7 +263,7 @@ export class CustomerDetails {
                 this.addressService.GetNewEntity(null, 'Address')
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
-                this.customer = response[2];
+                this.customer$.next(response[2]);
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
@@ -278,7 +285,7 @@ export class CustomerDetails {
                         this.customerService.Get(this.customerID, this.expandOptions)
                         : this.customerService.GetNewEntity(this.expandOptions)
             ).subscribe(response => {
-                this.customer = response[0];
+                this.customer$.next(response[0]);
                 this.setTabTitle();
 
                 setTimeout(() => {
@@ -289,62 +296,63 @@ export class CustomerDetails {
     }
 
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
-        if (this.customer !== null) {
+        let customer = this.customer$.getValue();
+        if (customer !== null) {
 
-            this.customer.Info.Name = selectedSearchInfo.navn;
-            this.customer.OrgNumber = selectedSearchInfo.orgnr;
+            customer.Info.Name = selectedSearchInfo.navn;
+            customer.OrgNumber = selectedSearchInfo.orgnr;
 
-            this.customer.Info.Addresses = [];
-            this.customer.Info.Phones = [];
-            this.customer.Info.Emails = [];
-            this.customer.Info.InvoiceAddress = null;
-            this.customer.Info.ShippingAddress = null;
-            this.customer.Info.DefaultPhone = null;
+            customer.Info.Addresses = [];
+            customer.Info.Phones = [];
+            customer.Info.Emails = [];
+            customer.Info.InvoiceAddress = null;
+            customer.Info.ShippingAddress = null;
+            customer.Info.DefaultPhone = null;
 
-            var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
-            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
-            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
-            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
+            var businessaddressPromise = this.addressService.businessAddressFromSearch(selectedSearchInfo);
+            var postaladdressPromise = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            var phonePromise = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            var mobilePromise = this.phoneService.mobileFromSearch(selectedSearchInfo);
 
-            Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
-                var businessaddress: any = results[0];
-                var postaladdress: any = results[1];
-                var phone: any = results[2];
-                var mobile: any = results[3];
+            Promise.all([businessaddressPromise, postaladdressPromise, phonePromise, mobilePromise]).then(results => {
+                let businessaddress: any = results[0];
+                let postaladdress: any = results[1];
+                let phone: any = results[2];
+                let mobile: any = results[3];
 
                 if (postaladdress) {
-                    if (!this.customer.Info.Addresses.find(x => x === postaladdress)) {
-                        this.customer.Info.Addresses.push(postaladdress);
+                    if (!customer.Info.Addresses.find(x => x === postaladdress)) {
+                        customer.Info.Addresses.push(postaladdress);
                     }
-                    this.customer.Info.InvoiceAddress = postaladdress;
+                    customer.Info.InvoiceAddress = postaladdress;
                 }
 
                 if (businessaddress) {
-                    if (!this.customer.Info.Addresses.find(x => x === businessaddress)) {
-                        this.customer.Info.Addresses.push(businessaddress);
+                    if (!customer.Info.Addresses.find(x => x === businessaddress)) {
+                        customer.Info.Addresses.push(businessaddress);
                     }
-                    this.customer.Info.ShippingAddress = businessaddress;
+                    customer.Info.ShippingAddress = businessaddress;
                 } else if (postaladdress) {
-                    this.customer.Info.ShippingAddress = postaladdress;
+                    customer.Info.ShippingAddress = postaladdress;
                 }
 
                 if (mobile) {
-                    this.customer.Info.Phones.unshift(mobile);
+                    customer.Info.Phones.unshift(mobile);
                 }
 
                 if (phone) {
-                    this.customer.Info.Phones.unshift(phone);
-                    this.customer.Info.DefaultPhone = phone;
+                    customer.Info.Phones.unshift(phone);
+                    customer.Info.DefaultPhone = phone;
                 } else if (mobile) {
-                    this.customer.Info.DefaultPhone = mobile;
+                    customer.Info.DefaultPhone = mobile;
                 }
 
                 // set ID to make multivalue editors work with the new values...
-                this.customer.Info.DefaultPhoneID = 0;
-                this.customer.Info.InvoiceAddressID = 0;
-                this.customer.Info.ShippingAddressID = 0;
+                customer.Info.DefaultPhoneID = 0;
+                customer.Info.InvoiceAddressID = 0;
+                customer.Info.ShippingAddressID = 0;
 
-                this.customer = _.cloneDeep(this.customer);
+                this.customer$.next(customer);
 
                 setTimeout(() => {
                    this.ready();
@@ -355,7 +363,8 @@ export class CustomerDetails {
 
     public extendFormConfig() {
 
-        var department: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartmentID');
+        let fields: UniFieldLayout[] = this.fields$.getValue();
+        var department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
@@ -365,7 +374,7 @@ export class CustomerDetails {
             debounceTime: 200
         };
 
-        var project: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.ProjectID');
+        var project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
@@ -376,7 +385,7 @@ export class CustomerDetails {
         };
 
         // MultiValue
-        var phones: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultPhone');
+        var phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
 
         phones.Options = {
             entity: Phone,
@@ -399,7 +408,7 @@ export class CustomerDetails {
             })
         };
 
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'Info.InvoiceAddress');
+        var invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
 
         invoiceaddress.Options = {
             entity: Address,
@@ -428,7 +437,7 @@ export class CustomerDetails {
             }
         };
 
-        var emails: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultEmail');
+        var emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
 
         emails.Options = {
             entity: Email,
@@ -451,7 +460,7 @@ export class CustomerDetails {
             })
         };
 
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'Info.ShippingAddress');
+        var shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
@@ -478,74 +487,75 @@ export class CustomerDetails {
                 return this.addressService.displayAddress(address);
             }
         };
+        this.fields$.next(fields);
     }
 
     public saveCustomer(completeEvent: any) {
-
+        let customer = this.customer$.getValue();
         //add createGuid for new entities and remove duplicate entities
-        this.customer.Info.Emails.forEach(email => {
+        customer.Info.Emails.forEach(email => {
             if (email.ID === 0) {
                 email['_createguid'] = this.customerService.getNewGuid();
             }
         });
 
-        if (this.customer.Info.DefaultEmail) {
-            this.customer.Info.Emails = this.customer.Info.Emails.filter(x => x !== this.customer.Info.DefaultEmail);
+        if (customer.Info.DefaultEmail) {
+            customer.Info.Emails = customer.Info.Emails.filter(x => x !== customer.Info.DefaultEmail);
         }
 
-        this.customer.Info.Phones.forEach(phone => {
+        customer.Info.Phones.forEach(phone => {
             if (phone.ID === 0) {
                 phone['_createguid'] = this.customerService.getNewGuid();
             }
         });
 
-        if (this.customer.Info.DefaultPhone) {
-            this.customer.Info.Phones = this.customer.Info.Phones.filter(x => x !== this.customer.Info.DefaultPhone);
+        if (customer.Info.DefaultPhone) {
+            customer.Info.Phones = customer.Info.Phones.filter(x => x !== customer.Info.DefaultPhone);
         }
 
-        this.customer.Info.Addresses.forEach(address => {
+        customer.Info.Addresses.forEach(address => {
             if (address.ID === 0) {
                 address['_createguid'] = this.customerService.getNewGuid();
             }
         });
 
-        if (this.customer.Info.ShippingAddress) {
-            this.customer.Info.Addresses = this.customer.Info.Addresses.filter(x => x !== this.customer.Info.ShippingAddress);
+        if (customer.Info.ShippingAddress) {
+            customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.ShippingAddress);
         }
 
-        if (this.customer.Info.InvoiceAddress) {
-            this.customer.Info.Addresses = this.customer.Info.Addresses.filter(x => x !== this.customer.Info.InvoiceAddress);
+        if (customer.Info.InvoiceAddress) {
+            customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.InvoiceAddress);
         }
 
-        if (this.customer.Info.DefaultPhone === null && this.customer.Info.DefaultPhoneID === 0) {
-            this.customer.Info.DefaultPhoneID = null;
+        if (customer.Info.DefaultPhone === null && customer.Info.DefaultPhoneID === 0) {
+            customer.Info.DefaultPhoneID = null;
         }
 
-        if (this.customer.Info.DefaultEmail === null && this.customer.Info.DefaultEmailID === 0) {
-            this.customer.Info.DefaultEmailID = null;
+        if (customer.Info.DefaultEmail === null && customer.Info.DefaultEmailID === 0) {
+            customer.Info.DefaultEmailID = null;
         }
 
-        if (this.customer.Info.ShippingAddress === null && this.customer.Info.ShippingAddressID === 0) {
-            this.customer.Info.ShippingAddressID = null;
+        if (customer.Info.ShippingAddress === null && customer.Info.ShippingAddressID === 0) {
+            customer.Info.ShippingAddressID = null;
         }
 
-        if (this.customer.Info.InvoiceAddress === null && this.customer.Info.InvoiceAddressID === 0) {
-            this.customer.Info.InvoiceAddressID = null;
+        if (customer.Info.InvoiceAddress === null && customer.Info.InvoiceAddressID === 0) {
+            customer.Info.InvoiceAddressID = null;
         }
 
-        if (this.customer.Dimensions !== null && (!this.customer.Dimensions.ID || this.customer.Dimensions.ID === 0)) {
-            this.customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
+        if (customer.Dimensions !== null && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
+            customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
         }
 
         if (this.customerID > 0) {
-            this.customerService.Put(this.customer.ID, this.customer).subscribe(
-                (customer) => {
+            this.customerService.Put(customer.ID, customer).subscribe(
+                (updatedCustomer) => {
                     completeEvent('Kunde lagret');
                     if (this.modalMode) {
-                        this.customerUpdated.next(this.customer);
+                        this.customerUpdated.next(updatedCustomer);
                     } else {
-                        this.customerService.Get(this.customer.ID, this.expandOptions).subscribe(customer => {
-                            this.customer = customer;
+                        this.customerService.Get(updatedCustomer.ID, this.expandOptions).subscribe(retrievedCustomer => {
+                            this.customer$.next(retrievedCustomer);
                             this.setTabTitle();
                         });
                     }
@@ -556,7 +566,7 @@ export class CustomerDetails {
                 }
             );
         } else {
-            this.customerService.Post(this.customer).subscribe(
+            this.customerService.Post(customer).subscribe(
                 (newCustomer) => {
                     completeEvent('Kunde lagret');
                     if (this.modalMode) {

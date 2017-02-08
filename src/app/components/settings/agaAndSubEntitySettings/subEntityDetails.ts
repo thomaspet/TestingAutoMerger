@@ -1,9 +1,12 @@
-import { Component, Input, ViewChild } from '@angular/core';
-import { SubEntityService, AgaZoneService, MunicipalService, StatisticsService, ErrorService } from '../../../services/services';
-import { SubEntity, AGAZone, PostalCode, Municipal, AGASector } from '../../../unientities';
-import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
+import { Component, Input } from '@angular/core';
+import {
+    SubEntityService, AgaZoneService, MunicipalService, StatisticsService, ErrorService
+} from '../../../services/services';
+import { SubEntity, PostalCode, Municipal } from '../../../unientities';
+import { UniFieldLayout } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
 declare var _;
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'sub-entity-details',
@@ -11,12 +14,9 @@ declare var _;
 })
 export class SubEntityDetails {
     @Input() private currentSubEntity: SubEntity;
-    private municipalities: Municipal[];
-    @ViewChild(UniForm) private form: UniForm;
-    private agaZones: AGAZone[] = [];
-    private agaRules: AGASector[] = [];
-    public fields: UniFieldLayout[] = [];
-    public config: any = {};
+    private currentSubEntity$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public busy: boolean;
     private formReady: boolean = false;
 
@@ -30,13 +30,16 @@ export class SubEntityDetails {
         this.createForm();
     }
 
+    public ngOnInit() {
+        this.currentSubEntity$.next(this.currentSubEntity);
+    }
+
     private createForm() {
         this._subEntityService.getLayout('subEntities').subscribe((layout: any) => {
-            this.fields = layout.Fields;
-            let agaZoneField: UniFieldLayout = this.findByProperty(this.fields, 'AgaZone');
-            let agaRuleField: UniFieldLayout = this.findByProperty(this.fields, 'AgaRule');
-            let postalCode: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode');
-            let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
+            let agaZoneField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaZone');
+            let agaRuleField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaRule');
+            let postalCode: UniFieldLayout = this.findByProperty(layout.Fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode');
+            let municipality: UniFieldLayout = this.findByProperty(layout.Fields, 'MunicipalityNo');
 
             this._agaZoneService.GetAll('').subscribe(agazones => {
                 agaZoneField.Options = {
@@ -78,6 +81,7 @@ export class SubEntityDetails {
                     debounceTime: 200,
                     template: (obj: Municipal) => obj && obj.MunicipalityName ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase() + obj.MunicipalityName.slice(1).toLowerCase()}` : ''
                 };
+                this.fields$.next(layout.Fields);
             }, err => this.errorService.handle(err));
 
         }, err => this.errorService.handle(err));
@@ -105,7 +109,7 @@ export class SubEntityDetails {
                     .subscribe(postalCodeArr => {
                         if (postalCodeArr && postalCodeArr.length > 0) {
                             this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City = postalCodeArr[0].City;
-                            this.currentSubEntity = _.cloneDeep(this.currentSubEntity);
+                            this.currentSubEntity$.next(this.currentSubEntity);
                         }
                     }, err => this.errorService.handle(err));
             }
@@ -121,7 +125,7 @@ export class SubEntityDetails {
     }
 
     public saveSubentities() {
-        if (this.currentSubEntity['_isDirty']) {
+        if (this.currentSubEntity && this.currentSubEntity['_isDirty']) {
             if (this.currentSubEntity.BusinessRelationInfo) {
                 if (!this.currentSubEntity.BusinessRelationID) {
                     this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
@@ -134,8 +138,9 @@ export class SubEntityDetails {
                 this._subEntityService.Put(this.currentSubEntity.ID, this.currentSubEntity) :
                 this._subEntityService.Post(this.currentSubEntity);
 
-            return saveObservable.map(x => { this.currentSubEntity = x; return x; });
+            return saveObservable.map(x => { this.currentSubEntity = x; this.currentSubEntity$.next(x); return x; });
         } else {
+            this.currentSubEntity$.next(this.currentSubEntity);
             return Observable.of(this.currentSubEntity);
         }
 

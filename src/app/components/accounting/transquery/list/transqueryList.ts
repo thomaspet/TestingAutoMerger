@@ -1,9 +1,10 @@
 import {Component, ViewChild} from '@angular/core';
-import { IToolbarConfig } from '../../../../components/common/toolbar/toolbar';
+import {IToolbarConfig} from '../../../../components/common/toolbar/toolbar';
 import {UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from 'uniform-ng2/main';
 import {Router} from '@angular/router';
-import {Account, FieldType} from '../../../../unientities';
+import {Account} from '../../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {
@@ -11,7 +12,11 @@ import {
     AccountService,
     JournalEntryService
 } from '../../../../services/services';
+
+declare var jQuery;
 import * as moment from 'moment';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
 
 @Component({
     selector: 'customer-list',
@@ -20,9 +25,9 @@ import * as moment from 'moment';
 export class TransqueryList {
     @ViewChild(UniForm) public form: UniForm;
 
-    private searchParams: any;
-    private config: any;
-    private fields: any[] = [];
+    private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private periodeTable: UniTableConfig;
     private account: any;
@@ -44,17 +49,14 @@ export class TransqueryList {
     }
 
     public ngOnInit() {
-
-        this.config = {};
-        this.fields = this.getLayout().Fields;
-        this.searchParams = {
+        this.fields$.next(this.getLayout().Fields);
+        this.searchParams$.next({
             Account: null
-        };
+        });
     }
 
     private loadTableData(account: Account) {
         this.account = account;
-
         if (account) {
             this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -127,7 +129,7 @@ export class TransqueryList {
                     UpdatedBy: null,
                     CustomFields: null,
                     Options: {
-                        source: this.accountService,
+                        source: [],
                         search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
                         displayProperty: 'AccountName',
                         valueProperty: 'ID',

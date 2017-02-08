@@ -1,0 +1,14 @@
+<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="application">
+    <uni-table [resource]="reminderList"
+               [config]="reminderTable"
+               (rowSelectionChanged)="onRowSelected($event)"
+               (rowSelected)="onRowSelected($event)">
+    </uni-table>
+    <uni-summary *ngIf="summaryData" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+</section>
+<reminder-settings-modal></reminder-settings-modal>
+<reminder-sending-modal></reminder-sending-modal>

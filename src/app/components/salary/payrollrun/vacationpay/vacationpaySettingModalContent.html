@@ -1,7 +1,11 @@
 <article class="modal-content" [attr.aria-busy]="busy" *ngIf="config">
     <h1>Faste innstillinger feriepenger</h1>
-    <uni-form *ngIf="companysalaryModel" [config]="formConfig" [fields]="fields" [model]="companysalaryModel" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
-    <uni-table *ngIf="companysalaryModel" [config]="tableConfig" [resource]="vacationRates"></uni-table>
+    <uni-form
+            [config]="formConfig$"
+            [fields]="fields$"
+            [model]="companysalaryModel$">
+    </uni-form>
+    <uni-table [config]="tableConfig" [resource]="vacationRates"></uni-table>
     <footer>
         {{infoText}}
         <button class="good" (click)="saveSettings()">Lagre</button>

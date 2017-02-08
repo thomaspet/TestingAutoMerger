@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { WageType, FieldType } from '../../../unientities';
+import { WageType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Observable';
+import {FieldType} from 'uniform-ng2/main';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -121,11 +122,13 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: 'La stå tom for neste ledige',
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false
+                    hasLineBreak: false,
+                    Options: {
+                        format: 'none'
+                    }
                 },
                 {
                     ComponentLayoutID: 1,
@@ -217,7 +220,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: '_baseOptions',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOXGROUP,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Med i grunnlag for: ',
@@ -246,7 +249,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'HideFromPaycheck',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Skjul på lønnslipp',
@@ -288,7 +291,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Base_Payment',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Utbetales',
@@ -523,7 +526,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'FixedSalaryHolidayDeduction',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fastlønn og trekk i lønn for ferie',

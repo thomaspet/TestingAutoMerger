@@ -1,16 +1,16 @@
-import { Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import {Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
-import { UniFieldLayout } from 'uniform-ng2/main';
-import { FieldType } from '../../../../unientities';
+import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'select-amelding-type-modal-content',
     templateUrl: './selectAmeldingTypeModal.html'
 })
 export class SelectAmeldingTypeModalContent {
-    private fields: UniFieldLayout[] = [];
-    private formConfig: any = {};
-    public ameldingModel: any = {};
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public ameldingModel$: BehaviorSubject<any> = new BehaviorSubject({});
     @Input() public config: any;
 
     constructor() {
@@ -19,13 +19,20 @@ export class SelectAmeldingTypeModalContent {
 
     public loadContent() {
         this.createFormConfig();
-        this.ameldingModel.type = 1;
-        this.ameldingModel.typeChanged = false;
+        let model = this.ameldingModel$.getValue();
+        model.type = 1;
+        model.typeChanged = false;
+        this.ameldingModel$.next(model);
     }
 
-    public change(value) {
-        this.ameldingModel.type = value.type - 1;
-        this.ameldingModel.typeChanged = true;
+    public change(change: SimpleChanges) {
+        if (change['type']) {
+            let value = change['type'].currentValue;
+            let model = this.ameldingModel$.getValue();
+            model.type = value.type - 1;
+            model.typeChanged = true;
+            this.ameldingModel$.next(model);
+        }
     }
 
     private createFormConfig() {
@@ -49,7 +56,7 @@ export class SelectAmeldingTypeModalContent {
             }
         };
 
-        this.fields = [ameldTypeField];
+        this.fields$.next([ameldTypeField]);
     }
 
 
@@ -91,11 +98,11 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
                     text: 'Lag a-melding',
                     class: 'good',
                     method: () => {
-                        this.modal.getContent().then((component) => {
-                            if (component.ameldingModel.typeChanged) {
-                                this.ameldType = component.ameldingModel.type;
+                        this.modal.getContent().then((component: SelectAmeldingTypeModalContent) => {
+                            if (component.ameldingModel$.getValue().typeChanged) {
+                                this.ameldType = component.ameldingModel$.getValue().type;
                             } else {
-                                this.ameldType = component.ameldingModel.type - 1;
+                                this.ameldType = component.ameldingModel$.getValue().type - 1;
                             }
                             let event: IAmeldingTypeEvent = {
                                 type: this.ameldType,

@@ -120,7 +120,8 @@ export class HamburgerMenu {
                     {componentName: 'Tilbud', componentUrl: '/sales/quotes', moduleID: UniModules.Quotes},
                     {componentName: 'Ordre', componentUrl: '/sales/orders', moduleID: UniModules.Orders},
                     {componentName: 'Faktura', componentUrl: '/sales/invoices', moduleID: UniModules.Invoices},
-                    {componentName: 'Produkter', componentUrl: '/products', moduleID: UniModules.Products}
+                    {componentName: 'Produkter', componentUrl: '/products', moduleID: UniModules.Products},
+                    {componentName: 'Purring', componentUrl: '/sales/reminders', moduleID: UniModules.Reminders}
                 ]
             },
             {

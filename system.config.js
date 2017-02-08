@@ -1,4 +1,3 @@
-/** User packages configuration. */
 var packages = {
     'unitable-ng2': {
         main: 'main',
@@ -14,6 +13,10 @@ var packages = {
     },
     'moment': {
         main: 'moment',
+        defaultExtension: 'js'
+    },
+    'lodash': {
+        main: 'index.js',
         defaultExtension: 'js'
     }
 };

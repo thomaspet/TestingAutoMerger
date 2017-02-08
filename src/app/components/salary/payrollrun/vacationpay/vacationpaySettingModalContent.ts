@@ -1,10 +1,15 @@
-import {Component, Input, ViewChild, Output,  EventEmitter} from '@angular/core';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {Component, Input, ViewChild} from '@angular/core';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService} from '../../../../services/services';
-import {FieldType, CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType} from '../../../../unientities';
+import {
+    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService
+} from '../../../../services/services';
+import {
+    CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType
+} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
@@ -12,11 +17,11 @@ import * as moment from 'moment';
 })
 export class VacationpaySettingModalContent {
     private busy: boolean;
-    private fields: UniFieldLayout[] = [];
-    private companysalaryModel: any = {};
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
     @Input() public config: any;
     @ViewChild(UniTable) private table: UniTable;
-    private formConfig: any = {};
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private tableConfig: UniTableConfig;
     private vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
@@ -41,25 +46,17 @@ export class VacationpaySettingModalContent {
             this._companyvacationRateService.GetAll('')
         ).subscribe((response: any) => {
             var [compsal, rates] = response;
-            this.companysalaryModel = compsal[0];
-            this.originalDeduction = this.companysalaryModel.WageDeductionDueToHoliday;
+            this.companysalaryModel$.next(compsal[0]);
+            this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
             this.vacationRates = rates;
-            this.formConfig = {
+            this.formConfig$.next({
                 submitText: ''
-            };
+            });
             this.setFormFields();
             this.setTableConfig();
             this.done('');
             this.busy = false;
         }, err => this.errorService.handle(err));
-    }
-
-    public ready(value) {
-
-    }
-
-    public change(value) {
-
     }
 
     public saveSettings() {
@@ -71,9 +68,9 @@ export class VacationpaySettingModalContent {
         };
 
         // save uniform
-        if (this.companysalaryModel.ID > 0) {
+        if (this.companysalaryModel$.getValue().ID > 0) {
             this.saveStatus.numberOfRequests++;
-            this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
+            this._companysalaryService.Put(this.companysalaryModel$.getValue().ID, this.companysalaryModel$.getValue())
                 .finally(() => this.checkForSaveDone())
                 .subscribe((formresponse) => {
                     this.done('Firmalønn oppdatert');
@@ -137,8 +134,9 @@ export class VacationpaySettingModalContent {
 
     private setFormFields() {
         var mainAccountCostVacation = new UniFieldLayout();
-        let cosVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountCostVacation
-                ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountCostVacation}` + '&top=1')
+        const companysalaryModel = this.companysalaryModel$.getValue();
+        let cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
+                ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1')
                 : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';
@@ -152,8 +150,8 @@ export class VacationpaySettingModalContent {
         };
 
         var mainAccountAllocatedVacation = new UniFieldLayout();
-        let allVacAccountObs: Observable<Account> = this.companysalaryModel && this.companysalaryModel.MainAccountAllocatedVacation
-                ? this._accountService.GetAll(`filter=AccountNumber eq ${this.companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
+        let allVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountAllocatedVacation
+                ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
                 : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
@@ -181,7 +179,7 @@ export class VacationpaySettingModalContent {
             valueProperty: 'id'
         };
 
-        this.fields = [payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation];
+        this.fields$.next([payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation]);
     }
 
     private setTableConfig() {

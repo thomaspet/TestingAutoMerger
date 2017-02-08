@@ -35,9 +35,9 @@
 
         <main class="splitview_detail">
             <uni-form
-                    [config]="formConfig"
-                    [fields]="layout.formFields"
-                    [model]="current"
+                    [config]="formConfig$"
+                    [layout]="layout$"
+                    [model]="current$"
                     (changeEvent)="onChange($event)"
                     (readyEvent)="onReady($event)">
             </uni-form>                    
