@@ -7,15 +7,16 @@ import {
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
 } from '../../../unientities';
 import {
-    SalaryTransactionService, AccountService,
-    ReportDefinitionService, UniCacheService,
+    AccountService, ReportDefinitionService, UniCacheService,
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 
 import { UniView } from '../../../../framework/core/uniView';
+import { ImageModal, UpdatedFileListEvent } from '../../common/modals/ImageModal';
 declare var _;
+const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({
     selector: 'salary-transactions-employee',
@@ -44,6 +45,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild(UniTable) public table: UniTable;
+    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     private busy: boolean;
     private salaryTransactions: SalaryTransaction[];
@@ -272,15 +274,28 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             })
             .setWidth('5rem');
 
+        let fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
+            .setTemplate(row => row['_FileIDs'] && row['_FileIDs'].length ? PAPERCLIP : '')
+            .setWidth('2rem')
+            .setSkipOnEnterKeyNavigation(true)
+            .setOnCellClick(row => {
+                this.openDocumentsOnRow(row);
+            });
+
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun ? this.payrollRun.StatusCode < 1 : true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
                     this.openSuplementaryInformationModal(row);
                 }
+            },
+            {
+                label: 'Legg til dokument', action: (row) => {
+                    this.openDocumentsOnRow(row);
+                }
             }])
             .setColumns([
-                wageTypeCol, wagetypenameCol, employmentidCol,
-                fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol
+                wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol,
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, fileCol
             ])
             .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
@@ -547,11 +562,32 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         return transIndex;
     }
 
+    private openDocumentsOnRow(row: SalaryTransaction): void {
+        if (row.ID) {
+            this.imageModal.open('SalaryTransaction', row.ID);
+        }
+    }
+
     public hasDirty(): boolean {
         return this.salaryTransactions && this.salaryTransactions.filter(x => x.EmployeeID === this.employeeID).some(x => x.Deleted || x['_isDirty']);
     }
 
     public setEditable(isEditable: boolean) {
         this.salarytransEmployeeTableConfig.setEditable(isEditable);
+    }
+
+    public updateFileList(event: UpdatedFileListEvent) {
+        let updateTranses: boolean;
+
+        this.salaryTransactions.forEach(x => {
+            if (x.ID === event.entityID && x['_FileIDs'].length !== event.files.length) {
+                x['_FileIDs'] = event.files;
+                updateTranses = true;
+            }
+        });
+
+        if (updateTranses) {
+            this.updateState('salaryTransactions', this.salaryTransactions, super.isDirty('SalaryTransactions'));
+        }
     }
 }

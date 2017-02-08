@@ -7,15 +7,6 @@
              (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
-<header class="poster" [attr.aria-busy]="busy">
-    <section class="poster_toolbar_extras" *ngIf="payrollrun">
-        <control-modal></control-modal>
-        <postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
-        <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>
-    </section>
-
-</header>
-
 <section class="entityDetails" [attr.aria-busy]="busy" [attr.aria-expanded]="detailsActive">
     <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
 </section>
@@ -25,3 +16,6 @@
 </section>
 <report-preview-modal></report-preview-modal>
 <uni-confirm-modal></uni-confirm-modal>
+<control-modal></control-modal>
+<postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
+<vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>

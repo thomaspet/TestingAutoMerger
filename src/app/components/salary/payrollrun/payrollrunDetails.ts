@@ -467,7 +467,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 .GetAll(
                 'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
                 ['WageType.SupplementaryInformations', 'employment', 'Supplements'
-                    , 'Dimensions']),
+                    , 'Dimensions', 'Files']),
                 this.getProjectsObservable(),
                 this.getDepartmentsObservable()
             )
@@ -476,6 +476,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     if (this.selectionList) {
                         this.selectionList.updateSums();
                     }
+
+                    transes.map(trans => trans['_FileIDs'] = trans['Files'].map(x => x.ID));
 
                     transes.filter(x => x.DimensionsID).map(trans => {
 
