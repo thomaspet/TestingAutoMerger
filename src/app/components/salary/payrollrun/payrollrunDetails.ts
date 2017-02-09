@@ -825,14 +825,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.setEditableOnChildren(false);
 
         this.savePayrollrun()
-            .flatMap((payrollRun: PayrollRun) => {
-
+            .switchMap((payrollRun: PayrollRun) => {
                 this.payrollrun$.next(payrollRun);
                 super.updateState('payrollRun', payrollRun, false);
-
                 if (!this.payrollrunID) {
                     this.router.navigateByUrl(this.url + payrollRun.ID);
-                    return undefined;
+                    return Observable.of(undefined);
                 }
 
                 return this.getSalaryTransactionsObservable();
