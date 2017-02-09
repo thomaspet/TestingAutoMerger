@@ -49,7 +49,9 @@ export class InvoiceReminders {
             .map(x => x.Data)
                 .subscribe((reminders) => {
                     this.reminderList = reminders;
-                    this.sumFee = this.reminderList.map(r => r.ReminderFee).reduce((a, b) => a + b);
+                    this.sumFee = this.reminderList.length > 0
+                        ? this.reminderList.map(r => r.ReminderFee).reduce((a, b) => a + b)
+                        : 0;
                 }, (err) => this.errorService.handle(err));
     }
 
