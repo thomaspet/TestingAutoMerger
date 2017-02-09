@@ -72,8 +72,7 @@ export class BankAccountForm {
                 this.config.model.IBAN = bankdata.IBAN;
                 this.config.model.Bank = bankdata.Bank;
                 this.config.model.BankID = bankdata.Bank.ID;
-
-                this.config.model = _.cloneDeep(this.config.model);
+                this.model$.next(this.config.model);
                 if (this.form.field('AccountID')) {
                     this.form.field('AccountID').focus();
                 }
