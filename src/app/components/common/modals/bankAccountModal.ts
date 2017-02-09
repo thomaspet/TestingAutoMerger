@@ -56,7 +56,7 @@ export class BankAccountForm {
                 this.form.field('AccountNumber')
                     .changeEvent
                     .subscribe((bankaccount) => {
-                        this.lookupBankAccountNumber(bankaccount);
+                        this.lookupBankAccountNumber(bankaccount['AccountNumber'].currentValue);
                     })
             );
        }, err => this.errorService.handle(err));
@@ -67,11 +67,11 @@ export class BankAccountForm {
         this.ngOnInit();
     }
 
-    public lookupBankAccountNumber(bankaccount) {
-        if (bankaccount.AccountNumber && bankaccount.AccountNumber.length == 11) {
+    public lookupBankAccountNumber(accountNumber) {
+        if (accountNumber.length === 11) {
             this.busy = true;
             this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn, 5);
-            this.bankService.getIBANUpsertBank(bankaccount.AccountNumber)
+            this.bankService.getIBANUpsertBank(accountNumber)
             .finally(() => this.busy = false)
             .subscribe((bankdata: BankData) => {
                 this.config.model.IBAN = bankdata.IBAN;
@@ -85,7 +85,7 @@ export class BankAccountForm {
                 this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
             },
             (error) => this.errorService.handleWithMessage(
-                error, 'Kunne ikke slå opp kontonummer ' + bankaccount.AccountNumber
+                error, 'Kunne ikke slå opp kontonummer ' + accountNumber
             ));
         } else {
             this.toastService.addToast('Kontonummer må ha 11 siffer', ToastType.warn, 10);
@@ -278,8 +278,8 @@ export class BankAccountModal {
         this.modal.open();
         this.modal.getContent().then((form: BankAccountForm) => {
             if (!bankaccount.IBAN && bankaccount.AccountNumber && bankaccount.AccountNumber.length === 11) {
-                form.lookupBankAccountNumber(bankaccount);
+                form.lookupBankAccountNumber(bankaccount.AccountNumber);
             }
-        })
+        });
     }
 }
