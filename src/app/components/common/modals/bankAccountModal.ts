@@ -1,4 +1,4 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Type, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
 import {FieldType} from 'uniform-ng2/main';
@@ -18,7 +18,7 @@ declare var _;
     template: `
         <article class="modal-content bankaccount-modal" *ngIf="config.model">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
+           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="change($event)"></uni-form>
            <footer [attr.aria-busy]="busy">
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -29,7 +29,7 @@ declare var _;
 })
 export class BankAccountForm {
     @ViewChild(UniForm) public form: UniForm;
-    private config: any = {};
+    @Input() private config: any = {};
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private model$: BehaviorSubject<any>=new BehaviorSubject(null);
@@ -50,21 +50,16 @@ export class BankAccountForm {
         this.accountService.GetAll('filter=AccountNumber lt 3000 and Visible eq true&orderby=AccountNumber').subscribe((accounts) => {
             this.accounts = accounts;
             this.fields$.next(this.extendFields());
-
-            // This is here instead of in ready() because this.extendFields() runs _.cloneDeep which destroys bindings
-            setTimeout(() =>
-                this.form.field('AccountNumber')
-                    .changeEvent
-                    .subscribe((bankaccount) => {
-                        this.lookupBankAccountNumber(bankaccount['AccountNumber'].currentValue);
-                    })
-            );
        }, err => this.errorService.handle(err));
 
     }
 
     public ngOnChanges() {
         this.ngOnInit();
+    }
+
+    public change(changes: SimpleChanges) {
+        this.lookupBankAccountNumber(changes['AccountNumber'].currentValue);
     }
 
     public lookupBankAccountNumber(accountNumber) {

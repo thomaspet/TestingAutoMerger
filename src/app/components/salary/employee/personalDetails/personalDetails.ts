@@ -315,7 +315,7 @@ export class PersonalDetails extends UniView {
 
                 this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
                     this.bankAccountChanged.unsubscribe();
-                    resolve(bankaccount);
+                    resolve(changedBankaccount);
                 });
             })
         };
