@@ -134,11 +134,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
-    public postTransactions(ID: number) {
+    public postTransactions(ID: number, report: string = null) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=book')
+            .withBody(report)
             .send()
             .map(response => response.json());
     }

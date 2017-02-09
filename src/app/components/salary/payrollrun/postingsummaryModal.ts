@@ -16,7 +16,9 @@ export class PostingsummaryModal implements AfterViewInit {
     private modalConfig: any;
     public type: Type<any> = PostingsummaryModalContent;
 
-    constructor(private route: ActivatedRoute, private errorService: ErrorService) {
+    constructor(
+        private route: ActivatedRoute, 
+        private errorService: ErrorService) {
 
         this.modalConfig = {
             title: 'Konteringssammendrag',

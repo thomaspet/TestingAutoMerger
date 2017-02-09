@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UniTable, UniTableColumn, UniTableColumnType, UniTableConfig } from 'unitable-ng2/main';
 import { PostingSummary, Dimensions } from '../../../unientities';
-import { PayrollrunService, ErrorService } from '../../../../app/services/services';
+import { PayrollrunService, ErrorService, ReportDefinitionService, Report, ReportParameter } from '../../../../app/services/services';
 import { UniHttp } from '../../../../framework/core/http/http';
 
 import { Observable } from 'rxjs/Observable';
@@ -28,7 +28,8 @@ export class PostingsummaryModalContent {
         private payrollService: PayrollrunService,
         private route: ActivatedRoute,
         private errorService: ErrorService,
-        private http: UniHttp
+        private http: UniHttp,
+        private reportService: ReportDefinitionService
     ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
@@ -69,7 +70,18 @@ export class PostingsummaryModalContent {
 
 
     public postTransactions() {
-        return this.payrollService.postTransactions(this.payrollrunID);
+        
+        return this.reportService
+            .getReportByName('Konteringssammendrag')
+            .switchMap(report => {
+                let parameter = new ReportParameter();
+                parameter.Name = 'RunID';
+                parameter.value = this.payrollrunID.toString();
+                report.parameters = [parameter];
+                report.TemplateLinkId = 'PostingSummary.mrt';
+                return this.reportService.generateReportPdfFile(report);
+            })
+            .switchMap(file => this.payrollService.postTransactions(this.payrollrunID, file));
     }
 
     public showResponseReceipt(successResponse: any) {
