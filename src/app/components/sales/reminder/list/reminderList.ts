@@ -53,7 +53,7 @@ export class ReminderList {
     private summaryData = {
         SumPayments: 0,
         SumChecked: 0,
-        SumAllowance: 0,
+        SumFee: 0,
     };
 
     private emailQuery = 'model=CustomerInvoice&select=ID as CustomerInvoiceID,DefaultEmail.EmailAddress as EmailAddress&expand=Customer.Info.DefaultEmail&filter=';
@@ -177,6 +177,7 @@ export class ReminderList {
 
         selectedRows.forEach(x => {
             this.summaryData.SumChecked += x.TaxInclusiveAmount;
+            this.summaryData.SumFee += x.Fee;
         });
 
         this.setSums();
@@ -190,7 +191,7 @@ export class ReminderList {
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumChecked) : null,
                 title: 'Totalt avkrysset',
             }, {
-                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumAllowance) : null,
+                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumFee) : null,
                 title: 'Totalt gebyr',
             }
         ];
@@ -204,10 +205,10 @@ export class ReminderList {
 
             Observable.forkJoin(
                 this.customerInvoiceReminderService.getInvoiceRemindersForInvoicelist(invoiceIDs),
-                this.statisticsService.GetAll(this.emailQuery + filter)
+                this.statisticsService.GetAllUnwrapped(this.emailQuery + filter)
             ).subscribe((res) => {
                 let reminders = res[0];
-                let emails = res[1].Data;
+                let emails = res[1];
 
                 this.reminderList = invoicelist.map((invoice: CustomerInvoice) => {
                     let reminder = reminders.find((r) => r.CustomerInvoiceID === invoice.ID);
@@ -216,8 +217,10 @@ export class ReminderList {
                     return {
                         CustomerInvoiceID: invoice.ID,
                         ReminderNumber: reminder.ReminderNumber,
+                        InvoiceID: invoice.ID,
                         InvoiceNumber: invoice.InvoiceNumber,
                         InvoiceDate: invoice.InvoiceDate,
+                        CustomerID: invoice.CustomerID,
                         CustomerName: invoice.CustomerName,
                         PaymentDueDate: invoice.PaymentDueDate,
                         EmailAddress: email.EmailAddress,
@@ -236,12 +239,18 @@ export class ReminderList {
         // Define columns to use in the table
         let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
             .setWidth('15%').setFilterOperator('contains');
-        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
-            .setWidth('15%').setFilterOperator('contains');
+        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
+            .setWidth('15%').setFilterOperator('contains')
+            .setTemplate((reminder) => {
+                return `<a href='/#/sales/invoices/${reminder.InvoiceID}'>${reminder.InvoiceNumber}</a>`;
+            });
         let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
         let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
-            .setFilterOperator('contains');
+            .setFilterOperator('contains')
+            .setTemplate((reminder) => {
+                return `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>`;
+            });
         let dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
         let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)

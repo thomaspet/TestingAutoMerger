@@ -3,12 +3,18 @@
 </uni-toolbar>
 
 <section [ngClass]="{'application': !modalMode}">
+        <uni-form *ngIf="!modalMode"
+              [config]="config$"
+              [fields]="fields$"
+              [model]="searchParams$"
+              (changeEvent)="onFormFilterChange($event)">
+        </uni-form>
         <section *ngIf="remindersEmail">
                 <b>{{remindersEmail.length}} purringer kan sendes på epost</b>
                 <uni-table [resource]="remindersEmail"
                            [config]="reminderTable">
                 </uni-table>
-                <br/>
+                <br/><br/>
         </section>
         <section *ngIf="remindersPrint">
                 <b>{{remindersPrint.length}} purringer må skrives ut på papir</b>
