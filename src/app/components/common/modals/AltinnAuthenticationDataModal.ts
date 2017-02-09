@@ -21,7 +21,7 @@ enum LoginState {
         <article class="modal-content" [attr.aria-busy]="busy">
             <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
             <p [innerHTML]="userMessage"></p>
-            <div *ngIf="formState == LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
                 <uni-form
                     [config]="emptyConfig$"
                     [fields]="usernameAndPasswordFormFields$"
@@ -32,7 +32,7 @@ enum LoginState {
                     <button *ngIf="config" (click)="config.close()">Avbryt</button>
                 </footer>
             </div>
-            <div *ngIf="formState == LOGIN_STATE_ENUM.Pin">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.Pin">
                 <uni-form
                     [config]="emptyConfig$"
                     [fields]="pinFormFields$"
@@ -43,7 +43,7 @@ enum LoginState {
                     <button (click)="submitPin()" class="good">OK</button>
                 </footer>
             </div>
-            <div *ngIf="formState == LOGIN_STATE_ENUM.LoggedIn">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn">
                 <footer>
                     <button *ngIf="config" (click)="config.close()">OK</button>
                 </footer>
@@ -60,7 +60,7 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
 
     public busy: boolean = true;
     public userMessage: string;
-
+    public emptyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public formState: LoginState = LoginState.UsernameAndPasswordAndPinType;
     public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createUsernameAndPasswordForm());
     public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
