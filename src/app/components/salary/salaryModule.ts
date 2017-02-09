@@ -43,7 +43,6 @@ import {VacationpayModalContent} from './payrollrun/vacationpay/vacationPayModal
 import {VacationpaySettingModal} from './payrollrun/vacationpay/vacationPaySettingModal';
 import {VacationpaySettingModalContent} from './payrollrun/vacationpay/vacationpaySettingModalContent';
 import {ControlModalContent} from './payrollrun/controlModal';
-import {PaymentList} from './payrollrun/paymentList';
 import {ControlModal} from './payrollrun/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
@@ -136,7 +135,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         VacationpaySettingModal,
         VacationpaySettingModalContent,
         ControlModalContent,
-        PaymentList,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,
@@ -214,7 +212,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         VacationpaySettingModal,
         VacationpaySettingModalContent,
         ControlModalContent,
-        PaymentList,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,

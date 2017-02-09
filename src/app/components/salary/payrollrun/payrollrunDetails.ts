@@ -754,14 +754,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         });
     }
 
-    public sendPaymentList(done) {
+    public sendPaymentList() {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
             .subscribe((response: boolean) => {
-                done('');
                 this.router.navigateByUrl('/bank/payments');
             },
             (err) => {
-                done('Kunne ikke opprette betaling');
                 this.errorService.handle(err);
             });
     }

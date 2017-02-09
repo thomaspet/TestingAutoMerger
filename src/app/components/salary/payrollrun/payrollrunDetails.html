@@ -1,10 +1,4 @@
-<uni-toolbar [config]="toolbarconfig"
-             [contextmenu]="contextMenuItems"
-             [saveactions]="saveActions"
-             [statustrack]="getStatustrackConfig()"
-             [tags]="categoryFilter"
-             [tagConfig]="tagConfig"
-             (tagsChange)="filterChange($event)">
+<uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()" [tags]="categoryFilter" [tagConfig]="tagConfig" (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
 <section class="entityDetails" [attr.aria-busy]="busy" [attr.aria-expanded]="detailsActive">
@@ -16,6 +10,6 @@
 </section>
 <report-preview-modal></report-preview-modal>
 <uni-confirm-modal></uni-confirm-modal>
-<control-modal></control-modal>
+<control-modal (updatePayrollRun)="this.getPayrollRun()"></control-modal>
 <postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
 <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>
