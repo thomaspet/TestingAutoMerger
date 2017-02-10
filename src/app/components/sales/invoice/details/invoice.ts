@@ -343,21 +343,22 @@ export class InvoiceDetails {
             statuses.splice(spliceIndex, 1);
         }
 
-        statuses.forEach((s, i) => {
+        statuses.forEach((status) => {
             let _state: UniStatusTrack.States;
 
-            if (s.Code > activeStatus) {
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack[i] = {
-                title: s.Text,
-                state: _state
-            };
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
         });
 
         return statustrack;
@@ -429,7 +430,9 @@ export class InvoiceDetails {
                 next: this.nextInvoice.bind(this),
                 add: () => this.router.navigateByUrl('/sales/invoices/0')
             },
-            contextmenu: this.contextMenuItems
+            contextmenu: this.contextMenuItems,
+            entityID: this.invoiceID,
+            entityType: 'CustomerInvoice'
         };
 
         if (this.invoice.InvoiceType === InvoiceTypes.CreditNote && this.invoice.InvoiceReference) {

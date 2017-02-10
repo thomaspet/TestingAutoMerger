@@ -2,6 +2,8 @@
 
 <uni-statustrack *ngIf="statustrack || config?.statustrack"
     [config]="statustrack || config.statustrack"
+    [entityType]="config.entityType"
+    [entityID]="config.entityID"
     (statusSelectEvent)="selectStatus($event)">
 </uni-statustrack>
 

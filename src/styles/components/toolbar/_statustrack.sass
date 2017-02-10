@@ -17,6 +17,7 @@ uni-statustrack > ol
         padding: 0 1.5rem
         line-height: $statustrack-height
         color: $uni-color-positive
+        cursor: pointer
 
         &.future
             color: $uni-color-scale5
@@ -144,3 +145,32 @@ uni-statustrack > ol
                 right: 1rem
                 background: $uni-color-negative
                 color: $uni-color-c2a
+
+.statustrack_statuslog
+    @extend %popover
+    padding: 0 1rem
+
+    li:hover &,
+    li:focus &
+        @extend %popover-active
+
+    li
+        font-weight: 400
+        font-size: 0.9rem
+        padding: .5rem 0
+        line-height: 120%
+
+        &:not(:last-of-type)
+            border-bottom: solid pxToRem(.5) $uni-color-scale8
+
+        div
+            margin-bottom: .4rem
+
+        time
+            display: block
+            font-size: .9rem
+            margin-top: .8rem
+            color: $uni-color-scale5
+
+        &:before
+            display: none

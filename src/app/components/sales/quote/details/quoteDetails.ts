@@ -251,21 +251,22 @@ export class QuoteDetails {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.quote ? (this.quote.StatusCode ? this.quote.StatusCode : 1) : 0;
 
-        this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((s, i) => {
+        this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((status) => {
             let _state: UniStatusTrack.States;
 
-            if (s.Code > activeStatus) {
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack[i] = {
-                title: s.Text,
-                state: _state
-            };
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
         });
         return statustrack;
     }
@@ -329,7 +330,9 @@ export class QuoteDetails {
                 next: this.nextQuote.bind(this),
                 add: () => this.router.navigateByUrl('/sales/quotes/0')
             },
-            contextmenu: this.contextMenuItems
+            contextmenu: this.contextMenuItems,
+            entityID: this.quoteID,
+            entityType: 'CustomerQuote'
         };
     }
 

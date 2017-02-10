@@ -21,6 +21,8 @@ export interface IToolbarConfig {
     saveactions?: IUniSaveAction[];
     hideBreadcrumbs?: boolean;
     omitFinalCrumb?: boolean;
+    entityID?: any;
+    entityType?: string;
 }
 
 export interface ICommentsConfig {

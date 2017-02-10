@@ -1,5 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Rx';
+import {UserService} from '../services';
+import {User} from '../../unientities';
 import {StatisticsService} from './StatisticsService';
 import {ErrorService} from './ErrorService';
 
@@ -7,7 +9,7 @@ import {ErrorService} from './ErrorService';
 export class StatusService {
     private statusDictionary: {[StatusCode: number]: string};
 
-    constructor(private statisticsService: StatisticsService, private errorService: ErrorService) {
+    constructor(private statisticsService: StatisticsService, private userService: UserService, private errorService: ErrorService) {
 
     }
 
@@ -40,5 +42,23 @@ export class StatusService {
 
             resolve(true);
         });
+    }
+
+    public getStatusLogEntries(entityType: string, entityID: number, toStatus: number): Observable<any> {
+        return Observable.forkJoin(
+            this.userService.GetAll(null),
+            this.statisticsService.GetAll(
+                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
+            this.loadStatusCache()
+        ).map(responses => {
+                let users: Array<User> = responses[0];
+                let data = responses[1].Data ? responses[1].Data : [];
+                data.forEach(item => {
+                    item.FromStatusText = this.getStatusText(item.FromStatus);
+                    let createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
+                    item.CreatedByName = createdByUser ? createdByUser.DisplayName : '';
+                });
+                return data;
+            });
     }
 }

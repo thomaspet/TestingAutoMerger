@@ -253,21 +253,22 @@ export class OrderDetails {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.order.StatusCode;
 
-        this.customerOrderService.statusTypes.forEach((s, i) => {
+        this.customerOrderService.statusTypes.forEach((status) => {
             let _state: UniStatusTrack.States;
 
-            if (s.Code > activeStatus) {
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack[i] = {
-                title: s.Text,
-                state: _state
-            };
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
         });
         return statustrack;
     }
@@ -346,7 +347,9 @@ export class OrderDetails {
                 next: this.nextOrder.bind(this),
                 add: this.addOrder.bind(this)
             },
-            contextmenu: this.contextMenuItems
+            contextmenu: this.contextMenuItems,
+            entityID: this.orderID,
+            entityType: 'CustomerOrder'
         };
     }
 

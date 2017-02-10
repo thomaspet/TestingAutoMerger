@@ -1090,21 +1090,22 @@ export class BillView {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = current.StatusCode;
 
-        this.supplierInvoiceService.statusTypes.forEach((s, i) => {
+        this.supplierInvoiceService.statusTypes.forEach((status) => {
             let _state: UniStatusTrack.States;
-            let _addIt = s.isPrimary;
-            if (s.Code > activeStatus) {
+            let _addIt = status.isPrimary;
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
                 _addIt = true;
             }
             if (_addIt) {
                 statustrack.push({
-                    title: s.Text,
-                    state: _state
+                    title: status.Text,
+                    state: _state,
+                    code: status.Code
                 });
             }
         });
@@ -1133,7 +1134,9 @@ export class BillView {
                     this.newInvoice(false);
                     this.router.navigateByUrl('/accounting/bill/0');
                 }
-            }
+            },
+            entityID: doc && doc.ID ? doc.ID : null,
+            entityType: 'SupplierInvoice'
         };
     }
 
