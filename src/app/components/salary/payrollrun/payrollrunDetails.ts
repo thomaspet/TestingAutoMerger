@@ -185,11 +185,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     },
                     {
                         title: this.payDate ?
-                            'Utbetales ' + this.payDate.toLocaleDateString('no',
-                                {
-                                    day: '2-digit', month: '2-digit', year: 'numeric'
-                                }
-                            )
+                            'Utbetales ' + moment(this.payDate).format('DD.MM.YYYY')
                             : 'Utbetalingsdato ikke satt'
                     },
                     {
@@ -360,10 +356,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                 {
                                     cells: [ 
                                         {
-                                            text: new Date(this.payrollrun$.getValue().FromDate.toString()).toLocaleDateString('no',
-                                            {
-                                                day: '2-digit', month: '2-digit', year: 'numeric'
-                                            }),
+                                            text: moment(this.payrollrun$.getValue().FromDate).format('DD.MM.YYYY'),
                                             header: false
                                         },
                                         {
@@ -371,10 +364,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                             header: false
                                         },
                                         {
-                                            text: new Date(this.payrollrun$.getValue().ToDate.toString()).toLocaleDateString('no',
-                                            {
-                                                day: '2-digit', month: '2-digit', year: 'numeric'
-                                            }),
+                                            text: moment(this.payrollrun$.getValue().ToDate).format('DD.MM.YYYY'),
                                             header: false
                                         }
                                     ]
@@ -388,11 +378,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             topText: [
                                 { text: 'Utbetalingsdato', class: 'large' }
                             ],
-                            mainText: { text: new Date(this.payrollrun$.getValue().PayDate.toString()).toLocaleDateString('no',
-                                {
-                                    day: '2-digit', month: '2-digit', year: 'numeric'
-                                })
-                            }
+                            mainText: { text: moment(this.payrollrun$.getValue().PayDate).format('DD.MM.YYYY') }
                         }
                     },
                     posterPayout = {
