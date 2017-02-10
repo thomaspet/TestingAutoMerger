@@ -156,7 +156,7 @@ export class ReminderSending implements OnInit {
         this.statisticsService.GetAllUnwrapped('model=CustomerInvoiceReminder&select=RunNumber%20as%20RunNumber&orderby=RunNumber%20desc&top=1')
             .subscribe((data) => {
                 let reminder = data[0];
-                this.loadRunNumber(reminder.RunNumber);
+                if (reminder) { this.loadRunNumber(reminder.RunNumber); }
             });
     }
 

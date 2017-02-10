@@ -3,7 +3,8 @@
 </uni-toolbar>
 
 <section [ngClass]="{'application': !modalMode}">
-        <uni-form *ngIf="!modalMode"
+        <b *ngIf="!runNumbers || runNumbers.length === 0">Ingen kjøringer</b>
+        <uni-form *ngIf="!modalMode && (runNumbers && runNumbers.length > 0)"
               [config]="config$"
               [fields]="fields$"
               [model]="searchParams$"
