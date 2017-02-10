@@ -96,14 +96,14 @@ export class ReminderSendingModal {
             });
 
             this.config.actions.send = {
-                text: 'Send valgte',
+                text: 'Send og skriv ut valgte',
                 method: () => {
                     this.sendAll();
                 }
             };
 
             this.config.actions.print = {
-                text: 'Skriv ut alle',
+                text: 'Skriv ut valgte',
                 method: () => {
                     this.printAll();
                 }

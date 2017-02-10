@@ -231,14 +231,14 @@ export class InvoiceDetails {
     }
 
     private sendReminderAction() {
-        this.customerInvoiceReminderService.getInvoiceRemindersForInvoicelist([this.invoice.ID])
+        this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID])
             .subscribe((reminders) => {
                 this.reminderSendingModal.confirm(reminders).then((action) => {
                     if (action !== ConfirmActions.CANCEL) {
                         this.updateToolbar();
                     }
                 });
-            });
+            }, (err) => this.errorService.handle(err));
     }
 
     @HostListener('keydown', ['$event'])

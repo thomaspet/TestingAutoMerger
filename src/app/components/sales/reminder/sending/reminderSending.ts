@@ -41,7 +41,7 @@ export class ReminderSending implements OnInit {
     private reminderTable: UniTableConfig;
     private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,DueDate as DueDate,ReminderNumber as ReminderNumber,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,DefaultEmail.EmailAddress as EmailAddress,CustomerInvoice.RestAmount as RestAmount,CustomerInvoice.TaxInclusiveAmount as TaxInclusiveAmount&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail&filter=';
 
-    private currentRunNumber: number;
+    private currentRunNumber: number = 0;
     private currentRunNumberData: IRunNumberData;
     private runNumbers: IRunNumberData[];
     private customerSums: any;
@@ -105,11 +105,11 @@ export class ReminderSending implements OnInit {
             return;
         }
 
-        done('Purringer sendes');
-
         if (printonly) {
+            done('Utskrift av purringer');
             this.sendPrint(true);
         } else {
+            done('Purringer sendes');
             this.sendEmail();
             this.sendPrint(false);
         }
@@ -129,8 +129,11 @@ export class ReminderSending implements OnInit {
             return;
         }
 
-        done('Purringer sendes');
-        this.sendEmail();
+        this.reminderService.sendAction(selected.map(x => x.ID)).subscribe(() => {
+            done('Purringer sendes');
+            this.loadRunNumber(this.currentRunNumber);
+            this.sendEmail();
+        });
     }
 
     public updateToolbar() {
@@ -160,7 +163,7 @@ export class ReminderSending implements OnInit {
     public loadRunNumber(runNumber): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.modalMode || runNumber < 1) {
-                reject();
+                resolve(false);
             } else {
                 Observable.forkJoin([
                     this.reminderService.GetAll('orderby=CustomerInvoiceID desc,ReminderNumber desc&filter=RunNumber eq ' + runNumber),
@@ -171,33 +174,34 @@ export class ReminderSending implements OnInit {
                     this.currentRunNumberData = extra;
 
                     if (reminders.length === 0) {
-                        reject();
+                        resolve(false);
                     } else {
                         this.currentRunNumber = runNumber;
                         this.updateToolbar();
                         this.updateReminderList(reminders);
-                        resolve();
+                        resolve(true);
                     }
                 }, (err) => {
-                    reject();
+                    resolve(false);
                 });
             }
         });
     }
 
     public previousRunNumber() {
-        this.loadRunNumber(this.currentRunNumber - 1).catch(() => {
-           this.toastService.addToast('Første purrejobb!', ToastType.warn, 5, 'Du har nådd første purrejobb.');
+        this.loadRunNumber(this.currentRunNumber - 1).then((ok) => {
+           if (!ok) { this.toastService.addToast('Første purrejobb!', ToastType.warn, 5, 'Du har nådd første purrejobb.'); }
         });
     }
 
     public nextRunNumber() {
-        this.loadRunNumber(this.currentRunNumber + 1).catch(() => {
-            this.toastService.addToast('Siste purrejobb!', ToastType.warn, 5, 'Du har nådd siste purrejobb.');
+        this.loadRunNumber(this.currentRunNumber + 1).then((ok) => {
+            if (!ok) { this.toastService.addToast('Siste purrejobb!', ToastType.warn, 5, 'Du har nådd siste purrejobb.'); }
         });
     }
 
     public updateReminderList(reminders) {
+        if (this.currentRunNumber === 0) { this.currentRunNumber = reminders[0].RunNumber; }
         let filter = reminders.map((r) => 'ID eq ' + r.ID).join(' or ');
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
             .subscribe((remindersAll) => {
@@ -237,17 +241,21 @@ export class ReminderSending implements OnInit {
         var emails = this.getSelectedEmail();
         if (emails.length === 0) { return; }
 
-        emails.forEach((r) => {
-            let email = new SendEmail();
-            email.Format = 'pdf';
-            email.EmailAddress = r.EmailAddress;
-            email.EntityType = 'CustomerInvoiceReminder';
-            email.EntityID = r.ID;
-            email.Subject = 'Purring ' + r.ReminderNumber;
-            email.Message = 'Vedlagt finner du purring for faktura ' + r.InvoiceNumber;
+        this.reminderService.sendAction(emails.map(x => x.ID)).subscribe(() => {
+            this.loadRunNumber(this.currentRunNumber);
 
-            let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
-            this.reportDefinitionService.generateReportSendEmail('Purring', email, parameters);
+            emails.forEach((r) => {
+                let email = new SendEmail();
+                email.Format = 'pdf';
+                email.EmailAddress = r.EmailAddress;
+                email.EntityType = 'CustomerInvoiceReminder';
+                email.EntityID = r.ID;
+                email.Subject = `Purring fakturanr. ${r.InvoiceNumber}`;
+                email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
+
+                let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
+                this.reportDefinitionService.generateReportSendEmail('Purring', email, parameters);
+            });
         });
     }
 
@@ -255,13 +263,17 @@ export class ReminderSending implements OnInit {
         var prints = all ? this.getSelected() : this.getSelectedPrint();
         if (prints.length === 0) { return; }
 
-        this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
-            if (report) {
-                let filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
-                report.parameters = [{Name: 'odatafilter', value: filter}];
-                this.previewModal.open(report);
-            }
-        }, err => this.errorService.handle(err));
+        this.reminderService.sendAction(prints.map(x => x.ID)).subscribe(() => {
+            this.loadRunNumber(this.currentRunNumber);
+
+            this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
+                if (report) {
+                    let filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
+                    report.parameters = [{Name: 'odatafilter', value: filter}];
+                    this.previewModal.open(report);
+                }
+            }, err => this.errorService.handle(err));
+        });
     }
 
     private setupReminderTable() {

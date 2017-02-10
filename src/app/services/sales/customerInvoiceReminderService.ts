@@ -14,7 +14,7 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         { Code: StatusCodeCustomerInvoiceReminder.Paid, Text: 'Betalt' },
         { Code: StatusCodeCustomerInvoiceReminder.Completed, Text: 'Avsluttet' },
         { Code: StatusCodeCustomerInvoiceReminder.Failed, Text: 'Feilet' },
-        { Code: StatusCodeCustomerInvoiceReminder.SentToDebtCollection, Text: 'Til inkasso' }
+        { Code: StatusCodeCustomerInvoiceReminder.SentToDebtCollection, Text: 'Sendt til inkasso' }
     ];
 
     constructor(http: UniHttp) {
@@ -44,6 +44,14 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
 
     public getInvoiceRemindersForInvoicelist(list): Observable<any> {
         return this.ActionWithBody(null, list, `get-invoicereminders-for-invoicelist`, RequestMethod.Post);
+    }
+
+    public sendAction(list): Observable<any> {
+        return this.ActionWithBody(null, list, `send`, RequestMethod.Put);
+    }
+
+    public sendTransistion(reminder): Observable<any> {
+        return this.Transition(reminder.ID, reminder, `send`);
     }
 
     public getStatusText(statusCode: number): string {
