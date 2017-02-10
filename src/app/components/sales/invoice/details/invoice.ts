@@ -134,17 +134,6 @@ export class InvoiceDetails {
             }
         });
 
-        this.companySettingsService.Get(1)
-            .subscribe(
-                settings => {
-                    this.companySettings = settings;
-                    this.setupContextMenuItems();
-                },
-                err => this.errorService.handle(err)
-        );
-
-
-
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
             this.invoiceID = +params['id'];
@@ -154,7 +143,8 @@ export class InvoiceDetails {
                 Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
+                    this.companySettingsService.Get(1)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
@@ -163,6 +153,9 @@ export class InvoiceDetails {
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
+                    this.companySettings = res[3];
+
+                    this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             } else {
