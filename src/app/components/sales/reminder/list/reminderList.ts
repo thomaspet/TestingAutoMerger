@@ -51,7 +51,7 @@ export class ReminderList {
 
     private summary: ISummaryConfig[] = [];
     private summaryData = {
-        SumPayments: 0,
+        SumInvoicesToRemind: 0,
         SumChecked: 0,
         SumFee: 0,
     };
@@ -185,8 +185,8 @@ export class ReminderList {
 
     private setSums() {
         this.summary = [{
-                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumPayments) : null,
-                title: 'Totalt til betaling',
+                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumInvoicesToRemind) : null,
+                title: 'Totalt restsum',
             }, {
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumChecked) : null,
                 title: 'Totalt avkrysset',
@@ -222,6 +222,7 @@ export class ReminderList {
                         InvoiceDate: invoice.InvoiceDate,
                         CustomerID: invoice.CustomerID,
                         CustomerName: invoice.CustomerName,
+                        CustomerNumber: invoice.Customer ? invoice.Customer.CustomerNumber : '',
                         PaymentDueDate: invoice.PaymentDueDate,
                         EmailAddress: email.EmailAddress,
                         TaxInclusiveAmount: invoice.TaxInclusiveAmount,
@@ -229,6 +230,8 @@ export class ReminderList {
                         Fee: reminder.ReminderFee
                     };
                 });
+
+                this.summaryData.SumInvoicesToRemind = _.sumBy(this.reminderList, x => x.RestAmount);
             });
         }, (err) => this.errorService.handle(err));
     }
@@ -238,9 +241,9 @@ export class ReminderList {
 
         // Define columns to use in the table
         let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
-            .setWidth('15%').setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains');
         let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
-            .setWidth('15%').setFilterOperator('contains')
+            .setWidth('100px').setFilterOperator('contains')
             .setTemplate((reminder) => {
                 return `<a href='/#/sales/invoices/${reminder.InvoiceID}'>${reminder.InvoiceNumber}</a>`;
             });
@@ -249,7 +252,7 @@ export class ReminderList {
         let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
-                return `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>`;
+                return `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber} - ${reminder.CustomerName}</a>`;
             });
         let dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
@@ -283,7 +286,7 @@ export class ReminderList {
             });
 
         // Setup table
-        this.reminderTable = new UniTableConfig(true, true, 25)
+        this.reminderTable = new UniTableConfig(false, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
