@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
+import {Component, Type, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -15,6 +15,10 @@ export class SelectAmeldingTypeModalContent {
 
     constructor() {
 
+    }
+
+    public ngOnInit() {
+        this.loadContent();
     }
 
     public loadContent() {
@@ -71,7 +75,7 @@ export interface IAmeldingTypeEvent {
     selector: 'select-amelding-type-modal',
     template: `<uni-modal [type]="type" [config]="modalConfig" (close)="close()"></uni-modal>`
 })
-export class SelectAmeldingTypeModal implements AfterViewInit {
+export class SelectAmeldingTypeModal {
     public ameldType: number;
     public modalConfig: any = {};
     private isActive: boolean;
@@ -124,16 +128,11 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
         }
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openModal(done) {
+        this.modal.open();
         this.modal.getContent().then((component: SelectAmeldingTypeModalContent) => {
             this.done = done;
             this.isActive = true;
-            component.loadContent();
-            this.modal.open();
         });
     }
 }
