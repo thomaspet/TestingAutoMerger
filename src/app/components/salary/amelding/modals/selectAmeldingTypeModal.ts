@@ -24,16 +24,14 @@ export class SelectAmeldingTypeModalContent {
     public loadContent() {
         this.createFormConfig();
         let model = this.ameldingModel$.getValue();
-        model.type = 1;
+        model.type = 0;
         model.typeChanged = false;
         this.ameldingModel$.next(model);
     }
 
     public change(change: SimpleChanges) {
         if (change['type']) {
-            let value = change['type'].currentValue;
             let model = this.ameldingModel$.getValue();
-            model.type = value.type - 1;
             model.typeChanged = true;
             this.ameldingModel$.next(model);
         }
@@ -47,9 +45,9 @@ export class SelectAmeldingTypeModalContent {
         ameldTypeField.Property = 'type';
         ameldTypeField.Options = {
             source: [
-                { id: 1, name: 'Full a-melding' },
-                { id: 2, name: 'Bare arbeidsforhold' },
-                { id: 3, name: 'Nullstille a-meldingen' }
+                { id: 0, name: 'Full a-melding' },
+                { id: 1, name: 'Bare arbeidsforhold' },
+                { id: 2, name: 'Nullstille a-meldingen' }
             ],
             displayProperty: 'name',
             valueProperty: 'id',
