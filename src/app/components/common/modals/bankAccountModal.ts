@@ -235,7 +235,7 @@ export class BankAccountModal {
             title: 'Bankkonto',
             actions: [
                 {
-                    text: 'Lagre bankkonto',
+                    text: 'OK',
                     class: 'good',
                     method: () => {
                         if (this.modalConfig.accountVisible && !this.modalConfig.model.AccountID) {
