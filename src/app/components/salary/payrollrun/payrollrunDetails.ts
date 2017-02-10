@@ -2,7 +2,8 @@ import {Component, ViewChild, OnDestroy, SimpleChanges} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
-    CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear, EmployeeCategory
+    CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear, EmployeeCategory,
+    LocalDate
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -24,8 +25,9 @@ import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
-    FinancialYearService, ErrorService, EmployeeCategoryService
+    FinancialYearService, ErrorService, EmployeeCategoryService, SalarySumsService, NumberFormat
 } from '../../../services/services';
+import { IPosterWidget } from '../../common/poster/poster';
 
 declare var _;
 declare var moment;
@@ -76,6 +78,44 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         truncate: 20
     };
 
+    private payrollrunWidgets: IPosterWidget[] = [
+        {
+            type: 'table',
+            config: {
+                rows: [{ 
+                    cells: [{
+                        text: ''
+                    }]
+                }]
+            }
+        },
+        {
+            type: 'text',
+            config: {
+                mainText: { text: '' }
+            }
+        },
+        {
+            type: 'alerts',
+            config: {
+                alerts: [{
+                    text: '',
+                    class: ''
+                },
+                {
+                    text: '',
+                    class: ''
+                }]
+            }
+        },
+        {
+            type: 'text',
+            config: {
+                mainText: { text: '' }
+            }
+        }
+    ];
+
     constructor(
         private route: ActivatedRoute,
         private payrollrunService: PayrollrunService,
@@ -92,7 +132,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private _departmentService: DepartmentService,
         private _employeeTaxCardService: EmployeeTaxCardService,
         private _financialYearService: FinancialYearService,
-        private employeeCategoryService: EmployeeCategoryService
+        private employeeCategoryService: EmployeeCategoryService,
+        private _salarySumsService: SalarySumsService,
+        private numberformat: NumberFormat
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -124,6 +166,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.payDate = new Date(payrollRun.PayDate.toString());
                 }
                 this.payStatus = this.payrollrunService.getStatus(payrollRun).text;
+
+                this.updatePoster();
 
                 if (this.formIsReady) {
                     this.setEditMode();
@@ -204,6 +248,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             employeesSubject
                 .subscribe((employees: Employee[]) => {
                     this.employees = employees;
+                    this.updatePosterSelection();
                 });
 
             super.getStateSubject('salaryTransactions').subscribe((salaryTransactions: SalaryTransaction[]) => {
@@ -293,6 +338,102 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public ngOnDestroy() {
         this.payrollrunID = undefined;
+    }
+
+    private updatePoster() {
+        if (this.payrollrunID) {
+            this._salarySumsService.getFromPayrollRun(this.payrollrunID)
+                .subscribe((totalSums: any) => {
+                    let posterFilter = {
+                        type: 'table',
+                        config: {
+                            rows: [
+                                {
+                                    cells: [
+                                        {
+                                            text: 'Periode fastlønn',
+                                            header: true,
+                                            colspan: 3
+                                        }
+                                    ]
+                                },
+                                {
+                                    cells: [ 
+                                        {
+                                            text: new Date(this.payrollrun$.getValue().FromDate.toString()).toLocaleDateString('no',
+                                            {
+                                                day: '2-digit', month: '2-digit', year: 'numeric'
+                                            }),
+                                            header: false
+                                        },
+                                        {
+                                            text: ' - ',
+                                            header: false
+                                        },
+                                        {
+                                            text: new Date(this.payrollrun$.getValue().ToDate.toString()).toLocaleDateString('no',
+                                            {
+                                                day: '2-digit', month: '2-digit', year: 'numeric'
+                                            }),
+                                            header: false
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    posterDates = {
+                        type: 'text',
+                        config: {
+                            topText: [
+                                { text: 'Utbetalingsdato', class: 'large' }
+                            ],
+                            mainText: { text: new Date(this.payrollrun$.getValue().PayDate.toString()).toLocaleDateString('no',
+                                {
+                                    day: '2-digit', month: '2-digit', year: 'numeric'
+                                })
+                            }
+                        }
+                    },
+                    posterPayout = {
+                        type: 'text',
+                        config: {
+                            topText: [
+                                { text: 'Beløp til utbetaling', class: 'large' }
+                            ],
+                            mainText: { text: this.numberformat.asMoney(totalSums.netPayment) }
+                        }
+                    };
+                    
+                    this.payrollrunWidgets[0] = posterFilter;
+                    this.payrollrunWidgets[1] = posterDates;
+                    this.payrollrunWidgets[3] = posterPayout;
+                });
+        }
+    }
+
+    private updatePosterSelection() {
+        this._employeeService.GetAll('filter=deleted eq false')
+        .subscribe((employees: Employee[]) => {
+            let posterSelection = {
+                type: 'alerts',
+                config: {
+                    alerts: [
+                        {
+                            text: this.employees.length + ' ansatte i lønnsavregningen',
+                            class: 'success'
+                        },
+                        {
+                            text: (employees.length - this.employees.length) + ' ansatte utelatt på grunn av utvalg',
+                            class: 'error'
+                        }
+                    ]
+                }
+            };
+
+            this.payrollrunWidgets[2] = posterSelection;
+        });
+        
     }
 
     private updateTax(employees: Employee[]) {

@@ -1,6 +1,8 @@
 <uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()" [tags]="categoryFilter" [tagConfig]="tagConfig" (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
+<uni-poster [widgets]="payrollrunWidgets" *ngIf="payrollrunWidgets"></uni-poster>
+
 <section class="entityDetails" [attr.aria-busy]="busy" [attr.aria-expanded]="detailsActive">
     <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
 </section>
