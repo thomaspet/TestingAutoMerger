@@ -221,7 +221,7 @@ export class ReminderSending implements OnInit {
 
         this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
             if (report) {
-                let filter = prints.map((r) => 'InvoiceNumber eq ' + r.InvoiceNumber).join(' or ');
+                let filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
                 this.previewModal.openWithFilter(report, filter);
             }
         }, err => this.errorService.handle(err));
