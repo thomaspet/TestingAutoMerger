@@ -282,7 +282,7 @@ export class ReminderSending implements OnInit {
             .setWidth('20%')
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
-                let customersum = this.customerSums.find(x => x.SubAccountCustomerID = reminder.CustomerID);
+                let customersum = this.customerSums.find(x => x.SubAccountCustomerID === reminder.CustomerID);
                 let title = `Kundereskontro: ${this.numberFormat.asMoney(customersum ? customersum.sumAmount : 0)}`;
                 return this.modalMode
                     ? `<span title='${title}'>${reminder.CustomerName}</span>`
