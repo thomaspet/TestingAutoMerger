@@ -13,7 +13,8 @@ import {
     StatisticsService,
     ErrorService,
     ReportDefinitionService,
-    CustomerInvoiceReminderService
+    CustomerInvoiceReminderService,
+    NumberFormat
 } from '../../../../services/services';
 
 declare const moment;
@@ -39,9 +40,11 @@ export class ReminderSending implements OnInit {
     private remindersAll: any;
     private reminderTable: UniTableConfig;
     private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,DueDate as DueDate,ReminderNumber as ReminderNumber,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,DefaultEmail.EmailAddress as EmailAddress,CustomerInvoice.RestAmount as RestAmount,CustomerInvoice.TaxInclusiveAmount as TaxInclusiveAmount&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail&filter=';
+
     private currentRunNumber: number;
     private currentRunNumberData: IRunNumberData;
     private runNumbers: IRunNumberData[];
+    private customerSums: any;
     private toolbarconfig: IToolbarConfig;
 
     private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -56,7 +59,12 @@ export class ReminderSending implements OnInit {
              disabled: !!this.remindersAll
          },
          {
-             label: 'Skriv ut alle valgte',
+             label: 'Send valgte på epost',
+             action: (done) => this.sendEmails(done),
+             disabled: !!this.remindersEmail
+         },
+         {
+             label: 'Skriv ut valgte',
              action: (done) => this.sendReminders(done, true),
              disabled: !!this.remindersAll
          }
@@ -67,7 +75,8 @@ export class ReminderSending implements OnInit {
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
         private reminderService: CustomerInvoiceReminderService,
-        private reportDefinitionService: ReportDefinitionService
+        private reportDefinitionService: ReportDefinitionService,
+        private numberFormat: NumberFormat
     ) {
     }
 
@@ -104,6 +113,24 @@ export class ReminderSending implements OnInit {
             this.sendEmail();
             this.sendPrint(false);
         }
+    }
+
+    private sendEmails(done) {
+        var selected = this.getSelectedEmail();
+        if (selected.length === 0) {
+            this.toastService.addToast(
+                'Ingen rader er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst velg hvilke linjer du vil sende purringer på epost for, eller kryss av for alle'
+            );
+
+            done('Sending avbrutt');
+            return;
+        }
+
+        done('Purringer sendes');
+        this.sendEmail();
     }
 
     public updateToolbar() {
@@ -144,16 +171,16 @@ export class ReminderSending implements OnInit {
                     this.currentRunNumberData = extra;
 
                     if (reminders.length === 0) {
-                            reject();
-                        } else {
-                            this.currentRunNumber = runNumber;
-                            this.updateToolbar();
-                            this.updateReminderList(reminders);
-                            resolve();
-                        }
-                    }, (err) => {
                         reject();
-                    });
+                    } else {
+                        this.currentRunNumber = runNumber;
+                        this.updateToolbar();
+                        this.updateReminderList(reminders);
+                        resolve();
+                    }
+                }, (err) => {
+                    reject();
+                });
             }
         });
     }
@@ -173,14 +200,21 @@ export class ReminderSending implements OnInit {
     public updateReminderList(reminders) {
         let filter = reminders.map((r) => 'ID eq ' + r.ID).join(' or ');
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
-            .subscribe((data) => {
-                this.remindersAll = data;
-                this.remindersAll = data.map((r) => {
-                    r._rowSelected = true;
-                    return r;
-                });
-                this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
-                this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
+            .subscribe((remindersAll) => {
+                let cfilter = remindersAll.map((r) => `SubAccount.CustomerID eq ${r.CustomerID}`).join(' or ');
+                this.statisticsService.GetAllUnwrapped('model=JournalEntryLine&expand=SubAccount&select=SubAccount.CustomerID,sum(Amount)&filter=' + cfilter)
+                    .subscribe((customersums) => {
+                        this.customerSums = customersums;
+
+                        this.remindersAll = remindersAll;
+                        this.remindersAll = remindersAll.map((r) => {
+                            r._rowSelected = true;
+                            return r;
+                        });
+
+                        this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
+                        this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
+                    });
             });
     }
 
@@ -205,13 +239,15 @@ export class ReminderSending implements OnInit {
 
         emails.forEach((r) => {
             let email = new SendEmail();
+            email.Format = 'pdf';
             email.EmailAddress = r.EmailAddress;
             email.EntityType = 'CustomerInvoiceReminder';
             email.EntityID = r.ID;
             email.Subject = 'Purring ' + r.ReminderNumber;
             email.Message = 'Vedlagt finner du purring for faktura ' + r.InvoiceNumber;
 
-            this.reportDefinitionService.generateReportSendEmail('Purring', email);
+            let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
+            this.reportDefinitionService.generateReportSendEmail('Purring', email, parameters);
         });
     }
 
@@ -222,7 +258,8 @@ export class ReminderSending implements OnInit {
         this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
             if (report) {
                 let filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
-                this.previewModal.openWithFilter(report, filter);
+                report.parameters = [{Name: 'odatafilter', value: filter}];
+                this.previewModal.open(report);
             }
         }, err => this.errorService.handle(err));
     }
@@ -237,7 +274,7 @@ export class ReminderSending implements OnInit {
             .setTemplate((reminder) => {
                 let title = `Fakturadato: ${moment(reminder.InvoiceDate).format('DD.MM.YYYY')}\nForfallsdato: ${moment(reminder.InvoiceDueDate).format('DD.MM.YYYY')}`;
                 return this.modalMode
-                    ? reminder.InvoiceNumber
+                    ? `<span' title='${title}'>${reminder.InvoiceNumber}</span>`
                     : `<a href='/#/sales/invoices/${reminder.InvoiceID}' title='${title}'>${reminder.InvoiceNumber}</a>`;
             });
         let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
@@ -245,9 +282,11 @@ export class ReminderSending implements OnInit {
             .setWidth('20%')
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
+                let customersum = this.customerSums.find(x => x.SubAccountCustomerID = reminder.CustomerID);
+                let title = `Kundereskontro: ${this.numberFormat.asMoney(customersum ? customersum.sumAmount : 0)}`;
                 return this.modalMode
-                    ? reminder.CustomerName
-                    : `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>`;
+                    ? `<span title='${title}'>${reminder.CustomerName}</span>`
+                    : `<a href='/#/sales/customer/${reminder.CustomerID}' title='${title}'>${reminder.CustomerName}</a>`;
             });
         let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
             .setFilterOperator('contains');

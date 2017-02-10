@@ -109,14 +109,6 @@ export class PreviewModal {
         };
     }
 
-    public openWithFilter(report: Report, filter: string, name: string = 'odatafilter') {
-        var filterparam = new ReportParameter();
-        filterparam.Name = name;
-        filterparam.value = filter;
-        report.parameters = [filterparam];
-        this.open(report);
-    }
-
     public openWithId(report: Report, id: number, name: string = 'Id') {
         var idparam = new ReportParameter();
         idparam.Name = name;
@@ -125,7 +117,7 @@ export class PreviewModal {
         this.open(report);
     }
 
-    public open(report: Report) {
+    public open(report: Report, parameters = null) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;

@@ -87,7 +87,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                     .printReport(this.report.templateJson, response.dataSources, this.report.parameters, false, 'pdf'));
     }
 
-    public generateReportSendEmail(name: string, sendemail: SendEmail) {
+    public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null) {
         if (sendemail.EmailAddress.indexOf('@') <= 0) {
             this.toastService.addToast('Sending av epost feilet', ToastType.bad, 3, 'Grunnet manglende epostadresse');
         } else {
@@ -95,6 +95,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
             this.getReportByName(name).subscribe((report) => {
                 report.parameters = [{ Name: 'Id', value: sendemail.EntityID }];
+                if (parameters) { report.parameters = report.parameters.concat(parameters); }
 
                 this.format = sendemail.Format;
                 this.report = <Report>report;
