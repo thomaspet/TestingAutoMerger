@@ -5947,9 +5947,9 @@ underscore@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.7.0.tgz#6bbaf0877500d36be34ecaa584e0db9fef035209"
 
-uniform-ng2@^0.0.39:
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.39.tgz#d94d6114ac2fbbd67e54a5e1eb1958cd0ebc8060"
+uniform-ng2@^0.0.41:
+  version "0.0.41"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.41.tgz#35daecfc6cddb71a93cda1f2bf23388ad0075f53"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
