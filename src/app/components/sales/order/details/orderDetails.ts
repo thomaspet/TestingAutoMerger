@@ -337,7 +337,7 @@ export class OrderDetails {
         this.toolbarconfig = {
             title: orderText,
             subheads: [
-                {title: customerText},
+                {title: customerText, link: this.order.Customer ? `#/sales/customer/${this.order.Customer.ID}` : ''},
                 {title: netSumText},
                 {title: GetPrintStatusText(this.order.PrintStatus)}
             ],

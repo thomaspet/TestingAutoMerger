@@ -12,6 +12,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {IPosterWidget} from '../../../common/poster/poster';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
 import {
@@ -24,6 +25,7 @@ import {
     BusinessRelationService,
     UniQueryDefinitionService,
     ErrorService,
+    NumberFormat,
     CustomerInvoiceReminderSettingsService
 } from '../../../../services/services';
 
@@ -88,7 +90,45 @@ export class CustomerDetails {
         ]
     };
 
+    private customerWidgets: IPosterWidget[] = [
+        {
+            type: 'text',
+            size: 'small',
+            config: {
+                mainText: { text: '-' },
+                topText: [
+                    { text: 'Totalt fakturert', class: 'large' },
+                    { text: '(eks. mva)', class: 'small'}
+                ]
+            }
+        },
+        {
+            type: 'text',
+            size: 'small',
+            config: {
+                mainText: { text: '-' },
+                topText: [
+                    { text: 'Åpne ordre', class: 'large' },
+                    { text: '(eks. mva)', class: 'small'}
+                ]
+            }
+        },
+        {
+            type: 'text',
+            size: 'small',
+            config: {
+                mainText: { text: '-', class: '' },
+                topText: [
+                    { text: 'Utestående', class: 'large' },
+                    { text: '', class: 'small' }
+                ]
+            }
+        }
+    ];
+    private customerStatisticsData: any;
+
     private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'CustomerInvoiceReminderSettings', 'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules'];
+
 
     private formIsInitialized: boolean = false;
 
@@ -115,6 +155,7 @@ export class CustomerDetails {
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
+        private numberFormat: NumberFormat,
         private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService
     ) {}
 
@@ -143,7 +184,7 @@ export class CustomerDetails {
     }
 
     public nextCustomer() {
-        this.customerService.getNextID(this.customer$.getValue() ? this.customer$.getValue().ID : 0)
+        this.customerService.getNextID(this.customerID ? this.customerID : 0)
             .subscribe(id => {
                     if (id) {
                         this.router.navigateByUrl('/sales/customer/' + id);
@@ -156,7 +197,7 @@ export class CustomerDetails {
     }
 
     public previousCustomer() {
-        this.customerService.getPreviousID(this.customer$.getValue() ? this.customer$.getValue().ID : 0)
+        this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
             .subscribe(id => {
                     if (id) {
                         this.router.navigateByUrl('/sales/customer/' + id);
@@ -187,7 +228,6 @@ export class CustomerDetails {
 
         this.toolbarconfig.title = customer.ID ? customer.Info.Name : 'Ny kunde';
         this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
-
     }
 
     public canDeactivate(): boolean|Promise<boolean> {
@@ -266,13 +306,20 @@ export class CustomerDetails {
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
-                this.addressService.GetNewEntity(null, 'Address')
+                this.addressService.GetNewEntity(null, 'Address'),
+                (
+                    this.customerID > 0 ?
+                        this.customerService.getCustomerStatistics(this.customerID) :
+                        Observable.of(null)
+                )
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.customer$.next(response[2]);
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
+
+                this.customerStatisticsData = response[6];
 
                 let customer = this.customer$.getValue();
                 if (customer.CustomerInvoiceReminderSettings === null) {
@@ -282,6 +329,7 @@ export class CustomerDetails {
 
                 this.setTabTitle();
                 this.extendFormConfig();
+                this.updateCustomerWidgets();
 
                 this.formIsInitialized = true;
 
@@ -291,19 +339,50 @@ export class CustomerDetails {
 
             }, err => this.errorService.handle(err));
         } else {
-
             Observable.forkJoin(
-            this.customerID > 0 ?
-                        this.customerService.Get(this.customerID, this.expandOptions)
-                        : this.customerService.GetNewEntity(this.expandOptions)
+                (
+                    this.customerID > 0 ?
+                        this.customerService.Get(this.customerID, this.expandOptions) :
+                        this.customerService.GetNewEntity(this.expandOptions)
+                ),
+                (
+                    this.customerID > 0 ?
+                        this.customerService.getCustomerStatistics(this.customerID) :
+                        Observable.of(null)
+                )
             ).subscribe(response => {
                 this.customer$.next(response[0]);
+                this.customerStatisticsData = response[1];
                 this.setTabTitle();
+                this.updateCustomerWidgets();
 
                 setTimeout(() => {
                     this.ready();
                 });
             }, err => this.errorService.handle(err));
+        }
+    }
+
+    public updateCustomerWidgets() {
+        if (this.customerStatisticsData) {
+            this.customerWidgets[0].config.mainText.text =
+                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumInvoicedExVat);
+
+            this.customerWidgets[1].config.mainText.text =
+                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumOpenOrdersExVat);
+
+            this.customerWidgets[2].config.mainText.text =
+                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumDueInvoicesRestAmount);
+            this.customerWidgets[2].config.topText[1].text =
+                this.customerStatisticsData.NumberOfDueInvoices + ' forfalte fakturaer';
+
+            if (this.customerStatisticsData.NumberOfDueInvoices > 0) {
+                this.customerWidgets[2].config.mainText.class = 'bad';
+                this.customerWidgets[2].config.topText[1].class = 'small bad';
+            } else {
+                this.customerWidgets[2].config.mainText.class = '';
+                this.customerWidgets[2].config.topText[1].class = 'small';
+            }
         }
     }
 

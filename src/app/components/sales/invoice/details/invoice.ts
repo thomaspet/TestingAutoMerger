@@ -419,7 +419,7 @@ export class InvoiceDetails {
         let toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
-                {title: customerText},
+                {title: customerText, link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : ''},
                 {title: netSumText},
                 {title: GetPrintStatusText(this.invoice.PrintStatus)},
                 {title: reminderStopText}

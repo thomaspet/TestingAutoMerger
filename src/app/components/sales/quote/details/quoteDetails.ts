@@ -320,7 +320,7 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: quoteText,
             subheads: [
-                {title: customerText},
+                {title: customerText, link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : ''},
                 {title: netSumText},
                 {title: GetPrintStatusText(this.quote.PrintStatus)}
             ],

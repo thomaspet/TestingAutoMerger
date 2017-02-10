@@ -1,6 +1,10 @@
-<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
-                                [saveactions]="saveactions">
+<uni-toolbar
+    *ngIf="!modalMode"
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
 </uni-toolbar>
+
+<uni-poster [widgets]="customerWidgets" *ngIf="customerWidgets && (customer$|async)?.ID"></uni-poster>
 
 <header class="customer_poster">
     <section class="poster_overview">
@@ -23,7 +27,7 @@
             </li>
             <li *ngFor="let link of reportLinks">
                 <a
-                        [class]="activeTab === 'uniquery' && showReportWithID == link.id ? 'router-link-active' : ''"
+                        [class]="activeTab === 'report' && showReportWithID == link.id ? 'router-link-active' : ''"
                         (click)="showTab('report', link.id)"
                 >{{link.name}}</a>
             </li>
@@ -37,7 +41,7 @@
               [fields]="fields$"
               [model]="customer$">
     </uni-form>
-    <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}">
+    <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}" *ngIf="activeTab === 'details'">
         <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
         <div class="collapsable-content">
             <reminder-settings
