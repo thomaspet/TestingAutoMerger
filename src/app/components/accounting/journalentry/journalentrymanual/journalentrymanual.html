@@ -1,8 +1,3 @@
-<section class="modeswitcher">
-    <button *ngIf="journalEntryMode == 'PROFESSIONAL'" (click)="setJournalEntryMode('SIMPLE')">Vis forenklet registrering...</button>
-    <button *ngIf="journalEntryMode == 'SIMPLE'" (click)="setJournalEntryMode('PROFESSIONAL')">Vis proff registrering...</button>
-</section>
-
 <section [ngClass]="{'journalentry-input-area-full': !journalEntrySettings.AttachmentsVisible, 'journalentry-input-area': journalEntrySettings.AttachmentsVisible}">
     <div class="journalentry-input-components">
         <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
@@ -13,28 +8,32 @@
                                     [runAsSubComponent]="runAsSubComponent"
                                     [disabled]="disabled"
                                     [mode]="mode"
-                                    [supplierInvoice]="supplierInvoice"
                                     [journalEntryID]="journalEntryID"
                                     [doShowImage]="journalEntrySettings.AttachmentsVisible"
                                     [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
                                     [financialYears]="financialYears"
                                     [currentFinancialYear]="currentFinancialYear"
-                                    *ngIf="journalEntryMode == 'PROFESSIONAL'">
+                                    [vatDeductions]="vatDeductions"
+                                    [companySettings]="companySettings">
         </journal-entry-professional>
 
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
 
-
         <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
             <tr>
-                <th style="width:20%;min-width: 90px"></th>
-                <th style="width:40%">Debet</th>
-                <th style="width:40%">Kredit</th>
+                <th class="first_col"></th>
+                <th class="other_cols">Debet</th>
+                <th class="other_cols">Kredit</th>
             </tr>
             <tr>
                 <td>Kontonavn</td>
                 <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
                 <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
+            </tr>
+            <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
+                <td>Fradragsprosent MVA</td>
+                <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
             </tr>
             <tr>
                 <td>Saldo ({{currentFinancialYear.Year}})</td>
@@ -74,15 +73,6 @@
                 {{message.Message}}
             </strong>
         </p>
-
-        <journal-entry-simple [supplierInvoice]="supplierInvoice"
-                            [journalEntryID]="journalEntryID"
-                            [runAsSubComponent]="runAsSubComponent"
-                            [mode]="mode"
-                            [disabled]="disabled"
-                            (dataLoaded)="onDataLoaded($event)"
-                            *ngIf="journalEntryMode == 'SIMPLE'">
-        </journal-entry-simple>
     </div>
 </section>
 

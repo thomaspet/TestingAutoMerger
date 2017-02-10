@@ -1,11 +1,12 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare var _; // lodash
 @Component({
@@ -15,8 +16,9 @@ declare var _; // lodash
 export class PostingJournalReportFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: UniFieldLayout[];
-    public model: {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{
         FromJournalEntryNumber: number,
         ToJournalEntryNumber: number,
         PeriodAccountYear: number,
@@ -24,7 +26,7 @@ export class PostingJournalReportFilterForm implements OnInit {
         ToPeriod: number,
         OrderBy: string,
         ShowFilter: string
-    } = {
+    }> = new BehaviorSubject({
         FromJournalEntryNumber: 1,
         ToJournalEntryNumber: 1,
         PeriodAccountYear: new Date().getFullYear(),
@@ -32,7 +34,7 @@ export class PostingJournalReportFilterForm implements OnInit {
         ToPeriod: 12,
         OrderBy: 'date',
         ShowFilter: 'withoutCorrections'
-    };
+    });
 
     private typeOfOrderBy: { ID: string, Label: string }[] = [
         { ID: 'date', Label: 'Bilagsnr og dato' },
@@ -52,13 +54,17 @@ export class PostingJournalReportFilterForm implements OnInit {
     }
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
+        this.config$.next(this.config);
+        this.fields$.next(this.getComponentFields());
         this.yearService.getActiveYear().subscribe(res => {
-            this.model.PeriodAccountYear = res;
+            let model = this.model$.getValue();
+            model.PeriodAccountYear = res;
+            this.model$.next(model);
         });
         this.journalEntryService.getLastJournalEntryNumber().subscribe(data => {
-            this.model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
-            this.model = _.cloneDeep(this.model);
+            let model = this.model$.getValue();
+            model.ToJournalEntryNumber = data.Data[0].JournalEntryLineJournalEntryNumberNumeric;
+            this.model$.next(model);
         }, err => this.errorService.handle(err));
     }
 
@@ -149,10 +155,10 @@ export class PostingJournalReportFilterModal {
                                     case 'FromPeriod':
                                     case 'ToPeriod':
                                     case 'ShowFilter':
-                                        parameter.value = component.model[parameter.Name];
+                                        parameter.value = component.model$.getValue()[parameter.Name];
                                         break;
                                     case 'OrderBy':
-                                        switch (component.model.OrderBy) {
+                                        switch (component.model$.getValue().OrderBy) {
                                             case 'date':
                                                 parameter.value = 'Financialdate';
                                                 break;

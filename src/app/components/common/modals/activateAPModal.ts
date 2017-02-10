@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
-import {FieldType} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {ActivateAP} from '../../../models/activateAP';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {
@@ -10,6 +10,7 @@ import {
     UserService,
     CompanySettingsService
 } from '../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // Reusable email form
 @Component({
@@ -17,7 +18,7 @@ import {
     template: `
         <article class="modal-content activate-ap-modal">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
            <footer>
                 <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -30,17 +31,19 @@ export class ActivateAPForm {
     @Input() public model: ActivateAP;
     @ViewChild(UniForm) public form: UniForm;
     private config: any = {};
-    private fields: any[] = [];
-    private formConfig: any = {};
+    private model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
         this.setupForm();
+        this.model$.next(this.config.model);
     }
 
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        this.fields = [
+        this.fields$.next([
             {
                 Property: 'contactname',
                 FieldType: FieldType.TEXT,
@@ -61,15 +64,15 @@ export class ActivateAPForm {
             },
             {
                 Property: 'incommingInvoice',
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Inngående faktura'
             },
             {
                 Property: 'outgoingInvoice',
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Utgående faktura'
             }
-        ];
+        ]);
     }
 }
 

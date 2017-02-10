@@ -3752,13 +3752,13 @@ lodash@^3.1.0, lodash@^3.10.1, lodash@^3.8.0:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
-lodash@^4.0.0, lodash@^4.11.1, lodash@^4.14.0, lodash@^4.17.2, lodash@^4.2.0:
-  version "4.17.2"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
-
-lodash@^4.5.1:
+lodash@^4.0.0, lodash@^4.11.1, lodash@^4.14.0, lodash@^4.2.0, lodash@^4.5.1:
   version "4.16.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.16.4.tgz#01ce306b9bad1319f2a5528674f88297aeb70127"
+
+lodash@^4.17.2:
+  version "4.17.2"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
 
 lodash@~1.0.1:
   version "1.0.2"
@@ -5947,9 +5947,9 @@ underscore@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.7.0.tgz#6bbaf0877500d36be34ecaa584e0db9fef035209"
 
-uniform-ng2@0.0.23:
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.23.tgz#b588795dafb549746cea9219f6f1d78c499c0042"
+uniform-ng2@^0.0.41:
+  version "0.0.41"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.41.tgz#35daecfc6cddb71a93cda1f2bf23388ad0075f53"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
@@ -5996,9 +5996,9 @@ unisearch-ng2@0.0.5:
     typings "^0.7.12"
     zone.js "^0.6.21"
 
-unitable-ng2@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.0.tgz#1ed35588e788daeaa5c35d62da59ef59ba6e7c35"
+unitable-ng2@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.2.tgz#fc0b9e7d5850d42e5021b1f36c6a7f45ab178d04"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"

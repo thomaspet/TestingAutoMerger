@@ -26,7 +26,6 @@ import {AccountingModule} from './components/accounting/accountingModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {Dashboard} from './components/dashboard/dashboard';
-import {ExamplesModule} from './components/examples/examplesModule';
 import {ReportsModule} from './components/reports/reportsModule';
 import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {SalaryModule} from './components/salary/salaryModule';
@@ -73,7 +72,6 @@ if (window.ENV === 'production') {
 
         // APP MODULES
         AccountingModule,
-        ExamplesModule,
         ReportsModule,
         SalaryModule,
         InitModule,

@@ -1,10 +1,11 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'account-report-filter-form',
@@ -12,9 +13,10 @@ import {ErrorService} from '../../../../services/services';
 })
 export class AccountReportFilterForm implements OnInit {
     @Input('config')
-    public config: any;
-    public fields: UniFieldLayout[];
-    public model: {
+    public config: any = {};
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{
         PeriodAccountYear: number,
         FromAccountNumber: number,
         ToAccountNumber: number,
@@ -26,7 +28,7 @@ export class AccountReportFilterForm implements OnInit {
         UseColors: boolean,
         ShowAccountsWithoutBalance: boolean,
         ShowFilter: string
-    } = {
+    }> = new BehaviorSubject({
         PeriodAccountYear: new Date().getFullYear(),
         FromAccountNumber: 1000,
         ToAccountNumber: 8990,
@@ -38,7 +40,7 @@ export class AccountReportFilterForm implements OnInit {
         ShowAccountsWithoutDetails: false,
         ShowAccountsWithoutBalance: false,
         ShowFilter: 'withoutCorrections'
-    };
+    });
 
     private typeOfOrderBy: { ID: string, Label: string }[] = [
         { ID: 'AccountNrAndDate', Label: 'Kontonr og dato' },
@@ -59,10 +61,13 @@ export class AccountReportFilterForm implements OnInit {
     }
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
-        this.yearService.getActiveYear().subscribe(res=> {
-        this.model.PeriodAccountYear=res;
-        })
+        this.config$.next(this.config);
+        this.fields$.next(this.getComponentFields());
+        this.yearService.getActiveYear().subscribe(res => {
+            let model = this.model$.getValue();
+            model.PeriodAccountYear = res;
+            this.model$.next(model);
+        });
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -163,7 +168,7 @@ export class AccountReportFilterModal {
                             for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
                                 switch (parameter.Name) {
                                     case 'OrderBy':
-                                        switch (component.model['OrderBy']) {
+                                        switch (component.model$.getValue()['OrderBy']) {
                                             case 'AccountNrAndDate':
                                                 parameter.value = 'Financialdate';
                                                 break;
@@ -182,7 +187,7 @@ export class AccountReportFilterModal {
                                         }
                                         break;
                                     default:
-                                        parameter.value = component.model[parameter.Name];
+                                        parameter.value = component.model$.getValue()[parameter.Name];
                                         break;
                                 }
                             }
@@ -190,12 +195,12 @@ export class AccountReportFilterModal {
                             // add custom parameters
                             let accountLastYearParam = new CustomReportDefinitionParameter();
                             accountLastYearParam.Name = 'PeriodAccountLastYear';
-                            accountLastYearParam.value = component.model.PeriodAccountYear - 1;
+                            accountLastYearParam.value = component.model$.getValue().PeriodAccountYear - 1;
                             this.modalConfig.report.parameters.push(accountLastYearParam);
 
                             let orderByGroupParam = new CustomReportDefinitionParameter();
                             orderByGroupParam.Name = 'OrderByGroup';
-                            switch (component.model['OrderBy']) {
+                            switch (component.model$.getValue()['OrderBy']) {
                                 case 'AccountNrAndDate':
                                 case 'AccountNrAndJournalNr':
                                     orderByGroupParam.value = 'number';

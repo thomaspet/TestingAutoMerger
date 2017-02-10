@@ -1,7 +1,5 @@
-@import 'journalentrySimple'
 @import 'journalentryProfessional'
 @import 'payments'
-@import 'supplierInvoices'
 @import 'bill'
 
 journal-entry > h2
@@ -52,6 +50,13 @@ journal-entry-manual
         padding-left: pxToRem(10)
         padding-bottom: pxToRem(10)
         margin-bottom: pxToRem(15)
+
+        .first_col
+            width: 30%
+            min-width: pxToRem(90)
+
+        .other_cols
+            width: 35%
 
         th
             text-align: right

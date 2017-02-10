@@ -1,9 +1,9 @@
 ﻿<h2>Brukerinnstillinger</h2>
-<article *ngIf="user">    
+<article *ngIf="user$ | async">
     <uni-form class="userSettings"            
-            [config]="config" 
-            [fields]="fields" 
-            [model]="user">
+            [config]="config$"
+            [fields]="fields$"
+            [model]="user$">
     </uni-form>
 </article>
 

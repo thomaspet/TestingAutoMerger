@@ -3,10 +3,9 @@
 
     <p *ngIf="!error"> Her kan du sende forespørsel om skattekort til altinn. Du velger ut hvilke ansatte du ønsker å få tilbake skattekort for. Din forespørsel vil bli behandlet i altinn, dette kan ta inntil ett døgn </p>
 
-    <uni-form *ngIf="model"
-              [config]="formConfig"
-              [fields]="fields"
-              [model]="model"
+    <uni-form [config]="formConfig$"
+              [fields]="fields$"
+              [model]="model$"
               (changeEvent)="change($event)"></uni-form>
 
     <p *ngIf="error"

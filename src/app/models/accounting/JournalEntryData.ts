@@ -1,4 +1,4 @@
-import {JournalEntry, Account, VatType, Dimensions, Payment} from '../../unientities';
+import {JournalEntry, Account, VatType, Dimensions, Payment, Accrual} from '../../unientities';
 
 export class JournalEntryData {
     JournalEntryID: number;
@@ -21,6 +21,8 @@ export class JournalEntryData {
     CreditAccount: any;
     CreditVatTypeID: number;
     CreditVatType: VatType;
+
+    VatDeductionPercent: number;
 
     Description: string;
 
@@ -45,6 +47,8 @@ export class JournalEntryData {
     StatusCode: number;
 
     JournalEntryPaymentData: JournalEntryPaymentData;
+
+    JournalEntryDataAccrual: Accrual;
 }
 
 export class JournalEntryPaymentData {

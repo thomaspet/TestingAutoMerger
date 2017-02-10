@@ -1,39 +1,39 @@
-import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {UniForm} from 'uniform-ng2/main';
-import {FieldType} from '../../../unientities';
+import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
+import {UniForm, FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
 declare const _;
 
 @Component({
     selector: 'tof-details-form',
     template: `
-        <uni-form [fields]="fields"
-                  [model]="entity"
-                  [config]="formConfig"
+        <uni-form [fields]="fields$"
+                  [model]="entity$"
+                  [config]="formConfig$"
                   (readyEvent)="onFormReady($event)"
                   (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDetailsForm {
-    @ViewChild(UniForm)
-    private form: UniForm;
+    @ViewChild(UniForm) private form: UniForm;
 
-    @Input()
-    public readonly: boolean;
+    @Input() public readonly: boolean;
+    @Input() public entityType: string;
+    @Input() public entity: any;
 
-    @Input()
-    public entityType: string;
+    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
-    @Input()
-    public entity: any;
+    private entity$: BehaviorSubject<any> = new BehaviorSubject({});
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    @Output()
-    public entityChange: EventEmitter<any> = new EventEmitter();
-
-    private fields: any[];
-    public formConfig: any = {autofocus: false};
+    public ngOnInit() {
+        this.entity$.next(this.entity);
+    }
 
     public ngOnChanges(changes) {
+        this.entity$.next(this.entity);
         if (changes['entityType'] && this.entityType) {
             this.initFormFields();
         }
@@ -55,8 +55,12 @@ export class TofDetailsForm {
         }
     }
 
-    public onFormChange(model) {
-        this.entityChange.emit(model);
+    public onFormChange(changes: SimpleChanges) {
+        var keys = Object.keys(changes);
+        keys.forEach(key => {
+            _.set(this.entity, key, changes[key].currentValue);
+        });
+        this.entityChange.emit(this.entity);
     }
 
     private initFormFields() {
@@ -235,7 +239,7 @@ export class TofDetailsForm {
             fields[4].Hidden = true;
         }
 
-        this.fields = fields;
+        this.fields$.next(fields);
     }
 
 }

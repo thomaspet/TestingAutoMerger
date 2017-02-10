@@ -1,5 +1,5 @@
 <section class="application">
-    <uni-form [config]="config" [fields]="fields" [model]="currentCategory" (changeEvent)="change($event)" (toggleEvent)="toggle($event)"></uni-form>
+    <uni-form [config]="config$" [fields]="fields$" [model]="currentCategory$" (changeEvent)="change($event)" (toggleEvent)="toggle($event)"></uni-form>
     <h2 *ngIf="categoriesUsedInEmployees.length > 0">Ansatte tilknyttet kategorien</h2>
     <uni-table *ngIf="categoriesUsedInEmployees.length > 0" [config]="categoriesUsedInEmployeesConfig" [resource]="categoriesUsedInEmployees"></uni-table>
     <h2 *ngIf="categoriesUsedInPayrollruns.length > 0">Lønnsavregninger tilknyttet kategorien</h2>

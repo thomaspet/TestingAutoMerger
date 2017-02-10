@@ -14,18 +14,18 @@
     </section>
 </header>
 
-<section *ngIf="product" class="product-details application">
+<section *ngIf="(product$ | async)" class="product-details application">
     <uni-form
-            [config]="config"
-            [fields]="fields"
-            [model]="product"
-            (readyEvent)="ready($event)">
+            [config]="config$"
+            [fields]="fields$"
+            [model]="product$"
+            (changeEvent)="change($event)">
     </uni-form>
 
     <article class="collapsable" [ngClass]="{'-is-open': showImageComponent}">
         <h4 (click)="showImageComponent = !showImageComponent">Produktbilde</h4>
         <div class="collapsable-content">
-            <uni-image [entity]="'product'" [entityID]="product.ID" [uploadConfig]="imageUploadConfig"></uni-image>
+            <uni-image [entity]="'product'" [entityID]="(product$ | async)?.ID" [uploadConfig]="imageUploadConfig"></uni-image>
         </div>
     </article>
 </section>

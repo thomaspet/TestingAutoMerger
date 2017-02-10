@@ -9,6 +9,7 @@ import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../utils/utils';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 enum IAction {
     Save = 0,
@@ -58,9 +59,9 @@ export class GenericDetailview {
     public title: any;
     public subTitle: any;
     public ID: number;
-    public current: any;
-    public fields: Array<any>;
-    public config: any = {autofocus: true};
+    public current$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public toolbarConfig: any = { title: '' };
 
     public actions: IUniSaveAction[] = [
@@ -81,7 +82,13 @@ export class GenericDetailview {
 
     public ngOnInit() {
         if (this.viewconfig) {
-            this.fields = this.viewconfig.formFields;
+            this.fields$.next(this.viewconfig.formFields);
+        }
+    }
+
+    public ngOnChanges() {
+        if (this.viewconfig) {
+            this.fields$.next(this.viewconfig.formFields);
         }
     }
 
@@ -209,9 +216,9 @@ export class GenericDetailview {
                     if (this.viewconfig.data && this.viewconfig.data.check) {
                         this.viewconfig.data.check(item);
                     }
-                    this.current = item;
+                    this.current$.next(item);
                     this.enableAction(IAction.Delete);
-                    this.itemChanged.emit(this.current);
+                    this.itemChanged.emit(item);
                 }
                 if (updateTitle) {
                     this.updateTitle();
@@ -225,8 +232,8 @@ export class GenericDetailview {
         } else {
             this.ID = 0;
             if (this.viewconfig.data && this.viewconfig.data.factory) {
-                this.current = this.viewconfig.data.factory();
-                this.current.ID = this.ID;
+                this.current$.next(this.viewconfig.data.factory());
+                this.current$.getValue().ID = this.ID;
             }
             this.enableAction(IAction.Delete, false);
             this.busy = false;
@@ -234,7 +241,7 @@ export class GenericDetailview {
             if (updateTitle) {
                 this.updateTitle(this.viewconfig.labels.createNew);
             }
-            this.itemChanged.emit(this.current);
+            this.itemChanged.emit(this.current$.getValue());
         }
         this.initToolbar(this.title, this.subTitle === this.title ? '' : this.subTitle );
     }
@@ -246,7 +253,7 @@ export class GenericDetailview {
     private updateTitle(fallbackTitle?: string) {
         if (this.viewconfig) {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
-            this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || '';
+            this.title = this.ID && this.current$.getValue() ? getDeepValue(this.current$.getValue(), nameProp) : fallbackTitle || '';
             this.subTitle = this.ID ? ` (nr. ${this.ID})` : this.viewconfig.labels.createNew;
             var tabTitle = trimLength(this.title, 12);
             var url = this.viewconfig.tab.url + '/' + this.ID;
@@ -258,10 +265,10 @@ export class GenericDetailview {
         this.busy = true;
         this.ensureEditCompleted();
         return new Promise( (resolve, reject) => {
-            this.workerService.saveByID(this.current, this.viewconfig.data.route)
+            this.workerService.saveByID(this.current$.getValue(), this.viewconfig.data.route)
                 .finally(() => this.busy = false)
                 .subscribe((item) => {
-                    this.current = item;
+                    this.current$.next(item);
                     this.ID = item.ID;
                     this.updateTitle();
                     this.flagDirty(false);
@@ -270,7 +277,7 @@ export class GenericDetailview {
                     this.afterSave.emit(details);
 
                     var postActions = () => {
-                        this.itemChanged.emit(this.current);
+                        this.itemChanged.emit(this.current$.getValue());
                         if (done) { done(labels.msg_saved); }
                         this.enableAction(IAction.Delete, true);
                         resolve(true);

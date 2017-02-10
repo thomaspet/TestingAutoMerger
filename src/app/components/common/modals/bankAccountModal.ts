@@ -1,11 +1,13 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Type, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
-import {BankAccount, FieldType, Account} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
+import {BankAccount, Account} from '../../../unientities';
 import {BankService, AccountService, AddressService, ErrorService} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BankData} from '../../../models/models';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare var _;
 
@@ -16,7 +18,7 @@ declare var _;
     template: `
         <article class="modal-content bankaccount-modal" *ngIf="config.model">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model" (readyEvent)="ready($event)"></uni-form>
+           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="change($event)"></uni-form>
            <footer [attr.aria-busy]="busy">
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -27,10 +29,10 @@ declare var _;
 })
 export class BankAccountForm {
     @ViewChild(UniForm) public form: UniForm;
-
-    private config: any = {};
-    private fields: any[] = [];
-    private formConfig: any = {};
+    @Input() private config: any = {};
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private model$: BehaviorSubject<any>=new BehaviorSubject(null);
     private busy: boolean = false;
     private accounts: Account[] = [];
 
@@ -44,46 +46,40 @@ export class BankAccountForm {
     }
 
     public ngOnInit() {
-        this.setupForm();
-
+        this.model$.next(this.config.model);
         this.accountService.GetAll('filter=AccountNumber lt 3000 and Visible eq true&orderby=AccountNumber').subscribe((accounts) => {
             this.accounts = accounts;
-            this.fields = this.extendFields();
-
-            // This is here instead of in ready() because this.extendFields() runs _.cloneDeep which destroys bindings
-            setTimeout(() =>
-                this.form.field('AccountNumber')
-                    .changeEvent
-                    .subscribe((bankaccount) => {
-                        this.lookupBankAccountNumber(bankaccount);
-                    })
-            );
+            this.fields$.next(this.extendFields());
        }, err => this.errorService.handle(err));
 
     }
 
-    public ready(value) {
+    public ngOnChanges() {
+        this.ngOnInit();
     }
 
-    public lookupBankAccountNumber(bankaccount) {
-        if (bankaccount.AccountNumber && bankaccount.AccountNumber.length == 11) {
+    public change(changes: SimpleChanges) {
+        this.lookupBankAccountNumber(changes['AccountNumber'].currentValue);
+    }
+
+    public lookupBankAccountNumber(accountNumber) {
+        if (accountNumber.length === 11) {
             this.busy = true;
             this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn, 5);
-            this.bankService.getIBANUpsertBank(bankaccount.AccountNumber)
+            this.bankService.getIBANUpsertBank(accountNumber)
             .finally(() => this.busy = false)
             .subscribe((bankdata: BankData) => {
                 this.config.model.IBAN = bankdata.IBAN;
                 this.config.model.Bank = bankdata.Bank;
                 this.config.model.BankID = bankdata.Bank.ID;
-
-                this.config.model = _.cloneDeep(this.config.model);
+                this.model$.next(this.config.model);
                 if (this.form.field('AccountID')) {
                     this.form.field('AccountID').focus();
                 }
                 this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
             },
             (error) => this.errorService.handleWithMessage(
-                error, 'Kunne ikke slå opp kontonummer ' + bankaccount.AccountNumber
+                error, 'Kunne ikke slå opp kontonummer ' + accountNumber
             ));
         } else {
             this.toastService.addToast('Kontonummer må ha 11 siffer', ToastType.warn, 10);
@@ -91,14 +87,15 @@ export class BankAccountForm {
     }
 
     private extendFields() {
-        var accountNumber = this.fields.find(x => x.Property === 'AccountNumber');
+        const fields = this.setupForm();
+        let accountNumber = <any>fields.find(x => x.Property === 'AccountNumber');
         accountNumber.Options = {
             mask: '0000 00 00000',
             events: {
             }
         };
 
-        var accountID = this.fields.find(x => x.Property === 'AccountID');
+        let accountID = <any>fields.find(x => x.Property === 'AccountID');
         accountID.Options = {
             source: this.accounts,
             displayProperty: 'AccountName',
@@ -108,14 +105,14 @@ export class BankAccountForm {
             debounceTime: 200,
             search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
         };
-        return _.cloneDeep(this.fields);
+        return fields;
     }
 
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
 
-        this.fields = [
+        return [
             {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
@@ -238,7 +235,7 @@ export class BankAccountModal {
             title: 'Bankkonto',
             actions: [
                 {
-                    text: 'Lagre bankkonto',
+                    text: 'OK',
                     class: 'good',
                     method: () => {
                         if (this.modalConfig.accountVisible && !this.modalConfig.model.AccountID) {
@@ -275,8 +272,8 @@ export class BankAccountModal {
         this.modal.open();
         this.modal.getContent().then((form: BankAccountForm) => {
             if (!bankaccount.IBAN && bankaccount.AccountNumber && bankaccount.AccountNumber.length === 11) {
-                form.lookupBankAccountNumber(bankaccount);
+                form.lookupBankAccountNumber(bankaccount.AccountNumber);
             }
-        })
+        });
     }
 }

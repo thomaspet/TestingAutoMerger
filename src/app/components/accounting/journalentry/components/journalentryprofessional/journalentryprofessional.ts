@@ -2,10 +2,11 @@ import {Component, ViewChild, OnInit, OnChanges, SimpleChanges, Input, Output, E
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, Payment, BusinessRelation, BankAccount} from '../../../../../unientities';
+import {Account, Accrual, AccrualPeriod, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, LocalDate, Payment, BusinessRelation, BankAccount, VatDeduction} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
-import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {AccrualModal} from '../../../../common/modals/accrualModal';
+import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
 import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
 import {
@@ -17,7 +18,8 @@ import {
     CustomerInvoiceService,
     CompanySettingsService,
     ErrorService,
-    StatisticsService
+    StatisticsService,
+    NumberFormat
 } from '../../../../../services/services';
 
 declare const _;
@@ -29,7 +31,6 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     templateUrl: 'app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html',
 })
 export class JournalEntryProfessional implements OnInit, OnChanges {
-    @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
     @Input() public mode: number = JournalEntryMode.Manual;
@@ -39,13 +40,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public defaultVisibleColumns: Array<string> = [];
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
-
+    @Input() public vatDeductions: Array<VatDeduction>;
+    @Input() public companySettings: CompanySettings;
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AccrualModal) private accrualModal: AccrualModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private journalEntryTableConfig: UniTableConfig;
     private paymentModalValueChanged: any;
+    private accrualModalValueChanged: any;
+    private accrualModalValueDeleted: any;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -57,7 +62,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-    private companySettings: CompanySettings;
+
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -80,8 +85,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private customerInvoiceService: CustomerInvoiceService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private numberFormatService: NumberFormat
     ) {
 
     }
@@ -134,10 +139,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         setTimeout(() => {
             if (this.table) {
+                this.table.blur();
                 this.table.focusRow(0);
             } else {
                 setTimeout(() => {
                     if (this.table) {
+                        this.table.blur();
                         this.table.focusRow(0);
                     }
                 }, 500);
@@ -155,17 +162,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
-            this.accountService.GetAll('filter=AccountNumber eq 1920'),
-            this.companySettingsService.GetAll(null)
+            this.accountService.GetAll('filter=AccountNumber eq 1920')
         ).subscribe(
             (data) => {
                 this.departments = data[0];
                 this.projects = data[1];
                 this.vattypes = data[2];
 
-                if (data[4]) {
-                    this.companySettings = data[4][0];
-                }
                 if (this.companySettings
                     && this.companySettings.CompanyBankAccount
                     && this.companySettings.CompanyBankAccount.Account) {
@@ -184,13 +187,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setJournalEntryNumberProperties(newRow) {
-
-        if (newRow.JournalEntryID) {
-            // if this is a saved journalentry, dont try to updated JournalEntryNo, this will normally not
-            // be displayed to the user anyway in these cases
-            return;
-        }
-
         let data = this.table.getTableData();
 
         if (newRow.SameOrNewDetails) {
@@ -228,10 +224,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private calculateNetAmount(rowModel) {
         if (rowModel.Amount && rowModel.Amount !== 0) {
             if (rowModel.DebitAccount && rowModel.DebitVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, rowModel.Amount, null);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.DebitAccount,
+                    rowModel.DebitVatType,
+                    rowModel.Amount,
+                    null,
+                    rowModel
+                );
                 rowModel.NetAmount = calc.amountNet;
             } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, rowModel.Amount, null);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.CreditAccount,
+                    rowModel.CreditVatType,
+                    rowModel.Amount,
+                    null,
+                    rowModel
+                );
                 rowModel.NetAmount = calc.amountNet;
             } else {
                 rowModel.NetAmount = rowModel.Amount;
@@ -244,10 +252,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private calculateGrossAmount(rowModel) {
         if (rowModel.NetAmount && rowModel.NetAmount !== 0) {
             if (rowModel.DebitAccount && rowModel.DebitVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.DebitAccount, rowModel.DebitVatType, null, rowModel.NetAmount);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.DebitAccount,
+                    rowModel.DebitVatType,
+                    null,
+                    rowModel.NetAmount,
+                    rowModel
+                );
                 rowModel.Amount = calc.amountGross;
             } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
-                let calc = this.journalEntryService.calculateJournalEntryData(rowModel.CreditAccount, rowModel.CreditVatType, null, rowModel.NetAmount);
+                let calc = this.journalEntryService.calculateJournalEntryData(
+                    rowModel.CreditAccount,
+                    rowModel.CreditVatType,
+                    null,
+                    rowModel.NetAmount,
+                    rowModel
+                );
                 rowModel.Amount = calc.amountGross;
             } else {
                 rowModel.Amount = rowModel.NetAmount;
@@ -263,6 +283,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.DebitAccountID = account.ID;
             rowModel.DebitVatType = account.VatType;
             rowModel.DebitVatTypeID = account.VatTypeID;
+
+            this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.DebitAccountID = null;
         }
@@ -274,8 +296,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.CreditAccountID = account.ID;
             rowModel.CreditVatType = account.VatType;
             rowModel.CreditVatTypeID = account.VatTypeID;
+
+            this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.CreditAccountID = null;
+        }
+    }
+
+    private setVatDeductionPercent(rowModel: JournalEntryData) {
+        let deductivePercent: number = 0;
+        rowModel.VatDeductionPercent = null;
+
+        if (rowModel.DebitAccount && rowModel.DebitAccount.UseDeductivePercent) {
+             deductivePercent = this.journalEntryService.getVatDeductionPercent(this.vatDeductions, rowModel.DebitAccount, rowModel.FinancialDate);
+        }
+
+        if (deductivePercent === 0 && rowModel.CreditAccount && rowModel.CreditAccount.UseDeductivePercent) {
+            deductivePercent = this.journalEntryService.getVatDeductionPercent(this.vatDeductions, rowModel.CreditAccount, rowModel.FinancialDate);
+        }
+
+        if (deductivePercent !== 0) {
+            rowModel.VatDeductionPercent = deductivePercent;
         }
     }
 
@@ -287,6 +328,31 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private setCreditVatTypeProperties(rowModel) {
         let vattype = rowModel.CreditVatType;
         rowModel.CreditVatTypeID = vattype ? vattype.ID : null;
+    }
+
+    private setVatDeductionProrperties(newRow) {
+        if (newRow.VatDeductionPercent &&
+            (newRow.VatDeductionPercent <= 0 || newRow.VatDeductionPercent > 100)) {
+            this.toastService.addToast(
+                'Ugyldig verdi angitt for Fradragprosent',
+                ToastType.warn,
+                ToastTime.short,
+                'Verdien er erstattet med standardverdien'
+            );
+            this.setVatDeductionPercent(newRow);
+        } else if (newRow.VatDeductionPercent &&
+            !((newRow.DebitAccount && newRow.DebitAccount.UseDeductivePercent) || (newRow.CreditAccount && newRow.CreditAccount.UseDeductivePercent))) {
+            this.toastService.addToast(
+                'Fradragsprosent kan ikke angis',
+                ToastType.warn,
+                ToastTime.short,
+                'Ingen konto med forholdsvis mva er valgt, og fradragsprosent kan derfor ikke angis.'
+            );
+            this.setVatDeductionPercent(newRow);
+        } else if (!newRow.VatDeductionPercent) {
+            this.setVatDeductionPercent(newRow);
+        }
+        this.calculateNetAmount(newRow);
     }
 
     private setProjectProperties(rowModel) {
@@ -453,8 +519,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+        let deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
+            .setWidth('90px')
+            .setSkipOnEnterKeyNavigation(true)
+            .setVisible(false);
+
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money).setWidth('90px');
-        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money).setWidth('90px').setSkipOnEnterKeyNavigation(true);
+        let netAmountCol = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Text).setWidth('90px')
+            .setSkipOnEnterKeyNavigation(true)
+            .setAlignment('right')
+            .setTemplate((row: JournalEntryData) => {
+                if (row['NetAmount'] && row.VatDeductionPercent && row.VatDeductionPercent !== 0
+                    && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
+                        || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
+                    return `<span title="Nettobeløp kan ikke settes når en konto med forholdsvis mva er brukt">${this.numberFormatService.asMoney(row['NetAmount'])}</span>`;
+                } else if (row['NetAmount']) {
+                    return this.numberFormatService.asMoney(row['NetAmount']);
+                }
+            })
+            .setEditable((row: JournalEntryData) => {
+                if (row.VatDeductionPercent && row.VatDeductionPercent !== 0
+                    && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
+                        || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
+                    return false;
+                }
+                return true;
+            });
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth('8%')
@@ -518,12 +608,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         let columns: Array<UniTableColumn> = [];
 
-        if (this.mode === JournalEntryMode.Supplier) {
-            creditAccountCol.setSkipOnEnterKeyNavigation(true);
-
-            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, amountCol, netAmountCol,
-                projectCol, departmentCol, descriptionCol];
-        } else if (this.mode === JournalEntryMode.Payment) {
+        if (this.mode === JournalEntryMode.Payment) {
             debitAccountCol.setSkipOnEnterKeyNavigation(true);
             debitVatTypeCol.setSkipOnEnterKeyNavigation(true);
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
@@ -535,8 +620,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
                  descriptionCol, fileCol];
         } else {
-
-            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol, netAmountCol,
+            columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, deductionPercentCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol, fileCol];
         }
 
@@ -554,7 +638,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setColumns(columns)
             .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
-            .setIsRowReadOnly((rowModel) => rowModel.JournalEntryID)
+            .setIsRowReadOnly((rowModel) => rowModel.StatusCode)
             .setContextMenu([
                 {
                     action: (item) => this.deleteLine(item),
@@ -562,8 +646,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     label: 'Slett linje'
                 },
                 {
-                    action: (item) => this.addPayment(item),
+                    action: (item: JournalEntryData) => this.openAccrual(item),
                     disabled: (item) => { return (this.disabled); },
+                    label: 'Periodisering'
+                },
+                {
+                    action: (item) => this.addPayment(item),
+                    disabled: (item) => { return item.StatusCode ? true : false; },
                     label: 'Registrer utbetaling'
                 }
             ])
@@ -572,6 +661,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
+
+                if (this.journalEntryID && !newRow.JournalEntryID) {
+                    newRow.JournalEntryID = this.journalEntryID;
+                }
 
                 if (event.field === 'SameOrNewDetails' || !newRow.JournalEntryNo) {
                     let originalJournalEntryNo = newRow.JournalEntryNo;
@@ -608,6 +701,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.calculateNetAmount(newRow);
                 } else if (event.field === 'NetAmount') {
                     this.calculateGrossAmount(newRow);
+                } else if (event.field === 'FinancialDate') {
+                    this.setVatDeductionPercent(newRow);
+                    this.calculateNetAmount(newRow);
                 } else if (event.field === 'DebitAccount') {
                     this.setDebitAccountProperties(newRow);
                     this.calculateNetAmount(newRow);
@@ -620,12 +716,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (event.field === 'CreditVatType') {
                     this.setCreditVatTypeProperties(newRow);
                     this.calculateNetAmount(newRow);
+                } else if (event.field === 'VatDeductionPercent') {
+                    this.setVatDeductionProrperties(newRow);
                 } else if (event.field === 'Dimensions.Department') {
                     this.setDepartmentProperties(newRow);
                 } else if (event.field === 'Dimensions.Project') {
                     this.setProjectProperties(newRow);
                 } else if (event.field === 'CustomerInvoice') {
                     this.setCustomerInvoiceProperties(newRow);
+                }
+
+                if (newRow.JournalEntryDataAccrual && newRow.JournalEntryDataAccrual.AccrualAmount !== newRow.NetAmount) {
+                    newRow.JournalEntryDataAccrual.AccrualAmount = newRow.NetAmount;
                 }
 
                 // Return the updated row to the table
@@ -689,6 +791,74 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
     }
 
+    private openAccrual(item: JournalEntryData) {
+
+        let title: string = 'Periodisering av bilag ' + item.JournalEntryNo;
+        if (item.Description) title = title + ' - ' + item.Description;
+
+        let isDebitResultAccount = (item.DebitAccount && item.DebitAccount.TopLevelAccountGroup
+            && item.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
+        let isCreditResultAccount = (item.CreditAccount && item.CreditAccount.TopLevelAccountGroup
+            && item.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
+
+        if (!item.JournalEntryDataAccrual
+            && ((isDebitResultAccount && isCreditResultAccount) ||
+                (!isDebitResultAccount && !isCreditResultAccount))) {
+
+            if (isDebitResultAccount) {
+                this.toastService.addToast('Periodisering',
+                    ToastType.bad, 5, 'Bilaget har 2 resultatkontoer');
+            } else {
+                this.toastService.addToast('Periodisering',
+                    ToastType.bad, 5, 'Bilaget har ingen resultatkontoer' );
+            }
+        } else {
+
+            if (item.JournalEntryDataAccrual) {
+                this.accrualModal.openModal(null, null, null, item.JournalEntryDataAccrual, title);
+            } else if (item.Amount && item.Amount !== 0 && item.FinancialDate) {
+                this.accrualModal.openModal(item['NetAmount'],
+                    new LocalDate(item.FinancialDate.toString()), null, null, title);
+            } else {
+                this.toastService.addToast('Periodisering', ToastType.warn, 5,
+                    'Mangler nødvendig informasjon om dato og beløp for å kunne periodisere.');
+            }
+
+            if (this.accrualModalValueChanged) {
+                this.accrualModalValueChanged.unsubscribe();
+            }
+
+            if (this.accrualModalValueDeleted) {
+                this.accrualModalValueDeleted.unsubscribe();
+            }
+
+            this.accrualModalValueChanged = this.accrualModal.Changed.subscribe(modalval => {
+                item.JournalEntryDataAccrual = modalval;
+                // if the item is already booked, just add the payment through the API now
+                /* if (item.StatusCode) {
+                    this.journalEntryService.LEGGTILBETALING()
+                    DETTE GJØRES MÅ GJØRES I NESTE SPRINT, TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
+                    https://github.com/unimicro/AppFrontend/issues/2432
+                }
+                */
+                this.table.updateRow(item['_originalIndex'], item);
+                setTimeout(() => {
+                    var tableData = this.table.getTableData();
+                    this.dataChanged.emit(tableData);
+                });
+            });
+
+            this.accrualModalValueDeleted = this.accrualModal.Deleted.subscribe(modalval => {
+                item.JournalEntryDataAccrual = null;
+                this.table.updateRow(item['_originalIndex'], item);
+                setTimeout(() => {
+                    var tableData = this.table.getTableData();
+                    this.dataChanged.emit(tableData);
+                });
+            });
+        }
+    }
+
     private addPayment(item: JournalEntryData) {
         let title: string = 'Legg til betaling';
         let payment: Payment = null;
@@ -720,7 +890,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 payment.BusinessRelation = this.getBusinessRelationDataFromStatisticsSearch(br);
                                 resolve();
                             }
-
                         },
                         err => this.errorService.handle(err)
                     );
@@ -906,29 +1075,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         );
     }
 
-    public removeJournalEntryData(completeCallback) {
-        if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
-            this.journalEntryLines = new Array<JournalEntryData>();
-            this.dataChanged.emit(this.journalEntryLines);
-
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                .subscribe(data => {
-                    this.firstAvailableJournalEntryNumber = data;
-                    this.setupSameNewAlternatives();
-
-                    if (this.table) {
-                        this.table.focusRow(0);
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
-
-            completeCallback('Listen er tømt');
+    public removeJournalEntryData(completeCallback, isDirty) {
+        if (isDirty) {
+            this.confirmModal.confirm(
+                'Er du sikker på at du vil forkaste alle endringene dine?',
+                'Forkaste endringer?',
+                false,
+                {accept: 'Forkast endringer', reject: 'Avbryt'})
+            .then((response: ConfirmActions) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.clearListInternal(completeCallback);
+                } else {
+                    completeCallback(null);
+                }
+            });
         } else {
-            completeCallback('');
+            this.clearListInternal(completeCallback);
         }
+    }
+
+    private clearListInternal(completeCallback: (msg: string) => void) {
+        this.journalEntryLines = new Array<JournalEntryData>();
+        this.dataChanged.emit(this.journalEntryLines);
+
+        let journalentrytoday: JournalEntryData = new JournalEntryData();
+        journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+        this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+            .subscribe(data => {
+                this.firstAvailableJournalEntryNumber = data;
+                this.setupSameNewAlternatives();
+
+                if (this.table) {
+                    this.table.focusRow(0);
+                }
+            },
+            err => this.errorService.handle(err)
+        );
+
+        completeCallback('Listen er tømt');
     }
 
     public addJournalEntryLine(data) {

@@ -1,10 +1,11 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, FieldType, ReportDefinitionParameter} from '../../../../unientities';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'balance-general-ledger-filter-form',
@@ -13,8 +14,9 @@ import {ErrorService} from '../../../../services/services';
 export class BalanceGeneralLedgerFilterForm implements OnInit {
     @Input('config')
     public config: any;
-    public fields: any[];
-    public model: {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<{
         PeriodAccountYear: number,
         FromAccountNumber: number,
         ToAccountNumber: number,
@@ -23,7 +25,7 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
         IncludeCorrections: boolean,
         UseColors: boolean,
         OrderBy: string
-    } = {
+    }> = new BehaviorSubject({
         PeriodAccountYear: new Date().getFullYear(),
         FromAccountNumber: 1000,
         ToAccountNumber: 8999,
@@ -32,7 +34,7 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
         IncludeCorrections: false,
         UseColors: true,
         OrderBy: 'Account.AccountNumber'
-    };
+    });
 
     private orderByOptions: Array<{field: string, name: string}> = [
         {field: 'Account.AccountNumber', name: 'Kontonr'},
@@ -46,9 +48,12 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
     }
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
+        this.config$.next(this.config);
+        this.fields$.next(this.getComponentFields());
         this.yearService.getActiveYear().subscribe(res => {
-            this.model.PeriodAccountYear = res;
+            let model = this.model$.getValue();
+            model.PeriodAccountYear = res;
+            this.model$.next(model);
         });
 
 
@@ -92,7 +97,7 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
                 }
             },
             <any>{
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Vis med korrigeringer',
                 Property: 'IncludeCorrections'
             }
@@ -140,18 +145,18 @@ export class BalanceGeneralLedgerFilterModal {
 
                             // set parametervalues
                             for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                parameter.value = component.model[parameter.Name];
+                                parameter.value = component.model$.getValue()[parameter.Name];
                             }
 
                             // add custom parameters
                             let accountLastYearParam = new AttilasCustomReportDefinitionParameter();
                             accountLastYearParam.Name = 'PeriodAccountLastYear';
-                            accountLastYearParam.value = component.model.PeriodAccountYear - 1;
+                            accountLastYearParam.value = component.model$.getValue().PeriodAccountYear - 1;
                             this.modalConfig.report.parameters.push(accountLastYearParam);
 
                             let filterCorrectionsParam = new AttilasCustomReportDefinitionParameter();
                             filterCorrectionsParam.Name = 'FilterCorrections';
-                            filterCorrectionsParam.value = component.model.IncludeCorrections ? '' : ' and isnull(OriginalReferencePostID,0) eq 0 and isnull(ReferenceCreditPostID,0) eq 0 ';
+                            filterCorrectionsParam.value = component.model$.getValue().IncludeCorrections ? '' : ' and isnull(OriginalReferencePostID,0) eq 0 and isnull(ReferenceCreditPostID,0) eq 0 ';
                             this.modalConfig.report.parameters.push(filterCorrectionsParam);
 
                             console.log('filterCorrectionsParam', filterCorrectionsParam);
@@ -178,10 +183,12 @@ export class BalanceGeneralLedgerFilterModal {
         this.modalConfig.report = report;
         this.previewModal = previewModal;
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
-            this.modalConfig.report.parameters = params;
-            this.modal.open();
-        }, err => this.errorService.handle(err));
+        this.reportDefinitionParameterService
+            .GetAll('filter=ReportDefinitionId eq ' + report.ID)
+            .subscribe(params => {
+                this.modalConfig.report.parameters = params;
+                this.modal.open();
+            }, err => this.errorService.handle(err));
     }
 }
 

@@ -2,8 +2,8 @@
 
     <article class="poster_toolbar">
         <section>
-            <h1>{{department?.ID ? department.Name : 'Ny avdeling'}}</h1>
-            <p>{{department?.ID ? 'Avdelingsnr. ' + department.DepartmentNumber : '&nbsp;'}}</p>
+            <h1>{{(department$ | async)?.ID ? (department$ | async).Name : 'Ny avdeling'}}</h1>
+            <p>{{(department$ | async)?.ID ? 'Avdelingsnr. ' + (department$ | async).DepartmentNumber : '&nbsp;'}}</p>
         </section>
 
         <nav class="poster_toolbar_tools">
@@ -15,10 +15,9 @@
 </header>
 
 <section class="supplier-details application">
-    <uni-form *ngIf='department'
-              [config]="config"
-              [fields]="fields"
-              [model]="department">
+    <uni-form [config]="config$"
+              [fields]="fields$"
+              [model]="department$">
     </uni-form>
 </section>
 

@@ -1,8 +1,8 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
-    <uni-form [config]="config"
-              [fields]="fields"
-              [model]="searchParams">
+    <uni-form [config]="config$"
+              [fields]="fields$"
+              [model]="searchParams$">
     </uni-form>
     <uni-table [resource]="periods$ | async" [config]="periodeTable"></uni-table>
     <i *ngIf="!periods$">Søk etter en konto over for å se rapporten</i>

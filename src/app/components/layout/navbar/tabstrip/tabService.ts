@@ -21,6 +21,7 @@ export enum UniModules {
     Orders          = 202,
     Invoices        = 203,
     Products        = 204,
+    Reminders       = 205,
 
     Accounting      = 300,
     Transquery      = 301,

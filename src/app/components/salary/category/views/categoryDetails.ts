@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import {Component, ViewChild, SimpleChanges} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeCategoryService } from '../../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
@@ -9,6 +9,8 @@ import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService} from '../../../../services/services';
 
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
 declare var _; // lodash
 
 @Component({
@@ -16,22 +18,22 @@ declare var _; // lodash
     templateUrl: 'app/components/salary/category/views/categoryDetails.html'
 })
 export class CategoryDetail extends UniView {
-    private currentCategory: EmployeeCategory;
+    private currentCategory$: BehaviorSubject<EmployeeCategory> = new BehaviorSubject(new EmployeeCategory());
     private categoryID: number;
     private categoriesUsedInEmployeesConfig: UniTableConfig;
     private categoriesUsedInPayrollrunConfig: UniTableConfig;
     private categoriesUsedInEmployees: any[] = [];
     private categoriesUsedInPayrollruns: any[] = [];
 
-    public config: any = {
+    public config$: BehaviorSubject<any> = new BehaviorSubject({
         autofocus: true,
         submitText: '',
         sections: {
             '1': { isOpen: true },
             '2': { isOpen: true }
         }
-    };
-    public fields: any[] = [];
+    });
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     @ViewChild(UniForm) public uniform: UniForm;
 
@@ -49,7 +51,7 @@ export class CategoryDetail extends UniView {
             super.updateCacheKey(router.url);
             super.getStateSubject('employeecategory').subscribe((category: EmployeeCategory) => {
                 if (category.ID !== this.categoryID) {
-                    this.currentCategory = category;
+                    this.currentCategory$.next(category);
                     this.categoryID = category.ID;
                     this.setup();
                 }
@@ -66,7 +68,7 @@ export class CategoryDetail extends UniView {
             (response: any) => {
                 let [layout, catOnEmps, catOnPayrolls] = response;
                 
-                this.fields = layout.Fields;
+                this.fields$.next(layout.Fields);
                 this.categoriesUsedInEmployees = catOnEmps;
                 this.categoriesUsedInPayrollruns = catOnPayrolls;
 
@@ -97,7 +99,8 @@ export class CategoryDetail extends UniView {
             .setAutoAddNewRow(false);
     }
 
-    public change(model) {
+    public change(change: SimpleChanges) {
+        const model = this.currentCategory$.getValue();
         super.updateState('employeecategory', model, true);
     }
 

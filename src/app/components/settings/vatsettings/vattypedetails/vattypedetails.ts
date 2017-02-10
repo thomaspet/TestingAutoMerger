@@ -1,9 +1,10 @@
 import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs/Rx';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-import {FieldType, VatReportReference} from '../../../../unientities';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
+import {VatReportReference} from '../../../../unientities';
+import {FieldType, UniForm, UniFieldLayout} from 'uniform-ng2/main';
 
 import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService} from '../../../../services/services';
@@ -23,8 +24,10 @@ export class VatTypeDetails implements OnChanges, OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(UniTable) public unitable: UniTable;
 
-    public config: any = {autofocus: true};
-    private fields: any[] = [];
+    public vatType$: BehaviorSubject<VatType> = new BehaviorSubject(null);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+
     private accounts: Account[];
     private vatcodegroups: VatCodeGroup[];
     private uniTableConfig: UniTableConfig;
@@ -41,19 +44,21 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     public ngOnInit() {
+        this.vatType$.next(this.vatType);
         this.setup();
     }
 
     public ngOnChanges() {
+        this.vatType$.next(this.vatType);
         this.deletedVatReportReferences = [];
     }
 
     public onChange(event) {
-        this.change.emit(this.vatType);
+        this.change.emit(this.vatType$.getValue());
     }
 
     private setup() {
-        this.fields = this.getComponentLayout().Fields;
+        this.fields$.next(this.getComponentLayout().Fields);
 
         Observable.forkJoin(
             this.accountService.GetAll('filter=Visible eq true'),
@@ -79,6 +84,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                         this.vatTypeService.Get(data.ID, ['VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences', 'VatReportReferences.VatPost', 'VatReportReferences.Account'])
                             .subscribe(vatType => {
                                 this.vatType = vatType;
+                                this.vatType$.next(this.vatType);
                                 this.vatTypeSaved.emit(this.vatType);
                             }
                         );
@@ -94,6 +100,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     data => {
                         completeEvent('Lagret');
                         this.vatType = data;
+                        this.vatType$.next(this.vatType);
                         this.vatTypeSaved.emit(this.vatType);
                     },
                     error => {
@@ -105,8 +112,9 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     private extendFormConfig() {
+        let fields = this.fields$.getValue();
         this.vatcodegroups.unshift(null);
-        let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatCodeGroupID');
+        let vattype: UniFieldLayout = fields.find(x => x.Property === 'VatCodeGroupID');
         vattype.Options =  {
             source: this.vatcodegroups,
             valueProperty: 'ID',
@@ -114,7 +122,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
             debounceTime: 200
         };
 
-        let outgoingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'OutgoingAccountID');
+        let outgoingAccountID: UniFieldLayout = fields.find(x => x.Property === 'OutgoingAccountID');
         outgoingAccountID.Options =  {
             source: this.accounts,
             displayProperty: 'AccountNumber',
@@ -123,7 +131,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
             template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
 
-        let incomingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'IncomingAccountID');
+        let incomingAccountID: UniFieldLayout = fields.find(x => x.Property === 'IncomingAccountID');
         incomingAccountID.Options =  {
             source: this.accounts,
             displayProperty: 'AccountNumber',
@@ -131,6 +139,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
             debounceTime: 200,
             template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
+        this.fields$.next(fields);
     }
 
     private generateUniTableConfig(): UniTableConfig {
@@ -458,7 +467,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     Property: 'AvailableInModules',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Tilgjengelig i moduler',
@@ -486,7 +495,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     Property: 'Locked',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Sperret',
@@ -514,7 +523,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     Property: 'Visible',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Synlig',
@@ -542,7 +551,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     Property: 'ReversedTaxDutyVat',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Omvendt avgiftsplikt',

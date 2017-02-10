@@ -11,7 +11,6 @@ import {EmployeeList} from './employee/employeeList';
 import {EmployeeDetails} from './employee/employeeDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
-import {PaymentList} from './payrollrun/paymentList';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
 import {routes as WageTypeRoutes} from './wagetype/wagetypeRoutes';
 import {AMeldingView} from './amelding/ameldingview';
@@ -61,10 +60,6 @@ export const childRoutes = [
         path: 'payrollrun/:id',
         component: PayrollrunDetails,
         canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: 'paymentlist/:id',
-        component: PaymentList
     },
     {
         path: 'amelding',

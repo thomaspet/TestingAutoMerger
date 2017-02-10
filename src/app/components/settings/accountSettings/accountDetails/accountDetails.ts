@@ -1,8 +1,9 @@
 import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/forkJoin';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {Account, VatType, FieldType, AccountGroup} from '../../../../unientities';
+import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {Account, VatType, AccountGroup} from '../../../../unientities';
 import {
     ErrorService,
     AccountGroupService,
@@ -23,12 +24,12 @@ export class AccountDetails implements OnInit {
     @Output() public changeEvent: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniForm) public form: UniForm;
 
-    private account: Account = null;
+    private account$: BehaviorSubject<Account> = new BehaviorSubject(null);
     private currencies: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
-    public config: any = {autofocus: true};
-    public fields: any[] = this.getComponentLayout().Fields;
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
 
     constructor(
         private accountService: AccountService,
@@ -64,25 +65,19 @@ export class AccountDetails implements OnInit {
         if (!incomingAccount) {
             return;
         } else if (!incomingAccount.ID) {
-            this.account = incomingAccount;
+            this.account$.next(incomingAccount);
         } else {
             this.getAccount(this.inputAccount.ID)
                 .subscribe(
-                    dataset => {
-                        this.account = dataset;
-                    },
+                    dataset => this.account$.next(dataset),
                     err => this.errorService.handle(err)
                 );
         }
     }
 
-    private change(event) {
-
-    }
-
     private extendFormConfig() {
-
-        let currency: UniFieldLayout = this.fields.find(x => x.Property === 'CurrencyID');
+        let fields = this.fields$.getValue();
+        let currency: UniFieldLayout = fields.find(x => x.Property === 'CurrencyID');
         currency.Options = {
             source: this.currencies,
             valueProperty: 'ID',
@@ -90,7 +85,7 @@ export class AccountDetails implements OnInit {
             debounceTime: 200
         };
 
-        let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatTypeID');
+        let vattype: UniFieldLayout = fields.find(x => x.Property === 'VatTypeID');
         vattype.Options = {
             source: this.vattypes,
             valueProperty: 'ID',
@@ -100,31 +95,33 @@ export class AccountDetails implements OnInit {
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
         };
 
-        let accountGroup: UniFieldLayout = this.fields.find(x => x.Property === 'AccountGroupID');
+        let accountGroup: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupID');
         accountGroup.Options = {
             source: this.accountGroups,
             template: (data: AccountGroup) => `${data.GroupNumber} - ${data.Name}`,
             valueProperty: 'ID'
         };
 
-        let accountNumber: UniFieldLayout = this.fields.find(x => x.Property === 'AccountNumber');
+        let accountNumber: UniFieldLayout = fields.find(x => x.Property === 'AccountNumber');
         accountNumber.Options = {
             events: {
                 blur: () => {
-                    if ((!this.account.ID || this.account.ID === 0 || !this.account.AccountGroupID) && this.account.AccountNumber.toString().length > 3) {
-                        let expectedAccountGroupNo =  this.account.AccountNumber.toString().substring(0, 3);
+                    let account = this.account$.getValue();
+                    if ((!account.ID || account.ID === 0 || !account.AccountGroupID) && account.AccountNumber.toString().length > 3) {
+                        let expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
 
                         let defaultAccountGroup = this.accountGroups.find(x => x.GroupNumber === expectedAccountGroupNo);
 
                         if (defaultAccountGroup) {
-                            this.account.AccountGroupID = defaultAccountGroup.ID;
+                            account.AccountGroupID = defaultAccountGroup.ID;
                         }
 
-                        this.account = _.cloneDeep(this.account);
+                        this.account$.next(account);
                     }
                 }
             }
         };
+        this.fields$.next(fields);
     }
 
     public getAccount(ID: number) {
@@ -143,18 +140,19 @@ export class AccountDetails implements OnInit {
 
 
     public saveAccount(completeEvent: any): void {
+        let account = this.account$.getValue();
         // Doing this to prevent "Foreignkey does not match parent ID" error:
-        if (this.account.AccountGroup && this.account.AccountGroupID !== this.account.AccountGroup.ID) {
-            this.account.AccountGroup = null;
+        if (account.AccountGroup && account.AccountGroupID !== account.AccountGroup.ID) {
+            account.AccountGroup = null;
         }
 
-        if (this.account.ID && this.account.ID > 0) {
+        if (account.ID && account.ID > 0) {
             this.accountService
-                .Put(this.account.ID, this.account)
+                .Put(account.ID, account)
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
-                        this.accountSaved.emit(this.account);
+                        this.accountSaved.emit(account);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
@@ -163,11 +161,11 @@ export class AccountDetails implements OnInit {
                 );
         } else {
             this.accountService
-                .Post(this.account)
+                .Post(account)
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
-                        this.accountSaved.emit(this.account);
+                        this.accountSaved.emit(account);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
@@ -364,7 +362,7 @@ export class AccountDetails implements OnInit {
                     Property: 'SystemAccount',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Systemkonto',
@@ -392,7 +390,7 @@ export class AccountDetails implements OnInit {
                     Property: 'UsePostPost',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'PostPost',
@@ -417,10 +415,10 @@ export class AccountDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
-                    Property: 'UseDeductionPercent',
+                    Property: 'UseDeductivePercent',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Forholdsvismoms',
@@ -448,7 +446,7 @@ export class AccountDetails implements OnInit {
                     Property: 'LockManualPosts',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Sperre manuelle poster',
@@ -476,7 +474,7 @@ export class AccountDetails implements OnInit {
                     Property: 'Locked',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Sperret',
@@ -504,7 +502,7 @@ export class AccountDetails implements OnInit {
                     Property: 'Visible',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Synlig',

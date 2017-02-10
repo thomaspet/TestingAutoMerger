@@ -117,7 +117,7 @@ export class PreviewModal {
         this.open(report);
     }
 
-    public open(report: Report) {
+    public open(report: Report, parameters = null) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;
