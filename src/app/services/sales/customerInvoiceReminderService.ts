@@ -46,6 +46,13 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         return this.ActionWithBody(null, list, `get-invoicereminders-for-invoicelist`, RequestMethod.Post);
     }
 
+    public getCustomerInvoicesReadyForDebtCollection(): Observable<any> {
+        return this.GetAction(null, 'get-customer-invoices-ready-for-debt-collection');
+    }
+
+    public sendToDebtCollection(list): Observable<any> {
+        return this.ActionWithBody(null, list , 'send-to-debt-collection', RequestMethod.Put);
+    }
     public sendAction(list): Observable<any> {
         return this.ActionWithBody(null, list, `send`, RequestMethod.Put);
     }

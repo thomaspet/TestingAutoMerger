@@ -11,7 +11,8 @@ export class Reminder {
     constructor() {
         this.childRoutes = [
             {name: 'Klar til purring', path: 'ready'},
-            {name: 'Purringer', path: 'reminded'}
+            {name: 'Purringer', path: 'reminded'},
+            {name: 'Klar til inkasso', path: 'debtcollect'}
         ];
     }
 }

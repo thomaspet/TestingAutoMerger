@@ -38,6 +38,7 @@ import {ReminderList} from './reminder/list/reminderList';
 import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/ReminderConfirmModal';
 import {ReminderSendingModal, ReminderSendingModalContent} from './reminder/sending/reminderSendingModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
+import {DebtCollection} from './reminder/debtCollection/debtCollection';
 
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
@@ -110,6 +111,7 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         ReminderSending,
         ReminderSendingModalContent,
         ReminderSendingModal,
+        DebtCollection,
         InvoiceReminders
     ],
     entryComponents: [
