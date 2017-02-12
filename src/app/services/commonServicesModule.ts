@@ -32,8 +32,10 @@ import {BrowserStorageService} from './common/browserStorageService';
 import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
-import {UniSearchConfigGeneratorService} from './common/uniSearchConfigGeneratorService';
+import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 import {UmhService} from './common/umhService';
+import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
+import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -68,7 +70,7 @@ export * from './common/browserStorageService';
 export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';
-export * from './common/uniSearchConfigGeneratorService';
+export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 
 @NgModule({
     providers: [
@@ -105,6 +107,8 @@ export * from './common/uniSearchConfigGeneratorService';
         UniCacheService,
         StaticRegisterService,
         UniSearchConfigGeneratorService,
+        UniSearchAccountConfigGeneratorHelper,
+        UniSearchCustomerConfigGeneratorHelper,
         UmhService
     ]
 })

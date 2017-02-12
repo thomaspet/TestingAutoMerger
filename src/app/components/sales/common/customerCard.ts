@@ -86,7 +86,7 @@ export class TofCustomerCard {
         private customerService: CustomerService,
         private errorService: ErrorService
     ) {
-        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generateUniSearchConfig(
+        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
             Customer,
             this.customerExpands,
             () => this.openCustomerModal()
