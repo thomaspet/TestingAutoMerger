@@ -569,7 +569,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public hasDirty(): boolean {
-        return this.salaryTransactions && this.salaryTransactions.filter(x => x.EmployeeID === this.employeeID).some(x => x.Deleted || x['_isDirty']);
+        return this.salaryTransactions 
+            && this.salaryTransactions
+                .filter(x => x.EmployeeID === this.employeeID)
+                .some(x => x.Deleted || x['_isDirty']);
     }
 
     public setEditable(isEditable: boolean) {

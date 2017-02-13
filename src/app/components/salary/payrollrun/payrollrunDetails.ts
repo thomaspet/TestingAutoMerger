@@ -249,7 +249,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
             super.getStateSubject('salaryTransactions').subscribe((salaryTransactions: SalaryTransaction[]) => {
                 this.salaryTransactions = salaryTransactions;
-                this.tagConfig.readOnly = this.salaryTransactions.some(x => x.ID && !x.IsRecurringPost);
                 this.checkDirty();
             });
 
@@ -577,48 +576,67 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private getSalaryTransactions() {
-        this.getSalaryTransactionsObservable().subscribe((response) => {
-            response.map(x => {
-                let account = new Account();
-                account.AccountNumber = x.Account;
-                x['_Account'] = account;
-            });
-            super.updateState('salaryTransactions', response, false);
-        }, err => this.errorService.handle(err));
+        this.getSalaryTransactionsObservable()
+            .subscribe(
+            response => {
+                super.updateState('salaryTransactions', response, false);
+            }
+            , err => this.errorService.handle(err));
     }
 
-    private getSalaryTransactionsObservable(): Observable<any> {
+    private getSalaryTransactionsObservable(): Observable<SalaryTransaction[]> {
         let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
         return this.payrollrunID
-            ? Observable.forkJoin(this._salaryTransactionService
-                .GetAll(
+            ? Observable
+                .forkJoin(
+                this._salaryTransactionService.GetAll(
                 'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
                 ['WageType.SupplementaryInformations', 'employment', 'Supplements'
                     , 'Dimensions', 'Files']),
                 this.getProjectsObservable(),
-                this.getDepartmentsObservable()
-            )
-                .map((response: [SalaryTransaction[], Project[], Department[]]) => {
-                    let [transes, projects, departments] = response;
+                this.getDepartmentsObservable())
+                .do((response: [SalaryTransaction[], Project[], Department[]]) => {
                     if (this.selectionList) {
                         this.selectionList.updateSums();
                     }
+                    let transes = response[0];
+                    let checkToast: boolean = this.salaryTransactions
+                        && !this.salaryTransactions
+                            .filter(x => x.ID)
+                            .some(x => !x.IsRecurringPost);
 
-                    transes.map(trans => trans['_FileIDs'] = trans['Files'].map(x => x.ID));
+                    this.tagConfig.readOnly = transes
+                        .some(x => !x.IsRecurringPost);
 
-                    transes.filter(x => x.DimensionsID).map(trans => {
+                    if (checkToast && this.tagConfig.readOnly) {
+                        this._toastService
+                            .addToast(
+                            'Kategoriutvalg er låst',
+                            ToastType.warn,
+                            ToastTime.medium,
+                            'Siden det er variable poster i lønnsavregningen');
+                    }
+                })
+                .map((response: [SalaryTransaction[], Project[], Department[]]) => {
+                    let [transes, projects, departments] = response;
+                    return transes.map(trans => {
 
-                        trans['_Department'] = departments ? departments
-                            .find(x => x.ID === trans.Dimensions.DepartmentID) : undefined;
+                        if (trans.DimensionsID) {
+                            trans['_Department'] = departments ? departments
+                                .find(x => x.ID === trans.Dimensions.DepartmentID) : undefined;
 
-                        trans['_Project'] = projects ? projects
-                            .find(x => x.ID === trans.Dimensions.ProjectID) : undefined;
+                            trans['_Project'] = projects ? projects
+                                .find(x => x.ID === trans.Dimensions.ProjectID) : undefined;
+                        }
+
+                        trans['_FileIDs'] = trans['Files'].map(x => x.ID);
+
+                        let account = new Account();
+                        account.AccountNumber = trans.Account;
+                        trans['_Account'] = account;
+
+                        return trans;
                     });
-
-                    super.updateState('projects', projects, false);
-                    super.updateState('departments', departments, false);
-
-                    return transes;
                 })
             : Observable.of([]);
     }
@@ -749,11 +767,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private getProjectsObservable() {
-        return this.projects ? Observable.of(this.projects) : this._projectService.GetAll('');
+        return this.projects
+            ? Observable.of(this.projects)
+            : this._projectService
+                .GetAll('')
+                .do(x => super.updateState('projects', x, false));
     }
 
     private getDepartmentsObservable() {
-        return this.departments ? Observable.of(this.departments) : this._departmentService.GetAll('');
+        return this.departments
+            ? Observable.of(this.departments)
+            : this._departmentService
+                .GetAll('')
+                .do(x => super.updateState('departments', x, false));
     }
 
     private checkDirty() {
@@ -965,12 +991,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .finally(() => this.setEditableOnChildren(true))
             .subscribe((salaryTransactions: SalaryTransaction[]) => {
                 if (salaryTransactions !== undefined) {
-                    salaryTransactions.map(x => {
-                        let account = new Account();
-                        account.AccountNumber = x.Account;
-                        x['_Account'] = account;
-                    });
-
                     super.updateState('salaryTransactions', salaryTransactions, false);
                     this.toggleDetailsView(false);
                 }
