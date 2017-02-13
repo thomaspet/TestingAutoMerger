@@ -245,14 +245,19 @@ export class ReminderList {
         let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
             .setWidth('100px').setFilterOperator('contains')
             .setTemplate((reminder) => {
-                return `<a href='/#/sales/invoices/${reminder.InvoiceID}'>${reminder.InvoiceNumber}</a>`;
+                return reminder.InvoiceID ? `<a href='/#/sales/invoices/${reminder.InvoiceID}'>${reminder.InvoiceNumber}</a>` : ``;
             });
         let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
-        let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
+        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            .setWidth('100px').setFilterOperator('startswith')
+            .setTemplate((reminder) => {
+                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>` : ``;
+            });
+        let customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
-                return `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber} - ${reminder.CustomerName}</a>`;
+                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>` : ``;
             });
         let dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
@@ -293,7 +298,7 @@ export class ReminderList {
             .setDeleteButton(false)
             .setAutoAddNewRow(false)
             //.setFilters(this.defaultTableFilter()) // TODO: later on
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNameCol, emailCol,
+            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                          taxInclusiveAmountCol, restAmountCol, feeAmountCol, invoiceDateCol, dueDateCol]);
     }
 }

@@ -191,15 +191,19 @@ export class OrderList {
 
         // Define columns to use in the table
         const orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text)
-            .setWidth('10%')
-            .setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains');
 
         const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
-            .setWidth('10%')
-            .setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains')
+            .setTemplate((order) => {
+                return order.CustomerID ? `<a href='/#/sales/customer/${order.CustomerID}'>${order.Customer.CustomerNumber}</a>` : ``;
+            });
 
         const customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
-            .setFilterOperator('contains');
+            .setFilterOperator('contains')
+            .setTemplate((order) => {
+                return order.CustomerID ? `<a href='/#/sales/customer/${order.CustomerID}'>${order.CustomerName}</a>` : ``;
+            });
 
         const orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.LocalDate)
             .setWidth('10%')
