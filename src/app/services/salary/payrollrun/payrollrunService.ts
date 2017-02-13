@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory } from '../../../unientities';
+import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../../common/ErrorService';
 import {FieldType} from 'uniform-ng2/main';
@@ -144,7 +144,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
-    public getVacationpayBasis(year: number, payrun: number) {
+    public getVacationpayBasis(year: number, payrun: number): Observable<VacationPayList> {
         return this.http
             .asGET()
             .usingBusinessDomain()

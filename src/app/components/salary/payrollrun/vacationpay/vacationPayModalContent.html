@@ -1,7 +1,13 @@
 <article class="modal-content vacationPay" [attr.aria-busy]="busy" *ngIf="config">
     <h1>Feriepenger - oppsett og utbetaling</h1>
     <uni-form [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
-    <uni-table [resource]="vacationpayBasis" [config]="tableConfig" [attr.aria-busy]="basicamountBusy" (rowChanged)="rowChanged($event)" (rowSelectionChanged)="onRowSelectionChange($event)"></uni-table>
+    <uni-table 
+        [resource]="vacationpayBasis" 
+        [config]="tableConfig" 
+        [attr.aria-busy]="basicamountBusy" 
+        (rowChanged)="rowChanged($event)" 
+        (rowSelectionChanged)="onRowSelectionChange($event)"
+        (dataLoaded)="updatetotalPay()"></uni-table>
     <h4>Overfører feriepengeposter til lønnsavregning nr {{config.payrollRunID}}</h4>
     <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
     <footer>
