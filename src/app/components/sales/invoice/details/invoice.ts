@@ -716,14 +716,26 @@ export class InvoiceDetails {
 
     public nextInvoice() {
         this.customerInvoiceService.getNextID(this.invoice.ID).subscribe(
-            id => this.router.navigateByUrl('/sales/invoices/' + id),
+            id => {
+                if (id) {
+                    this.router.navigateByUrl('/sales/invoices/' + id);
+                } else {
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer etter denne');
+                }
+            },
             err => this.errorService.handle(err)
         );
     }
 
     public previousInvoice() {
         this.customerInvoiceService.getPreviousID(this.invoice.ID).subscribe(
-            id => this.router.navigateByUrl('/sales/invoices/' + id),
+            id => {
+                if (id) {
+                    this.router.navigateByUrl('/sales/invoices/' + id);
+                } else {
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer før denne');
+                }
+            },
             err => this.errorService.handle(err)
         );
     }

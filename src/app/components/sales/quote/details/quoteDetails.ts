@@ -9,7 +9,7 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -273,14 +273,26 @@ export class QuoteDetails {
 
     public nextQuote() {
         this.customerQuoteService.getNextID(this.quote.ID).subscribe(
-            id => this.router.navigateByUrl('/sales/quotes/' + id),
+            id => {
+                if (id) {
+                    this.router.navigateByUrl('/sales/quotes/' + id);
+                } else {
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere tilbud etter denne');
+                }
+            },
             err => this.errorService.handle(err)
         );
     }
 
     public previousQuote() {
         this.customerQuoteService.getPreviousID(this.quote.ID).subscribe(
-            id => this.router.navigateByUrl('/sales/quotes/' + id),
+            id => {
+                if (id) {
+                    this.router.navigateByUrl('/sales/quotes/' + id);
+                } else {
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere tilbud før denne');
+                }
+            },
             err => this.errorService.handle(err)
         );
     }
