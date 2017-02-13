@@ -9,7 +9,7 @@ declare var _;
     selector: 'vacationpay-modal',
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html'
 })
-export class VacationpayModal implements AfterViewInit {
+export class VacationpayModal {
     @ViewChild(UniModal) private modal: UniModal;
     private modalConfig: {
         hasCancelButton: boolean,
@@ -49,14 +49,7 @@ export class VacationpayModal implements AfterViewInit {
 
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openModal() {
-        this.modal.getContent().then((component: VacationpayModalContent) => {
-            this.modal.open();
-            component.load();
-        }, err => this.errorService.handle(err));
+        this.modal.open();
     }
 }

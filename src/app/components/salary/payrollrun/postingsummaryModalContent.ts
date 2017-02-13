@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UniTable, UniTableColumn, UniTableColumnType, UniTableConfig } from 'unitable-ng2/main';
 import { PostingSummary, Dimensions } from '../../../unientities';
@@ -13,7 +13,7 @@ declare var moment;
     selector: 'postingsummary-modal-content',
     templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html'
 })
-export class PostingsummaryModalContent {
+export class PostingsummaryModalContent implements OnInit {
     public busy: boolean;
     private showReceipt: boolean = false;
     private accountTableConfig: UniTableConfig;
@@ -36,7 +36,7 @@ export class PostingsummaryModalContent {
         });
     }
 
-    public openModal() {
+    public ngOnInit() {
         this.busy = true;
         this.createTableConfig();
 
@@ -67,7 +67,6 @@ export class PostingsummaryModalContent {
                     + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
             }, err => this.errorService.handle(err));
     }
-
 
     public postTransactions() {
         

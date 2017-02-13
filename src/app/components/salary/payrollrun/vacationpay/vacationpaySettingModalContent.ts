@@ -1,21 +1,21 @@
-import {Component, Input, ViewChild} from '@angular/core';
-import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import { Component, Input, ViewChild, OnInit } from '@angular/core';
+import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import {
     CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService
 } from '../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType
 } from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import moment from 'moment';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModalContent.html'
 })
-export class VacationpaySettingModalContent {
+export class VacationpaySettingModalContent implements OnInit {
     private busy: boolean;
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -39,7 +39,7 @@ export class VacationpaySettingModalContent {
 
     }
 
-    public loadData() {
+    public ngOnInit() {
         this.busy = true;
         Observable.forkJoin(
             this._companysalaryService.getCompanySalary(),
@@ -136,8 +136,8 @@ export class VacationpaySettingModalContent {
         var mainAccountCostVacation = new UniFieldLayout();
         const companysalaryModel = this.companysalaryModel$.getValue();
         let cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
-                ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1')
-                : Observable.of([{ AccountName: '', AccountNumber: null }]);
+            ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1')
+            : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';
         mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
@@ -151,8 +151,8 @@ export class VacationpaySettingModalContent {
 
         var mainAccountAllocatedVacation = new UniFieldLayout();
         let allVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountAllocatedVacation
-                ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
-                : Observable.of([{ AccountName: '', AccountNumber: null }]);
+            ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
+            : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
         mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
@@ -170,10 +170,10 @@ export class VacationpaySettingModalContent {
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
             source: [
-                {id: WageDeductionDueToHolidayType.Deduct4PartsOf26, name: '-4/26 av månedslønn'},
-                {id: WageDeductionDueToHolidayType.Deduct3PartsOf22, name: '-3/22 av månedslønn'},
-                {id: WageDeductionDueToHolidayType.Add1PartOf26, name: '+1/26 av månedslønn'},
-                {id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn'}
+                { id: WageDeductionDueToHolidayType.Deduct4PartsOf26, name: '-4/26 av månedslønn' },
+                { id: WageDeductionDueToHolidayType.Deduct3PartsOf22, name: '-3/22 av månedslønn' },
+                { id: WageDeductionDueToHolidayType.Add1PartOf26, name: '+1/26 av månedslønn' },
+                { id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn' }
             ],
             displayProperty: 'name',
             valueProperty: 'id'

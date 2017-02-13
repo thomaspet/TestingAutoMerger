@@ -1,4 +1,4 @@
-import { Component, Type, ViewChild, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { Component, Type, ViewChild, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UniModal } from '../../../../framework/modals/modal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
@@ -27,7 +27,7 @@ type PaylistSection = {
     selector: 'control-modal-content',
     templateUrl: 'app/components/salary/payrollrun/controlModalContent.html'
 })
-export class ControlModalContent {
+export class ControlModalContent implements OnInit {
     private busy: boolean;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public payList: {
@@ -63,6 +63,15 @@ export class ControlModalContent {
             this.payrollRunID = +params['id'];
         });
         this.generateHeadingsForm();
+    }
+
+    public ngOnInit() {
+        this.busy = true;
+        this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
+            this.getData().subscribe((data) => {
+                this.setData(data);
+            }, err => this.errorService.handle(err));
+        }, err => this.errorService.handle(err));
     }
 
     public getData() {
@@ -231,15 +240,6 @@ export class ControlModalContent {
                 this.errorService.handle(err);
             });
     }
-
-    public refresh() {
-        this.busy = true;
-        this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
-            this.getData().subscribe((data) => {
-                this.setData(data);
-            }, err => this.errorService.handle(err));
-        }, err => this.errorService.handle(err));
-    }
     
     public toggleCollapsed(index: number) {
         this.payList[index].collapsed = !this.payList[index].collapsed;
@@ -257,7 +257,7 @@ export class ControlModalContent {
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
-export class ControlModal implements AfterViewInit {
+export class ControlModal {
     @ViewChild(UniModal) private modal: UniModal;
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modalConfig: { hasCancelButton: boolean, cancel: any, update: any, actions: { text: string, method: any }[] };
@@ -279,14 +279,7 @@ export class ControlModal implements AfterViewInit {
 
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openModal() {
-        this.modal.getContent().then((modalContent: ControlModalContent) => {
-            modalContent.refresh();
-            this.modal.open();
-        });
+        this.modal.open();
     }
 }

@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, Output, OnChanges, AfterViewInit, EventEmitter} from '@angular/core';
+import {Component, Type, ViewChild, Input, Output, OnChanges, AfterViewInit, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
 import {TaxCardRequest} from './taxCardRequest';
@@ -10,7 +10,7 @@ declare var _;
     selector: 'tax-card-modal-content',
     templateUrl: 'app/components/salary/employee/modals/taxCardModalContent.html'
 })
-export class TaxCardModalContent {
+export class TaxCardModalContent implements OnInit, AfterViewInit {
     public title: string = '';
     public exitButton: string = '';
     public busy: boolean;
@@ -19,7 +19,7 @@ export class TaxCardModalContent {
     private employeeID: number;
 
     @Input('config')
-    private config: { hasCancelButton: boolean, cancel: () => void, update: () => void };
+    private config: { hasCancelButton: boolean, cancel: () => void, update: () => void, getEmployeeID: () => number };
 
     @ViewChild(UniForm)
     public uniform: UniForm;
@@ -34,6 +34,16 @@ export class TaxCardModalContent {
 
     }
 
+    public ngOnInit() {
+        this.employeeID = this.config.getEmployeeID();
+    }
+
+    public ngAfterViewInit() {
+        this.readTaxCard.getReceipts();
+        this.taxCardRequest.isActive = true;
+        this.taxCardRequest.initialize();
+    }
+
     public triggerUpdate() {
         this.config.update();
     }
@@ -46,11 +56,6 @@ export class TaxCardModalContent {
         this.taxCardRequest.isActive = false;
         this.taxCardRequest.close();
         this.config.cancel();
-    }
-
-    public open() {
-        this.taxCardRequest.isActive = true;
-        this.readTaxCard.getReceipts();
     }
 
     public setEmployeeID(empID) {
@@ -68,7 +73,7 @@ export class TaxCardModalContent {
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
 })
-export class TaxCardModal implements OnChanges, AfterViewInit {
+export class TaxCardModal {
     public type: Type<any> = TaxCardModalContent;
     public config: any = {};
 
@@ -88,25 +93,9 @@ export class TaxCardModal implements OnChanges, AfterViewInit {
             },
             update: () => {
                 this.triggerUpdate();
-            }
+            },
+            getEmployeeID: () => this.employeeID
         };
-    }
-
-    public ngAfterViewInit() {
-        this.modal.createContent();
-        this.updateEmployeeID();
-    }
-
-    public ngOnChanges() {
-        if (this.modal && this.modal.component) {
-            this.updateEmployeeID();
-        }
-    }
-
-    private updateEmployeeID() {
-        this.modal.getContent().then((modalContent: TaxCardModalContent) => {
-            modalContent.setEmployeeID(this.employeeID);
-        });
     }
 
     public triggerUpdate() {
@@ -115,9 +104,6 @@ export class TaxCardModal implements OnChanges, AfterViewInit {
 
     public openModal() {
         this.modal.open();
-        this.modal.getContent().then((modalContent: TaxCardModalContent) => {
-            modalContent.open();
-        });
     }
 
 }

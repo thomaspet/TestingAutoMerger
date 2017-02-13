@@ -52,9 +52,7 @@ export class VacationpayModalContent {
 
     public ngOnInit() {
         this.config$.next(this.config);
-    }
-
-    public load() {
+        
         this.busy = true;
         this.dueToHolidayChanged = false;
         this.totalPayout = 0;
