@@ -91,4 +91,10 @@ export class UniToolbar {
     public tagsChangeEvent(tags) {
         this.tagsChange.emit(tags);
     }
+
+    private triggerSubheadEvent(subhead) {
+        if (subhead.event) {
+            return subhead.event();
+        }
+    }
 }
