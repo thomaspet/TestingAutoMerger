@@ -1130,8 +1130,10 @@ export class CustomerInvoiceReminder extends UniEntity {
 
     public CreatedAt: Date;
     public CreatedBy: string;
+    public CreatedByReminderRuleID: number;
     public CustomerInvoiceID: number;
     public Deleted: boolean;
+    public Description: string;
     public DueDate: LocalDate;
     public ID: number;
     public RemindedDate: LocalDate;
@@ -1139,9 +1141,11 @@ export class CustomerInvoiceReminder extends UniEntity {
     public ReminderNumber: number;
     public RunNumber: number;
     public StatusCode: number;
+    public Title: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomerInvoice: CustomerInvoice;
+    public CreatedByReminderRule: CustomerInvoiceReminderRule;
     public CustomFields: any;
 }
 
@@ -1170,6 +1174,9 @@ export class Customer extends UniEntity {
     public Info: BusinessRelation;
     public Dimensions: Dimensions;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public CustomerQuotes: Array<CustomerQuote>;
+    public CustomerOrders: Array<CustomerOrder>;
+    public CustomerInvoices: Array<CustomerInvoice>;
     public CustomFields: any;
 }
 
@@ -1181,6 +1188,7 @@ export class CustomerInvoice extends UniEntity {
     public AmountRegards: string;
     public Attachments: string;
     public BankAccountID: number;
+    public CollectorStatusCode: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -5007,6 +5015,7 @@ export enum StdWageType{
     HolidayPayThisYear = 3,
     HolidayPayLastYear = 4,
     HolidayPayWithTaxDeduction = 5,
+    AdvancePayment = 6
 }
 
 
