@@ -60,9 +60,7 @@ export class UniSearchAccountConfigGeneratorHelper {
         const filter = ( startNumber
             ? `startswith(Account.AccountNumber,'${startNumber}')`
             : `contains(Account.AccountName,'${searchTerm}')` )
-            + ' and isnull(Account.AccountID,0) eq 0'
-            + ' and Account.Visible eq \'true\''
-            + ' and Account.Deleted eq \'false\'';
+            + ' and isnull(Account.AccountID,0) eq 0';
         const select = [
             'Account.ID as ID',
             'Account.AccountNumber as AccountNumber',

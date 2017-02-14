@@ -79,14 +79,13 @@ export class UniSearchCustomerConfigGeneratorHelper {
         const model = 'Customer';
         const expand = 'Info.Phones,Info.Addresses,Info.Emails';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        let filter = '( ';
+        let filter = `contains(Info.Name,'${searchTerm}')`;
+        let orderBy = 'Info.Name';
         if (startNumber) {
-            filter += ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number']
+            filter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number']
                 .map(x => `startswith(${x},'${startNumber}')`).join(' or ');
-        } else {
-            filter += `contains(Info.Name,'${searchTerm}')`;
+            orderBy = 'Customer.CustomerNumber';
         }
-        filter += ` ) and isnull(Phones.Deleted,'false') eq 'false' and Customer.Deleted eq 'false'`;
         const select = [
             'Customer.ID as ID',
             'Info.Name as Name',
@@ -99,7 +98,6 @@ export class UniSearchCustomerConfigGeneratorHelper {
             'Emails.EmailAddress as EmailAddress',
             'Customer.WebUrl as WebUrl'
         ].join(',');
-        const orderBy = 'Info.Name';
         const skip = 0;
         const top = MAX_RESULTS;
         return `model=${model}`
