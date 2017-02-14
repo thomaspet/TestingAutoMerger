@@ -43,8 +43,7 @@ export class ReminderSettings {
                 this.isDirty = false;
                 resolve();
             }, (err) => {
-                this.errorService.handle(err);
-                reject();
+                reject(err);
             });
         });
     }

@@ -281,6 +281,9 @@ export class CompanySettingsComponent implements OnInit {
                     this.reminderSettings.save().then(() => {
                         this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                         complete('Innstillinger lagret');
+                    }).catch((err) => {
+                        this.errorService.handle(err);
+                        complete('Purreinnstillinger feilt i lagring');
                     });
                 });
             },
@@ -575,7 +578,7 @@ export class CompanySettingsComponent implements OnInit {
                 Combo: null,
                 Sectionheader: '',
                 hasLineBreak: false,
-                Validations: []                
+                Validations: []
             },
             {
                 ComponentLayoutID: 1,

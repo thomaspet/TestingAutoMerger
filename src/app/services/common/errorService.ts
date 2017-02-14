@@ -43,6 +43,8 @@ export class ErrorService {
                 return errContent.Messages.map(m => m.Message).join('.\n') + '.\n';
             } else if (errContent && errContent.Message) {
                 return errContent.Message;
+            } else if (errContent._validationResults) {
+                return errContent._validationResults[''].map(m => m.Message).join('.\n') + '.\n';
             } else {
                 return '[Unparsable error occurred, see logs for more info]';
             }
