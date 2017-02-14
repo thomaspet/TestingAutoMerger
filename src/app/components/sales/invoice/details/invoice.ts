@@ -159,7 +159,14 @@ export class InvoiceDetails {
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             } else {
-                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
+                Observable.forkJoin(
+                    this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
+                    this.companySettingsService.Get(1)
+                ).subscribe((res) => {
+                    let invoice = res[0];
+                    this.companySettings = res[1];
+
+                    this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             }
