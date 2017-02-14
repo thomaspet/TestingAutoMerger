@@ -78,11 +78,15 @@ export class UniSearchCustomerConfigGeneratorHelper {
     private generateCustomerStatisticsQuery(searchTerm: string): string {
         const model = 'Customer';
         const expand = 'Info.Phones,Info.Addresses,Info.Emails';
-        const filter = '('
-            + ` contains(Info.Name,'${searchTerm}')`
-            + ` or startswith(Customer.OrgNumber,'${searchTerm}')`
-            + ` or startswith(Phones.Number,'${searchTerm}')`
-            + ` ) and isnull(Phones.Deleted,'false') eq 'false' and Customer.Deleted eq 'false'`;
+        const startNumber = this.getNumberFromStartOfString(searchTerm);
+        let filter = '( ';
+        if (startNumber) {
+            filter += ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number']
+                .map(x => `startswith(${x},'${startNumber}')`).join(' or ');
+        } else {
+            filter += `contains(Info.Name,'${searchTerm}')`;
+        }
+        filter += ` ) and isnull(Phones.Deleted,'false') eq 'false' and Customer.Deleted eq 'false'`;
         const select = [
             'Customer.ID as ID',
             'Info.Name as Name',
@@ -146,5 +150,10 @@ export class UniSearchCustomerConfigGeneratorHelper {
             customer.Info.Emails[0].EmailAddress = statObj.EmailAddress;
         }
         return customer;
+    }
+
+    private getNumberFromStartOfString(str: string): number {
+        const match = str.match(/^\d+/);
+        return match && +match[0];
     }
 }

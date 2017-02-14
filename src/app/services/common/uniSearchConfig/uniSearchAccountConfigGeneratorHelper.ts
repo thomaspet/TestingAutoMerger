@@ -56,18 +56,17 @@ export class UniSearchAccountConfigGeneratorHelper {
 
     private generateMainAccountsOnlyStatisticsQuery(searchTerm: string): string {
         const model = 'Account';
-        const numberFromStartOfString = this.getNumberFromStartOfString(searchTerm);
-        const startOfFilter = numberFromStartOfString
-            ? `startswith(Account.AccountNumber,'${numberFromStartOfString}')`
-            : `contains(Account.AccountName,'${searchTerm}')`;
-        const filter = startOfFilter
+        const startNumber = this.getNumberFromStartOfString(searchTerm);
+        const filter = ( startNumber
+            ? `startswith(Account.AccountNumber,'${startNumber}')`
+            : `contains(Account.AccountName,'${searchTerm}')` )
             + ' and isnull(Account.AccountID,0) eq 0'
             + ' and Account.Visible eq \'true\''
             + ' and Account.Deleted eq \'false\'';
         const select = [
             'Account.ID as ID',
             'Account.AccountNumber as AccountNumber',
-            'Account.AccountName as AccountName '
+            'Account.AccountName as AccountName'
         ].join(',');
         const orderBy = 'AccountNumber';
         const skip = 0;
