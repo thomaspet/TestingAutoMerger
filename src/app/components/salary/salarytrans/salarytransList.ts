@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from 'unitable-ng2/main';
+import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton, ITableFilter } from 'unitable-ng2/main';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
@@ -51,6 +51,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private salaryTransactions: SalaryTransaction[];
     private filteredTranses: SalaryTransaction[];
     private deleteButton: IDeleteButton;
+    private refresh: boolean;
 
     constructor(
         private wageTypeService: WageTypeService,
@@ -79,6 +80,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         route.params.subscribe((params) => {
             this.payrollRunID = +params['id'];
             super.updateCacheKey(router.url);
+            this.salaryTransactions = [];
 
             const payrollRunSubject = super.getStateSubject('payrollRun');
             const wagetypesSubject = super.getStateSubject('wagetypes');
@@ -107,11 +109,18 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-            salaryTransactionsSubject.subscribe(transes => {
-                this.salaryTransactions = transes;
-                this.filteredTranses = this.salaryTransactions
-                    .filter(x => this.employee && !x.Deleted && x.EmployeeID === this.employee.ID);
+            salaryTransactionsSubject.subscribe((transes: SalaryTransaction[]) => {
+                if (!this.salaryTransactions
+                    || !this.salaryTransactions.length
+                    || this.refresh
+                    || !transes.some(x => x['_isDirty'] || x.Deleted)) {
+                    this.salaryTransactions = transes;
+                    this.filteredTranses = this.salaryTransactions
+                        .filter(x => this.employee && x.EmployeeID === this.employee.ID && !x.Deleted);
+                    this.refresh = false;
+                }
             });
+
             if (!this.salarytransEmployeeTableConfig) {
                 this.busy = true;
                 Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject,
@@ -337,10 +346,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
 
                 if (rateObservable) {
-                    rateObservable.subscribe(rate => {
+                    var subscription = rateObservable.subscribe(rate => {
                         row['Rate'] = rate;
                         this.calcItem(row);
                         this.updateSalaryChanged(row, true);
+                        subscription.unsubscribe();
                     });
                 } else {
                     this.updateSalaryChanged(row);
@@ -348,9 +358,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return row;
             })
-            .setIsRowReadOnly((rowModel: SalaryTransaction) => {
-                return rowModel.IsRecurringPost;
-            });
+            .setIsRowReadOnly((rowModel: SalaryTransaction) => rowModel.IsRecurringPost);
     }
 
     private mapWagetypeToTrans(rowModel) {
@@ -503,7 +511,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             let row: SalaryTransaction = rows.find(x => x.ID === trans.ID);
             if (row) {
                 row.Supplements = trans.Supplements;
-                this.updateSalaryChanged(row);
+                this.updateSalaryChanged(row, true);
             }
         }
     }
@@ -527,7 +535,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 this.salaryTransactions.splice(transIndex, 1);
                 hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty'] || trans['Deleted']);
             }
-
+            
+            this.refresh = true;
             super.updateState('salaryTransactions', this.salaryTransactions, hasDirtyRow);
         }
     }
@@ -569,7 +578,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public hasDirty(): boolean {
-        return this.salaryTransactions 
+        return this.salaryTransactions
             && this.salaryTransactions
                 .filter(x => x.EmployeeID === this.employeeID)
                 .some(x => x.Deleted || x['_isDirty']);
@@ -580,17 +589,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public updateFileList(event: UpdatedFileListEvent) {
-        let updateTranses: boolean;
-
         this.salaryTransactions.forEach(x => {
             if (x.ID === event.entityID && x['_FileIDs'].length !== event.files.length) {
                 x['_FileIDs'] = event.files;
-                updateTranses = true;
+                this.table.updateRow(this.filteredTranses.find(trans => trans.ID === x.ID)['_originalIndex'], x);
             }
         });
-
-        if (updateTranses) {
-            this.updateState('salaryTransactions', this.salaryTransactions, super.isDirty('SalaryTransactions'));
-        }
     }
 }
