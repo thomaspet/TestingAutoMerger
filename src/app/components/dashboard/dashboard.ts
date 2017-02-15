@@ -1,10 +1,12 @@
-import {Component, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
-import {ErrorService} from '../../services/services';
+import {ErrorService, CompanySettingsService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
 import {Company} from '../../unientities';
+import {UniImage} from '../../../framework/uniImage/uniImage';
+import {CompanySettings} from '../../unientities';
 
 declare var Chart;
 declare var moment;
@@ -24,6 +26,7 @@ export interface IChartDataSet {
 })
 
 export class Dashboard {
+    @ViewChild(UniImage) private logoImage: UniImage;
 
     public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
     public transactionList = [];
@@ -32,7 +35,7 @@ export class Dashboard {
     public inboxList = [];
     public emptyInboxMessage = '';
     public user: any;
-    public current: Company;
+    public current: CompanySettings;
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
     private loadReload: EventEmitter<Company> = new EventEmitter<Company>();
@@ -42,80 +45,84 @@ export class Dashboard {
         private http: UniHttp,
         private router: Router,
         private errorService: ErrorService,
-        private authService: AuthService
+        private authService: AuthService,
+        private companySettingsService: CompanySettingsService
     ) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
         Chart.defaults.global.maintainAspectRatio = false;
 
-        this.getCompany().subscribe(
-            (data) => { this.current = data[0]; },
-            err => this.errorService.handle(err)
-        );
-
         this.authService.companyChange.subscribe(
-            company => this.loadReload.emit(company)
+            company => this.loadReload.emit()
             /* No error handling neccesary */
         );
     }
 
     public ngAfterViewInit() {
-        this.loadReload.subscribe(company => {
+        this.loadReload.subscribe(() => {
+            this.companySettingsService.Get(1).subscribe((settings) => {
+                this.current = settings;
+                if (this.logoImage) { this.logoImage.refreshFiles(); }
 
-            this.getInvoicedData().subscribe(
-                data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
-                err => this.errorService.handle(err)
-            );
-            this.getOrdreData().subscribe(
-                (data) => this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')),
-                err => this.errorService.handle(err)
-            );
+                this.reloadDashboard();
 
-            this.getQuoteData().subscribe(
-                (data) => this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')),
-                err => this.errorService.handle(err)
-            );
-
-            this.getOperatingData().subscribe(
-                (data) => this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)),
-                err => this.errorService.handle(err)
-            );
-
-            this.getLastJournalEntry().subscribe(
-                (data) => this.generateLastTenList(data, true),
-                err => this.errorService.handle(err)
-            );
-
-            this.getMyUserInfo().subscribe(
-                (data) => {
-                    this.user = data;
-                    this.getMyTransactions()
-                        .subscribe(
-                            (data) => this.generateLastTenList(data.Data, false, true),
-                            err => this.errorService.handle(err)
-                        );
-                },
-                err => this.errorService.handle(err)
-            );
-
-            this.getTransactions().subscribe(
-                (data) => this.generateLastTenList(data.Data, false),
-                err => this.errorService.handle(err)
-            );
-
-            this.getAssets().subscribe(
-                (data) => this.chartGenerator('assets_chart', this.assetsChartData(data.Data)),
-                err => this.errorService.handle(err)
-            );
-
-            this.getMail().subscribe(
-                (data) => this.fixInboxItems(data.Data),
-                err => this.errorService.handle(err)
-            );
-
+            }, err => this.errorService.handle(err));
         });
 
         // First load is manual, the following times it is done by authService.companyChange event
-        this.loadReload.emit(this.current);
+        this.loadReload.emit();
+    }
+
+    private reloadDashboard() {
+        this.getInvoicedData().subscribe(
+            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
+            err => this.errorService.handle(err)
+        );
+        this.getOrdreData().subscribe(
+            (data) => this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')),
+            err => this.errorService.handle(err)
+        );
+
+        this.getQuoteData().subscribe(
+            (data) => this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')),
+            err => this.errorService.handle(err)
+        );
+
+        this.getOperatingData().subscribe(
+            (data) => this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)),
+            err => this.errorService.handle(err)
+        );
+
+        this.getLastJournalEntry().subscribe(
+            (data) => this.generateLastTenList(data, true),
+            err => this.errorService.handle(err)
+        );
+
+        this.getMyUserInfo().subscribe(
+            (data) => {
+                this.user = data;
+                this.getMyTransactions()
+                    .subscribe(
+                        (transactions) => this.generateLastTenList(transactions.Data, false, true),
+                        err => this.errorService.handle(err)
+                    );
+            },
+            err => this.errorService.handle(err)
+        );
+
+        this.getTransactions().subscribe(
+            (data) => this.generateLastTenList(data.Data, false),
+            err => this.errorService.handle(err)
+        );
+
+        this.getAssets().subscribe(
+            (data) => this.chartGenerator('assets_chart', this.assetsChartData(data.Data)),
+            err => this.errorService.handle(err)
+        );
+
+        this.getMail().subscribe(
+            (data) => this.fixInboxItems(data.Data),
+            err => this.errorService.handle(err)
+        );
     }
 
     public hideWelcome() {
@@ -470,15 +477,6 @@ export class Dashboard {
             .asGET()
             .usingEmptyDomain()
             .withEndPoint('/api/statistics?model=journalentryline&select=sum(amount),accountgroup.name&filter=accountgroup.maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
-            .send()
-            .map(response => response.json());
-    }
-
-    public getCompany() {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('companysettings')
             .send()
             .map(response => response.json());
     }
