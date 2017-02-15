@@ -48,7 +48,8 @@ export class UniSearchAccountConfigGeneratorHelper {
                 item.AccountNumber,
                 item.AccountName
             ],
-            inputTemplateFn: item => `${item.AccountNumber} - ${item.AccountName}`,
+            inputTemplateFn: item =>
+                `${item.AccountNumber} - ${item.AccountName}`,
             newItemModalFn: newItemModalFn,
             maxResultsLength: MAX_RESULTS
         };

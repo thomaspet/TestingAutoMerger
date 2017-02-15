@@ -15,6 +15,7 @@ import {
 } from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
+import {UniSearchAccountConfigGeneratorHelper} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 
 declare var _; // lodash
 
@@ -60,7 +61,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         private accountService: AccountService,
         private subentityService: SubEntityService,
         private agazoneService: AgaZoneService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private uniSearchAccountConfig: UniSearchAccountConfigGeneratorHelper
     ) {
         this.formConfig$.next({
             sections: {
@@ -77,15 +79,13 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.busy = true;
         Observable.forkJoin(
             this.companySalaryService.getCompanySalary(),
-            this.accountService.GetAll(''),
             this.subentityService.getMainOrganization(),
             this.agazoneService.GetAll(''),
             this.agazoneService.getAgaRules()
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
-                let [companysalaries, accounts, mainOrg, zones, rules] = dataset;
+                let [companysalaries, mainOrg, zones, rules] = dataset;
                 this.companySalary$.next(companysalaries[0]);
-                this.accounts = accounts;
                 this.agaZones = zones;
                 this.agaRules = rules;
 
@@ -187,71 +187,76 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
         mainAccountAlocatedAga.EntityType = 'CompanySalary';
         mainAccountAlocatedAga.Property = 'MainAccountAllocatedAGA';
-        mainAccountAlocatedAga.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAlocatedAga.FieldType = FieldType.UNI_SEARCH;
         mainAccountAlocatedAga.Section = 2;
         mainAccountAlocatedAga.Sectionheader = 'Kontooppsett';
         mainAccountAlocatedAga.Options = {
-            source: this.accounts,
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedAGA}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
         var mainAccountCostAga = new UniFieldLayout();
         mainAccountCostAga.Label = 'Konto kostnad aga';
         mainAccountCostAga.EntityType = 'CompanySalary';
         mainAccountCostAga.Property = 'MainAccountCostAGA';
-        mainAccountCostAga.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostAga.FieldType = FieldType.UNI_SEARCH;
         mainAccountCostAga.Section = 2;
         mainAccountCostAga.Options = {
-            source: this.accounts,
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountCostAGA}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
         var mainAccountAllocatedAgaVacation = new UniFieldLayout();
         mainAccountAllocatedAgaVacation.EntityType = 'CompanySalary';
         mainAccountAllocatedAgaVacation.Label = 'Avsatt aga av feriepenger';
         mainAccountAllocatedAgaVacation.Property = 'MainAccountAllocatedAGAVacation';
-        mainAccountAllocatedAgaVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAllocatedAgaVacation.FieldType = FieldType.UNI_SEARCH;
         mainAccountAllocatedAgaVacation.Section = 2;
         mainAccountAllocatedAgaVacation.Options = {
-            source: this.accounts,
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedAGAVacation}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
         var mainAccountCostAgaVacation = new UniFieldLayout();
         mainAccountCostAgaVacation.EntityType = 'CompanySalary';
         mainAccountCostAgaVacation.Label = 'Kostnad aga feriepenger';
         mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
-        mainAccountCostAgaVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostAgaVacation.FieldType = FieldType.UNI_SEARCH;
         mainAccountCostAgaVacation.Section = 2;
         mainAccountCostAgaVacation.Options = {
-            source: this.accounts,
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountCostAGAVacation}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
         var interrimRemit = new UniFieldLayout();
         interrimRemit.EntityType = 'CompanySalary';
         interrimRemit.Label = 'Hovedbokskonto netto utbetalt';
         interrimRemit.Property = 'InterrimRemitAccount';
-        interrimRemit.FieldType = FieldType.AUTOCOMPLETE;
+        interrimRemit.FieldType = FieldType.UNI_SEARCH;
         interrimRemit.Section = 2;
         interrimRemit.Options = {
-            source: this.accounts.filter(x => x.AccountNumber >= 1000 && x.AccountNumber <= 2999),
             valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.InterrimRemitAccount}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
         let postTax = new UniFieldLayout();

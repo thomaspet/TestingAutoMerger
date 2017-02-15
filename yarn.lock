@@ -5947,9 +5947,9 @@ underscore@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.7.0.tgz#6bbaf0877500d36be34ecaa584e0db9fef035209"
 
-uniform-ng2@^0.0.46:
-  version "0.0.46"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.46.tgz#5535aef6aaa87b56bebc0037e116dad8bc981ec2"
+uniform-ng2@^0.0.47:
+  version "0.0.47"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.47.tgz#976e6aee81670a7320e6dce70adf492a0763fca4"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
@@ -5965,7 +5965,7 @@ uniform-ng2@^0.0.46:
     rxjs "5.0.0-beta.12"
     systemjs "0.19.31"
     typings "^0.7.12"
-    unisearch-ng2 "0.0.11"
+    unisearch-ng2 "0.0.12"
     zone.js "^0.6.21"
 
 unique-stream@^1.0.0:
@@ -5982,6 +5982,24 @@ unique-stream@^2.0.2:
 unisearch-ng2@0.0.11:
   version "0.0.11"
   resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.11.tgz#2df85d454207de6aae23e04dced9e8a23ca8c8d3"
+  dependencies:
+    "@angular/common" "2.1.0"
+    "@angular/compiler" "2.1.0"
+    "@angular/core" "2.1.0"
+    "@angular/forms" "2.1.0"
+    "@angular/http" "2.1.0"
+    "@angular/platform-browser" "2.1.0"
+    "@angular/platform-browser-dynamic" "2.1.0"
+    es6-shim "^0.35.0"
+    reflect-metadata "^0.1.3"
+    rxjs "5.0.0-beta.12"
+    systemjs "0.19.31"
+    typings "^0.7.12"
+    zone.js "^0.6.21"
+
+unisearch-ng2@0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.12.tgz#a5c9e458a76cda1ba7795cedad5c5c4e1b4a294b"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
