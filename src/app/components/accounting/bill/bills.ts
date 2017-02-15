@@ -262,6 +262,7 @@ export class BillsView {
             }).setWidth('8%'),
             new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text).setFilterOperator('startswith').setWidth('15em'),
+            new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate).setWidth('10%').setFilterOperator('eq'),
             new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('10%')
                 .setFilterOperator('eq')
                 .setConditionalCls(item =>

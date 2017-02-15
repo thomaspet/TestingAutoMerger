@@ -48,6 +48,21 @@ uni-image
         .next
             right: 1%
 
+        .trash
+            position: absolute
+            cursor: pointer
+            right: calc(1% + 1.5rem)
+
+            &:before
+                height: 3rem
+                width: 2rem
+                display: block
+                content: ''
+                background: unicon-trash($uni-color-negative) center center no-repeat
+                background-size: .8rem
+
+            &:hover:before
+                background-size: .9rem
 
     .uni-thumbnail-list
         display: block
