@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { EmployeeCategory } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { EmployeeCategoryService, UniCacheService, ErrorService } from '../../../services/services';
@@ -85,7 +85,7 @@ export class CategoryView extends UniView {
         });
 
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event instanceof NavigationEnd) {
                 if (!this.currentCategory) {
                     this.getCategory();
                 }

@@ -50,32 +50,32 @@ export * from './accounting/paymentBatchService';
 export * from './accounting/postPostService';
 
 @NgModule({
-    providers: [
-        AccountGroupService,
-        AccountGroupSetService,
-        AccountService,
-        BankAccountService,
-        BankService,
-        JournalEntryLineDraftService,
-        JournalEntryLineService,
-        JournalEntryService,
-        PeriodSeriesService,
-        PeriodService,
-        SupplierInvoiceItemService,
-        SupplierInvoiceService,
-        SupplierService,
-        VatDeductionService,
-        VatCodeGroupService,
-        VatPostService,
-        VatReportService,
-        VatTypeService,
-        AccountVisibilityGroupService,
-        FinancialYearService,
-        PaymentCodeService,
-        PaymentService,
-        PaymentBatchService,
-        PostPostService
-    ]
+    // providers: [
+    //     AccountGroupService,
+    //     AccountGroupSetService,
+    //     AccountService,
+    //     BankAccountService,
+    //     BankService,
+    //     JournalEntryLineDraftService,
+    //     JournalEntryLineService,
+    //     JournalEntryService,
+    //     PeriodSeriesService,
+    //     PeriodService,
+    //     SupplierInvoiceItemService,
+    //     SupplierInvoiceService,
+    //     SupplierService,
+    //     VatDeductionService,
+    //     VatCodeGroupService,
+    //     VatPostService,
+    //     VatReportService,
+    //     VatTypeService,
+    //     AccountVisibilityGroupService,
+    //     FinancialYearService,
+    //     PaymentCodeService,
+    //     PaymentService,
+    //     PaymentBatchService,
+    //     PostPostService
+    // ]
 })
 export class AccountingServicesModule {
     static forRoot(): ModuleWithProviders {

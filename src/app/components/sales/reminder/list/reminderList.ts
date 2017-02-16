@@ -29,7 +29,7 @@ declare const _;
 
 @Component({
     selector: 'reminder-list',
-    templateUrl: 'app/components/sales/reminder/list/reminderList.html'
+    templateUrl: './reminderList.html'
 })
 export class ReminderList {
     @ViewChild(UniTable)

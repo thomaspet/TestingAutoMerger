@@ -30,7 +30,7 @@ import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
 import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
-import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/ReminderConfirmModal';
+import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminderConfirmModal';
 import {ReminderSendingModal, ReminderSendingModalContent} from './reminder/sending/reminderSendingModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 
@@ -131,14 +131,6 @@ import {UniSearchModule} from 'unisearch-ng2';
         OrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
-        SupplierDetailsModal,
-        SupplierDetails,
-        SupplierList
-        QuoteList
-        QuoteList,
-        SupplierDetailsModal,
-        SupplierDetails,
-        SupplierList,
         Reminder,
         ReminderList,
         ReminderSending,

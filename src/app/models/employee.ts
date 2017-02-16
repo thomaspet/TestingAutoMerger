@@ -54,6 +54,5 @@ export class EmployeeModel extends Employee {
 
     constructor() {
         super();
-        console.log('hello from employee.ts');
     }
 }

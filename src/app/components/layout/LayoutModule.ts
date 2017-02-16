@@ -12,7 +12,6 @@ import {UniTabStrip} from './navbar/tabstrip/tabStrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
-import {TabService} from './navbar/tabstrip/tabService';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniNumberFormatPipe} from '../../pipes/UniNumberFormatPipe';
 
@@ -37,7 +36,6 @@ import {UniNumberFormatPipe} from '../../pipes/UniNumberFormatPipe';
         UniCompanyDropdown
     ],
     providers: [
-        TabService,
         UniNumberFormatPipe
     ],
     exports: [
@@ -50,4 +48,5 @@ import {UniNumberFormatPipe} from '../../pipes/UniNumberFormatPipe';
         UniCompanyDropdown
     ]
 })
-export class LayoutModule {}
+export class LayoutModule {
+}

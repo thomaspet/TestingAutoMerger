@@ -21,7 +21,6 @@ export class EmployeeList {
         private _employeeService: EmployeeService,
         private errorService: ErrorService
     ) {
-
         this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 

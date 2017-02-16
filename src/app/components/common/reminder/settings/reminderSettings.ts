@@ -14,7 +14,7 @@ declare const moment;
 
 @Component({
     selector: 'reminder-settings',
-    templateUrl: 'app/components/common/reminder/settings/reminderSettings.html'
+    templateUrl: './reminderSettings.html'
 })
 export class ReminderSettings {
     @Input() private settings: CustomerInvoiceReminderSettings;

@@ -2,7 +2,6 @@ import {RouterModule} from '@angular/router';
 import {Dashboard} from './components/dashboard/dashboard';
 import {ProductList} from './components/common/product/list/productList';
 import {ProductDetails} from './components/common/product/details/productDetails';
-
 import {AuthGuard} from './authGuard';
 
 export const routes = ([

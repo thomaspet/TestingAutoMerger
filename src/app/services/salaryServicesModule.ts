@@ -34,24 +34,6 @@ export * from './salary/employee/employeeTaxCardService';
 export * from './salary/salaryTransaction/salarySumsService';
 
 @NgModule({
-    providers: [
-        AMeldingService,
-        BasicAmountService,
-        CompanySalaryService,
-        CompanyVacationRateService,
-        EmployeeCategoryService,
-        EmployeeLeaveService,
-        EmployeeService,
-        EmploymentService,
-        PayrollrunService,
-        SalaryTransactionService,
-        InntektService,
-        WageTypeService,
-        GrantService,
-        VacationpayLineService,
-        EmployeeTaxCardService,
-        SalarySumsService
-    ]
 })
 export class SalaryServicesModule {
     static forRoot(): ModuleWithProviders {
@@ -72,7 +54,8 @@ export class SalaryServicesModule {
                 WageTypeService,
                 GrantService,
                 VacationpayLineService,
-                EmployeeTaxCardService
+                EmployeeTaxCardService,
+                SalarySumsService
             ]
         };
     }

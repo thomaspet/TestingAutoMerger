@@ -28,21 +28,21 @@ export * from './sales/customerInvoiceReminderSettingsService';
 export * from './sales/customerInvoiceReminderRuleService';
 
 @NgModule({
-    providers: [
-        AddressService,
-        BusinessRelationService,
-        CustomerInvoiceService,
-        CustomerInvoiceItemService,
-        CustomerOrderItemService,
-        CustomerOrderService,
-        CustomerQuoteItemService,
-        CustomerQuoteService,
-        CustomerService,
-        PhoneService,
-        CustomerInvoiceReminderService,
-        CustomerInvoiceReminderSettingsService,
-        CustomerInvoiceReminderRuleService
-    ]
+    // providers: [
+    //     AddressService,
+    //     BusinessRelationService,
+    //     CustomerInvoiceService,
+    //     CustomerInvoiceItemService,
+    //     CustomerOrderItemService,
+    //     CustomerOrderService,
+    //     CustomerQuoteItemService,
+    //     CustomerQuoteService,
+    //     CustomerService,
+    //     PhoneService,
+    //     CustomerInvoiceReminderService,
+    //     CustomerInvoiceReminderSettingsService,
+    //     CustomerInvoiceReminderRuleService
+    // ]
 })
 export class SalesServicesModule {
     static forRoot(): ModuleWithProviders {
@@ -58,7 +58,10 @@ export class SalesServicesModule {
                 CustomerQuoteItemService,
                 CustomerQuoteService,
                 CustomerService,
-                PhoneService
+                PhoneService,
+                CustomerInvoiceReminderService,
+                CustomerInvoiceReminderSettingsService,
+                CustomerInvoiceReminderRuleService
             ]
         };
     }

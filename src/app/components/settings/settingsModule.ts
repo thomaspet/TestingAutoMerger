@@ -60,6 +60,7 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
         FreeamountModalContent
     ],
     exports: [
+        RouterModule,
         Settings,
 
         AgaAndSubEntitySettings,

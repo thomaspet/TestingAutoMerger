@@ -3,7 +3,7 @@ import {UniTabs, IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-reminder',
-    templateUrl: 'app/components/sales/reminder/reminder.html'
+    templateUrl: './reminder.html'
 })
 export class Reminder {
     private childRoutes: IUniTabsRoute[];

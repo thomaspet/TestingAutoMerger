@@ -17,6 +17,8 @@ import {App} from './app';
 import * as moment from 'moment';
 import 'moment/locale/nb';
 
+import {TabService} from './components/layout/navbar/tabstrip/tabService';
+
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
@@ -88,6 +90,7 @@ if (window.ENV === 'production') {
     bootstrap: [App],
     providers: [
         AuthGuard,
+        TabService,
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}

@@ -8,11 +8,11 @@ export * from './reports/reportDefinitionParameterService';
 export * from './reports/reportDefinitionService';
 
 @NgModule({
-    providers: [
-        ReportDefinitionDataSourceService,
-        ReportDefinitionParameterService,
-        ReportDefinitionService
-    ]
+    // providers: [
+    //     ReportDefinitionDataSourceService,
+    //     ReportDefinitionParameterService,
+    //     ReportDefinitionService
+    // ]
 })
 export class ReportServicesModule {
     static forRoot(): ModuleWithProviders {

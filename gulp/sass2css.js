@@ -13,8 +13,7 @@ gulp.task('sass2css', function() {
             browsers: ['ie 10', 'last 2 versions']
         }))
         .pipe(plugins.cssmin())
-        .pipe(plugins.concat('main.css'))
-        .pipe(plugins.rename({suffix: '.min'}))
+        .pipe(plugins.concat('foobar.css'))
         .pipe(plugins.sourcemaps.write('.'))
         .pipe(gulp.dest('./dist'));
 });

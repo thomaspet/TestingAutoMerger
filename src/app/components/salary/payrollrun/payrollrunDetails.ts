@@ -1,5 +1,5 @@
 import {Component, ViewChild, OnDestroy, SimpleChanges} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear, EmployeeCategory
@@ -277,7 +277,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         ];
 
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event instanceof NavigationEnd) {
                 let routeList = event.url.split('/');
                 let location = routeList.pop();
                 if (!isNaN(+location)) {
@@ -574,25 +574,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
 
-            this.payrollrun$.getValue().FromDate = fromdateAsDate;
+            this.payrollrun$.getValue().FromDate = lastFromdate.toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
-                    todateAsDate = new Date(lastTodate);
-                    this.payrollrun$.getValue().ToDate = todateAsDate;
+                    this.payrollrun$.getValue().ToDate = lastTodate.toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
-                    todateAsDate = new Date(lastTodate);
-                    this.payrollrun$.getValue().ToDate = todateAsDate;
+                    this.payrollrun$.getValue().ToDate = lastTodate.toDate();
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
-                    todateAsDate = new Date(lastTodate);
-                    this.payrollrun$.getValue().ToDate = todateAsDate;
+                    this.payrollrun$.getValue().ToDate = lastTodate.toDate();
                     break;
             }
         }
@@ -952,7 +949,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
         })
             .subscribe(
-            x => { 
+            x => {
                 this.getEmployeeCategories();
                 this.getEmployees();
                 this.getSalaryTransactions();

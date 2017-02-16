@@ -1,12 +1,16 @@
-// import 'core-js/es6';
-// import 'core-js/es7/reflect';
+// require('core-js/client/shim');
+// require('reflect-metadata');
 // require('zone.js/dist/zone');
 
-// if (process.env.ENV === 'production') {
-//     // Production
+// // import 'core-js/es6';
+// // import 'core-js/es7/reflect';
+// // require('zone.js/dist/zone');
 
-// } else {
-//     // Development
-//     Error['stackTraceLimit'] = Infinity;
-//     require('zone.js/dist/long-stack-trace-zone');
-// }
+// // if (process.env.ENV === 'production') {
+// //     // Production
+
+// // } else {
+// //     // Development
+// //     Error['stackTraceLimit'] = Infinity;
+// //     require('zone.js/dist/long-stack-trace-zone');
+// // }

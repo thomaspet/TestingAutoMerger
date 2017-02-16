@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear,
@@ -122,9 +122,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService
     ) {
-
         super(router.url, cacheService);
-        console.log('hello from employee.ts');
+
         this.childRoutes = [
             { name: 'Detaljer', path: 'personal-details' },
             { name: 'Arbeidsforhold', path: 'employments' },
@@ -277,7 +276,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         // Subscribe to route changes and load necessary data
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd' && this.employeeID !== undefined) {
+            if (event instanceof NavigationEnd && this.employeeID !== undefined) {
                 let childRoute = event.url.split('/').pop();
                 if (!this.employee) {
                     this.getEmployee();
@@ -286,7 +285,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 if (!this.categories) {
                     this.getEmployeeCategories();
                 }
-                
+
                 if (!this.employeeTaxCard) {
                     this.getTax();
                 }

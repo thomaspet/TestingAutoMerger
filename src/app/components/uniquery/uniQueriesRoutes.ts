@@ -7,9 +7,10 @@ import {UniQueries} from './uniQueries';
 import {UniQueryOverview} from './overview/overview';
 import {UniQueryDetails} from './details/uniQueryDetails';
 
-export const childRoutes = [
+const childRoutes = [
     {
         path: '',
+        pathMatch: 'full',
         redirectTo: 'overview'
     },
     {

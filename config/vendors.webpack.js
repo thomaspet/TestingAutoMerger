@@ -1,5 +1,7 @@
 var webpack = require('webpack');
 var helpers = require('./helpers');
+const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
+const OptimizeJsPlugin = require('optimize-js-plugin');
 
 module.exports = {
     entry: {
@@ -13,6 +15,11 @@ module.exports = {
             '@angular/platform-browser-dynamic',
             '@angular/router',
 
+
+            './src/vendor.ts',
+            // 'rxjs',
+            // './src/rxjs.imports.ts',
+
             'moment/locale/nb.js',
             'moment/locale/en-gb.js',
             'file-saver/FileSaver.min.js',
@@ -20,13 +27,11 @@ module.exports = {
             'accounting/accounting.min.js',
             'immutable/dist/immutable.min.js',
             'jwt-decode/build/jwt-decode.min.js',
-
-            'jquery/dist/jquery.min.js',
             'lodash/lodash.min.js',
 
             'uniform-ng2/main',
             'unitable-ng2/main',
-            'unisearch-ng2',
+            'unisearch-ng2'
         ]
     },
 
@@ -42,7 +47,7 @@ module.exports = {
             {
                 test: /\.css$/,
                 loaders: ['to-string-loader', 'style-loader', 'css-loader']
-            },
+            }
         ]
     },
 
@@ -73,8 +78,36 @@ module.exports = {
             _: 'lodash/lodash.min.js',
             lodash: 'lodash/lodash.min.js',
             // moment: 'moment/min/moment.min.js'
-        })
+        }),
 
+        new OptimizeJsPlugin({
+            sourceMap: false
+        }),
+
+        new webpack.optimize.UglifyJsPlugin({
+            beautify: false,
+            output: {
+                comments: false
+            },
+
+            mangle: {
+                screw_ie8: true
+            },
+
+            compress: {
+                screw_ie8: true,
+                warnings: false,
+                conditionals: true,
+                unused: true,
+                comparisons: true,
+                sequences: true,
+                dead_code: true,
+                evaluate: true,
+                if_return: true,
+                join_vars: true,
+                negate_iife: false // we need this for lazy v8
+            }
+        })
 
         // new webpack.optimize.UglifyJsPlugin({
         //     beautify: false,

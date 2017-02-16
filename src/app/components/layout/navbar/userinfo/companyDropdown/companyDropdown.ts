@@ -66,7 +66,8 @@ import {
                 </p>
 
                 <p>
-                    <a href="/#/settings/company" class="navbar_company_settings" (click)="close()">Innstillinger</a>
+                    <!--<a href="/#/settings/company" class="navbar_company_settings" (click)="close()">Innstillinger</a>-->
+                    <a routerLink="settings/company" class="navbar_company_settings" (click)="close()">Innstillinger</a>
                     <button (click)="logOut()" class="navbar_company_logout">Logg ut</button>
                 </p>
 

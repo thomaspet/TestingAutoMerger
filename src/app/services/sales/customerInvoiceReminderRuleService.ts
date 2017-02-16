@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoiceReminderRule} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class CustomerInvoiceReminderRuleService extends BizHttp<CustomerInvoiceReminderRule> {

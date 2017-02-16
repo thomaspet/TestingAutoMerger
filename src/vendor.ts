@@ -3,6 +3,10 @@
 // // RxJS
 import './rxjs.imports.ts';
 
+import * as moment from 'moment';
+import * as Chart from 'chart.js';
+import * as jQuery from 'jquery';
+
 // // Angular
 // import '@angular/platform-browser';
 // import '@angular/platform-browser-dynamic';

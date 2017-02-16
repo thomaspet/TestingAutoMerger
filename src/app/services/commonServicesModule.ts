@@ -73,44 +73,6 @@ export * from './common/uniSearchConfigGeneratorService';
 export * from './common/emailService';
 
 @NgModule({
-    providers: [
-        ErrorService,
-        AltinnAuthenticationService,
-        AltinnIntegrationService,
-        AltinnReceiptService,
-        CompanySettingsService,
-        CompanyTypeService,
-        CurrencyService,
-        DepartmentService,
-        GuidService,
-        IntegrationServerCaller,
-        ProductService,
-        ProjectService,
-        SubEntityService,
-        UserService,
-        VatReportFormService,
-        UniQueryDefinitionService,
-        StatisticsService,
-        CountryService,
-        PostalCodeService,
-        UniMenuAim,
-        NumberFormat,
-        StatusService,
-        SettingsService,
-        CompanyService,
-        PageStateService,
-        FileService,
-        EHFService,
-        AgaZoneService,
-        MunicipalService,
-        BrowserStorageService,
-        UniCacheService,
-        StaticRegisterService,
-        UniSearchConfigGeneratorService,
-        UmhService,
-        DimensionService,
-        EmailService
-    ]
 })
 export class CommonServicesModule {
     static forRoot(): ModuleWithProviders {
@@ -150,7 +112,9 @@ export class CommonServicesModule {
                 UniCacheService,
                 StaticRegisterService,
                 DimensionService,
-                EmailService
+                EmailService,
+                UniSearchConfigGeneratorService,
+                UmhService
             ]
         };
     }

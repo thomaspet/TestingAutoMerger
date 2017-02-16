@@ -11,13 +11,10 @@ import {
     StaticRegisterService
 } from './services/services';
 
-// declare const OneSignal;
 
 @Component({
     selector: 'uni-app',
     templateUrl: './app.html',
-    styleUrls: ['../styles/main.sass'],
-    encapsulation: ViewEncapsulation.None,
 })
 export class App {
     private isAuthenticated: boolean = false;
@@ -32,7 +29,6 @@ export class App {
         private errorService: ErrorService,
         private userService: UserService
     ) {
-
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
               event.preventDefault();
