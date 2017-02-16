@@ -535,7 +535,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 this.salaryTransactions.splice(transIndex, 1);
                 hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty'] || trans['Deleted']);
             }
-            
+
             this.refresh = true;
             super.updateState('salaryTransactions', this.salaryTransactions, hasDirtyRow);
         }
@@ -589,11 +589,22 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public updateFileList(event: UpdatedFileListEvent) {
+        let update: boolean;
         this.salaryTransactions.forEach(x => {
             if (x.ID === event.entityID && x['_FileIDs'].length !== event.files.length) {
-                x['_FileIDs'] = event.files;
+                x['_FileIDs'] = event.files.map(file => file.ID);
                 this.table.updateRow(this.filteredTranses.find(trans => trans.ID === x.ID)['_originalIndex'], x);
+                if (this.payrollRun.JournalEntryNumber) {
+                    x['_newFiles'] = event.files
+                        .filter(file => !x['Files'].some(transFile => transFile.ID === file.ID));
+                    update = x['_newFiles'].length;
+                }
             }
         });
+
+        if (update) {
+            super.updateState('salaryTransactions', this.salaryTransactions, this.salaryTransactions
+                .some(x => x['_isDirty'] || x.Deleted));
+        }
     }
 }

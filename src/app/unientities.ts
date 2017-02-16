@@ -1580,10 +1580,10 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2197,6 +2197,7 @@ export class PayrollRun extends UniEntity {
     public FromDate: Date;
     public HolidayPayDeduction: boolean;
     public ID: number;
+    public JournalEntryNumber: string;
     public needsRecalc: boolean;
     public PayDate: Date;
     public SettlementDate: Date;
@@ -5015,7 +5016,7 @@ export enum StdWageType{
     HolidayPayThisYear = 3,
     HolidayPayLastYear = 4,
     HolidayPayWithTaxDeduction = 5,
-    AdvancePayment = 6
+    AdvancePayment = 6,
 }
 
 
