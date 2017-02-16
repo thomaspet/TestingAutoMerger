@@ -65,13 +65,13 @@ export class ReminderSettings {
         let minimumAmountToRemind = new UniFieldLayout();
         minimumAmountToRemind.EntityType = 'CustomerInvoiceReminderSettings';
         minimumAmountToRemind.Property = 'MinimumAmountToRemind';
-        minimumAmountToRemind.FieldType = FieldType.NUMERIC;
+        minimumAmountToRemind.FieldType = FieldType.TEXT;
         minimumAmountToRemind.Label = 'Minstebeløp';
 
         let remindersBeforeDebtCollection = new UniFieldLayout();
         remindersBeforeDebtCollection.EntityType = 'CustomerInvoiceReminderSettings';
         remindersBeforeDebtCollection.Property = 'RemindersBeforeDebtCollection';
-        remindersBeforeDebtCollection.FieldType = FieldType.NUMERIC;
+        remindersBeforeDebtCollection.FieldType = FieldType.TEXT;
         remindersBeforeDebtCollection.Label = 'Antall purringer før inkasso';
 
         this.fields$.next([minimumAmountToRemind, remindersBeforeDebtCollection]);
