@@ -44,7 +44,10 @@ export class ErrorService {
             } else if (errContent && errContent.Message) {
                 return errContent.Message;
             } else if (errContent._validationResults) {
-                return errContent._validationResults[''].map(m => m.Message).join('.\n') + '.\n';
+                let arrays = Object.keys(errContent._validationResults).map(
+                    key => errContent._validationResults[key]
+                );
+                return arrays.map(validations => validations.map(validation => validation.Message).join('.\n'));
             } else {
                 return '[Unparsable error occurred, see logs for more info]';
             }
