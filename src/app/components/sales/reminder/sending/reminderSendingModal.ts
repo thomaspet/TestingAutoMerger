@@ -92,20 +92,18 @@ export class ReminderSendingModal {
         return new Promise((resolve, reject) => {
 
             this.modal.getContent().then((component: ReminderSendingModalContent) => {
-                console.log('content', component);
-                console.log('reminders', reminders);
                 component.reminderSending.updateReminderList(reminders);
             });
 
             this.config.actions.send = {
-                text: 'Send valgte',
+                text: 'Send og skriv ut valgte',
                 method: () => {
                     this.sendAll();
                 }
             };
 
             this.config.actions.print = {
-                text: 'Skriv ut alle',
+                text: 'Skriv ut valgte',
                 method: () => {
                     this.printAll();
                 }

@@ -2,10 +2,9 @@ import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@an
 import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
-import {AddressService, EHFService, UniSearchConfigGeneratorService} from '../../../services/services';
+import {AddressService, EHFService, UniSearchConfigGeneratorService, CustomerService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
-
 
 @Component({
     selector: 'tof-customer-card',
@@ -36,6 +35,9 @@ import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
             <span class="emailInfo" *ngIf="entity.Customer?.Info?.Emails">
                 {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
             </span>
+            <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
+                <a href="#/sales/customer/{{entity.Customer?.ID}}">Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}} forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}} faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}</a>
+            </div>
         </section>
 
         <customer-details-modal></customer-details-modal>
@@ -65,6 +67,7 @@ export class TofCustomerCard {
 
     private ehfEnabled: boolean;
     public uniSearchConfig: IUniSearchConfig;
+    private customerDueInvoiceData: any;
 
     private customerExpands: [string] = [
         'Info.Addresses',
@@ -78,11 +81,11 @@ export class TofCustomerCard {
         private addressService: AddressService,
         private ehfService: EHFService,
         private elementRef: ElementRef,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
-    ) {}
-
-    public ngOnInit() {
-        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generateUniSearchConfig(
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private customerService: CustomerService,
+        private errorService: ErrorService
+    ) {
+        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
             Customer,
             this.customerExpands,
             () => this.openCustomerModal()
@@ -96,15 +99,34 @@ export class TofCustomerCard {
 
     public ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
+            this.customerDueInvoiceData = null;
+
             const customer: any = this.entity.Customer || {Info: {}};
-            this.uniSearchConfig.initialItem$.next(customer);
+            if (this.uniSearchConfig) {
+                this.uniSearchConfig.initialItem$.next(customer);
+            } else {
+                setTimeout(() => {
+                    if (this.uniSearchConfig) {
+                        this.uniSearchConfig.initialItem$.next(customer);
+                    }
+                });
+            }
             var peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
             this.ehfService.GetAction(
                 null, 'is-ehf-receiver',
                 'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
             ).subscribe(enabled => {
                 this.ehfEnabled = enabled;
-            });
+            }, err => this.errorService.handle(err));
+            if (customer && customer.ID) {
+                this.customerService.getCustomerStatistics(customer.ID)
+                    .subscribe(x => {
+                        if (x) {
+                            this.customerDueInvoiceData = x;
+                        }
+                    }, err => this.errorService.handle(err)
+                );
+            }
         }
     }
 

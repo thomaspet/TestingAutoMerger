@@ -9,7 +9,7 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -73,21 +73,20 @@ export class QuoteDetails {
 
     private commentsConfig: any;
 
-    constructor(
-        private customerService: CustomerService,
-        private customerQuoteService: CustomerQuoteService,
-        private customerQuoteItemService: CustomerQuoteItemService,
-        private reportDefinitionService: ReportDefinitionService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
-        private userService: UserService,
-        private numberFormat: NumberFormat,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService
-    ) {}
+    constructor(private customerService: CustomerService,
+                private customerQuoteService: CustomerQuoteService,
+                private customerQuoteItemService: CustomerQuoteItemService,
+                private reportDefinitionService: ReportDefinitionService,
+                private companySettingsService: CompanySettingsService,
+                private toastService: ToastService,
+                private userService: UserService,
+                private numberFormat: NumberFormat,
+                private router: Router,
+                private route: ActivatedRoute,
+                private tabService: TabService,
+                private tradeItemHelper: TradeItemHelper,
+                private errorService: ErrorService) {
+    }
 
     public ngOnInit() {
         this.setSums();
@@ -215,10 +214,10 @@ export class QuoteDetails {
 
         this.onQuoteChange(quote);
         this.readonly = quote.StatusCode && (
-            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-        );
+                quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+            );
 
         this.newQuoteItem = <any> this.tradeItemHelper.getDefaultTradeItemData(quote);
         this.isDirty = false;
@@ -252,35 +251,48 @@ export class QuoteDetails {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.quote ? (this.quote.StatusCode ? this.quote.StatusCode : 1) : 0;
 
-        this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((s, i) => {
+        this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((status) => {
             let _state: UniStatusTrack.States;
 
-            if (s.Code > activeStatus) {
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack[i] = {
-                title: s.Text,
-                state: _state
-            };
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
         });
         return statustrack;
     }
 
     public nextQuote() {
         this.customerQuoteService.getNextID(this.quote.ID).subscribe(
-            id => this.router.navigateByUrl('/sales/quotes/' + id),
+            id => {
+                if (id) {
+                    this.router.navigateByUrl('/sales/quotes/' + id);
+                } else {
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere tilbud etter denne');
+                }
+            },
             err => this.errorService.handle(err)
         );
     }
 
     public previousQuote() {
         this.customerQuoteService.getPreviousID(this.quote.ID).subscribe(
-            id => this.router.navigateByUrl('/sales/quotes/' + id),
+            id => {
+                if (id) {
+                    this.router.navigateByUrl('/sales/quotes/' + id);
+                } else {
+                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere tilbud før denne');
+                }
+            },
             err => this.errorService.handle(err)
         );
     }
@@ -320,9 +332,9 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: quoteText,
             subheads: [
-                { title: customerText},
-                { title: netSumText},
-                { title: GetPrintStatusText(this.quote.PrintStatus) }
+                {title: customerText, link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : ''},
+                {title: netSumText},
+                {title: GetPrintStatusText(this.quote.PrintStatus)}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -330,7 +342,9 @@ export class QuoteDetails {
                 next: this.nextQuote.bind(this),
                 add: () => this.router.navigateByUrl('/sales/quotes/0')
             },
-            contextmenu: this.contextMenuItems
+            contextmenu: this.contextMenuItems,
+            entityID: this.quoteID,
+            entityType: 'CustomerQuote'
         };
     }
 
@@ -536,26 +550,26 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
-                title: 'Avgiftsfritt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
-                title: 'Avgiftsgrunnlag',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
-                title: 'Sum rabatt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
-                title: 'Nettosum',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
-                title: 'Mva',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
-                title: 'Øreavrunding',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
-                title: 'Totalsum',
-            }];
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
+            title: 'Avgiftsfritt',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
+            title: 'Avgiftsgrunnlag',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
+            title: 'Sum rabatt',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
+            title: 'Nettosum',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
+            title: 'Mva',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
+            title: 'Øreavrunding',
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
+            title: 'Totalsum',
+        }];
     }
 }

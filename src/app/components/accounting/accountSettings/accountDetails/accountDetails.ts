@@ -120,6 +120,7 @@ export class AccountDetails implements OnInit {
                 }
             }
         };
+        this.fields$.next(fields);
     }
 
     public getAccount(ID: number) {

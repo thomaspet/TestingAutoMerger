@@ -162,11 +162,11 @@ export class BillView {
     }
 
     private initForm() {
-        let current: SupplierInvoice = this.current.getValue();
-
         var supIdCol = createFormField('SupplierID', lang.col_supplier, ControlTypes.AutocompleteInput, FieldSize.Full);
         supIdCol.Options = {
+            source: this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info'),
             template: (data) => {
+                let current: SupplierInvoice = this.current.getValue();
                 if (data === undefined && (current && current.Supplier && current.Supplier.Info) ) {
                     data = { SupplierNumber: current.Supplier.SupplierNumber, InfoName: current.Supplier.Info.Name };
                 }
@@ -176,8 +176,11 @@ export class BillView {
                     return '';
                 }
             },
+            getDefaultData: () => {
+                return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=ID eq ' + this.currentSupplierID);
+            },
             search: (txt: string) => {
-                var filter = `contains(info.name,'${txt}')`;
+                let filter = `contains(info.name,'${txt}')`;
                 return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=' + filter);
             },
             valueProperty: 'ID'
@@ -201,6 +204,7 @@ export class BillView {
             linkProperty: 'ID',
             storeResultInProperty: 'BankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+                let current: SupplierInvoice = this.current.getValue();
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
@@ -1086,21 +1090,22 @@ export class BillView {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = current.StatusCode;
 
-        this.supplierInvoiceService.statusTypes.forEach((s, i) => {
+        this.supplierInvoiceService.statusTypes.forEach((status) => {
             let _state: UniStatusTrack.States;
-            let _addIt = s.isPrimary;
-            if (s.Code > activeStatus) {
+            let _addIt = status.isPrimary;
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
                 _addIt = true;
             }
             if (_addIt) {
                 statustrack.push({
-                    title: s.Text,
-                    state: _state
+                    title: status.Text,
+                    state: _state,
+                    code: status.Code
                 });
             }
         });
@@ -1129,7 +1134,9 @@ export class BillView {
                     this.newInvoice(false);
                     this.router.navigateByUrl('/accounting/bill/0');
                 }
-            }
+            },
+            entityID: doc && doc.ID ? doc.ID : null,
+            entityType: 'SupplierInvoice'
         };
     }
 

@@ -6,13 +6,15 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
+import {ComponentLayout, Customer, Email, Phone, Address, CustomerInvoiceReminderSettings} from '../../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {IPosterWidget} from '../../../common/poster/poster';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
 import {
     DepartmentService,
     ProjectService,
@@ -22,7 +24,9 @@ import {
     EmailService,
     BusinessRelationService,
     UniQueryDefinitionService,
-    ErrorService
+    ErrorService,
+    NumberFormat,
+    CustomerInvoiceReminderSettingsService
 } from '../../../../services/services';
 declare var _;
 
@@ -40,12 +44,14 @@ export class CustomerDetails {
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
+    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
     private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private addressChanged: any;
     private emailChanged: any;
     private phoneChanged: any;
+    private showReminderSection: boolean = false; // used in template
 
     public dropdownData: any;
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
@@ -83,7 +89,45 @@ export class CustomerDetails {
         ]
     };
 
-    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions'];
+    private customerWidgets: IPosterWidget[] = [
+        {
+            type: 'text',
+            size: 'small',
+            config: {
+                mainText: { text: '-' },
+                topText: [
+                    { text: 'Totalt fakturert', class: 'large' },
+                    { text: '(eks. mva)', class: 'small'}
+                ]
+            }
+        },
+        {
+            type: 'text',
+            size: 'small',
+            config: {
+                mainText: { text: '-' },
+                topText: [
+                    { text: 'Åpne ordre', class: 'large' },
+                    { text: '(eks. mva)', class: 'small'}
+                ]
+            }
+        },
+        {
+            type: 'text',
+            size: 'small',
+            config: {
+                mainText: { text: '-', class: '' },
+                topText: [
+                    { text: 'Utestående', class: 'large' },
+                    { text: '', class: 'small' }
+                ]
+            }
+        }
+    ];
+    private customerStatisticsData: any;
+
+    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'CustomerInvoiceReminderSettings', 'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules'];
+
 
     private formIsInitialized: boolean = false;
 
@@ -109,7 +153,9 @@ export class CustomerDetails {
         private businessRealtionService: BusinessRelationService,
         private tabService: TabService,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private numberFormat: NumberFormat,
+        private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService
     ) {}
 
     public ngOnInit() {
@@ -137,7 +183,7 @@ export class CustomerDetails {
     }
 
     public nextCustomer() {
-        this.customerService.getNextID(this.customer$.getValue() ? this.customer$.getValue().ID : 0)
+        this.customerService.getNextID(this.customerID ? this.customerID : 0)
             .subscribe(id => {
                     if (id) {
                         this.router.navigateByUrl('/sales/customer/' + id);
@@ -150,7 +196,7 @@ export class CustomerDetails {
     }
 
     public previousCustomer() {
-        this.customerService.getPreviousID(this.customer$.getValue() ? this.customer$.getValue().ID : 0)
+        this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
             .subscribe(id => {
                     if (id) {
                         this.router.navigateByUrl('/sales/customer/' + id);
@@ -181,7 +227,6 @@ export class CustomerDetails {
 
         this.toolbarconfig.title = customer.ID ? customer.Info.Name : 'Ny kunde';
         this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
-
     }
 
     public canDeactivate(): boolean|Promise<boolean> {
@@ -260,7 +305,12 @@ export class CustomerDetails {
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
-                this.addressService.GetNewEntity(null, 'Address')
+                this.addressService.GetNewEntity(null, 'Address'),
+                (
+                    this.customerID > 0 ?
+                        this.customerService.getCustomerStatistics(this.customerID) :
+                        Observable.of(null)
+                )
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.customer$.next(response[2]);
@@ -268,8 +318,17 @@ export class CustomerDetails {
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
 
+                this.customerStatisticsData = response[6];
+
+                let customer = this.customer$.getValue();
+                if (customer.CustomerInvoiceReminderSettings === null) {
+                    customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
+                    customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
+                }
+
                 this.setTabTitle();
                 this.extendFormConfig();
+                this.updateCustomerWidgets();
 
                 this.formIsInitialized = true;
 
@@ -279,19 +338,50 @@ export class CustomerDetails {
 
             }, err => this.errorService.handle(err));
         } else {
-
             Observable.forkJoin(
-            this.customerID > 0 ?
-                        this.customerService.Get(this.customerID, this.expandOptions)
-                        : this.customerService.GetNewEntity(this.expandOptions)
+                (
+                    this.customerID > 0 ?
+                        this.customerService.Get(this.customerID, this.expandOptions) :
+                        this.customerService.GetNewEntity(this.expandOptions)
+                ),
+                (
+                    this.customerID > 0 ?
+                        this.customerService.getCustomerStatistics(this.customerID) :
+                        Observable.of(null)
+                )
             ).subscribe(response => {
                 this.customer$.next(response[0]);
+                this.customerStatisticsData = response[1];
                 this.setTabTitle();
+                this.updateCustomerWidgets();
 
                 setTimeout(() => {
                     this.ready();
                 });
             }, err => this.errorService.handle(err));
+        }
+    }
+
+    public updateCustomerWidgets() {
+        if (this.customerStatisticsData) {
+            this.customerWidgets[0].config.mainText.text =
+                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumInvoicedExVat);
+
+            this.customerWidgets[1].config.mainText.text =
+                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumOpenOrdersExVat);
+
+            this.customerWidgets[2].config.mainText.text =
+                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumDueInvoicesRestAmount);
+            this.customerWidgets[2].config.topText[1].text =
+                this.customerStatisticsData.NumberOfDueInvoices + ' forfalte fakturaer';
+
+            if (this.customerStatisticsData.NumberOfDueInvoices > 0) {
+                this.customerWidgets[2].config.mainText.class = 'bad';
+                this.customerWidgets[2].config.topText[1].class = 'small bad';
+            } else {
+                this.customerWidgets[2].config.mainText.class = '';
+                this.customerWidgets[2].config.topText[1].class = 'small';
+            }
         }
     }
 
@@ -353,7 +443,6 @@ export class CustomerDetails {
                 customer.Info.ShippingAddressID = 0;
 
                 this.customer$.next(customer);
-
                 setTimeout(() => {
                    this.ready();
                 });
@@ -362,7 +451,6 @@ export class CustomerDetails {
     }
 
     public extendFormConfig() {
-
         let fields: UniFieldLayout[] = this.fields$.getValue();
         var department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
@@ -545,6 +633,12 @@ export class CustomerDetails {
 
         if (customer.Dimensions !== null && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
             customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
+        }
+
+        if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
+            !customer.CustomerInvoiceReminderSettingsID) &&
+            !this.reminderSettings.isDirty) {
+                customer.CustomerInvoiceReminderSettings = null;
         }
 
         if (this.customerID > 0) {

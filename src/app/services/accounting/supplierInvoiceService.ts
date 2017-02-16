@@ -37,14 +37,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getStatusText(statusCode: number): string {
-        var text = 'Udefinert';
-        this.statusTypes.forEach((status) => {
-            if (status.Code === statusCode) {
-                text = status.Text;
-                return;
-            }
-        });
-        return text;
+        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+        return statusType ? statusType.Text : 'Udefinert';
     };
 
     public assign(supplierInvoiceId: number) {

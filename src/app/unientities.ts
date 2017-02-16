@@ -1130,17 +1130,22 @@ export class CustomerInvoiceReminder extends UniEntity {
 
     public CreatedAt: Date;
     public CreatedBy: string;
+    public CreatedByReminderRuleID: number;
     public CustomerInvoiceID: number;
     public Deleted: boolean;
+    public Description: string;
     public DueDate: LocalDate;
     public ID: number;
     public RemindedDate: LocalDate;
     public ReminderFee: number;
     public ReminderNumber: number;
+    public RunNumber: number;
     public StatusCode: number;
+    public Title: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomerInvoice: CustomerInvoice;
+    public CreatedByReminderRule: CustomerInvoiceReminderRule;
     public CustomFields: any;
 }
 
@@ -1169,6 +1174,9 @@ export class Customer extends UniEntity {
     public Info: BusinessRelation;
     public Dimensions: Dimensions;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public CustomerQuotes: Array<CustomerQuote>;
+    public CustomerOrders: Array<CustomerOrder>;
+    public CustomerInvoices: Array<CustomerInvoice>;
     public CustomFields: any;
 }
 
@@ -1180,6 +1188,7 @@ export class CustomerInvoice extends UniEntity {
     public AmountRegards: string;
     public Attachments: string;
     public BankAccountID: number;
+    public CollectorStatusCode: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1571,10 +1580,10 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2188,6 +2197,7 @@ export class PayrollRun extends UniEntity {
     public FromDate: Date;
     public HolidayPayDeduction: boolean;
     public ID: number;
+    public JournalEntryNumber: string;
     public needsRecalc: boolean;
     public PayDate: Date;
     public SettlementDate: Date;
@@ -2342,32 +2352,9 @@ export class Employee extends UniEntity {
     public VacationRateEmployeeID: number;
     public BusinessRelationInfo: BusinessRelation;
     public Employments: Array<Employment>;
-    public BankAccounts: Array<BankAccountSalary>;
     public VacationRateEmployee: VacationRateEmployee;
     public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
-    public CustomFields: any;
-}
-
-
-export class BankAccountSalary extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'BankAccountSalary';
-
-    public AccountNumber: string;
-    public Active: boolean;
-    public BankAddress: string;
-    public BankName: string;
-    public BIC: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EmployeeID: number;
-    public ID: number;
-    public LandCode: string;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -2476,6 +2463,7 @@ export class CompanySettings extends UniEntity {
     public DefaultAddressID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
+    public DefaultProductInvoiceReminderID: number;
     public DefaultSalesAccountID: number;
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
@@ -2511,6 +2499,7 @@ export class CompanySettings extends UniEntity {
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultProductInvoiceReminder: Product;
     public CustomFields: any;
 }
 
@@ -4412,13 +4401,14 @@ export class SalaryTransactionPeriodSums extends UniEntity {
 
 
 export class SalaryTransactionPay extends UniEntity {
-    public CompanyAccount: string;
     public CompanyAddress: string;
+    public CompanyBankAccountID: number;
     public CompanyCity: string;
     public CompanyName: string;
     public CompanyPostalCode: string;
     public PaymentDate: Date;
-    public TaxAccount: string;
+    public SalaryBankAccountID: number;
+    public TaxBankAccountID: number;
     public Withholding: number;
     public PayList: Array<SalaryTransactionPayLine>;
 }
@@ -4685,6 +4675,7 @@ export class JournalEntryData extends UniEntity {
     public Description: string;
     public FinancialDate: Date;
     public InvoiceNumber: string;
+    public JournalEntryDataAccrualID: number;
     public JournalEntryID: number;
     public JournalEntryNo: string;
     public StatusCode: number;
@@ -4697,6 +4688,7 @@ export class JournalEntryData extends UniEntity {
     public CreditVatType: VatType;
     public Dimensions: Dimensions;
     public JournalEntryPaymentData: JournalEntryPaymentData;
+    public JournalEntryDataAccrual: Accrual;
 }
 
 
@@ -5024,6 +5016,7 @@ export enum StdWageType{
     HolidayPayThisYear = 3,
     HolidayPayLastYear = 4,
     HolidayPayWithTaxDeduction = 5,
+    AdvancePayment = 6,
 }
 
 
@@ -5153,6 +5146,12 @@ export enum NotificationStatus{
 
 
 export enum StatusCodeCustomerInvoiceReminder{
+    Registered = 42101,
+    Sent = 42102,
+    Paid = 42103,
+    Completed = 42104,
+    Failed = 42105,
+    SentToDebtCollection = 42106,
 }
 
 

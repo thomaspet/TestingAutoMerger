@@ -19,12 +19,8 @@
     </ol>
 
     <footer class="payrollControl_footer">
-
-        <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" class="good">
-            {{action.text}}
-        </button>
-
+        <button [disabled]="payrollrunIsSettled" (click)="runSettling()" class="good">Avregn</button>
+        <button [disabled]="!payrollrunIsSettled" (click)="sendPayments()" class="good">Til utbetaling</button>
         <button *ngIf="config.hasCancelButton" (click)="config.cancel()" class="bad">Avbryt</button>
-
     </footer>
 </article>

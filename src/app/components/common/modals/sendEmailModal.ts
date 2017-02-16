@@ -6,6 +6,7 @@ import {FieldType} from 'uniform-ng2/main';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     EmailService,
     CustomerService,
@@ -20,7 +21,7 @@ import {
     template: `
         <article class="modal-content send-email-modal">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
            <footer>
                 <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -33,8 +34,9 @@ export class SendEmailForm {
     @Input() public model: SendEmail;
     @ViewChild(UniForm) public form: UniForm;
     private config: any = {};
-    private fields: any[] = [];
-    private formConfig: any = {};
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
         this.setupForm();
@@ -44,7 +46,7 @@ export class SendEmailForm {
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        this.fields = [
+        this.fields$.next([
             {
                 EntityType: 'SendEmail',
                 Property: 'EmailAddress',
@@ -78,11 +80,12 @@ export class SendEmailForm {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Kopi til meg'
             }
-        ];
+        ]);
     }
 
     private extendFormConfig() {
-        var formatField: UniFieldLayout = this.fields.find(x => x.Property === 'Format');
+        let fields = this.fields$.getValue()
+        var formatField: UniFieldLayout = fields.find(x => x.Property === 'Format');
 
         // TODO: currently not working formats, doc returns array with negative values and the other doesn't return data
         formatField.Options = {
@@ -97,6 +100,7 @@ export class SendEmailForm {
             valueProperty: 'Format',
             displayProperty: 'Name'
         };
+        this.fields$.next(fields);
     }
 
 }
@@ -174,13 +178,14 @@ export class SendEmailModal {
 
             // Adding default
             if (!sendemail.EmailAddress && customer) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
-            if (!sendemail.CopyAddress) { sendemail.CopyAddress = user.Email };
+            if (!sendemail.CopyAddress) { sendemail.CopyAddress = user.Email; };
             sendemail.Message += '\n\nMed vennlig hilsen\n' +
                                  companySettings.CompanyName + '\n' +
                                  user.DisplayName + '\n' +
                                  (companySettings.DefaultEmail ? companySettings.DefaultEmail.EmailAddress : '');
 
             this.modalConfig.model = sendemail;
+            this.modal.getContent().then(cmp => cmp.model$.next(sendemail));
             this.modal.open();
         }, err => this.errorService.handle(err));
     }

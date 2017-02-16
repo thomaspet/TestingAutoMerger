@@ -5,12 +5,23 @@ import { SalaryTransaction, SalaryTransactionSupplement, Valuetype } from '../..
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
+type ModalContext = {
+    trans: SalaryTransaction, 
+    readOnly: boolean
+}
+
+type ModalConfig = {
+    cancel: () => void, 
+    submit: (trans: SalaryTransaction) => void, 
+    context: () => ModalContext
+}
+
 @Component({
     selector: 'sal-trans-supplements-modal-content',
     templateUrl: './salaryTransactionSupplementsModalContent.html'
 })
 export class SalaryTransactionSupplementsModalContent {
-    @Input('config') private config: { cancel: () => void, submit: (trans: SalaryTransaction) => void };
+    @Input('config') private config: ModalConfig;
     private _config$: BehaviorSubject<any> = new BehaviorSubject({});
     private salaryTransaction$: BehaviorSubject<SalaryTransaction> = new BehaviorSubject(new SalaryTransaction());
     private readOnly: boolean;
@@ -23,11 +34,9 @@ export class SalaryTransactionSupplementsModalContent {
 
     public ngOnInit() {
         this._config$.next(this.config);
-    }
-
-    public open(trans: SalaryTransaction, readOnly: boolean) {
-        this.salaryTransaction$.next(trans);
-        this.readOnly = readOnly;
+        let context = this.config.context();
+        this.salaryTransaction$.next(context.trans);
+        this.readOnly = context.readOnly;
         this.load();
     }
 
@@ -115,12 +124,12 @@ export class SalaryTransactionSupplementsModalContent {
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
-
-export class SalaryTransactionSupplementsModal implements AfterViewInit {
+export class SalaryTransactionSupplementsModal {
     @ViewChild(UniModal) private modal: UniModal;
-    private modalConfig: { cancel: () => void, submit: (trans: SalaryTransaction) => void };
+    private modalConfig: ModalConfig;
     @Output() public updatedSalaryTransaction: EventEmitter<SalaryTransaction> = new EventEmitter<SalaryTransaction>(true);
     public type: Type<any> = SalaryTransactionSupplementsModalContent;
+    private context: ModalContext;
 
     constructor() {
         this.modalConfig = {
@@ -130,18 +139,13 @@ export class SalaryTransactionSupplementsModal implements AfterViewInit {
             submit: (trans: SalaryTransaction) => {
                 this.updatedSalaryTransaction.emit(trans);
                 this.modal.close();
-            }
+            },
+            context: () => this.context
         };
     }
 
-    public ngAfterViewInit() {
-        setTimeout(() => this.modal.createContent());
-    }
-
     public openModal(trans: SalaryTransaction, readOnly: boolean) {
-        this.modal.getContent().then((content: SalaryTransactionSupplementsModalContent) => {
-            content.open(trans, readOnly);
-            this.modal.open();
-        });
+        this.context = {trans: trans, readOnly: readOnly};
+        this.modal.open();
     }
 }

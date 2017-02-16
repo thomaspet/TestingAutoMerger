@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService, ErrorService} from '../../../../services/services';
+import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService, ErrorService } from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
@@ -26,6 +26,7 @@ export class RecurringPost extends UniView {
     private projects: Project[] = [];
     private departments: Department[] = [];
     private unsavedEmployments: boolean;
+    private refresh: boolean;
     @ViewChild(UniTable) private uniTable: UniTable;
     @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
@@ -43,6 +44,7 @@ export class RecurringPost extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+            this.recurringPosts = [];
 
             this.employeeID = +paramsChange['id'];
 
@@ -64,12 +66,16 @@ export class RecurringPost extends UniView {
                 this.departments = departments;
             });
 
-            recurringPostSubject.subscribe(posts => {
-                this.recurringPosts = posts;
-                this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
-                if (this.uniTable) {
-                    this.uniTable.refreshTableData();
+            recurringPostSubject.subscribe((posts: SalaryTransaction[]) => {
+                if (!this.recurringPosts 
+                    || !this.recurringPosts.length
+                    || this.refresh
+                    || !posts.some(x => x['_isDirty'] || x.Deleted)) {
+                    this.recurringPosts = posts;
+                    this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
+                    this.refresh = false;
                 }
+
                 if (!this.tableConfig) {
                     this.buildTableConfig();
                 }
@@ -107,8 +113,10 @@ export class RecurringPost extends UniView {
         } else {
             this.recurringPosts.splice(deletedIndex, 1);
             // Check if there are other rows in the array that are dirty
-            hasDirtyRow = this.recurringPosts.some(post => post['_isDirty']);
+            hasDirtyRow = this.recurringPosts.some(post => post['_isDirty'] || post['Deleted']);
         }
+
+        this.refresh = true;
         super.updateState('recurringPosts', this.recurringPosts, hasDirtyRow);
     }
 

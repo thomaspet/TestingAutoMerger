@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UniTable, UniTableColumn, UniTableColumnType, UniTableConfig } from 'unitable-ng2/main';
 import { PostingSummary, Dimensions } from '../../../unientities';
-import { PayrollrunService, ErrorService } from '../../../../app/services/services';
+import { PayrollrunService, ErrorService, ReportDefinitionService, Report, ReportParameter } from '../../../../app/services/services';
 import { UniHttp } from '../../../../framework/core/http/http';
 
 import { Observable } from 'rxjs/Observable';
@@ -12,7 +12,7 @@ import * as moment from 'moment';
     selector: 'postingsummary-modal-content',
     templateUrl: './postingsummaryModalContent.html'
 })
-export class PostingsummaryModalContent {
+export class PostingsummaryModalContent implements OnInit {
     public busy: boolean;
     private showReceipt: boolean = false;
     private accountTableConfig: UniTableConfig;
@@ -27,14 +27,15 @@ export class PostingsummaryModalContent {
         private payrollService: PayrollrunService,
         private route: ActivatedRoute,
         private errorService: ErrorService,
-        private http: UniHttp
+        private http: UniHttp,
+        private reportService: ReportDefinitionService
     ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
         });
     }
 
-    public openModal() {
+    public ngOnInit() {
         this.busy = true;
         this.createTableConfig();
 
@@ -66,9 +67,19 @@ export class PostingsummaryModalContent {
             }, err => this.errorService.handle(err));
     }
 
-
     public postTransactions() {
-        return this.payrollService.postTransactions(this.payrollrunID);
+        
+        return this.reportService
+            .getReportByName('Konteringssammendrag')
+            .switchMap(report => {
+                let parameter = new ReportParameter();
+                parameter.Name = 'RunID';
+                parameter.value = this.payrollrunID.toString();
+                report.parameters = [parameter];
+                report.TemplateLinkId = 'PostingSummary.mrt';
+                return this.reportService.generateReportPdfFile(report);
+            })
+            .switchMap(file => this.payrollService.postTransactions(this.payrollrunID, file));
     }
 
     public showResponseReceipt(successResponse: any) {

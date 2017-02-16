@@ -6,7 +6,7 @@ import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
     selector: 'vacationpay-setting-modal',
     templateUrl: './vacationpaySettingModal.html'
 })
-export class VacationpaySettingModal implements AfterViewInit {
+export class VacationpaySettingModal {
     @ViewChild(UniModal) private modal: UniModal;
     private type: Type<any> = VacationpaySettingModalContent;
     private modalConfig: {hasCancelButton: boolean, cancel: any};
@@ -28,15 +28,7 @@ export class VacationpaySettingModal implements AfterViewInit {
         };
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openModal() {
-        this.modal.getContent().then((component: VacationpaySettingModalContent) => {
-            component.loadData();
-            this.modal.open();
-        });
-
+        this.modal.open();
     }
 }

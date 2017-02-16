@@ -1,21 +1,22 @@
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from 'unitable-ng2/main';
+import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton, ITableFilter } from 'unitable-ng2/main';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
 } from '../../../unientities';
 import {
-    SalaryTransactionService, AccountService,
-    ReportDefinitionService, UniCacheService,
+    AccountService, ReportDefinitionService, UniCacheService,
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import { UniForm } from 'uniform-ng2/main';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 
 import { UniView } from '../../../../framework/core/uniView';
+import { ImageModal, UpdatedFileListEvent } from '../../common/modals/ImageModal';
 declare var _;
+const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({
     selector: 'salary-transactions-employee',
@@ -44,11 +45,13 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild(UniTable) public table: UniTable;
+    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     private busy: boolean;
     private salaryTransactions: SalaryTransaction[];
     private filteredTranses: SalaryTransaction[];
     private deleteButton: IDeleteButton;
+    private refresh: boolean;
 
     constructor(
         private wageTypeService: WageTypeService,
@@ -77,6 +80,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         route.params.subscribe((params) => {
             this.payrollRunID = +params['id'];
             super.updateCacheKey(router.url);
+            this.salaryTransactions = [];
 
             const payrollRunSubject = super.getStateSubject('payrollRun');
             const wagetypesSubject = super.getStateSubject('wagetypes');
@@ -105,11 +109,18 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-            salaryTransactionsSubject.subscribe(transes => {
-                this.salaryTransactions = transes;
-                this.filteredTranses = this.salaryTransactions
-                    .filter(x => this.employee && !x.Deleted && x.EmployeeID === this.employee.ID);
+            salaryTransactionsSubject.subscribe((transes: SalaryTransaction[]) => {
+                if (!this.salaryTransactions
+                    || !this.salaryTransactions.length
+                    || this.refresh
+                    || !transes.some(x => x['_isDirty'] || x.Deleted)) {
+                    this.salaryTransactions = transes;
+                    this.filteredTranses = this.salaryTransactions
+                        .filter(x => this.employee && x.EmployeeID === this.employee.ID && !x.Deleted);
+                    this.refresh = false;
+                }
             });
+
             if (!this.salarytransEmployeeTableConfig) {
                 this.busy = true;
                 Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject,
@@ -272,15 +283,28 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             })
             .setWidth('5rem');
 
+        let fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
+            .setTemplate(row => row['_FileIDs'] && row['_FileIDs'].length ? PAPERCLIP : '')
+            .setWidth('2rem')
+            .setSkipOnEnterKeyNavigation(true)
+            .setOnCellClick(row => {
+                this.openDocumentsOnRow(row);
+            });
+
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun ? this.payrollRun.StatusCode < 1 : true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
                     this.openSuplementaryInformationModal(row);
                 }
+            },
+            {
+                label: 'Legg til dokument', action: (row) => {
+                    this.openDocumentsOnRow(row);
+                }
             }])
             .setColumns([
-                wageTypeCol, wagetypenameCol, employmentidCol,
-                fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol
+                wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol,
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, fileCol
             ])
             .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
@@ -322,10 +346,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
 
                 if (rateObservable) {
-                    rateObservable.subscribe(rate => {
+                    var subscription = rateObservable.subscribe(rate => {
                         row['Rate'] = rate;
                         this.calcItem(row);
                         this.updateSalaryChanged(row, true);
+                        subscription.unsubscribe();
                     });
                 } else {
                     this.updateSalaryChanged(row);
@@ -333,9 +358,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return row;
             })
-            .setIsRowReadOnly((rowModel: SalaryTransaction) => {
-                return rowModel.IsRecurringPost;
-            });
+            .setIsRowReadOnly((rowModel: SalaryTransaction) => rowModel.IsRecurringPost);
     }
 
     private mapWagetypeToTrans(rowModel) {
@@ -488,7 +511,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             let row: SalaryTransaction = rows.find(x => x.ID === trans.ID);
             if (row) {
                 row.Supplements = trans.Supplements;
-                this.updateSalaryChanged(row);
+                this.updateSalaryChanged(row, true);
             }
         }
     }
@@ -513,6 +536,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty'] || trans['Deleted']);
             }
 
+            this.refresh = true;
             super.updateState('salaryTransactions', this.salaryTransactions, hasDirtyRow);
         }
     }
@@ -547,11 +571,40 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         return transIndex;
     }
 
+    private openDocumentsOnRow(row: SalaryTransaction): void {
+        if (row.ID) {
+            this.imageModal.open('SalaryTransaction', row.ID);
+        }
+    }
+
     public hasDirty(): boolean {
-        return this.salaryTransactions && this.salaryTransactions.filter(x => x.EmployeeID === this.employeeID).some(x => x.Deleted || x['_isDirty']);
+        return this.salaryTransactions
+            && this.salaryTransactions
+                .filter(x => x.EmployeeID === this.employeeID)
+                .some(x => x.Deleted || x['_isDirty']);
     }
 
     public setEditable(isEditable: boolean) {
         this.salarytransEmployeeTableConfig.setEditable(isEditable);
+    }
+
+    public updateFileList(event: UpdatedFileListEvent) {
+        let update: boolean;
+        this.salaryTransactions.forEach(x => {
+            if (x.ID === event.entityID && x['_FileIDs'].length !== event.files.length) {
+                x['_FileIDs'] = event.files.map(file => file.ID);
+                this.table.updateRow(this.filteredTranses.find(trans => trans.ID === x.ID)['_originalIndex'], x);
+                if (this.payrollRun.JournalEntryNumber) {
+                    x['_newFiles'] = event.files
+                        .filter(file => !x['Files'].some(transFile => transFile.ID === file.ID));
+                    update = x['_newFiles'].length;
+                }
+            }
+        });
+
+        if (update) {
+            super.updateState('salaryTransactions', this.salaryTransactions, this.salaryTransactions
+                .some(x => x['_isDirty'] || x.Deleted));
+        }
     }
 }

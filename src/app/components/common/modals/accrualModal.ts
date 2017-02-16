@@ -6,6 +6,8 @@ import {Accrual, AccrualPeriod, Account, JournalEntryLineDraft, LocalDate, Perio
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {AccountService, ErrorService, FinancialYearService, PeriodService} from '../../../services/services';
 import {FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
 declare const _; // lodash
 
 // Reusable address form
@@ -17,10 +19,9 @@ declare const _; // lodash
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <section class="accrual-form">
                 <uni-form
-                    *ngIf="config"
-                    [config]="formConfig"
-                    [fields]="fields"
-                    [model]="config.model"
+                    [config]="formConfig$"
+                    [fields]="fields$"
+                    [model]="model$"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
             </section>
@@ -63,8 +64,9 @@ declare const _; // lodash
 export class AccrualForm implements OnChanges {
     @ViewChild(UniForm) public form: UniForm;
     public config: any = {};
-    private formConfig: any = {};
-    private fields: any[] = [];
+    private model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private currentFinancialYear: number;
     private currentFinancialYearPeriods: Array<Period> = [];
     private checkboxEnabledState: Boolean = false;
@@ -100,6 +102,7 @@ export class AccrualForm implements OnChanges {
     }
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
         this.yearService.getActiveFinancialYear().subscribe(res => {
             this.currentFinancialYear = res.Year;
             this.periodService.GetAll<Period>('filter=AccountYear eq ' + this.currentFinancialYear + ' and periodseries.seriestype eq 1', ['PeriodSeries']).subscribe(periods => {
@@ -115,18 +118,20 @@ export class AccrualForm implements OnChanges {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        this.model$.next(this.config.model);
         this.setupForm();
     }
 
     private setupForm() {
-        this.fields = this.getFields();
+        this.fields$.next(this.getFields());
         this.config.modelJournalEntryModes = this.getAccrualJournalEntryModes();
         this.config.modelPeriodsTemplates = this.getAccrualPeriodsOptions();
         this.extendFormConfig();
     }
 
     private extendFormConfig() {
-        let accountField: UniFieldLayout = this.fields.find(x => x.Property === 'BalanceAccountID');
+        let fields = this.fields$.getValue();
+        let accountField: UniFieldLayout = fields.find(x => x.Property === 'BalanceAccountID');
         accountField.ReadOnly = this.isAccrualSaved();
         accountField.Options = {
             getDefaultData: () => this.getDefaultBalanceAccountData(),
@@ -140,7 +145,7 @@ export class AccrualForm implements OnChanges {
             }
         };
 
-       let accrualJEMode: UniFieldLayout = this.fields.find(x => x.Property === 'AccrualJournalEntryMode');
+       let accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
        accrualJEMode.ReadOnly = this.isAccrualSaved();
        accrualJEMode.Options = {
            source: this.config.modelJournalEntryModes,
@@ -148,7 +153,7 @@ export class AccrualForm implements OnChanges {
            displayProperty: 'Name'
        };
 
-       let accrualPeriodTemplate: UniFieldLayout = this.fields.find(x => x.Property === '_accrualPeriodsTemp');
+       let accrualPeriodTemplate: UniFieldLayout = fields.find(x => x.Property === '_accrualPeriodsTemp');
        accrualPeriodTemplate.ReadOnly = this.isAccrualSaved();
        accrualPeriodTemplate.Options = {
            source: this.config.modelPeriodsTemplates,
@@ -156,11 +161,12 @@ export class AccrualForm implements OnChanges {
            displayProperty: 'Name',
            events: {select: () => this.reSelectCheckBoxesAccordingtoTemplate() }
        };
-       this.config.model = _.cloneDeep(this.config.model);
+       this.model$.next(this.config.model);
 
        if (this.isAccrualSaved()) {
             this.toastService.addToast('Periodisering', ToastType.warn, 8, 'Denne periodiseringen er allerede lagret, og kan ikke redigere ytterligere');
        }
+       this.fields$.next(fields);
     }
 
     private resetAllChechBoxValues(): void {
@@ -355,8 +361,7 @@ export class AccrualForm implements OnChanges {
             this.config.model['_validationMessage'] = null;
         }
 
-        this.fields = _.cloneDeep(this.fields);
-        this.config.model = _.cloneDeep(this.config.model);
+        this.model$.next(this.config.model);
     }
 
     private getDefaultBalanceAccountData() {

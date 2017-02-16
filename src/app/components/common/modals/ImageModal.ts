@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input} from '@angular/core';
+import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {File} from '../../../unientities';
 import {UniImage} from '../../../../framework/uniImage/uniImage';
@@ -9,7 +9,14 @@ type Config = {
     entity: string,
     entityID: number,
     showFileID: Number,
-    readOnly: boolean
+    readOnly: boolean,
+    event: (files: File[]) => void
+}
+
+export type UpdatedFileListEvent = {
+    entity: string, 
+    entityID: number, 
+    files: File[]
 }
 
 @Component({
@@ -22,6 +29,7 @@ type Config = {
                     [entityID]="config.entityID"
                     [showFileID]="config.showFileID"
                     [readonly]="config.readOnly"
+                    (fileListReady)="config.event($event)"
                 ></uni-image>
             </article>
         </article>`
@@ -44,13 +52,17 @@ export class ImageModal {
     @ViewChild(UniModal)
     private modal: UniModal;
 
+    @Output()
+    public updatedFileList: EventEmitter<UpdatedFileListEvent> = new EventEmitter<UpdatedFileListEvent>();
+
     constructor() {
         this.config = <Config>{
             close: () => {
                 this.modal.getContent().then((component: ImageModalContent) => {
                     this.modal.close();
                 });
-            }
+            },
+            event: (files: File[]) => this.fileListReady(files)
         };
     }
 
@@ -74,5 +86,9 @@ export class ImageModal {
         this.modal.getContent().then((component: ImageModalContent) => {
             component.uniImage.refreshFiles();
         });
+    }
+
+    private fileListReady(files: File[]) {
+        this.updatedFileList.emit({entity: this.config.entity, entityID: this.config.entityID, files: files});
     }
 }

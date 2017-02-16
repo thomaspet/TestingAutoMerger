@@ -95,7 +95,6 @@ export class StimulsoftReportWrapper {
                     service.exportTo(report, stream, settings);
                     data = stream.toArray();
                 }
-
                 // Save or return
                 if (saveReport) {
                     obj.saveAs(data, fileName + '.' + format, mimetype);

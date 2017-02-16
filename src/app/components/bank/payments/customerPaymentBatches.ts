@@ -138,7 +138,7 @@ export class CustomerPaymentBatches {
             .setWidth('70px');
 
         let statusCodeCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
-            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode,true))
+            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode, true))
             .setFilterable(false);
 
         // Setup table

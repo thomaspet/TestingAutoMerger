@@ -37,7 +37,7 @@ export class PersonalDetails extends UniView {
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        'BankAccounts',
+        'BusinessRelationInfo.BankAccounts',
     ];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -196,13 +196,6 @@ export class PersonalDetails extends UniView {
 
     public onFormChange(change: SimpleChanges) {
         let employee = this.employee$.getValue();
-        if (employee.BankAccounts[0]) {
-            if (!employee.BankAccounts[0].AccountNumber) {
-                employee.BankAccounts[0].Active = false;
-            } else {
-                employee.BankAccounts[0].Active = true;
-            }
-        }
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
@@ -326,7 +319,7 @@ export class PersonalDetails extends UniView {
 
                 this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
                     this.bankAccountChanged.unsubscribe();
-                    resolve(bankaccount);
+                    resolve(changedBankaccount);
                 });
             })
         };

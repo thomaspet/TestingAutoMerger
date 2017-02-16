@@ -21,6 +21,8 @@ export interface IToolbarConfig {
     saveactions?: IUniSaveAction[];
     hideBreadcrumbs?: boolean;
     omitFinalCrumb?: boolean;
+    entityID?: any;
+    entityType?: string;
 }
 
 export interface ICommentsConfig {
@@ -88,5 +90,11 @@ export class UniToolbar {
 
     public tagsChangeEvent(tags) {
         this.tagsChange.emit(tags);
+    }
+
+    private triggerSubheadEvent(subhead) {
+        if (subhead.event) {
+            return subhead.event();
+        }
     }
 }

@@ -11,22 +11,20 @@ export class PhoneService extends BizHttp<Phone> {
     constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
 
-        this.relativeURL = "phones"; //TODO: missing Phone.RelativeUrl;
+        this.relativeURL = 'phones'; //TODO: missing Phone.RelativeUrl;
 
         this.entityType = Phone.EntityType;
 
         this.DefaultOrderBy = null;
     }
 
-    phoneFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
-        var self = this;
-
-        if(selectedSearchInfo.tlf == "") {
+    public phoneFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+        if(selectedSearchInfo.tlf === '') {
             return null;
         };
 
         return new Promise(resolve => {
-            this.GetNewEntity([], "phone").subscribe(phone => {
+            this.GetNewEntity([], 'phone').subscribe(phone => {
                 phone.Number = selectedSearchInfo.tlf;
                 phone.Type = PhoneTypeEnum.PtPhone;
 
@@ -35,15 +33,13 @@ export class PhoneService extends BizHttp<Phone> {
         });
     }
 
-    mobileFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
-        var self = this;
-
-        if(selectedSearchInfo.tlf_mobil == "") {
+    public mobileFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+        if(selectedSearchInfo.tlf_mobil === '') {
             return null;
         };
 
         return new Promise(resolve => {
-            this.GetNewEntity([], "phone").subscribe(phone => {
+            this.GetNewEntity([], 'phone').subscribe(phone => {
                 phone.Number = selectedSearchInfo.tlf_mobil;
                 phone.Type = PhoneTypeEnum.PtMobile;
 

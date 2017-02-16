@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
+import {Component, Type, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -17,19 +17,21 @@ export class SelectAmeldingTypeModalContent {
 
     }
 
+    public ngOnInit() {
+        this.loadContent();
+    }
+
     public loadContent() {
         this.createFormConfig();
         let model = this.ameldingModel$.getValue();
-        model.type = 1;
+        model.type = 0;
         model.typeChanged = false;
         this.ameldingModel$.next(model);
     }
 
     public change(change: SimpleChanges) {
         if (change['type']) {
-            let value = change['type'].currentValue;
             let model = this.ameldingModel$.getValue();
-            model.type = value.type - 1;
             model.typeChanged = true;
             this.ameldingModel$.next(model);
         }
@@ -43,9 +45,9 @@ export class SelectAmeldingTypeModalContent {
         ameldTypeField.Property = 'type';
         ameldTypeField.Options = {
             source: [
-                { id: 1, name: 'Full a-melding' },
-                { id: 2, name: 'Bare arbeidsforhold' },
-                { id: 3, name: 'Nullstille a-meldingen' }
+                { id: 0, name: 'Full a-melding' },
+                { id: 1, name: 'Bare arbeidsforhold' },
+                { id: 2, name: 'Nullstille a-meldingen' }
             ],
             displayProperty: 'name',
             valueProperty: 'id',
@@ -71,7 +73,7 @@ export interface IAmeldingTypeEvent {
     selector: 'select-amelding-type-modal',
     template: `<uni-modal [type]="type" [config]="modalConfig" (close)="close()"></uni-modal>`
 })
-export class SelectAmeldingTypeModal implements AfterViewInit {
+export class SelectAmeldingTypeModal {
     public ameldType: number;
     public modalConfig: any = {};
     private isActive: boolean;
@@ -124,16 +126,11 @@ export class SelectAmeldingTypeModal implements AfterViewInit {
         }
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openModal(done) {
+        this.modal.open();
         this.modal.getContent().then((component: SelectAmeldingTypeModalContent) => {
             this.done = done;
             this.isActive = true;
-            component.loadContent();
-            this.modal.open();
         });
     }
 }

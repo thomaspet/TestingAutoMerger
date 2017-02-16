@@ -33,7 +33,7 @@ export class VacationpayModalContent {
     private totalPayout: number = 0;
     @ViewChild(VacationpaySettingModal) private vacationpaySettingModal: VacationpaySettingModal;
     @ViewChild(UniTable) private table: UniTable;
-    private vacationpayBasis: any;
+    private vacationpayBasis: VacationPayLine[];
     private vacationBaseYear: number;
     private financialYearEntity: FinancialYear;
     public dueToHolidayChanged: boolean = false;
@@ -52,17 +52,15 @@ export class VacationpayModalContent {
 
     public ngOnInit() {
         this.config$.next(this.config);
-    }
-
-    public load() {
+        
         this.busy = true;
         this.dueToHolidayChanged = false;
         this.totalPayout = 0;
 
-        Observable.forkJoin(
+        Observable
+            .forkJoin(
             this._basicamountService.getBasicAmounts(),
-            this._financialYearService.getActiveFinancialYear()
-        )
+            this._financialYearService.getActiveFinancialYear())
             .subscribe((response: any) => {
                 let [basics, financial] = response;
                 this.basicamounts = basics;
@@ -154,7 +152,10 @@ export class VacationpayModalContent {
         this._payrollrunService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
             .subscribe((vpBasis) => {
                 if (vpBasis) {
-                    this.vacationpayBasis = vpBasis.VacationPay;
+                    this.vacationpayBasis = vpBasis.VacationPay.map(x => {
+                        x['_rowSelected'] = x.IsInCollection;
+                        return x;
+                    });
                 }
                 this.basicamountBusy = false;
                 this.vacationHeaderModel$.next(this.vacationHeaderModel$.getValue());
@@ -243,13 +244,13 @@ export class VacationpayModalContent {
         var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
         this.tableConfig = new UniTableConfig()
-            .setColumns([nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, rateCol, vacationPayCol, earlierPayCol, payoutCol])
+            .setColumns([
+                nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, 
+                rateCol, vacationPayCol, earlierPayCol, payoutCol])
             .setPageable(false)
             .setMultiRowSelect(true)
             .setAutoAddNewRow(false)
-            .setIsRowReadOnly((rowModel) => {
-                return !rowModel.IsInCollection;
-            })
+            .setIsRowReadOnly((rowModel) => !rowModel.IsInCollection)
             .setChangeCallback((event) => {
                 let row = event.rowModel;
                 if (event.field === 'ManualVacationPayBase') {

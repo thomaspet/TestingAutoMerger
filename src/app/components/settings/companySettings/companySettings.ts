@@ -34,7 +34,8 @@ import {
     AddressService,
     AccountVisibilityGroupService,
     ErrorService,
-    CompanyService
+    CompanyService,
+    UniSearchConfigGeneratorService
 } from '../../../services/services';
 declare var _;
 
@@ -71,7 +72,6 @@ export class CompanySettingsComponent implements OnInit {
     private currencies: Array<Currency> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
-    private accounts: Array<Account> = [];
     private municipalities: Municipal[] = [];
     private accountVisibilityGroups: AccountVisibilityGroup[] = [];
     private bankAccountChanged: any;
@@ -122,7 +122,8 @@ export class CompanySettingsComponent implements OnInit {
         private accountVisibilityGroupService: AccountVisibilityGroupService,
         private companyService: CompanyService,
         private authService: AuthService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
     ) {
     }
 
@@ -143,7 +144,6 @@ export class CompanySettingsComponent implements OnInit {
             this.currencyService.GetAll(null),
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
-            this.accountService.GetAll('filter=Visible eq true&orderby=AccountNumber'),
             this.companySettingsService.Get(1),
             this.municipalService.GetAll(null),
             this.phoneService.GetNewEntity(),
@@ -157,17 +157,15 @@ export class CompanySettingsComponent implements OnInit {
                 this.currencies = dataset[2];
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
-                this.accounts = dataset[5];
-                this.municipalities = dataset[7];
-                this.emptyPhone = dataset[8];
-                this.emptyEmail = dataset[9];
-                this.emptyAddress = dataset[10];
+                this.municipalities = dataset[6];
+                this.emptyPhone = dataset[7];
+                this.emptyEmail = dataset[8];
+                this.emptyAddress = dataset[9];
                 // get accountvisibilitygroups that are not specific for a companytype
-                this.accountVisibilityGroups = dataset[11].filter(x => x.CompanyTypes.length === 0);
+                this.accountVisibilityGroups = dataset[10].filter(x => x.CompanyTypes.length === 0);
 
-                console.log(dataset[6]);
                 // do this after getting emptyPhone/email/address
-                this.company$.next(this.setupCompanySettingsData(dataset[6]));
+                this.company$.next(this.setupCompanySettingsData(dataset[5]));
 
                 this.showExternalSearch = this.company$.getValue().OrganizationNumber === '';
 
@@ -282,6 +280,9 @@ export class CompanySettingsComponent implements OnInit {
                     this.reminderSettings.save().then(() => {
                         this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                         complete('Innstillinger lagret');
+                    }).catch((err) => {
+                        this.errorService.handle(err);
+                        complete('Purreinnstillinger feilt i lagring');
                     });
                 });
             },
@@ -426,33 +427,6 @@ export class CompanySettingsComponent implements OnInit {
             valueProperty: 'Code',
             displayProperty: 'Code',
             debounceTime: 200
-        };
-
-        let supplierAccountID: UniFieldLayout = fields.find(x => x.Property === 'SupplierAccountID');
-        supplierAccountID.Options = {
-            source: this.accounts,
-            valueProperty: 'ID',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
-        };
-
-        let customerAccountID: UniFieldLayout = fields.find(x => x.Property === 'CustomerAccountID');
-        customerAccountID.Options = {
-            source: this.accounts,
-            valueProperty: 'ID',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
-        };
-
-        let defaultSalesAccountID: UniFieldLayout = fields.find(x => x.Property === 'DefaultSalesAccountID');
-        defaultSalesAccountID.Options = {
-            source: this.accounts,
-            valueProperty: 'ID',
-            displayProperty: 'AccountNumber',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
         };
 
         let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
@@ -603,7 +577,7 @@ export class CompanySettingsComponent implements OnInit {
                 Combo: null,
                 Sectionheader: '',
                 hasLineBreak: false,
-                Validations: []                
+                Validations: []
             },
             {
                 ComponentLayoutID: 1,
@@ -839,7 +813,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'SupplierAccountID',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.AUTOCOMPLETE,
+                FieldType: FieldType.UNI_SEARCH,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Leverandørreskontro samlekonto',
@@ -848,12 +822,15 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 0,
                 Section: 1,
                 Placeholder: null,
-                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Sectionheader: 'Selskapsoppsett',
                 hasLineBreak: false,
-                Validations: []
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
             },
             {
                 ComponentLayoutID: 1,
@@ -861,7 +838,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'CustomerAccountID',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.AUTOCOMPLETE,
+                FieldType: FieldType.UNI_SEARCH,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Kundereskontro samlekonto',
@@ -870,12 +847,15 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 0,
                 Section: 1,
                 Placeholder: null,
-                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Sectionheader: 'Selskapsoppsett',
                 hasLineBreak: false,
-                Validations: []
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
             },
             {
                 ComponentLayoutID: 1,
@@ -883,7 +863,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'DefaultSalesAccountID',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.AUTOCOMPLETE,
+                FieldType: FieldType.UNI_SEARCH,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Standard salgskonto',
@@ -892,12 +872,15 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 0,
                 Section: 1,
                 Placeholder: null,
-                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Sectionheader: 'Selskapsoppsett',
                 hasLineBreak: false,
-                Validations: []
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
             },
             {
                 ComponentLayoutID: 1,

@@ -1,25 +1,32 @@
-import {Component, Type, ViewChild, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {PayrollRun, SalaryTransaction} from '../../../../app/unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
+import { Component, Type, ViewChild, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UniModal } from '../../../../framework/modals/modal';
+import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { PayrollRun, SalaryTransaction } from '../../../../app/unientities';
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums } from '../../../models/models';
 import {
-    SalaryTransactionService,
-    PayrollrunService,
-    ErrorService,
-    SalarySumsService
+    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
 } from '../../../../app/services/services';
 declare var _;
+
+type PaylistSection = {
+    employeeInfo: {
+        name: string,
+        payment: number,
+        hasTaxInfo: boolean
+    },
+    paymentLines: SalaryTransaction[],
+    collapsed: boolean
+}
 
 @Component({
     selector: 'control-modal-content',
     templateUrl: './controlModalContent.html'
 })
-export class ControlModalContent {
+export class ControlModalContent implements OnInit {
     private busy: boolean;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public payList: {
@@ -31,6 +38,7 @@ export class ControlModalContent {
     @Input() private config: {
         hasCancelButton: boolean,
         cancel: any,
+        update: any,
         actions: { text: string, method: any }[], payrollRunID: number
     };
     private transes: SalaryTransaction[];
@@ -39,7 +47,8 @@ export class ControlModalContent {
         salaryTransactionPay: SalaryTransactionPay
     }> = new BehaviorSubject({ sums: null, salaryTransactionPay: null });
     public tableConfig: UniTableConfig;
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([])
+    public payrollrunIsSettled: boolean;
 
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
@@ -55,10 +64,19 @@ export class ControlModalContent {
         this.generateHeadingsForm();
     }
 
+    public ngOnInit() {
+        this.busy = true;
+        this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
+            this.getData().subscribe((data) => {
+                this.setData(data);
+            }, err => this.errorService.handle(err));
+        }, err => this.errorService.handle(err));
+    }
+
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
-            this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true'),
+            this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true', ['WageType']),
             this.salarySumsService.getFromPayrollRun(this.payrollRunID),
             this._payrollRunService.getPaymentList(this.payrollRunID),
             this._payrollRunService.Get(this.payrollRunID)
@@ -156,26 +174,40 @@ export class ControlModalContent {
         let wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
         let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate).setWidth('6rem');
         let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate).setWidth('6rem');
-        let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('5rem');
+        let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('4rem');
         let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money).setWidth('7rem');
         let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('4rem');
         let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money).setWidth('7rem');
+        let paymentCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Text)
+            .setWidth('6rem')
+            .setTemplate((row: SalaryTransaction) => {
+                if (!row.Wagetype) {
+                    return;
+                }
+
+                return row.Wagetype.Base_Payment ? 'Ja' : 'Nei';
+            });
 
         this.tableConfig = new UniTableConfig(false, false)
-            .setColumns([wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol]);
+            .setColumns([
+                wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, 
+                toDateCol, amountCol, rateCol, sumCol, paymentCol]);
+
         if (this.model$.getValue().salaryTransactionPay.PayList) {
             this.model$.getValue().salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
 
-                let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.payrollRunID);
-                let section: { employeeInfo: { name: string, payment: number, hasTaxInfo: boolean }, paymentLines: SalaryTransaction[], collapsed: boolean } = {
-                    employeeInfo: {
-                        name: payline.EmployeeName,
-                        payment: payline.NetPayment,
-                        hasTaxInfo: payline.HasTaxInformation
-                    },
-                    paymentLines: salaryTranses,
-                    collapsed: true
-                };
+                let salaryTranses = this.transes
+                    .filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.payrollRunID);
+
+                let section: PaylistSection = {
+                        employeeInfo: {
+                            name: payline.EmployeeName,
+                            payment: payline.NetPayment,
+                            hasTaxInfo: payline.HasTaxInformation
+                        },
+                        paymentLines: salaryTranses,
+                        collapsed: true
+                    };
                 this.payList.push(section);
             });
         }
@@ -184,20 +216,28 @@ export class ControlModalContent {
 
     public runSettling() {
         this.busy = true;
-        return this._payrollRunService.runSettling(this.payrollRunID);
+        this._payrollRunService.runSettling(this.payrollRunID)
+            .finally(() => this.busy = false)
+            .subscribe((response: boolean) => {
+                if (response) {
+                    this.payrollrunIsSettled = true;
+                    this.config.update();
+                }
+            },
+            (err) => {
+                this.errorService.handle(err);
+            });
     }
 
-    public refresh() {
+    public sendPayments() {
         this.busy = true;
-        this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
-            this.getData().subscribe((data) => {
-                this.setData(data);
-            }, err => this.errorService.handle(err));
-        }, err => this.errorService.handle(err));
-    }
-
-    public showPaymentList() {
-        this._router.navigateByUrl('/salary/paymentlist/' + this.payrollRunID);
+        this._payrollRunService.sendPaymentList(this.payrollRunID)
+            .subscribe((response: boolean) => {
+                this._router.navigateByUrl('/bank/payments');
+            },
+            (err) => {
+                this.errorService.handle(err);
+            });
     }
     
     public toggleCollapsed(index: number) {
@@ -216,10 +256,10 @@ export class ControlModalContent {
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
-export class ControlModal implements AfterViewInit {
+export class ControlModal {
     @ViewChild(UniModal) private modal: UniModal;
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
-    private modalConfig: { hasCancelButton: boolean, cancel: any, actions: { text: string, method: any }[] };
+    private modalConfig: { hasCancelButton: boolean, cancel: any, update: any, actions: { text: string, method: any }[] };
     public type: Type<any> = ControlModalContent;
 
     constructor(private route: ActivatedRoute, private errorService: ErrorService) {
@@ -232,31 +272,13 @@ export class ControlModal implements AfterViewInit {
                 });
                 this.modal.close();
             },
-            actions: [{
-                text: 'Avregn',
-                method: () => {
-                    this.modal.getContent().then((content: ControlModalContent) => {
-                        content.runSettling().subscribe((success) => {
-                            if (success) {
-                                this.updatePayrollRun.emit(true);
-                                content.showPaymentList();
-                            }
-                        }, err => this.errorService.handle(err));
-                    });
-                }
-            }]
+            update: () => this.updatePayrollRun.emit(true),
+            actions: []
         };
 
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openModal() {
-        this.modal.getContent().then((modalContent: ControlModalContent) => {
-            modalContent.refresh();
-            this.modal.open();
-        });
+        this.modal.open();
     }
 }

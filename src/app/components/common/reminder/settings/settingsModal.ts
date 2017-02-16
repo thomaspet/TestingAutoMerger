@@ -63,9 +63,15 @@ export class ReminderSettingsModal {
         this.modal.close();
     }
 
-    public save() {
-        this.modal.getContent().then((component: ReminderSettingsForm) => {
-            component.reminderSettings.save();
+    public save(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.modal.getContent().then((component: ReminderSettingsForm) => {
+                component.reminderSettings.save().then(() => {
+                    resolve();
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
         });
     }
 
@@ -79,9 +85,12 @@ export class ReminderSettingsModal {
             this.config.actions.accept = {
                 text: 'Ok',
                 method: () => {
-                    this.save();
-                    resolve({status: ConfirmActions.ACCEPT, model: this.config.model});
-                    this.close();
+                    this.save().then(() => {
+                        resolve({status: ConfirmActions.ACCEPT, model: this.config.model});
+                        this.close();
+                    }).catch((err) => {
+                        this.errorService.handle(err);
+                    });
                 }
             };
 

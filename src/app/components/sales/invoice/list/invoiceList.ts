@@ -308,16 +308,19 @@ export class InvoiceList implements OnInit {
 
         // Define columns to use in the table
         var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
-            // .setWidth('10%')
-            .setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains');
 
         var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
-            // .setWidth('10%')
-            .setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains')
+            .setTemplate((invoice) => {
+                return invoice.CustomerID ? `<a href='/#/sales/customer/${invoice.CustomerID}'>${invoice.Customer.CustomerNumber}</a>` : ``;
+            });
 
         var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
-            .setWidth('15%')
-            .setFilterOperator('contains');
+            .setWidth('15%').setFilterOperator('contains')
+            .setTemplate((invoice) => {
+                return invoice.CustomerID ? `<a href='/#/sales/customer/${invoice.CustomerID}'>${invoice.CustomerName}</a>` : ``;
+            });
 
         var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');

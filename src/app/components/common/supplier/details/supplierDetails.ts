@@ -88,26 +88,26 @@ export class SupplierDetails implements OnInit {
         }
     };
 
-    constructor(
-        private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private supplierService: SupplierService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private phoneService: PhoneService,
-        private emailService: EmailService,
-        private addressService: AddressService,
-        private bankaccountService: BankAccountService,
-        private tabService: TabService,
-        private toastService: ToastService,
-        private uniQueryDefinitionService: UniQueryDefinitionService,
-        private errorService: ErrorService
-    ) {}
+    constructor(private departmentService: DepartmentService,
+                private projectService: ProjectService,
+                private supplierService: SupplierService,
+                private router: Router,
+                private route: ActivatedRoute,
+                private phoneService: PhoneService,
+                private emailService: EmailService,
+                private addressService: AddressService,
+                private bankaccountService: BankAccountService,
+                private tabService: TabService,
+                private toastService: ToastService,
+                private uniQueryDefinitionService: UniQueryDefinitionService,
+                private errorService: ErrorService) {
+    }
 
     public ngOnInit() {
         if (!this.modalMode) {
             this.route.params.subscribe(params => {
                 this.supplierID = +params['id'];
+                this.supplier$.getValue().ID = 0;
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
@@ -136,7 +136,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public previousSupplier() {
-        this.supplierService.PreviousSupplier(this.supplier$.getValue().ID)
+        this.supplierService.getPreviousID(this.supplier$.getValue().ID)
             .subscribe((ID) => {
                     if (ID) {
                         this.router.navigateByUrl('/suppliers/' + ID);
@@ -153,7 +153,8 @@ export class SupplierDetails implements OnInit {
 
     public ready() {
         this.formIsInitialized = true;
-        if (this.supplier$.getValue().ID === 0) {
+        const supplier = this.supplier$.getValue();
+        if (supplier.ID === 0) {
             this.form.field('Info.Name')
                 .Component
                 .control
@@ -168,9 +169,16 @@ export class SupplierDetails implements OnInit {
 
     private setTabTitle() {
         const supplier = this.supplier$.getValue();
-        if (this.modalMode) { return; }
+        if (this.modalMode) {
+            return;
+        }
         let tabTitle = supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
-        this.tabService.addTab({ url: '/suppliers/' + supplier.ID, name: tabTitle, active: true, moduleID: UniModules.Suppliers });
+        this.tabService.addTab({
+            url: '/sales/suppliers/' + supplier.ID,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Suppliers
+        });
 
         this.toolbarconfig.title = supplier.ID ? supplier.Info.Name : 'Ny leverandør';
         this.toolbarconfig.subheads = supplier.ID ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
@@ -203,7 +211,7 @@ export class SupplierDetails implements OnInit {
 
         // Check if ledgeraccountdetails is dirty - if so, warn user before we continue
         if (!this.ledgerAccountReconciliation || !this.ledgerAccountReconciliation.isDirty) {
-           return true;
+            return true;
         }
 
         return new Promise<boolean>((resolve, reject) => {
@@ -213,9 +221,9 @@ export class SupplierDetails implements OnInit {
                 false,
                 {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
             ).then((confirmDialogResponse) => {
-               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
                     resolve(true);
-               } else {
+                } else {
                     resolve(false);
                 }
             });
@@ -254,6 +262,7 @@ export class SupplierDetails implements OnInit {
 
                 this.setTabTitle();
                 this.extendFormConfig();
+                setTimeout(() => this.ready());
             }, err => this.errorService.handle(err));
 
         } else {
@@ -869,9 +878,7 @@ export class SupplierDetails implements OnInit {
                 },
                 {
                     Url: 'customers',
-                    Validations: [
-
-                    ],
+                    Validations: [],
                     LookupEntityType: null,
                     ValueList: null,
                     ComponentLayoutID: 1,
@@ -897,9 +904,7 @@ export class SupplierDetails implements OnInit {
                     Combo: null,
                     Legend: 'Betingelser',
                     StatusCode: null,
-                    CustomValues: {
-
-                    },
+                    CustomValues: {},
                     ID: 0,
                     Deleted: false,
                     CreatedAt: null,

@@ -81,11 +81,11 @@ export class Login {
                 this.availableCompanies = response.json();
                 if (this.availableCompanies.length === 1) {
                     this.onCompanySelected(this.availableCompanies[0]);
+                } else {
+                    setTimeout(() => {
+                        this.select.focus();
+                    });
                 }
-
-                setTimeout(() => {
-                    this.select.focus();
-                });
             });
     }
 

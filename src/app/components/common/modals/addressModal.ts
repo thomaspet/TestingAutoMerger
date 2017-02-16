@@ -382,7 +382,7 @@ export class AddressModal {
         }
 
         this.modalConfig.model = address;
-
+        this.modal.getContent().then(cmp => cmp.model$.next(address));
         this.modalConfig.disableQuestion = disableQuestion;
         this.modal.open();
     }

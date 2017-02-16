@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -153,7 +153,7 @@ export class ProductDetails {
 
             this.setTabTitle();
             this.setupToolbar();
-            this.showHidePriceFields(this.product$.getValue());
+            this.showHidePriceFields(this.product$.getValue().CalculateGrossPriceBasedOnNetPrice);
 
             if (response.length > 1 && response[1] !== null) {
                 this.product$.getValue().PartName = response[1].PartNameSuggestion;
@@ -171,8 +171,22 @@ export class ProductDetails {
         this.tabService.addTab({ url: '/products/' + this.product$.getValue().ID, name: tabTitle, active: true, moduleID: UniModules.Products });
     }
 
-    private ready(event) {
-        this.setupSubscriptions(null);
+    private change(changes: SimpleChanges) {
+        console.log(this.product$.getValue().PriceExVat);
+        console.log(this.product$.getValue().PriceIncVat);
+        if (changes['CalculateGrossPriceBasedOnNetPrice']) {
+            this.showHidePriceFields(changes['CalculateGrossPriceBasedOnNetPrice'].currentValue);
+        }
+        if (changes['PriceExVat']) {
+            if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
+                this.calculateAndUpdatePrice();
+            }
+        }
+        if (changes['PriceIncVat']) {
+            if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
+                this.calculateAndUpdatePrice();
+            }
+        }
     }
 
     private saveProduct(completeEvent) {
@@ -213,16 +227,21 @@ export class ProductDetails {
     }
 
     private calculateAndUpdatePrice() {
-        this.productService.calculatePriceLocal(this.product$.getValue());
-        this.product$.next(this.product$.getValue());
+        let product = this.productService.calculatePriceLocal(this.product$.getValue());
+        this.product$.next(product);
         this.setupToolbar();
     }
 
-    private showHidePriceFields(model: Product) {
+    private showHidePriceFields(value: boolean) {
         // show/hide price fields based on checkbox - this currenctly does not work, Jorge is working on a fix
-        this.priceIncVat.Hidden = !model.CalculateGrossPriceBasedOnNetPrice;
-        this.priceExVat.Hidden = model.CalculateGrossPriceBasedOnNetPrice;
+        let fields = this.fields$.getValue();
+        let priceExVat =  fields.find(x => x.Property === 'PriceExVat');
+        let priceIncVat = fields.find(x => x.Property === 'PriceIncVat');
+        priceIncVat.Hidden = !value;
+        priceExVat.Hidden = value;
+        this.fields$.next(fields);
         this.product$.next(this.product$.getValue());
+        this.calculateAndUpdatePrice();
         this.setupToolbar();
     }
 
@@ -388,34 +407,6 @@ export class ProductDetails {
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
-    }
-
-    private setupSubscriptions(event) {
-        if (this.form.field('PriceExVat')) {
-            this.form.field('PriceExVat')
-                .changeEvent
-                .subscribe((data) => {
-                    if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
-                        this.calculateAndUpdatePrice();
-                    }
-                });
-        }
-
-        if (this.form.field('PriceIncVat')) {
-            this.form.field('PriceIncVat')
-                .changeEvent
-                .subscribe((data) => {
-                    if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
-                        this.calculateAndUpdatePrice();
-                    }
-                });
-        }
-
-        this.form.field('CalculateGrossPriceBasedOnNetPrice')
-            .changeEvent
-            .subscribe((value) => {
-                this.showHidePriceFields(value);
-            });
     }
 
     // TODO: return ComponentLayout when the object respects the interface

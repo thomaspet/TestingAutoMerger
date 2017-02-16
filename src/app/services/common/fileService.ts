@@ -29,4 +29,14 @@ export class FileService extends BizHttp<File> {
             })
             .map(res => new Blob([res['_body']], { type: contentType }));
     }
+
+    public linkFile(entityType: string, entityID: number, fileID: number) {
+        return this.http
+            .asPOST()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileID}?action=link&entityType=${entityType}&entityID=${entityID}`)
+            .send()
+            .map(response => response.json());
+    }
 }

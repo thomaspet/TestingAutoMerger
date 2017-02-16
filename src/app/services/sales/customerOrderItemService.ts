@@ -8,6 +8,15 @@ import {AuthService} from '../../../framework/core/authService';
 @Injectable()
 export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
 
+    // TODO: To be retrieved from database schema shared.Status instead?
+    // TODO: Sett opp gyldige statuser her
+    public statusTypes: Array<any> = [
+        { Code: StatusCodeCustomerOrderItem.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerOrderItem.Registered, Text: 'Registrert' },
+        { Code: StatusCodeCustomerOrderItem.TransferredToInvoice, Text: 'Overført'},
+        { Code: StatusCodeCustomerOrderItem.Completed, Text: 'Avsluttet'}
+    ];
+
     constructor(http: UniHttp, authService: AuthService) {
         super(http, authService);
         this.relativeURL = CustomerOrderItem.RelativeUrl;
@@ -15,23 +24,8 @@ export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
         this.DefaultOrderBy = null;
     }
 
-    // TODO: To be retrieved from database schema shared.Status instead?
-    // TODO: Sett opp gyldige statuser her
-    private statusTypes: Array<any> = [
-        { Code: StatusCodeCustomerOrderItem.Draft, Text: 'Kladd' },
-        { Code: StatusCodeCustomerOrderItem.Registered, Text: 'Registrert' },
-        { Code: StatusCodeCustomerOrderItem.TransferredToInvoice, Text: 'Overført'},
-        { Code: StatusCodeCustomerOrderItem.Completed, Text: 'Avsluttet'}
-    ];
-
     public getStatusText = (statusCode: string) => {
-        var text = '';
-        this.statusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
-                text = status.Text;
-                return;
-            }
-        });
-        return text;
+        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+        return statusType ? statusType.Text : '';
     };
 }
