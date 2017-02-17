@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, Operator, SalaryTransaction, EmployeeCategory, FieldType } from '../../../unientities';
+import { Employee, Operator, EmployeeCategory } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import {ErrorService} from '../../common/ErrorService';
+import { ErrorService } from '../../common/ErrorService';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
@@ -17,7 +18,7 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        'BankAccounts'
+        'BusinessRelationInfo.BankAccounts'
     ];
     public debounceTime: number = 500;
 
@@ -38,7 +39,7 @@ export class EmployeeService extends BizHttp<Employee> {
         }, err => this.errorService.handle(err));
     }
 
-    public getEmployeeCategories(employeeID: number) {
+    public getEmployeeCategories(employeeID: number): Observable<EmployeeCategory[]> {
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -53,17 +54,24 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     public saveEmployeeCategory(employeeID: number, category: EmployeeCategory) {
-        return this.http
-            .asPOST()
-            .usingBusinessDomain()
-            .withBody(category)
-            .withEndPoint(
-            this.relativeURL
-            + '/'
-            + employeeID
-            + '/category')
-            .send()
-            .map(response => response.json());
+        if (employeeID && category) {
+            
+            let endpoint = this.relativeURL
+                + '/'
+                + employeeID
+                + '/category';
+
+            let saveObs = category.ID 
+                ? this.http.asPUT().withEndPoint(endpoint + '/' + category.ID) 
+                : this.http.asPOST().withEndPoint(endpoint);
+
+            return saveObs
+                .usingBusinessDomain()
+                .withBody(category)
+                .send()
+                .map(response => response.json());
+        }
+        return Observable.of(null);
     }
 
     public deleteEmployeeCategory(employeeID: number, categoryID: number) {
@@ -246,10 +254,10 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'Employee',
-                    Property: 'BankAccounts[0].AccountNumber',
-                    Placement: 5,
+                    Property: 'BusinessRelationInfo.DefaultBankAccount',
+                    Placement: 4,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Kontonummer',
@@ -262,22 +270,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false,
-                    Options: {
-                        mask: '0000 00 00000'
-                    },
-                    Validations: [
-                        {
-                            Value: '^\\d{11}$',
-                            ErrorMessage: 'Accountnumber should fit the pattern',
-                            Operator: Operator.RegExp,
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: Operator.Required
-                        }
-                    ]
+                    Options: null
                 },
                 {
                     ComponentLayoutID: 1,
@@ -408,7 +401,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Sectionheader: '',
                     IsLookUp: false
                 }
-                
+
                 // ,{
                 //     ComponentLayoutID: 1,
 

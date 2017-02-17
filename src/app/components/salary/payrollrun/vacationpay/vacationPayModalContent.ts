@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { FieldType, BasicAmount, VacationPayInfo, VacationPayLine, FinancialYear } from '../../../../unientities';
-import { UniFieldLayout } from 'uniform-ng2/main';
+import { BasicAmount, VacationPayInfo, VacationPayLine, FinancialYear } from '../../../../unientities';
+import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
@@ -8,6 +8,7 @@ import {
 import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 declare var _;
 
@@ -24,8 +25,9 @@ export class VacationpayModalContent {
     };
     private busy: boolean;
     private basicamountBusy: boolean;
-    private vacationHeaderModel: any = {};
-    private fields: any[] = [];
+    private vacationHeaderModel$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private config$: BehaviorSubject<any> = new BehaviorSubject({})
     private basicamounts: BasicAmount[] = [];
     private tableConfig: UniTableConfig;
     private totalPayout: number = 0;
@@ -48,6 +50,10 @@ export class VacationpayModalContent {
 
     }
 
+    public ngOnInit() {
+        this.config$.next(this.config);
+    }
+
     public load() {
         this.busy = true;
         this.dueToHolidayChanged = false;
@@ -62,7 +68,9 @@ export class VacationpayModalContent {
                 this.basicamounts = basics;
                 this.financialYearEntity = financial;
 
-                this.vacationHeaderModel.VacationpayYear = 1;
+                let vacationHeaderModel = this.vacationHeaderModel$.getValue();
+                vacationHeaderModel.VacationpayYear = 1;
+                this.vacationHeaderModel$.next(vacationHeaderModel);
                 this.setCurrentBasicAmountAndYear();
 
                 this.createFormConfig();
@@ -129,10 +137,6 @@ export class VacationpayModalContent {
         this.setCurrentBasicAmountAndYear();
     }
 
-    public ready(value) {
-
-    }
-
     public rowChanged(event) {
         this.updatetotalPay();
     }
@@ -153,7 +157,7 @@ export class VacationpayModalContent {
                     this.vacationpayBasis = vpBasis.VacationPay;
                 }
                 this.basicamountBusy = false;
-                this.vacationHeaderModel = _.cloneDeep(this.vacationHeaderModel);
+                this.vacationHeaderModel$.next(this.vacationHeaderModel$.getValue());
             }, err => this.errorService.handle(err));
 
     }
@@ -169,7 +173,7 @@ export class VacationpayModalContent {
     }
 
     private setCurrentBasicAmountAndYear() {
-        switch (this.vacationHeaderModel.VacationpayYear) {
+        switch (this.vacationHeaderModel$.getValue().VacationpayYear) {
             case 1:
                 this.vacationBaseYear = this.financialYearEntity.Year - 1;
                 break;
@@ -188,7 +192,7 @@ export class VacationpayModalContent {
         });
 
         if (tmp) {
-            this.vacationHeaderModel.BasicAmount = tmp.BasicAmountPrYear;
+            this.vacationHeaderModel$.getValue().BasicAmount = tmp.BasicAmountPrYear;
         }
 
         this.getVacationpayData();
@@ -225,7 +229,7 @@ export class VacationpayModalContent {
         basicAmountField.Options = null;
         basicAmountField.ReadOnly = true;
 
-        this.fields = [vpRadioField, basicAmountField];
+        this.fields$.next([vpRadioField, basicAmountField]);
     }
 
     private createTableConfig() {

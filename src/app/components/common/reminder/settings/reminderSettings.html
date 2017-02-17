@@ -1,0 +1,9 @@
+<uni-form [config]="config$"
+            [fields]="fields$"
+            [model]="settings$"
+            (changeEvent)="onChange($event)">
+</uni-form>
+<reminder-rules
+    [settings]="settings$ | async"
+    (change)="onChange($event)">
+</reminder-rules>

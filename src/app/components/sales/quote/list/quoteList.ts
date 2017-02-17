@@ -204,19 +204,22 @@ export class QuoteList {
 
         // Define columns to use in the table
         const quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
-            .setFilterOperator('startswith')
-            .setWidth('10%');
+            .setWidth('100px').setFilterOperator('startswith');
 
         const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
-            .setWidth('10%')
-            .setFilterOperator('startswith');
+            .setWidth('100px').setFilterOperator('startswith')
+            .setTemplate((quote) => {
+                return quote.CustomerID ? `<a href='/#/sales/customer/${quote.CustomerID}'>${quote.Customer.CustomerNumber}</a>` : ``;
+            });
 
         const customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text)
-            .setFilterOperator('contains');
+            .setFilterOperator('contains')
+            .setTemplate((quote) => {
+                return quote.CustomerID ? `<a href='/#/sales/customer/${quote.CustomerID}'>${quote.CustomerName}</a>` : ``;
+            });
 
         const quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.LocalDate)
-            .setWidth('10%')
-            .setFilterable(false);
+            .setWidth('10%').setFilterable(false);
 
         const validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.LocalDate)
             .setWidth('10%')

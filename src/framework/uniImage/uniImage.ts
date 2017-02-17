@@ -5,7 +5,8 @@ import {
     SimpleChanges,
     EventEmitter,
     ChangeDetectorRef,
-    ChangeDetectionStrategy
+    ChangeDetectionStrategy,
+    ViewChild
 } from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
@@ -14,6 +15,7 @@ import {AuthService} from '../core/authService';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService} from '../../app/services/services';
+import {UniConfirmModal, ConfirmActions} from '../modals/confirm';
 
 export enum UniImageSize {
     small = 150,
@@ -32,11 +34,12 @@ export interface IUploadConfig {
         <article (click)="onClick()" (clickOutside)="offClick()">
             <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading}">
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-                <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()">
+                <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
+                <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a class="next" (click)="next()"></a>
             </section>
 
@@ -57,10 +60,14 @@ export interface IUploadConfig {
                 </li>
             </ul>
         </article>
+        <uni-confirm-modal></uni-confirm-modal>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniImage {
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
     @Input()
     public entity: string;
 
@@ -93,6 +100,9 @@ export class UniImage {
 
     @Output()
     public imageLoaded: EventEmitter<File> = new EventEmitter<File>();
+
+    @Output()
+    public imageDeleted: EventEmitter<File> = new EventEmitter<File>();
 
     public imageIsLoading: boolean = true;
 
@@ -251,6 +261,35 @@ export class UniImage {
             this.currentPage = 1;
             this.loadImage();
         }
+    }
+
+    private deleteImage() {
+        this.confirmModal.confirm(
+                'Virkelig slette valgt fil?',
+                'Slette?')
+            .then(confirmDialogResponse => {
+                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    let oldFileID = this.files[this.currentFileIndex].ID;
+                    this.http.asDELETE()
+                        .usingBusinessDomain()
+                        .withEndPoint(`files/${this.entity}/${this.entityID}/${oldFileID}`)
+                        .send()
+                        .subscribe((res) => {
+                            let current = this.files[this.currentFileIndex];
+                            let fileIDsIndex = this.fileIDs.indexOf(current.ID);
+
+                            this.files.splice(this.currentFileIndex, 1);
+                            if (fileIDsIndex !== -1) { this.fileIDs.splice(fileIDsIndex, 1); }
+                            this.currentFileIndex--;
+                            if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
+
+                            if (this.currentFileIndex >= 0) { this.loadImage(); }
+                            if (!this.singleImage) { this.loadThumbnails(); }
+
+                            this.imageDeleted.emit(current);
+                        }, err => this.errorService.handle(err))
+                    }
+            });
     }
 
     private loadThumbnails() {

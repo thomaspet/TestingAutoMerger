@@ -1,22 +1,23 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {PayrollRun, FieldType, VacationPayInfo, TaxDrawFactor} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../common/ErrorService';
+import { Injectable } from '@angular/core';
+import { BizHttp } from '../../../../framework/core/http/BizHttp';
+import { UniHttp } from '../../../../framework/core/http/http';
+import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory } from '../../../unientities';
+import { Observable } from 'rxjs/Observable';
+import { ErrorService } from '../../common/ErrorService';
+import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
 
     public payStatusTable: any = [
-        {ID: null, text: 'Opprettet'},
-        {ID: 0, text: 'Opprettet'},
-        {ID: 1, text: 'Avregnet'},
-        {ID: 2, text: 'Godkjent'},
-        {ID: 3, text: 'Sendt til utbetaling'},
-        {ID: 4, text: 'Utbetalt'},
-        {ID: 5, text: 'Bokført'},
-        {ID: 6, text: 'Slettet'}
+        { ID: null, text: 'Opprettet' },
+        { ID: 0, text: 'Opprettet' },
+        { ID: 1, text: 'Avregnet' },
+        { ID: 2, text: 'Godkjent' },
+        { ID: 3, text: 'Sendt til utbetaling' },
+        { ID: 4, text: 'Utbetalt' },
+        { ID: 5, text: 'Bokført' },
+        { ID: 6, text: 'Slettet' }
     ];
 
     constructor(http: UniHttp, private errorService: ErrorService) {
@@ -99,11 +100,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
     public resetSettling(ID: number) {
         return this.http
-        .asPUT()
-        .usingBusinessDomain()
-        .withEndPoint(this.relativeURL + '/' + ID + '?action=resetrun')
-        .send()
-        .map(response => response.json());
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=resetrun')
+            .send()
+            .map(response => response.json());
     }
 
     public getPaymentList(ID: number) {
@@ -111,7 +112,16 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL + '/' + ID)
-            .send({action: 'paymentlist'})
+            .send({ action: 'paymentlist' })
+            .map(response => response.json());
+    }
+
+    public sendPaymentList(payrollrunID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asPOST()
+            .withEndPoint(this.relativeURL + '/' + payrollrunID)
+            .send({ action: 'sendpaymentlist'})
             .map(response => response.json());
     }
 
@@ -124,11 +134,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
-    public postTransactions(ID: number) {
+    public postTransactions(ID: number, report: string = null) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=book')
+            .withBody(report)
             .send()
             .map(response => response.json());
     }
@@ -151,6 +162,47 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
 
+    public saveCategoryOnRun(id: number, category: EmployeeCategory) {
+        if (id && category) {
+            let saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
+            return saveObs
+                .usingBusinessDomain()
+                .withEndPoint(this.relativeURL + '/' + id + '/category/' + category.ID)
+                .withBody(category)
+                .send()
+                .map(response => response.json());
+        }
+        return Observable.of(null);
+    }
+
+    public deleteCategoryOnRun(id: number, catID: number) {
+        return this.http
+                .asDELETE()
+                .usingBusinessDomain()
+                .withEndPoint(this.relativeURL + '/' + id + '/category/' + catID)
+                .send();
+    }
+
+    public getCategoriesOnRun(id: number) {
+        return id
+            ? this.http
+                .asGET()
+                .usingBusinessDomain()
+                .withEndPoint(this.relativeURL + `/${id}/category`)
+                .send()
+                .map(response => response.json())
+            : Observable.of([]);
+    }
+
+    public getEmployeesOnPayroll(id: number, expands: string[]) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${id}?action=employeesonrun&expand=${expands.join(',')}`)
+            .send()
+            .map(response => response.json());
+    }
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -170,7 +222,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: null,
-                    Placeholder: 'La stå tom for neste ledige',
+                    Placeholder: '',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
@@ -255,9 +307,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Legend: '',
                     Options: {
                         source: [
-                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'},
-                            {Indx: TaxDrawFactor.Half, Name: 'Halv skatt'},
-                            {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
+                            { Indx: TaxDrawFactor.Standard, Name: 'Full skatt' },
+                            { Indx: TaxDrawFactor.Half, Name: 'Halv skatt' },
+                            { Indx: TaxDrawFactor.None, Name: 'Ikke skatt' }],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
                     }
@@ -385,11 +437,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     hasLineBreak: true,
                     Options: {
                         source: [
-                            {Indx: 0, Name: 'Vanlig'},
-                            {Indx: 1, Name: 'Ferielønn (+1/26)'},
-                            {Indx: 2, Name: 'Ferielønn (-1/26)'},
-                            {Indx: 1, Name: 'Ferielønn (-4/26)'},
-                            {Indx: 2, Name: 'Ferielønn (-3/22)'}],
+                            { Indx: 0, Name: 'Vanlig' },
+                            { Indx: 1, Name: 'Ferielønn (+1/26)' },
+                            { Indx: 2, Name: 'Ferielønn (-1/26)' },
+                            { Indx: 1, Name: 'Ferielønn (-4/26)' },
+                            { Indx: 2, Name: 'Ferielønn (-3/22)' }],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
                     },
@@ -412,7 +464,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'ExcludeRecurringPosts',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT, // FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fastlønnsposter utelates',
@@ -447,7 +499,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'HolidayPayDeduction',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT, // FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Trekk i fastlønn for ferie',
@@ -469,7 +521,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: '1',
                     Placement: 4,
                     Hidden: true,
-                    FieldType: FieldType.MULTISELECT, // FieldType.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: true,
                     LookupField: false,
                     Label: 'Ansatte med negativ lønn utelates',

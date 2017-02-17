@@ -1,9 +1,10 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {Payment, FieldType, BankAccount, BusinessRelation} from '../../../unientities';
+import {UniForm, FieldType} from 'uniform-ng2/main';
+import {Payment, BankAccount, BusinessRelation} from '../../../unientities';
 import {PaymentService, StatisticsService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const _; // lodash
 
@@ -14,7 +15,7 @@ declare const _; // lodash
     template: `
         <article class="modal-content add-payment-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-form *ngIf="config" [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -27,12 +28,12 @@ export class AddPaymentForm implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
 
     public config: any = {};
+    private model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     private enableSave: boolean;
     private save: boolean;
-
-    private fields: any[] = [];
-    private formConfig: any = {};
 
     constructor(
         private errorService: ErrorService,
@@ -42,11 +43,12 @@ export class AddPaymentForm implements OnInit {
     }
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
         this.setupForm();
     }
 
     private setupForm() {
-        this.fields = this.getFields();
+        this.fields$.next(this.getFields());
     }
 
     private getDefaultBusinessRelationData() {
@@ -95,11 +97,11 @@ export class AddPaymentForm implements OnInit {
                             model.ToBankAccount.ID = data[0].DefaultBankAccountID;
                             model.ToBankAccount.AccountNumber = data[0].DefaultBankAccountAccountNumber;
                         }
-
-                        this.config.model = _.cloneDeep(model);
                     } else {
                         model.BusinessRelation = null;
                     }
+                    this.config.model = model;
+                    this.model$.next(this.config.model);
                 },
                 err => this.errorService.handle(err)
             );
@@ -108,8 +110,8 @@ export class AddPaymentForm implements OnInit {
                 model.ToBankAccount = null;
                 model.ToBankAccountID = null;
             }
-
-            this.config.model = _.cloneDeep(model);
+            this.config.model = model;
+            this.model$.next(this.config.model);
         }
     }
 
@@ -371,7 +373,7 @@ export class AddPaymentForm implements OnInit {
 @Component({
     selector: 'add-payment-modal',
     template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]="type" [config]="modalConfig" ></uni-modal>
     `
 })
 export class AddPaymentModal {

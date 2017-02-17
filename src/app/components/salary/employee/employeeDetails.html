@@ -1,4 +1,10 @@
-<uni-toolbar [config]="toolbarConfig" [saveactions]="saveActions"></uni-toolbar>
+<uni-toolbar [config]="toolbarConfig" 
+             [saveactions]="saveActions" 
+             [tags]="categoryFilter"
+             [tagConfig]="tagConfig"
+             (tagsChange)="filterChange($event)">
+</uni-toolbar>
+
 <uni-poster [widgets]="employeeWidgets" *ngIf="employeeWidgets"></uni-poster>
 <!--<employeecategory-buttons class="poster_toolbar" *ngIf="employee?.ID" [selectedEmployee]="employee"></employeecategory-buttons>-->
 <tax-card-modal *ngIf="employee" [employeeID]="employee.ID" (updateEvent)="getTax()"></tax-card-modal>

@@ -1,4 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {StatusService} from '../../../services/services';
+
 declare const moment;
 
 export module UniStatusTrack {
@@ -14,10 +16,12 @@ export module UniStatusTrack {
     export interface IStatus {
         title: string;
         state: States;
+        code?: number;
         badge?: string;
         timestamp?: Date;
         substatusList?: IStatus[];
         data?: any;
+        logEntries?: any[];
     }
 
     @Component({
@@ -43,9 +47,21 @@ export module UniStatusTrack {
                             <time [attr.datetime]="substatus.timestamp?.toDateString()">
                                 {{formatTime(substatus.timestamp)}}
                             </time>
-
                         </li>
+                    </ol>
 
+                    <ol *ngIf="status.logEntries"
+                        class="statustrack_statuslog">
+                        <li *ngFor="let statusChange of status.logEntries">
+                            <div>Forrige status: <strong>{{statusChange.FromStatusText}}</strong></div>
+                            <div>Endret av: <strong>{{statusChange.CreatedByName}}</strong></div>
+                            <time>
+                                {{formatTime(statusChange.CreatedAt)}}
+                            </time>
+                        </li>
+                        <li *ngIf="status.logEntries.length === 0">
+                            Ingen statusoppdateringer funnet for denne statusen
+                        </li>
                     </ol>
                 </li>
             </ol>
@@ -53,12 +69,33 @@ export module UniStatusTrack {
     })
     export class StatusTrack {
         @Input() private config: IStatus[];
+        @Input() private entityType: string;
+        @Input() private entityID: number;
+
         @Output() public statusSelectEvent: EventEmitter<any> = new EventEmitter();
+
+        constructor(private statusService: StatusService) {
+
+        }
+
         private getStatusClass(state: States) {
             return States[state].toLowerCase();
         }
+
         public selectStatus(status: IStatus, parent?: IStatus) {
             this.statusSelectEvent.emit([status, parent]);
+            if (this.entityType && this.entityID) {
+                if (status.code) {
+                    // if statuslog is already loaded and the user clicks the same status again, close
+                    // the statuslog instead of retrieving it again
+                    if (!status.logEntries) {
+                        this.statusService.getStatusLogEntries(this.entityType, this.entityID, status.code)
+                            .subscribe(statuschanges => {
+                                status.logEntries = statuschanges;
+                            });
+                    }
+                }
+            }
         }
         public formatTime(datetime) {
             if (!datetime) { return; }

@@ -34,5 +34,9 @@
                          [entity]="entityName"
                          [entityID]="data?.ID">
         </uni-attachments>
+
+        <invoice-reminders *ngIf="activeTabIndex === 3 && entityName === 'CustomerInvoice'"
+                         [customerInvoice]="data">
+        </invoice-reminders>
     </article>
 </section>

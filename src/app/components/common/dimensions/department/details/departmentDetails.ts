@@ -1,20 +1,22 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {FieldType, Department} from '../../../../../unientities';
+import {Department} from '../../../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {DepartmentService, ErrorService} from '../../../../../services/services';
 import {UniFieldLayout} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'department-dimensions-details',
     templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html'
 })
 export class DepartmentDetails implements OnInit {
-    public config: any = {autofocus: true};
-    public fields: any[] = [];
-    private department: Department;
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private department$: BehaviorSubject<Department> = new BehaviorSubject(null);
 
     public saveActions: IUniSaveAction[] = [
         {
@@ -36,7 +38,7 @@ export class DepartmentDetails implements OnInit {
     }
 
     public ngOnInit() {
-        this.fields = this.getComponentFields();
+        this.fields$.next(this.getComponentFields());
 
         this.route.params.subscribe(params => {
             const departmentID = +params['id'];
@@ -44,7 +46,7 @@ export class DepartmentDetails implements OnInit {
                 this.departmentService.Get(departmentID)
                     .subscribe(
                         department => this.setDepartment(department),
-                        err => err => this.errorService.handle(err)
+                        err => this.errorService.handle(err)
                     );
             } else {
                 this.setDepartment(new Department);
@@ -53,14 +55,14 @@ export class DepartmentDetails implements OnInit {
     }
 
     private setDepartment(department: Department) {
-        this.department = department;
-        const tabTitle = this.department.ID ? 'Avdeling ' + this.department.Name : 'Avdeling (ny)';
-        const ID = this.department.ID ? this.department.ID : 'new';
+        this.department$.next(department);
+        const tabTitle = department.ID ? 'Avdeling ' + department.Name : 'Avdeling (ny)';
+        const ID = department.ID ? department.ID : 'new';
         this.tabService.addTab({url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: 23});
     }
 
     public next() {
-        this.departmentService.getNextID(this.department.ID || 0)
+        this.departmentService.getNextID(this.department$.getValue().ID || 0)
             .subscribe(
                 departmentID => {
                     if (departmentID) {
@@ -74,7 +76,7 @@ export class DepartmentDetails implements OnInit {
     }
 
     public previous() {
-        this.departmentService.getPreviousID(this.department.ID || 999999)
+        this.departmentService.getPreviousID(this.department$.getValue().ID || 999999)
             .subscribe(
                 departmentID => {
                     if (departmentID) {
@@ -92,8 +94,8 @@ export class DepartmentDetails implements OnInit {
     }
 
     private save(done: Function) {
-        if (this.department.ID) {
-            this.departmentService.Put(this.department.ID, this.department)
+        if (this.department$.getValue().ID) {
+            this.departmentService.Put(this.department$.getValue().ID, this.department$.getValue())
                 .subscribe(
                     updatedDepartment => {
                         this.router.navigateByUrl('/dimensions/department/' + updatedDepartment.ID);
@@ -107,7 +109,7 @@ export class DepartmentDetails implements OnInit {
                         }
                     });
         } else {
-            this.departmentService.Post(this.department)
+            this.departmentService.Post(this.department$.getValue())
                 .subscribe(
                     newDepartment => {
                         this.router.navigateByUrl('/dimensions/department/' + newDepartment.ID);

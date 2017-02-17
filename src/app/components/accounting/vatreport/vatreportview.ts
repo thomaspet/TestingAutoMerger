@@ -89,7 +89,9 @@ export class VatReportView implements OnInit, OnDestroy {
                     prev: this.onBackPeriod.bind(this),
                     next: this.onForwardPeriod.bind(this),
                 },
-                contextmenu: this.contextMenuItems
+                contextmenu: this.contextMenuItems,
+                entityID: vatReport.ID,
+                entityType: 'VatReport'
             };
         } /* No error handling necessary, can't produce errors */);
     }
@@ -98,21 +100,22 @@ export class VatReportView implements OnInit, OnDestroy {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.currentVatReport.StatusCode;
 
-        this.vatReportService.statusTypes.forEach((s, i) => {
+        this.vatReportService.statusTypes.forEach((status) => {
             let _state: UniStatusTrack.States;
 
-            if (s.Code > activeStatus) {
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack[i] = {
-                title: s.Text,
-                state: _state
-            };
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
         });
         return statustrack;
     }

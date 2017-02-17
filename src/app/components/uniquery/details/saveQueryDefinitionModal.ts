@@ -1,10 +1,11 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniQueryDefinition, FieldType} from '../../../../app/unientities';
+import {UniQueryDefinition} from '../../../../app/unientities';
 import {UniQueryDefinitionService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Rx';
-import {UniForm} from 'uniform-ng2/main';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniForm, FieldType} from 'uniform-ng2/main';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService} from '../../../services/services';
 
@@ -16,9 +17,9 @@ declare const moment;
     template: `
         <article class="modal-content save-query-definition-form">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-form [config]="formConfig"
-                      [fields]="fields"
-                      [model]="config.model">
+            <uni-form [config]="formConfig$"
+                      [fields]="fields$"
+                      [model]="model$">
             </uni-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index"
@@ -36,20 +37,26 @@ export class SaveQueryDefinitionForm implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @Output() public querySaved: EventEmitter<any> = new EventEmitter<any>();
 
-    private fields: Array<any> = [];
-    private formConfig: any = {};
+    private fields$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(private toastService: ToastService) {
     }
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
         this.setupForm();
+    }
+
+    public ngOnChanges() {
+        this.model$.next(this.config.model);
     }
 
     private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        this.fields = [
+        this.fields$.next([
             {
                 ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
@@ -172,7 +179,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Property: 'IsShared',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.MULTISELECT,
+                FieldType: FieldType.CHECKBOX,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Delt uttrekk',
@@ -183,7 +190,7 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Sectionheader: 'Avansert',
                 Legend: ''
             }
-        ];
+        ]);
     }
 }
 

@@ -1,5 +1,4 @@
-import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
-import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
+import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
 import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
@@ -23,9 +22,7 @@ import {
 
 export enum JournalEntryMode {
     Manual,
-    Supplier,
-    Payment,
-    JournalEntryView
+    Payment
 }
 
 @Component({
@@ -34,17 +31,18 @@ export enum JournalEntryMode {
     templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html'
 })
 export class JournalEntryManual implements OnChanges, OnInit {
-    @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
     @Input() public mode: number;
     @Input() public disabled: boolean = false;
+    @Input() public editmode: boolean = false;
+
+    @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
-    private journalEntryMode: string;
+    private hasLoadedData: boolean = false;
     private showImagesForJournalEntryNo: string = '';
     private currentJournalEntryImages: number[] = [];
     private currentJournalEntryData: JournalEntryData;
@@ -77,8 +75,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public ngOnInit() {
-        this.journalEntryMode = this.journalEntryService.getJournalEntryMode();
-        this.journalEntrySettings = this.journalEntryService.getJournalEntrySettings();
+        this.journalEntrySettings = this.journalEntryService.getJournalEntrySettings(this.mode);
 
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
@@ -91,8 +88,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
 
-                this.loadData();
-                this.setupSaveConfig();
+                if (!this.hasLoadedData) {
+                    this.loadData();
+                }
 
                 this.setSums();
                 this.setupSubscriptions();
@@ -102,11 +100,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        if (changes['supplierInvoice'] || changes['journalEntryID']) {
+        if (changes['journalEntryID']) {
             this.loadData();
-            this.setupSaveConfig();
-        } else if (changes['disabled'] || changes['journalEntryID'] || changes['runAsSubComponent']) {
-            this.setupSaveConfig();
+        }
+
+        if (changes['editmode'] || changes['runAsSubComponent']) {
+            setTimeout(() => {
+                this.setupSaveConfig();
+            });
         }
 
         this.setupSubscriptions();
@@ -125,111 +126,88 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private setupSaveConfig() {
         if (!this.runAsSubComponent) {
-            this.saveactions = [
+            let newActions = [
                 {
                     label: 'Lagre og bokfør',
                     action: (completeEvent) => this.postJournalEntryData(completeEvent),
                     main: true,
-                    disabled: this.disabled
+                    disabled: !this.isDirty
                 },
                 {
-                    label: 'Slett alle bilag i listen',
+                    label: 'Tøm listen',
                     action: (completeEvent) => this.removeJournalEntryData(completeEvent),
                     main: false,
-                    disabled: this.disabled
+                    disabled: false
                 }
             ];
+
+            if (this.journalEntryID && !this.isDirty) {
+                newActions.push({
+                    label: 'Rediger bilag',
+                    action: (completeEvent) => this.unlockJournalEntry(completeEvent),
+                    main: false,
+                    disabled: !this.disabled
+                });
+            }
+
+            this.saveactions = newActions;
         }
     }
 
     public loadData() {
         this.clearJournalEntryInfo();
+        this.hasLoadedData = true;
 
-        if (this.supplierInvoice) {
-            this.mode = JournalEntryMode.Supplier;
-            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
-                .subscribe(data => {
-                    this.setJournalEntryData(data);
-                }, err => this.errorService.handle(err));
-        } else if (this.journalEntryID > 0) {
-            this.disabled = true;
-            this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
-                .subscribe((data: Array<JournalEntryData>) => {
-                    this.setJournalEntryData(data);
-                    this.calculateItemSums(data);
-                }, err => this.errorService.handle(err));
-        } else {
-            this.disabled = false;
+        let data = this.journalEntryService.getSessionData(this.mode);
 
-            let data = this.journalEntryService.getSessionData(this.mode);
+        // if data is present in the sessionStorage, but the journalEntryID is not set,
+        // consider setting it. This will happen if the user starts editing a journalentry,
+        // then leaves the view and reenters it through the menu
+        if (!this.journalEntryID && data && data.length > 0) {
+            if (data[0].JournalEntryID) {
+                this.journalEntryID = data[0].JournalEntryID;
+            }
+        }
 
-            if (data && data.length > 0) {
+        if (this.journalEntryID > 0) {
+            if (data && data.length > 0 && data[0].JournalEntryID && data[0].JournalEntryID.toString() === this.journalEntryID.toString()) {
+                // this means we have started adding data to this journalentry and then
+                // navigated to another component and back again - so the data is already
+                // dirty and we are in edit mode
                 this.isDirty = true;
-
-                // if we have any unsaved data in our sessionStorage, show this data. This needs to happen after a setTimeout
-                // to let Angular create the child components first
-                setTimeout(() => {
-                    this.setJournalEntryData(data);
-
-                    if (!this.currentFinancialYear) {
-                        // wait a moment before trying to validate the data
-                        // because the currentyears have not been retrieved yet
-                        setTimeout(() => {
-                            if (this.currentFinancialYear) {
-                                this.validateJournalEntryData(data);
-                            }
-                        }, 1000);
-                    } else {
-                        this.validateJournalEntryData(data);
-                    }
-                });
+                this.disabled = false;
+                this.setJournalEntryData(data);
             } else {
+                // We have asked to show an existing journalentry, load it from the API and show it.
+                // Assume the parent compont has set the disabled property and thereby specifies if
+                // the component should be read only or not
+                this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
+                    .subscribe((serverLines: Array<JournalEntryData>) => {
+                        this.isDirty = false;
+                        this.disabled = !this.editmode;
+                        this.setJournalEntryData(serverLines);
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
+        } else {
+            // we have not asked for a specific journalentry, so just load the current data
+            // if we have any in our sessionStorage
+            if (data && data.length > 0) {
+                // if we have any unsaved data in our sessionStorage, show that data.
+                this.isDirty = true;
+                this.disabled = false;
+                this.setJournalEntryData(data);
+            } else {
+                this.disabled = false;
                 this.setJournalEntryData([]);
             }
         }
     }
 
-    public setJournalEntryMode(newMode: string) {
-        let lines: Array<JournalEntryData>;
-
-        // get existing data from the view that is visible now
-        if (newMode === 'SIMPLE') {
-            if (this.journalEntryProfessional) {
-                lines = this.journalEntryProfessional.getTableData();
-            }
-        } else {
-            if (this.journalEntrySimple) {
-                lines = this.journalEntrySimple.journalEntryLines;
-            }
-        }
-
-        // update localstorage with preference for what mode to use (simple/professional)
-        this.journalEntryService.setJournalEntryMode(newMode);
-        this.journalEntryMode = this.journalEntryService.getJournalEntryMode();
-
-        // fix data to avoid problem with different formats/structures
-        let data = JSON.parse(JSON.stringify(lines));
-        data.forEach(line => {
-            line.FinancialDate = new Date(line.FinancialDate);
-        });
-
-        // let angular setup the viewchild, it does not exist until a change cycle has been runAsSubComponent
-        setTimeout(() => {
-            if (newMode === 'SIMPLE') {
-                if (this.journalEntrySimple) {
-                    this.journalEntrySimple.journalEntryLines = data;
-                }
-            } else {
-                if (this.journalEntryProfessional) {
-                    this.journalEntryProfessional.setJournalEntryData(data);
-                }
-            }
-        });
-    }
-
     private onShowImageChanged(showImage: boolean) {
         this.journalEntrySettings.AttachmentsVisible = showImage;
-        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings);
+        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings, this.mode);
     }
 
     private onShowImageForJournalEntry(journalEntry: JournalEntryData) {
@@ -302,7 +280,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public onColumnVisibilityChange(visibleColumns: Array<string>) {
         this.journalEntrySettings.DefaultVisibleFields = visibleColumns;
-        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings);
+        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings, this.mode);
     }
 
     public addJournalEntryData(data: JournalEntryData) {
@@ -311,26 +289,48 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
         if (this.journalEntryProfessional) {
             this.journalEntryProfessional.addJournalEntryLine(data);
-        } else if (this.journalEntrySimple) {
-
-            this.journalEntrySimple.journalEntryLines.push(data);
-            this.onDataChanged(this.journalEntrySimple.journalEntryLines);
         }
+
+        this.setupSaveConfig();
     }
 
     public getJournalEntryData(): Array<JournalEntryData> {
-        if (this.journalEntrySimple) {
-            return this.journalEntrySimple.journalEntryLines;
-        } else if (this.journalEntryProfessional) {
+        if (this.journalEntryProfessional) {
             return this.journalEntryProfessional.getTableData();
         }
     }
 
     public setJournalEntryData(lines: Array<JournalEntryData>) {
-        if (this.journalEntrySimple) {
-            this.journalEntrySimple.journalEntryLines = lines;
-        } else if (this.journalEntryProfessional) {
+        if (this.journalEntryProfessional) {
             this.journalEntryProfessional.setJournalEntryData(lines);
+        } else {
+            setTimeout(() => {
+                if (this.journalEntryProfessional) {
+                    this.journalEntryProfessional.setJournalEntryData(lines);
+                } else {
+                    console.error('Could not set data, journalentryprofessional not initialised');
+                }
+            });
+        }
+
+        // run this after the rest of the databinding is complete - if not it can cause multiple
+        // changes in the same change detection cycle, and this makes angular really cranky
+        setTimeout(() => {
+            this.setupSaveConfig();
+        });
+
+        this.calculateItemSums(lines);
+
+        if (!this.currentFinancialYear) {
+            // wait a moment before trying to validate the data
+            // because the currentyears have not been retrieved yet
+            setTimeout(() => {
+                if (this.currentFinancialYear) {
+                    this.validateJournalEntryData(lines);
+                }
+            }, 1000);
+        } else {
+            this.validateJournalEntryData(lines);
         }
     }
 
@@ -339,12 +339,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
             if (this.journalEntryProfessional) {
                 if (this.journalEntryProfessional.dataChanged.observers.length === 0) {
                     this.journalEntryProfessional.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
-                }
-            }
-
-            if (this.journalEntrySimple) {
-                if (this.journalEntrySimple.dataChanged.observers.length === 0) {
-                    this.journalEntrySimple.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
                 }
             }
         });
@@ -365,7 +359,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.isDirty = true;
 
         if (this.currentJournalEntryData) {
-            let updatedCurrentJournalEntryData = data.find(x => x['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+            let updatedCurrentJournalEntryData =
+                data.find(x => x['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+
             this.currentJournalEntryData = updatedCurrentJournalEntryData;
         }
 
@@ -379,6 +375,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
             this.validateJournalEntryData(data);
             this.calculateItemSums(data);
+
+            this.setupSaveConfig();
         });
     }
 
@@ -392,12 +390,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
         if (this.journalEntryProfessional) {
             let data = this.journalEntryProfessional.getTableData();
 
-            this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
-                .subscribe(accountBalanceData => {
-                    this.accountBalanceInfoData = accountBalanceData;
-                    this.itemAccountInfoData =
-                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
-                });
+            if (this.currentFinancialYear){
+                this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
+                    .subscribe(accountBalanceData => {
+                        this.accountBalanceInfoData = accountBalanceData;
+                        this.itemAccountInfoData =
+                            this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
+                    });
+            }
         }
     }
 
@@ -446,94 +446,81 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private postJournalEntryData(completeCallback) {
-        new Promise((resolve, reject) => {
-            if (this.validationResult && this.validationResult.Messages.length > 0) {
-                let errorMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Error);
-                let warningMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Warning);
+        // allow events from UniTable to finish, e.g. if the focus was in a cell
+        // when the user clicked the save button the unitable events should be allowed
+        // to run first, to let it update its' datasource
+        setTimeout(() => {
+            new Promise((resolve, reject) => {
+                if (this.validationResult && this.validationResult.Messages.length > 0) {
+                    let errorMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Error);
+                    let warningMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Warning);
 
-                if (errorMessages.length > 0) {
-                    this.toastService.addToast(
-                        'Kan ikke lagre',
-                        ToastType.bad,
-                        ToastTime.long,
-                        'Lagring avbrutt - se feilmeldinger under, og korriger linjene som er feil før du lagrer på ny'
-                    );
-                    completeCallback('Lagring avbrutt');
-                } else if (warningMessages.length > 0) {
-                    this.confirmModal.confirm(
-                        'Det finnes advarsler, men du kan bokføre likevel hvis dataene dine er riktige',
-                        'Lagre og bokfør likevel?',
-                        false,
-                        {accept: 'Lagre og bokfør', reject: 'Avbryt'}
-                    ).then(confirmDialogResponse => {
-                        if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                            resolve();
-                        } else {
-                            completeCallback('Lagring avbrutt');
-                        }
-                    });
+                    if (errorMessages.length > 0) {
+                        this.toastService.addToast(
+                            'Kan ikke lagre',
+                            ToastType.bad,
+                            ToastTime.long,
+                            'Lagring avbrutt - se feilmeldinger under, og korriger linjene som er feil før du lagrer på ny'
+                        );
+                        completeCallback('Lagring avbrutt');
+                    } else if (warningMessages.length > 0) {
+                        this.confirmModal.confirm(
+                            'Det finnes advarsler, men du kan bokføre likevel hvis dataene dine er riktige',
+                            'Lagre og bokfør likevel?',
+                            false,
+                            {accept: 'Lagre og bokfør', reject: 'Avbryt'}
+                        ).then(confirmDialogResponse => {
+                            if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                                resolve();
+                            } else {
+                                completeCallback('Lagring avbrutt');
+                            }
+                        });
+                    } else {
+                        resolve();
+                    }
                 } else {
                     resolve();
                 }
-            } else {
-                resolve();
-            }
+            })
+            .then(() => {
+                if (this.journalEntryProfessional) {
 
-        })
-        .then(() => {
-            if (this.journalEntrySimple) {
-                if (this.journalEntrySimple.journalEntryLines.length === 0) {
-                    this.toastService.addToast(
-                        'Du har ikke lagt til noen bilag enda',
-                        ToastType.bad,
-                        ToastTime.medium,
-                        'Trykk Legg til når du har registrert opplysningene dine, og trykk Lagre og bokfør igjen'
-                    );
-                    completeCallback('Lagring avbrutt');
-                } else if (this.journalEntrySimple.checkIfFormsHaveChanges()) {
-                    this.toastService.addToast(
-                        'Du har gjort endringer uten å trykke Legg til / Oppdater',
-                        ToastType.bad,
-                        ToastTime.medium,
-                        'Vennligst fullfør endringene før du trykker Lagre og bokfør igjen'
-                    );
-                    completeCallback('Lagring avbrutt');
-                } else {
-                    this.journalEntrySimple.postJournalEntryData((result: string) => {
+                    this.journalEntryProfessional.postJournalEntryData((result: string) => {
                         completeCallback(result);
+
+                        this.onDataChanged([]);
                         this.clearJournalEntryInfo();
+                        this.dataCleared.emit();
                     });
+
+                    this.onShowImageForJournalEntry(null);
                 }
-            } else if (this.journalEntryProfessional) {
-                this.journalEntryProfessional.postJournalEntryData((result: string) => {
-                    completeCallback(result);
-                    this.clearJournalEntryInfo();
-                });
-                this.onShowImageForJournalEntry(null);
-            }
+            });
         });
     }
 
     private removeJournalEntryData(completeCallback) {
-        this.clearJournalEntryInfo();
+        if (this.journalEntryProfessional) {
+            this.journalEntryProfessional.removeJournalEntryData((msg: string) => {
+                if (msg) {
+                    completeCallback(msg);
+                    this.clearJournalEntryInfo();
+                    this.dataCleared.emit();
 
-        if (this.journalEntrySimple) {
-            this.journalEntrySimple.removeJournalEntryData(completeCallback);
-        } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.removeJournalEntryData(completeCallback);
+                    setTimeout(() => {
+                        this.setupSaveConfig();
+                    });
+                } else {
+                    completeCallback('');
+                }
+            }, this.isDirty);
         }
-
-        this.onShowImageForJournalEntry(null);
     }
 
-    private useSimpleMode() {
-        this.journalEntryMode = 'SIMPLE';
-        this.setupSubscriptions();
-    }
-
-    private useProMode() {
-        this.journalEntryMode = 'PROFFESIONAL';
-        this.setupSubscriptions();
+    private unlockJournalEntry(completeCallback) {
+        this.disabled = false;
+        completeCallback('Låst opp bilag');
     }
 
     private setSums() {

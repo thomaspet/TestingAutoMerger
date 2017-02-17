@@ -1,17 +1,18 @@
 import {Component, ViewChild, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
-import {FieldType, Address} from '../../../unientities';
+import {Address} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
-import {UniForm} from 'uniform-ng2/main';
+import {UniForm, FieldType} from 'uniform-ng2/main';
 import {AddressModal} from '../../common/modals/modals';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 declare const _;
 
 @Component({
     selector: 'tof-delivery-form',
     template: `
         <section class="shippingAddress">
-            <uni-form [fields]="[multivalueField]"
-                      [model]="entity"
-                      [config]="{}"
+            <uni-form [fields]="leftFields$"
+                      [model]="model$"
+                      [config]="formConfig$"
                       (readyEvent)="onLeftFormReady($event)"
                       (changeEvent)="onLeftFormChange($event)">
             </uni-form>
@@ -36,9 +37,9 @@ declare const _;
         </section>
 
         <aside>
-            <uni-form [fields]="fields"
-                      [model]="entity"
-                      [config]="{}"
+            <uni-form [fields]="rightFields$"
+                      [model]="model$"
+                      [config]="formConfig$"
                       (readyEvent)="onRightFormReady($event)"
                       (changeEvent)="onRightFormChange($event)">
             </uni-form>
@@ -64,19 +65,21 @@ export class TofDeliveryForm {
     @Output()
     public entityChange: EventEmitter<any> = new EventEmitter();
 
-    private fields: any[];
+    private leftFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private rightFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private model$: BehaviorSubject<any> = new BehaviorSubject({});
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private multivalueField: any;
     private address$: any;
 
-    constructor(
-        private addressService: AddressService,
-        private businessRelationService: BusinessRelationService,
-        private errorService: ErrorService
-    ) {
+    constructor(private addressService: AddressService,
+                private businessRelationService: BusinessRelationService,
+                private errorService: ErrorService) {
         this.initFormLayout();
     }
 
     public ngOnChanges(changes) {
+        this.model$.next(this.entity);
         if (changes['readonly'] && this.forms) {
             setTimeout(() => {
                 if (this.readonly) {
@@ -102,6 +105,7 @@ export class TofDeliveryForm {
             });
             if (shippingAddress) {
                 this.entity['_shippingAddressID'] = shippingAddress.ID;
+                this.model$.next(this.entity);
             }
         }
     }
@@ -118,15 +122,16 @@ export class TofDeliveryForm {
         }
     }
 
-    public onLeftFormChange(model) {
+    public onLeftFormChange(changes) {
+        const model = this.model$.getValue();
         this.addressService.addressToShipping(model, model['_ShippingAddress']);
-        this.entity = model;
+        this.model$.next(model);
         this.entityChange.emit(model);
     }
 
-    public onRightFormChange(model) {
-        this.entity = model;
-        this.entityChange.emit(this.entity);
+    public onRightFormChange(changes) {
+        const model = this.model$.getValue();
+        this.entityChange.emit(model);
     }
 
     private saveAddressOnCustomer(address: Address, resolve) {
@@ -147,6 +152,7 @@ export class TofDeliveryForm {
         // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.entity.Customer.Info.ID, this.entity.Customer.Info).subscribe((info) => {
             this.entity.Customer.Info = info;
+            this.model$.next(this.entity);
             resolve(info.Addresses[idx]);
         }, err => this.errorService.handle(err));
     }
@@ -212,9 +218,9 @@ export class TofDeliveryForm {
                 return this.addressService.displayAddress(address);
             }
         };
-
+        this.leftFields$.next([this.multivalueField]);
         // Setup right side form
-        this.fields = [
+        this.rightFields$.next([
             {
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
@@ -320,7 +326,7 @@ export class TofDeliveryForm {
                 UpdatedBy: null,
                 CustomFields: null
             },
-        ];
+        ]);
     }
 
 }

@@ -2,9 +2,10 @@ import {Component, ViewChild, OnInit, OnChanges, SimpleChanges, Input, Output, E
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-import {Account, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, Payment, BusinessRelation, BankAccount, VatDeduction} from '../../../../../unientities';
+import {Account, Accrual, AccrualPeriod, VatType, Project, Department, SupplierInvoice, CustomerInvoice, CompanySettings, FinancialYear, LocalDate, Payment, BusinessRelation, BankAccount, VatDeduction} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
+import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
 import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
@@ -30,7 +31,6 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     templateUrl: 'app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html',
 })
 export class JournalEntryProfessional implements OnInit, OnChanges {
-    @Input() public supplierInvoice: SupplierInvoice;
     @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
     @Input() public mode: number = JournalEntryMode.Manual;
@@ -43,11 +43,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public vatDeductions: Array<VatDeduction>;
     @Input() public companySettings: CompanySettings;
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AccrualModal) private accrualModal: AccrualModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private journalEntryTableConfig: UniTableConfig;
     private paymentModalValueChanged: any;
+    private accrualModalValueChanged: any;
+    private accrualModalValueDeleted: any;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -184,13 +187,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setJournalEntryNumberProperties(newRow) {
-
-        if (newRow.JournalEntryID) {
-            // if this is a saved journalentry, dont try to updated JournalEntryNo, this will normally not
-            // be displayed to the user anyway in these cases
-            return;
-        }
-
         let data = this.table.getTableData();
 
         if (newRow.SameOrNewDetails) {
@@ -612,12 +608,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         let columns: Array<UniTableColumn> = [];
 
-        if (this.mode === JournalEntryMode.Supplier) {
-            creditAccountCol.setSkipOnEnterKeyNavigation(true);
-
-            columns = [financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, deductionPercentCol, amountCol, netAmountCol,
-                projectCol, departmentCol, descriptionCol];
-        } else if (this.mode === JournalEntryMode.Payment) {
+        if (this.mode === JournalEntryMode.Payment) {
             debitAccountCol.setSkipOnEnterKeyNavigation(true);
             debitVatTypeCol.setSkipOnEnterKeyNavigation(true);
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
@@ -629,7 +620,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, deductionPercentCol, amountCol,
                  descriptionCol, fileCol];
         } else {
-
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, deductionPercentCol, amountCol, netAmountCol,
                 projectCol, departmentCol, descriptionCol, fileCol];
         }
@@ -648,7 +638,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setColumns(columns)
             .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
-            .setIsRowReadOnly((rowModel) => rowModel.JournalEntryID)
+            .setIsRowReadOnly((rowModel) => rowModel.StatusCode)
             .setContextMenu([
                 {
                     action: (item) => this.deleteLine(item),
@@ -656,8 +646,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     label: 'Slett linje'
                 },
                 {
-                    action: (item) => this.addPayment(item),
+                    action: (item: JournalEntryData) => this.openAccrual(item),
                     disabled: (item) => { return (this.disabled); },
+                    label: 'Periodisering'
+                },
+                {
+                    action: (item) => this.addPayment(item),
+                    disabled: (item) => { return item.StatusCode ? true : false; },
                     label: 'Registrer utbetaling'
                 }
             ])
@@ -666,6 +661,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
+
+                if (this.journalEntryID && !newRow.JournalEntryID) {
+                    newRow.JournalEntryID = this.journalEntryID;
+                }
 
                 if (event.field === 'SameOrNewDetails' || !newRow.JournalEntryNo) {
                     let originalJournalEntryNo = newRow.JournalEntryNo;
@@ -725,6 +724,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.setProjectProperties(newRow);
                 } else if (event.field === 'CustomerInvoice') {
                     this.setCustomerInvoiceProperties(newRow);
+                }
+
+                if (newRow.JournalEntryDataAccrual && newRow.JournalEntryDataAccrual.AccrualAmount !== newRow.NetAmount) {
+                    newRow.JournalEntryDataAccrual.AccrualAmount = newRow.NetAmount;
                 }
 
                 // Return the updated row to the table
@@ -788,6 +791,74 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
     }
 
+    private openAccrual(item: JournalEntryData) {
+
+        let title: string = 'Periodisering av bilag ' + item.JournalEntryNo;
+        if (item.Description) title = title + ' - ' + item.Description;
+
+        let isDebitResultAccount = (item.DebitAccount && item.DebitAccount.TopLevelAccountGroup
+            && item.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
+        let isCreditResultAccount = (item.CreditAccount && item.CreditAccount.TopLevelAccountGroup
+            && item.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
+
+        if (!item.JournalEntryDataAccrual
+            && ((isDebitResultAccount && isCreditResultAccount) ||
+                (!isDebitResultAccount && !isCreditResultAccount))) {
+
+            if (isDebitResultAccount) {
+                this.toastService.addToast('Periodisering',
+                    ToastType.bad, 5, 'Bilaget har 2 resultatkontoer');
+            } else {
+                this.toastService.addToast('Periodisering',
+                    ToastType.bad, 5, 'Bilaget har ingen resultatkontoer' );
+            }
+        } else {
+
+            if (item.JournalEntryDataAccrual) {
+                this.accrualModal.openModal(null, null, null, item.JournalEntryDataAccrual, title);
+            } else if (item.Amount && item.Amount !== 0 && item.FinancialDate) {
+                this.accrualModal.openModal(item['NetAmount'],
+                    new LocalDate(item.FinancialDate.toString()), null, null, title);
+            } else {
+                this.toastService.addToast('Periodisering', ToastType.warn, 5,
+                    'Mangler nødvendig informasjon om dato og beløp for å kunne periodisere.');
+            }
+
+            if (this.accrualModalValueChanged) {
+                this.accrualModalValueChanged.unsubscribe();
+            }
+
+            if (this.accrualModalValueDeleted) {
+                this.accrualModalValueDeleted.unsubscribe();
+            }
+
+            this.accrualModalValueChanged = this.accrualModal.Changed.subscribe(modalval => {
+                item.JournalEntryDataAccrual = modalval;
+                // if the item is already booked, just add the payment through the API now
+                /* if (item.StatusCode) {
+                    this.journalEntryService.LEGGTILBETALING()
+                    DETTE GJØRES MÅ GJØRES I NESTE SPRINT, TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
+                    https://github.com/unimicro/AppFrontend/issues/2432
+                }
+                */
+                this.table.updateRow(item['_originalIndex'], item);
+                setTimeout(() => {
+                    var tableData = this.table.getTableData();
+                    this.dataChanged.emit(tableData);
+                });
+            });
+
+            this.accrualModalValueDeleted = this.accrualModal.Deleted.subscribe(modalval => {
+                item.JournalEntryDataAccrual = null;
+                this.table.updateRow(item['_originalIndex'], item);
+                setTimeout(() => {
+                    var tableData = this.table.getTableData();
+                    this.dataChanged.emit(tableData);
+                });
+            });
+        }
+    }
+
     private addPayment(item: JournalEntryData) {
         let title: string = 'Legg til betaling';
         let payment: Payment = null;
@@ -819,7 +890,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 payment.BusinessRelation = this.getBusinessRelationDataFromStatisticsSearch(br);
                                 resolve();
                             }
-
                         },
                         err => this.errorService.handle(err)
                     );
@@ -1005,29 +1075,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         );
     }
 
-    public removeJournalEntryData(completeCallback) {
-        if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
-            this.journalEntryLines = new Array<JournalEntryData>();
-            this.dataChanged.emit(this.journalEntryLines);
-
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                .subscribe(data => {
-                    this.firstAvailableJournalEntryNumber = data;
-                    this.setupSameNewAlternatives();
-
-                    if (this.table) {
-                        this.table.focusRow(0);
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
-
-            completeCallback('Listen er tømt');
+    public removeJournalEntryData(completeCallback, isDirty) {
+        if (isDirty) {
+            this.confirmModal.confirm(
+                'Er du sikker på at du vil forkaste alle endringene dine?',
+                'Forkaste endringer?',
+                false,
+                {accept: 'Forkast endringer', reject: 'Avbryt'})
+            .then((response: ConfirmActions) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.clearListInternal(completeCallback);
+                } else {
+                    completeCallback(null);
+                }
+            });
         } else {
-            completeCallback('');
+            this.clearListInternal(completeCallback);
         }
+    }
+
+    private clearListInternal(completeCallback: (msg: string) => void) {
+        this.journalEntryLines = new Array<JournalEntryData>();
+        this.dataChanged.emit(this.journalEntryLines);
+
+        let journalentrytoday: JournalEntryData = new JournalEntryData();
+        journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+        this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+            .subscribe(data => {
+                this.firstAvailableJournalEntryNumber = data;
+                this.setupSameNewAlternatives();
+
+                if (this.table) {
+                    this.table.focusRow(0);
+                }
+            },
+            err => this.errorService.handle(err)
+        );
+
+        completeCallback('Listen er tømt');
     }
 
     public addJournalEntryLine(data) {

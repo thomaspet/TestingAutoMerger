@@ -22,6 +22,7 @@ export class UniModal implements AfterViewInit {
     @Output('close') public closeEvent: EventEmitter<any> = new EventEmitter();
     @Input('config') public config: any;
     @Input('type') public componentType: Type<any>;
+    @Input('destroyOnClose') public destroyOnClose: boolean;
     @ViewChild('modalContainer', {read: ViewContainerRef}) public container: ViewContainerRef;
 
     private isOpen: boolean = false;
@@ -47,6 +48,8 @@ export class UniModal implements AfterViewInit {
         this.factory = this.creator.compileComponent<any>(this.componentType);
     }
 
+
+
     public createContent() {
         let self = this;
         let config = self.config || {};
@@ -64,12 +67,8 @@ export class UniModal implements AfterViewInit {
     }
 
     public open() {
-        if (!this.componentIsResolved) {
-            this.createContent();
-        }
-
+        this.createContent();
         this.isOpen = true;
-
         setTimeout(() => {
             const el = this.elementRef.nativeElement.querySelector('input,textarea,select');
             if (el) {
@@ -81,6 +80,8 @@ export class UniModal implements AfterViewInit {
     public close() {
         this.isOpen = false;
         this.closeEvent.emit();
+        this.container.clear();
+        this.componentIsResolved = false;
     }
 
     public getContent() {

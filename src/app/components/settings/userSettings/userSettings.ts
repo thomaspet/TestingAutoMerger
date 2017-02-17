@@ -1,8 +1,9 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {UserService, ErrorService} from '../../../services/services';
-import {UniForm} from 'uniform-ng2/main';
-import {FieldType, User} from '../../../unientities';
+import {UniForm, FieldType} from 'uniform-ng2/main';
+import {User} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'user-settings',
@@ -11,10 +12,9 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 
 export class UserSettings {
     @ViewChild(UniForm) public form: UniForm;
-    private user: User;
-
-    public config: any = {};
-    public fields: any[] = [];
+    public user$: BehaviorSubject<User> = new BehaviorSubject(null);
+    public config$: BehaviorSubject<any>= new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private saveactions: IUniSaveAction[] = [
         {
@@ -34,12 +34,12 @@ export class UserSettings {
 
     private getDataAndSetupForm() {
         this.getFormLayout();
-        this.userService.getCurrentUser().subscribe(user => this.user = user, err => this.errorService.handle(err));
+        this.userService.getCurrentUser().subscribe(user => this.user$.next(user), err => this.errorService.handle(err));
     }
 
     public saveSettings(complete) {
         this.userService
-            .Put(this.user.ID, this.user)
+            .Put(this.user$.getValue().ID, this.user$.getValue())
             .subscribe(
                 (response) => {
                     complete('Innstillinger lagret');
@@ -52,8 +52,8 @@ export class UserSettings {
     }
 
     private getFormLayout() {
-        this.config = {};
-        this.fields = [
+        this.config$.next({});
+        this.fields$.next([
             {
                 ComponentLayoutID: 1,
                 EntityType: 'User',
@@ -120,6 +120,6 @@ export class UserSettings {
                 hasLineBreak: false,
                 Validations: []
             }
-        ]
+        ]);
     }
 }

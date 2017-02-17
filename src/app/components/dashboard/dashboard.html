@@ -14,7 +14,7 @@
 
     </header>
     <header class="dashboard_company" *ngIf="welcomeHidden">
-        <section *ngIf="current">
+        <section *ngIf="current && current.LogoFileID">
             <uni-image
                     [entity]="'companysettings'"
                     [entityID]="1"

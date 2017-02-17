@@ -30,6 +30,7 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
 import {GrantsModal, GrantsModalContent} from './agaAndSubEntitySettings/modals/grantsModal';
 import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings/modals/freeamountModal';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
+import {CommonServicesModule} from '../../services/commonServicesModule';
 
 @NgModule({
     imports: [
@@ -47,6 +48,7 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
 
         // Framework
         UniFrameworkModule,
+        CommonServicesModule,
 
         // App Modules
         LayoutModule,

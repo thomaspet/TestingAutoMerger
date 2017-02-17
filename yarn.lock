@@ -3752,13 +3752,13 @@ lodash@^3.1.0, lodash@^3.10.1, lodash@^3.8.0:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
-lodash@^4.0.0, lodash@^4.11.1, lodash@^4.14.0, lodash@^4.17.2, lodash@^4.2.0:
-  version "4.17.2"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
-
-lodash@^4.5.1:
+lodash@^4.0.0, lodash@^4.11.1, lodash@^4.14.0, lodash@^4.2.0, lodash@^4.5.1:
   version "4.16.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.16.4.tgz#01ce306b9bad1319f2a5528674f88297aeb70127"
+
+lodash@^4.17.2:
+  version "4.17.2"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
 
 lodash@~1.0.1:
   version "1.0.2"
@@ -5947,9 +5947,9 @@ underscore@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.7.0.tgz#6bbaf0877500d36be34ecaa584e0db9fef035209"
 
-uniform-ng2@0.0.23:
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.23.tgz#b588795dafb549746cea9219f6f1d78c499c0042"
+uniform-ng2@0.0.42:
+  version "0.0.42"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.42.tgz#91631588f97168cab200cee734b20da9d59ae896"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
@@ -5965,6 +5965,7 @@ uniform-ng2@0.0.23:
     rxjs "5.0.0-beta.12"
     systemjs "0.19.31"
     typings "^0.7.12"
+    unisearch-ng2 "0.0.11"
     zone.js "^0.6.21"
 
 unique-stream@^1.0.0:
@@ -5978,9 +5979,9 @@ unique-stream@^2.0.2:
     json-stable-stringify "^1.0.0"
     through2-filter "^2.0.0"
 
-unisearch-ng2@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.5.tgz#7868d9cfe4c877aec370407dd2613dd864ae323d"
+unisearch-ng2@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.11.tgz#2df85d454207de6aae23e04dced9e8a23ca8c8d3"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"
@@ -5996,9 +5997,9 @@ unisearch-ng2@0.0.5:
     typings "^0.7.12"
     zone.js "^0.6.21"
 
-unitable-ng2@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.1.tgz#33b0bf621841295b04bc6ab3e67a1af800c9115d"
+unitable-ng2@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.2.tgz#fc0b9e7d5850d42e5021b1f36c6a7f45ab178d04"
   dependencies:
     "@angular/common" "2.1.0"
     "@angular/compiler" "2.1.0"

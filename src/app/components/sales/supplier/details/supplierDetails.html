@@ -2,13 +2,13 @@
              [saveactions]="saveactions">
 </uni-toolbar>
 
-<header class="supplier_poster" *ngIf="supplier">
+<header class="supplier_poster" *ngIf="(supplier$|async)">
     <!-- Widget poster -->
     <section class="poster_overview">
-        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="supplier && supplier.ID == 0"></external-search>
+        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="(supplier$|async)?.ID == 0"></external-search>
     </section>
 
-    <div class="horizontal_nav" *ngIf="supplier?.ID">
+    <div class="horizontal_nav" *ngIf="(supplier$|async)?.ID">
         <ul>
             <li>
                 <a [class]="activeTab === 'details' ? 'router-link-active' : ''"
@@ -32,19 +32,19 @@
     </div>
 </header>
 
-<section class="supplier-details application" *ngIf='supplier'>
+<section class="supplier-details application" *ngIf='(supplier$|async)'>
     <uni-form *ngIf="activeTab === 'details'"
-              [config]="config"
-              [fields]="fields"
-              [model]="supplier">
+              [config]="config$"
+              [fields]="fields$"
+              [model]="supplier$">
     </uni-form>
-    <ledger-account-reconciliation [supplierID]="supplier.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
+    <ledger-account-reconciliation [supplierID]="(supplier$|async)?.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"
             [ngClass]="{'hidden': showReportWithID != link.id}"
             [queryDefinitionID]="link.id"
-            [externalID]="supplier.ID">
+            [externalID]="(supplier$|async)?.ID">
     </uni-query-read-only>
 
 </section>

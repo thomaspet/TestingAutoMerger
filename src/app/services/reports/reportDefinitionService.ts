@@ -1,17 +1,17 @@
-import {Http, RequestMethod} from '@angular/http';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import { Http, RequestMethod } from '@angular/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
-import {AppConfig} from '../../appConfig';
-import {UniHttp} from '../../../framework/core/http/http';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
-import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
-import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {ReportDefinitionDataSourceService, EmailService} from '../services';
-import {SendEmail} from '../../models/sendEmail';
-import {AuthService} from '../../../framework/core/authService';
-import {ErrorService} from '../common/ErrorService';
+import { AppConfig } from '../../appConfig';
+import { UniHttp } from '../../../framework/core/http/http';
+import { BizHttp } from '../../../framework/core/http/BizHttp';
+import { StimulsoftReportWrapper } from '../../../framework/wrappers/reporting/reportWrapper';
+import { ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource } from '../../unientities';
+import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
+import { ReportDefinitionDataSourceService, EmailService } from '../services';
+import { SendEmail } from '../../models/sendEmail';
+import { AuthService } from '../../../framework/core/authService';
+import { ErrorService } from '../common/ErrorService';
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
@@ -55,7 +55,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
     public getReportByName(name: string): Observable<any> {
         return this.GetAll(`filter=Name eq '${name}'`).map((reports) => {
-           return reports[0];
+            return reports[0];
         });
     }
 
@@ -77,14 +77,25 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.generateReport();
     }
 
-    public generateReportSendEmail(name: string, sendemail: SendEmail) {
+    public generateReportPdfFile(report: ReportDefinition): Observable<string> {
+        this.report = <Report>report;
+        return this.generateReportObservable()
+            .switchMap(templates => this.getDataSourcesObservable())
+            .switchMap(dataSources => this.getDataFromSourcesObservable())
+            .map((response: { data: any, dataSources: any }) =>
+                this.reportGenerator
+                    .printReport(this.report.templateJson, response.dataSources, this.report.parameters, false, 'pdf'));
+    }
+
+    public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null) {
         if (sendemail.EmailAddress.indexOf('@') <= 0) {
             this.toastService.addToast('Sending av epost feilet', ToastType.bad, 3, 'Grunnet manglende epostadresse');
         } else {
             this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
 
             this.getReportByName(name).subscribe((report) => {
-                report.parameters = [{Name: 'Id', value: sendemail.EntityID}];
+                report.parameters = [{ Name: 'Id', value: sendemail.EntityID }];
+                if (parameters) { report.parameters = report.parameters.concat(parameters); }
 
                 this.format = sendemail.Format;
                 this.report = <Report>report;
@@ -96,32 +107,42 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     }
 
     private generateReport() {
+        this.generateReportObservable()
+            .subscribe(template => {
+                this.getDataSources();
+            });
+    }
+
+    private generateReportObservable() {
         // Add logo url to report
         this.addLogoUrl();
 
         // get template
-        this.baseHttp.get('/assets/ReportTemplates/' + this.report.TemplateLinkId)
+        return this.baseHttp.get('/assets/ReportTemplates/' + this.report.TemplateLinkId)
             .map(res => res.text())
-            .subscribe(template => {
+            .map(template => {
                 this.report.templateJson = template;
-                this.onTemplateLoaded();
-            },
-                err => this.errorService.handle(err)
-            );
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private onTemplateLoaded() {
+    private getDataSources() {
         // get data source URLs
-        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>(`filter=ReportDefinitionId eq ${this.report.ID}`)
-              .subscribe(dataSources => {
-                  this.report.dataSources = dataSources;
-                  this.onDataSourcesLoaded();
-              },
-                  err => this.errorService.handle(err)
-              );
+        this.getDataSourcesObservable().subscribe(dataSources => {
+            this.getDataFromSources();
+        });
     }
 
-    private onDataSourcesLoaded() {
+    private getDataSourcesObservable(): Observable<ReportDataSource[]> {
+        // get data source URLs
+        return this.reportDefinitionDataSourceService.GetAll<ReportDataSource>(`filter=ReportDefinitionId eq ${this.report.ID}`)
+            .map(dataSources => {
+                this.report.dataSources = dataSources;
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
+    private getDataFromSources() {
         // resolve placeholders first
         this.resolvePlaceholders();
 
@@ -133,26 +154,55 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
 
             observableBatch.push(
                 this.http
-                .asGET()
-                .usingEmptyDomain()
-                .withEndPoint(url)
-                .send()
-                .map(response => response.json())
+                    .asGET()
+                    .usingEmptyDomain()
+                    .withEndPoint(url)
+                    .send()
+                    .map(response => response.json())
             );
         }
 
-        Observable.forkJoin(observableBatch)
-            .subscribe(data => this.onDataFetched(data), err => this.errorService.handle(err));
+        this.getDataFromSourcesObservable()
+            .subscribe((response: { data: any, dataSources: any }) => this.onDataFetched(response.data, response.dataSources));
     }
 
-    private onDataFetched(data: any) {
-        let dataSources = {};
+    private getDataFromSourcesObservable() {
+        // resolve placeholders first
+        this.resolvePlaceholders();
 
+        // create http requests
+        let observableBatch = [];
+
+        for (const ds of this.report.dataSources) {
+            let url: string = ds.DataSourceUrl;
+
+            observableBatch.push(
+                this.http
+                    .asGET()
+                    .usingEmptyDomain()
+                    .withEndPoint(url)
+                    .send()
+                    .map(response => response.json())
+            );
+        }
+
+        return Observable.forkJoin(observableBatch)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .map(data => {
+                return { data: data, dataSources: this.prepareDataSources(data) };
+            }, err => this.errorService.handle(err));
+    }
+
+    private prepareDataSources(data: any): any {
+        let dataSources = {};
         for (let i = 0; i < data.length; i++) {
             let name = this.report.dataSources[i].Name;
             dataSources[name] = data[i];
         }
+        return dataSources;
+    }
 
+    private onDataFetched(data: any, dataSources: any) {
         // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
         // console.log('DATA: ', JSON.stringify(dataSources));
 

@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -25,6 +25,7 @@ import {TofHead} from '../../common/tofHead';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
+import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {
     CustomerInvoiceService,
     CustomerInvoiceItemService,
@@ -34,7 +35,8 @@ import {
     CustomerService,
     NumberFormat,
     ErrorService,
-    EHFService
+    EHFService,
+    CustomerInvoiceReminderService
 } from '../../../../services/services';
 import moment from 'moment';
 
@@ -65,6 +67,9 @@ export class InvoiceDetails {
 
     @ViewChild(ActivateAPModal)
     public activateAPModal: ActivateAPModal;
+
+    @ViewChild(ReminderSendingModal)
+    public reminderSendingModal: ReminderSendingModal;
 
     @Input()
     public invoiceID: any;
@@ -104,7 +109,8 @@ export class InvoiceDetails {
         private tradeItemHelper: TradeItemHelper,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private ehfService: EHFService
+        private ehfService: EHFService,
+        private customerInvoiceReminderService: CustomerInvoiceReminderService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -128,17 +134,6 @@ export class InvoiceDetails {
             }
         });
 
-        this.companySettingsService.Get(1)
-            .subscribe(
-                settings => {
-                    this.companySettings = settings;
-                    this.setupContextMenuItems();
-                },
-                err => this.errorService.handle(err)
-        );
-
-
-
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
             this.invoiceID = +params['id'];
@@ -148,7 +143,8 @@ export class InvoiceDetails {
                 Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
+                    this.companySettingsService.Get(1)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
@@ -157,10 +153,20 @@ export class InvoiceDetails {
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
+                    this.companySettings = res[3];
+
+                    this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             } else {
-                this.customerInvoiceService.Get(this.invoiceID, this.expandOptions).subscribe((invoice) => {
+                Observable.forkJoin(
+                    this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
+                    this.companySettingsService.Get(1)
+                ).subscribe((res) => {
+                    let invoice = res[0];
+                    this.companySettings = res[1];
+
+                    this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             }
@@ -173,53 +179,73 @@ export class InvoiceDetails {
         this.contextMenuItems = [
             {
                 label: this.companySettings.APActivated && this.companySettings.APGuid ? 'Send EHF' : 'Aktiver og send EHF',
-                action: () => {
-                    if (this.companySettings.APActivated && this.companySettings.APGuid) {
-                        this.sendEHF();
-                    } else {
-                        this.activateAPModal.openModal();
-
-                        if (this.activateAPModal.Changed.observers.length === 0) {
-                            this.activateAPModal.Changed.subscribe((activate) => {
-                                this.ehfService.Activate(activate).subscribe((ok) => {
-                                    if (ok) {
-                                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                                        this.sendEHF();
-                                    } else {
-                                        this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
-                                    }
-                                },
-                                (err) => {
-                                    this.errorService.handle(err);
-                                });
-                            });
-                        }
-                    }
-                },
+                action: () => this.sendEHFAction(),
                 disabled: () => {
                     return this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced;
                 }
             },
             {
                 label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerInvoice';
-                    sendemail.EntityID = this.invoice.ID;
-                    sendemail.CustomerID = this.invoice.CustomerID;
-                    sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-                    this.sendEmailModal.openModal(sendemail);
-
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
-                        });
-                    }
-                },
+                action: () => this.sendEmailAction(),
                 disabled: () => !this.invoice.ID
+            },
+            {
+                label: 'Send purring',
+                action: () => this.sendReminderAction(),
+                disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
             }
         ];
+    }
+
+    private sendEHFAction() {
+        if (this.companySettings.APActivated && this.companySettings.APGuid) {
+            this.sendEHF();
+        } else {
+            this.activateAPModal.openModal();
+
+            if (this.activateAPModal.Changed.observers.length === 0) {
+                this.activateAPModal.Changed.subscribe((activate) => {
+                    this.ehfService.Activate(activate).subscribe((ok) => {
+                        if (ok) {
+                            this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                            this.sendEHF();
+                        } else {
+                            this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                        }
+                    },
+                    (err) => {
+                        this.errorService.handle(err);
+                    });
+                });
+            }
+        }
+    }
+
+    private sendEmailAction() {
+        let sendemail = new SendEmail();
+        sendemail.EntityType = 'CustomerInvoice';
+        sendemail.EntityID = this.invoice.ID;
+        sendemail.CustomerID = this.invoice.CustomerID;
+        sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+        sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
+        this.sendEmailModal.openModal(sendemail);
+
+        if (this.sendEmailModal.Changed.observers.length === 0) {
+            this.sendEmailModal.Changed.subscribe((email) => {
+                this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+            });
+        }
+    }
+
+    private sendReminderAction() {
+        this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID])
+            .subscribe((reminders) => {
+                this.reminderSendingModal.confirm(reminders).then((action) => {
+                    if (action !== ConfirmActions.CANCEL) {
+                        this.updateToolbar();
+                    }
+                });
+            }, (err) => this.errorService.handle(err));
     }
 
     @HostListener('keydown', ['$event'])
@@ -317,21 +343,22 @@ export class InvoiceDetails {
             statuses.splice(spliceIndex, 1);
         }
 
-        statuses.forEach((s, i) => {
+        statuses.forEach((status) => {
             let _state: UniStatusTrack.States;
 
-            if (s.Code > activeStatus) {
+            if (status.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
-            } else if (s.Code < activeStatus) {
+            } else if (status.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
-            } else if (s.Code === activeStatus) {
+            } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack[i] = {
-                title: s.Text,
-                state: _state
-            };
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
         });
 
         return statustrack;
@@ -387,12 +414,15 @@ export class InvoiceDetails {
         let netSumText = 'Netto kr ';
         netSumText += this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat : this.invoice.TaxInclusiveAmount;
 
+        let reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
+
         let toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
-                {title: customerText},
+                {title: customerText, link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : ''},
                 {title: netSumText},
-                {title: GetPrintStatusText(this.invoice.PrintStatus)}
+                {title: GetPrintStatusText(this.invoice.PrintStatus)},
+                {title: reminderStopText}
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -400,7 +430,9 @@ export class InvoiceDetails {
                 next: this.nextInvoice.bind(this),
                 add: () => this.router.navigateByUrl('/sales/invoices/0')
             },
-            contextmenu: this.contextMenuItems
+            contextmenu: this.contextMenuItems,
+            entityID: this.invoiceID,
+            entityType: 'CustomerInvoice'
         };
 
         if (this.invoice.InvoiceType === InvoiceTypes.CreditNote && this.invoice.InvoiceReference) {
@@ -462,6 +494,12 @@ export class InvoiceDetails {
             action: (done) => this.payInvoice(done),
             disabled: !transitions || !transitions['pay'],
             main: id > 0 && transitions['pay']
+        });
+
+        this.saveActions.push({
+            label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
+            action: (done) => this.reminderStop(done),
+            disabled: this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
         });
 
         this.saveActions.push({
@@ -558,6 +596,22 @@ export class InvoiceDetails {
             },
             (err) => {
                 done('Noe gikk galt under fakturering');
+                this.errorService.handle(err);
+            }
+        );
+    }
+
+    private reminderStop(done) {
+        this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
+
+        this.saveInvoice().subscribe(
+            (invoice) => {
+                this.isDirty = false;
+                this.updateToolbar();
+                this.updateSaveActions();
+                done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet')
+            }, (err) => {
+                done('Lagring feilet');
                 this.errorService.handle(err);
             }
         );

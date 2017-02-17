@@ -1,0 +1,105 @@
+uni-tags
+    order: 1
+
+    .tags_toggle
+        @extend small
+        background-color: transparent
+        background-image: unicon-tags($uni-color-negative)
+        background-repeat: no-repeat
+        background-position: left .5rem center
+        background-size: .8rem auto
+        box-shadow: none
+        border: none
+        padding: 0 .5rem 0 1.5rem
+
+        &:hover
+            background-color: mix($uni-color-positive, $uni-color-toolbar, 20%)
+
+    .tags_list
+        margin: 0
+
+
+    .tags_control
+        @extend %contextMenu
+        padding: 1rem
+        width: 20rem
+        margin-left: .5rem
+
+        &:before
+            content: ''
+            border: solid transparent
+            height: 0
+            width: 0
+            position: absolute
+            display: block
+            border-color: transparent
+            border-bottom-color: #fff
+            border-width: .5rem
+            top: -.9rem
+            left: .8rem
+
+        small
+            display: block
+            color: $uni-color-scale4
+            font-size: 1rem
+            margin: 0 0 1rem
+
+        li:hover
+            background: $uni-color-scale4
+
+    .tags_tag.tags_tag // Double class specificity hack. 💩
+        display: inline-flex
+        background: $uni-color-scale4
+        border-radius: pxToRem(3)
+        font-size: 1rem
+        padding: 0
+        width: auto
+        border-bottom: none
+        flex-direction: row-reverse
+        align-items: center
+        height: 1.5rem
+        margin: 0 1rem 0 0
+        padding: 0 .5rem 0 0
+        cursor: initial
+
+        .tags_tag_removeBtn
+            @extend %hideText
+            width: .8rem
+            height: .8rem
+            min-height: 0
+            margin: 0 .2rem
+            padding: 0
+            box-shadow: none
+            border-radius: 5rem
+            background-color: transparent
+            background-image: unicon-middot($uni-color-negative)
+            background-position: center center
+            background-repeat: no-repeat
+            background-size: .2rem auto
+            cursor: pointer
+
+    .tags_list:not([aria-readonly=true]) .tags_tag.tags_tag:hover,
+    .tags_list:not([aria-readonly=true]) .tags_tag.tags_tag:focus
+        background: $uni-color-scale4
+
+        .tags_tag_removeBtn
+            background-image: unicon-close($uni-color-negative)
+            background-size: .45rem auto
+            cursor: pointer
+
+    .tags_lookup
+        display: block
+        color: $uni-color-positive
+        font-size: 1rem
+        font-weight: normal
+        width: 100%
+        border-top: pxToRem(1) solid $uni-color-scale9
+        margin-top: 1rem
+        padding-top: .5rem
+
+        input
+            width: calc(100% - 7rem)
+
+        button
+            margin: 0
+            float: right

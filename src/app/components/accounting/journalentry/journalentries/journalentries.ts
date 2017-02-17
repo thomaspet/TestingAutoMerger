@@ -25,15 +25,36 @@ export class JournalEntries {
 
     private currentJournalEntryNumber: string;
     private currentJournalEntryID: number;
+    public editmode: boolean = false;
 
     constructor(private route: ActivatedRoute, private tabService: TabService, private router: Router, private journalEntryService: JournalEntryService) {
         this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual', moduleID: UniModules.Accounting, active: true });
 
         this.route.params.subscribe(params => {
             if (params['journalEntryNumber'] && params['journalEntryID']) {
+                this.tabService.addTab({
+                    name: 'Bilagsregistrering',
+                    url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};journalEntryID=${params['journalEntryID']}`,
+                    moduleID: UniModules.Accounting,
+                    active: true
+                });
+
+                this.editmode = false;
+                if (params['editmode']) {
+                    this.editmode = params['editmode'];
+                }
+
                 this.currentJournalEntryNumber = params['journalEntryNumber'];
                 this.currentJournalEntryID = params['journalEntryID'];
             } else {
+                this.tabService.addTab({
+                    name: 'Bilagsregistrering',
+                    url: '/accounting/journalentry/manual',
+                    moduleID: UniModules.Accounting,
+                    active: true
+                });
+
+                this.editmode = false;
                 this.currentJournalEntryNumber = null;
                 this.currentJournalEntryID = 0;
             }
@@ -130,19 +151,33 @@ export class JournalEntries {
     }
 
     private add() {
-
         if (this.journalEntryManual.isDirty) {
             this.confirmModal.confirm(
                     'Du har endringer som ikke er lagret, disse vil forkastes hvis du fortsetter - vil du fortsette?',
                     'Fortsette uten å lagre?')
                 .then(confirmDialogResponse => {
                     if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                        this.journalEntryManual.clearJournalEntryInfo();
+                        this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
                         this.journalEntryManual.setJournalEntryData([]);
+                        this.journalEntryManual.clearJournalEntryInfo();
+
                         this.router.navigateByUrl(`/accounting/journalentry/manual`);
                     }
                 });
         } else {
+            this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
+            this.journalEntryManual.setJournalEntryData([]);
+            this.journalEntryManual.clearJournalEntryInfo();
+
+            this.router.navigateByUrl(`/accounting/journalentry/manual`);
+        }
+    }
+
+    private onDataCleared() {
+
+        this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
+
+        if (this.currentJournalEntryID || this.currentJournalEntryNumber) {
             this.router.navigateByUrl(`/accounting/journalentry/manual`);
         }
     }

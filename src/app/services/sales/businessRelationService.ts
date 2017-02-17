@@ -7,15 +7,15 @@ import {RequestMethod} from '@angular/http';
 
 @Injectable()
 export class BusinessRelationService extends BizHttp<BusinessRelation> {
-    
-    constructor(http: UniHttp) {        
-        super(http);       
+
+    constructor(http: UniHttp) {
+        super(http);
         this.relativeURL = BusinessRelation.RelativeUrl;
         this.entityType = BusinessRelation.EntityType;
         this.DefaultOrderBy = null;
-    }       
-    
-    search(searchText: string): Observable<any> {
+    }
+
+    public search(searchText: string): Observable<any> {
         return this.Action(null, 'search-data-hotel', 'searchText=' + searchText, RequestMethod.Get);
     }
 }

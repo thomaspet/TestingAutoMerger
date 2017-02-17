@@ -3,7 +3,7 @@
 		<h1>Tilleggsopplysninger</h1>
 	</header>
 	<section>
-		<uni-form [config]="config" [fields]="fields" [model]="salaryTransaction"></uni-form>
+		<uni-form [config]="_config$" [fields]="fields$" [model]="salaryTransaction$"></uni-form>
 	</section>
 	<footer *ngIf="config">
 		<button class="good" (click)="readOnly ? config.cancel() : config.submit(salaryTransaction)">OK</button>

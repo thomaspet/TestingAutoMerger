@@ -1,0 +1,8 @@
+<section *ngIf="customerInvoice">
+    <uni-table [resource]="reminderList"
+            [config]="reminderTable">
+    </uni-table>
+    <aside>
+        <b>Restsum: {{numberFormat.asMoney(customerInvoice.RestAmount + sumFee)}}</b>
+    </aside>
+</section>

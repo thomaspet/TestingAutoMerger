@@ -36,25 +36,38 @@
 
 
 .entityDetails_toggle
-    height: 2.5rem
+    height: 1.7rem
+    margin-bottom: .8rem
     cursor: pointer
     -webkit-user-select: none
-    background-image: unicon-chevron-down($uni-color-negative)
-    background-position: left .6rem top .6rem
+    background-image: unicon-chevron-right($uni-color-negative)
+    background-position: left .9rem top .5rem
     background-repeat: no-repeat
-    background-size: .8rem auto
+    background-size: auto .6rem
     padding: 0 1rem 0 1.8rem
+    background-color: mix($uni-color-positive, $uni-color-toolbar, 15%)
+    border-radius: pxToRem(3)
+    border: pxToRem(1) solid mix($uni-color-toolbar, $uni-color-negative, 80%)
+    order: 2
+
+    &:hover
+        background-color: mix($uni-color-positive, $uni-color-toolbar, 35%)
 
     &.-is-active
+        height: 2.5rem
+        margin-bottom: 0
         background-color: $uni-color-negative
         background-image: unicon-chevron-down($uni-color-c2a)
+        background-position: left .6rem top .6rem
+        background-size: .8rem auto
         color: $uni-color-c2a
         border-radius: pxToRem(2) pxToRem(2) 0 0
+        border-color: transparent
 
 .entityDetails
     background-color: $uni-color-negative
     position: absolute
-    z-index: map-get($zindex, 'toolbar')
+    z-index: #{map-get($zindex, 'toolbar') - 1}
     left: 0
     right: 0
     top: 8rem
@@ -90,6 +103,6 @@
             right: 0
             top: -100vh
             bottom: -100vh
-            z-index: map-get($zindex, 'toolbar')
+            z-index: #{map-get($zindex, 'toolbar') - 1}
             background: transparentize($uni-color-scale9, .25)
             animation: 300ms ease fadein

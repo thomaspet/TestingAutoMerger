@@ -1,11 +1,13 @@
 import {Component, Type, ViewChild, Input, EventEmitter, ElementRef, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniFieldLayout} from 'uniform-ng2/main';
-import {FieldType, AltinnAuthRequest} from '../../../unientities';
+import {AltinnAuthRequest} from '../../../unientities';
+import {FieldType} from 'uniform-ng2/main';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {KeyCodes} from '../../../services/common/KeyCodes';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,
@@ -19,29 +21,29 @@ enum LoginState {
         <article class="modal-content" [attr.aria-busy]="busy">
             <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
             <p [innerHTML]="userMessage"></p>
-            <div *ngIf="formState == LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
                 <uni-form
-                    [config]="{}"
-                    [fields]="usernameAndPasswordFormFields"
-                    [model]="userLoginData"
+                    [config]="emptyConfig$"
+                    [fields]="usernameAndPasswordFormFields$"
+                    [model]="userLoginData$"
                 ></uni-form>
                 <footer>
                     <button (click)="submitUsernameAndPasswordAndPinType()">OK</button>
                     <button *ngIf="config" (click)="config.close()">Avbryt</button>
                 </footer>
             </div>
-            <div *ngIf="formState == LOGIN_STATE_ENUM.Pin">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.Pin">
                 <uni-form
-                    [config]="{}"
-                    [fields]="pinFormFields"
-                    [model]="userLoginData"
+                    [config]="emptyConfig$"
+                    [fields]="pinFormFields$"
+                    [model]="userLoginData$"
                 ></uni-form>
                 <footer>
                     <button *ngIf="config" (click)="config.close()">Avbryt</button>
                     <button (click)="submitPin()" class="good">OK</button>
                 </footer>
             </div>
-            <div *ngIf="formState == LOGIN_STATE_ENUM.LoggedIn">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn">
                 <footer>
                     <button *ngIf="config" (click)="config.close()">OK</button>
                 </footer>
@@ -54,14 +56,14 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
 
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
-    public userLoginData: AltinnAuthenticationData = new AltinnAuthenticationData();
+    public userLoginData$: BehaviorSubject<AltinnAuthenticationData> = new BehaviorSubject(new AltinnAuthenticationData());
 
     public busy: boolean = true;
     public userMessage: string;
-
+    public emptyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public formState: LoginState = LoginState.UsernameAndPasswordAndPinType;
-    public usernameAndPasswordFormFields: UniFieldLayout[] = this.createUsernameAndPasswordForm();
-    public pinFormFields: UniFieldLayout[] = this.createPinForm();
+    public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createUsernameAndPasswordForm());
+    public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
 
     private userSubmittedUsernameAndPasswordAndPinType: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
@@ -152,32 +154,32 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
     }
 
     public completeAltinnAuthenticationData(incompleteAuthenticationData: AltinnAuthenticationData) {
-        this.userLoginData = incompleteAuthenticationData;
+        this.userLoginData$.next(incompleteAuthenticationData);
         return this.getAltinnAuthenticationData();
     }
 
     public getAltinnAuthenticationData(): Promise<AltinnAuthenticationData> {
         this.busy = false;
         this.formState = LoginState.UsernameAndPasswordAndPinType;
-        this.userLoginData.preferredLogin =
-            this.userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
-
+        let userLoginData = this.userLoginData$.getValue();
+        userLoginData.preferredLogin = userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
         if (this.userSubmittedUsernameAndPasswordAndPinType.observers.length === 0) {
             this.userSubmittedUsernameAndPasswordAndPinType
                 .subscribe(() => {
                     const authData: AltinnAuthRequest = new AltinnAuthRequest();
-                    authData.UserID = this.userLoginData.userID;
-                    authData.UserPassword = this.userLoginData.password;
-                    authData.PreferredLogin = this.userLoginData.preferredLogin;
+                    authData.UserID = userLoginData.userID;
+                    authData.UserPassword = userLoginData.password;
+                    authData.PreferredLogin = userLoginData.preferredLogin;
                     this.busy = true;
                     this.altinnAuthService
                         .getPinMessage(authData)
                         .subscribe(messageobj => {
                             this.busy = false;
                             this.userMessage = messageobj.Message;
-                            this.userLoginData.pin = '';
-                            this.userLoginData.validTo = messageobj.ValidTo;
-                            this.userLoginData.validFrom = messageobj.ValidFrom;
+                            userLoginData.pin = '';
+                            userLoginData.validTo = messageobj.ValidTo;
+                            userLoginData.validFrom = messageobj.ValidFrom;
+                            this.userLoginData$.next(userLoginData);
                             this.formState = LoginState.Pin;
                         }, error => {
                             // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
@@ -194,19 +196,19 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
 
             return this.userSubmittedPin
                     .subscribe(() => {
-                        resolve(this.userLoginData);
+                        resolve(this.userLoginData$.getValue());
                     }, err => this.errorService.handle(err));
             });
     }
 
     public submitUsernameAndPasswordAndPinType() {
         this.busy = true;
-        this.userSubmittedUsernameAndPasswordAndPinType.emit(this.userLoginData);
+        this.userSubmittedUsernameAndPasswordAndPinType.emit(this.userLoginData$.getValue());
     }
 
     public submitPin() {
         this.busy = true;
-        this.userSubmittedPin.emit(this.userLoginData);
+        this.userSubmittedPin.emit(this.userLoginData$.getValue());
     }
 }
 

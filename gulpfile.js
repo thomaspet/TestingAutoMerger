@@ -220,3 +220,7 @@ gulp.task('build.local.watch', function(done) {
 gulp.task('build.customConfig.watch', function(done) {
     runSequence('build.customConfig', 'watch', done);
 });
+
+gulp.task('build.test.env.watch', function(done) {
+    runSequence('build.test.env', 'watch', done);
+});

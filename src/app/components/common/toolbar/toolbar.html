@@ -2,6 +2,8 @@
 
 <uni-statustrack *ngIf="statustrack || config?.statustrack"
     [config]="statustrack || config.statustrack"
+    [entityType]="config?.entityType"
+    [entityID]="config?.entityID"
     (statusSelectEvent)="selectStatus($event)">
 </uni-statustrack>
 
@@ -17,7 +19,13 @@
         <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title}}</a>
         {{subhead.link ? '' : subhead.title}}
     </small>
+
+    <uni-tags *ngIf="tags"
+              [tags]="tags"
+              [config]="tagConfig"
+              (tagsChange)="tagsChangeEvent($event)"></uni-tags>
 </h1>
+
 
 <nav class="toolbar_tools">
     <input *ngIf="config?.navigation?.find"

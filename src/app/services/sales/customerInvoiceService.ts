@@ -16,6 +16,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public statusTypes: Array<any> = [
         { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
+        //{ Code: StatusCodeCustomerInvoice.Reminded, Text: 'Purret'}, // TODO: Add when available from backend
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' }
     ];
@@ -90,24 +91,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public getStatusText(statusCode: number, invoiceType: number): string {
-        var text = '';
-
-        // TODO use enum for invoiceType
-        if (invoiceType === 0) {
-            this.statusTypes.forEach((status) => {
-                if (status.Code === statusCode) {
-                    text = status.Text;
-                    return;
-                }
-            });
-        } else {
-            this.statusTypesCredit.forEach((status) => {
-                if (status.Code === statusCode) {
-                    text = status.Text;
-                    return;
-                }
-            });
-        }
-        return text;
+        let dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
+        let statusType = dict.find(x => x.Code === statusCode);
+        return statusType ? statusType.Text : '';
     };
 }

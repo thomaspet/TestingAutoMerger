@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {URLSearchParams, ResponseContentType} from '@angular/http';
+import {URLSearchParams, ResponseContentType, Response} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
+import {StatisticsResponse} from '../../models/StatisticsResponse';
 
 @Injectable()
 export class StatisticsService extends BizHttp<string> {
@@ -21,11 +22,11 @@ export class StatisticsService extends BizHttp<string> {
         this.DefaultOrderBy = null;
     }
 
-    public GetDataByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
+    public GetDataByUrlSearchParams<T>(params: URLSearchParams): Observable<StatisticsResponse> {
         return this.GetAllByUrlSearchParams(params).map(response => response.json());
     }
 
-    public GetAll(queryString: string) {
+    public GetAll(queryString: string): Observable<StatisticsResponse> {
         return this.http
             .usingRootDomain()
             .asGET()
@@ -40,12 +41,12 @@ export class StatisticsService extends BizHttp<string> {
             });
     }
 
-    public GetAllUnwrapped(queryString: string) {
+    public GetAllUnwrapped(queryString: string): Observable<[any]> {
         return this.GetAll(queryString)
             .map(response => response.Data);
     }
 
-    public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
+    public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<Response> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
             params.set('orderby', this.DefaultOrderBy);
