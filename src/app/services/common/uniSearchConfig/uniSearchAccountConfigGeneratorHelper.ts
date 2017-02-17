@@ -4,7 +4,7 @@ import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
-import {AccountService} from '../../Accounting/accountService';
+import {AccountService} from '../../accounting/accountService';
 import {Injectable} from '@angular/core';
 
 class CustomStatisticsResultItem {

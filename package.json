@@ -39,7 +39,7 @@
     "typings": "^2.1.0",
     "uniform-ng2": "^0.0.32",
     "unitable-ng2": "0.0.2",
-    "unisearch-ng2": "0.0.11",
+    "unisearch-ng2": "0.0.12",
     "zone.js": "^0.7.4"
   },
   "devDependencies": {

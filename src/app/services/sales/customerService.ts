@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
-import {StatisticsService} from '../services';
+import {StatisticsService} from '../common/statisticsService';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()
