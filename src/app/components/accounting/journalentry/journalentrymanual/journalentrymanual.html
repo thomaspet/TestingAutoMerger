@@ -30,6 +30,11 @@
                 <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
                 <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
             </tr>
+            <tr *ngIf="(itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent)">
+                <td>Fradragsprosent MVA</td>
+                <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+            </tr>
             <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
                 <td>Fradragsprosent MVA</td>
                 <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>

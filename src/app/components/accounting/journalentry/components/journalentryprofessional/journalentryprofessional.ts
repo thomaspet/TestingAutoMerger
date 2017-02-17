@@ -617,7 +617,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             defaultRowData.Description = 'Innbetaling';
 
-            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
+            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, deductionPercentCol, amountCol,
                  descriptionCol, fileCol];
         } else {
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, deductionPercentCol, amountCol, netAmountCol,

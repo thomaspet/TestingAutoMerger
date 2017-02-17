@@ -5,6 +5,7 @@
         "start": "gulp build.dev.watch",
         "start.local": "gulp build.local.watch",
         "start.custom": "gulp build.customConfig.watch",
+        "start.test" : "gulp build.test.env.watch",
         "serve": "lite-server -c bs.config.json",
         "build": "gulp build.prod",
         "build.dev": "gulp build.dev",
