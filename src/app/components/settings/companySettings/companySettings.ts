@@ -287,7 +287,10 @@ export class CompanySettingsComponent implements OnInit {
                     });
                 });
             },
-            (err) => this.errorService.handle(err)
+            (err) => {
+                this.errorService.handle(err);
+                complete('Lagring feilet.');
+            }
         );
     }
 
