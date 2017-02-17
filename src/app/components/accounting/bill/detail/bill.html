@@ -45,11 +45,13 @@
 
             <div *ngIf="!(current | async)?.ID">
                 <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
-                    (fileListReady)="onFileListReady($event)">
+                    (fileListReady)="onFileListReady($event)"
+                    (imageClicked)="onImageClicked($event)">
                 </uni-image>
             </div>
             <uni-image *ngIf="(current | async)?.ID" [entity]="'SupplierInvoice'" [entityID]="(current | async)?.ID"
-                (fileListReady)="onFileListReady($event)" >
+                (fileListReady)="onFileListReady($event)"
+                (imageClicked)="onImageClicked($event)" >
             </uni-image>
 
         </div>
@@ -80,3 +82,5 @@
 <uni-confirm-modal></uni-confirm-modal>
 
 <bankaccount-modal></bankaccount-modal>
+
+<image-modal></image-modal>

@@ -16,6 +16,8 @@ import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
+import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {
     SupplierInvoiceService,
     SupplierService,
@@ -83,6 +85,7 @@ export class BillView {
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
+    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
@@ -267,6 +270,17 @@ export class BillView {
     ///     FILES AND OCR
 
     /// =============================
+
+    public onImageClicked(file) {
+        let current = this.current.getValue();
+        let entityID = current.ID || 0;
+
+        if (entityID > 0) {
+            this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
+        } else {
+            this.imageModal.openReadOnlyFileIds('SupplierInvoice', this.fileIds, file.ID, UniImageSize.large);
+        }
+    }
 
     public onFileListReady(files: Array<any>) {
         this.files = files;
