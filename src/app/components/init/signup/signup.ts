@@ -111,6 +111,7 @@ export class Signup {
                 (response) => {
                     this.success = true;
                     this.working = false;
+                    this.companyForm.disable();
                 },
                 (error) => {
                     this.working = false;
