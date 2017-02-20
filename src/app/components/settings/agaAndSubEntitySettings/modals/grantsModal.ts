@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, ViewChild, Type, Input} from '@angular/core';
+import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Observable';
     selector: 'grants-modal-content',
     templateUrl: 'app/components/settings/agaAndSubEntitySettings/modals/grantsModal.html'
 })
-export class GrantsModalContent {
+export class GrantsModalContent implements OnInit {
     @Input() public config: any;
     private grantTableConfig: UniTableConfig;
     private grantData: any[] = [];
@@ -24,7 +24,7 @@ export class GrantsModalContent {
     ) {
     }
 
-    public loadData() {
+    public ngOnInit() {
         Observable.forkJoin(
             this._grantService.GetAll(''),
             this._subentityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress'])
@@ -144,7 +144,7 @@ export class GrantsModalContent {
     selector: 'grants-modal',
     template: `<uni-modal [type]="type" [config]="grantsmodalConfig"></uni-modal>`
 })
-export class GrantsModal implements AfterViewInit {
+export class GrantsModal {
     @ViewChild(UniModal) private modal: UniModal;
     public grantsmodalConfig: any = {};
     public type: Type<any> = GrantsModalContent;
@@ -171,14 +171,7 @@ export class GrantsModal implements AfterViewInit {
         };
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openGrantsModal() {
         this.modal.open();
-        this.modal.getContent().then((component: GrantsModalContent) => {
-            component.loadData();
-        });
     }
 }
