@@ -17,6 +17,7 @@ import {AMeldingView} from './amelding/ameldingview';
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {routes as CategoryRoutes} from './category/categoryRoutes';
+import {SalarybalanceList} from './salarybalance/salarybalanceList';
 
 // Maps entitytype to frontend route
 // Important for notifications to work properly!
@@ -74,6 +75,10 @@ export const childRoutes = [
         component: CategoryView,
         children: CategoryRoutes,
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'salarybalances',
+        component: SalarybalanceList
     }
 ];
 

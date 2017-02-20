@@ -15,6 +15,7 @@ import {GrantService} from './salary/grants/grantService';
 import {VacationpayLineService} from './salary/payrollrun/vacationpayLineService';
 import {EmployeeTaxCardService} from './salary/employee/employeeTaxCardService';
 import {SalarySumsService} from './salary/salaryTransaction/salarySumsService';
+import {SalarybalanceService} from './salary/salarybalance/salarybalanceService';
 
 export * from './salary/AMelding/AMeldingService';
 export * from './salary/basicamount/basicAmountService';
@@ -32,6 +33,7 @@ export * from './salary/grants/grantService';
 export * from './salary/payrollrun/vacationpayLineService';
 export * from './salary/employee/employeeTaxCardService';
 export * from './salary/salaryTransaction/salarySumsService';
+export * from './salary/salarybalance/salarybalanceService';
 
 @NgModule({
     providers: [
@@ -50,7 +52,8 @@ export * from './salary/salaryTransaction/salarySumsService';
         GrantService,
         VacationpayLineService,
         EmployeeTaxCardService,
-        SalarySumsService
+        SalarySumsService,
+        SalarybalanceService
     ]
 })
 export class SalaryServicesModule { }
