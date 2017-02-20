@@ -6,7 +6,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {ComponentLayout, Customer, Email, Phone, Address, CustomerInvoiceReminderSettings} from '../../../../unientities';
+import {ComponentLayout, Customer, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -26,7 +26,8 @@ import {
     UniQueryDefinitionService,
     ErrorService,
     NumberFormat,
-    CustomerInvoiceReminderSettingsService
+    CustomerInvoiceReminderSettingsService,
+    CurrencyCodeService
 } from '../../../../services/services';
 
 declare var _; // lodash
@@ -54,6 +55,7 @@ export class CustomerDetails {
     private phoneChanged: any;
     private showReminderSection: boolean = false; // used in template
 
+    public currencyCodes: Array<CurrencyCode>;
     public dropdownData: any;
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public searchText: string;
@@ -156,7 +158,8 @@ export class CustomerDetails {
         private toastService: ToastService,
         private errorService: ErrorService,
         private numberFormat: NumberFormat,
-        private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService
+        private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
+        private currencyCodeService: CurrencyCodeService
     ) {}
 
     public ngOnInit() {
@@ -311,7 +314,8 @@ export class CustomerDetails {
                     this.customerID > 0 ?
                         this.customerService.getCustomerStatistics(this.customerID) :
                         Observable.of(null)
-                )
+                ),
+                this.currencyCodeService.GetAll(null)
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.customer$.next(response[2]);
@@ -326,6 +330,8 @@ export class CustomerDetails {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
+
+                this.currencyCodes = response[7];
 
                 this.setTabTitle();
                 this.extendFormConfig();
@@ -453,7 +459,16 @@ export class CustomerDetails {
 
     public extendFormConfig() {
         let fields: UniFieldLayout[] = this.fields$.getValue();
-        var department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
+
+        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        currencyCode.Options = {
+            source: this.currencyCodes,
+            valueProperty: 'ID',
+            displayProperty: 'Code',
+            debounceTime: 200
+        };
+
+        let department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
@@ -463,7 +478,7 @@ export class CustomerDetails {
             debounceTime: 200
         };
 
-        var project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
+        let project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
@@ -474,7 +489,7 @@ export class CustomerDetails {
         };
 
         // MultiValue
-        var phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
+        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
 
         phones.Options = {
             entity: Phone,
@@ -497,7 +512,7 @@ export class CustomerDetails {
             })
         };
 
-        var invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
+        let invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
 
         invoiceaddress.Options = {
             entity: Address,
@@ -526,7 +541,7 @@ export class CustomerDetails {
             }
         };
 
-        var emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
+        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
 
         emails.Options = {
             entity: Email,
@@ -549,7 +564,7 @@ export class CustomerDetails {
             })
         };
 
-        var shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
+        let shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
@@ -576,6 +591,7 @@ export class CustomerDetails {
                 return this.addressService.displayAddress(address);
             }
         };
+
         this.fields$.next(fields);
     }
 
@@ -921,6 +937,39 @@ export class CustomerDetails {
                     CustomValues: {
 
                     },
+                    ID: 0,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null
+                },
+                {
+                    LookupEntityType: null,
+                    ValueList: null,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: 'CurrencyCodeID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    DisplayField: null,
+                    Width: null,
+                    Sectionheader: 'Betingelser',
+                    Alignment: 0,
+                    Label: 'Foretrukket valuta',
+                    Description: null,
+                    HelpText: null,
+                    Placeholder: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Options: null,
+                    LineBreak: false,
+                    Combo: null,
+                    Legend: 'Betingelser',
+                    StatusCode: null,
                     ID: 0,
                     Deleted: false,
                     CreatedAt: null,

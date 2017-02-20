@@ -5,7 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 import {FieldType} from 'uniform-ng2/main';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
-import {Supplier, Email, Phone, Address, BankAccount} from '../../../../unientities';
+import {Supplier, Email, Phone, Address, BankAccount, CurrencyCode} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -25,6 +25,7 @@ import {
     BankAccountService,
     ErrorService,
     UniQueryDefinitionService,
+    CurrencyCodeService
 } from '../../../../services/services';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -54,6 +55,7 @@ export class SupplierDetails implements OnInit {
     private emailChanged: any;
     private bankAccountChanged: any;
 
+    private currencyCodes: Array<CurrencyCode>;
     private dropdownData: any;
     private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     private searchText: string;
@@ -100,7 +102,8 @@ export class SupplierDetails implements OnInit {
                 private tabService: TabService,
                 private toastService: ToastService,
                 private uniQueryDefinitionService: UniQueryDefinitionService,
-                private errorService: ErrorService) {
+                private errorService: ErrorService,
+                private currencyCodeService: CurrencyCodeService) {
     }
 
     public ngOnInit() {
@@ -247,15 +250,17 @@ export class SupplierDetails implements OnInit {
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
                 this.addressService.GetNewEntity(null, 'Address'),
-                this.bankaccountService.GetNewEntity()
+                this.bankaccountService.GetNewEntity(),
+                this.currencyCodeService.GetAll(null)
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
-
 
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
                 this.emptyBankAccount = response[6];
+
+                this.currencyCodes = response[7];
 
                 let supplier = response[2];
                 this.supplier$.next(supplier);
@@ -354,7 +359,16 @@ export class SupplierDetails implements OnInit {
 
     public extendFormConfig() {
         let fields = this.fields$.getValue();
-        var department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
+
+        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        currencyCode.Options = {
+            source: this.currencyCodes,
+            valueProperty: 'ID',
+            displayProperty: 'Code',
+            debounceTime: 200
+        };
+
+        let department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
@@ -364,7 +378,7 @@ export class SupplierDetails implements OnInit {
             debounceTime: 200
         };
 
-        var project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
+        let project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
@@ -375,7 +389,7 @@ export class SupplierDetails implements OnInit {
         };
 
         // MultiValue
-        var phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
+        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
 
         phones.Options = {
             entity: Phone,
@@ -398,7 +412,7 @@ export class SupplierDetails implements OnInit {
             })
         };
 
-        var invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
+        let invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
 
         invoiceaddress.Options = {
             entity: Address,
@@ -427,7 +441,7 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        var emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
+        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
 
         emails.Options = {
             entity: Email,
@@ -450,7 +464,7 @@ export class SupplierDetails implements OnInit {
             })
         };
 
-        var shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
+        let shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
@@ -501,6 +515,7 @@ export class SupplierDetails implements OnInit {
                 });
             })
         };
+
         this.fields$.next(fields);
     }
 
@@ -877,12 +892,11 @@ export class SupplierDetails implements OnInit {
                     CustomFields: null
                 },
                 {
-                    Url: 'customers',
                     Validations: [],
                     LookupEntityType: null,
                     ValueList: null,
                     ComponentLayoutID: 1,
-                    EntityType: 'Customer',
+                    EntityType: 'Supplier',
                     Property: 'CreditDays',
                     Placement: 1,
                     Hidden: false,
@@ -905,6 +919,39 @@ export class SupplierDetails implements OnInit {
                     Legend: 'Betingelser',
                     StatusCode: null,
                     CustomValues: {},
+                    ID: 0,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null
+                },
+                {
+                    LookupEntityType: null,
+                    ValueList: null,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Supplier',
+                    Property: 'CurrencyCodeID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    DisplayField: null,
+                    Width: null,
+                    Sectionheader: 'Betingelser',
+                    Alignment: 0,
+                    Label: 'Foretrukket valuta',
+                    Description: null,
+                    HelpText: null,
+                    Placeholder: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Options: null,
+                    LineBreak: false,
+                    Combo: null,
+                    Legend: 'Betingelser',
+                    StatusCode: null,
                     ID: 0,
                     Deleted: false,
                     CreatedAt: null,

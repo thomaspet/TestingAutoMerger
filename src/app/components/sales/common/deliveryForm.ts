@@ -1,5 +1,5 @@
 import {Component, ViewChild, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
-import {Address} from '../../../unientities';
+import {Address, CurrencyCode} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {UniForm, FieldType} from 'uniform-ng2/main';
 import {AddressModal} from '../../common/modals/modals';
@@ -71,6 +71,7 @@ export class TofDeliveryForm {
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private multivalueField: any;
     private address$: any;
+    private currencyCodes: Array<CurrencyCode>;
 
     constructor(private addressService: AddressService,
                 private businessRelationService: BusinessRelationService,
@@ -326,6 +327,32 @@ export class TofDeliveryForm {
                 UpdatedBy: null,
                 CustomFields: null
             },
+             {
+                EntityType: this.entityType,
+                Property: 'CurrencyCodeID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.DROPDOWN,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Valuta',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 5,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null
+            }
         ]);
     }
 

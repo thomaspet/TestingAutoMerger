@@ -8,7 +8,7 @@ import {
     ErrorService,
     AccountGroupService,
     VatTypeService,
-    CurrencyService,
+    CurrencyCodeService,
     AccountService
 } from '../../../../services/services';
 
@@ -25,7 +25,7 @@ export class AccountDetails implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
 
     private account$: BehaviorSubject<Account> = new BehaviorSubject(null);
-    private currencies: Array<any> = [];
+    private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
@@ -33,7 +33,7 @@ export class AccountDetails implements OnInit {
 
     constructor(
         private accountService: AccountService,
-        private currencyService: CurrencyService,
+        private currencyCodeService: CurrencyCodeService,
         private vatTypeService: VatTypeService,
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService
@@ -46,12 +46,12 @@ export class AccountDetails implements OnInit {
     private setup() {
 
         Observable.forkJoin(
-            this.currencyService.GetAll(null),
+            this.currencyCodeService.GetAll(null),
             this.vatTypeService.GetAll(null),
             this.accountGroupService.GetAll('orderby=GroupNumber')
         ).subscribe(
             (dataset) => {
-                this.currencies = dataset[0];
+                this.currencyCodes = dataset[0];
                 this.vattypes = dataset[1];
                 this.accountGroups = dataset[2].filter(x => x.GroupNumber != null && x.GroupNumber.toString().length === 3);
                 this.extendFormConfig();
@@ -77,9 +77,9 @@ export class AccountDetails implements OnInit {
 
     private extendFormConfig() {
         let fields = this.fields$.getValue();
-        let currency: UniFieldLayout = fields.find(x => x.Property === 'CurrencyID');
-        currency.Options = {
-            source: this.currencies,
+        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        currencyCode.Options = {
+            source: this.currencyCodes,
             valueProperty: 'ID',
             displayProperty: 'Code',
             debounceTime: 200
@@ -303,7 +303,7 @@ export class AccountDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Account',
-                    Property: 'CurrencyID',
+                    Property: 'CurrencyCodeID',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,

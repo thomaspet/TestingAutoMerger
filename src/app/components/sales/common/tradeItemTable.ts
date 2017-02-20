@@ -27,6 +27,9 @@ export class TradeItemTable {
     @Input() public readonly: boolean;
     @Input() public defaultTradeItem: any;
     @Input() public items: any;
+    @Input() public currencyCodeID: number;
+    @Input() public currencyExchangeRate: number;
+
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
@@ -89,7 +92,7 @@ export class TradeItemTable {
         const itemTextCol = new UniTableColumn('ItemText', 'Tekst').setWidth('20%');
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
         const unitCol = new UniTableColumn('Unit', 'Enhet');
-        const exVatCol = new UniTableColumn('PriceExVat', 'Pris', UniTableColumnType.Money);
+        const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris', UniTableColumnType.Money);
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
@@ -175,13 +178,13 @@ export class TradeItemTable {
             });
 
 
-        const sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', UniTableColumnType.Money, false)
+        const sumTotalExVatCol = new UniTableColumn('SumTotalExVatCurrency', 'Netto', UniTableColumnType.Money, false)
             .setVisible(false);
 
-        const sumVatCol = new UniTableColumn('SumVat', 'Mva', UniTableColumnType.Money, false)
+        const sumVatCol = new UniTableColumn('SumVatCurrency', 'Mva', UniTableColumnType.Money, false)
             .setVisible(false);
 
-        const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum', UniTableColumnType.Money, false);
+        const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false);
 
         // Table config
         this.tableConfig = new UniTableConfig(!this.readonly)
@@ -194,7 +197,7 @@ export class TradeItemTable {
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
             .setChangeCallback((rowModel) => {
-                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel);
+                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel, this.currencyCodeID, this.currencyExchangeRate);
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);

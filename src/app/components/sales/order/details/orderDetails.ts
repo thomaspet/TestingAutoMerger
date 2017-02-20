@@ -24,7 +24,9 @@ import {
     CustomerOrder,
     CustomerOrderItem,
     StatusCodeCustomerOrder,
-    CompanySettings
+    CompanySettings,
+    CurrencyCode,
+    LocalDate
 } from '../../../../unientities';
 import {
     CompanySettingsService,
@@ -38,7 +40,9 @@ import {
     ProjectService,
     DepartmentService,
     AddressService,
-    ReportDefinitionService
+    ReportDefinitionService,
+    CurrencyCodeService,
+    CurrencyService
 } from '../../../../services/services';
 
 declare const _;
@@ -85,6 +89,10 @@ export class OrderDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
+    private currencyCodes: Array<CurrencyCode>;
+    private currencyCodeID: number;
+    private currencyExchangeRate: number;
+
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
@@ -110,7 +118,9 @@ export class OrderDetails {
         private userService: UserService,
         private numberFormat: NumberFormat,
         private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private currencyCodeService: CurrencyCodeService,
+        private currencyService: CurrencyService
     ) {}
 
     public ngOnInit() {
@@ -148,20 +158,52 @@ export class OrderDetails {
             this.orderID = +params['id'];
 
             if (this.orderID) {
-                this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
-                    res => this.refreshOrder(res),
-                    err => this.errorService.handle(err)
-                );
+                Observable.forkJoin(
+                    this.customerOrderService.Get(this.orderID, this.expandOptions),
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
+                ).subscribe(res => {
+                    let order = <CustomerOrder> res[0];
+                    this.companySettings = res[1];
+
+                    if (!order.CurrencyCodeID) {
+                        order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                        order.CurrencyExchangeRate = 1;
+                    }
+
+                    this.currencyCodeID = order.CurrencyCodeID;
+                    this.currencyExchangeRate = order.CurrencyExchangeRate;
+
+                    this.currencyCodes = res[2];
+
+                    this.refreshOrder(order);
+                },
+                err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
                     this.customerOrderService.GetNewEntity([], CustomerOrder.EntityType),
-                    this.userService.getCurrentUser()
+                    this.userService.getCurrentUser(),
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
                 ).subscribe(
-                    (dataset) => {
-                        let order = <CustomerOrder> dataset[0];
-                        order.OurReference = dataset[1].DisplayName;
+                    (res) => {
+                        let order = <CustomerOrder> res[0];
+                        order.OurReference = res[1].DisplayName;
                         order.OrderDate = new Date();
                         order.DeliveryDate = new Date();
+
+                        this.companySettings = res[2];
+
+                        if (!order.CurrencyCodeID) {
+                            order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                            order.CurrencyExchangeRate = 1;
+                        }
+
+                        this.currencyCodeID = order.CurrencyCodeID;
+                        this.currencyExchangeRate = order.CurrencyExchangeRate;
+
+                        this.currencyCodes = res[3];
+
                         this.refreshOrder(order);
                     },
                     err => this.errorService.handle(err)
@@ -218,7 +260,91 @@ export class OrderDetails {
 
     public onOrderChange(order) {
         this.isDirty = true;
+        let shouldGetCurrencyRate: boolean = false;
+
+        // update quotes currencycodeid if the customer changed
+        if (this.didCustomerChange(order)) {
+            if (order.Customer.CurrencyCodeID) {
+                order.CurrencyCodeID = order.Customer.CurrencyCodeID;
+            } else {
+                order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+            shouldGetCurrencyRate = true;
+        }
+
+        if ((!this.currencyCodeID && order.CurrencyCodeID)
+            || this.currencyCodeID !== order.CurrencyCodeID) {
+            this.currencyCodeID = order.CurrencyCodeID;
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.order && this.order.OrderDate.toString() !== order.OrderDate.toString()) {
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.order && order.CurrencyCodeID !== this.order.CurrencyCodeID) {
+            shouldGetCurrencyRate = true;
+        }
+
         this.order = _.cloneDeep(order);
+
+        if (shouldGetCurrencyRate) {
+            this.getUpdatedCurrencyExchangeRate(order)
+                .subscribe(res => {
+                    let newCurrencyRate = res;
+
+                    if (!this.currencyExchangeRate) {
+                        this.currencyExchangeRate = 1;
+                    }
+
+                    if (newCurrencyRate !== this.currencyExchangeRate) {
+                        this.currencyExchangeRate = newCurrencyRate;
+                        order.CurrencyExchangeRate = res;
+
+                        if (this.orderItems && this.orderItems.filter(x => !x.PriceSetByUser).length > 0) {
+                            this.confirmModal.confirm(
+                                `Det er lagt inn linjer som er basert på en annen valutakurs enn den som nå er valgt - vil du rekalkulere priser basert på ny kurs?`,
+                                'Rekalkulere priser for produkter?',
+                                false,
+                                {accept: 'Rekalkuler priser', reject: 'Behold priser'}
+                            ).then((response: ConfirmActions) => {
+                                if (response === ConfirmActions.ACCEPT) {
+                                    this.orderItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                    });
+                                } else if (response === ConfirmActions.REJECT) {
+                                    // we need to calculate the base currency amount numbers if we are going
+                                    // to keep the currency amounts - if not the data will be out of sync
+                                    this.orderItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                    });
+                                }
+
+                                // make unitable update the data after calculations
+                                this.orderItems = this.orderItems.concat();
+                                this.recalcItemSums(this.orderItems);
+
+                                // update the model
+                                this.order = _.cloneDeep(order);
+                            });
+                        } else if (this.orderItems && this.orderItems.length > 0) {
+                            // we need to calculate the new currency amount numbers if we are going
+                            // to keep the set currency amounts
+                            this.orderItems.forEach(item => {
+                                this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                            });
+
+                            // make unitable update the data after calculations
+                            this.orderItems = this.orderItems.concat();
+                            this.recalcItemSums(this.orderItems);
+
+                            // update the model
+                            this.order = _.cloneDeep(order);
+                        }
+                    }
+                }, err => this.errorService.handle(err)
+            );
+        }
     }
 
     private refreshOrder(order?: CustomerOrder) {
@@ -247,6 +373,44 @@ export class OrderDetails {
         this.updateToolbar();
         this.updateSaveActions();
         this.recalcDebouncer.next(order.Items);
+    }
+
+    private didCustomerChange(order: CustomerOrder): boolean {
+        return order.Customer
+            && (!this.order
+            || (order.Customer && !this.order.Customer)
+            || (order.Customer && this.order.Customer && order.Customer.ID !== this.order.Customer.ID))
+    }
+
+    private getUpdatedCurrencyExchangeRate(order: CustomerOrder): Observable<number> {
+        // if base currency code is the same a the currency code for the quote, the
+        // exchangerate will always be 1 - no point in asking the server about that..
+        if (!order.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === order.CurrencyCodeID) {
+            return Observable.from([1]);
+        } else {
+            let currencyDate: LocalDate = new LocalDate(order.OrderDate.toString());
+
+            return this.currencyService.getCurrencyExchangeRate(order.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                .map(x => x.ExchangeRate);
+        }
+    }
+
+    private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
+        item.PriceExVat = this.tradeItemHelper.round(item.PriceExVatCurrency * newCurrencyRate, 4);
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
+    }
+
+    private recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, newCurrencyRate) {
+        if (!item.PriceSetByUser) {
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.PriceExVat / newCurrencyRate, 4);
+        }
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
     private getStatustrackConfig() {
@@ -330,9 +494,22 @@ export class OrderDetails {
             ? this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name
             : '';
 
-        let netSumText = (this.itemsSummaryData)
-            ? 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'
-            : 'Netto kr ' + this.order.TaxExclusiveAmount + '.';
+        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+
+        let netSumText = '';
+
+        if (this.itemsSummaryData) {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
+            }
+        } else {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.order.TaxExclusiveAmountCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.order.TaxExclusiveAmount)}`;
+            }
+        }
 
         this.toolbarconfig = {
             title: orderText,
@@ -569,27 +746,45 @@ export class OrderDetails {
         );
     }
 
+    private getCurrencyCode(currencyCodeID: number): string {
+        let currencyCode: CurrencyCode;
+
+        if (this.currencyCodes) {
+            if (currencyCodeID) {
+                currencyCode = this.currencyCodes.find(x => x.ID === currencyCodeID);
+            } else if (this.companySettings) {
+                currencyCode = this.currencyCodes.find(x => x.ID === this.companySettings.BaseCurrencyCodeID);
+            }
+        }
+
+        return currencyCode ? currencyCode.Code : '';
+    }
+
     private setSums() {
         this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
+                value: this.getCurrencyCode(this.currencyCodeID),
+                title: 'Valuta:',
+                description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : null,
                 title: 'Avgiftsfritt',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : null,
                 title: 'Avgiftsgrunnlag',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : null,
                 title: 'Sum rabatt',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : null,
                 title: 'Nettosum',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : null,
                 title: 'Mva',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : null,
                 title: 'Øreavrunding',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : null,
                 title: 'Totalsum',
             }];
     }

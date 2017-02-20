@@ -5,6 +5,7 @@ import {AltinnReceiptService} from './common/altinnReceiptService';
 import {CompanySettingsService} from './common/companySettingsService';
 import {CompanyTypeService} from './common/companyTypeService';
 import {CurrencyService} from './common/currencyService';
+import {CurrencyCodeService} from './common/currencyCodeService';
 import {DepartmentService} from './common/departmentService';
 import {GuidService} from './common/guidService';
 import {IntegrationServerCaller} from './common/integrationServerCaller';
@@ -42,6 +43,7 @@ export * from './common/altinnIntegrationService';
 export * from './common/altinnReceiptService';
 export * from './common/companySettingsService';
 export * from './common/companyTypeService';
+export * from './common/currencyCodeService';
 export * from './common/currencyService';
 export * from './common/departmentService';
 export * from './common/guidService';
@@ -80,6 +82,7 @@ export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
         CompanySettingsService,
         CompanyTypeService,
         CurrencyService,
+        CurrencyCodeService,
         DepartmentService,
         GuidService,
         IntegrationServerCaller,

@@ -49,8 +49,15 @@ export class TradeItemHelper  {
         };
     }
 
-    public tradeItemChangeCallback(event) {
+    public tradeItemChangeCallback(event, currencyCodeID: number, currencyExchangeRate: number) {
         var newRow = event.rowModel;
+
+        // if not currencyExchangeRate has been defined from the parent component, assume no
+        // currency is select - i.e. the currency amounts will be the same as the base currency
+        // amounts - this is accomplished by setting the currencyExchangeRate to 1
+        if (!currencyExchangeRate || currencyExchangeRate === 0) {
+            currencyExchangeRate = 1;
+        }
 
         if (newRow.ID === 0) {
             newRow._createguid = this.guidService.guid();
@@ -64,7 +71,7 @@ export class TradeItemHelper  {
 
         if (event.field === 'Product') {
             if (newRow['Product']) {
-                this.mapProductToQuoteItem(newRow);
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate);
             } else {
                 newRow['ProductID'] = null;
             }
@@ -86,8 +93,22 @@ export class TradeItemHelper  {
             this.mapDepartmentToItem(newRow);
         }
 
+        if (event.field === 'PriceExVatCurrency') {
+            newRow.PriceSetByUser = true;
+            if (newRow.PriceExVatCurrency) {
+                if (currencyExchangeRate) {
+                    newRow.PriceExVat = newRow.PriceExVatCurrency * currencyExchangeRate;
+                } else {
+                    newRow.PriceExVat = newRow.PriceExVatCurrency;
+                }
+            } else {
+                newRow.PriceExVat = 0;
+            }
+        }
+
         this.calculatePriceIncVat(newRow);
-        this.calculateDiscount(newRow);
+        this.calculateBaseCurrencyAmounts(newRow, currencyExchangeRate);
+        this.calculateDiscount(newRow, currencyExchangeRate);
 
         // Return the updated row to the table
         return newRow;
@@ -155,7 +176,7 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel) {
+    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number) {
         let product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
@@ -167,6 +188,16 @@ export class TradeItemHelper  {
         rowModel.VatType = product.VatType;
         rowModel.PriceExVat = product.PriceExVat;
         rowModel.PriceIncVat = product.PriceIncVat;
+
+        if (currencyExchangeRate) {
+            rowModel.PriceExVatCurrency = this.round(product.PriceExVat / currencyExchangeRate, 4);
+            rowModel.PriceIncVatCurrency = this.round(product.PriceIncVat / currencyExchangeRate, 4);
+        } else {
+            rowModel.PriceExVatCurrency = product.PriceExVat;
+            rowModel.PriceIncVatCurrency = product.PriceIncVat;
+        }
+
+        rowModel.PriceSetByUser = false;
 
         if (!rowModel.VatTypeID && product.Account) {
             rowModel.VatTypeID = product.Account.VatTypeID;
@@ -187,20 +218,36 @@ export class TradeItemHelper  {
         }
     }
 
-    public calculatePriceIncVat(rowModel) {
-        let vatType = rowModel['VatType'] || {VatPercent: 0};
-        let priceExVat = rowModel['PriceExVat'] || 0;
-        rowModel['PriceIncVat'] = (priceExVat * (100 + vatType.VatPercent)) / 100;
+    public calculateBaseCurrencyAmounts(rowModel, currencyExchangeRate: number) {
+        if (currencyExchangeRate && currencyExchangeRate !== 0) {
+            rowModel.PriceExVat = rowModel.PriceExVatCurrency * currencyExchangeRate;
+            rowModel.PriceIncVat = rowModel.PriceIncVatCurrency * currencyExchangeRate;
+        } else {
+            rowModel.PriceExVat = rowModel.PriceExVatCurrency;
+            rowModel.PriceIncVat = rowModel.PriceIncVatCurrency;
+        }
     }
 
-    public calculateDiscount(rowModel) {
-        const discountExVat  = (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100;
-        const discountIncVat = (rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100;
+    public calculatePriceIncVat(rowModel) {
+        let vatType = rowModel['VatType'] || {VatPercent: 0};
+        let priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
+        rowModel['PriceIncVatCurrency'] = this.round((priceExVatCurrency * (100 + vatType.VatPercent)) / 100, 4);
+    }
+
+    public calculateDiscount(rowModel, currencyExchangeRate) {
+        const discountExVat  = this.round((rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100, 4);
+        const discountIncVat = this.round((rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100, 4);
 
         rowModel.Discount = discountExVat || 0;
         rowModel.SumTotalExVat = (rowModel.NumberOfItems * rowModel.PriceExVat) - discountExVat;
         rowModel.SumTotalIncVat = (rowModel.NumberOfItems * rowModel.PriceIncVat) - discountIncVat;
         rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
+
+        let discountExVatCurrency = discountExVat / currencyExchangeRate;
+        let discountIncVatCurrency = discountIncVat / currencyExchangeRate;
+        rowModel.SumTotalExVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceExVatCurrency) - discountExVatCurrency) ;
+        rowModel.SumTotalIncVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceIncVatCurrency) - discountIncVatCurrency);
+        rowModel.SumVatCurrency = rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency;
     }
 
     public calculateTradeItemSummaryLocal(items: Array<any>): TradeHeaderCalculationSummary {
@@ -213,13 +260,29 @@ export class TradeItemHelper  {
         sum.SumDiscount = 0;
         sum.DecimalRounding = 0;
 
+        sum.SumTotalExVatCurrency = 0;
+        sum.SumTotalIncVatCurrency = 0;
+        sum.SumVatCurrency = 0;
+        sum.SumVatBasisCurrency = 0;
+        sum.SumNoVatBasisCurrency = 0;
+        sum.SumDiscountCurrency = 0;
+        sum.DecimalRoundingCurrency = 0;
+
         items.forEach((x) => {
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-                x.Discount = x.Discount ? x.Discount : 0;
                 x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
                 x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
+                x.CalculateGrossPriceBasedOnNetPrice =
+                    x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
+
+                x.PriceIncVatCurrency = x.PriceIncVatCurrency ? x.PriceIncVatCurrency : 0;
+                x.PriceExVatCurrency = x.PriceExVatCurrency ? x.PriceExVatCurrency : 0;
+                x.DiscountCurrency = x.DiscountCurrency ? x.DiscountCurrency : 0;
+                x.SumTotalExVatCurrency = x.SumTotalExVatCurrency ? x.SumTotalExVatCurrency : 0;
+                x.SumTotalIncVatCurrency = x.SumTotalIncVatCurrency ? x.SumTotalIncVatCurrency : 0;
+
+                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
+                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
+                x.Discount = x.Discount ? x.Discount : 0;
                 x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
                 x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
             });
@@ -232,13 +295,27 @@ export class TradeItemHelper  {
                 sum.SumVat += item.SumVat;
                 sum.SumVatBasis += item.SumVat !== 0 ? item.SumTotalExVat : 0;
                 sum.SumNoVatBasis += item.SumVat === 0 ? item.SumTotalExVat : 0;
+
+                sum.SumDiscountCurrency += item.DiscountCurrency;
+                sum.SumTotalExVatCurrency += item.SumTotalExVatCurrency;
+                sum.SumTotalIncVatCurrency += item.SumTotalIncVatCurrency;
+                sum.SumVatCurrency += item.SumVatCurrency;
+                sum.SumVatBasisCurrency += item.SumVatCurrency !== 0 ? item.SumTotalExVatCurrency : 0;
+                sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? item.SumTotalExVatCurrency : 0;
             });
 
             let roundedAmount = Math.round(sum.SumTotalIncVat);
             sum.DecimalRounding = sum.SumTotalIncVat - roundedAmount;
-            sum.SumTotalIncVat = roundedAmount;
+
+            roundedAmount = Math.round(sum.SumTotalIncVatCurrency);
+            sum.DecimalRoundingCurrency = sum.SumTotalIncVatCurrency - roundedAmount;
+            sum.SumTotalIncVatCurrency = roundedAmount;
         }
 
         return sum;
+    }
+
+    public round(value, decimals) {
+        return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
 }

@@ -9,7 +9,7 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {
-    CompanyType, CompanySettings, VatReportForm, PeriodSeries, Currency, AccountGroup, Account,
+    CompanyType, CompanySettings, VatReportForm, PeriodSeries, CurrencyCode, AccountGroup, Account,
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
 import {BankAccountModal} from '../../common/modals/modals';
@@ -20,7 +20,7 @@ import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
     CompanySettingsService,
-    CurrencyService,
+    CurrencyCodeService,
     VatTypeService,
     AccountService,
     AccountGroupSetService,
@@ -35,7 +35,8 @@ import {
     AccountVisibilityGroupService,
     ErrorService,
     CompanyService,
-    UniSearchConfigGeneratorService
+    UniSearchConfigGeneratorService,
+    CurrencyService
 } from '../../../services/services';
 
 declare const _;
@@ -70,7 +71,7 @@ export class CompanySettingsComponent implements OnInit {
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
-    private currencies: Array<Currency> = [];
+    private currencyCodes: Array<CurrencyCode> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
     private municipalities: Municipal[] = [];
@@ -108,7 +109,7 @@ export class CompanySettingsComponent implements OnInit {
     constructor(
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
-        private currencyService: CurrencyService,
+        private currencyCodeService: CurrencyCodeService,
         private accountGroupSetService: AccountGroupSetService,
         private periodeSeriesService: PeriodSeriesService,
         private companyTypeService: CompanyTypeService,
@@ -124,7 +125,8 @@ export class CompanySettingsComponent implements OnInit {
         private companyService: CompanyService,
         private authService: AuthService,
         private errorService: ErrorService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private currencyService: CurrencyService
     ) {
     }
 
@@ -142,7 +144,7 @@ export class CompanySettingsComponent implements OnInit {
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
             this.vatReportFormService.GetAll(null),
-            this.currencyService.GetAll(null),
+            this.currencyCodeService.GetAll(null),
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.companySettingsService.Get(1),
@@ -155,7 +157,7 @@ export class CompanySettingsComponent implements OnInit {
             (dataset) => {
                 this.companyTypes = dataset[0];
                 this.vatReportForms = dataset[1];
-                this.currencies = dataset[2];
+                this.currencyCodes = dataset[2];
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
                 this.municipalities = dataset[6];
@@ -424,12 +426,12 @@ export class CompanySettingsComponent implements OnInit {
             template: vatReportForm => `${vatReportForm.Name} ${vatReportForm.Description}`
         };
 
-        this.currencies.unshift(null);
-        let baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrency');
+        let baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrencyCodeID');
         baseCurrency.Options = {
-            source: this.currencies,
-            valueProperty: 'Code',
+            source: this.currencyCodes,
+            valueProperty: 'ID',
             displayProperty: 'Code',
+            template: (obj: CurrencyCode) => obj ? `${obj.Code} - ${obj.Name}` : '',
             debounceTime: 200
         };
 
@@ -792,7 +794,7 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
-                Property: 'BaseCurrency',
+                Property: 'BaseCurrencyCodeID',
                 Placement: 1,
                 Hidden: false,
                 FieldType: FieldType.DROPDOWN,

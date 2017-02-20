@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, CustomerInvoiceItem, CompanySettings} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -36,7 +36,9 @@ import {
     NumberFormat,
     ErrorService,
     EHFService,
-    CustomerInvoiceReminderService
+    CustomerInvoiceReminderService,
+    CurrencyCodeService,
+    CurrencyService
 } from '../../../../services/services';
 import moment from 'moment';
 
@@ -88,6 +90,10 @@ export class InvoiceDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     private companySettings: CompanySettings;
 
+    private currencyCodes: Array<CurrencyCode>;
+    private currencyCodeID: number;
+    private currencyExchangeRate: number;
+
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
@@ -110,7 +116,9 @@ export class InvoiceDetails {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private ehfService: EHFService,
-        private customerInvoiceReminderService: CustomerInvoiceReminderService
+        private customerInvoiceReminderService: CustomerInvoiceReminderService,
+        private currencyCodeService: CurrencyCodeService,
+        private currencyService: CurrencyService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -144,7 +152,8 @@ export class InvoiceDetails {
                     this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
-                    this.companySettingsService.Get(1)
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
@@ -155,16 +164,37 @@ export class InvoiceDetails {
                     }
                     this.companySettings = res[3];
 
+                    if (!invoice.CurrencyCodeID) {
+                        invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                        invoice.CurrencyExchangeRate = 1;
+                    }
+
+                    this.currencyCodeID = invoice.CurrencyCodeID;
+                    this.currencyExchangeRate = invoice.CurrencyExchangeRate;
+
+                    this.currencyCodes = res[4];
+
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
                     this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
-                    this.companySettingsService.Get(1)
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = res[0];
                     this.companySettings = res[1];
+
+                    if (!invoice.CurrencyCodeID) {
+                        invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                        invoice.CurrencyExchangeRate = 1;
+                    }
+
+                    this.currencyCodeID = invoice.CurrencyCodeID;
+                    this.currencyExchangeRate = invoice.CurrencyExchangeRate;
+
+                    this.currencyCodes = res[2];
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
@@ -299,6 +329,19 @@ export class InvoiceDetails {
     public onInvoiceChange(invoice: CustomerInvoice) {
         const isDifferent = (a, b) => a.toString() !== b.toString();
 
+        this.isDirty = true;
+        let shouldGetCurrencyRate: boolean = false;
+
+        // update invoices currencycodeid if the customer changed
+        if (this.didCustomerChange(invoice)) {
+            if (invoice.Customer.CurrencyCodeID) {
+                invoice.CurrencyCodeID = invoice.Customer.CurrencyCodeID;
+            } else {
+                invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+            shouldGetCurrencyRate = true;
+        }
+
         if (invoice.Customer) {
             invoice.CreditDays = invoice.CreditDays
                 || invoice.Customer.CreditDays
@@ -313,8 +356,83 @@ export class InvoiceDetails {
             }
         }
 
-        this.isDirty = true;
+        if ((!this.currencyCodeID && invoice.CurrencyCodeID)
+            || this.currencyCodeID !== invoice.CurrencyCodeID) {
+            this.currencyCodeID = invoice.CurrencyCodeID;
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
+            shouldGetCurrencyRate = true;
+        }
+
         this.invoice = _.cloneDeep(invoice);
+
+        if (shouldGetCurrencyRate) {
+            this.getUpdatedCurrencyExchangeRate(invoice)
+                .subscribe(res => {
+                    let newCurrencyRate = res;
+
+                    if (!this.currencyExchangeRate) {
+                        this.currencyExchangeRate = 1;
+                    }
+
+                    if (newCurrencyRate !== this.currencyExchangeRate) {
+                        this.currencyExchangeRate = newCurrencyRate;
+                        invoice.CurrencyExchangeRate = res;
+
+                        if (this.invoiceItems && this.invoiceItems.filter(x => !x.PriceSetByUser).length > 0) {
+                            this.confirmModal.confirm(
+                                `Det er lagt inn linjer som er basert på en annen valutakurs enn den som nå er valgt - vil du rekalkulere priser basert på ny kurs?`,
+                                'Rekalkulere priser for produkter?',
+                                false,
+                                {accept: 'Rekalkuler priser', reject: 'Ikke rekalkuler'}
+                            ).then((response: ConfirmActions) => {
+                                if (response === ConfirmActions.ACCEPT) {
+                                    // we need to calculate the currency amounts based on the original prices
+                                    // defined in the base currency
+                                    this.invoiceItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                    });
+
+                                } else if (response === ConfirmActions.REJECT) {
+                                    // we need to calculate the base currency amount numbers if we are going
+                                    // to keep the currency amounts - if not the data will be out of sync
+                                    this.invoiceItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                    });
+                                }
+
+                                // make unitable update the data after calculations
+                                this.invoiceItems = this.invoiceItems.concat();
+                                this.recalcItemSums(this.invoiceItems);
+
+                                // update the model
+                                this.invoice = _.cloneDeep(invoice);
+                            });
+                        } else if (this.invoiceItems && this.invoiceItems.length > 0) {
+                            // we need to calculate the new currency amount numbers if we are going
+                            // to keep the set currency amounts
+                            this.invoiceItems.forEach(item => {
+                                this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                            });
+
+                            // make unitable update the data after calculations
+                            this.invoiceItems = this.invoiceItems.concat();
+                            this.recalcItemSums(this.invoiceItems);
+
+                            // update the model
+                            this.invoice = _.cloneDeep(invoice);
+                        }
+                    }
+                }, err => this.errorService.handle(err)
+            );
+        }
+
     }
 
     private sendEHF() {
@@ -325,6 +443,44 @@ export class InvoiceDetails {
             (err) => {
                 this.errorService.handle(err);
             });
+    }
+
+    private didCustomerChange(invoice: CustomerInvoice): boolean {
+        return invoice.Customer
+            && (!this.invoice
+            || (invoice.Customer && !this.invoice.Customer)
+            || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID))
+    }
+
+    private getUpdatedCurrencyExchangeRate(invoice: CustomerInvoice): Observable<number> {
+        // if base currency code is the same a the currency code for the quote, the
+        // exchangerate will always be 1 - no point in asking the server about that..
+        if (!invoice.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === invoice.CurrencyCodeID) {
+            return Observable.from([1]);
+        } else {
+            let currencyDate: LocalDate = new LocalDate(invoice.InvoiceDate.toString());
+
+            return this.currencyService.getCurrencyExchangeRate(invoice.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                .map(x => x.ExchangeRate);
+        }
+    }
+
+    private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
+        item.PriceExVat = this.tradeItemHelper.round(item.PriceExVatCurrency * newCurrencyRate, 4);
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
+    }
+
+    private recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, newCurrencyRate) {
+        if (!item.PriceSetByUser) {
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.PriceExVat / newCurrencyRate, 4);
+        }
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
     private getStatustrackConfig() {
@@ -411,8 +567,22 @@ export class InvoiceDetails {
             customerText = `${this.invoice.Customer.CustomerNumber} - ${this.invoice.Customer.Info.Name}`;
         }
 
-        let netSumText = 'Netto kr ';
-        netSumText += this.itemsSummaryData ? this.itemsSummaryData.SumTotalExVat : this.invoice.TaxInclusiveAmount;
+        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+
+        let netSumText = '';
+
+        if (this.itemsSummaryData) {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
+            }
+        } else {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.invoice.TaxExclusiveAmountCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.invoice.TaxExclusiveAmount)}`;
+            }
+        }
 
         let reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
 
@@ -747,6 +917,21 @@ export class InvoiceDetails {
         );
     }
 
+    private getCurrencyCode(currencyCodeID: number): string {
+        let currencyCode: CurrencyCode;
+
+        if (this.currencyCodes) {
+            if (currencyCodeID) {
+                currencyCode = this.currencyCodes.find(x => x.ID === currencyCodeID);
+            } else if (this.companySettings) {
+                currencyCode = this.currencyCodes.find(x => x.ID === this.companySettings.BaseCurrencyCodeID);
+            }
+        }
+
+        return currencyCode ? currencyCode.Code : '';
+    }
+
+
     // Summary
     public recalcItemSums(invoiceItems) {
         if (!invoiceItems) {
@@ -759,32 +944,37 @@ export class InvoiceDetails {
 
         this.summaryFields = [
             {
+                value: this.getCurrencyCode(this.currencyCodeID),
+                title: 'Valuta:',
+                description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+            },
+            {
                 title: 'Avgiftsfritt',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
             },
             {
                 title: 'Avgiftsgrunnlag',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
             },
             {
                 title: 'Sum rabatt',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
             },
             {
                 title: 'Nettosum',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
             },
             {
                 title: 'Mva',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVat)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
             },
             {
                 title: 'Øreavrunding',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
             },
             {
                 title: 'Totalsum',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat)
+                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
             },
         ];
     }

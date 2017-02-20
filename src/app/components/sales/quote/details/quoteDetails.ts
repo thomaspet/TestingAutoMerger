@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Rx';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerQuote} from '../../../../unientities';
-import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem} from '../../../../unientities';
+import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem, CurrencyCode, LocalDate} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -28,7 +28,9 @@ import {
     UserService,
     ErrorService,
     NumberFormat,
-    CompanySettingsService
+    CompanySettingsService,
+    CurrencyCodeService,
+    CurrencyService
 } from '../../../../services/services';
 import moment from 'moment';
 declare const _;
@@ -63,6 +65,10 @@ export class QuoteDetails {
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
 
+    private currencyCodes: Array<CurrencyCode>;
+    private currencyCodeID: number;
+    private currencyExchangeRate: number;
+
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
@@ -85,7 +91,9 @@ export class QuoteDetails {
                 private route: ActivatedRoute,
                 private tabService: TabService,
                 private tradeItemHelper: TradeItemHelper,
-                private errorService: ErrorService) {
+                private errorService: ErrorService,
+                private currencyCodeService: CurrencyCodeService,
+                private currencyService: CurrencyService) {
     }
 
     public ngOnInit() {
@@ -132,20 +140,53 @@ export class QuoteDetails {
             };
 
             if (this.quoteID) {
-                this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe((quote) => {
+                Observable.forkJoin(
+                    this.customerQuoteService.Get(this.quoteID, this.expandOptions),
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
+                ).subscribe((res) => {
+                    let quote = res[0];
+
+                    this.companySettings = res[1];
+
+                    if (!quote.CurrencyCodeID) {
+                        quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                        quote.CurrencyExchangeRate = 1;
+                    }
+
+                    this.currencyCodeID = quote.CurrencyCodeID;
+                    this.currencyExchangeRate = quote.CurrencyExchangeRate;
+
+                    this.currencyCodes = res[2];
+
                     this.refreshQuote(quote);
                 });
             } else {
                 Observable.forkJoin(
                     this.customerQuoteService.GetNewEntity([], CustomerQuote.EntityType),
                     this.userService.getCurrentUser(),
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
                 ).subscribe(
-                    (dataset) => {
-                        let quote = <CustomerQuote> dataset[0];
-                        quote.OurReference = dataset[1].DisplayName;
+                    (res) => {
+                        let quote = <CustomerQuote> res[0];
+                        quote.OurReference = res[1].DisplayName;
                         quote.QuoteDate = new Date();
                         quote.DeliveryDate = new Date();
                         quote.ValidUntilDate = null;
+
+                        this.companySettings = res[2];
+
+                        if (!quote.CurrencyCodeID) {
+                            quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                            quote.CurrencyExchangeRate = 1;
+                        }
+
+                        this.currencyCodeID = quote.CurrencyCodeID;
+                        this.currencyExchangeRate = quote.CurrencyExchangeRate;
+
+                        this.currencyCodes = res[3];
+
                         this.refreshQuote(quote);
                     },
                     err => this.errorService.handle(err)
@@ -212,7 +253,6 @@ export class QuoteDetails {
             return;
         }
 
-        this.onQuoteChange(quote);
         this.readonly = quote.StatusCode && (
                 quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
                 || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
@@ -232,6 +272,33 @@ export class QuoteDetails {
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
+
+        let shouldGetCurrencyRate: boolean = false;
+
+        // update quotes currencycodeid if the customer changed
+        if (this.didCustomerChange(quote)) {
+            if (quote.Customer.CurrencyCodeID) {
+                quote.CurrencyCodeID = quote.Customer.CurrencyCodeID;
+            } else {
+                quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+            shouldGetCurrencyRate = true;
+        }
+
+        if ((!this.currencyCodeID && quote.CurrencyCodeID)
+            || this.currencyCodeID !== quote.CurrencyCodeID) {
+            this.currencyCodeID = quote.CurrencyCodeID;
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.quote && this.quote.QuoteDate.toString() !== quote.QuoteDate.toString()) {
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.quote && quote.CurrencyCodeID !== this.quote.CurrencyCodeID) {
+            shouldGetCurrencyRate = true;
+        }
+
         if (quote.QuoteDate && !quote.ValidUntilDate) {
             quote.ValidUntilDate = moment(quote.QuoteDate).add(1, 'month').toDate();
         }
@@ -245,6 +312,102 @@ export class QuoteDetails {
         }
 
         this.quote = _.cloneDeep(quote);
+
+        if (shouldGetCurrencyRate) {
+            this.getUpdatedCurrencyExchangeRate(quote)
+                .subscribe(res => {
+                    let newCurrencyRate = res;
+
+                    if (!this.currencyExchangeRate) {
+                        this.currencyExchangeRate = 1;
+                    }
+
+                    if (newCurrencyRate !== this.currencyExchangeRate) {
+                        this.currencyExchangeRate = newCurrencyRate;
+                        quote.CurrencyExchangeRate = res;
+
+                        if (this.quoteItems && this.quoteItems.filter(x => x.PriceSetByUser).length > 0) {
+                            this.confirmModal.confirm(
+                                `Det er lagt inn linjer som er basert på en annen valutakurs enn den som nå er valgt - vil du rekalkulere priser basert på ny kurs?`,
+                                'Rekalkulere priser for produkter?',
+                                false,
+                                {accept: 'Rekalkuler priser', reject: 'Behold priser'}
+                            ).then((response: ConfirmActions) => {
+                                if (response === ConfirmActions.ACCEPT) {
+                                    this.quoteItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                    });
+                                } else if (response === ConfirmActions.REJECT) {
+                                    // we need to calculate the base currency amount numbers if we are going
+                                    // to keep the currency amounts - if not the data will be out of sync
+                                    this.quoteItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                    });
+                                }
+
+                                // make unitable update the data after calculations
+                                this.quoteItems = this.quoteItems.concat();
+                                this.recalcItemSums(this.quoteItems);
+
+                                // update the model
+                                this.quote = _.cloneDeep(quote);
+                            });
+                        } else if (this.quoteItems && this.quoteItems.length > 0) {
+                            // we need to calculate the new currency amount numbers if we are going
+                            // to keep the set currency amounts
+                            this.quoteItems.forEach(item => {
+                                this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                            });
+
+                            // make unitable update the data after calculations
+                            this.quoteItems = this.quoteItems.concat();
+                            this.recalcItemSums(this.quoteItems);
+
+                            // update the model
+                            this.quote = _.cloneDeep(quote);
+                        }
+                    }
+                }, err => this.errorService.handle(err)
+            );
+        }
+    }
+
+    private didCustomerChange(quote: CustomerQuote): boolean {
+        return quote.Customer
+            && (!this.quote
+            || (quote.Customer && !this.quote.Customer)
+            || (quote.Customer && this.quote.Customer && quote.Customer.ID !== this.quote.Customer.ID));
+    }
+
+    private getUpdatedCurrencyExchangeRate(quote): Observable<number> {
+        // if base currency code is the same a the currency code for the quote, the
+        // exchangerate will always be 1 - no point in asking the server about that..
+        if (!quote.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === quote.CurrencyCodeID) {
+            return Observable.from([1]);
+        } else {
+            let currencyDate: LocalDate = new LocalDate(quote.QuoteDate.toString());
+
+            return this.currencyService.getCurrencyExchangeRate(quote.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                .map(x => x.ExchangeRate);
+        }
+    }
+
+    private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
+        item.PriceExVat = this.tradeItemHelper.round(item.PriceExVatCurrency * newCurrencyRate, 4);
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
+    }
+
+    private recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, newCurrencyRate) {
+        if (!item.PriceSetByUser) {
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.PriceExVat / newCurrencyRate, 4);
+        }
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
     private getStatustrackConfig() {
@@ -325,9 +488,22 @@ export class QuoteDetails {
             ? this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name
             : '';
 
-        let netSumText = (this.itemsSummaryData)
-            ? 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'
-            : 'Netto kr ' + this.quote.TaxExclusiveAmount + '.';
+        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+
+        let netSumText = '';
+
+        if (this.itemsSummaryData) {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
+            }
+        } else {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.quote.TaxExclusiveAmountCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.quote.TaxExclusiveAmount)}`;
+            }
+        }
 
         this.toolbarconfig = {
             title: quoteText,
@@ -548,27 +724,47 @@ export class QuoteDetails {
         );
     }
 
+    private getCurrencyCode(currencyCodeID: number): string {
+        let currencyCode: CurrencyCode;
+
+        if (this.currencyCodes) {
+            if (currencyCodeID) {
+                currencyCode = this.currencyCodes.find(x => x.ID === currencyCodeID);
+            } else if (this.companySettings) {
+                currencyCode = this.currencyCodes.find(x => x.ID === this.companySettings.BaseCurrencyCodeID);
+            }
+        }
+
+        return currencyCode ? currencyCode.Code : '';
+    }
+
     private setSums() {
-        this.summary = [{
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : '',
+        this.summary = [
+        {
+            value: this.getCurrencyCode(this.currencyCodeID),
+            title: 'Valuta:',
+            description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+        },
+        {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
             title: 'Avgiftsfritt',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : '',
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
             title: 'Avgiftsgrunnlag',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : '',
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
             title: 'Sum rabatt',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : '',
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
             title: 'Nettosum',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : '',
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
             title: 'Mva',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : '',
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
             title: 'Øreavrunding',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : '',
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
             title: 'Totalsum',
         }];
     }

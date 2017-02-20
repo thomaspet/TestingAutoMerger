@@ -18,7 +18,6 @@ import {ReportsModule} from '../reports/reportsModule';
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/TradeItemHelper';
-import {OrderItemList} from './order/details/orderItemList';
 import {OrderList} from './order/list/orderList';
 import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
@@ -92,12 +91,12 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         InvoiceList,
         InvoiceDetails,
 
-        OrderItemList,
         OrderDetails,
         OrderList,
         OrderToInvoiceTable,
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
+
         QuoteDetails,
         QuoteList,
         SupplierDetailsModal,
@@ -134,7 +133,6 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         CustomerList,
         InvoiceList,
         InvoiceDetails,
-        OrderItemList,
         OrderDetails,
         OrderList,
         OrderToInvoiceTable,

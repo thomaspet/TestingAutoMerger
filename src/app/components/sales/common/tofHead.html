@@ -20,7 +20,8 @@
                           [entity]="data"
                           (entityChange)="onDataChange($event)"
                           [entityType]="entityName"
-                          [readonly]="readonly">
+                          [readonly]="readonly"
+                          [currencyCodes]="currencyCodes">
         </tof-details-form>
 
         <tof-delivery-form *ngIf="activeTabIndex === 1"
