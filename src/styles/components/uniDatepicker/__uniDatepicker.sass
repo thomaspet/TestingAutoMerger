@@ -43,7 +43,7 @@
         box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1)
         display: none
         border-radius: 3px
-        min-width: 15rem
+        min-width: 16rem
 
         &[aria-expanded]:not([aria-expanded=false])
             display: block
@@ -88,6 +88,8 @@
             height: 2rem
             line-height: 2rem
             cursor: pointer
+            text-overflow: visible
+            overflow: visible
 
             &.selected, &:hover
                 color: $uni-color-c2a
