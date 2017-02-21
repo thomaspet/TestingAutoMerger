@@ -2,4 +2,5 @@
 <article class="application salarybalance">
     <button (click)="createSalarybalance()" class="new-button">Nytt forskudd/trekk</button>
     <uni-table [resource]="salarybalances$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
+    <salary-balance-summary [salaryBalance]="selectedBalance$ | async"></salary-balance-summary>
 </article>

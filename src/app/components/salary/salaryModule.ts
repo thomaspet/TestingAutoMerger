@@ -70,6 +70,7 @@ import {CategoryView} from './category/categoryView';
 import {CategoryDetail} from './category/views/categoryDetails';
 
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
@@ -164,7 +165,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CategoryDetail,
 
         // Salarybalance
-        SalarybalanceList
+        SalarybalanceList,
+        SalaryBalanceSummary
     ],
     entryComponents: [
         TaxCardModalContent,
@@ -244,7 +246,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CategoryDetail,
 
         // Salarybalance
-        SalarybalanceList
+        SalarybalanceList,
+        SalaryBalanceSummary
     ]
 })
 export class SalaryModule {
