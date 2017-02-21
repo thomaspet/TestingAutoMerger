@@ -42,6 +42,13 @@ ngPackageNames.forEach(function(element) {
     };
 });
 
+// Cache busting for the systemjs lazy loaded modules
+var systemLocate = System.locate;
+System.locate = function (load) {
+    load.name = load.name + '?cache-bust=' + APP_VERSION;
+    return systemLocate.call(this, load);
+};
+
 // Apply the user's configuration.
 System.config({
     packages: packages
