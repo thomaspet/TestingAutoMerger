@@ -54,6 +54,8 @@ export enum UniModules {
     Projects        = 700,
     Departments     = 701,
 
+    Jobs            = 800,
+
     PaymentList     = 900
 }
 

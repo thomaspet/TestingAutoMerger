@@ -183,6 +183,14 @@ export class HamburgerMenu {
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/project', moduleID: UniModules.Projects},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/department', moduleID: UniModules.Departments}
                 ]
+            },
+            {
+                componentListName: 'Admin',
+                componentListHeader: 'Admin',
+                componentListUrl: '/admin',
+                componentList: [
+                    {componentName: 'Jobber', componentUrl: '/admin/jobs', moduleID: UniModules.Jobs}
+                ]
             }
         ];
     }

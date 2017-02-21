@@ -1987,10 +1987,10 @@ export class Product extends UniEntity {
     public UpdatedBy: string;
     public VariansParentID: number;
     public VatTypeID: number;
-    public VatType: VatType;
     public Account: Account;
-    public ProductCategoryLinks: Array<ProductCategoryLink>;
+    public VatType: VatType;
     public Dimensions: Dimensions;
+    public ProductCategoryLinks: Array<ProductCategoryLink>;
     public CustomFields: any;
 }
 
@@ -4386,8 +4386,8 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public Previous: BalanceInfo;
     public WorkRelation: WorkRelation;
+    public Previous: BalanceInfo;
     public CustomFields: any;
 }
 
@@ -4406,6 +4406,24 @@ export class ContactSearchServiceResponse extends UniEntity {
     public Method: string;
     public ObjectName: string;
     public Success: boolean;
+}
+
+
+export class InvoicesAndRemindersReadyToRemind extends UniEntity {
+    public CustomerID: number;
+    public CustomerInvoiceID: number;
+    public CustomerInvoiceReminderID: number;
+    public CustomerName: string;
+    public CustomerNumber: number;
+    public DueDate: Date;
+    public EmailAddress: string;
+    public Fee: number;
+    public InvoiceDate: Date;
+    public InvoiceNumber: number;
+    public ReminderNumber: number;
+    public RestAmount: number;
+    public StatusCode: number;
+    public TaxInclusiveAmount: number;
 }
 
 

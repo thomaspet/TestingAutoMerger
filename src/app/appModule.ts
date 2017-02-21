@@ -34,6 +34,7 @@ import {SalesModule} from './components/sales/salesModule';
 import {SettingsModule} from './components/settings/settingsModule';
 import {TimetrackingModule} from './components/timetracking/timetrackingModule';
 import {BankModule} from './components/bank/bankModule';
+import {AdminModule} from './components/admin/adminModule';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -79,7 +80,8 @@ if (window.ENV === 'production') {
         SettingsModule,
         TimetrackingModule,
         UniQueryModule,
-        BankModule
+        BankModule,
+        AdminModule
     ],
     declarations: [
         App,
