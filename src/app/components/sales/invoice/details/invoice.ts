@@ -872,7 +872,7 @@ export class InvoiceDetails {
 
         const invoiceData = {
             Amount: this.invoice.RestAmount,
-            PaymentDate: new Date()
+            PaymentDate: new LocalDate(Date())
         };
 
         this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);

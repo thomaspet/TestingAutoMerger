@@ -494,7 +494,7 @@ export class CustomerInvoice extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public Deleted: boolean;
-    public DeliveryDate: Date;
+    public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
@@ -508,7 +508,7 @@ export class CustomerInvoice extends UniEntity {
     public InvoiceCity: string;
     public InvoiceCountry: string;
     public InvoiceCountryCode: string;
-    public InvoiceDate: Date;
+    public InvoiceDate: LocalDate;
     public InvoiceNumber: string;
     public InvoiceNumberSeriesID: number;
     public InvoicePostalCode: string;
@@ -518,7 +518,7 @@ export class CustomerInvoice extends UniEntity {
     public JournalEntryID: number;
     public OurReference: string;
     public Payment: string;
-    public PaymentDueDate: Date;
+    public PaymentDueDate: LocalDate;
     public PaymentID: string;
     public PaymentInformation: string;
     public PaymentTerm: string;
@@ -614,7 +614,7 @@ export class CustomerOrder extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public Deleted: boolean;
-    public DeliveryDate: Date;
+    public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryTerm: string;
     public FreeTxt: string;
@@ -628,7 +628,7 @@ export class CustomerOrder extends UniEntity {
     public InvoiceCountryCode: string;
     public InvoicePostalCode: string;
     public InvoiceReceiverName: string;
-    public OrderDate: Date;
+    public OrderDate: LocalDate;
     public OrderNumber: number;
     public OrderNumberSeriesID: number;
     public OurReference: string;
@@ -721,7 +721,7 @@ export class CustomerQuote extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public Deleted: boolean;
-    public DeliveryDate: Date;
+    public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryTerm: string;
     public FreeTxt: string;
@@ -739,7 +739,7 @@ export class CustomerQuote extends UniEntity {
     public OurReference: string;
     public PaymentTerm: string;
     public PrintStatus: number;
-    public QuoteDate: Date;
+    public QuoteDate: LocalDate;
     public QuoteNumber: number;
     public QuoteNumberSeriesID: number;
     public Requisition: string;
@@ -759,7 +759,7 @@ export class CustomerQuote extends UniEntity {
     public TaxInclusiveAmountCurrency: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ValidUntilDate: Date;
+    public ValidUntilDate: LocalDate;
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
@@ -1773,10 +1773,10 @@ export class Period extends UniEntity {
     public static EntityType = 'Period';
 
     public AccountYear: number;
-    public CreatedAt: Date;
+    public CreatedAt: LocalDate;
     public CreatedBy: string;
     public Deleted: boolean;
-    public FromDate: Date;
+    public FromDate: LocalDate;
     public ID: number;
     public Name: string;
     public No: number;
@@ -1797,7 +1797,7 @@ export class CompanySettings extends UniEntity {
     public static EntityType = 'CompanySettings';
 
     public AccountGroupSetID: number;
-    public AccountingLockedDate: Date;
+    public AccountingLockedDate: LocalDate;
     public AccountVisibilityGroupID: number;
     public APActivated: boolean;
     public APGuid: string;
@@ -1837,7 +1837,7 @@ export class CompanySettings extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UseXtraPaymentOrgXmlTag: boolean;
-    public VatLockedDate: Date;
+    public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
     public DefaultAddress: Address;
@@ -3199,12 +3199,12 @@ export class PeriodTemplate extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
-    public FromDate: Date;
+    public FromDate: LocalDate;
     public ID: number;
     public Name: string;
     public No: number;
     public PeriodSeriesID: number;
-    public ToDate: Date;
+    public ToDate: LocalDate;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public PeriodSeries: PeriodSeries;
@@ -3450,8 +3450,8 @@ export class JournalEntryLine extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
-    public DueDate: Date;
-    public FinancialDate: Date;
+    public DueDate: LocalDate;
+    public FinancialDate: LocalDate;
     public ID: number;
     public InvoiceNumber: string;
     public JournalEntryID: number;
@@ -3464,7 +3464,7 @@ export class JournalEntryLine extends UniEntity {
     public PeriodID: number;
     public ReferenceCreditPostID: number;
     public ReferenceOriginalPostID: number;
-    public RegisteredDate: Date;
+    public RegisteredDate: LocalDate;
     public RestAmount: number;
     public RestAmountCurrency: number;
     public Signature: string;
@@ -3475,7 +3475,7 @@ export class JournalEntryLine extends UniEntity {
     public TaxBasisAmountCurrency: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public VatDate: Date;
+    public VatDate: LocalDate;
     public VatDeductionPercent: number;
     public VatJournalEntryPostID: number;
     public VatPercent: number;
@@ -3521,8 +3521,8 @@ export class JournalEntryLineDraft extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
-    public DueDate: Date;
-    public FinancialDate: Date;
+    public DueDate: LocalDate;
+    public FinancialDate: LocalDate;
     public ID: number;
     public InvoiceNumber: string;
     public JournalEntryID: number;
@@ -3530,7 +3530,7 @@ export class JournalEntryLineDraft extends UniEntity {
     public JournalEntryNumberNumeric: number;
     public JournalEntryTypeID: number;
     public PeriodID: number;
-    public RegisteredDate: Date;
+    public RegisteredDate: LocalDate;
     public Signature: string;
     public StatusCode: number;
     public SubAccountID: number;
@@ -3539,7 +3539,7 @@ export class JournalEntryLineDraft extends UniEntity {
     public TaxBasisAmountCurrency: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public VatDate: Date;
+    public VatDate: LocalDate;
     public VatDeductionPercent: number;
     public VatPercent: number;
     public VatPeriodID: number;
@@ -3602,14 +3602,14 @@ export class Payment extends UniEntity {
     public CurrencyExchangeRate: number;
     public Deleted: boolean;
     public Description: string;
-    public DueDate: Date;
+    public DueDate: LocalDate;
     public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
     public OcrPaymentStrings: string;
     public PaymentBatchID: number;
     public PaymentCodeID: number;
-    public PaymentDate: Date;
+    public PaymentDate: LocalDate;
     public PaymentID: string;
     public PaymentNotificationReportFileID: number;
     public ReconcilePayment: boolean;
@@ -3770,7 +3770,7 @@ export class PostPost extends UniEntity {
     public CreatedBy: string;
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
-    public Date: Date;
+    public Date: LocalDate;
     public Deleted: boolean;
     public ID: number;
     public JournalEntryLine1ID: number;
@@ -3844,7 +3844,7 @@ export class SupplierInvoice extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public Deleted: boolean;
-    public DeliveryDate: Date;
+    public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
@@ -3858,7 +3858,7 @@ export class SupplierInvoice extends UniEntity {
     public InvoiceCity: string;
     public InvoiceCountry: string;
     public InvoiceCountryCode: string;
-    public InvoiceDate: Date;
+    public InvoiceDate: LocalDate;
     public InvoiceNumber: string;
     public InvoicePostalCode: string;
     public InvoiceReceiverName: string;
@@ -4093,8 +4093,8 @@ export class FinancialYear extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ValidFrom: Date;
-    public ValidTo: Date;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
     public Year: number;
     public CustomFields: any;
 }
@@ -4112,8 +4112,8 @@ export class VatDeduction extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ValidFrom: Date;
-    public ValidTo: Date;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
     public CustomFields: any;
 }
 
@@ -4808,7 +4808,7 @@ export class JournalEntryData extends UniEntity {
     public DebitAccountNumber: number;
     public DebitVatTypeID: number;
     public Description: string;
-    public FinancialDate: Date;
+    public FinancialDate: LocalDate;
     public InvoiceNumber: string;
     public JournalEntryDataAccrualID: number;
     public JournalEntryID: number;

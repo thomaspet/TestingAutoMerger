@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount} from '../../../../unientities';
+import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
@@ -1025,7 +1025,7 @@ export class BillView {
 
         const invoiceData = {
             Amount: current.RestAmount,
-            PaymentDate: new Date()
+            PaymentDate: new LocalDate(Date())
         };
 
         this.registerPaymentModal.openModal(current.ID, title, invoiceData);

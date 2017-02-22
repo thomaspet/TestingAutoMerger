@@ -171,8 +171,8 @@ export class QuoteDetails {
                     (res) => {
                         let quote = <CustomerQuote> res[0];
                         quote.OurReference = res[1].DisplayName;
-                        quote.QuoteDate = new Date();
-                        quote.DeliveryDate = new Date();
+                        quote.QuoteDate = new LocalDate(Date());
+                        quote.DeliveryDate = new LocalDate(Date());
                         quote.ValidUntilDate = null;
 
                         this.companySettings = res[2];
@@ -300,7 +300,7 @@ export class QuoteDetails {
         }
 
         if (quote.QuoteDate && !quote.ValidUntilDate) {
-            quote.ValidUntilDate = moment(quote.QuoteDate).add(1, 'month').toDate();
+            quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
         }
 
         if (!quote.CreditDays) {

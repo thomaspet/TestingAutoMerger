@@ -189,8 +189,8 @@ export class OrderDetails {
                     (res) => {
                         let order = <CustomerOrder> res[0];
                         order.OurReference = res[1].DisplayName;
-                        order.OrderDate = new Date();
-                        order.DeliveryDate = new Date();
+                        order.OrderDate = new LocalDate(Date());
+                        order.DeliveryDate = new LocalDate(Date());
 
                         this.companySettings = res[2];
 

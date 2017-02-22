@@ -2,7 +2,7 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
+import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -254,7 +254,7 @@ export class InvoiceList implements OnInit {
                 const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
                 const invoiceData: InvoicePaymentData = {
                     Amount: rowModel.RestAmount,
-                    PaymentDate: new Date()
+                    PaymentDate: new LocalDate(Date())
                 };
 
                 this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);

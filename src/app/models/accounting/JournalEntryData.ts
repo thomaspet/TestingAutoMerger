@@ -1,4 +1,4 @@
-import {JournalEntry, Account, VatType, Dimensions, Payment, Accrual} from '../../unientities';
+import {JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, LocalDate} from '../../unientities';
 
 export class JournalEntryData {
     JournalEntryID: number;
@@ -26,7 +26,7 @@ export class JournalEntryData {
 
     Description: string;
 
-    FinancialDate: Date;
+    FinancialDate: LocalDate;
 
     CustomerInvoiceID: number;
     SupplierInvoiceID: number;
@@ -39,6 +39,7 @@ export class JournalEntryData {
     Dimensions: Dimensions;
 
     JournalEntryDraftIDs: number[];
+    JournalEntryDrafts: JournalEntryLineDraft[];
 
     FileIDs: number[];
 
@@ -49,8 +50,16 @@ export class JournalEntryData {
     JournalEntryPaymentData: JournalEntryPaymentData;
 
     JournalEntryDataAccrual: Accrual;
+    JournalEntryDataAccrualID: number;
+
+    CustomerOrderID: number;
 }
 
 export class JournalEntryPaymentData {
     PaymentData: Payment;
+}
+
+export class JournalEntryExtended extends JournalEntry {
+    FileIDs: number[];
+    Payments: Payment[];
 }
