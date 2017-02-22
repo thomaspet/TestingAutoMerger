@@ -135,15 +135,15 @@ export class UniConfirmModal {
 
     // Adds default wording for save confirmations
     public confirmSave(
-            message: string = 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?!',
-            title: string = 'Lagre endringer?!',
+            message: string = 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
+            title: string = 'Lagre endringer?',
             hasCancel: boolean = true,
             titles?: { accept?: string, reject?: string, cancel?: string, warning?: string }
         ): Promise<number> {
 
         titles = {
-            accept:  titles && titles.accept ? titles.accept : 'Lagre nå!',
-            reject:  titles && titles.reject ? titles.reject : 'Forkast!',
+            accept:  titles && titles.accept ? titles.accept : 'Lagre nå',
+            reject:  titles && titles.reject ? titles.reject : 'Forkast',
             cancel:  titles && titles.cancel ? titles.cancel : undefined,
             warning: titles && titles.warning ? titles.warning : undefined
         };
