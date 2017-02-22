@@ -4,8 +4,6 @@ import { Router } from '@angular/router';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import { SalarybalanceService, ErrorService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-
 import { SalaryBalance } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 
@@ -17,7 +15,6 @@ export class SalarybalanceList implements OnInit {
 
     private tableConfig: UniTableConfig;
     private salarybalances$: Observable<SalaryBalance[]>;
-    private selectedBalance$: BehaviorSubject<SalaryBalance>;
 
     constructor(
         private _router: Router,
@@ -29,7 +26,6 @@ export class SalarybalanceList implements OnInit {
     }
 
     public ngOnInit() {
-        this.selectedBalance$ = new BehaviorSubject<SalaryBalance>(undefined);
         this.salarybalances$ = this._salarybalanceService.GetAll('orderBy=EmployeeID ASC')
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
@@ -49,7 +45,7 @@ export class SalarybalanceList implements OnInit {
     }
 
     public rowSelected(event) {
-        this.selectedBalance$.next(event.rowModel);
+        this._router.navigateByUrl('/salary/salarybalances/' + event.rowModel.ID);
     }
 
     public createSalarybalance() {

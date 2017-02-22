@@ -1,0 +1,4 @@
+<section class="application">
+    <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
+    <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
+</section>

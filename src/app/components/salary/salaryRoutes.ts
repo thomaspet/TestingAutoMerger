@@ -18,13 +18,16 @@ import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {routes as CategoryRoutes} from './category/categoryRoutes';
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalarybalanceView} from './salarybalance/salarybalanceView';
+import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
 
 // Maps entitytype to frontend route
 // Important for notifications to work properly!
 export const entityTypeMap: any = {
     'wagetype': 'wagetypes/:id',
     'employee': 'employees/:id',
-    'payrollrun': 'payrollrun/:id'
+    'payrollrun': 'payrollrun/:id',
+    'salarybalance': 'salarybalances/:id'
 };
 
 export const childRoutes = [
@@ -79,6 +82,12 @@ export const childRoutes = [
     {
         path: 'salarybalances',
         component: SalarybalanceList
+    },
+    {
+        path: 'salarybalances/:id',
+        component: SalarybalanceView,
+        children: SalarybalanceRoutes,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

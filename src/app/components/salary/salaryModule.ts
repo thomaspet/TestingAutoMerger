@@ -70,6 +70,8 @@ import {CategoryView} from './category/categoryView';
 import {CategoryDetail} from './category/views/categoryDetails';
 
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalarybalanceView} from './salarybalance/salarybalanceView';
+import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
 import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
@@ -166,6 +168,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         // Salarybalance
         SalarybalanceList,
+        SalarybalanceView,
+        SalarybalanceDetail,
         SalaryBalanceSummary
     ],
     entryComponents: [
@@ -247,6 +251,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         // Salarybalance
         SalarybalanceList,
+        SalarybalanceView,
+        SalarybalanceDetail,
         SalaryBalanceSummary
     ]
 })

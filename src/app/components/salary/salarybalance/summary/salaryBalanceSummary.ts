@@ -16,6 +16,8 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private salaryTransactionsModel$: BehaviorSubject<SalaryTransaction[]>;
     private description$: BehaviorSubject<string>;
     private tableConfig: UniTableConfig;
+    private showDescriptionText: boolean = false;
+
     constructor(
         private salaryTransactionService: SalaryTransactionService,
         private errorService: ErrorService,
@@ -29,7 +31,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     }
 
     public ngOnChanges() {
-        if (this.salaryBalance) {
+        if (this.salaryBalance && this.salaryBalance.ID) {
             let transObs = this.salaryBalance.Transactions && this.salaryBalance.Transactions.length
                 ? Observable.of(this.salaryBalance.Transactions)
                 : this.salaryTransactionService

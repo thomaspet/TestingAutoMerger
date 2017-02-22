@@ -969,10 +969,10 @@ export class AGACalculation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
-    public agaDraw: Array<AGADraw>;
     public agaPension: Array<AGAPension>;
+    public freeAmountUsed: Array<FreeAmountUsed>;
+    public agaDraw: Array<AGADraw>;
     public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public foreignerWithAmount: Array<ForeignerWithAmount>;
