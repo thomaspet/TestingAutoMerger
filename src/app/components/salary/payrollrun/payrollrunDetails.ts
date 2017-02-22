@@ -545,10 +545,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 return result
                     ? Observable.of(result)
                     : Observable
-                        .fromPromise(
-                        this.confirmModal.confirm(
-                            'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
-                            'Lagre endringer?', true, { accept: 'Lagre', reject: 'Forkast' }))
+                        .fromPromise( this.confirmModal.confirmSave() )
                         .map((response: ConfirmActions) => {
                             if (response === ConfirmActions.ACCEPT) {
                                 this.saveAll((m) => { });
