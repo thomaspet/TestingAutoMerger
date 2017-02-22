@@ -42,7 +42,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     @ViewChild(UniForm) public uniform: UniForm;
-    private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(new PayrollRun());
+    private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
@@ -174,7 +174,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     }
                 })
                 .subscribe((payrollRun: PayrollRun) => {
-
+                    if (payrollRun['_IncludeRecurringPosts'] === undefined) {
+                        payrollRun['_IncludeRecurringPosts'] = !payrollRun.ExcludeRecurringPosts;
+                    }
                     this.payrollrun$.next(payrollRun);
                     if (payrollRun && payrollRun.PayDate) {
                         this.payDate = new Date(payrollRun.PayDate.toString());
@@ -231,7 +233,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             label: 'Avregn',
                             action: this.runSettling.bind(this),
                             main: false,
-                            disabled: this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode > 0 : true
+                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
                         },
                         {
                             label: 'Til utbetaling',
@@ -248,7 +250,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     ];
 
                     this.checkDirty();
-                    if (this.changedPayroll && !this.payrollrun$.getValue().Description && !this.detailsActive) {
+                    if (this.changedPayroll && !payrollRun.Description && !this.detailsActive) {
                         this.toggleDetailsView();
                     }
                     this.changedPayroll = false;
@@ -974,7 +976,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
         idField = this.findByProperty('ID');
         idField.ReadOnly = true;
-        var recurringTransCheck: UniFieldLayout = this.findByProperty('ExcludeRecurringPosts');
+        var recurringTransCheck: UniFieldLayout = this.findByProperty('_IncludeRecurringPosts');
         var noNegativePayCheck: UniFieldLayout = this.findByProperty('1');
         if (this.isEditable) {
             recurringTransCheck.ReadOnly = false;
@@ -1029,7 +1031,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private change(changes: SimpleChanges) {
-        super.updateState('payrollRun', this.payrollrun$.getValue(), true);
+        let payrollRun = this.payrollrun$.getValue();
+        payrollRun.ExcludeRecurringPosts = !payrollRun['_IncludeRecurringPosts'];
+        super.updateState('payrollRun', payrollRun, true);
     }
 
     private populateCategoryFilters() {
