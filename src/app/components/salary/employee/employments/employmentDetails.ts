@@ -85,12 +85,12 @@ export class EmploymentDetails implements OnChanges {
 
             let jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
-                getDefaultData: () => this.employment
+                getDefaultData: () => this.employment && this.employment.JobCode
                     ? this.statisticsService
                         .GetAll('model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq ' + this.employment.JobCode)
                         .map(x => x.Data)
                     : Observable.of([{ styrk: '', tittel: '' }]),
-                template: (obj) => obj ? `${obj.styrk} - ${obj.tittel}` : '',
+                template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
                 search: (query: string) => this.statisticsService
                     .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or startswith(tittel,'${query}')`)
                     .map(x => x.Data),
