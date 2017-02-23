@@ -4,7 +4,7 @@ import { WageTypeService, SalaryTransactionService, UniCacheService, AccountServ
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
-    SalaryTransactionSupplement, WageTypeSupplement, Account, Employee
+    SalaryTransactionSupplement, WageTypeSupplement, Account, Employee, SalBalType
 } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
@@ -68,7 +68,7 @@ export class RecurringPost extends UniView {
             });
 
             recurringPostSubject.subscribe((posts: SalaryTransaction[]) => {
-                if (!this.recurringPosts 
+                if (!this.recurringPosts
                     || !this.recurringPosts.length
                     || this.refresh
                     || !posts.some(x => x['_isDirty'] || x.Deleted)) {
@@ -437,6 +437,20 @@ export class RecurringPost extends UniView {
 
     public openSuplementaryInformationModal(row: SalaryTransaction) {
         this.supplementModal.openModal(row, false);
+    }
+
+    public navigateToNewAdvance() {
+        this.router
+            .navigate(
+            [`salary/salarybalances/0/details`,
+                { employeeID: this.employeeID, instalmentType: SalBalType.Advance }]);
+    }
+
+    public navigateToNewDraw() {
+        this.router
+            .navigate(
+            [`salary/salarybalances/0/details`,
+                { employeeID: this.employeeID }]);
     }
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {

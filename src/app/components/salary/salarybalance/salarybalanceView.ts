@@ -49,6 +49,7 @@ export class SalarybalanceView extends UniView {
 
         this.route.params.subscribe((params) => {
             this.salarybalanceID = +params['id'];
+            this.updateTabStrip(this.salarybalanceID);
 
             super.updateCacheKey(this.router.url);
 
@@ -66,8 +67,6 @@ export class SalarybalanceView extends UniView {
                             add: this.newSalarybalance.bind(this)
                         }
                     };
-
-                    this.updateTabStrip(this.salarybalanceID, this.salarybalance);
 
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
@@ -112,7 +111,7 @@ export class SalarybalanceView extends UniView {
             .map(canDeactivate => {
                 canDeactivate
                     ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.salarybalanceID, this.salarybalance);
+                    : this.updateTabStrip(this.salarybalanceID);
 
                 return canDeactivate;
             });
@@ -194,11 +193,11 @@ export class SalarybalanceView extends UniView {
             });
     }
 
-    private updateTabStrip(salarybalanceID, salarybalance: SalaryBalance) {
-        if (salarybalance.ID) {
+    private updateTabStrip(salarybalanceID: number) {
+        if (salarybalanceID) {
             this.tabService.addTab({
-                name: 'Saldonr. ' + salarybalance.ID,
-                url: this.url + salarybalance.ID,
+                name: 'Saldonr. ' + salarybalanceID,
+                url: this.url + salarybalanceID,
                 moduleID: UniModules.Salarybalances,
                 active: true
             });
@@ -206,7 +205,7 @@ export class SalarybalanceView extends UniView {
             this.tabService.addTab({
                 name: 'Ny saldo',
                 url: this.url + salarybalanceID,
-                moduleID: UniModules.Categories,
+                moduleID: UniModules.Salarybalances,
                 active: true
             });
         }

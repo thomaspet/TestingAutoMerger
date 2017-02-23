@@ -1,8 +1,8 @@
-import { Component, ViewChild, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, AfterViewInit, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IContextMenuItem } from 'unitable-ng2/main';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard } from '../../../unientities';
+import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard, SalBalType } from '../../../unientities';
 import { ISummaryConfig } from '../../common/summary/summary';
 import { UniView } from '../../../../framework/core/uniView';
 import { SalaryTransactionEmployeeList } from './salarytransList';
@@ -23,7 +23,7 @@ declare var _;
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
 })
 
-export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
+export class SalaryTransactionSelectionList extends UniView implements AfterViewInit, OnInit {
     private salarytransSelectionTableConfig: UniTableConfig;
     private employeeList: Employee[] = [];
     private selectedIndex: number = 0;
@@ -31,6 +31,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private payrollRunID: number;
     private payrollRun: PayrollRun;
     private summary: ISummaryConfig[] = [];
+    private contextMenu: IContextMenuItem[];
 
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public busy: boolean;
@@ -69,6 +70,13 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 this.payrollRun = payrollRun;
             });
         });
+    }
+
+    public ngOnInit() {
+        this.contextMenu = [
+            {label: 'Forskudd', action: () => this.navigateToNewAdvance()},
+            {label: 'Trekk', action: () => this.navigateToNewDraw()}
+        ];
     }
 
     public ngAfterViewInit() {
@@ -271,5 +279,26 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     public setEditable(isEditable: boolean) {
         this.transList.setEditable(isEditable);
+    }
+
+
+    public navigateToNewAdvance() {
+        let employee = this.employeeList[this.selectedIndex];
+        if (employee) {
+            this.router
+                .navigate(
+                [`salary/salarybalances/0/details`,
+                    { employeeID: employee.ID, instalmentType: SalBalType.Advance }]);
+        }
+    }
+
+    public navigateToNewDraw() {
+        let employee = this.employeeList[this.selectedIndex];
+        if (employee) {
+            this.router
+                .navigate(
+                [`salary/salarybalances/0/details`,
+                    { employeeID: employee.ID }]);
+        }
     }
 }

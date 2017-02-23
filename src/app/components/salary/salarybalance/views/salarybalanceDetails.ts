@@ -1,10 +1,11 @@
 import { Component, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
-import { 
+import {
     UniCacheService, ErrorService, SalarybalanceService, WageTypeService, EmployeeService
 } from '../../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { SalaryBalance, SalBalType, WageType, Employee } from '../../../../unientities';
@@ -17,6 +18,7 @@ export class SalarybalanceDetail extends UniView {
     private salarybalanceID: number;
     private wagetypes: WageType[];
     private employees: Employee[];
+    private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
@@ -42,15 +44,38 @@ export class SalarybalanceDetail extends UniView {
 
         this.route.parent.params.subscribe(params => {
             super.updateCacheKey(router.url);
+            super.getStateSubject('salarybalance').subscribe(salaryBalance => {
+                this.cachedSalaryBalance$.next(salaryBalance);
+            });
+        });
 
-            super.getStateSubject('salarybalance').subscribe((salarybalance: SalaryBalance) => {
-                if (salarybalance.ID !== this.salarybalanceID) {
-                    this.salarybalance$.next(salarybalance);
-                    this.salarybalanceID = salarybalance.ID;
+        this.route.params.subscribe(params => {
+            let employeeID: number = +params['employeeID'] || undefined;
+            let type: SalBalType = +params['instalmentType'] || undefined;
 
-                    this.setup();
-                }
-            }, err => this.errorService.handle(err));
+            this.cachedSalaryBalance$
+                .subscribe((salarybalance: SalaryBalance) => {
+                    if (salarybalance.ID !== this.salarybalanceID) {
+
+                        this.salarybalance$.next(salarybalance);
+                        this.salarybalanceID = salarybalance.ID;
+
+                        if (!salarybalance.ID) {
+                            if (employeeID) {
+                                salarybalance.EmployeeID = employeeID;
+                            }
+                            if (type) {
+                                salarybalance.InstalmentType = type;
+                            }
+
+                            if (employeeID || type) {
+                                super.updateState('salarybalance', salarybalance, true);
+                            }
+                        }
+
+                        this.setup();
+                    }
+                }, err => this.errorService.handle(err));
         });
     }
 

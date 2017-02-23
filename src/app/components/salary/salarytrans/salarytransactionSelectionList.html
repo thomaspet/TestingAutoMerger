@@ -14,6 +14,10 @@
             </section>
 
             <nav class="detail_header_navigation" *ngIf="employeeList.length">
+                <uni-context-menu 
+                    *ngIf="contextMenu"
+                    [actions]="contextMenu">
+                </uni-context-menu>
                 <a (click)="goToPreviousEmployee()" class="previous">Forrige</a>
                 <a (click)="goToNextEmployee()" class="next">Neste</a>
             </nav>
