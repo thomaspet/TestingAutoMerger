@@ -8,7 +8,7 @@ import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode} fro
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -296,33 +296,29 @@ export class InvoiceDetails {
             return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Ønsker du å lagre fakturaen før du fortsetter?',
-                'Ulagrede endringer',
-                true
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    if (!this.invoice.StatusCode) {
-                        this.invoice.StatusCode = StatusCode.Draft;
-                    }
-                    this.saveInvoice().subscribe(
-                        (res) => {
-                            this.isDirty = false;
-                            resolve(true);
-                        },
-                        (err) => {
-                            this.errorService.handle(err);
-                            resolve(false);
-                        }
-                    );
-                } else if (action === ConfirmActions.REJECT) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                    this.updateTabTitle();
+        return this.confirmModal.confirm(
+            'Ønsker du å lagre fakturaen før du fortsetter?',
+            'Ulagrede endringer',
+            true
+        ).then((action) => {
+            if (action === ConfirmActions.ACCEPT) {
+                if (!this.invoice.StatusCode) {
+                    this.invoice.StatusCode = StatusCode.Draft;
                 }
-            });
+
+                this.saveInvoice().then(res => {
+                    this.isDirty = false;
+                    return true;
+                }).catch(reason => {
+                    this.toastService.addToast('Lagring avbrutt', ToastType.warn, ToastTime.short, reason);
+                    return false;
+                });
+            } else if (action === ConfirmActions.REJECT) {
+                return true;
+            } else {
+                this.updateTabTitle();
+                return false;
+            }
         });
     }
 
@@ -385,25 +381,52 @@ export class InvoiceDetails {
                         this.currencyExchangeRate = newCurrencyRate;
                         invoice.CurrencyExchangeRate = res;
 
-                        if (this.invoiceItems && this.invoiceItems.filter(x => !x.PriceSetByUser).length > 0) {
+                        let askUserWhatToDo: boolean = false;
+
+                        let newTotalExVatBaseCurrency: number;
+                        let diffBaseCurrency: number;
+                        let diffBaseCurrencyPercent: number;
+
+                        if (this.invoiceItems && this.invoiceItems.filter(x => x.PriceSetByUser).length > 0) {
+                            // calculate how much the new currency will affect the amount for the base currency,
+                            // if it doesnt cause a change larger than 5%, don't bother asking the user what
+                            // to do, just use the set prices
+                            newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
+                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+
+                            diffBaseCurrencyPercent =
+                                this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
+
+                            // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
+                            // or make it possible to override it either on companysettings, customer, or the TOF header
+                            if (diffBaseCurrencyPercent > 5) {
+                                askUserWhatToDo = true;
+                            }
+                        }
+
+                        if (askUserWhatToDo) {
+                            let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+
                             this.confirmModal.confirm(
-                                `Det er lagt inn linjer som er basert på en annen valutakurs enn den som nå er valgt - vil du rekalkulere priser basert på ny kurs?`,
-                                'Rekalkulere priser for produkter?',
+                                `Endringen førte til at en ny valutakurs ble hentet. Dette fører til at totalsum eks. mva ` +
+                                `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% ` +
+                                `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n` +
+                                `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
+                                'Rekalkulere valutapriser for varer?',
                                 false,
-                                {accept: 'Rekalkuler priser', reject: 'Ikke rekalkuler'}
+                                {accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser'}
                             ).then((response: ConfirmActions) => {
                                 if (response === ConfirmActions.ACCEPT) {
-                                    // we need to calculate the currency amounts based on the original prices
-                                    // defined in the base currency
-                                    this.invoiceItems.forEach(item => {
-                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
-                                    });
-
-                                } else if (response === ConfirmActions.REJECT) {
                                     // we need to calculate the base currency amount numbers if we are going
                                     // to keep the currency amounts - if not the data will be out of sync
                                     this.invoiceItems.forEach(item => {
                                         this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                    });
+                                } else if (response === ConfirmActions.REJECT) {
+                                    // we need to calculate the currency amounts based on the original prices
+                                    // defined in the base currency
+                                    this.invoiceItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
                                     });
                                 }
 
@@ -423,6 +446,12 @@ export class InvoiceDetails {
 
                             // make unitable update the data after calculations
                             this.invoiceItems = this.invoiceItems.concat();
+                            this.recalcItemSums(this.invoiceItems);
+
+                            // update the model
+                            this.invoice = _.cloneDeep(invoice);
+                        } else {
+                            // update
                             this.recalcItemSums(this.invoiceItems);
 
                             // update the model
@@ -474,8 +503,20 @@ export class InvoiceDetails {
     }
 
     private recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, newCurrencyRate) {
-        if (!item.PriceSetByUser) {
+        if (!item.PriceSetByUser || !item.Product) {
+            // if price has not been changed by the user, recalc based on the PriceExVat.
+            // we do this before using the products price in case the product has been changed
+            // after the item was created. This is also done if no Product is selected
             item.PriceExVatCurrency = this.tradeItemHelper.round(item.PriceExVat / newCurrencyRate, 4);
+        } else {
+            // if the user has changed the price for this item, we need to recalc based
+            // on the product's PriceExVat, because using the items PriceExVat will not make
+            // sense as that has also been changed when the user when the currency price
+            // was changed
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.Product.PriceExVat / newCurrencyRate, 4);
+
+            // if price was set by user, it is not any longer
+            item.PriceSetByUser = false;
         }
 
         this.tradeItemHelper.calculatePriceIncVat(item);
@@ -528,9 +569,9 @@ export class InvoiceDetails {
         }
 
         if (invoice.InvoiceDate && !invoice.PaymentDueDate && invoice.CreditDays) {
-            invoice.PaymentDueDate = <any>new LocalDate(
+            invoice.PaymentDueDate = new LocalDate(
                 moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
-            ); // TODO: Remove <any> when backend is ready
+            );
         }
 
         this.newInvoiceItem = <any> this.tradeItemHelper.getDefaultTradeItemData(invoice);
@@ -679,8 +720,7 @@ export class InvoiceDetails {
         });
     }
 
-    private saveInvoice(): Observable<CustomerInvoice> {
-        this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+    private saveInvoice(): Promise<CustomerInvoice> {
         this.invoice.Items = this.invoiceItems;
 
         // Prep new orderlines for complex put
@@ -721,18 +761,45 @@ export class InvoiceDetails {
         }
 
         if (!this.invoice.DeliveryDate) {
-            // TODO: Remove <any> when backend is ready
-            this.invoice.DeliveryDate = this.invoice.InvoiceDate || <any>new LocalDate();
+            this.invoice.DeliveryDate = this.invoice.InvoiceDate || new LocalDate();
         }
 
-        if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-            const message = 'En eller flere varelinjer mangler produkt';
-            return Observable.throw(message);
-        }
+        return new Promise((resolve, reject) => {
+            // Save only lines with products from product list
+            if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
+                const message = 'En eller flere varelinjer mangler produkt';
+                reject(message);
+            }
 
-        return (this.invoice.ID > 0)
-            ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
-            : this.customerInvoiceService.Post(this.invoice);
+            let request = (this.invoice.ID > 0)
+                ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
+                : this.customerInvoiceService.Post(this.invoice);
+
+            // If a currency other than basecurrency is used, and any lines contains VAT,
+            // validate that this is correct before resolving the promise
+            if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                let linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
+                if (linesWithVat.length > 0) {
+                    this.confirmModal.confirm(
+                        `Er du sikker på at du vil registrere linjer med MVA når det er brukt ${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`,
+                        'Vennligst bekreft',
+                        false,
+                        {accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring'}
+                    ).then(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            request.subscribe(res => resolve(res), err => reject(err));
+                        } else {
+                            const message = 'Endre MVA kode og lagre på ny';
+                            reject(message);
+                        }
+                    });
+                } else {
+                    request.subscribe(res => resolve(res), err => reject(err));
+                }
+            } else {
+                request.subscribe(res => resolve(res), err => reject(err));
+            }
+        });
     }
 
     private transition(done: any) {
@@ -742,49 +809,42 @@ export class InvoiceDetails {
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
         const errText =  isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
-        this.saveInvoice().subscribe(
-            (invoice) => {
-                this.isDirty = false;
-                if (!isDraft) {
-                    done(doneText);
-                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                    return;
-                }
-
-                this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                    (res) => {
-                        done(doneText);
-                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
-                            this.refreshInvoice(refreshed);
-                        });
-                    },
-                    (err) => {
-                        done(errText);
-                        this.errorService.handle(err);
-                    }
-                );
-            },
-            (err) => {
-                done('Noe gikk galt under fakturering');
-                this.errorService.handle(err);
+        this.saveInvoice().then((invoice) => {
+            this.isDirty = false;
+            if (!isDraft) {
+                done(doneText);
+                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                return;
             }
-        );
+
+            this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
+                (res) => {
+                    done(doneText);
+                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
+                        this.refreshInvoice(refreshed);
+                    });
+                },
+                (err) => {
+                    done(errText);
+                    this.errorService.handle(err);
+                }
+            );
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private reminderStop(done) {
         this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
 
-        this.saveInvoice().subscribe(
-            (invoice) => {
-                this.isDirty = false;
-                this.updateToolbar();
-                this.updateSaveActions();
-                done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet')
-            }, (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            }
-        );
+        this.saveInvoice().then((invoice) => {
+            this.isDirty = false;
+            this.updateToolbar();
+            this.updateSaveActions();
+            done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet');
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private saveAsDraft(done) {
@@ -793,25 +853,21 @@ export class InvoiceDetails {
             this.invoice.StatusCode = StatusCode.Draft; // TODO: replace with enum from salesEnums.ts!
         }
 
-        this.saveInvoice().subscribe(
-            (invoice) => {
-                this.isDirty = false;
-                if (requiresPageRefresh) {
-                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                } else {
-                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
-                        .subscribe(
-                            res => this.refreshInvoice(res),
-                            err => this.errorService.handle(err)
-                        );
-                }
-                done('Lagring fullført');
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
+        this.saveInvoice().then((invoice) => {
+            this.isDirty = false;
+            if (requiresPageRefresh) {
+                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+            } else {
+                this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
+                    .subscribe(
+                        res => this.refreshInvoice(res),
+                        err => this.errorService.handle(err)
+                    );
             }
-        );
+            done('Lagring fullført');
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private saveAndPrint(done) {
@@ -819,16 +875,15 @@ export class InvoiceDetails {
             this.invoice.StatusCode = StatusCode.Draft;
         }
 
-        this.saveInvoice().subscribe(
-            (invoice) => {
-                this.isDirty = false;
-                this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
-                    this.previewModal.openWithId(report, invoice.ID);
-                    done('Lagring fullført');
-                });
-            },
-            (err) => done('Noe gikk galt under lagring')
-        );
+        this.saveInvoice().then((invoice) => {
+            this.isDirty = false;
+            this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
+                this.previewModal.openWithId(report, invoice.ID);
+                done('Lagring fullført');
+            });
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private creditInvoice(done) {
@@ -876,6 +931,19 @@ export class InvoiceDetails {
         };
 
         this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
+    }
+
+    private handleSaveError(error, donehandler) {
+        if (typeof(error) === 'string') {
+            if (donehandler) {
+                donehandler('Lagring avbrutt ' + error);
+            }
+        } else {
+            if (donehandler) {
+                donehandler('Lagring feilet');
+            }
+            this.errorService.handle(error);
+        }
     }
 
     private deleteInvoice(done) {

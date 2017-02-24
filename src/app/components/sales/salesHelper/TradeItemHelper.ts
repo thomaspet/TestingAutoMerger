@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {GuidService} from '../../../services/services';
-import {Project, Department} from '../../../unientities';
+import {Project, Department, CustomerQuoteItem, CustomerOrderItem, CustomerInvoiceItem} from '../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 
 @Injectable()
@@ -10,20 +10,10 @@ export class TradeItemHelper  {
 
     }
 
-    public static IsItemsValid(items: any) {
-        let numberFailed: number = 0;
+    public static IsItemsValid(items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
+        let invalidItems = items.filter(x => !x.ProductID);
 
-        for (let i = 0; i < items.length; i++) {
-            let line: any = items[i];
-
-            if (line.ProductID === null) {
-                numberFailed++;
-            }
-        }
-        if (numberFailed > 0) {
-            return false;
-        }
-        return true;
+        return invalidItems.length === 0;
     }
 
     public getDefaultTradeItemData(mainEntity) {

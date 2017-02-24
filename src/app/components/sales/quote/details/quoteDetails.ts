@@ -9,7 +9,7 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -214,33 +214,28 @@ export class QuoteDetails {
             return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Ønsker du å lagre tilbudet før du fortsetter?',
-                'Ulagrede endringer',
-                true
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    if (!this.quote.StatusCode) {
-                        this.quote.StatusCode = StatusCode.Draft;
-                    }
-                    this.saveQuote().subscribe(
-                        (res) => {
-                            this.isDirty = false;
-                            resolve(true);
-                        },
-                        (err) => {
-                            this.errorService.handle(err);
-                            resolve(false);
-                        }
-                    );
-                } else if (action === ConfirmActions.REJECT) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                    this.setTabTitle();
+        return this.confirmModal.confirm(
+            'Ønsker du å lagre tilbudet før du fortsetter?',
+            'Ulagrede endringer',
+            true
+        ).then((action) => {
+            if (action === ConfirmActions.ACCEPT) {
+                if (!this.quote.StatusCode) {
+                    this.quote.StatusCode = StatusCode.Draft;
                 }
-            });
+                this.saveQuote().then(res => {
+                    this.isDirty = false;
+                    return true;
+                }).catch(error => {
+                    this.handleSaveError(error, null);
+                    return false;
+                });
+            } else if (action === ConfirmActions.REJECT) {
+                return true;
+            } else {
+                this.setTabTitle();
+                return false;
+            }
         });
     }
 
@@ -292,7 +287,7 @@ export class QuoteDetails {
         }
 
         if (this.quote && this.quote.QuoteDate.toString() !== quote.QuoteDate.toString()) {
-            shouldGetCurrencyRate = true;
+           shouldGetCurrencyRate = true;
         }
 
         if (this.quote && quote.CurrencyCodeID !== this.quote.CurrencyCodeID) {
@@ -324,24 +319,55 @@ export class QuoteDetails {
 
                     if (newCurrencyRate !== this.currencyExchangeRate) {
                         this.currencyExchangeRate = newCurrencyRate;
+
                         quote.CurrencyExchangeRate = res;
 
+                        let askUserWhatToDo: boolean = false;
+
+                        let newTotalExVatBaseCurrency: number;
+                        let diffBaseCurrency: number;
+                        let diffBaseCurrencyPercent: number;
+
                         if (this.quoteItems && this.quoteItems.filter(x => x.PriceSetByUser).length > 0) {
+                            // calculate how much the new currency will affect the amount for the base currency,
+                            // if it doesnt cause a change larger than 5%, don't bother asking the user what
+                            // to do, just use the set prices
+                            newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
+                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+
+                            diffBaseCurrencyPercent =
+                                this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
+
+                            // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
+                            // or make it possible to override it either on companysettings, customer, or the TOF header
+                            if (diffBaseCurrencyPercent > 5) {
+                                askUserWhatToDo = true;
+                            }
+                        }
+
+                        if (askUserWhatToDo) {
+                            let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+
                             this.confirmModal.confirm(
-                                `Det er lagt inn linjer som er basert på en annen valutakurs enn den som nå er valgt - vil du rekalkulere priser basert på ny kurs?`,
-                                'Rekalkulere priser for produkter?',
+                                `Endringen førte til at en ny valutakurs ble hentet. Dette fører til at totalsum eks. mva ` +
+                                `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% ` +
+                                `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n` +
+                                `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
+                                'Rekalkulere valutapriser for varer?',
                                 false,
-                                {accept: 'Rekalkuler priser', reject: 'Behold priser'}
+                                {accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser'}
                             ).then((response: ConfirmActions) => {
                                 if (response === ConfirmActions.ACCEPT) {
-                                    this.quoteItems.forEach(item => {
-                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
-                                    });
-                                } else if (response === ConfirmActions.REJECT) {
                                     // we need to calculate the base currency amount numbers if we are going
                                     // to keep the currency amounts - if not the data will be out of sync
                                     this.quoteItems.forEach(item => {
                                         this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                    });
+                                } else if (response === ConfirmActions.REJECT) {
+                                    // we need to calculate the currency amounts based on the original prices
+                                    // defined in the base currency
+                                    this.quoteItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
                                     });
                                 }
 
@@ -365,7 +391,15 @@ export class QuoteDetails {
 
                             // update the model
                             this.quote = _.cloneDeep(quote);
+                        } else {
+                            // update
+                            this.recalcItemSums(this.quoteItems);
+
+                            // update the model
+                            this.quote = _.cloneDeep(quote);
                         }
+                    } else {
+                        this.recalcItemSums(this.quoteItems);
                     }
                 }, err => this.errorService.handle(err)
             );
@@ -401,8 +435,20 @@ export class QuoteDetails {
     }
 
     private recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, newCurrencyRate) {
-        if (!item.PriceSetByUser) {
+        if (!item.PriceSetByUser || !item.Product) {
+            // if price has not been changed by the user, recalc based on the PriceExVat.
+            // we do this before using the products price in case the product has been changed
+            // after the item was created. This is also done if no Product is selected
             item.PriceExVatCurrency = this.tradeItemHelper.round(item.PriceExVat / newCurrencyRate, 4);
+        } else {
+            // if the user has changed the price for this item, we need to recalc based
+            // on the product's PriceExVat, because using the items PriceExVat will not make
+            // sense as that has also been changed when the user when the currency price
+            // was changed
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.Product.PriceExVat / newCurrencyRate, 4);
+
+            // if price was set by user, it is not any longer
+            item.PriceSetByUser = false;
         }
 
         this.tradeItemHelper.calculatePriceIncVat(item);
@@ -534,6 +580,19 @@ export class QuoteDetails {
         this.setSums();
     }
 
+    private handleSaveError(error, donehandler) {
+        if (typeof(error) === 'string') {
+            if (donehandler) {
+                donehandler('Lagring avbrutt ' + error);
+            }
+        } else {
+            if (donehandler) {
+                donehandler('Lagring feilet');
+            }
+            this.errorService.handle(error);
+        }
+    }
+
     private updateSaveActions() {
         const transitions = (this.quote['_links'] || {}).transitions;
         this.saveActions = [];
@@ -548,17 +607,13 @@ export class QuoteDetails {
         this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
-                this.saveQuote().subscribe(
-                    (res) => {
-                        done('Lagring fullført');
-                        this.quoteID = res.ID;
-                        this.refreshQuote();
-                    },
-                    (err) => {
-                        done('Lagring feilet');
-                        this.errorService.handle(err);
-                    }
-                );
+                this.saveQuote().then(res => {
+                    done('Lagring fullført');
+                    this.quoteID = res.ID;
+                    this.refreshQuote();
+                }).catch(error => {
+                    this.handleSaveError(error, done);
+                });
             },
             disabled: !this.quote.ID,
             main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
@@ -605,110 +660,123 @@ export class QuoteDetails {
         });
     }
 
-    private saveQuote(): Observable<CustomerQuote> {
-        this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+    private saveQuote(): Promise<CustomerQuote> {
         this.quote.Items = this.quoteItems;
 
+        // return a promise that resolves
         this.quote.Items.forEach(item => {
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerQuoteItemService.getNewGuid();
             }
         });
 
-        // Save only lines with products from product list
-        if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-            const message = 'En eller flere varelinjer mangler produkt';
-            return Observable.throw(message);
-        }
+        return new Promise((resolve, reject) => {
+             // Save only lines with products from product list
+            if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
+                const message = 'En eller flere varelinjer mangler produkt';
+                reject(message);
+            }
 
-        return (this.quote.ID > 0)
-            ? this.customerQuoteService.Put(this.quote.ID, this.quote)
-            : this.customerQuoteService.Post(this.quote);
+            // create observable but dont subscribe - resolve it in the promise
+            var request = ((this.quote.ID > 0)
+                ? this.customerQuoteService.Put(this.quote.ID, this.quote)
+                : this.customerQuoteService.Post(this.quote));
+
+            // If a currency other than basecurrency is used, and any lines contains VAT,
+            // validate that this is correct before resolving the promise
+            if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                let linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
+                if (linesWithVat.length > 0) {
+                    this.confirmModal.confirm(
+                        `Er du sikker på at du vil registrere linjer med MVA når det er brukt ${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`,
+                        'Vennligst bekreft',
+                        false,
+                        {accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring'}
+                    ).then(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            request.subscribe(res => resolve(res), err => reject(err));
+                        } else {
+                            const message = 'Endre MVA kode og lagre på ny';
+                            reject(message);
+                        }
+                    });
+                } else {
+                    request.subscribe(res => resolve(res), err => reject(err));
+                }
+            } else {
+                request.subscribe(res => resolve(res), err => reject(err));
+            }
+        });
     }
 
     private saveQuoteAsRegistered(done: any) {
         if (this.quote.ID > 0) {
             this.saveQuoteTransition(done, 'register', 'Registrert');
         } else {
-            this.saveQuote().subscribe(
-                (res) => {
-                    done('Registrering fullført');
-                    this.quoteID = res.ID;
-                    this.isDirty = false;
-                    this.router.navigateByUrl('/sales/quotes/' + res.ID);
-                },
-                (err) => {
-                    done('Registrering feilet');
-                    this.errorService.handle(err);
-                }
-            );
+            this.saveQuote().then(res => {
+                done('Registrering fullført');
+                this.quoteID = res.ID;
+
+                this.isDirty = false;
+                this.router.navigateByUrl('/sales/quotes/' + res.ID);
+            }).catch(error => {
+                this.handleSaveError(error, done);
+            });
         }
     }
 
     private saveQuoteAsDraft(done: any) {
         this.quote.StatusCode = StatusCode.Draft;
         const navigateOnSuccess = !this.quote.ID;
-        this.saveQuote().subscribe(
-            (res) => {
-                this.isDirty = false;
-                done('Lagring fullført');
-                if (navigateOnSuccess) {
-                    this.router.navigateByUrl('/sales/quotes/' + res.ID);
-                } else {
-                    this.quoteID = res.ID;
-                    this.refreshQuote();
-                }
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
+        this.saveQuote().then(res => {
+            this.isDirty = false;
+            done('Lagring fullført');
+            if (navigateOnSuccess) {
+                this.router.navigateByUrl('/sales/quotes/' + res.ID);
+            } else {
+                this.quoteID = res.ID;
+                this.refreshQuote();
             }
-        );
+        }).catch(error => {
+                this.handleSaveError(error, done);
+        });
     }
 
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
-        this.saveQuote().subscribe(
-            (quote) => {
-                this.isDirty = false;
-                this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
-                    (res) => {
-                        done(doneText);
-                        if (transition === 'toOrder') {
-                            this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
-                        } else if (transition === 'toInvoice') {
-                            this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
-                        } else {
-                            this.quoteID = quote.ID;
-                            this.refreshQuote();
-                        }
+        this.saveQuote().then(quote => {
+            this.isDirty = false;
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
+                (res) => {
+                    done(doneText);
+                    if (transition === 'toOrder') {
+                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                    } else if (transition === 'toInvoice') {
+                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                    } else {
+                        this.quoteID = quote.ID;
+                        this.refreshQuote();
                     }
-                );
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            }
-        );
+                }
+            );
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private saveAndPrint(done) {
-        this.saveQuote().subscribe(
-            (res) => {
-                this.isDirty = false;
-                this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-                    if (report) {
-                        this.previewModal.openWithId(report, res.ID);
-                        done('Viser utskrift');
-                    } else {
-                        done('Rapport mangler');
-                    }
-                });
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            }
-        );
+        this.saveQuote().then(res => {
+            this.isDirty = false;
+            this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
+                if (report) {
+                    this.previewModal.openWithId(report, res.ID);
+                    done('Viser utskrift');
+                } else {
+                    done('Rapport mangler');
+                }
+            });
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private deleteQuote(done) {
