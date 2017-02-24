@@ -334,7 +334,8 @@ export class OrderDetails {
                             let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
 
                             this.confirmModal.confirm(
-                                `Endringen førte til at en ny valutakurs ble hentet. Dette fører til at totalsum eks. mva ` +
+                                `Endringen førte til at en ny valutakurs ble hentet. Du har overstyrt en eller flere priser, ` +
+                                `og dette fører derfor til at totalsum eks. mva ` +
                                 `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% ` +
                                 `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n` +
                                 `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
