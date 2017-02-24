@@ -2,7 +2,7 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate} from '../../../../unientities';
+import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
@@ -18,6 +18,7 @@ import {
     ReportDefinitionService,
     NumberFormat,
     ErrorService,
+    CompanySettingsService
 } from '../../../../services/services';
 
 @Component({
@@ -33,6 +34,8 @@ export class InvoiceList implements OnInit {
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private summaryConfig: ISummaryConfig[];
+    private companySettings: CompanySettings;
+    private baseCurrencyCode: string;
 
     private filterTabs: any[] = [
         {label: 'Alle'},
@@ -41,7 +44,7 @@ export class InvoiceList implements OnInit {
         {label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid}
     ];
     private activeTab: any = this.filterTabs[0];
-
+    private
     constructor(
         private uniHttpService: UniHttp,
         private router: Router,
@@ -50,12 +53,22 @@ export class InvoiceList implements OnInit {
         private tabService: TabService,
         private toastService: ToastService,
         private numberFormat: NumberFormat,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public ngOnInit() {
-        this.setupInvoiceTable();
-        this.getGroupCounts();
+        this.companySettingsService.Get(1)
+            .subscribe(settings => {
+                this.companySettings = settings;
+                if (this.companySettings && this.companySettings.BaseCurrencyCode) {
+                    this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
+                }
+                this.setupInvoiceTable();
+                this.getGroupCounts();
+
+            }, err => this.errorService.handle(err)
+        );
 
         this.tabService.addTab({
             url: '/sales/invoices',
@@ -143,7 +156,7 @@ export class InvoiceList implements OnInit {
     private setupInvoiceTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer,InvoiceReference');
+            urlParams.set('expand', 'Customer,InvoiceReference,CurrencyCode');
 
             if (urlParams.get('orderby') === null) {
                 urlParams.set('orderby', 'ID desc');
@@ -307,25 +320,25 @@ export class InvoiceList implements OnInit {
         });
 
         // Define columns to use in the table
-        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
             .setWidth('100px').setFilterOperator('contains');
 
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+        let customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
             .setWidth('100px').setFilterOperator('contains')
             .setTemplate((invoice) => {
                 return invoice.CustomerID ? `<a href='/#/sales/customer/${invoice.CustomerID}'>${invoice.Customer.CustomerNumber}</a>` : ``;
             });
 
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
+        let customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
             .setWidth('15%').setFilterOperator('contains')
             .setTemplate((invoice) => {
                 return invoice.CustomerID ? `<a href='/#/sales/customer/${invoice.CustomerID}'>${invoice.CustomerName}</a>` : ``;
             });
 
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
+        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
 
-        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
+        let dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq')
             .setConditionalCls((item: CustomerInvoice) => {
                 const paid = item.StatusCode === StatusCodeCustomerInvoice.Paid;
@@ -333,7 +346,12 @@ export class InvoiceList implements OnInit {
                     ? 'date-good' : 'date-bad';
             });
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+        let currencyCodeCol = new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
+            .setWidth('5%')
+            .setFilterOperator('eq')
+            .setVisible(false);
+
+        let taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Money)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -343,7 +361,7 @@ export class InvoiceList implements OnInit {
             })
             .setCls('column-align-right');
 
-        var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
+        let restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Money)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -351,10 +369,40 @@ export class InvoiceList implements OnInit {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+        let creditedAmountCurrencyCol = new UniTableColumn('CreditedAmountCurrency', 'Kreditert', UniTableColumnType.Money)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.CreditedAmount >= 0) ? 'number-good' : 'number-bad';
+            });
+
+        let taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum ' + this.baseCurrencyCode, UniTableColumnType.Money)
+            .setWidth('8%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.TaxInclusiveAmount >= 0)
+                    ? 'number-good' : 'number-bad';
+            })
+            .setVisible(false)
+            .setCls('column-align-right');
+
+
+        let restAmountCol = new UniTableColumn('RestAmount', 'Restsum ' + this.baseCurrencyCode, UniTableColumnType.Money)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setVisible(false)
+            .setConditionalCls((item) => {
+                return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
+            });
+
+        let creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert ' + this.baseCurrencyCode, UniTableColumnType.Money)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setVisible(false)
             .setConditionalCls((item) => {
                 return (+item.CreditedAmount >= 0) ? 'number-good' : 'number-bad';
             });
@@ -370,8 +418,8 @@ export class InvoiceList implements OnInit {
                 }
             });
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-            .setWidth('15%')
+        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setWidth('8%')
             .setFilterable(false)
             .setTemplate((dataItem) => {
                 return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
@@ -381,8 +429,10 @@ export class InvoiceList implements OnInit {
         this.invoiceTable = new UniTableConfig(false, true)
             .setPageSize(25)
             .setSearchable(true)
-            .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
-                taxInclusiveAmountCol, restAmountCol, creditedAmountCol, invoiceReferencesCol, statusCol])
+            .setColumnMenuVisible(true)
+            .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, currencyCodeCol,
+                taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, creditedAmountCurrencyCol, taxInclusiveAmountCol, restAmountCol,
+                creditedAmountCol, invoiceReferencesCol, statusCol])
             .setContextMenu(contextMenuItems);
     }
 
