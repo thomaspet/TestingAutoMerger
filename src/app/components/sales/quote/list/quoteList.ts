@@ -1,4 +1,4 @@
-import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';

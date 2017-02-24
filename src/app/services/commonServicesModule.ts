@@ -37,6 +37,7 @@ import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearc
 import {UmhService} from './common/umhService';
 import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
+import {CurrencyOverridesService} from './common/currencyOverridesService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -73,6 +74,7 @@ export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
+export * from './common/currencyOverridesService';
 
 @NgModule({
     providers: [
@@ -112,7 +114,8 @@ export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
         UniSearchConfigGeneratorService,
         UniSearchAccountConfigGeneratorHelper,
         UniSearchCustomerConfigGeneratorHelper,
-        UmhService
+        UmhService,
+        CurrencyOverridesService
     ]
 })
 export class CommonServicesModule {}

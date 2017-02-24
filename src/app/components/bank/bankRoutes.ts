@@ -47,4 +47,3 @@ const bankRoutes: Routes = [
 ];
 
 export const routes: ModuleWithProviders = RouterModule.forChild(bankRoutes);
-

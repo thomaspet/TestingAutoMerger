@@ -185,6 +185,15 @@ export class HamburgerMenu {
                 ]
             },
             {
+                componentListName: 'Valuta',
+                componentListHeader: 'Valuta',
+                componentListUrl: '/currency',
+                componentList: [
+                    {componentName: 'Valutakurser', componentUrl: '/currency/exchange', moduleID: UniModules.CurrencyExchange},
+                    {componentName: 'Valutaoverstyring', componentUrl: '/currency/overrides', moduleID: UniModules.CurrencyOverride}
+                ]
+            },
+            {
                 componentListName: 'Admin',
                 componentListHeader: 'Admin',
                 componentListUrl: '/admin',

@@ -57,7 +57,7 @@ export class Settings {
             { name: 'Integrasjoner', path: 'webhooks' },
             { name: 'Bruker', path: 'user' },
             { name: 'Roller', path: 'users' },
-            { name: 'Altinn', path: 'altinn' },
+            { name: 'Altinn', path: 'altinn' }
         ];
     }
 

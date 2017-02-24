@@ -15,6 +15,13 @@ export class CurrencyService extends BizHttp<Currency> {
         this.DefaultOrderBy = null;
     }
 
+    public getAllExchangeRates(toCurrencyCodeID: number, currencyDate: LocalDate): Observable<any> {
+        return this.GetAction(
+            null,
+            'get-all-exchange-rates',
+            `toCurrencyCodeID=${toCurrencyCodeID}&currencyDate=${currencyDate.toString()}`);
+    }
+
     public getCurrencyExchangeRate(fromCurrencyCodeID: number, toCurrencyCodeID: number, currencyDate: LocalDate): Observable<any> {
         return this.GetAction(
             null,

@@ -3427,9 +3427,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public CustomFields: any;
 }
 
@@ -3974,9 +3974,9 @@ export class Account extends UniEntity {
     public UsePostPost: boolean;
     public VatTypeID: number;
     public Visible: boolean;
-    public AccountGroup: AccountGroup;
-    public TopLevelAccountGroup: AccountGroup;
     public VatType: VatType;
+    public TopLevelAccountGroup: AccountGroup;
+    public AccountGroup: AccountGroup;
     public MainAccount: Account;
     public Customer: Customer;
     public Supplier: Supplier;
