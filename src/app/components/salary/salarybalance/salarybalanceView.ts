@@ -163,7 +163,7 @@ export class SalarybalanceView extends UniView {
 
     private getSalarybalance() {
         this.salarybalanceService.getSalarybalance(this.salarybalanceID, 
-            ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
+            ['SalaryBalanceLines', 'Employee', 'Employee.BusinessRelationInfo',
             'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
                 this.salarybalance = salbal;

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { SalaryBalance, SalaryTransaction, Employee } from '../../../../unientities';
-import { SalaryTransactionService, ErrorService, EmployeeService } from '../../../../services/services';
+import { SalaryBalanceLineService, ErrorService, EmployeeService } from '../../../../services/services';
 
 @Component({
     selector: 'salary-balance-summary',
@@ -19,7 +19,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private showDescriptionText: boolean = false;
 
     constructor(
-        private salaryTransactionService: SalaryTransactionService,
+        private salaryBalanceLineService: SalaryBalanceLineService,
         private errorService: ErrorService,
         private employeeService: EmployeeService) {
         this.salaryTransactionsModel$ = new BehaviorSubject<SalaryTransaction[]>([]);
@@ -32,9 +32,9 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     public ngOnChanges() {
         if (this.salaryBalance && this.salaryBalance.ID) {
-            let transObs = this.salaryBalance.Transactions && this.salaryBalance.Transactions.length
-                ? Observable.of(this.salaryBalance.Transactions)
-                : this.salaryTransactionService
+            let transObs = this.salaryBalance.SalaryBalanceLines && this.salaryBalance.SalaryBalanceLines.length
+                ? Observable.of(this.salaryBalance.SalaryBalanceLines)
+                : this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${this.salaryBalance.ID}`);
             transObs
                 .subscribe(transes => this.salaryTransactionsModel$.next(transes),

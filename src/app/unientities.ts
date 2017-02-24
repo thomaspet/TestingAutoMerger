@@ -1246,7 +1246,29 @@ export class SalaryBalance extends UniEntity {
     public WagetypeID: number;
     public Employee: Employee;
     public Supplier: Supplier;
-    public Transactions: Array<SalaryTransaction>;
+    public SalaryBalanceLines: Array<SalaryBalanceLine>;
+    public CustomFields: any;
+}
+
+
+export class SalaryBalanceLine extends UniEntity {
+    public static RelativeUrl = 'salarybalancelines';
+    public static EntityType = 'SalaryBalanceLine';
+
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Date: LocalDate;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public SalaryBalanceID: number;
+    public SalaryTransactionID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public SalaryTransaction: SalaryTransaction;
+    public SalaryBalance: SalaryBalance;
     public CustomFields: any;
 }
 
@@ -4694,7 +4716,9 @@ export class SendEmailAttachment extends UniEntity {
 
 export class CurrencyRateData extends UniEntity {
     public ExchangeRate: number;
+    public Factor: number;
     public IsOverrideRate: boolean;
+    public FromCurrencyCode: CurrencyCode;
 }
 
 
