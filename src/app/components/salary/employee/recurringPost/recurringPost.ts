@@ -441,16 +441,18 @@ export class RecurringPost extends UniView {
 
     public navigateToNewAdvance() {
         this.router
-            .navigate(
-            [`salary/salarybalances/0/details`,
+            .navigate([`salary/salarybalances/0/details`,
                 { employeeID: this.employeeID, instalmentType: SalBalType.Advance }]);
     }
 
     public navigateToNewDraw() {
         this.router
-            .navigate(
-            [`salary/salarybalances/0/details`,
-                { employeeID: this.employeeID }]);
+            .navigate([`salary/salarybalances/0/details`, { employeeID: this.employeeID }]);
+    }
+
+    public navigateToSalaryBalanceList() {
+        this.router
+            .navigate(['salary/salarybalances', { empID: this.employeeID }]);
     }
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {

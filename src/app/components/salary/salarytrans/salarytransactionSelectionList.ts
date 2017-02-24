@@ -75,7 +75,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public ngOnInit() {
         this.contextMenu = [
             {label: 'Forskudd', action: () => this.navigateToNewAdvance()},
-            {label: 'Trekk', action: () => this.navigateToNewDraw()}
+            {label: 'Trekk', action: () => this.navigateToNewDraw()},
+            {label: 'Saldooversikt', action: () => this.navigateToSalaryBalanceList()}
         ];
     }
 
@@ -286,8 +287,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee = this.employeeList[this.selectedIndex];
         if (employee) {
             this.router
-                .navigate(
-                [`salary/salarybalances/0/details`,
+                .navigate([`salary/salarybalances/0/details`,
                     { employeeID: employee.ID, instalmentType: SalBalType.Advance }]);
         }
     }
@@ -296,9 +296,15 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee = this.employeeList[this.selectedIndex];
         if (employee) {
             this.router
-                .navigate(
-                [`salary/salarybalances/0/details`,
-                    { employeeID: employee.ID }]);
+                .navigate([`salary/salarybalances/0/details`, { employeeID: employee.ID }]);
+        }
+    }
+
+    public navigateToSalaryBalanceList() {
+        let employee = this.employeeList[this.selectedIndex];
+        if (employee) {
+            this.router
+                .navigate(['salary/salarybalances', { empID: employee.ID }]);
         }
     }
 }

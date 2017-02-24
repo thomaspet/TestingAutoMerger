@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import { SalarybalanceService, ErrorService } from '../../../services/services';
@@ -18,16 +18,27 @@ export class SalarybalanceList implements OnInit {
 
     constructor(
         private _router: Router,
+        private route: ActivatedRoute,
         private tabSer: TabService,
         private _salarybalanceService: SalarybalanceService,
         private errorService: ErrorService
     ) {
-        this.tabSer.addTab({ name: 'Saldo', url: 'salary/salarybalances', moduleID: UniModules.Salarybalances, active: true });
+        route.params.subscribe(params => {
+            let empID: number = +params['empID'] || undefined;
+            this.tabSer
+            .addTab({
+                name: 'Saldo',
+                url: 'salary/salarybalances' + empID ? `;empID=${empID}` : '',
+                moduleID: UniModules.Salarybalances,
+                active: true
+            });
+            this.salarybalances$ = this._salarybalanceService
+                .GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC`)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        });
     }
 
     public ngOnInit() {
-        this.salarybalances$ = this._salarybalanceService.GetAll('orderBy=EmployeeID ASC')
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         const idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');
