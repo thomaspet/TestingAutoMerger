@@ -691,14 +691,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this._financialYearService.getActiveFinancialYear()
             ).subscribe((dataSet: any) => {
                 let [payroll, last, salaries, activeYear] = dataSet;
-                this.setDefaults();
+                this.setDefaults(payroll);
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
                 this.activeFinancialYear = activeYear;
 
                 if (payroll && payroll.ID === 0) {
                     payroll.ID = null;
-                    this.suggestFromToDates(latest, companysalary);
+                    this.suggestFromToDates(latest, companysalary, payroll);
                 }
 
                 if (payroll) {
@@ -718,31 +718,31 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    private setDefaults() {
-        this.payrollrun$.getValue().taxdrawfactor = TaxDrawFactor.Standard;
+    private setDefaults(payrollRun: PayrollRun) {
+        payrollRun.taxdrawfactor = TaxDrawFactor.Standard;
     }
 
-    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary) {
+    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun) {
         if (!latest) {
             // First payrollrun for the year
             let todate: Date;
             let fromdate = new Date(this.activeFinancialYear.Year, 0, 1);
-            this.payrollrun$.getValue().FromDate = fromdate;
+            payrollRun.FromDate = fromdate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     todate = new Date(this.activeFinancialYear.Year, 0, 14);
-                    this.payrollrun$.getValue().ToDate = todate;
+                    payrollRun.ToDate = todate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     todate = new Date(this.activeFinancialYear.Year, 0, 7);
-                    this.payrollrun$.getValue().ToDate = todate;
+                    payrollRun.ToDate = todate;
                     break;
 
                 default: // Monthly
                     todate = new Date(this.activeFinancialYear.Year, 0, 31);
-                    this.payrollrun$.getValue().ToDate = todate;
+                    payrollRun.ToDate = todate;
                     break;
             }
         } else {
@@ -752,25 +752,25 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let fromdateAsDate = new Date(lastFromdate);
             let todateAsDate: Date;
 
-            this.payrollrun$.getValue().FromDate = fromdateAsDate;
+            payrollRun.FromDate = fromdateAsDate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
                     todateAsDate = new Date(lastTodate);
-                    this.payrollrun$.getValue().ToDate = todateAsDate;
+                    payrollRun.ToDate = todateAsDate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
                     todateAsDate = new Date(lastTodate);
-                    this.payrollrun$.getValue().ToDate = todateAsDate;
+                    payrollRun.ToDate = todateAsDate;
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
                     todateAsDate = new Date(lastTodate);
-                    this.payrollrun$.getValue().ToDate = todateAsDate;
+                    payrollRun.ToDate = todateAsDate;
                     break;
             }
         }
