@@ -162,7 +162,9 @@ export class SalarybalanceView extends UniView {
     }
 
     private getSalarybalance() {
-        this.salarybalanceService.getSalarybalance(this.salarybalanceID, ['@Transactions'])
+        this.salarybalanceService.getSalarybalance(this.salarybalanceID, 
+            ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
+            'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
                 this.salarybalance = salbal;
                 super.updateState('salarybalance', salbal, false);
@@ -170,12 +172,6 @@ export class SalarybalanceView extends UniView {
     }
 
     private saveSalarybalance(done: (message: string) => void) {
-        if (this.salarybalance.CreatePayment) {
-            this.salarybalance.CreatePayment = 1;
-        } else {
-            this.salarybalance.CreatePayment = 0;
-        }
-
         let saver = this.salarybalance.ID
             ? this.salarybalanceService.Put(this.salarybalance.ID, this.salarybalance)
             : this.salarybalanceService.Post(this.salarybalance);

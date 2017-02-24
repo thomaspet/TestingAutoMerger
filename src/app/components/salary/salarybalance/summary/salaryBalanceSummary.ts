@@ -39,8 +39,8 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
             transObs
                 .subscribe(transes => this.salaryTransactionsModel$.next(transes),
                 err => this.errorService.handle(err));
-
-            let empObs = this.salaryBalance.Employee
+            
+            let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
                 ? Observable.of(this.salaryBalance.Employee)
                 : this.employeeService
                     .Get(this.salaryBalance.EmployeeID, ['BusinessRelationInfo']);

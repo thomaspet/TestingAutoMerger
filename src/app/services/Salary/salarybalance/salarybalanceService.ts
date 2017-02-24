@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { SalaryBalance, WageType, Employee } from '../../../unientities';
+import { SalaryBalance, WageType, Employee, Supplier } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { FieldType } from 'uniform-ng2/main';
 
@@ -226,6 +226,71 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         ReadOnly: false,
                         LookupField: false,
                         Label: 'Avdrag prosent',
+                        Description: null,
+                        HelpText: null,
+                        FieldSet: 0,
+                        Section: 0,
+                        Placeholder: null,
+                        Options: null,
+                        LineBreak: true,
+                        Combo: null,
+                        Sectionheader: ''
+                    },
+                    {
+                        ComponentLayoutID: 1,
+                        EntityType: 'salarybalance',
+                        Property: 'SupplierID',
+                        Placement: 1,
+                        Hidden: false,
+                        FieldType: FieldType.DROPDOWN,
+                        ReadOnly: false,
+                        LookupField: false,
+                        Label: 'Leverandør',
+                        Description: null,
+                        HelpText: null,
+                        FieldSet: 0,
+                        Section: 0,
+                        Placeholder: null,
+                        Options: {
+                            valueProperty: 'SupplierNumber',
+                            template: (supplier: Supplier) => supplier
+                                ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
+                                : ''
+                        },
+                        LineBreak: null,
+                        Combo: null,
+                        Sectionheader: ''
+                    },
+                    {
+                        ComponentLayoutID: 1,
+                        EntityType: 'salarybalance',
+                        Property: 'KID',
+                        Placement: 1,
+                        Hidden: false,
+                        FieldType: FieldType.TEXT,
+                        ReadOnly: false,
+                        LookupField: false,
+                        Label: 'Kid',
+                        Description: null,
+                        HelpText: null,
+                        FieldSet: 0,
+                        Section: 0,
+                        Placeholder: null,
+                        Options: null,
+                        LineBreak: null,
+                        Combo: null,
+                        Sectionheader: ''
+                    },
+                    {
+                        ComponentLayoutID: 1,
+                        EntityType: 'salarybalance',
+                        Property: 'Supplier.Info.DefaultBankAccount.AccountNumber',
+                        Placement: 1,
+                        Hidden: false,
+                        FieldType: FieldType.TEXT,
+                        ReadOnly: true,
+                        LookupField: false,
+                        Label: 'Kontonummer',
                         Description: null,
                         HelpText: null,
                         FieldSet: 0,

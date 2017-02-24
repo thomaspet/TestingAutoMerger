@@ -969,10 +969,10 @@ export class AGACalculation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public agaTax: Array<AGATax>;
-    public agaPension: Array<AGAPension>;
     public freeAmountUsed: Array<FreeAmountUsed>;
+    public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
+    public agaPension: Array<AGAPension>;
     public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public foreignerWithAmount: Array<ForeignerWithAmount>;
@@ -1227,7 +1227,7 @@ export class SalaryBalance extends UniEntity {
     public Balance: number;
     public CreatedAt: Date;
     public CreatedBy: string;
-    public CreatePayment: number;
+    public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
     public FromDate: Date;
@@ -1235,14 +1235,17 @@ export class SalaryBalance extends UniEntity {
     public Instalment: number;
     public InstalmentPercent: number;
     public InstalmentType: SalBalType;
+    public KID: string;
     public Name: string;
     public Source: string;
     public StatusCode: number;
+    public SupplierID: number;
     public ToDate: Date;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WagetypeID: number;
     public Employee: Employee;
+    public Supplier: Supplier;
     public Transactions: Array<SalaryTransaction>;
     public CustomFields: any;
 }
@@ -1341,8 +1344,6 @@ export class CompanySalary extends UniEntity {
     public static RelativeUrl = 'companysalary';
     public static EntityType = 'CompanySalary';
 
-    public BankAccountSalary: number;
-    public BankAccountTaxWithdraw: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1773,7 +1774,7 @@ export class Period extends UniEntity {
     public static EntityType = 'Period';
 
     public AccountYear: number;
-    public CreatedAt: LocalDate;
+    public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
     public FromDate: LocalDate;
@@ -1783,7 +1784,7 @@ export class Period extends UniEntity {
     public PeriodSeriesID: number;
     public PeriodTemplateID: number;
     public StatusCode: number;
-    public ToDate: Date;
+    public ToDate: LocalDate;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public PeriodTemplate: PeriodTemplate;
@@ -1987,10 +1988,10 @@ export class Product extends UniEntity {
     public UpdatedBy: string;
     public VariansParentID: number;
     public VatTypeID: number;
-    public Account: Account;
     public VatType: VatType;
-    public Dimensions: Dimensions;
+    public Account: Account;
     public ProductCategoryLinks: Array<ProductCategoryLink>;
+    public Dimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -3867,7 +3868,7 @@ export class SupplierInvoice extends UniEntity {
     public JournalEntryID: number;
     public OurReference: string;
     public Payment: string;
-    public PaymentDueDate: Date;
+    public PaymentDueDate: LocalDate;
     public PaymentID: string;
     public PaymentInformation: string;
     public PaymentTerm: string;
@@ -4386,8 +4387,8 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -4466,7 +4467,7 @@ export class VatCalculationSummary extends UniEntity {
 
 export class InvoicePaymentData extends UniEntity {
     public Amount: number;
-    public PaymentDate: Date;
+    public PaymentDate: LocalDate;
 }
 
 
