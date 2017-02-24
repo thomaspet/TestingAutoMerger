@@ -243,8 +243,8 @@ export class BillView {
 
         var list = [
             supIdCol,
-            createFormField('InvoiceDate', lang.col_date, ControlTypes.DateInput, FieldSize.Double),
-            createFormField('PaymentDueDate', lang.col_due, ControlTypes.DateInput, FieldSize.Double),
+            createFormField('InvoiceDate', lang.col_date, ControlTypes.LocalDate, FieldSize.Double),
+            createFormField('PaymentDueDate', lang.col_due, ControlTypes.LocalDate, FieldSize.Double),
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             bankAccountCol,
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
