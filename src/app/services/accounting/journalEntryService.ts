@@ -487,7 +487,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' and EntityID eq ${journalEntryID}&select=FileID`)
         ).map(responses => {
             let draftLines: Array<JournalEntryLineDraft> = responses[0];
-            let fileList: Array<number> = responses[1].Data ? responses[1].Data : [];
+            let fileList: Array<any> = responses[1].Data ? responses[1].Data : [];
 
             let journalEntryDataObjects: Array<JournalEntryData> = [];
 
@@ -519,8 +519,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             });
 
             // add fileids if any files are connected to the journalentries
+            let fileIdList = [];
+            if (fileList) {
+                fileList.forEach(x => {
+                    fileIdList.push(x.FileEntityLinkFileID);
+                });
+            }
+
             journalEntryDataObjects.forEach(entry => {
-                    entry.FileIDs = fileList;
+                entry.FileIDs = fileIdList;
             });
 
             return JSON.parse(JSON.stringify(journalEntryDataObjects));
