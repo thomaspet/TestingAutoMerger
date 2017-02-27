@@ -161,7 +161,8 @@ export class HamburgerMenu {
                     {componentName: 'Lønnsarter', componentUrl: '/salary/wagetypes', moduleID: UniModules.Wagetypes},
                     {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun', moduleID: UniModules.Payrollrun},
                     {componentName: 'A-Meldinger', componentUrl: '/salary/amelding', moduleID: UniModules.Amelding},
-                    {componentName: 'Kategorier', componentUrl: '/salary/employeecategories', moduleID: UniModules.Categories}
+                    {componentName: 'Kategorier', componentUrl: '/salary/employeecategories', moduleID: UniModules.Categories},
+                    {componentName: 'Saldo', componentUrl: '/salary/salarybalances', moduleID: UniModules.Salarybalances}
                 ]
             },
             {
@@ -181,6 +182,23 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/project', moduleID: UniModules.Projects},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/department', moduleID: UniModules.Departments}
+                ]
+            },
+            {
+                componentListName: 'Valuta',
+                componentListHeader: 'Valuta',
+                componentListUrl: '/currency',
+                componentList: [
+                    {componentName: 'Valutakurser', componentUrl: '/currency/exchange', moduleID: UniModules.CurrencyExchange},
+                    {componentName: 'Valutaoverstyring', componentUrl: '/currency/overrides', moduleID: UniModules.CurrencyOverride}
+                ]
+            },
+            {
+                componentListName: 'Admin',
+                componentListHeader: 'Admin',
+                componentListUrl: '/admin',
+                componentList: [
+                    {componentName: 'Jobber', componentUrl: '/admin/jobs', moduleID: UniModules.Jobs}
                 ]
             }
         ];

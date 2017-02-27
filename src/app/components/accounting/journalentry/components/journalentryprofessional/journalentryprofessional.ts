@@ -97,7 +97,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['currentFinancialYear'] && this.currentFinancialYear) {
             let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+            journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
                 .subscribe(numberdata => {
                     this.firstAvailableJournalEntryNumber = numberdata;
@@ -616,7 +616,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             defaultRowData.Description = 'Innbetaling';
 
-            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, amountCol,
+            columns = [sameOrNewCol, invoiceNoCol, financialDateCol, debitAccountCol, creditAccountCol, deductionPercentCol, amountCol,
                  descriptionCol, fileCol];
         } else {
             columns = [sameOrNewCol, financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, deductionPercentCol, amountCol, netAmountCol,
@@ -1030,20 +1030,19 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let tableData = this.table.getTableData();
 
         this.journalEntryService.postJournalEntryData(tableData)
-            .subscribe(
-            data => {
+            .subscribe(data => {
                 var firstJournalEntry = data[0];
                 var lastJournalEntry = data[data.length - 1];
 
                 // Validate if journalEntry number has changed
                 var numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
 
-                if (firstJournalEntry.JournalEntryNo !== numbers.firstNumber ||
-                    lastJournalEntry.JournalEntryNo !== numbers.lastNumber) {
-                    this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
+                if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
+                    this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNumber + ' - ' + lastJournalEntry.JournalEntryNumber, ToastType.warn);
 
                 } else {
-                    this.toastService.addToast('Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNo + (firstJournalEntry.JournalEntryNo !== lastJournalEntry.JournalEntryNo ? ' - ' + lastJournalEntry.JournalEntryNo : ''), ToastType.good, 10);
+                    this.toastService.addToast('Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNumber + (firstJournalEntry.JournalEntryNumber !== lastJournalEntry.JournalEntryNumber ? ' - ' + lastJournalEntry.JournalEntryNumber : ''), ToastType.good, 10);
                 }
 
                 completeCallback('Lagret og bokført');
@@ -1052,10 +1051,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.journalEntryLines = new Array<JournalEntryData>();
 
                 let journalentrytoday: JournalEntryData = new JournalEntryData();
-                journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+                journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
                 this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                    .subscribe(data => {
-                        this.firstAvailableJournalEntryNumber = data;
+                    .subscribe(numberdata => {
+                        this.firstAvailableJournalEntryNumber = numberdata;
                         this.setupSameNewAlternatives();
 
                         if (this.table) {
@@ -1068,7 +1067,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
-                completeCallback('Lagring feilet');
+                completeCallback('');
                 this.errorService.handle(err);
             }
         );
@@ -1098,7 +1097,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.dataChanged.emit(this.journalEntryLines);
 
         let journalentrytoday: JournalEntryData = new JournalEntryData();
-        journalentrytoday.FinancialDate = moment(this.currentFinancialYear.ValidFrom).toDate();
+        journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
         this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
             .subscribe(data => {
                 this.firstAvailableJournalEntryNumber = data;

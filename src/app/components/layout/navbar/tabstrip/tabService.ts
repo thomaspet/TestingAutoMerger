@@ -44,6 +44,7 @@ export enum UniModules {
     Payrollrun      = 502,
     Amelding        = 503,
     Categories      = 504,
+    Salarybalances  = 505,
 
     WorkProfiles    = 600,
     Workers         = 601,
@@ -53,7 +54,12 @@ export enum UniModules {
     Projects        = 700,
     Departments     = 701,
 
-    PaymentList     = 900
+    Jobs            = 800,
+
+    PaymentList     = 900,
+
+    CurrencyExchange = 1000,
+    CurrencyOverride = 1001
 }
 
 @Injectable()

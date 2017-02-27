@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, Type, Input } from '@angular/core';
+import { Component, ViewChild, Type, Input, OnInit } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { GrantService, SubEntityService, ErrorService } from '../../../../services/services';
@@ -10,7 +10,7 @@ import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
     selector: 'freeamount-modal-content',
     templateUrl: './freeamountModal.html'
 })
-export class FreeamountModalContent {
+export class FreeamountModalContent implements OnInit {
     @Input() public config: any;
     private freeamountTableConfig: UniTableConfig;
     private freeamountData: any[] = [];
@@ -28,7 +28,7 @@ export class FreeamountModalContent {
 
     }
 
-    public loadData() {
+    public ngOnInit() {
         Observable.forkJoin(
             this._subentityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']),
             this._grantService.GetAll('')
@@ -85,7 +85,7 @@ export class FreeamountModalContent {
     selector: 'freeamount-modal',
     template: `<uni-modal [type]="type" [config]="freeamountModalConfig"></uni-modal>`
 })
-export class FreeamountModal implements AfterViewInit {
+export class FreeamountModal {
     @ViewChild(UniModal) private modal: UniModal;
     public freeamountModalConfig: any = {};
     public type: Type<any> = FreeamountModalContent;
@@ -100,14 +100,7 @@ export class FreeamountModal implements AfterViewInit {
         };
     }
 
-    public ngAfterViewInit() {
-        this.modal.createContent();
-    }
-
     public openFreeamountModal() {
         this.modal.open();
-        this.modal.getContent().then((component: FreeamountModalContent) => {
-            component.loadData();
-        });
     }
 }

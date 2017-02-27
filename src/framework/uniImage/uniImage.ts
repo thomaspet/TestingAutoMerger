@@ -32,7 +32,7 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article (click)="onClick()" (clickOutside)="offClick()">
-            <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading}">
+            <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}" (click)="currentClicked()">
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
                 <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
@@ -103,6 +103,9 @@ export class UniImage {
 
     @Output()
     public imageDeleted: EventEmitter<File> = new EventEmitter<File>();
+
+    @Output()
+    public imageClicked: EventEmitter<File> = new EventEmitter<File>();
 
     public imageIsLoading: boolean = true;
 
@@ -290,6 +293,10 @@ export class UniImage {
                         }, err => this.errorService.handle(err))
                     }
             });
+    }
+
+    private currentClicked() {
+        this.imageClicked.emit(this.files[this.currentFileIndex]);
     }
 
     private loadThumbnails() {

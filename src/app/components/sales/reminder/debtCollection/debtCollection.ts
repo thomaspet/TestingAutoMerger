@@ -49,7 +49,6 @@ export class DebtCollection implements OnInit {
 
     private remindersAll: any;
     private reminderToDebtCollectTable: UniTableConfig;
-    private reminderQuery = 'model=CustomerInvoiceReminder&select=max(ID) as ID,max(ReminderNumber) as ReminderNumber,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.ID as InvoiceID,Customer.CustomerNumber as CustomerNumber,CustomerInvoice.CustomerName as CustomerName,CustomerInvoice.InvoiceDate as InvoiceDate,max(CustomerInvoiceReminder.RemindedDate) as RemindedDate,max(CustomerInvoiceReminder.DueDate) as PaymentDueDate,CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.RestAmount as RestAmount,CustomerInvoice.TaxInclusiveAmount as TaxInclusiveAmount&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail&filter=';
 
    private summary: ISummaryConfig[] = [];
     private summaryData = {
@@ -102,7 +101,7 @@ export class DebtCollection implements OnInit {
         )
         .then((response: ConfirmActions) => {
             if (response === ConfirmActions.ACCEPT) {
-                let selectedToDebtCollect = this.table.getSelectedRows().map(x => x.InvoiceID);
+                let selectedToDebtCollect = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
                 this.reminderService.sendToDebtCollection(selectedToDebtCollect).subscribe(s => {
                     this.toastService.addToast('Inkasso', ToastType.good, 5,'Merkede fakturaer ble sendt til inkasso!');
                     this.setupRemindersToDebtCollectTable();
@@ -127,15 +126,11 @@ export class DebtCollection implements OnInit {
     }
 
     public updateRemindersToDebtCollectionList(reminders) {
-        let filter = reminders.map((r) => 'CustomerInvoiceID eq ' + r.ID).join(' or ');
         if(reminders.length > 0) {
-        this.statisticsService.GetAll(this.reminderQuery + filter)
-            .subscribe((data) => {
-                this.remindersToDebtCollect = data.Data;
+                this.remindersToDebtCollect = reminders;
                 this.summaryData.SumReadyForDebtCollection = _.sumBy(this.remindersToDebtCollect, x => x.TaxInclusiveAmount);
                 this.summaryData.SumChecked = 0;
                 this.setSums();
-            });
         } else {
             this.remindersToDebtCollect = [];
             this.summaryData.SumReadyForDebtCollection = 0;
@@ -154,7 +149,7 @@ export class DebtCollection implements OnInit {
         let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text).setWidth('100px').setFilterOperator('contains');
 
         invoiceNumberCol.setTemplate((reminders) => {
-            return `<a href='/#/sales/invoices/${reminders.InvoiceID}'>${reminders.InvoiceNumber}</a>`;
+            return `<a href='/#/sales/invoices/${reminders.CustomerInvoiceID}'>${reminders.InvoiceNumber}</a>`;
         });
 
         let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text).setFilterOperator('contains');
@@ -162,10 +157,9 @@ export class DebtCollection implements OnInit {
             return `<a href='/#/sales/customer/${reminders.CustomerID}'>${reminders.CustomerNumber} - ${reminders.CustomerName}</a>`;
         })
 
-        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
-        let remindedDateCol = new UniTableColumn('RemindedDate', 'Purredato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
-        let invoiceDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Fakturabeløp', UniTableColumnType.Number)
+        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
+        let invoiceDueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
+        var taxInclusiveAmountCol = new UniTableColumn('RestAmount', 'Beløp', UniTableColumnType.Number)
             .setWidth('120px')
             .setFilterOperator('eq')
             .setConditionalCls((item) => {
@@ -180,6 +174,6 @@ export class DebtCollection implements OnInit {
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNameCol, taxInclusiveAmountCol, invoiceDateCol, remindedDateCol, invoiceDueDateCol]);
+            .setColumns([reminderNumberCol, invoiceNumberCol, customerNameCol, taxInclusiveAmountCol, invoiceDateCol, invoiceDueDateCol]);
     }
 }

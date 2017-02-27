@@ -7,7 +7,7 @@ import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -24,7 +24,9 @@ import {
     CustomerOrder,
     CustomerOrderItem,
     StatusCodeCustomerOrder,
-    CompanySettings
+    CompanySettings,
+    CurrencyCode,
+    LocalDate
 } from '../../../../unientities';
 import {
     CompanySettingsService,
@@ -38,7 +40,9 @@ import {
     ProjectService,
     DepartmentService,
     AddressService,
-    ReportDefinitionService
+    ReportDefinitionService,
+    CurrencyCodeService,
+    CurrencyService
 } from '../../../../services/services';
 declare var _;
 
@@ -84,6 +88,10 @@ export class OrderDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
+    private currencyCodes: Array<CurrencyCode>;
+    private currencyCodeID: number;
+    private currencyExchangeRate: number;
+
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
@@ -109,7 +117,9 @@ export class OrderDetails {
         private userService: UserService,
         private numberFormat: NumberFormat,
         private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private currencyCodeService: CurrencyCodeService,
+        private currencyService: CurrencyService
     ) {}
 
     public ngOnInit() {
@@ -147,20 +157,52 @@ export class OrderDetails {
             this.orderID = +params['id'];
 
             if (this.orderID) {
-                this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
-                    res => this.refreshOrder(res),
-                    err => this.errorService.handle(err)
-                );
+                Observable.forkJoin(
+                    this.customerOrderService.Get(this.orderID, this.expandOptions),
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
+                ).subscribe(res => {
+                    let order = <CustomerOrder> res[0];
+                    this.companySettings = res[1];
+
+                    if (!order.CurrencyCodeID) {
+                        order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                        order.CurrencyExchangeRate = 1;
+                    }
+
+                    this.currencyCodeID = order.CurrencyCodeID;
+                    this.currencyExchangeRate = order.CurrencyExchangeRate;
+
+                    this.currencyCodes = res[2];
+
+                    this.refreshOrder(order);
+                },
+                err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
                     this.customerOrderService.GetNewEntity([], CustomerOrder.EntityType),
-                    this.userService.getCurrentUser()
+                    this.userService.getCurrentUser(),
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
                 ).subscribe(
-                    (dataset) => {
-                        let order = <CustomerOrder> dataset[0];
-                        order.OurReference = dataset[1].DisplayName;
-                        order.OrderDate = new Date();
-                        order.DeliveryDate = new Date();
+                    (res) => {
+                        let order = <CustomerOrder> res[0];
+                        order.OurReference = res[1].DisplayName;
+                        order.OrderDate = new LocalDate(Date());
+                        order.DeliveryDate = new LocalDate(Date());
+
+                        this.companySettings = res[2];
+
+                        if (!order.CurrencyCodeID) {
+                            order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                            order.CurrencyExchangeRate = 1;
+                        }
+
+                        this.currencyCodeID = order.CurrencyCodeID;
+                        this.currencyExchangeRate = order.CurrencyExchangeRate;
+
+                        this.currencyCodes = res[3];
+
                         this.refreshOrder(order);
                     },
                     err => this.errorService.handle(err)
@@ -182,42 +224,182 @@ export class OrderDetails {
         }
     }
 
+    private handleSaveError(error, donehandler) {
+        if (typeof(error) === 'string') {
+            if (donehandler) {
+                donehandler('Lagring avbrutt ' + error);
+            }
+        } else {
+            if (donehandler) {
+                donehandler('Lagring feilet');
+            }
+            this.errorService.handle(error);
+        }
+    }
+
     public canDeactivate(): boolean|Promise<boolean> {
         if (!this.isDirty) {
             return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Ønsker du å lagre ordren før du fortsetter?',
-                'Ulagrede endringer',
-                true
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    this.saveOrder().subscribe(
-                        (res) => {
-                            this.isDirty = false;
-                            resolve(true);
-                        },
-                        (err) => {
-                            this.errorService.handle(err);
-                            resolve(false);
-                        }
-                    );
-                } else if (action === ConfirmActions.REJECT) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                    this.setTabTitle();
-                }
-            });
+        return this.confirmModal.confirm(
+            'Ønsker du å lagre ordren før du fortsetter?',
+            'Ulagrede endringer',
+            true
+        ).then((action) => {
+            if (action === ConfirmActions.ACCEPT) {
+                this.saveOrder().then(res => {
+                    this.isDirty = false;
+                    return true;
+                }).catch(error => {
+                    this.handleSaveError(error, null);
+                    return false;
+                });
+            } else if (action === ConfirmActions.REJECT) {
+                return true;
+            } else {
+                this.setTabTitle();
+                return false;
+            }
         });
     }
 
-
     public onOrderChange(order) {
         this.isDirty = true;
+        let shouldGetCurrencyRate: boolean = false;
+
+        // update quotes currencycodeid if the customer changed
+        if (this.didCustomerChange(order)) {
+            if (order.Customer.CurrencyCodeID) {
+                order.CurrencyCodeID = order.Customer.CurrencyCodeID;
+            } else {
+                order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+            shouldGetCurrencyRate = true;
+        }
+
+        if ((!this.currencyCodeID && order.CurrencyCodeID)
+            || this.currencyCodeID !== order.CurrencyCodeID) {
+            this.currencyCodeID = order.CurrencyCodeID;
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.order && this.order.OrderDate.toString() !== order.OrderDate.toString()) {
+            shouldGetCurrencyRate = true;
+        }
+
+        if (this.order && order.CurrencyCodeID !== this.order.CurrencyCodeID) {
+            shouldGetCurrencyRate = true;
+        }
+
         this.order = _.cloneDeep(order);
+
+        if (shouldGetCurrencyRate) {
+            this.getUpdatedCurrencyExchangeRate(order)
+                .subscribe(res => {
+                    let newCurrencyRate = res;
+
+                    if (!this.currencyExchangeRate) {
+                        this.currencyExchangeRate = 1;
+                    }
+
+                    let askUserWhatToDo: boolean = false;
+
+                    let newTotalExVatBaseCurrency: number;
+                    let diffBaseCurrency: number;
+                    let diffBaseCurrencyPercent: number;
+
+                    if (newCurrencyRate !== this.currencyExchangeRate) {
+                        this.currencyExchangeRate = newCurrencyRate;
+                        order.CurrencyExchangeRate = res;
+
+                        let haveUserDefinedPrices = this.orderItems && this.orderItems.filter(x => x.PriceSetByUser).length > 0;
+
+                        if (haveUserDefinedPrices) {
+                            // calculate how much the new currency will affect the amount for the base currency,
+                            // if it doesnt cause a change larger than 5%, don't bother asking the user what
+                            // to do, just use the set prices
+                            newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
+                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+
+                            diffBaseCurrencyPercent =
+                                this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
+
+                            // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
+                            // or make it possible to override it either on companysettings, customer, or the TOF header
+                            if (diffBaseCurrencyPercent > 5) {
+                                askUserWhatToDo = true;
+                            }
+                        }
+
+                        if (askUserWhatToDo) {
+                            let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+
+                            this.confirmModal.confirm(
+                                `Endringen førte til at en ny valutakurs ble hentet. Du har overstyrt en eller flere priser, ` +
+                                `og dette fører derfor til at totalsum eks. mva ` +
+                                `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% ` +
+                                `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n` +
+                                `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
+                                'Rekalkulere valutapriser for varer?',
+                                false,
+                                {accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser'}
+                            ).then((response: ConfirmActions) => {
+                                if (response === ConfirmActions.ACCEPT) {
+                                    // we need to calculate the base currency amount numbers if we are going
+                                    // to keep the currency amounts - if not the data will be out of sync
+                                    this.orderItems.forEach(item => {
+                                        if (item.PriceSetByUser) {
+                                            this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                        } else {
+                                            this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                        }
+                                    });
+                                } else if (response === ConfirmActions.REJECT) {
+                                    // we need to calculate the currency amounts based on the original prices
+                                    // defined in the base currency
+                                    this.orderItems.forEach(item => {
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                    });
+                                }
+
+                                // make unitable update the data after calculations
+                                this.orderItems = this.orderItems.concat();
+                                this.recalcItemSums(this.orderItems);
+
+                                // update the model
+                                this.order = _.cloneDeep(order);
+                            });
+                        } else if (this.orderItems && this.orderItems.length > 0) {
+                            // the currencyrate has changed, but not so much that we had to ask the user what to do,
+                            // so just make an assumption what to do; recalculated based on set price if user
+                            // has defined a price, and by the base currency price if the user has not set a
+                            // specific price
+                            this.orderItems.forEach(item => {
+                                if (item.PriceSetByUser) {
+                                    this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                } else {
+                                    this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                }
+                            });
+
+                            // make unitable update the data after calculations
+                            this.orderItems = this.orderItems.concat();
+                            this.recalcItemSums(this.orderItems);
+
+                            // update the model
+                            this.order = _.cloneDeep(order);
+                        } else {
+                            // update
+                            this.recalcItemSums(this.orderItems);
+
+                            // update the model
+                            this.order = _.cloneDeep(order);
+                        }
+                    }
+                }, err => this.errorService.handle(err)
+            );
+        }
     }
 
     private refreshOrder(order?: CustomerOrder) {
@@ -246,6 +428,56 @@ export class OrderDetails {
         this.updateToolbar();
         this.updateSaveActions();
         this.recalcDebouncer.next(order.Items);
+    }
+
+    private didCustomerChange(order: CustomerOrder): boolean {
+        return order.Customer
+            && (!this.order
+            || (order.Customer && !this.order.Customer)
+            || (order.Customer && this.order.Customer && order.Customer.ID !== this.order.Customer.ID))
+    }
+
+    private getUpdatedCurrencyExchangeRate(order: CustomerOrder): Observable<number> {
+        // if base currency code is the same a the currency code for the quote, the
+        // exchangerate will always be 1 - no point in asking the server about that..
+        if (!order.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === order.CurrencyCodeID) {
+            return Observable.from([1]);
+        } else {
+            let currencyDate: LocalDate = new LocalDate(order.OrderDate.toString());
+
+            return this.currencyService.getCurrencyExchangeRate(order.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                .map(x => x.ExchangeRate);
+        }
+    }
+
+    private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
+        item.PriceExVat = this.tradeItemHelper.round(item.PriceExVatCurrency * newCurrencyRate, 4);
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
+    }
+
+    private recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, newCurrencyRate) {
+        if (!item.PriceSetByUser || !item.Product) {
+            // if price has not been changed by the user, recalc based on the PriceExVat.
+            // we do this before using the products price in case the product has been changed
+            // after the item was created. This is also done if no Product is selected
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.PriceExVat / newCurrencyRate, 4);
+        } else {
+            // if the user has changed the price for this item, we need to recalc based
+            // on the product's PriceExVat, because using the items PriceExVat will not make
+            // sense as that has also been changed when the user when the currency price
+            // was changed
+            item.PriceExVatCurrency = this.tradeItemHelper.round(item.Product.PriceExVat / newCurrencyRate, 4);
+
+            // if price was set by user, it is not any longer
+            item.PriceSetByUser = false;
+        }
+
+        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
+        this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
     private getStatustrackConfig() {
@@ -329,9 +561,22 @@ export class OrderDetails {
             ? this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name
             : '';
 
-        let netSumText = (this.itemsSummaryData)
-            ? 'Netto kr ' + this.itemsSummaryData.SumTotalExVat + '.'
-            : 'Netto kr ' + this.order.TaxExclusiveAmount + '.';
+        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+
+        let netSumText = '';
+
+        if (this.itemsSummaryData) {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
+            }
+        } else {
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.order.TaxExclusiveAmountCurrency)}`;
+            if (baseCurrencyCode !== selectedCurrencyCode) {
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.order.TaxExclusiveAmount)}`;
+            }
+        }
 
         this.toolbarconfig = {
             title: orderText,
@@ -362,17 +607,14 @@ export class OrderDetails {
                 if (this.order.ID) {
                     this.saveOrderTransition(done, 'register', 'Registrert');
                 } else {
-                    this.saveOrder().subscribe(
-                        (res) => {
-                            done('Ordre registrert');
-                            this.isDirty = false;
-                            this.router.navigateByUrl('/sales/orders/' + res.ID);
-                        },
-                        err => this.errorService.handle(err)
-                    );
+                    this.saveOrder().then(res => {
+                        done('Ordre registrert');
+                        this.isDirty = false;
+                        this.router.navigateByUrl('/sales/orders/' + res.ID);
+                    }).catch(error => {
+                        this.handleSaveError(error, done);
+                    });
                 }
-
-
             },
             disabled: transitions && !transitions['register'],
             main: !transitions || transitions['register']
@@ -381,17 +623,13 @@ export class OrderDetails {
         this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
-                this.saveOrder().subscribe(
-                    (res) => {
-                        done('Lagring fullført');
-                        this.orderID = res.ID;
-                        this.refreshOrder();
-                    },
-                    (err) => {
-                        done('Lagring feilet');
-                        this.errorService.handle(err);
-                    }
-                );
+                this.saveOrder().then(res => {
+                    done('Lagring fullført');
+                    this.orderID = res.ID;
+                    this.refreshOrder();
+                }).catch(error => {
+                    this.handleSaveError(error, done);
+                });
             },
             main: true,
             disabled: !this.order.ID
@@ -402,17 +640,13 @@ export class OrderDetails {
                 label: 'Lagre som kladd',
                 action: (done) => {
                     this.order.StatusCode = StatusCode.Draft;
-                    this.saveOrder().subscribe(
-                        (res) => {
-                            done('Lagring fullført');
-                            this.isDirty = false;
-                            this.router.navigateByUrl('/sales/orders/' + res.ID);
-                        },
-                        (err) => {
-                            done('Lagring feilet');
-                            this.errorService.handle(err);
-                        }
-                    );
+                    this.saveOrder().then(res => {
+                        done('Lagring fullført');
+                        this.isDirty = false;
+                        this.router.navigateByUrl('/sales/orders/' + res.ID);
+                    }).catch(error => {
+                        this.handleSaveError(error, done);
+                    });
                 },
                 disabled: false
             });
@@ -455,8 +689,7 @@ export class OrderDetails {
         this.setSums();
     }
 
-    private saveOrder(): Observable<CustomerOrder> {
-        this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+    private saveOrder(): Promise<CustomerOrder> {
         this.order.Items = this.orderItems;
 
         this.order.Items.forEach(item => {
@@ -465,15 +698,43 @@ export class OrderDetails {
             }
         });
 
-        // Save only lines with products from product list
-        if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
-            const message = 'En eller flere varelinjer mangler produkt';
-            return Observable.throw(message);
-        }
+        return new Promise((resolve, reject) => {
+            // Save only lines with products from product list
+            if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
+                const message = 'En eller flere varelinjer mangler produkt';
+                reject(message);
+            }
 
-        return (this.order.ID > 0)
-            ? this.customerOrderService.Put(this.order.ID, this.order)
-            : this.customerOrderService.Post(this.order);
+            // create observable but dont subscribe - resolve it in the promise
+            var request = ((this.order.ID > 0)
+                ? this.customerOrderService.Put(this.order.ID, this.order)
+                : this.customerOrderService.Post(this.order));
+
+            // If a currency other than basecurrency is used, and any lines contains VAT,
+            // validate that this is correct before resolving the promise
+            if (this.order.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                let linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
+                if (linesWithVat.length > 0) {
+                    this.confirmModal.confirm(
+                        `Er du sikker på at du vil registrere linjer med MVA når det er brukt ${this.getCurrencyCode(this.order.CurrencyCodeID)} som valuta?`,
+                        'Vennligst bekreft',
+                        false,
+                        {accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring'}
+                    ).then(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            request.subscribe(res => resolve(res), err => reject(err));
+                        } else {
+                            const message = 'Endre MVA kode og lagre på ny';
+                            reject(message);
+                        }
+                    });
+                } else {
+                    request.subscribe(res => resolve(res), err => reject(err));
+                }
+            } else {
+                request.subscribe(res => resolve(res), err => reject(err));
+            }
+        });
     }
 
     private saveAndTransferToInvoice(done: any) {
@@ -501,58 +762,46 @@ export class OrderDetails {
         }
 
         // save order and open modal to select what to transfer to invoice
-        this.saveOrder().subscribe(
-            (res) => {
-                done('Ordre lagret');
-                this.isDirty = false;
-                this.oti.openModal(this.order);
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            }
-        );
+        this.saveOrder().then(res => {
+            done('Ordre lagret');
+            this.isDirty = false;
+            this.oti.openModal(this.order);
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private saveOrderTransition(done: any, transition: string, doneText: string) {
-        this.saveOrder().subscribe(
-            (order) => {
-                this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
-                    (res) => {
-                        done(doneText);
-                        this.refreshOrder();
-                    },
-                    (err) => {
-                        done('Lagring feilet');
-                        this.errorService.handle(err);
-                    }
-                );
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            }
-        );
+        this.saveOrder().then((order) => {
+            this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
+                (res) => {
+                    done(doneText);
+                    this.refreshOrder();
+                },
+                (err) => {
+                    done('Lagring feilet');
+                    this.errorService.handle(err);
+                }
+            );
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private saveAndPrint(done) {
-        this.saveOrder().subscribe(
-            (res) => {
-                this.isDirty = false;
-                this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-                    if (report) {
-                        this.previewModal.openWithId(report, res.ID);
-                        done('Viser utskrift');
-                    } else {
-                        done('Rapport mangler');
-                    }
-                });
-            },
-            (err) => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            }
-        );
+        this.saveOrder().then(res => {
+            this.isDirty = false;
+            this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
+                if (report) {
+                    this.previewModal.openWithId(report, res.ID);
+                    done('Viser utskrift');
+                } else {
+                    done('Rapport mangler');
+                }
+            });
+        }).catch(error => {
+            this.handleSaveError(error, done);
+        });
     }
 
     private deleteOrder(done) {
@@ -568,27 +817,45 @@ export class OrderDetails {
         );
     }
 
+    private getCurrencyCode(currencyCodeID: number): string {
+        let currencyCode: CurrencyCode;
+
+        if (this.currencyCodes) {
+            if (currencyCodeID) {
+                currencyCode = this.currencyCodes.find(x => x.ID === currencyCodeID);
+            } else if (this.companySettings) {
+                currencyCode = this.currencyCodes.find(x => x.ID === this.companySettings.BaseCurrencyCodeID);
+            }
+        }
+
+        return currencyCode ? currencyCode.Code : '';
+    }
+
     private setSums() {
         this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasis) : null,
+                value: this.getCurrencyCode(this.currencyCodeID),
+                title: 'Valuta:',
+                description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : null,
                 title: 'Avgiftsfritt',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasis) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : null,
                 title: 'Avgiftsgrunnlag',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscount) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : null,
                 title: 'Sum rabatt',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : null,
                 title: 'Nettosum',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : null,
                 title: 'Mva',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRounding) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : null,
                 title: 'Øreavrunding',
             }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVat) : null,
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : null,
                 title: 'Totalsum',
             }];
     }

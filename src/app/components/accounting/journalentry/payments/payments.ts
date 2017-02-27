@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
-import {CustomerInvoice, JournalEntryData, Account, CompanySettings} from '../../../../unientities';
+import {CustomerInvoice, JournalEntryData, Account, CompanySettings, LocalDate} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
 import {
     ErrorService,
@@ -64,7 +64,7 @@ export class Payments {
                 let newJournalEntry: JournalEntryData = new JournalEntryData();
                 newJournalEntry.InvoiceNumber = invoice.InvoiceNumber;
                 newJournalEntry.CustomerInvoiceID = invoice.ID;
-                newJournalEntry.FinancialDate = moment().toDate();
+                newJournalEntry.FinancialDate = new LocalDate(moment().toDate());
                 newJournalEntry.Description = 'Innbetaling';
 
                 if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {

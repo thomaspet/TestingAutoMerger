@@ -68,6 +68,11 @@ import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {CategoryDetail} from './category/views/categoryDetails';
 
+import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalarybalanceView} from './salarybalance/salarybalanceView';
+import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
+import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
+
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
@@ -149,7 +154,13 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         // Category
         CategoryList,
         CategoryView,
-        CategoryDetail
+        CategoryDetail,
+
+        // Salarybalance
+        SalarybalanceList,
+        SalarybalanceView,
+        SalarybalanceDetail,
+        SalaryBalanceSummary
     ],
     entryComponents: [
         TaxCardModalContent,
@@ -226,7 +237,13 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         // Category
         CategoryList,
         CategoryView,
-        CategoryDetail
+        CategoryDetail,
+
+        // Salarybalance
+        SalarybalanceList,
+        SalarybalanceView,
+        SalarybalanceDetail,
+        SalaryBalanceSummary
     ]
 })
 export class SalaryModule {}

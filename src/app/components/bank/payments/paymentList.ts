@@ -188,8 +188,6 @@ export class PaymentList {
 
         let tableData = this.table.getTableData();
 
-        let selectedRows = this.table.getSelectedRows();
-
         // find dirty elements
         let dirtyRows = [];
         tableData.forEach(x => {

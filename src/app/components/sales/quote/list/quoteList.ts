@@ -1,11 +1,11 @@
-import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
-import {CustomerQuoteService, ReportDefinitionService, ErrorService} from '../../../../services/services';
-import {CustomerQuote, StatusCodeCustomerQuote} from '../../../../unientities';
+import {CustomerQuoteService, ReportDefinitionService, ErrorService, CompanySettingsService} from '../../../../services/services';
+import {CustomerQuote, StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -25,6 +25,8 @@ export class QuoteList {
 
     private quoteTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+    private companySettings: CompanySettings;
+    private baseCurrencyCode: string;
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Tilbud',
@@ -46,19 +48,28 @@ export class QuoteList {
         private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => {
+                this.companySettings = settings;
+                if (this.companySettings && this.companySettings.BaseCurrencyCode) {
+                    this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
+                }
+                this.setupQuoteTable();
+                this.getGroupCounts();
+            }, err => this.errorService.handle(err)
+        );
+
         this.tabService.addTab({
             name: 'Tilbud',
             url: '/sales/quotes',
             active: true,
             moduleID: UniModules.Quotes
         });
-
-        this.setupQuoteTable();
-        this.getGroupCounts();
     }
 
     public createQuote() {
@@ -90,7 +101,7 @@ export class QuoteList {
     private setupQuoteTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer');
+            urlParams.set('expand', 'Customer,CurrencyCode');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'QuoteDate desc');
@@ -233,10 +244,26 @@ export class QuoteList {
             })
             .setFilterable(false);
 
-        const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+        let currencyCodeCol = new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
+            .setWidth('5%')
             .setFilterOperator('eq')
-            .setWidth('10%')
+            .setVisible(false);
+
+        let taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Money)
+            .setWidth('8%')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.TaxInclusiveAmount >= 0)
+                    ? 'number-good' : 'number-bad';
+            })
+            .setCls('column-align-right');
+
+        const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum ' + this.baseCurrencyCode, UniTableColumnType.Money)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setVisible(false)
             .setCls('column-align-right number-good');
 
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
@@ -250,6 +277,7 @@ export class QuoteList {
         this.quoteTable = new UniTableConfig(false, true)
             .setPageSize(25)
             .setSearchable(true)
+            .setColumnMenuVisible(true)
             .setContextMenu(contextMenuItems)
             .setColumns([
                 quoteNumberCol,
@@ -257,6 +285,8 @@ export class QuoteList {
                 customerNameCol,
                 quoteDateCol,
                 validUntilDateCol,
+                currencyCodeCol,
+                taxInclusiveAmountCurrencyCol,
                 taxInclusiveAmountCol,
                 statusCol
             ]);

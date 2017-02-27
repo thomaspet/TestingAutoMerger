@@ -87,12 +87,12 @@ import {UniSearchModule} from 'unisearch-ng2';
         InvoiceList,
         InvoiceDetails,
 
-        OrderItemList,
         OrderDetails,
         OrderList,
         OrderToInvoiceTable,
         OrderToInvoiceModalType,
         OrderToInvoiceModal,
+
         QuoteDetails,
         QuoteList,
         Reminder,
@@ -126,7 +126,6 @@ import {UniSearchModule} from 'unisearch-ng2';
         CustomerList,
         InvoiceList,
         InvoiceDetails,
-        OrderItemList,
         OrderDetails,
         OrderList,
         OrderToInvoiceTable,

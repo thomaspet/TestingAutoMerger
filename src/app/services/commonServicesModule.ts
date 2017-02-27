@@ -5,6 +5,7 @@ import {AltinnReceiptService} from './common/altinnReceiptService';
 import {CompanySettingsService} from './common/companySettingsService';
 import {CompanyTypeService} from './common/companyTypeService';
 import {CurrencyService} from './common/currencyService';
+import {CurrencyCodeService} from './common/currencyCodeService';
 import {DepartmentService} from './common/departmentService';
 import {GuidService} from './common/guidService';
 import {IntegrationServerCaller} from './common/integrationServerCaller';
@@ -37,12 +38,14 @@ import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearc
 import {UmhService} from './common/UmhService';
 import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
+import {CurrencyOverridesService} from './common/currencyOverridesService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
 export * from './common/altinnReceiptService';
 export * from './common/companySettingsService';
 export * from './common/companyTypeService';
+export * from './common/currencyCodeService';
 export * from './common/currencyService';
 export * from './common/departmentService';
 export * from './common/guidService';
@@ -73,9 +76,9 @@ export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/emailService';
 export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
+export * from './common/currencyOverridesService';
 
-@NgModule({
-})
+@NgModule({})
 export class CommonServicesModule {
     static forRoot(): ModuleWithProviders {
         return {
@@ -118,7 +121,9 @@ export class CommonServicesModule {
                 UmhService,
 				UniSearchConfigGeneratorService,
 				UniSearchAccountConfigGeneratorHelper,
-        		UniSearchCustomerConfigGeneratorHelper
+        		UniSearchCustomerConfigGeneratorHelper,
+				CurrencyOverridesService,
+				CurrencyCodeService
             ]
         };
     }

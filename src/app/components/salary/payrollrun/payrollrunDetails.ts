@@ -42,7 +42,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     @ViewChild(UniForm) public uniform: UniForm;
-    private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(new PayrollRun());
+    private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
@@ -174,7 +174,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     }
                 })
                 .subscribe((payrollRun: PayrollRun) => {
-
+                    if (payrollRun['_IncludeRecurringPosts'] === undefined) {
+                        payrollRun['_IncludeRecurringPosts'] = !payrollRun.ExcludeRecurringPosts;
+                    }
                     this.payrollrun$.next(payrollRun);
                     if (payrollRun && payrollRun.PayDate) {
                         this.payDate = new Date(payrollRun.PayDate.toString());
@@ -231,7 +233,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             label: 'Avregn',
                             action: this.runSettling.bind(this),
                             main: false,
-                            disabled: this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode > 0 : true
+                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
                         },
                         {
                             label: 'Til utbetaling',
@@ -248,7 +250,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     ];
 
                     this.checkDirty();
-                    if (this.changedPayroll && !this.payrollrun$.getValue().Description && !this.detailsActive) {
+                    if (this.changedPayroll && !payrollRun.Description && !this.detailsActive) {
                         this.toggleDetailsView();
                     }
                     this.changedPayroll = false;
@@ -545,10 +547,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 return result
                     ? Observable.of(result)
                     : Observable
-                        .fromPromise(
-                        this.confirmModal.confirm(
-                            'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
-                            'Lagre endringer?', true, { accept: 'Lagre', reject: 'Forkast' }))
+                        .fromPromise( this.confirmModal.confirmSave() )
                         .map((response: ConfirmActions) => {
                             if (response === ConfirmActions.ACCEPT) {
                                 this.saveAll((m) => { });
@@ -692,14 +691,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this._financialYearService.getActiveFinancialYear()
             ).subscribe((dataSet: any) => {
                 let [payroll, last, salaries, activeYear] = dataSet;
-                this.setDefaults();
+                this.setDefaults(payroll);
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
                 this.activeFinancialYear = activeYear;
 
                 if (payroll && payroll.ID === 0) {
                     payroll.ID = null;
-                    this.suggestFromToDates(latest, companysalary);
+                    this.suggestFromToDates(latest, companysalary, payroll);
                 }
 
                 if (payroll) {
@@ -719,54 +718,59 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    private setDefaults() {
-        this.payrollrun$.getValue().taxdrawfactor = TaxDrawFactor.Standard;
+    private setDefaults(payrollRun: PayrollRun) {
+        payrollRun.taxdrawfactor = TaxDrawFactor.Standard;
     }
 
-    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary) {
+    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun) {
         if (!latest) {
             // First payrollrun for the year
             let todate: Date;
             let fromdate = new Date(this.activeFinancialYear.Year, 0, 1);
-            this.payrollrun$.getValue().FromDate = fromdate;
+            payrollRun.FromDate = fromdate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     todate = new Date(this.activeFinancialYear.Year, 0, 14);
-                    this.payrollrun$.getValue().ToDate = todate;
+                    payrollRun.ToDate = todate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     todate = new Date(this.activeFinancialYear.Year, 0, 7);
-                    this.payrollrun$.getValue().ToDate = todate;
+                    payrollRun.ToDate = todate;
                     break;
 
                 default: // Monthly
                     todate = new Date(this.activeFinancialYear.Year, 0, 31);
-                    this.payrollrun$.getValue().ToDate = todate;
+                    payrollRun.ToDate = todate;
                     break;
             }
         } else {
             let lastTodate = moment(latest.ToDate);
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
+            let fromdateAsDate = new Date(lastFromdate);
+            let todateAsDate: Date;
 
-            this.payrollrun$.getValue().FromDate = lastFromdate.toDate();
+            payrollRun.FromDate = fromdateAsDate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
-                    this.payrollrun$.getValue().ToDate = lastTodate.toDate();
+                    todateAsDate = new Date(lastTodate);
+                    payrollRun.ToDate = todateAsDate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
-                    this.payrollrun$.getValue().ToDate = lastTodate.toDate();
+                    todateAsDate = new Date(lastTodate);
+                    payrollRun.ToDate = todateAsDate;
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
-                    this.payrollrun$.getValue().ToDate = lastTodate.toDate();
+                    todateAsDate = new Date(lastTodate);
+                    payrollRun.ToDate = todateAsDate;
                     break;
             }
         }
@@ -972,7 +976,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
         idField = this.findByProperty('ID');
         idField.ReadOnly = true;
-        var recurringTransCheck: UniFieldLayout = this.findByProperty('ExcludeRecurringPosts');
+        var recurringTransCheck: UniFieldLayout = this.findByProperty('_IncludeRecurringPosts');
         var noNegativePayCheck: UniFieldLayout = this.findByProperty('1');
         if (this.isEditable) {
             recurringTransCheck.ReadOnly = false;
@@ -1027,7 +1031,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private change(changes: SimpleChanges) {
-        super.updateState('payrollRun', this.payrollrun$.getValue(), true);
+        let payrollRun = this.payrollrun$.getValue();
+        payrollRun.ExcludeRecurringPosts = !payrollRun['_IncludeRecurringPosts'];
+        super.updateState('payrollRun', payrollRun, true);
     }
 
     private populateCategoryFilters() {

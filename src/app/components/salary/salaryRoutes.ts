@@ -16,8 +16,12 @@ import {AMeldingView} from './amelding/ameldingview';
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {routes as CategoryRoutes} from './category/categoryRoutes';
+import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalarybalanceView} from './salarybalance/salarybalanceView';
+import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
 
-export const salaryRoutes: Routes = [
+
+export const childRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -64,6 +68,16 @@ export const salaryRoutes: Routes = [
         path: 'employeecategories/:id',
         component: CategoryView,
         children: CategoryRoutes,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'salarybalances',
+        component: SalarybalanceList
+    },
+    {
+        path: 'salarybalances/:id',
+        component: SalarybalanceView,
+        children: SalarybalanceRoutes,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

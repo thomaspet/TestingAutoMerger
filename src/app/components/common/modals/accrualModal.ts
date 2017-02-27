@@ -734,8 +734,8 @@ export class AccrualModal {
                 }
             } else {
                 accrual.AccrualAmount = journalEntryLineDraft.Amount;
-                let startYear: number = journalEntryLineDraft.FinancialDate.getFullYear();
-                let startPeriod: number = journalEntryLineDraft.FinancialDate.getMonth();
+                let startYear: number = journalEntryLineDraft.FinancialDate.year;
+                let startPeriod: number = journalEntryLineDraft.FinancialDate.month;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] =  new Array<string>();
                 accrual['_accrualPeriodsTemp'] = 3;
@@ -761,9 +761,9 @@ export class AccrualModal {
             if (!accrual['financialDate'] || !accrual['_periodYears']) {
                 if (accrual.JournalEntryLineDraft) {
                     accrual['_financialDate'] = accrual.JournalEntryLineDraft.FinancialDate;
-                    accrual['_periodYears'] = [accrual.JournalEntryLineDraft.FinancialDate.getFullYear(),
-                        accrual.JournalEntryLineDraft.FinancialDate.getFullYear() + 1,
-                        accrual.JournalEntryLineDraft.FinancialDate.getFullYear() + 2];
+                    accrual['_periodYears'] = [accrual.JournalEntryLineDraft.FinancialDate.year,
+                        accrual.JournalEntryLineDraft.FinancialDate.month,
+                        accrual.JournalEntryLineDraft.FinancialDate.year + 2];
                 } else {
                     if (accrual.ID) {
                         this.toastService.addToast('Periodisering',

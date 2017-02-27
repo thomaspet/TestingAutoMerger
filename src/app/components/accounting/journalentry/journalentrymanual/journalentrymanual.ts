@@ -489,9 +489,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.journalEntryProfessional.postJournalEntryData((result: string) => {
                         completeCallback(result);
 
-                        this.onDataChanged([]);
-                        this.clearJournalEntryInfo();
-                        this.dataCleared.emit();
+                        if (result && result !== '') {
+                            this.onDataChanged([]);
+                            this.clearJournalEntryInfo();
+                            this.dataCleared.emit();
+                        }
                     });
 
                     this.onShowImageForJournalEntry(null);

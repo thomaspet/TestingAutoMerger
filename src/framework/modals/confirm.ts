@@ -30,7 +30,7 @@ export interface IUniConfirmModalConfig {
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             {{config.message}}
             <p class="warn" *ngIf="config.warningMessage">{{config.warningMessage}}</p>
-            <footer>                
+            <footer>
                 <button *ngIf="config?.actions?.accept" (click)="runMethod('accept')" class="good">
                     {{config?.actions?.accept?.text}}
                 </button>
@@ -46,7 +46,7 @@ export interface IUniConfirmModalConfig {
 })
 export class UniConfirmContent {
     @Input('config')
-    public config: IUniConfirmModalConfig;     
+    public config: IUniConfirmModalConfig;
 
     public runMethod(action) {
         this.config.actions[action].method();
@@ -86,7 +86,7 @@ export class UniConfirmModal {
     private onClose: () => void = () => {};
 
     private initDefaultConfig() {
-        this.config = { 
+        this.config = {
             title: 'Confirm',
             message: 'Please confirm',
             warningMessage: '',
@@ -110,7 +110,7 @@ export class UniConfirmModal {
             cfg.title = title || 'Vennligst bekreft';
             cfg.message = message;
             cfg.warningMessage = titles && titles.warning ? titles.warning : undefined;
-            
+
             cfg.actions.accept = {
                 text: (titles && titles.accept ? titles.accept : '') || 'Ja',
                 method: () => { resolve(ConfirmActions.ACCEPT); this.close(); }
@@ -131,5 +131,23 @@ export class UniConfirmModal {
             };
             this.open();
         });
+    }
+
+    // Adds default wording for save confirmations
+    public confirmSave(
+            message: string = 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
+            title: string = 'Lagre endringer?',
+            hasCancel: boolean = true,
+            titles?: { accept?: string, reject?: string, cancel?: string, warning?: string }
+        ): Promise<number> {
+
+        titles = {
+            accept:  titles && titles.accept ? titles.accept : 'Lagre nå',
+            reject:  titles && titles.reject ? titles.reject : 'Forkast',
+            cancel:  titles && titles.cancel ? titles.cancel : undefined,
+            warning: titles && titles.warning ? titles.warning : undefined
+        };
+
+        return this.confirm(message, title, hasCancel, titles);
     }
 }

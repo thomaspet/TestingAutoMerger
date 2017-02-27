@@ -1,0 +1,743 @@
+{
+	"CustomerQuote": {
+		"CustomValues": {},
+		"Attachments": null,
+		"Comment": null,
+		"CreatedAt": "2017-02-23T14:12:10.033Z",
+		"CreatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+		"CreditDays": 15,
+		"CurrencyCodeID": 3,
+		"CurrencyExchangeRate": 10.438,
+		"CustomerID": 2,
+		"CustomerName": "CHARLIE BANAN Kim Strugstad",
+		"CustomerOrgNumber": null,
+		"CustomerPerson": null,
+		"Deleted": false,
+		"DeliveryDate": "2017-02-23",
+		"DeliveryMethod": null,
+		"DeliveryTerm": null,
+		"FreeTxt": null,
+		"ID": 4,
+		"InquiryReference": 0,
+		"InternalNote": null,
+		"InvoiceAddressLine1": "Sofies gate 84",
+		"InvoiceAddressLine2": null,
+		"InvoiceAddressLine3": null,
+		"InvoiceCity": "OSLO",
+		"InvoiceCountry": "Norge",
+		"InvoiceCountryCode": null,
+		"InvoicePostalCode": "0454",
+		"InvoiceReceiverName": null,
+		"OurReference": "Economy Test",
+		"PaymentTerm": null,
+		"PrintStatus": null,
+		"QuoteDate": "2017-02-23",
+		"QuoteNumber": 1,
+		"QuoteNumberSeriesID": 13,
+		"Requisition": null,
+		"SalesPerson": null,
+		"ShippingAddressLine1": "Sofies gate 84",
+		"ShippingAddressLine2": null,
+		"ShippingAddressLine3": null,
+		"ShippingCity": "OSLO",
+		"ShippingCountry": "Norge",
+		"ShippingCountryCode": null,
+		"ShippingPostalCode": "0454",
+		"StatusCode": 40102,
+		"SupplierOrgNumber": null,
+		"TaxExclusiveAmount": 200000.0004,
+		"TaxExclusiveAmountCurrency": 19160.7588,
+		"TaxInclusiveAmount": 250000,
+		"TaxInclusiveAmountCurrency": 23950.9485,
+		"UpdatedAt": "2017-02-23T14:24:30.53Z",
+		"UpdatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+		"ValidUntilDate": "2017-03-23",
+		"VatTotalsAmount": 50000,
+		"VatTotalsAmountCurrency": 4790.1897,
+		"YourReference": null,
+		"Items": [
+			{
+				"CustomValues": {},
+				"AccountID": 1,
+				"CalculateGrossPriceBasedOnNetPrice": false,
+				"Comment": null,
+				"CreatedAt": "2017-02-23T14:12:10.1Z",
+				"CreatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+				"CustomerQuoteID": 4,
+				"Deleted": false,
+				"DimensionsID": 5,
+				"Discount": 0,
+				"DiscountCurrency": 0,
+				"DiscountPercent": 0,
+				"ID": 8,
+				"ItemText": "Nissan Leaf",
+				"NumberOfItems": 1,
+				"PriceExVat": 200000.0004,
+				"PriceExVatCurrency": 19160.7588,
+				"PriceIncVat": 250000.0004,
+				"PriceSetByUser": false,
+				"ProductID": 13,
+				"SortIndex": 1,
+				"StatusCode": null,
+				"SumTotalExVat": 200000.0004,
+				"SumTotalExVatCurrency": 19160.7588,
+				"SumTotalIncVat": 250000.0004,
+				"SumTotalIncVatCurrency": 23950.9485,
+				"SumVat": 50000,
+				"SumVatCurrency": 4790.1897,
+				"Unit": "Stk",
+				"UpdatedAt": "2017-02-23T14:12:10.59Z",
+				"UpdatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+				"VatTypeID": 1,
+				"Product": {
+					"CustomValues": {},
+					"AccountID": 1,
+					"AverageCost": null,
+					"CalculateGrossPriceBasedOnNetPrice": false,
+					"CostPrice": 150000,
+					"CreatedAt": null,
+					"CreatedBy": null,
+					"DefaultProductCategoryID": 0,
+					"Deleted": false,
+					"Description": null,
+					"DimensionsID": null,
+					"ID": 13,
+					"ImageFileID": null,
+					"ListPrice": null,
+					"Name": "Nissan Leaf",
+					"PartName": "BIL-01",
+					"PriceExVat": 200000,
+					"PriceIncVat": 250000,
+					"StatusCode": null,
+					"Type": 1,
+					"Unit": "Stk",
+					"UpdatedAt": null,
+					"UpdatedBy": null,
+					"VariansParentID": 0,
+					"VatTypeID": 1,
+					"_links": {
+						"actions": {
+							"first": {
+								"href": "/api/biz/products/13?action=first",
+								"method": "GET",
+								"label": "",
+								"description": ""
+							},
+							"last": {
+								"href": "/api/biz/products/13?action=last",
+								"method": "GET",
+								"label": "",
+								"description": ""
+							},
+							"previous": {
+								"href": "/api/biz/products/13?action=previous",
+								"method": "GET",
+								"label": "",
+								"description": ""
+							},
+							"next": {
+								"href": "/api/biz/products/13?action=next",
+								"method": "GET",
+								"label": "",
+								"description": ""
+							}
+						},
+						"relations": {
+							"Self": {
+								"href": "/api/biz/products/13",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							},
+							"VatType": {
+								"href": "/api/biz/vattypes/1",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							},
+							"Account": {
+								"href": "/api/biz/accounts/1",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							},
+							"ProductCategoryLinks": {
+								"href": "/api/biz/productcategorylinks?filter=ProductID eq 13",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							}
+						},
+						"transitions": {}
+					}
+				},
+				"VatType": {
+					"CustomValues": {},
+					"Alias": null,
+					"AvailableInModules": false,
+					"CreatedAt": null,
+					"CreatedBy": null,
+					"Deleted": false,
+					"ID": 1,
+					"IncomingAccountID": 8,
+					"InUse": false,
+					"Locked": false,
+					"Name": "Fradrag for inngående avgift (høy sats)",
+					"OutgoingAccountID": null,
+					"OutputVat": false,
+					"ReversedTaxDutyVat": false,
+					"StatusCode": null,
+					"UpdatedAt": null,
+					"UpdatedBy": null,
+					"ValidFrom": "0001-01-01T00:00:00Z",
+					"ValidTo": "0001-01-01T00:00:00Z",
+					"VatCode": "@1",
+					"VatCodeGroupID": 7,
+					"VatPercent": 25,
+					"VatTypeSetupID": 0,
+					"Visible": true,
+					"_links": {
+						"actions": {
+							"vatcode": {
+								"href": "/api/biz/vattypes/1?action=vatcode",
+								"method": "GET",
+								"label": "",
+								"description": ""
+							},
+							"lock": {
+								"href": "/api/biz/vattypes/1?action=lock",
+								"method": "PUT",
+								"label": "",
+								"description": ""
+							},
+							"unlock": {
+								"href": "/api/biz/vattypes/1?action=unlock",
+								"method": "PUT",
+								"label": "",
+								"description": ""
+							},
+							"visible": {
+								"href": "/api/biz/vattypes/1?action=visible",
+								"method": "PUT",
+								"label": "",
+								"description": ""
+							},
+							"hidden": {
+								"href": "/api/biz/vattypes/1?action=hidden",
+								"method": "PUT",
+								"label": "",
+								"description": ""
+							}
+						},
+						"relations": {
+							"Self": {
+								"href": "/api/biz/vattypes/1",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							},
+							"IncomingAccount": {
+								"href": "/api/biz/accounts/8",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							},
+							"VatReportReferences": {
+								"href": "/api/biz/vatreportreferences?filter=VatTypeID eq 1",
+								"method": "GET",
+								"label": null,
+								"description": null,
+								"readonly": false
+							}
+						},
+						"transitions": {}
+					}
+				},
+				"_links": {
+					"actions": {},
+					"relations": {
+						"Self": {
+							"href": "/api/biz/quoteitems/8",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": false
+						},
+						"Product": {
+							"href": "/api/biz/products/13",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": true
+						},
+						"VatType": {
+							"href": "/api/biz/vattypes/1",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": true
+						},
+						"Dimensions": {
+							"href": "/api/biz/dimensions/5",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": false
+						},
+						"Account": {
+							"href": "/api/biz/accounts/1",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": false
+						}
+					},
+					"transitions": {}
+				}
+			}
+		],
+		"Customer": {
+			"CustomValues": {},
+			"BusinessRelationID": 15,
+			"CreatedAt": "2017-02-23T08:28:39.593Z",
+			"CreatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+			"CreditDays": null,
+			"CurrencyCodeID": null,
+			"CustomerInvoiceReminderSettingsID": null,
+			"CustomerNumber": 100000,
+			"Deleted": false,
+			"DimensionsID": 5,
+			"DontSendReminders": false,
+			"GLN": null,
+			"ID": 2,
+			"OrgNumber": "995843307",
+			"PeppolAddress": null,
+			"StatusCode": null,
+			"UpdatedAt": null,
+			"UpdatedBy": null,
+			"WebUrl": null,
+			"Info": {
+				"CustomValues": {},
+				"CreatedAt": "2017-02-23T08:28:39.557Z",
+				"CreatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+				"DefaultBankAccountID": null,
+				"DefaultEmailID": null,
+				"DefaultPhoneID": 14,
+				"Deleted": false,
+				"ID": 15,
+				"InvoiceAddressID": 23,
+				"Name": "CHARLIE BANAN Kim Strugstad",
+				"ShippingAddressID": 24,
+				"StatusCode": null,
+				"UpdatedAt": null,
+				"UpdatedBy": null,
+				"Addresses": [
+					{
+						"CustomValues": {},
+						"AddressLine1": "Sofies gate 84",
+						"AddressLine2": null,
+						"AddressLine3": null,
+						"BusinessRelationID": 15,
+						"City": "OSLO",
+						"Country": "Norge",
+						"CountryCode": null,
+						"CreatedAt": "2017-02-23T08:28:39.5Z",
+						"CreatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+						"Deleted": false,
+						"ID": 23,
+						"PostalCode": "0454",
+						"Region": null,
+						"StatusCode": null,
+						"UpdatedAt": null,
+						"UpdatedBy": null,
+						"_links": {
+							"actions": {},
+							"relations": {},
+							"transitions": {}
+						}
+					},
+					{
+						"CustomValues": {},
+						"AddressLine1": "Sofies gate 84",
+						"AddressLine2": null,
+						"AddressLine3": null,
+						"BusinessRelationID": 15,
+						"City": "OSLO",
+						"Country": "Norge",
+						"CountryCode": null,
+						"CreatedAt": "2017-02-23T08:28:39.52Z",
+						"CreatedBy": "f8da20ad-fa6d-43d4-a0ad-39431b00dbd1",
+						"Deleted": false,
+						"ID": 24,
+						"PostalCode": "0454",
+						"Region": null,
+						"StatusCode": null,
+						"UpdatedAt": null,
+						"UpdatedBy": null,
+						"_links": {
+							"actions": {},
+							"relations": {},
+							"transitions": {}
+						}
+					}
+				],
+				"_links": {
+					"actions": {},
+					"relations": {
+						"Self": {
+							"href": "/api/biz/business-relations/15",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": false
+						},
+						"BankAccounts": {
+							"href": "/api/biz/bankaccounts?filter=BusinessRelationID eq 15",
+							"method": "GET",
+							"label": null,
+							"description": null,
+							"readonly": false
+						}
+					},
+					"transitions": {}
+				}
+			},
+			"_links": {
+				"actions": {
+					"next": {
+						"href": "/api/biz/customers/2?action=next",
+						"method": "GET",
+						"label": "",
+						"description": ""
+					},
+					"previous": {
+						"href": "/api/biz/customers/2?action=previous",
+						"method": "GET",
+						"label": "",
+						"description": ""
+					}
+				},
+				"relations": {
+					"Self": {
+						"href": "/api/biz/customers/2",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					},
+					"Info": {
+						"href": "/api/biz/business-relations/15",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					},
+					"Dimensions": {
+						"href": "/api/biz/dimensions/5",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					},
+					"CustomerQuotes": {
+						"href": "/api/biz/quotes?filter=CustomerID eq 2",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					},
+					"CustomerOrders": {
+						"href": "/api/biz/orders?filter=CustomerID eq 2",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					},
+					"CustomerInvoices": {
+						"href": "/api/biz/invoices?filter=CustomerID eq 2",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					}
+				},
+				"transitions": {}
+			}
+		},
+		"CurrencyCode": {
+			"CustomValues": {},
+			"Code": "GBP",
+			"CreatedAt": null,
+			"CreatedBy": null,
+			"Deleted": false,
+			"Description": null,
+			"ID": 3,
+			"Name": "Britiske pund",
+			"ShortCode": "£",
+			"UpdatedAt": null,
+			"UpdatedBy": null,
+			"_links": {
+				"actions": {},
+				"relations": {
+					"Self": {
+						"href": "/api/biz/currencycodes/3",
+						"method": "GET",
+						"label": null,
+						"description": null,
+						"readonly": false
+					}
+				},
+				"transitions": {}
+			}
+		},
+		"_links": {
+			"actions": {
+				"calculate-vat-summary": {
+					"href": "/api/biz/quotes/4?action=calculate-vat-summary",
+					"method": "GET",
+					"label": "",
+					"description": ""
+				},
+				"next": {
+					"href": "/api/biz/quotes/4?action=next",
+					"method": "GET",
+					"label": "",
+					"description": ""
+				},
+				"previous": {
+					"href": "/api/biz/quotes/4?action=previous",
+					"method": "GET",
+					"label": "",
+					"description": ""
+				}
+			},
+			"relations": {
+				"Self": {
+					"href": "/api/biz/quotes/4",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": false
+				},
+				"Customer": {
+					"href": "/api/biz/customers/2",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": true
+				},
+				"CurrencyCode": {
+					"href": "/api/biz/currencycodes/3",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": true
+				},
+				"QuoteNumberNumberSeries": {
+					"href": "/api/biz/number-series/13",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": true
+				},
+				"Items": {
+					"href": "/api/biz/quoteitems?filter=CustomerQuoteID eq 4",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": false
+				}
+			},
+			"transitions": {
+				"shipToCustomer": {
+					"href": "/api/biz/quotes/4?action=shipToCustomer",
+					"method": "POST",
+					"label": "",
+					"description": ""
+				},
+				"toOrder": {
+					"href": "/api/biz/quotes/4?action=toOrder",
+					"method": "POST",
+					"label": "",
+					"description": ""
+				},
+				"toInvoice": {
+					"href": "/api/biz/quotes/4?action=toInvoice",
+					"method": "POST",
+					"label": "",
+					"description": ""
+				},
+				"complete": {
+					"href": "/api/biz/quotes/4?action=complete",
+					"method": "POST",
+					"label": "",
+					"description": ""
+				}
+			}
+		}
+	},
+	"CompanySettings": {
+		"CustomValues": {},
+		"AccountGroupSetID": 2,
+		"AccountingLockedDate": null,
+		"AccountVisibilityGroupID": null,
+		"APActivated": false,
+		"APGuid": "00000000-0000-0000-0000-000000000000",
+		"AutoJournalPayment": true,
+		"BaseCurrencyCodeID": 1,
+		"CompanyBankAccountID": null,
+		"CompanyName": "Stein Pip Singel & Sand As",
+		"CompanyRegistered": false,
+		"CompanyTypeID": 1,
+		"CreatedAt": null,
+		"CreatedBy": null,
+		"CurrentAccountingYear": 2017,
+		"CustomerAccountID": 12,
+		"CustomerCreditDays": 15,
+		"CustomerInvoiceReminderSettingsID": 1,
+		"DefaultAddressID": 1,
+		"DefaultEmailID": 1,
+		"DefaultPhoneID": 1,
+		"DefaultProductInvoiceReminderID": null,
+		"DefaultSalesAccountID": null,
+		"Deleted": false,
+		"ForceSupplierInvoiceApproval": true,
+		"GLN": null,
+		"ID": 1,
+		"LogoFileID": null,
+		"OfficeMunicipalityNo": "1252",
+		"OrganizationNumber": "111111189",
+		"PaymentBankIdentification": null,
+		"PeriodSeriesAccountID": 3,
+		"PeriodSeriesVatID": 1,
+		"SalaryBankAccountID": null,
+		"SettlementVatAccountID": null,
+		"StatusCode": null,
+		"SupplierAccountID": 1,
+		"TaxBankAccountID": null,
+		"TaxMandatory": false,
+		"UpdatedAt": null,
+		"UpdatedBy": null,
+		"UseXtraPaymentOrgXmlTag": false,
+		"VatLockedDate": null,
+		"VatReportFormID": null,
+		"WebAddress": "",
+		"DefaultEmail": {
+			"CustomValues": {},
+			"BusinessRelationID": 0,
+			"CreatedAt": null,
+			"CreatedBy": null,
+			"Deleted": false,
+			"Description": null,
+			"EmailAddress": "26a62048-f03b-4381-9712-6824a9aa26b7@a.com",
+			"ID": 1,
+			"StatusCode": null,
+			"Type": null,
+			"UpdatedAt": null,
+			"UpdatedBy": null
+		},
+		"DefaultPhone": {
+			"CustomValues": {},
+			"BusinessRelationID": 0,
+			"CountryCode": null,
+			"CreatedAt": null,
+			"CreatedBy": null,
+			"Deleted": false,
+			"Description": null,
+			"ID": 1,
+			"Number": "+47 56 59 91 10",
+			"StatusCode": null,
+			"Type": "0",
+			"UpdatedAt": null,
+			"UpdatedBy": null
+		},
+		"DefaultAddress": {
+			"CustomValues": {},
+			"AddressLine1": "Øvre Helland 20",
+			"AddressLine2": null,
+			"AddressLine3": null,
+			"BusinessRelationID": 0,
+			"City": "MODALEN",
+			"Country": null,
+			"CountryCode": null,
+			"CreatedAt": null,
+			"CreatedBy": null,
+			"Deleted": false,
+			"ID": 1,
+			"PostalCode": "5729",
+			"Region": null,
+			"StatusCode": null,
+			"UpdatedAt": null,
+			"UpdatedBy": null,
+			"_links": {
+				"actions": {},
+				"relations": {},
+				"transitions": {}
+			}
+		},
+		"CompanyBankAccount": null,
+		"_links": {
+			"actions": {},
+			"relations": {
+				"Self": {
+					"href": "/api/biz/companysettings/1",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": false
+				},
+				"SupplierAccount": {
+					"href": "/api/biz/accounts/1",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": true
+				},
+				"CustomerAccount": {
+					"href": "/api/biz/accounts/12",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": true
+				},
+				"BankAccounts": {
+					"href": "/api/biz/bankaccounts?filter=CompanySettingsID eq 1",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": false
+				},
+				"CustomerInvoiceReminderSettings": {
+					"href": "/api/biz/invoiceremindersettings/1",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": false
+				},
+				"BaseCurrencyCode": {
+					"href": "/api/biz/currencycodes/1",
+					"method": "GET",
+					"label": null,
+					"description": null,
+					"readonly": true
+				}
+			},
+			"transitions": {}
+		}
+	},
+	"VatSummary": [
+		{
+			"VatPercent": 25,
+			"SumVatBasis": 200000.0004,
+			"SumVat": 50000,
+			"SumVatBasisCurrency": 19160.7588,
+			"SumVatCurrency": 4790.1897
+		}
+	]
+}

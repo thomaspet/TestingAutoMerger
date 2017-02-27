@@ -1,4 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
+import {CurrencyCode} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 declare var _;
 
@@ -12,6 +13,7 @@ export class TofHead extends OnChanges {
     @Input() public entityName: string;
     @Input() public readonly: boolean;
     @Input() private data: any; // type?
+    @Input() private currencyCodes: Array<CurrencyCode>;
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 

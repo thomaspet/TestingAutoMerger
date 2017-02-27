@@ -11,6 +11,8 @@ export const AppConfig = ({
 
     UNI_MESSAGE_HUB_URL: 'https://devunimessagehub-unieconomy.azurewebsites.net/api/application-domains/4ead79bd-36d3-4833-95f7-c87576233d3e/',
 
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
+   
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',

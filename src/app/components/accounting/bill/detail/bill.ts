@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount} from '../../../../unientities';
+import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
@@ -16,6 +16,8 @@ import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
+import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {
     SupplierInvoiceService,
     SupplierService,
@@ -83,6 +85,7 @@ export class BillView {
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
+    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
@@ -240,8 +243,8 @@ export class BillView {
 
         var list = [
             supIdCol,
-            createFormField('InvoiceDate', lang.col_date, ControlTypes.DateInput, FieldSize.Double),
-            createFormField('PaymentDueDate', lang.col_due, ControlTypes.DateInput, FieldSize.Double),
+            createFormField('InvoiceDate', lang.col_date, ControlTypes.LocalDate, FieldSize.Double),
+            createFormField('PaymentDueDate', lang.col_due, ControlTypes.LocalDate, FieldSize.Double),
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             bankAccountCol,
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
@@ -267,6 +270,17 @@ export class BillView {
     ///     FILES AND OCR
 
     /// =============================
+
+    public onImageClicked(file) {
+        let current = this.current.getValue();
+        let entityID = current.ID || 0;
+
+        if (entityID > 0) {
+            this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
+        } else {
+            this.imageModal.openReadOnlyFileIds('SupplierInvoice', this.fileIds, file.ID, UniImageSize.large);
+        }
+    }
 
     public onFileListReady(files: Array<any>) {
         this.files = files;
@@ -1011,7 +1025,7 @@ export class BillView {
 
         const invoiceData = {
             Amount: current.RestAmount,
-            PaymentDate: new Date()
+            PaymentDate: new LocalDate(Date())
         };
 
         this.registerPaymentModal.openModal(current.ID, title, invoiceData);

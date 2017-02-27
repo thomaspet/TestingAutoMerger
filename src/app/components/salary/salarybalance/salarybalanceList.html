@@ -1,0 +1,5 @@
+<uni-toolbar [config]="{title: 'Forskudd og trekk'}"></uni-toolbar>
+<article class="application salarybalance">
+    <button (click)="createSalarybalance()" class="new-button">Nytt forskudd/trekk</button>
+    <uni-table [resource]="salarybalances$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
+</article>

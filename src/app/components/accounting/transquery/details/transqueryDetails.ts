@@ -150,6 +150,7 @@ export class TransqueryDetails implements OnInit {
             if (searchParams.AccountID) {
                 filters.push(`Account.ID eq ${searchParams.AccountID}`);
             }
+
         }
 
         // remove empty first filter - this is done if we have multiple filters but the first one is

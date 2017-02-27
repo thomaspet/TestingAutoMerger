@@ -42,6 +42,16 @@ ngPackageNames.forEach(function(element) {
     };
 });
 
+// Cache busting for the systemjs lazy loaded modules
+var systemLocate = System.locate;
+System.locate = function (load) {
+    var endsWith = function(a, b){ return a.indexOf(b, a.length - b.length) !== -1; };
+    if (!endsWith(load.name, 'stimulsoft.reports.js')){
+        load.name = load.name + '?cache-bust=' + APP_VERSION;
+    }
+    return systemLocate.call(this, load);
+};
+
 // Apply the user's configuration.
 System.config({
     packages: packages

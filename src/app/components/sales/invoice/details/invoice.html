@@ -5,6 +5,7 @@
 <uni-tof-head [readonly]="readonly"
               [entityName]="'CustomerInvoice'"
               [data]="invoice"
+              [currencyCodes]="currencyCodes"
               (dataChange)="onInvoiceChange($event)">
 </uni-tof-head>
 
@@ -12,6 +13,8 @@
     <uni-tradeitem-table *ngIf="invoice"
                          [readonly]="readonly"
                          [(items)]="invoiceItems"
+                         [currencyCodeID]="currencyCodeID"
+                         [currencyExchangeRate]="currencyExchangeRate"
                          [defaultTradeItem]="newInvoiceItem"
                          (itemsChange)="recalcDebouncer.next($event)">
     </uni-tradeitem-table>

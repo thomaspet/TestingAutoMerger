@@ -29,6 +29,8 @@ import {Dashboard} from './components/dashboard/dashboard';
 import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/initModule';
 import {BankModule} from './components/bank/bankModule';
+import {AdminModule} from './components/admin/adminModule';
+import {CurrencyModule} from './components/currency/currencyModule';
 
 // TODO: REVISIT SERVICES (we probably dont need all to be singletons)
 import {AccountingServicesModule} from './services/accountingServicesModule';
@@ -82,6 +84,8 @@ if (window.ENV === 'production') {
         UniQueryModule,
         ReportsModule,
         InitModule,
+        AdminModule,
+        CurrencyModule
     ],
     declarations: [
         App,

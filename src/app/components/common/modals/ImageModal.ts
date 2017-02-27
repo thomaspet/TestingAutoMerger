@@ -1,21 +1,23 @@
 import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {File} from '../../../unientities';
-import {UniImage} from '../../../../framework/uniImage/uniImage';
+import {UniImage, UniImageSize} from '../../../../framework/uniImage/uniImage';
 
 
 type Config = {
     close: () => void,
+    fileIDs: Array<number>,
     entity: string,
     entityID: number,
     showFileID: Number,
     readOnly: boolean,
+    size: UniImageSize,
     event: (files: File[]) => void
 }
 
 export type UpdatedFileListEvent = {
-    entity: string, 
-    entityID: number, 
+    entity: string,
+    entityID: number,
     files: File[]
 }
 
@@ -24,12 +26,14 @@ export type UpdatedFileListEvent = {
     template: `
         <article class="modal-content" [attr.aria-busy]="busy">
             <article class="image-modal">
-                <uni-image 
-                    [entity]="config.entity" 
+                <uni-image
+                    [fileIDs]="config.fileIDs"
+                    [entity]="config.entity"
                     [entityID]="config.entityID"
                     [showFileID]="config.showFileID"
                     [readonly]="config.readOnly"
                     (fileListReady)="config.event($event)"
+                    [size]="config.size"
                 ></uni-image>
             </article>
         </article>`
@@ -66,20 +70,40 @@ export class ImageModal {
         };
     }
 
-    public open(entity: string, entityID: number, showFileID: number = null) {
-        this.modal.open();
+    public open(entity: string, entityID: number, showFileID: number = null, size: UniImageSize = null) {
         this.config.entity = entity;
         this.config.entityID = entityID;
         this.config.showFileID = showFileID;
         this.config.readOnly = false;
+        this.config.size = size;
+        this.modal.open();
     }
 
-    public openReadOnly(entity: string, entityID: number, showFileID: number = null) {
-        this.modal.open();
+    public openReadOnly(entity: string, entityID: number, showFileID: number = null, size: UniImageSize = null) {
         this.config.entity = entity;
         this.config.entityID = entityID;
         this.config.showFileID = showFileID;
         this.config.readOnly = true;
+        this.config.size = size;
+        this.modal.open();
+    }
+
+    public openFileIds(entity: string, fileIDs: Array<number>, showFileID: number = null, size: UniImageSize = null) {
+        this.config.entity = entity;
+        this.config.fileIDs = fileIDs;
+        this.config.showFileID = showFileID;
+        this.config.readOnly = false;
+        this.config.size = size;
+        this.modal.open();
+    }
+
+    public openReadOnlyFileIds(entity: string, fileIDs: Array<number>, showFileID: number = null, size: UniImageSize = null) {
+        this.config.entity = entity;
+        this.config.fileIDs = fileIDs;
+        this.config.showFileID = showFileID;
+        this.config.readOnly = true;
+        this.config.size = size;
+        this.modal.open();
     }
 
     public refreshImages() {

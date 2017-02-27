@@ -1,16 +1,19 @@
 import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions, FinancialYear, VatDeduction} from '../../unientities';
-import {JournalEntryData} from '../../models/accounting/journalentrydata';
+import {JournalEntryData, JournalEntryExtended} from '../../models/accounting/journalentrydata';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/operator/mergeMap';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel, CompanySettings} from '../../unientities';
+import {JournalEntry, ValidationResult, ValidationMessage, ValidationLevel, CompanySettings, JournalEntryLineDraft, LocalDate} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
 import {BrowserStorageService} from '../common/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
+import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
+
 
 class JournalEntryLineCalculation {
     amountGross: number;
@@ -32,7 +35,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
     private JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY: string = 'JournalEntrySettings';
 
-    constructor(http: UniHttp, private storageService: BrowserStorageService, private statisticsService: StatisticsService) {
+    constructor(http: UniHttp, private storageService: BrowserStorageService, private statisticsService: StatisticsService, private journalEntryLineDraftService: JournalEntryLineDraftService) {
         super(http);
         this.relativeURL = JournalEntry.RelativeUrl;
         this.entityType = JournalEntry.EntityType;
@@ -100,6 +103,197 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public postJournalEntryData(journalEntryData: Array<JournalEntryData>): Observable<any> {
+        // TODO: User should also be able to change dimensions for existing entries
+        // so consider changing to filtering for dirty rows (and only allow the
+        // unitable to edit the dimension fields for existing rows)
+        let journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
+
+        let journalEntryDataWithJournalEntryID =
+            journalEntryDataNew.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
+        let existingJournalEntryIDs: Array<number> = [];
+        journalEntryDataWithJournalEntryID.forEach(line => {
+            existingJournalEntryIDs.push(line.JournalEntryID);
+        });
+
+        if (existingJournalEntryIDs.length) {
+            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
+                .flatMap(existingJournalEntries => {
+                    let journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
+                    return this.bookJournalEntries(journalEntries);
+                });
+        } else {
+            let journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
+            return this.bookJournalEntries(journalEntries);
+        }
+    }
+
+    private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<any> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(journalEntries)
+            .withEndPoint(this.relativeURL + '?action=book-journal-entries')
+            .send()
+            .map(response => response.json());
+    }
+
+    private createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
+        let previousJournalEntryNo: string = null;
+        let journalEntries: Array<JournalEntryExtended> = [];
+
+        let je: JournalEntryExtended;
+
+        // create new journalentries and journalentrylines for the inputdata
+        let sortedJournalEntryData =
+            data.sort((a, b) => a.JournalEntryID - b.JournalEntryID)
+                .sort((a, b) => a.JournalEntryNo.localeCompare(b.JournalEntryNo));
+
+        sortedJournalEntryData.forEach(line => {
+            if (line.JournalEntryID && line.JournalEntryID > 0) {
+                if (!je || (je && je.ID && je.ID.toString() !== line.JournalEntryID.toString())) {
+                    let journalEntry = journalEntries.find(x => x.ID.toString() === line.JournalEntryID.toString());
+                    if (journalEntry) {
+                        // we have already got this journalentry in our collection, so use that
+                        je = journalEntry;
+                    } else {
+                        // we have set a journalentryid, but it has not been used yet - so
+                        // look in the existingJournalEntries retrieved from the server and
+                        // set some extra properties on that
+                        let existingJournalEntry =
+                            existingJournalEntries.find(x => x.ID.toString() === line.JournalEntryID.toString());
+
+                        if (existingJournalEntry) {
+                            je = existingJournalEntry;
+                            je.DraftLines = [];
+                            je.FileIDs = line.FileIDs;
+                            je.Payments = [];
+                            journalEntries.push(je);
+                        } else {
+                            // this shouldnt happen, so just throw an exception here
+                            throw 'No journalentry found for ID ' + line.JournalEntryID;
+                        }
+                    }
+                }
+            } else if (!previousJournalEntryNo || previousJournalEntryNo !== line.JournalEntryNo) {
+                // for each new number in line.JournalEntryNo, create a new journalentry
+                je = new JournalEntryExtended();
+
+                je.DraftLines = [];
+
+                je.FileIDs = line.FileIDs;
+                je.Payments = [];
+
+                journalEntries.push(je);
+
+                previousJournalEntryNo = line.JournalEntryNo;
+                line.JournalEntryID = je.ID;
+            }
+
+            if (line.JournalEntryPaymentData && line.JournalEntryPaymentData.PaymentData) {
+                je.Payments.push(line.JournalEntryPaymentData.PaymentData);
+            }
+
+            // For each line, create a journalentrylinedraft for debit and credit. These are used
+            // to perform the actual booking
+            let draftLines = this.createJournalEntryDraftLines(line, je);
+
+            draftLines.forEach(draftLine => {
+                je.DraftLines.push(draftLine);
+            });
+        });
+
+        return journalEntries;
+    }
+
+    private createJournalEntryDraftLines(line: JournalEntryData, je: JournalEntryExtended): Array<JournalEntryLineDraft> {
+        let lines = new Array<JournalEntryLineDraft>();
+
+        let hasDebitAccount: boolean = line.DebitAccountID ? true : false;
+        let hasCreditAccount: boolean = line.CreditAccountID ? true : false;
+
+        let amount: number = line.Amount;
+
+        if (hasDebitAccount)
+        {
+            let debitAccount = line.DebitAccount;
+            let debitVatType = line.DebitVatTypeID ? line.DebitVatType : null;
+
+            let draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
+
+            draftLine.Account = debitAccount;
+            draftLine.AccountID = debitAccount.ID;
+            draftLine.Amount = amount;
+            draftLine.Description = line.Description;
+            draftLine.Dimensions = line.Dimensions;
+            draftLine.FinancialDate = line.FinancialDate;
+            draftLine.RegisteredDate = new LocalDate(Date());
+            draftLine.VatDate = line.FinancialDate;
+            draftLine.VatTypeID = line.DebitVatTypeID;
+            draftLine.VatType = debitVatType;
+            draftLine.CustomerOrderID = line.CustomerOrderID;
+            draftLine.VatDeductionPercent = line.VatDeductionPercent && debitAccount.UseDeductivePercent
+                                    ? line.VatDeductionPercent
+                                    : 0;
+
+            if (line.JournalEntryDataAccrual
+                && debitAccount.TopLevelAccountGroup
+                && debitAccount.TopLevelAccountGroup.GroupNumber >= 3) {
+                draftLine.Accrual = line.JournalEntryDataAccrual;
+            }
+
+            // Add connection to invoice(s) if the account relates to a postpost account.
+            // This will enable automatic postpost marking later in the booking process
+            if (draftLine.Account.UsePostPost) {
+                draftLine.CustomerInvoiceID = line.CustomerInvoiceID;
+                draftLine.SupplierInvoiceID = line.SupplierInvoiceID;
+            }
+
+            lines.push(draftLine);
+        }
+
+        if (hasCreditAccount)
+        {
+            let creditAccount = line.CreditAccount;
+            let creditVatType = line.CreditVatType;
+
+            let draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
+
+            draftLine.Account = creditAccount;
+            draftLine.AccountID = creditAccount.ID;
+            draftLine.Amount = amount * -1;
+            draftLine.Description = line.Description;
+            draftLine.Dimensions = line.Dimensions;
+            draftLine.FinancialDate = line.FinancialDate;
+            draftLine.RegisteredDate = new LocalDate(Date());
+            draftLine.VatDate = line.FinancialDate;
+            draftLine.VatTypeID = line.CreditVatTypeID;
+            draftLine.VatType = creditVatType;
+            draftLine.CustomerOrderID = line.CustomerOrderID;
+            draftLine.VatDeductionPercent = line.VatDeductionPercent && creditAccount.UseDeductivePercent
+                                    ? line.VatDeductionPercent
+                                    : 0;
+
+            if (line.JournalEntryDataAccrual
+                && creditAccount.TopLevelAccountGroup
+                && creditAccount.TopLevelAccountGroup.GroupNumber >= 3) {
+                draftLine.Accrual = line.JournalEntryDataAccrual;
+            }
+
+            // Add connection to invoice(s) if the account relates to a postpost account.
+            // This will enable automatic postpost marking later in the booking process
+            if (draftLine.Account.UsePostPost) {
+                draftLine.CustomerInvoiceID = line.CustomerInvoiceID;
+                draftLine.SupplierInvoiceID = line.SupplierInvoiceID;
+            }
+
+            lines.push(draftLine);
+        }
+
+        return lines;
+    }
+
+    /*
     public postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
 
         // don't post lines that are already posted again
@@ -113,6 +307,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send()
             .map(response => response.json());
     }
+    */
 
     public saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
@@ -166,7 +361,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         let lastJournalEntryNo: string = '';
         let currentSumDebit: number = 0;
         let currentSumCredit: number = 0;
-        let lastJournalEntryFinancialDate: Date;
+        let lastJournalEntryFinancialDate: LocalDate;
 
         sortedJournalEntries.forEach(entry => {
             if (lastJournalEntryNo !== entry.JournalEntryNo) {
@@ -285,13 +480,128 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
+        return Observable.forkJoin(this.journalEntryLineDraftService.GetAll(
+            `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
+            ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project', 'Accrual']),
+            this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' and EntityID eq ${journalEntryID}&select=FileID`)
+        ).map(responses => {
+            let draftLines: Array<JournalEntryLineDraft> = responses[0];
+            let fileList: Array<any> = responses[1].Data ? responses[1].Data : [];
+
+            let journalEntryDataObjects: Array<JournalEntryData> = [];
+
+            // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
+            // components, because this is the way the user wants to see the data
+            draftLines.forEach(line => {
+                let jed = journalEntryDataObjects.find(
+                   x => x.JournalEntryID === line.JournalEntryID
+                        && x.FinancialDate === line.FinancialDate
+                        && x.Amount === line.Amount * -1
+                        && x.JournalEntryDraftIDs.length === 1
+                        && line.StatusCode === x.StatusCode
+                        && !(x.JournalEntryDataAccrualID && line.AccrualID));
+
+                if (!jed) {
+                    jed = this.getJournalEntryDataFromJournalEntryLineDraft(line, jed);
+                    journalEntryDataObjects.push(jed);
+                } else {
+                    this.getJournalEntryDataFromJournalEntryLineDraft(line, jed);
+                }
+            });
+
+            // make the amounts absolute - we are setting debit/credit accounts
+            // based on positive/negative amounts, so the actual amount should be positive
+            journalEntryDataObjects.forEach(entry => {
+                if (entry.Amount < 0) {
+                    entry.Amount = Math.abs(entry.Amount);
+                }
+            });
+
+            // add fileids if any files are connected to the journalentries
+            let fileIdList = [];
+            if (fileList) {
+                fileList.forEach(x => {
+                    fileIdList.push(x.FileEntityLinkFileID);
+                });
+            }
+
+            journalEntryDataObjects.forEach(entry => {
+                entry.FileIDs = fileIdList;
+            });
+
+            return JSON.parse(JSON.stringify(journalEntryDataObjects));
+        });
+    }
+
+    private getJournalEntryDataFromJournalEntryLineDraft(line: JournalEntryLineDraft, jed: JournalEntryData): JournalEntryData {
+        if (!jed)
+        {
+            jed = new JournalEntryData();
+            jed.FinancialDate = line.FinancialDate;
+            jed.Amount = line.Amount;
+            jed.JournalEntryID = line.JournalEntryID;
+            jed.JournalEntryNo = line.JournalEntryNumber;
+            jed.Description = line.Description;
+            jed.CustomerInvoiceID = line.CustomerInvoiceID;
+            jed.SupplierInvoiceID = line.SupplierInvoiceID;
+            jed.StatusCode = line.StatusCode;
+            jed.JournalEntryDraftIDs = [];
+            jed.JournalEntryDrafts = [];
+        }
+
+        if (jed.Dimensions == null && line.Dimensions != null)
+            jed.Dimensions = line.Dimensions;
+
+        jed.JournalEntryDraftIDs.push(line.ID);
+        jed.JournalEntryDrafts.push(line);
+
+        if (line.AccrualID)
+        {
+            jed.JournalEntryDataAccrualID = line.AccrualID;
+            jed.JournalEntryDataAccrual = line.Accrual;
+        }
+
+        if (line.Amount > 0)
+        {
+            jed.DebitAccountID = line.AccountID;
+            jed.DebitAccount = line.AccountID ? line.Account : null;
+            jed.DebitVatTypeID = line.VatTypeID;
+            jed.DebitVatType = line.VatTypeID ? line.VatType : null;
+            jed.CustomerInvoiceID = line.CustomerInvoiceID;
+            jed.SupplierInvoiceID = line.SupplierInvoiceID;
+            jed.VatDeductionPercent = jed.VatDeductionPercent
+                ? jed.VatDeductionPercent
+                : line.VatDeductionPercent;
+        }
+        else
+        {
+            jed.CreditAccountID = line.AccountID;
+            jed.CreditAccount = line.AccountID ? line.Account : null;
+            jed.CreditVatTypeID = line.VatTypeID;
+            jed.CreditVatType = line.VatTypeID ? line.VatType : null;
+            jed.CustomerInvoiceID = line.CustomerInvoiceID;
+            jed.SupplierInvoiceID = line.SupplierInvoiceID;
+            jed.VatDeductionPercent = jed.VatDeductionPercent
+                ? jed.VatDeductionPercent
+                : line.VatDeductionPercent;
+        }
+
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0)
+        {
+            jed.Amount = jed.Amount * -1;
+        }
+
+        return jed;
+    }
+
+    /*public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&journalEntryID=' + journalEntryID)
             .send()
             .map(response => response.json());
-    }
+    }*/
 
     public creditJournalEntry(journalEntryNumber: string): Observable<any> {
         return this.http
@@ -506,7 +816,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return sum;
     }
 
-    public getVatDeductionPercent(vatdeductions: Array<VatDeduction>, account: Account, date: Date): number {
+    public getVatDeductionPercent(vatdeductions: Array<VatDeduction>, account: Account, date: LocalDate): number {
         if (!account || !account.UseDeductivePercent || !date) {
             return 0;
         }

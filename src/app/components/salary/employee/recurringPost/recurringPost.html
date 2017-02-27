@@ -3,6 +3,9 @@
     <small *ngIf="unsavedEmployments">
         Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før du har lagret.<br><br>
     </small>
+    <button class="c2a" (click)="navigateToNewAdvance()">Forskudd</button>
+    <button class="c2a" (click)="navigateToNewDraw()">Trekk</button>
+    <button class="c2a" (click)="navigateToSalaryBalanceList()">Saldooversikt</button>
     <uni-table [resource]="filteredPosts" [config]="tableConfig" (rowDeleted)="onRowDeleted($event)"></uni-table>
 </article>
 <sal-trans-supplements-modal (updatedSalaryTransaction)="updateSupplementsOnTransaction($event)"></sal-trans-supplements-modal>

@@ -27,9 +27,10 @@ export class TofHelper {
                     addresses.find(addr => addr.ID === customer.Info.ShippingAddressID)
                 );
             }
+
+            entity.CurrencyCodeID = customer.CurrencyCodeID;
         }
 
         return entity;
     }
-
 }

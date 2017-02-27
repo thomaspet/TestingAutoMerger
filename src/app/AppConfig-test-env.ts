@@ -5,11 +5,13 @@ export const AppConfig = ({
 
     BASE_URL_INTEGRATION: 'https://test-integration.unieconomy.no/',
 
-    BASE_URL_FILES: 'http://test-unifiles.unieconomy.no/',
+    BASE_URL_FILES: 'https://test-unifiles.unieconomy.no/',
 
     UNI_PUSH_ADAPTER_URL: null,
 
     UNI_MESSAGE_HUB_URL: 'https://test-unimessagehub.unieconomy.no/',
+
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
 
     API_DOMAINS: {
         INIT: '/api/init/',

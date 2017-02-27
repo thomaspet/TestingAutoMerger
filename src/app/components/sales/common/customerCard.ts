@@ -68,6 +68,8 @@ export class TofCustomerCard {
     private ehfEnabled: boolean;
     public uniSearchConfig: IUniSearchConfig;
     private customerDueInvoiceData: any;
+    private lastPeppolAddressChecked: string;
+    private lastCheckedStatisticsCustomerID: number;
 
     private customerExpands: [string] = [
         'Info.Addresses',
@@ -111,21 +113,31 @@ export class TofCustomerCard {
                     }
                 });
             }
-            var peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
-            this.ehfService.GetAction(
-                null, 'is-ehf-receiver',
-                'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
-            ).subscribe(enabled => {
-                this.ehfEnabled = enabled;
-            }, err => this.errorService.handle(err));
+
+
             if (customer && customer.ID) {
-                this.customerService.getCustomerStatistics(customer.ID)
-                    .subscribe(x => {
-                        if (x) {
-                            this.customerDueInvoiceData = x;
-                        }
-                    }, err => this.errorService.handle(err)
-                );
+                let peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
+
+                if (peppoladdress !== this.lastPeppolAddressChecked) {
+                    this.ehfService.GetAction(
+                        null, 'is-ehf-receiver',
+                        'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
+                    ).subscribe(enabled => {
+                        this.ehfEnabled = enabled;
+                        this.lastPeppolAddressChecked = peppoladdress;
+                    }, err => this.errorService.handle(err));
+                }
+
+                if (customer.ID !== this.lastCheckedStatisticsCustomerID) {
+                    this.customerService.getCustomerStatistics(customer.ID)
+                        .subscribe(x => {
+                            this.lastCheckedStatisticsCustomerID = customer.ID;
+                            if (x) {
+                                this.customerDueInvoiceData = x;
+                            }
+                        }, err => this.errorService.handle(err)
+                    );
+                }
             }
         }
     }
