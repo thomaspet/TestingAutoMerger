@@ -16,35 +16,12 @@ import {OrderDetails} from './order/details/orderDetails';
 import {Reminder} from './reminder/reminder';
 import {routes as ReminderRoutes} from './reminder/reminderRoutes';
 
-// Maps entitytype to frontend route
-// Important for notifications to work properly!
-export const entityTypeMap: any = {
-    // 'supplier': 'suppliers/:id',
-    'customerquote': 'quotes/:id',
-    'customerquoteitem': 'quotes/:id',
-    'customerorder': 'orders/:id',
-    'customerorderitem': 'orders/:id',
-    'customerinvoice': 'invoices/:id',
-    'customerinvoiceitem': 'invoices/:id',
-};
-
 export const salesRoutes: Routes = [
     {
         path: 'customer',
         component: Customer,
         children: CustomerRoutes
     },
-
-    // {
-    //     path: 'suppliers',
-    //     component: SupplierList
-    // },
-    // {
-    //     path: 'suppliers/:id',
-    //     component: SupplierDetails,
-    //     canDeactivate: [CanDeactivateGuard]
-    // },
-
     {
         path: 'quotes',
         component: QuoteList

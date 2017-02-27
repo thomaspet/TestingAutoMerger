@@ -13,16 +13,7 @@ import {BillView} from './bill/detail/bill';
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
-import {UniAccounting} from './accounting';
-import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-
-// Maps entitytype to frontend route
-// Important for notifications to work properly!
-export const entityTypeMap: any = {
-    'supplierinvoice': 'bill/:id',
-    'supplierinvoiceitem': 'bill/:id'
-};
 
 export const accountingRoutes: Routes = [
     {

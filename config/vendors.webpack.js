@@ -40,15 +40,6 @@ module.exports = {
         sourceMapFilename: '[file].map'
     },
 
-    module: {
-        loaders: [
-            {
-                test: /\.css$/,
-                loaders: ['to-string-loader', 'style-loader', 'css-loader']
-            }
-        ]
-    },
-
     plugins: [
         // Only load english and norwegian locales with moment
         new webpack.ContextReplacementPlugin(/moment[\\\/]locale$/, /^\.\/(en|no|)$/),

@@ -17,14 +17,6 @@ import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {routes as CategoryRoutes} from './category/categoryRoutes';
 
-// Maps entitytype to frontend route
-// Important for notifications to work properly!
-export const entityTypeMap: any = {
-    'wagetype': 'wagetypes/:id',
-    'employee': 'employees/:id',
-    'payrollrun': 'payrollrun/:id'
-};
-
 export const salaryRoutes: Routes = [
     {
         path: '',

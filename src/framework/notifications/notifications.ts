@@ -5,6 +5,12 @@ import { ErrorService } from '../../app/services/services';
 import { Notification, NotificationStatus } from '../../app/unientities';
 import { Observable } from 'rxjs/Observable';
 import * as moment from 'moment';
+import {
+    accountingRouteMap,
+    salaryRouteMap,
+    salesRouteMap,
+    timetrackingRouteMap
+} from './entityRouteMap';
 
 // import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
 // import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';
@@ -75,15 +81,15 @@ export class UniNotifications {
         const entityType = notification.EntityType;
         let route = '';
 
-        // if (accountingMap[entityType]) {
-        //     route = '/accounting/' + accountingMap[entityType];
-        // } else if (salesMap[entityType]) {
-        //     route = '/sales/' + salesMap[entityType];
-        // } else if (salaryMap[entityType]) {
-        //     route = '/salary/' + salaryMap[entityType];
-        // } else if (timetrackingMap[entityType]) {
-        //     route = '/timetracking/' + timetrackingMap[entityType];
-        // }
+        if (accountingRouteMap[entityType]) {
+            route = '/accounting/' + accountingRouteMap[entityType];
+        } else if (salesRouteMap[entityType]) {
+            route = '/sales/' + salesRouteMap[entityType];
+        } else if (salaryRouteMap[entityType]) {
+            route = '/salary/' + salaryRouteMap[entityType];
+        } else if (timetrackingRouteMap[entityType]) {
+            route = '/timetracking/' + timetrackingRouteMap[entityType];
+        }
 
         route = route.replace(/:id/i, notification.EntityID.toString());
         this.router.navigateByUrl(route);
