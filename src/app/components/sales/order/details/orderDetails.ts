@@ -243,7 +243,7 @@ export class OrderDetails {
             return true;
         }
 
-        this.confirmModal.confirm(
+        return this.confirmModal.confirm(
             'Ønsker du å lagre ordren før du fortsetter?',
             'Ulagrede endringer',
             true
@@ -254,6 +254,7 @@ export class OrderDetails {
                     return true;
                 }).catch(error => {
                     this.handleSaveError(error, null);
+                    return false;
                 });
             } else if (action === ConfirmActions.REJECT) {
                 return true;
