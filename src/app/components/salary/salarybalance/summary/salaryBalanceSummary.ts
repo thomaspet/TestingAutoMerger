@@ -7,7 +7,7 @@ import { SalaryBalanceLineService, ErrorService, EmployeeService } from '../../.
 
 @Component({
     selector: 'salary-balance-summary',
-    templateUrl: 'app/components/salary/salarybalance/summary/salaryBalanceSummary.html',
+    templateUrl: './salaryBalanceSummary.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SalaryBalanceSummary implements OnInit, OnChanges {
@@ -39,7 +39,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
             transObs
                 .subscribe(transes => this.salaryTransactionsModel$.next(transes),
                 err => this.errorService.handle(err));
-            
+
             let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
                 ? Observable.of(this.salaryBalance.Employee)
                 : this.employeeService

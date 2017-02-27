@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions, FinancialYear, VatDeduction} from '../../unientities';
-import {JournalEntryData, JournalEntryExtended} from '../../models/accounting/journalentrydata';
+import {JournalEntryData, JournalEntryExtended} from '../../models/accounting/journalEntryData';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/mergeMap';

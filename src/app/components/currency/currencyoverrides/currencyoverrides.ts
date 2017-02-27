@@ -24,7 +24,7 @@ declare const _;
 
 @Component({
     selector: 'currencyoverrides',
-    templateUrl: 'app/components/currency/currencyoverrides/currencyoverrides.html'
+    templateUrl: './currencyoverrides.html'
 })
 export class CurrencyOverrides {
     @ViewChild(UniTable)

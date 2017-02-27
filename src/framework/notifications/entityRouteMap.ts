@@ -8,7 +8,8 @@ export const accountingRouteMap = {
 export const salaryRouteMap = {
     'wagetype': 'wagetypes/:id',
     'employee': 'employees/:id',
-    'payrollrun': 'payrollrun/:id'
+    'payrollrun': 'payrollrun/:id',
+    'salarybalance': 'salarybalances/:id'
 };
 
 export const salesRouteMap = {

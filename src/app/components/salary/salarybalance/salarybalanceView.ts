@@ -11,10 +11,10 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 
 @Component({
     selector: 'uni-salarybalance-view',
-    templateUrl: 'app/components/salary/salarybalance/salarybalanceView.html'
+    templateUrl: './salarybalanceView.html'
 })
 export class SalarybalanceView extends UniView {
-    
+
     private url: string = '/salary/salarybalances/';
     private salarybalanceID: number;
     private salarybalance: SalaryBalance;
@@ -70,7 +70,7 @@ export class SalarybalanceView extends UniView {
 
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
-            
+
             if (this.salarybalance && this.salarybalance.ID === +params['id']) {
                 super.updateState('salarybalance', this.salarybalance, false);
             } else {
@@ -162,7 +162,7 @@ export class SalarybalanceView extends UniView {
     }
 
     private getSalarybalance() {
-        this.salarybalanceService.getSalarybalance(this.salarybalanceID, 
+        this.salarybalanceService.getSalarybalance(this.salarybalanceID,
             ['SalaryBalanceLines', 'Employee', 'Employee.BusinessRelationInfo',
             'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
@@ -175,7 +175,7 @@ export class SalarybalanceView extends UniView {
         let saver = this.salarybalance.ID
             ? this.salarybalanceService.Put(this.salarybalance.ID, this.salarybalance)
             : this.salarybalanceService.Post(this.salarybalance);
-        
+
         saver.subscribe((salbal: SalaryBalance) => {
             super.updateState('salarybalance', this.salarybalance, false);
             let childRoute = this.router.url.split('/').pop();

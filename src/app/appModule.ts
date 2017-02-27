@@ -22,7 +22,7 @@ import {TabService} from './components/layout/navbar/tabstrip/tabService';
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
-import {UniQueryModule} from './components/uniquery/uniQueryModule';
+import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {Dashboard} from './components/dashboard/dashboard';

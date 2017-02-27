@@ -22,7 +22,7 @@ declare const _;
 
 @Component({
     selector: 'currencyexchange',
-    templateUrl: 'app/components/currency/currencyexchange/currencyexchange.html'
+    templateUrl: './currencyexchange.html'
 })
 export class CurrencyExchange {
     @ViewChild(UniTable)

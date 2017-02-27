@@ -9,7 +9,7 @@ import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService'
 
 @Component({
     selector: 'salarybalances',
-    templateUrl: 'app/components/salary/salarybalance/salarybalanceList.html',
+    templateUrl: './salarybalanceList.html',
 })
 export class SalarybalanceList implements OnInit {
 
