@@ -313,7 +313,9 @@ export class OrderDetails {
                         this.currencyExchangeRate = newCurrencyRate;
                         order.CurrencyExchangeRate = res;
 
-                        if (this.orderItems && this.orderItems.filter(x => x.PriceSetByUser).length > 0) {
+                        let haveUserDefinedPrices = this.orderItems && this.orderItems.filter(x => x.PriceSetByUser).length > 0;
+
+                        if (haveUserDefinedPrices) {
                             // calculate how much the new currency will affect the amount for the base currency,
                             // if it doesnt cause a change larger than 5%, don't bother asking the user what
                             // to do, just use the set prices
@@ -347,7 +349,11 @@ export class OrderDetails {
                                     // we need to calculate the base currency amount numbers if we are going
                                     // to keep the currency amounts - if not the data will be out of sync
                                     this.orderItems.forEach(item => {
-                                        this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                        if (item.PriceSetByUser) {
+                                            this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                        } else {
+                                            this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                        }
                                     });
                                 } else if (response === ConfirmActions.REJECT) {
                                     // we need to calculate the currency amounts based on the original prices
@@ -365,10 +371,16 @@ export class OrderDetails {
                                 this.order = _.cloneDeep(order);
                             });
                         } else if (this.orderItems && this.orderItems.length > 0) {
-                            // we need to calculate the new currency amount numbers if we are going
-                            // to keep the set currency amounts
+                            // the currencyrate has changed, but not so much that we had to ask the user what to do,
+                            // so just make an assumption what to do; recalculated based on set price if user
+                            // has defined a price, and by the base currency price if the user has not set a
+                            // specific price
                             this.orderItems.forEach(item => {
-                                this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                if (item.PriceSetByUser) {
+                                    this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                                } else {
+                                    this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                }
                             });
 
                             // make unitable update the data after calculations
