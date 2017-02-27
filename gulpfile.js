@@ -2,6 +2,10 @@
 
 const gulp = require('gulp');
 const sass = require('gulp-sass');
+const runSequence = require('run-sequence');
+const rename = require('gulp-rename');
+require('./gulp/entities');
+require('./gulp/zip');
 
 gulp.task('sass', function () {
   return gulp.src('./src/styles/main.sass')
@@ -11,6 +15,37 @@ gulp.task('sass', function () {
 
 gulp.task('sass.watch', function () {
   gulp.watch('./src/styles/**/*.sass', ['sass']);
+});
+
+// Tasks for copying the correct AppConfig
+gulp.task('app-config-prod', function() {
+    return gulp.src('./src/app/AppConfig-prod.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest('./src/app/', {overwrite: true}));
+});
+
+gulp.task('app-config-dev', function() {
+    return gulp.src('./src/app/AppConfig-dev.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest('./src/app/', {overwrite: true}));
+});
+
+gulp.task('app-config-local', function() {
+    return gulp.src('./src/app/AppConfig-local.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest('./src/app/', {overwrite: true}));
+});
+
+gulp.task('app-config-pilot', function() {
+    return gulp.src('./src/app/AppConfig-pilot.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest('./src/app/', {overwrite: true}));
+});
+
+gulp.task('app-config-test-env', function() {
+    return gulp.src('./src/app/AppConfig-test-env.ts')
+        .pipe(rename('AppConfig.ts'))
+        .pipe(gulp.dest('./src/app/', {overwrite: true}));
 });
 
 

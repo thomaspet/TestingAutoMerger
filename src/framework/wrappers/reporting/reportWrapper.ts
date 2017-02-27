@@ -8,7 +8,7 @@ export class StimulsoftReportWrapper {
     constructor() {
         // Load stimulsoft
         const scriptTag: HTMLScriptElement = document.createElement('script');
-        scriptTag.setAttribute('src', 'stimulsoft/Js/stimulsoft.reports.js')
+        scriptTag.setAttribute('src', 'stimulsoft.reports.js')
         document.head.appendChild(scriptTag);
     }
 

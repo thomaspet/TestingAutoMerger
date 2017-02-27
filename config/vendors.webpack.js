@@ -1,9 +1,10 @@
 var webpack = require('webpack');
 var helpers = require('./helpers');
 const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
-const OptimizeJsPlugin = require('optimize-js-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+    devtool: 'cheap-source-map',
     entry: {
         vendors: [
             '@angular/common',
@@ -15,10 +16,7 @@ module.exports = {
             '@angular/platform-browser-dynamic',
             '@angular/router',
 
-
             './src/vendor.ts',
-            // 'rxjs',
-            // './src/rxjs.imports.ts',
 
             'moment/locale/nb.js',
             'moment/locale/en-gb.js',
@@ -73,19 +71,20 @@ module.exports = {
         }),
 
         new webpack.ProvidePlugin({
-            // $: 'jquery',
-            // jQuery: 'jquery',
+            $: 'jquery',
+            jQuery: 'jquery',
             _: 'lodash/lodash.min.js',
             lodash: 'lodash/lodash.min.js',
-            // moment: 'moment/min/moment.min.js'
+            moment: 'moment/min/moment.min.js'
         }),
 
-        new OptimizeJsPlugin({
-            sourceMap: false
-        }),
+        new CopyWebpackPlugin([
+            {from: 'stimulsoft/js/stimulsoft.reports.js'}
+        ]),
 
         new webpack.optimize.UglifyJsPlugin({
             beautify: false,
+            sourceMap: true,
             output: {
                 comments: false
             },
@@ -108,15 +107,5 @@ module.exports = {
                 negate_iife: false // we need this for lazy v8
             }
         })
-
-        // new webpack.optimize.UglifyJsPlugin({
-        //     beautify: false,
-        //     comments: false,
-        //     compress: {
-        //         warnings: false,
-        //     }
-        // })
     ],
-
-    devtool: 'source-map'
 }
