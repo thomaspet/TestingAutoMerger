@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -14,7 +14,8 @@ import {
     CurrencyService,
     CurrencyOverridesService,
     CurrencyCodeService,
-    ErrorService
+    ErrorService,
+    NumberFormat
 } from '../../../services/services';
 
 declare const moment;
@@ -41,13 +42,35 @@ export class CurrencyExchange {
         omitFinalCrumb: true
     };
 
+    private exchangerateUrlFormat: INumberFormat = {
+        thousandSeparator: '',
+        decimalSeparator: '.',
+        decimalLength: 4,
+        postfix: undefined
+    };
+
+    private exchangerateFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 4,
+        postfix: undefined
+    };
+
+    private factorFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 0,
+        postfix: undefined
+    };
+
     constructor(
         private router: Router,
         private currencyService: CurrencyService,
         private currencyOverridesService: CurrencyOverridesService,
         private tabService: TabService,
         private errorService: ErrorService,
-        private currencyCodeService: CurrencyCodeService
+        private currencyCodeService: CurrencyCodeService,
+        private numberFormat: NumberFormat
     ) {
         this.tabService.addTab({
             name: 'Valutakurser',
@@ -154,23 +177,13 @@ export class CurrencyExchange {
         // Define columns to use in the table
         let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setWidth('100px').setFilterOperator('contains')
-            .setNumberFormat({
-                thousandSeparator: ' ',
-                decimalSeparator: ',',
-                decimalLength: 4,
-                postfix: undefined
-            })
+            .setNumberFormat(this.exchangerateFormat)
             .setTemplate((row) => {
                 return `${row.ExchangeRate * row.Factor}`;
             });
         let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
             .setEditable(false)
-            .setNumberFormat({
-                thousandSeparator: ' ',
-                decimalSeparator: ',',
-                decimalLength: 0,
-                postfix: undefined
-            })
+            .setNumberFormat(this.factorFormat)
             .setFilterOperator('contains')
             .setWidth('50px');
         let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Kode', UniTableColumnType.Lookup)
@@ -198,7 +211,8 @@ export class CurrencyExchange {
         let contextMenu = {
             label: 'Overstyr',
             action: (line) => {
-                this.router.navigateByUrl(`/currency/overrides;ExchangeRate=${line.ExchangeRate};Factor=${line.Factor};FromCurrencyCode=${line.FromCurrencyCode.Code}`);
+                let exchangerate = this.numberFormat.asMoney(line.ExchangeRate * line.Factor, this.exchangerateUrlFormat);
+                this.router.navigateByUrl(`/currency/overrides;ExchangeRate=${exchangerate};Factor=${line.Factor};FromCurrencyCode=${line.FromCurrencyCode.Code}`);
             }
         };
 

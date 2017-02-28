@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from 'unitable-ng2/main';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
@@ -15,6 +15,7 @@ import {
 } from '../../../unientities';
 
 import {
+    NumberFormat,
     CurrencyOverridesService,
     CurrencyCodeService,
     ErrorService
@@ -43,13 +44,28 @@ export class CurrencyOverrides {
         omitFinalCrumb: true
     };
 
+    private exchangerateFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 4,
+        postfix: undefined
+    };
+
+    private factorFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 0,
+        postfix: undefined
+    };
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private currencyOverridesService: CurrencyOverridesService,
         private tabService: TabService,
         private errorService: ErrorService,
-        private currencyCodeService: CurrencyCodeService
+        private currencyCodeService: CurrencyCodeService,
+        private numberFormat: NumberFormat
     ) {
         this.tabService.addTab({
             name: 'Valutaoverstyring',
@@ -153,7 +169,6 @@ export class CurrencyOverrides {
     }
 
     private loadData(routeparams = null) {
-        if (this.isEmpty(routeparams)) {
             let params = new URLSearchParams();
             params.set('orderby', 'FromDate asc');
             params.set('expand', 'FromCurrencyCode,ToCurrencyCode');
@@ -161,23 +176,20 @@ export class CurrencyOverrides {
             this.spinner(
                 this.currencyOverridesService.GetAllByUrlSearchParams(params).map(response => response.json()))
                     .subscribe(data => {
+                        if (!this.isEmpty(routeparams)) {
+                            data.unshift({
+                                ID: 0,
+                                FromDate: new LocalDate(),
+                                FromCurrencyCode: this.currencycodes.find(x => x.Code === routeparams['FromCurrencyCode']),
+                                ToCurrencyCode: this.currencycodes.find(x => x.Code === 'NOK'),
+                                Factor: routeparams['Factor'],
+                                ExchangeRate: routeparams['ExchangeRate'],
+                                Source: CurrencySourceEnum.NORGESBANK
+                            });
+                        }
+
                         this.overrides = data;
                     });
-        } else {
-            this.overrides = [
-                {
-                    ID: 0,
-                    FromDate: new LocalDate(),
-                    FromCurrencyCode: this.currencycodes.find(x => x.Code === routeparams['FromCurrencyCode']),
-                    ToCurrencyCode: this.currencycodes.find(x => x.Code === 'NOK'),
-                    Factor: routeparams['Factor'],
-                    ExchangeRate: routeparams['ExchangeRate'],
-                    Source: CurrencySourceEnum.NORGESBANK
-                }
-            ];
-            this.isBusy = false;
-            this.table.refreshTableData();
-        }
     }
 
     private setupOverridesTable() {
@@ -186,28 +198,18 @@ export class CurrencyOverrides {
             .setWidth('8%').setFilterOperator('eq');
         let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
-        let updatedAtCol = new UniTableColumn('UpdatedAt', 'Sist oppdatert', UniTableColumnType.LocalDate)
+        let updatedAtCol = new UniTableColumn('UpdatedAt', 'Sist oppdatert', UniTableColumnType.Text)
             .setWidth('8%').setFilterOperator('eq')
             .setEditable(false)
             .setTemplate((row: CurrencyOverride) => {
-                return row.ID ? new LocalDate(!!row.UpdatedAt ? row.UpdatedAt : row.CreatedAt).toString() : '';
+                return row.ID ? moment(new LocalDate(!!row.UpdatedAt ? row.UpdatedAt : row.CreatedAt)).format('DD.MM.YYYY') : 'ny';
             });
         let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setWidth('100px').setFilterOperator('contains')
-            .setNumberFormat({
-                thousandSeparator: ' ',
-                decimalSeparator: ',',
-                decimalLength: 4,
-                postfix: undefined
-            });
+            .setNumberFormat(this.exchangerateFormat);
         let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
             .setWidth('100px').setFilterOperator('contains')
-            .setNumberFormat({
-                thousandSeparator: ' ',
-                decimalSeparator: ',',
-                decimalLength: 0,
-                postfix: undefined
-            });
+            .setNumberFormat(this.factorFormat);
         let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Fra kode', UniTableColumnType.Lookup)
             .setDisplayField('FromCurrencyCode.Code')
             .setWidth('60px')
