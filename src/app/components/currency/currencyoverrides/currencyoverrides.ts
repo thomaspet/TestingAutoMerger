@@ -7,6 +7,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {CurrencyCode} from '../../../unientities';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {
     CurrencyOverride,
     LocalDate,
@@ -27,14 +28,15 @@ declare const _;
     templateUrl: 'app/components/currency/currencyoverrides/currencyoverrides.html'
 })
 export class CurrencyOverrides {
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private overridesTable: UniTableConfig;
     private saveActions: IUniSaveAction[] = [];
     private currencycodes: any;
     private overrides: any;
     private isBusy: boolean = true;
+    private isDirty: boolean = false;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Valutaoverstyring',
@@ -67,6 +69,31 @@ export class CurrencyOverrides {
         });
     }
 
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+            return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+             this.confirmModal.confirm(
+                 'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                 'Vennligst bekreft',
+                 false,
+                 {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+             ).then((confirmDialogResponse) => {
+                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                     resolve(true);
+                } else {
+                     resolve(false);
+                 }
+             });
+         });
+    }
+
+    private rowChanged(event) {
+        this.isDirty = true;
+    }
+
     private updateSaveActions() {
         this.saveActions = [];
 
@@ -96,6 +123,7 @@ export class CurrencyOverrides {
         if (requests.length > 0) {
             Observable.forkJoin(requests)
                 .subscribe(resp => {
+                    this.isDirty = false;
                     if (!nextAction) {
                         doneHandler('Lagret endringer');
                         this.loadData();
@@ -220,7 +248,7 @@ export class CurrencyOverrides {
             .setAutoAddNewRow(true)
             .setDeleteButton({
                 deleteHandler: (row) => {
-                    if (isNaN(row.ID)) { return true; }
+                    if (isNaN(row.ID) || row.ID === 0) { return true; }
                     return this.currencyOverridesService.Remove(row.ID, 'CurrencyOverride');
                 }
             })
