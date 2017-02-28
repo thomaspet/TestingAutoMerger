@@ -58,6 +58,8 @@ export class RegtimeBalance {
                 if (details) {
                     this.groupedWeeks = this.groupIntoWeeks(x.Details);                    
                     this.currentBalance.hours = prevBalance.hours;
+                    this.currentBalance.Minutes = prevBalance.Minutes;
+                    this.currentBalance.Previous = prevBalance.Previous;
                 } else {
                     
                     // Workrelation ended ?

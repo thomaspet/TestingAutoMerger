@@ -45,7 +45,7 @@
                     <td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
                 </tr>
                 <tr *ngIf="currentBalance?.Previous">
-                    <td colspan="8">Sum totalt</td>
+                    <td colspan="8">Sum totalt (inklusiv i dag)</td>
                     <td class="sum" [class.minus]="currentBalance.Minutes<0">{{currentBalance.Minutes|min2hours:'decimal'}}</td>                    
                 </tr>
             </tbody>
@@ -61,7 +61,7 @@
                     <td class="spacer"></td>
                     <td class="label">Timer i dag</td><td class="sum">{{currentBalance.LastDayActual|min2hours:'decimal'}}</td>
                     <td class="spacer"></td>
-                    <td class="label">Sum</td><td class="sum">{{currentBalance.ActualMinutes|min2hours:'decimal'}}</td>
+                    <td class="label">Timer totalt</td><td class="sum">{{currentBalance.ActualMinutes|min2hours:'decimal'}}</td>
                 </tr>
 
                 <tr *ngIf="currentBalance?.Previous">
