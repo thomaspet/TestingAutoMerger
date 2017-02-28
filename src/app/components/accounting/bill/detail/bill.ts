@@ -193,7 +193,7 @@ export class BillView {
         sumCol.Options = {
             events: {
                 enter: () => {
-                    this.focusJournalEntries();
+                    this.focusJournalEntries(); //not working
                 }
             },
             decimalLength: 2
