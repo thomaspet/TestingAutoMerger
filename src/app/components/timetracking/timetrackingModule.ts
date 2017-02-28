@@ -18,6 +18,7 @@ import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 import {RegtimeTools} from './timeentry/tools/tools';
 import {RegtimeTotals} from './timeentry/totals/totals';
+import {RegtimeBalance} from './timeentry/balance/balance';
 import {Editable} from './utils/editable/editable';
 import {Lookupservice} from './utils/lookup';
 import {IsoTimePipe} from './utils/pipes';
@@ -67,6 +68,7 @@ import {View as WorkBalancesView} from './worker/balances';
         TimeEntry,
         RegtimeTools,
         RegtimeTotals,
+        RegtimeBalance,
         Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
