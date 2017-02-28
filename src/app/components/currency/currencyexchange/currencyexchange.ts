@@ -154,11 +154,23 @@ export class CurrencyExchange {
         // Define columns to use in the table
         let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setWidth('100px').setFilterOperator('contains')
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: 4,
+                postfix: undefined
+            })
             .setTemplate((row) => {
                 return `${row.ExchangeRate * row.Factor}`;
             });
         let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
             .setEditable(false)
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: 0,
+                postfix: undefined
+            })
             .setFilterOperator('contains')
             .setWidth('50px');
         let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Kode', UniTableColumnType.Lookup)

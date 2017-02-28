@@ -165,9 +165,21 @@ export class CurrencyOverrides {
                 return row.ID ? new LocalDate(!!row.UpdatedAt ? row.UpdatedAt : row.CreatedAt).toString() : '';
             });
         let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
-            .setWidth('100px').setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains')
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: 4,
+                postfix: undefined
+            });
         let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
-            .setWidth('100px').setFilterOperator('contains');
+            .setWidth('100px').setFilterOperator('contains')
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: 0,
+                postfix: undefined
+            });
         let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Fra kode', UniTableColumnType.Lookup)
             .setDisplayField('FromCurrencyCode.Code')
             .setWidth('60px')
