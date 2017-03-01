@@ -31,7 +31,7 @@
             <tbody>
                 <tr *ngFor="let week of groupedWeeks.weeks" >
                     <td>Uke {{week.week}} - {{week.year}}</td>
-                    <td *ngFor="let item of week?.items; let i=index" [class.today]="item.IsToday" >
+                    <td *ngFor="let item of week?.items; let i=index" [class.today]="item.IsToday">
                         <span class="datebox">{{item.Date | date:'dd.MMM'}}</span>
                         <span [class.minus]="item.Sum<0">{{item.Sum | min2hours:'decimal0'}}</span>
                     </td>
