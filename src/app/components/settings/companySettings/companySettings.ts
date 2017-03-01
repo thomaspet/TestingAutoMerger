@@ -1045,6 +1045,81 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
+                Property: 'AgioNegativeAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for valutagevinst',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'AgioPositiveAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for valutatap',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'BankChargeAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for bankgebyr',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
                 Property: 'CompanyBankAccount',
                 Placement: 1,
                 Hidden: false,
@@ -1152,7 +1227,6 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: []
             }
-
 
 
         ]);
