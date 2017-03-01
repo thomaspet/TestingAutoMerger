@@ -2,8 +2,8 @@ import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@a
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
-import { SalaryBalance, SalaryTransaction, Employee } from '../../../../unientities';
-import { SalaryBalanceLineService, ErrorService, EmployeeService } from '../../../../services/services';
+import { SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction } from '../../../../unientities';
+import { SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService } from '../../../../services/services';
 
 @Component({
     selector: 'salary-balance-summary',
@@ -11,9 +11,9 @@ import { SalaryBalanceLineService, ErrorService, EmployeeService } from '../../.
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SalaryBalanceSummary implements OnInit, OnChanges {
-
+    
     @Input() private salaryBalance: SalaryBalance;
-    private salaryTransactionsModel$: BehaviorSubject<SalaryTransaction[]>;
+    private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
     private description$: BehaviorSubject<string>;
     private tableConfig: UniTableConfig;
     private showDescriptionText: boolean = false;
@@ -21,8 +21,10 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     constructor(
         private salaryBalanceLineService: SalaryBalanceLineService,
         private errorService: ErrorService,
-        private employeeService: EmployeeService) {
-        this.salaryTransactionsModel$ = new BehaviorSubject<SalaryTransaction[]>([]);
+        private salarytransactionService: SalaryTransactionService,
+        private employeeService: EmployeeService
+    ) {
+        this.salarybalanceLinesModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
         this.description$ = new BehaviorSubject<string>('');
     }
 
@@ -32,13 +34,37 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     public ngOnChanges() {
         if (this.salaryBalance && this.salaryBalance.ID) {
+
             let transObs = this.salaryBalance.SalaryBalanceLines && this.salaryBalance.SalaryBalanceLines.length
                 ? Observable.of(this.salaryBalance.SalaryBalanceLines)
                 : this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${this.salaryBalance.ID}`);
             transObs
-                .subscribe(transes => this.salaryTransactionsModel$.next(transes),
-                err => this.errorService.handle(err));
+            .switchMap((response: SalaryBalanceLine[]) => {
+                let filter = [];
+                response.forEach(balanceline => {
+                    if (balanceline.SalaryTransactionID) {
+                        filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
+                    }
+                });
+
+                return !filter.length ?
+                    Observable.of(response)
+                    : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`)
+                    .map((transes: SalaryTransaction[]) => {
+                        response.forEach(salarybalanceline => {
+                            transes.forEach(salarytransaction => {
+                                if (salarybalanceline.SalaryTransactionID === salarytransaction.ID) {
+                                    salarybalanceline['_payrollrunID'] = salarytransaction.PayrollRunID;
+                                }
+                            });
+                        });
+                        return response;
+                    });
+            })
+                .subscribe((transes: SalaryBalanceLine[]) => {
+                    this.salarybalanceLinesModel$.next(transes);
+                }, err => this.errorService.handle(err));
             
             let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
                 ? Observable.of(this.salaryBalance.Employee)
@@ -50,17 +76,17 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                     .next(`SaldoId nr ${this.salaryBalance.ID}, Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`),
                 err => this.errorService.handle(err));
         } else {
-            this.salaryTransactionsModel$.next([]);
+            this.salarybalanceLinesModel$.next([]);
             this.description$.next('');
         }
     }
 
     private createConfig() {
-        const nameCol = new UniTableColumn('Text', 'Navn trekk', UniTableColumnType.Text);
-        const startDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.LocalDate)
+        const nameCol = new UniTableColumn('Description', 'Navn trekk', UniTableColumnType.Text);
+        const startDateCol = new UniTableColumn('Date', 'Startdato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
-        const sumCol = new UniTableColumn('Sum', 'Beløp', UniTableColumnType.Money);
-        const payRunCol = new UniTableColumn('PayrollRunID', 'Lønnsavregning', UniTableColumnType.Number)
+        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
+        const payRunCol = new UniTableColumn('_payrollrunID', 'Lønnsavregning', UniTableColumnType.Number)
             .setWidth('9rem');
 
         let columnList = [nameCol, startDateCol, sumCol, payRunCol];

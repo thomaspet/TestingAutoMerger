@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import { SalarybalanceService, ErrorService } from '../../../services/services';
 import { Observable } from 'rxjs/Observable';
 import { SalaryBalance } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 
 @Component({
     selector: 'salarybalances',
@@ -15,6 +15,7 @@ export class SalarybalanceList implements OnInit {
 
     private tableConfig: UniTableConfig;
     private salarybalances$: Observable<SalaryBalance[]>;
+    @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
 
     constructor(
         private _router: Router,
@@ -24,7 +25,7 @@ export class SalarybalanceList implements OnInit {
         private errorService: ErrorService
     ) {
         route.params.subscribe(params => {
-            let empID: number = +params['empID'] || undefined;
+            let empID: number = +params['empID'] || 0;
             this.tabSer
             .addTab({
                 name: 'Saldo',
@@ -33,7 +34,7 @@ export class SalarybalanceList implements OnInit {
                 active: true
             });
             this.salarybalances$ = this._salarybalanceService
-                .GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC`)
+                .GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC&expand=SalaryBalanceLines`)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         });
     }
@@ -49,10 +50,17 @@ export class SalarybalanceList implements OnInit {
         const typeCol = new UniTableColumn('InstalmentType', 'Type', UniTableColumnType.Money);
 
         const balanceCol = new UniTableColumn('Balance', 'Saldo', UniTableColumnType.Money);
+        let contextMenu = {
+            label: 'Legg til manuell post',
+            action: (salbal) => {
+                this.openSalarybalancelineModal(salbal);
+            }
+        };
 
         this.tableConfig = new UniTableConfig(false, true, 15)
             .setColumns([idCol, nameCol, employeeCol, typeCol, balanceCol])
-            .setSearchable(true);
+            .setSearchable(true)
+            .setContextMenu([contextMenu]);
     }
 
     public rowSelected(event) {
@@ -61,5 +69,9 @@ export class SalarybalanceList implements OnInit {
 
     public createSalarybalance() {
         this._router.navigateByUrl('/salary/salarybalances/0');
+    }
+
+    public openSalarybalancelineModal(salarybalance: SalaryBalance) {
+        this.salarybalanceModal.openModal(salarybalance, false);
     }
 }

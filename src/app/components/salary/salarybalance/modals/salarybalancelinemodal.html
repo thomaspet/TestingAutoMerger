@@ -1,0 +1,6 @@
+<article class="modal-content" [attr.aria-busy]="busy" *ngIf="config">
+    <salarybalanceline *ngIf="salarybalance" [salarybalance]="salarybalance"></salarybalanceline>
+    <footer>
+        <button class="bad" (click)="config.cancel()">Lukk</button>
+    </footer>
+</article>

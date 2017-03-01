@@ -73,6 +73,8 @@ import {SalarybalanceList} from './salarybalance/salarybalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
 import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
+import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
+import {SalarybalancelineModal, SalarybalancelineModalContent} from './salarybalance/modals/salarybalancelinemodal';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
@@ -170,7 +172,10 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,
-        SalaryBalanceSummary
+        SalaryBalanceSummary,
+        SalarybalanceLine,
+        SalarybalancelineModal,
+        SalarybalancelineModalContent
     ],
     entryComponents: [
         TaxCardModalContent,
@@ -181,7 +186,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PostingsummaryModalContent,
         SalarytransFilterContent,
         SelectAmeldingTypeModalContent,
-        SalaryTransactionSupplementsModalContent
+        SalaryTransactionSupplementsModalContent,
+        SalarybalancelineModalContent,
+        SalarybalanceLine
     ],
     providers: [
         CanDeactivateGuard
@@ -253,7 +260,10 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,
-        SalaryBalanceSummary
+        SalaryBalanceSummary,
+        SalarybalanceLine,
+        SalarybalancelineModal,
+        SalarybalancelineModalContent
     ]
 })
 export class SalaryModule {
