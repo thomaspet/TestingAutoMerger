@@ -479,17 +479,17 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public toggleDetailsView(setValue?: boolean): void {
-
-        if (this.detailsActive && (!this.payrollrun$.getValue().Description || !this.payrollrunID)) {
+        let payrollRun = this.payrollrun$.getValue();
+        if (this.detailsActive && (!payrollRun.Description || !payrollRun.ID)) {
             let titles: string[] = [];
             let messages: string[] = [];
 
-            if (!this.payrollrun$.getValue().Description) {
+            if (!payrollRun.Description) {
                 titles.push('Beskrivelse mangler');
                 messages.push('utfylt beskrivelse');
             }
 
-            if (!this.payrollrunID) {
+            if (!payrollRun.ID) {
                 titles.push((titles.length ? 'l' : 'L') + 'ønnsavregning er ikke lagret');
                 messages.push('lagret lønnsavregning');
             }
@@ -1014,14 +1014,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     return Observable.of(undefined);
                 }
 
-                return this.getSalaryTransactionsObservable();
-            })
+                return this.getSalaryTransactionsObservable(); })
             .finally(() => this.setEditableOnChildren(true))
             .subscribe((salaryTransactions: SalaryTransaction[]) => {
                 if (salaryTransactions !== undefined) {
                     super.updateState('salaryTransactions', salaryTransactions, false);
-                    this.toggleDetailsView(false);
                 }
+                this.toggleDetailsView(false);
                 done('Lagret');
             },
             (err) => {
