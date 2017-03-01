@@ -6,6 +6,7 @@ import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard, 
 import { ISummaryConfig } from '../../common/summary/summary';
 import { UniView } from '../../../../framework/core/uniView';
 import { SalaryTransactionEmployeeList } from './salarytransList';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 import {
     EmployeeService,
     PayrollrunService,
@@ -23,7 +24,7 @@ declare var _;
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
 })
 
-export class SalaryTransactionSelectionList extends UniView implements AfterViewInit, OnInit {
+export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
     private salarytransSelectionTableConfig: UniTableConfig;
     private employeeList: Employee[] = [];
     private selectedIndex: number = 0;
@@ -31,7 +32,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private payrollRunID: number;
     private payrollRun: PayrollRun;
     private summary: ISummaryConfig[] = [];
-    private contextMenu: IContextMenuItem[];
+    private contextMenu$: ReplaySubject<IContextMenuItem[]>;
 
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public busy: boolean;
@@ -55,6 +56,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
         this.tableConfig();
 
+        this.contextMenu$ = new ReplaySubject<IContextMenuItem[]>(1);
+
         route.params.subscribe(param => {
             this.payrollRunID = +param['id'];
             super.updateCacheKey(router.url);
@@ -68,20 +71,25 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             });
             super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
                 this.payrollRun = payrollRun;
+                this.contextMenu$.next(this.generateContextMenu(payrollRun));
             });
         });
     }
 
-    public ngOnInit() {
-        this.contextMenu = [
+    public ngAfterViewInit() {
+        this.focusRow(0);
+    }
+
+    private generateContextMenu(payrollRun: PayrollRun): IContextMenuItem[] {
+        let items = [
             {label: 'Forskudd', action: () => this.navigateToNewAdvance()},
             {label: 'Trekk', action: () => this.navigateToNewDraw()},
             {label: 'Saldooversikt', action: () => this.navigateToSalaryBalanceList()}
         ];
-    }
-
-    public ngAfterViewInit() {
-        this.focusRow(0);
+        if (payrollRun.StatusCode > 0) {
+            items.push({label: 'Tilleggsopplysninger', action: () => this.navigateToSupplements()});
+        }
+        return items;
     }
 
     public focusRow(index = undefined) {
@@ -306,5 +314,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             this.router
                 .navigate(['salary/salarybalances', { empID: employee.ID }]);
         }
+    }
+
+    public navigateToSupplements() {
+        this.router
+            .navigate(['salary/supplements',
+                {runID: this.payrollRunID}]);
     }
 }

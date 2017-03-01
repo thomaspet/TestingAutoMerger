@@ -1,4 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Rx';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -64,6 +65,7 @@ export class AMeldingView implements OnInit {
         private _payrollService: PayrollrunService,
         private _salarySumsService: SalarySumsService,
         private numberformat: NumberFormat,
+        private router: Router,
         private errorService: ErrorService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
@@ -81,6 +83,10 @@ export class AMeldingView implements OnInit {
                         return false;
                     }
                 }
+            },
+            {
+                label: 'Tilleggsopplysninger',
+                action: () => this.router.navigate(['salary/supplements'])
             }
         ];
 

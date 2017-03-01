@@ -1,0 +1,8 @@
+
+<uni-toolbar [config]="toolbarConfig" 
+             [saveactions]="saveActions">
+</uni-toolbar>
+<article class="application">
+    <uni-table [resource]="model$ | async" [config]="tableConfig$ | async"></uni-table>
+</article>
+<uni-confirm-modal></uni-confirm-modal>

@@ -76,6 +76,8 @@ import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary
 import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
 import {SalarybalancelineModal, SalarybalancelineModalContent} from './salarybalance/modals/salarybalancelinemodal';
 
+import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
+
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
@@ -155,6 +157,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementsModal,
         SalaryTransactionSupplementsModalContent,
+        SalaryTransactionSupplementList,
 
         // Wagetype
         WageTypeView,
@@ -243,6 +246,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementsModal,
         SalaryTransactionSupplementsModalContent,
+        SalaryTransactionSupplementList,
 
         // Wagetype
         WageTypeView,
