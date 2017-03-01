@@ -6,6 +6,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFor
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     LocalDate
 } from '../../../unientities';
@@ -32,6 +33,7 @@ export class CurrencyExchange {
     private isBusy: boolean = true;
     private exchangeTable: UniTableConfig;
     private exchangelist: any;
+    private inthefuturetoast: number;
 
     private filter$: BehaviorSubject<any> = new BehaviorSubject({CurrencyDate: new LocalDate(), ShortCode: 'NOK'});
     private config$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -70,7 +72,8 @@ export class CurrencyExchange {
         private tabService: TabService,
         private errorService: ErrorService,
         private currencyCodeService: CurrencyCodeService,
-        private numberFormat: NumberFormat
+        private numberFormat: NumberFormat,
+        private toastService: ToastService
     ) {
         this.tabService.addTab({
             name: 'Valutakurser',
@@ -148,6 +151,13 @@ export class CurrencyExchange {
     private loadData() {
         let filter = this.filter$.getValue();
         this.updateToolbar();
+        if (filter.CurrencyDate > new LocalDate()) {
+            if (this.inthefuturetoast) { this.toastService.removeToast(this.inthefuturetoast); }
+            this.inthefuturetoast = this.toastService.addToast('Du har valgt en fremtidig dato', ToastType.warn, 5, 'Valutakurser som ikke er overstyrt vil være siste tilgjengelige kurs.');
+        } else if (this.inthefuturetoast) {
+            this.toastService.removeToast(this.inthefuturetoast);
+            this.inthefuturetoast = null;
+        }
         this.spinner(this.currencyService.getAllExchangeRates(1, filter.CurrencyDate)).subscribe(list => {
             this.exchangelist = list;
         });
@@ -178,8 +188,12 @@ export class CurrencyExchange {
         let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setWidth('100px').setFilterOperator('contains')
             .setNumberFormat(this.exchangerateFormat)
-            .setTemplate((row) => {
-                return `${row.ExchangeRate * row.Factor}`;
+            .setTemplate(line => {
+                return `${line.ExchangeRate * line.Factor}`;
+            })
+            .setConditionalCls(line => {
+                let filter = this.filter$.getValue();
+                return (filter.CurrencyDate > new LocalDate()) && !line.IsOverrideRate ? 'number-bad' : 'number-good';
             });
         let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
             .setEditable(false)
