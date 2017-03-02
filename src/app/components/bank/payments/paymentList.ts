@@ -20,7 +20,8 @@ import {
     PaymentCodeService,
     PaymentService,
     PaymentBatchService,
-    FileService
+    FileService,
+    CompanySettingsService
 } from '../../../services/services';
 
 declare const moment;
@@ -61,7 +62,8 @@ export class PaymentList {
                 private paymentCodeService: PaymentCodeService,
                 private paymentService: PaymentService,
                 private paymentBatchService: PaymentBatchService,
-                private fileService: FileService) {
+                private fileService: FileService,
+                private companySettingsService: CompanySettingsService) {
 
         this.tabService.addTab({ name: 'Betalinger', url: '/bank/payments', moduleID: UniModules.Payment, active: true });
     }
@@ -111,13 +113,13 @@ export class PaymentList {
             }
         } else if (event.field === 'FromBankAccount') {
             if (data.FromBankAccount) {
-                data.FromBankAccountID = data.FromBankAccount.ID
+                data.FromBankAccountID = data.FromBankAccount.ID;
             } else {
                 data.FromBankAccountID = null;
             }
         } else if (event.field === 'ToBankAccount') {
             if (data.ToBankAccount) {
-                data.ToBankAccountID = data.ToBankAccount.ID
+                data.ToBankAccountID = data.ToBankAccount.ID;
             } else {
                 data.ToBankAccountID = null;
             }
@@ -169,7 +171,7 @@ export class PaymentList {
     private loadData() {
         let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ? ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
 
-        this.paymentService.GetAll(`filter=StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
+        this.paymentService.GetAll(`filter=StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
             .subscribe(data => {
                 this.pendingPayments = data;
 
@@ -476,7 +478,9 @@ export class PaymentList {
     private setupPaymentTable() {
         let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
-            .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
+            .setTemplate(data => {
+                return data.BusinessRelationID === null && data.ToBankAccount ? data.ToBankAccount.CompanySettings.CompanyName : data.BusinessRelation.Name;
+            })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.CustomerID ? 'Kunde: ' : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : '')
