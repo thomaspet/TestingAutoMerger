@@ -24,13 +24,13 @@
         <td class="col3">
             <label>
                 URL
-                <input type="text" id="url" [(ngModel)]="subscription.Url">
+                <input type="text" id="url" [(ngModel)]="subscription.Url" (change)="urlChange($event)">
             </label>
         </td>
         <td class="col4">
             <label>
                 Beskrivelse
-                <input type="text" id="description" [(ngModel)]="subscription.Name">
+                <input type="text" id="description" [(ngModel)]="subscription.Name" (change)="descriptionChange($event)">
             </label>
         </td>
         <td class="col5">
@@ -87,3 +87,4 @@
         </td>
     </tr>
 </table>
+<uni-confirm-modal></uni-confirm-modal>

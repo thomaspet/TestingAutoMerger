@@ -5,9 +5,9 @@ import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
     Address, Municipal, SubEntity, EmployeeTaxCard, BankAccount
 } from '../../../../unientities';
-import { 
+import {
     EmployeeService, MunicipalService, EmployeeTaxCardService,
-    BankAccountService
+    BankAccountService, BusinessRelationService
 } from '../../../../services/services';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
@@ -17,7 +17,7 @@ import { UniCacheService } from '../../../../services/services';
 import { ErrorService } from '../../../../services/common/ErrorService';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import {BankAccountModal} from '../../../common/modals/modals';
+import { BankAccountModal } from '../../../common/modals/modals';
 
 
 declare var _;
@@ -49,7 +49,6 @@ export class PersonalDetails extends UniView {
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
-    private bankAccountChanged: any;
     private employee: Employee;
 
     constructor(
@@ -60,7 +59,8 @@ export class PersonalDetails extends UniView {
         cacheService: UniCacheService,
         private errorService: ErrorService,
         private employeeTaxCardService: EmployeeTaxCardService,
-        private bankaccountService: BankAccountService
+        private bankaccountService: BankAccountService,
+        private businessRelationService: BusinessRelationService
     ) {
 
         super(router.url, cacheService);
@@ -146,7 +146,7 @@ export class PersonalDetails extends UniView {
                     : Observable.of([]),
                 search: (query: string) => this.municipalService
                     .GetAll(`filter=
-                        startswith(MunicipalityNo, '${query}') 
+                        startswith(MunicipalityNo, '${query}')
                         or contains(MunicipalityName, '${query}')
                         &top=50`)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
@@ -190,11 +190,20 @@ export class PersonalDetails extends UniView {
         this.uniform.field('BusinessRelationInfo.Name').focus();
     }
 
-    public onFormChange(change: SimpleChanges) {
+    public onFormChange(changes: SimpleChanges) {
         let employee = this.employee$.getValue();
+
+        if (changes['BusinessRelationInfo.DefaultBankAccountID']) {
+            this.businessRelationService.deleteRemovedBankAccounts(
+                changes['BusinessRelationInfo.DefaultBankAccountID'],
+                employee.BusinessRelationInfo
+            );
+        }
+
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
+
         this.employee$.next(employee);
         super.updateState('employee', employee, true);
     }
@@ -311,11 +320,8 @@ export class PersonalDetails extends UniView {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount, false);
-
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
-                    resolve(changedBankaccount);
+                this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                   resolve(res.model);
                 });
             })
         };

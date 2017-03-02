@@ -50,8 +50,6 @@ export class PaymentList {
         SumChecked: 0
     };
 
-    private bankAccountChanged: any;
-
     constructor(private router: Router,
                 private errorService: ErrorService,
                 private statisticsService: StatisticsService,
@@ -530,23 +528,19 @@ export class PaymentList {
                         bankaccount.BusinessRelationID = currentRow.BusinessRelationID;
                         bankaccount.ID = 0;
 
-                        if (this.bankAccountChanged) {
-                            this.bankAccountChanged.unsubscribe();
-                        }
-
-                        this.bankAccountModal.openModal(bankaccount, false);
-
-                        this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                            this.bankAccountChanged.unsubscribe();
-
-                            // Save bank account and resolve saved object
-                            this.bankAccountService.Post(changedBankaccount)
-                                .subscribe(savedAccount => {
-                                    resolve(savedAccount);
-                                }, err => {
-                                    reject('Error saving bank account');
-                                    this.errorService.handle(err);
-                                });
+                        this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                            if (res.status === ConfirmActions.ACCEPT) {
+                                // Save bank account and resolve saved object
+                                this.bankAccountService.Post(res.model)
+                                    .subscribe(savedAccount => {
+                                        resolve(savedAccount);
+                                    }, err => {
+                                        reject('Error saving bank account');
+                                        this.errorService.handle(err);
+                                    });
+                            } else {
+                                resolve(res.model);
+                            }
                         });
                     });
                 }

@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild} from '@angular/core';
+﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -18,6 +18,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {
     CompanySettingsService,
     CurrencyCodeService,
@@ -52,6 +53,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -76,7 +78,6 @@ export class CompanySettingsComponent implements OnInit {
     private accountGroupSets: Array<AccountGroup> = [];
     private municipalities: Municipal[] = [];
     private accountVisibilityGroups: AccountVisibilityGroup[] = [];
-    private bankAccountChanged: any;
 
     private showImageSection: boolean = false; // used in template
     private showReminderSection: boolean = false; // used in template
@@ -91,7 +92,9 @@ export class CompanySettingsComponent implements OnInit {
 
     private showExternalSearch: boolean = false;
     private searchText: string = '';
+    private organizationnumbertoast: number;
 
+    public isDirty: boolean = false;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public onlyCompanyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -116,7 +119,7 @@ export class CompanySettingsComponent implements OnInit {
         private vatReportFormService: VatReportFormService,
         private vatTypeService: VatTypeService,
         private municipalService: MunicipalService,
-        private bankAccountService: BankAccountService,
+        private bankaccountService: BankAccountService,
         private addressService: AddressService,
         private phoneService: PhoneService,
         private emailService: EmailService,
@@ -233,19 +236,62 @@ export class CompanySettingsComponent implements OnInit {
         this.company$.next(company);
     }
 
-    public saveSettings(complete) {
-        let company = this.company$.getValue();
-        if (company.OrganizationNumber === ''
-            || isNaN(<any>company.OrganizationNumber)) {
-            alert('Vennligst oppgi et gyldig organisasjonsnr');
-            complete('Ugyldig organisasjonsnr, lagring avbrutt');
-            return;
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty && !this.reminderSettings.isDirty) {
+           return true;
         }
 
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    public companySettingsChange(changes: SimpleChanges) {
+        this.isDirty = true;
+
+        if (changes['CompanyBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccountID']);
+        }
+
+        if (changes['TaxBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['TaxBankAccountID']);
+        }
+
+        if (changes['SalaryBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['SalaryBankAccountID']);
+        }
+
+        if (changes['OrganizationNumber']) {
+            let organizationnumber = changes['OrganizationNumber'].currentValue;
+            if (organizationnumber === ''
+                || isNaN(<any>organizationnumber)
+                || organizationnumber.length !== 9) {
+                this.organizationnumbertoast = this.toastService.addToast('Organisasjonsnummer', ToastType.warn, 5, 'Vennligst oppgi et gyldig organisasjonsnr');
+            } else {
+                if (this.organizationnumbertoast) {
+                    this.toastService.removeToast(this.organizationnumbertoast);
+                }
+            }
+        }
+    }
+
+    public saveSettings(complete) {
+        let company = this.company$.getValue();
         if (company.BankAccounts) {
             company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
-                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                 }
             });
         }
@@ -281,11 +327,12 @@ export class CompanySettingsComponent implements OnInit {
                     this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
 
                     this.reminderSettings.save().then(() => {
+                        this.isDirty = false;
                         this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                         complete('Innstillinger lagret');
                     }).catch((err) => {
                         this.errorService.handle(err);
-                        complete('Purreinnstillinger feilt i lagring');
+                        complete('Purreinnstillinger feilet i lagring');
                     });
                 });
             },
@@ -482,25 +529,25 @@ export class CompanySettingsComponent implements OnInit {
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
-                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.company$.getValue().ID;
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount);
+                this.bankAccountModal.confirm(bankaccount).then(res => {
+                    if (res.status === ConfirmActions.ACCEPT) {
+                        let bankaccount = res.model;
 
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
+                        // update BankAccounts list only active is updated directly
+                        this.company$.getValue().BankAccounts.forEach((ba, i) => {
+                            if ((ba.ID && ba.ID == bankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == bankaccount._createguid)) {
+                                this.company$.getValue().BankAccounts[i] = bankaccount;
+                            }
+                        });
 
-                    // update BankAccounts list only active is updated directly
-                    this.company$.getValue().BankAccounts.forEach((ba, i) => {
-                        if ((ba.ID && ba.ID == changedBankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == changedBankaccount._createguid)) {
-                            this.company$.getValue().BankAccounts[i] = changedBankaccount;
-                        }
-                    });
-
-                    resolve(bankaccount);
+                        resolve(bankaccount);
+                    }
                 });
             })
         };
@@ -1272,6 +1319,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.vatTypeService.PutAction(null, 'synchronize')
                     .subscribe(() => {
                         console.log('2/2 VatTypes synkronisert');
+                        this.toastService.addToast('Synkronisert', ToastType.good, 5, 'Kontoplan og momskoder synkronisert');
                     },
                     err => this.errorService.handle(err)
                     );
@@ -1304,7 +1352,7 @@ export class CompanySettingsComponent implements OnInit {
         this.currencyService.GetAction(null, 'download-from-norgesbank')
             .subscribe(
             (response: any) => {
-                alert('Valuta lasted ned');
+                this.toastService.addToast('Valuta', ToastType.good, 5, 'Valuta lastet ned');
             },
             err => this.errorService.handle(err));
     }

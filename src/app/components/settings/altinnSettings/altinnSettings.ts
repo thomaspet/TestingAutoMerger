@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { Altinn } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from '../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 
 @Component({
     selector: 'altinn-settings',
@@ -12,6 +13,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 })
 export class AltinnSettings implements OnInit {
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+
     private formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private altinn$: BehaviorSubject<Altinn> = new BehaviorSubject(null);
@@ -27,6 +30,7 @@ export class AltinnSettings implements OnInit {
     ];
 
     public loginErr: string;
+    public isDirty: boolean = false;
 
     constructor(
         private _altinnService: AltinnIntegrationService,
@@ -38,6 +42,31 @@ export class AltinnSettings implements OnInit {
 
     public ngOnInit() {
         this.getData();
+    }
+
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+           return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    public change(event) {
+        this.isDirty = true;
     }
 
     public check() {
@@ -103,6 +132,7 @@ export class AltinnSettings implements OnInit {
             )
             .finally(() => this.saveactions[0].disabled = false)
             .subscribe((response: Altinn) => {
+                this.isDirty = false;
                 this.altinn$.next(response);
                 this.fields$.next(this.prepareLayout(this.fields$.getValue(), response));
                 this.check();

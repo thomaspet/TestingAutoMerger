@@ -20,7 +20,6 @@ import {
     CustomerInvoiceService,
     CustomerInvoiceReminderService,
     CustomerInvoiceReminderSettingsService,
-    StatisticsService,
     ErrorService
 } from '../../../../services/services';
 
@@ -56,8 +55,6 @@ export class ReminderList {
         SumFee: 0,
     };
 
-   // private emailQuery = 'model=CustomerInvoice&select=ID as CustomerInvoiceID,DefaultEmail.EmailAddress as EmailAddress&expand=Customer.Info.DefaultEmail&filter=';
-
     constructor(
         private router: Router,
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
@@ -66,8 +63,7 @@ export class ReminderList {
         private tabService: TabService,
         private errorService: ErrorService,
         private numberFormatService: NumberFormat,
-        private toastService: ToastService,
-        private statisticsService: StatisticsService
+        private toastService: ToastService
     ) {
         this.tabService.addTab({
             name: 'Purring',

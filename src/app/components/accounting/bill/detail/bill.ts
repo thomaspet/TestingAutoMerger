@@ -75,7 +75,6 @@ export class BillView {
     private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
-    private bankAccountChanged: any;
     private commentsConfig: any;
 
     @ViewChild(UniForm) public uniForm: UniForm;
@@ -216,26 +215,25 @@ export class BillView {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount, false);
-
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
-
-                    // save the bank account to the supplier
-                    if (changedBankaccount.ID === 0) {
-                        this.bankAccountService.Post(changedBankaccount)
-                            .subscribe((savedBankAccount: BankAccount) => {
-                                current.BankAccountID = savedBankAccount.ID;
-                                this.current.next(current); //if we update current we emit the new value
-                                resolve(savedBankAccount);
-                            },
-                            err => {
-                                this.errorService.handle(err);
-                                reject('Feil ved lagring av bankkonto');
-                            }
-                        );
-                    } else {
-                        throw new Error('Du kan ikke endre en bankkonto herfra');
+                this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                    if (res.status === ConfirmActions.ACCEPT) {
+                        // save the bank account to the supplier
+                        let changedBankaccount = res.model;
+                        if (changedBankaccount.ID === 0) {
+                            this.bankAccountService.Post(changedBankaccount)
+                                .subscribe((savedBankAccount: BankAccount) => {
+                                    current.BankAccountID = savedBankAccount.ID;
+                                    this.current.next(current); //if we update current we emit the new value
+                                    resolve(savedBankAccount);
+                                },
+                                err => {
+                                    this.errorService.handle(err);
+                                    reject('Feil ved lagring av bankkonto');
+                                }
+                            );
+                        } else {
+                            throw new Error('Du kan ikke endre en bankkonto herfra');
+                        }
                     }
                 });
             })

@@ -8,6 +8,7 @@ import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {Settings} from "./settings";
 import {AuthGuard} from "../../authGuard";
 import {WebHookSettings} from './webHookSettings/webHookSettings';
+import {CanDeactivateGuard} from '../../candeactivateGuard';
 
 export const childRoutes: Routes = [
     {
@@ -17,19 +18,23 @@ export const childRoutes: Routes = [
     },
     {
         path: 'company',
-        component: CompanySettingsComponent
+        component: CompanySettingsComponent,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'aga-and-subentities',
-        component: AgaAndSubEntitySettings
+        component: AgaAndSubEntitySettings,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'webhooks',
-        component: WebHookSettings
+        component: WebHookSettings,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'user',
-        component: UserSettings
+        component: UserSettings,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'users',
@@ -37,7 +42,8 @@ export const childRoutes: Routes = [
     },
     {
         path: 'altinn',
-        component: AltinnSettings
+        component: AltinnSettings,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 
