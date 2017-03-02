@@ -190,12 +190,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     }
 
                     this.toolbarconfig = {
-                        title: payrollRun ?
-                            (payrollRun.Description ?
-                                payrollRun.Description : 'Lønnsavregning ' + this.payrollrunID)
+                        title: payrollRun && payrollRun.ID
+                            ? (payrollRun.Description
+                                ? payrollRun.Description
+                                : 'Lønnsavregning ' + this.payrollrunID)
                             : 'Ny lønnsavregning',
                         subheads: [{
-                            title: payrollRun ?
+                            title: payrollRun && payrollRun.ID ?
                                 (payrollRun.Description ? 'Lønnsavregning ' + this.payrollrunID : '')
                                 : ''
                         },
@@ -206,7 +207,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         },
                         {
                             title: 'Oppsett',
-                            classname: this.detailsActive ? 'entityDetails_toggle -is-active' : 'entityDetails_toggle',
+                            classname: this.detailsActive
+                                ? 'entityDetails_toggle -is-active'
+                                : 'entityDetails_toggle',
                             event: this.toggleDetailsView.bind(this)
                         }],
                         navigation: {
@@ -547,7 +550,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 return result
                     ? Observable.of(result)
                     : Observable
-                        .fromPromise( this.confirmModal.confirmSave() )
+                        .fromPromise(this.confirmModal.confirmSave())
                         .map((response: ConfirmActions) => {
                             if (response === ConfirmActions.ACCEPT) {
                                 this.saveAll((m) => { });
@@ -1014,7 +1017,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     return Observable.of(undefined);
                 }
 
-                return this.getSalaryTransactionsObservable(); })
+                return this.getSalaryTransactionsObservable();
+            })
             .finally(() => this.setEditableOnChildren(true))
             .subscribe((salaryTransactions: SalaryTransaction[]) => {
                 if (salaryTransactions !== undefined) {
