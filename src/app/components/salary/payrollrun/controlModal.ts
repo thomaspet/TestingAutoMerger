@@ -3,9 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UniModal } from '../../../../framework/modals/modal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { PayrollRun, SalaryTransaction } from '../../../../app/unientities';
+import { PayrollRun, SalaryTransaction, StdSystemType } from '../../../../app/unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums } from '../../../models/models';
 import {
     SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
@@ -15,6 +16,7 @@ declare var _; // lodash
 
 type PaylistSection = {
     employeeInfo: {
+        number: number,
         name: string,
         payment: number,
         hasTaxInfo: boolean
@@ -34,7 +36,7 @@ export class ControlModalContent implements OnInit {
         employeeInfo: { name: string, payment: number, hasTaxInfo: boolean },
         paymentLines: SalaryTransaction[], collapsed: boolean
     }[] = null;
-    private payrollRun: PayrollRun;
+    private description$: ReplaySubject<string>;
     private payrollRunID: number;
     @Input() private config: {
         hasCancelButton: boolean,
@@ -59,6 +61,7 @@ export class ControlModalContent implements OnInit {
         private errorService: ErrorService,
         private salarySumsService: SalarySumsService
     ) {
+        this.description$ = new ReplaySubject<string>(1);
         this.route.params.subscribe(params => {
             this.payrollRunID = +params['id'];
         });
@@ -77,7 +80,14 @@ export class ControlModalContent implements OnInit {
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
-            this._salaryTransactionService.GetAll('filter=PayrollRunID eq ' + this.payrollRunID + '&nofilter=true', ['WageType']),
+            this._salaryTransactionService
+                .GetAll(
+                `filter=PayrollRunID eq ${this.payrollRunID} `
+                + `and ((SystemType ne ${StdSystemType.TableTaxDeduction} `
+                + `and SystemType ne ${StdSystemType.PercentTaxDeduction}) ` 
+                + `or (Sum lt 0))`
+                + `&orderby=Sum desc&nofilter=true`
+                , ['WageType']),
             this.salarySumsService.getFromPayrollRun(this.payrollRunID),
             this._payrollRunService.getPaymentList(this.payrollRunID),
             this._payrollRunService.Get(this.payrollRunID)
@@ -88,15 +98,12 @@ export class ControlModalContent implements OnInit {
         this.busy = true;
         let [salaryTrans, sums, transPay, payrollrun] = response;
         this.transes = salaryTrans;
-        this.transes = _.cloneDeep(this.transes);
 
         let model = this.model$.getValue();
         model.sums = sums;
         model.salaryTransactionPay = transPay;
         this.model$.next(model);
-
-        this.payrollRun = payrollrun;
-        this.payrollRun = _.cloneDeep(this.payrollRun);
+        this.description$.next(`Kontroll av lønnsavregning ${payrollrun.ID} - ${payrollrun.Description}`);
 
         this.generateTableConfigs();
         this.busy = false;
@@ -191,7 +198,7 @@ export class ControlModalContent implements OnInit {
 
         this.tableConfig = new UniTableConfig(false, false)
             .setColumns([
-                wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, 
+                wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol,
                 toDateCol, amountCol, rateCol, sumCol, paymentCol]);
 
         if (this.model$.getValue().salaryTransactionPay.PayList) {
@@ -200,8 +207,10 @@ export class ControlModalContent implements OnInit {
                 let salaryTranses = this.transes
                     .filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.payrollRunID);
 
-                let section: PaylistSection = {
+                if (salaryTranses.length) {
+                    let section: PaylistSection = {
                         employeeInfo: {
+                            number: payline.EmployeeNumber,
                             name: payline.EmployeeName,
                             payment: payline.NetPayment,
                             hasTaxInfo: payline.HasTaxInformation
@@ -209,7 +218,8 @@ export class ControlModalContent implements OnInit {
                         paymentLines: salaryTranses,
                         collapsed: true
                     };
-                this.payList.push(section);
+                    this.payList.push(section);
+                }
             });
         }
 
@@ -240,7 +250,7 @@ export class ControlModalContent implements OnInit {
                 this.errorService.handle(err);
             });
     }
-    
+
     public toggleCollapsed(index: number) {
         this.payList[index].collapsed = !this.payList[index].collapsed;
     }
