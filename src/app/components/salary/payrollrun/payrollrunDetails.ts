@@ -620,34 +620,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         return this.payrollrunID
             ? Observable
                 .forkJoin(
-                this._salaryTransactionService.GetAll(
+                this._salaryTransactionService
+                    .GetAll(
                     'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
-                        , 'Dimensions', 'Files']),
+                        , 'Dimensions', 'Files'])
+                    .do((transes: SalaryTransaction[]) => {
+                        if (this.selectionList) {
+                            this.selectionList.updateSums();
+                        }
+                        this.tagConfig.readOnly = transes.some(trans => !trans.IsRecurringPost);
+                        this.tagConfig.toolTip = this.tagConfig.readOnly
+                            ? 'Låst på grunn av variable poster' 
+                            : '';
+                    }),
                 this.getProjectsObservable(),
                 this.getDepartmentsObservable())
-                .do((response: [SalaryTransaction[], Project[], Department[]]) => {
-                    if (this.selectionList) {
-                        this.selectionList.updateSums();
-                    }
-                    let transes = response[0];
-                    let checkToast: boolean = this.salaryTransactions
-                        && !this.salaryTransactions
-                            .filter(x => x.ID)
-                            .some(x => !x.IsRecurringPost);
-
-                    this.tagConfig.readOnly = transes
-                        .some(x => !x.IsRecurringPost);
-
-                    if (checkToast && this.tagConfig.readOnly) {
-                        this._toastService
-                            .addToast(
-                            'Kategoriutvalg er låst',
-                            ToastType.warn,
-                            ToastTime.medium,
-                            'Siden det er variable poster i lønnsavregningen');
-                    }
-                })
                 .map((response: [SalaryTransaction[], Project[], Department[]]) => {
                     let [transes, projects, departments] = response;
                     return transes.map(trans => {

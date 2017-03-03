@@ -11,7 +11,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
         </button>
 
         <article class="tags_control"
-            [attr.aria-expanded]="isOpen">
+            [attr.aria-expanded]="isOpen"
+            [title]="config?.toolTip || ''">
 
             <small *ngIf="config?.helpText">{{config.helpText}}</small>
 
@@ -49,6 +50,7 @@ export class UniTags {
         lookupLabel?: string;
         truncate?: number;
         readOnly?: boolean;
+        toolTip?: string;
     };
     @Input() public tags: any[];
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();
