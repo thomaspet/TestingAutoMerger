@@ -143,25 +143,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     }
 
     private getDataFromSources() {
-        // resolve placeholders first
-        this.resolvePlaceholders();
-
-        // create http requests
-        let observableBatch = [];
-
-        for (const ds of this.report.dataSources) {
-            let url: string = ds.DataSourceUrl;
-
-            observableBatch.push(
-                this.http
-                    .asGET()
-                    .usingEmptyDomain()
-                    .withEndPoint(url)
-                    .send()
-                    .map(response => response.json())
-            );
-        }
-
         this.getDataFromSourcesObservable()
             .subscribe((response: { data: any, dataSources: any }) => this.onDataFetched(response.data, response.dataSources));
     }
@@ -179,6 +160,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             observableBatch.push(
                 this.http
                     .asGET()
+                    .withHeader('Hateoas', 'false')
                     .usingEmptyDomain()
                     .withEndPoint(url)
                     .send()
