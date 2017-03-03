@@ -106,12 +106,18 @@ input[type=radio]
         padding-left: 3.5rem
 
         &:before
-            width: 2.2rem
+            width: 2.6rem
             height: 1.1rem
             border-radius: 99rem
             top: .45rem
             border-color: transparent
             background-color: $uni-color-scale8
+            content: 'Av'
+            text-align: right
+            color: $uni-color-scale3
+            line-height: .9rem
+            font-size: .75rem
+            padding: 0 .3rem
 
         &:after
             width: 1rem
@@ -119,10 +125,10 @@ input[type=radio]
             top: .45rem
             left: .3rem
             border-radius: 99rem
-            background: $uni-color-scale5
+            background-color: $uni-color-scale5
             box-shadow: 0 0 .5rem transparentize($uni-color-scale1, .5)
             border: pxToRem(1) solid transparentize($uni-color-scale2, .5)
-            transition: left .3s ease
+            transition: all .3s ease
             transform: rotate(0deg)
 
         &:hover,
@@ -143,10 +149,14 @@ input[type=radio]
 
     &:checked + label.toggle
         &:after
-            left: 1.4rem
+            left: 1.8rem
+            background-color: $uni-color-scale9
 
         &:before
-            background: transparentize($uni-color-good, .5)
+            content: 'På'
+            text-align: left
+            color: $uni-color-negative
+            background: transparentize($uni-color-good, .3)
             border-color: transparent
 
 input[type=radio] + label
