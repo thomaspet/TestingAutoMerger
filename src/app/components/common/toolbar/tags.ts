@@ -3,6 +3,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 @Component({
     selector: 'uni-tags',
     template: `
+    <div (clickOutside)="isOpen = false">
         <button type="button"
             class="tags_toggle"
             (click)="isOpen = !isOpen">
@@ -40,7 +41,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
                 </button>
             </section>
         </article>
-
+    </div>
     `
 })
 export class UniTags {
