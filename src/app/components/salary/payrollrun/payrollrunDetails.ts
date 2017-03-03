@@ -11,7 +11,7 @@ import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService'
 import { ControlModal } from './controlModal';
 import { PostingsummaryModal } from './postingsummaryModal';
 import { VacationpayModal } from './vacationpay/VacationpayModal';
-import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
+import { UniForm } from 'uniform-ng2/main';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
@@ -51,13 +51,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    private isEditable: boolean;
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
-    private formIsReady: boolean = false;
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
-    private filter: string = '';
     private disableFilter: boolean;
     private saveActions: IUniSaveAction[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
@@ -70,7 +67,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private departments: Department[];
     private detailsActive: boolean = false;
     private categories: EmployeeCategory[];
-    private changedPayroll: boolean;
     private journalEntry: JournalEntry;
 
     public categoryFilter: any[] = [];
@@ -148,7 +144,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
         this.route.params.subscribe(params => {
             this.journalEntry = undefined;
-            this.changedPayroll = true;
+            let changedPayroll = true;
             this.payrollrunID = +params['id'];
             this.tagConfig.readOnly = !this.payrollrunID;
             if (!this.payrollrunID) {
@@ -184,10 +180,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.payStatus = this.payrollrunService.getStatus(payrollRun).text;
 
                     this.updatePoster();
-
-                    if (this.formIsReady) {
-                        this.setEditMode();
-                    }
 
                     this.toolbarconfig = {
                         title: payrollRun && payrollRun.ID
@@ -253,10 +245,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     ];
 
                     this.checkDirty();
-                    if (this.changedPayroll && !payrollRun.Description && !this.detailsActive) {
-                        this.toggleDetailsView();
+                    if (changedPayroll) {
+                        if (!payrollRun.Description && !this.detailsActive) {
+                            this.toggleDetailsView();
+                        }
                     }
-                    this.changedPayroll = false;
+                    if (!super.isDirty('payrollRun')) {
+                        this.setEditMode(payrollRun);
+                    }
+                    changedPayroll = false;
 
                 }, err => this.errorService.handle(err));
 
@@ -951,38 +948,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         return this.fields$.getValue().find((fld) => fld.Property === name);
     }
 
-    private setEditMode() {
-        var idField: UniFieldLayout;
-        if (this.payrollrun$.getValue()) {
-            if (this.payrollrun$.getValue().StatusCode > 0) {
-                this.isEditable = false;
-                this.uniform.readMode();
-            } else {
-                this.isEditable = true;
-                this.uniform.editMode();
-            }
-        } else {
-            this.isEditable = true;
-            this.uniform.editMode();
-        }
-        idField = this.findByProperty('ID');
-        idField.ReadOnly = true;
-        var recurringTransCheck: UniFieldLayout = this.findByProperty('_IncludeRecurringPosts');
-        var noNegativePayCheck: UniFieldLayout = this.findByProperty('1');
-        if (this.isEditable) {
-            recurringTransCheck.ReadOnly = false;
-            noNegativePayCheck.ReadOnly = false;
-        } else {
-            recurringTransCheck.ReadOnly = true;
-            noNegativePayCheck.ReadOnly = true;
-        }
+    private setEditMode(payrollRun: PayrollRun) {
+        this.fields$.getValue().map(field => field.ReadOnly = payrollRun.StatusCode);
+        this.findByProperty('ID').ReadOnly = true;
         this.fields$.next(this.fields$.getValue());
     }
 
-    public ready(value) {
-        this.setEditMode();
-        this.formIsReady = true;
-    }
+    public ready(value) { }
 
     private saveAll(done: (message: string) => void) {
 
