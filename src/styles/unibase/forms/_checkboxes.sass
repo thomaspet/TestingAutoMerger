@@ -130,8 +130,16 @@ input[type=radio]
             &:after
                 background: $uni-color-scale3
 
-    &[disabled] + label.toggle:hover:after
+    &[disabled]:not([disabled=false]) + label.toggle:hover:after,
+    &[readonly]:not([readonly=false]) + label.toggle:hover:after
         background: $uni-color-scale8
+
+    &[disabled]:not([disabled=false]) + label.toggle:before,
+    &[readonly]:not([readonly=false]) + label.toggle:before,
+    &[disabled]:not([disabled=false]) + label.toggle:after,
+    &[readonly]:not([readonly=false]) + label.toggle:after
+        filter: grayscale(30%)
+        opacity: .4
 
     &:checked + label.toggle
         &:after
