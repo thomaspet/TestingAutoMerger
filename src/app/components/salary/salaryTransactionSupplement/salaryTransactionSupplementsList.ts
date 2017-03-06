@@ -54,7 +54,7 @@ export class SalaryTransactionSupplementList implements OnInit {
             this.updateTabStrip();
             this.financialYearService.lastSelectedYear$.subscribe(year => {
                 if ((!this.model$ || !payrollRunID)) {
-                    this.model$ = this.getModel(payrollRunID, year.Year);
+                    this.model$ = this.getModel(payrollRunID, year);
                 }
             });
         });

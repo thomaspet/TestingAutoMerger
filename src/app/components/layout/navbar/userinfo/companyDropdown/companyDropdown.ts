@@ -22,7 +22,7 @@ import {
             <span class="navbar_company_title"
                 (click)="companyDropdownActive = !companyDropdownActive">
                 <span class="navbar_company_title_name">{{activeCompany.Name}}</span>
-                <span class="navbar_company_title_year">{{activeYear?.Year}}</span>
+                <span class="navbar_company_title_year">{{activeYear}}</span>
             </span>
 
             <section class="navbar_company_dropdown"
@@ -61,7 +61,7 @@ import {
                     </uni-select>
 
                     <span class="navbar_company_activeYear" *ngIf="financialYears?.length <= 1">
-                        {{activeYear?.Year || ''}}
+                        {{activeYear || ''}}
                     </span>
                 </p>
 
@@ -75,8 +75,8 @@ import {
     `
 })
 
-    // TODO: Should be decided if such as companies and financialYears should be retrieved during dialog opening, and not only during application load.
-    // A company may get a new account year during a session, and a user may get access to new companies during the session.
+// TODO: Should be decided if such as companies and financialYears should be retrieved during dialog opening, and not only during application load.
+// A company may get a new account year during a session, and a user may get access to new companies during the session.
 export class UniCompanyDropdown {
     @ViewChildren(UniSelect)
     private dropdowns: QueryList<UniSelect>;
@@ -88,7 +88,7 @@ export class UniCompanyDropdown {
     private username: string;
 
     private financialYears: Array<FinancialYear> = [];
-    private activeYear: FinancialYear;
+    private activeYear: number;
 
     private availableCompanies: Observable<any>;
     private selectCompanyConfig: ISelectConfig;
@@ -126,13 +126,12 @@ export class UniCompanyDropdown {
         };
 
         this.selectYearConfig = {
-            template: (item) => item.Year.toString(),
+            template: (item) => typeof item === 'number' ? item.toString() : item.Year.toString(),
             searchable: false
         };
 
         this.loadCompanyData();
         this.authService.companyChange.subscribe((company) => {
-            localStorage.removeItem('activeFinancialYear');
             this.activeCompany = company;
             this.loadCompanyData();
         });
@@ -147,11 +146,11 @@ export class UniCompanyDropdown {
             (res) => {
                 this.companySettings = res[0];
                 this.financialYears = res[1];
-
+                this.selectDefaultYear(this.financialYears, this.companySettings);
                 this.cdr.markForCheck(); // not sure where this should be
             },
             err => this.errorService.handle(err)
-        );
+            );
     }
 
     private companySelected(selectedCompany): void {
@@ -162,9 +161,18 @@ export class UniCompanyDropdown {
         }
     }
 
+    private selectDefaultYear(financialYears: FinancialYear[], companySettings: CompanySettings): void {
+        let localStorageYear = this.financialYearService.getYearInLocalStorage();
+        this.yearSelected(
+            (localStorageYear ? financialYears
+                .find(financialYear =>
+                    financialYear.Year === localStorageYear.Year) : undefined)
+            || financialYears
+                .find(financialYear => financialYear.Year === companySettings.CurrentAccountingYear));
+    }
+
     private yearSelected(selectedYear: FinancialYear): void {
         this.close();
-        this.activeYear = selectedYear;
         this.financialYearService.setActiveYear(selectedYear);
     }
 

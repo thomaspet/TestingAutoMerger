@@ -28,7 +28,7 @@ export class PayrollrunList implements OnInit {
 
         this.financialYearService.lastSelectedYear$.subscribe( year => {
             this.payrollRuns$ = this.payrollService
-            .GetAll('orderby=ID Desc' + (year && year.Year ? '&filter=year(PayDate) eq ' + year.Year : ''))
+            .GetAll('orderby=ID Desc' + (year ? '&filter=year(PayDate) eq ' + year : ''))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         });
 
