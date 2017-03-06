@@ -915,17 +915,15 @@ export class InvoiceDetails {
     private payInvoice(done) {
         const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
-        // Set up subscription to listen canceled modal
-        if (this.registerPaymentModal.canceled.observers.length === 0) {
-            this.registerPaymentModal.canceled.subscribe(() => {
-                done();
-            });
-        }
+        const invoiceData = {
+            Amount: this.invoice.RestAmount,
+            PaymentDate: new LocalDate(Date())
+        };
 
-        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.
-        if (this.registerPaymentModal.changed.observers.length === 0) {
-            this.registerPaymentModal.changed.subscribe((modalData: any) => {
-                this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+        this.registerPaymentModal.confirm(this.invoice.ID, title, invoiceData).then(res => {
+            if (res.status === ConfirmActions.ACCEPT) {
+                console.log(res);
+                this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
                     done('Betaling registrert');
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
@@ -935,15 +933,10 @@ export class InvoiceDetails {
                     done('Feilet ved registrering av betaling');
                     this.errorService.handle(err);
                 });
-            });
-        }
-
-        const invoiceData = {
-            Amount: this.invoice.RestAmount,
-            PaymentDate: new LocalDate(Date())
-        };
-
-        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
+            } else {
+                done();
+            }
+        });
     }
 
     private handleSaveError(error, donehandler) {

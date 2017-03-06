@@ -1007,28 +1007,24 @@ export class BillView {
         let current = this.current.getValue();
         const title = lang.ask_register_payment + current.InvoiceNumber;
 
-        if (this.registerPaymentModal.changed.observers.length === 0) {
-            this.registerPaymentModal.changed.subscribe((modalData: any) => {
-                this.busy = true;
-                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
-                .finally(() => this.busy = false)
-                .subscribe((journalEntry) => {
-                    this.fetchInvoice(current.ID, true);
-                    this.userMsg(lang.payment_ok, null, null, true);
-                }, (error) => {
-                    this.errorService.handle(error);
-                });
-            });
-        }
-
         const invoiceData = {
             Amount: current.RestAmount,
             PaymentDate: new LocalDate(Date())
         };
 
-        this.registerPaymentModal.openModal(current.ID, title, invoiceData);
-
-        done('');
+        this.registerPaymentModal.confirm(current.ID, title, invoiceData).then((res) => {
+            this.busy = true;
+            this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
+            .finally(() => this.busy = false)
+            .subscribe((journalEntry) => {
+                this.fetchInvoice(current.ID, true);
+                this.userMsg(lang.payment_ok, null, null, true);
+                done('Betaling registrert');
+            }, (error) => {
+                this.errorService.handle(error);
+                done('Betaling feilet');
+            });
+        });
     }
 
 
