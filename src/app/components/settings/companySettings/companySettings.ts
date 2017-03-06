@@ -9,7 +9,7 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {
-    CompanyType, CompanySettings, VatReportForm, PeriodSeries, CurrencyCode, AccountGroup, Account,
+    FinancialYear, CompanyType, CompanySettings, VatReportForm, PeriodSeries, CurrencyCode, AccountGroup, Account,
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
 import {BankAccountModal} from '../../common/modals/modals';
@@ -37,7 +37,8 @@ import {
     ErrorService,
     CompanyService,
     UniSearchConfigGeneratorService,
-    CurrencyService
+    CurrencyService,
+    FinancialYearService
 } from '../../../services/services';
 
 declare const _;
@@ -74,6 +75,7 @@ export class CompanySettingsComponent implements OnInit {
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
     private currencyCodes: Array<CurrencyCode> = [];
+    private accountYears: Array<FinancialYear> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
     private municipalities: Municipal[] = [];
@@ -129,7 +131,9 @@ export class CompanySettingsComponent implements OnInit {
         private authService: AuthService,
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private currencyService: CurrencyService
+        private currencyService: CurrencyService,
+        private financialYearService: FinancialYearService
+
     ) {
     }
 
@@ -155,7 +159,8 @@ export class CompanySettingsComponent implements OnInit {
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity(null, 'Address'),
-            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes'])
+            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
+            this.financialYearService.GetAll(null)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -169,6 +174,8 @@ export class CompanySettingsComponent implements OnInit {
                 this.emptyAddress = dataset[9];
                 // get accountvisibilitygroups that are not specific for a companytype
                 this.accountVisibilityGroups = dataset[10].filter(x => x.CompanyTypes.length === 0);
+                this.accountYears = dataset[11];
+                this.accountYears.forEach(item => item['YearString']=item.Year.toString());
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
@@ -481,6 +488,15 @@ export class CompanySettingsComponent implements OnInit {
             template: (obj: CurrencyCode) => obj ? `${obj.Code} - ${obj.Name}` : '',
             debounceTime: 200
         };
+
+ let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
+        currentAccountYear.Options = {
+            source: this.accountYears,
+            valueProperty: 'Year',
+            displayProperty: 'YearString',
+            debounceTime: 200
+        };
+
 
         let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
@@ -1163,6 +1179,28 @@ export class CompanySettingsComponent implements OnInit {
                     uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
                     valueProperty: 'ID'
                 }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'CurrentAccountingYear',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.DROPDOWN,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Aktivt regnskapsår',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
             },
             {
                 ComponentLayoutID: 1,
