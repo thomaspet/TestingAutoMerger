@@ -75,13 +75,15 @@ export class WageTypeService extends BizHttp<WageType> {
             .map(response => response.json());
     }
 
-    public getPrevious(ID: number, expands: string[] = null) {
-        return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID desc`, expands ? expands : this.defaultExpands)
+    public getPrevious(wageTypeNumber: number, expands: string[] = null) {
+        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`, 
+            expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
 
-    public getNext(ID: number, expands: string[] = null) {
-        return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
+    public getNext(wageTypeNumber: number, expands: string[] = null) {
+        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber`, 
+            expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
 
