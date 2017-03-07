@@ -5,7 +5,6 @@ import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
     Address, Municipal, SubEntity, EmployeeTaxCard, BankAccount
 } from '../../../../unientities';
-
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
 import { UniFieldLayout } from 'uniform-ng2/main';
@@ -17,12 +16,13 @@ import {
     MunicipalService,
     EmployeeTaxCardService,
 	BankAccountService,
+	BusinessRelationService,
     ErrorService,
 	UniCacheService
 } from '../../../../services/services';
 declare var _;
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import {BankAccountModal} from '../../../common/modals/modals';
+import { BankAccountModal } from '../../../common/modals/modals';
 
 
 
@@ -53,7 +53,6 @@ export class PersonalDetails extends UniView {
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
-    private bankAccountChanged: any;
     private employee: Employee;
 
     constructor(
@@ -64,7 +63,8 @@ export class PersonalDetails extends UniView {
         cacheService: UniCacheService,
         private errorService: ErrorService,
         private employeeTaxCardService: EmployeeTaxCardService,
-        private bankaccountService: BankAccountService
+        private bankaccountService: BankAccountService,
+        private businessRelationService: BusinessRelationService
     ) {
 
         super(router.url, cacheService);
@@ -194,11 +194,20 @@ export class PersonalDetails extends UniView {
         this.uniform.field('BusinessRelationInfo.Name').focus();
     }
 
-    public onFormChange(change: SimpleChanges) {
+    public onFormChange(changes: SimpleChanges) {
         let employee = this.employee$.getValue();
+
+        if (changes['BusinessRelationInfo.DefaultBankAccountID']) {
+            this.businessRelationService.deleteRemovedBankAccounts(
+                changes['BusinessRelationInfo.DefaultBankAccountID'],
+                employee.BusinessRelationInfo
+            );
+        }
+
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
+
         this.employee$.next(employee);
         super.updateState('employee', employee, true);
     }
@@ -315,11 +324,8 @@ export class PersonalDetails extends UniView {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount, false);
-
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
-                    resolve(changedBankaccount);
+                this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                   resolve(res.model);
                 });
             })
         };

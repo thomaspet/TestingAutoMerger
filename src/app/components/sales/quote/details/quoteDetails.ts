@@ -98,26 +98,33 @@ export class QuoteDetails {
 
     public ngOnInit() {
         this.setSums();
-        this.contextMenuItems = [{
-            label: 'Send på epost',
-            action: () => {
-                let sendemail = new SendEmail();
-                sendemail.EntityType = 'CustomerQuote';
-                sendemail.EntityID = this.quote.ID;
-                sendemail.CustomerID = this.quote.CustomerID;
-                sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-
-                this.sendEmailModal.openModal(sendemail);
-
-                if (this.sendEmailModal.Changed.observers.length === 0) {
-                    this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
-                    });
-                }
+        this.contextMenuItems = [
+            {
+                label: 'Skriv ut',
+                action: () => this.saveAndPrint(),
+                disabled: () => !this.quote.ID
             },
-            disabled: () => !this.quote.ID
-        }];
+            {
+                label: 'Send på epost',
+                action: () => {
+                    let sendemail = new SendEmail();
+                    sendemail.EntityType = 'CustomerQuote';
+                    sendemail.EntityID = this.quote.ID;
+                    sendemail.CustomerID = this.quote.CustomerID;
+                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+
+                    this.sendEmailModal.openModal(sendemail);
+
+                    if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                        });
+                    }
+                },
+                disabled: () => !this.quote.ID
+            }
+        ];
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
@@ -640,12 +647,6 @@ export class QuoteDetails {
             });
         }
 
-        this.saveActions.push({
-            label: 'Skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: !this.quote.ID
-        });
-
         // TODO: Add a actions for shipToCustomer,customerAccept
 
         this.saveActions.push({
@@ -776,19 +777,24 @@ export class QuoteDetails {
         });
     }
 
-    private saveAndPrint(done) {
-        this.saveQuote().then(res => {
-            this.isDirty = false;
-            this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-                if (report) {
-                    this.previewModal.openWithId(report, res.ID);
-                    done('Viser utskrift');
-                } else {
-                    done('Rapport mangler');
-                }
+    private saveAndPrint() {
+        if (this.isDirty) {
+            this.saveQuote().then(quote => {
+                this.isDirty = false;
+                this.print(quote.ID);
+            }).catch(error => {
+                this.errorService.handle(error);
             });
-        }).catch(error => {
-            this.handleSaveError(error, done);
+        } else {
+            this.print(this.quote.ID);
+        }
+    }
+
+    private print(id) {
+        this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
+            if (report) {
+                this.previewModal.openWithId(report, id);
+            }
         });
     }
 

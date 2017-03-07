@@ -16,6 +16,7 @@ import {UserService} from './common/userService';
 import {VatReportFormService} from './common/vatReportFormService';
 import {StatisticsService} from './common/statisticsService';
 import {UniQueryDefinitionService} from './common/uniQueryDefinitionService';
+import {UniTickerService} from './common/uniTickerService';
 import {CountryService} from './common/countryService';
 import {PostalCodeService} from './common/postalCodeService';
 import {UniMenuAim} from './common/uniMenuAim';
@@ -57,6 +58,7 @@ export * from './common/userService';
 export * from './common/vatReportFormService';
 export * from './common/statisticsService';
 export * from './common/uniQueryDefinitionService';
+export * from './common/uniTickerService';
 export * from './common/countryService';
 export * from './common/postalCodeService';
 export * from './common/uniMenuAim';
@@ -123,7 +125,8 @@ export class CommonServicesModule {
 				UniSearchAccountConfigGeneratorHelper,
         		UniSearchCustomerConfigGeneratorHelper,
 				CurrencyOverridesService,
-				CurrencyCodeService
+				CurrencyCodeService,
+				UniTickerService
             ]
         };
     }

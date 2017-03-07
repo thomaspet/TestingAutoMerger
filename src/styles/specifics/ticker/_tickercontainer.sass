@@ -1,0 +1,28 @@
+uni-ticker-container
+    position: relative
+    font-size: 0.9rem
+
+    .ticket-container
+        margin-top: 1.5rem
+        display: flex
+        flex-direction: row
+
+    uni-ticker-filters
+        margin-right: 1rem
+        flex: 0 0 5rem
+
+        &.expanded
+            flex: 0 1 60%
+
+    uni-ticker
+        margin-right: 1rem
+        flex: 1 1 auto
+
+        &:not(.expanded)
+            flex: 1 1 15rem
+
+    uni-sub-ticker-container
+        flex: 0 0 8rem
+
+        &.expanded
+            flex: 0 1 60%

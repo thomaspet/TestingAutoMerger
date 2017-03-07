@@ -75,7 +75,6 @@ export class BillView {
     private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
-    private bankAccountChanged: any;
     private commentsConfig: any;
 
     @ViewChild(UniForm) public uniForm: UniForm;
@@ -193,7 +192,7 @@ export class BillView {
         sumCol.Options = {
             events: {
                 enter: () => {
-                    this.focusJournalEntries();
+                    this.focusJournalEntries(); //not working
                 }
             },
             decimalLength: 2
@@ -216,26 +215,25 @@ export class BillView {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount, false);
-
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
-
-                    // save the bank account to the supplier
-                    if (changedBankaccount.ID === 0) {
-                        this.bankAccountService.Post(changedBankaccount)
-                            .subscribe((savedBankAccount: BankAccount) => {
-                                current.BankAccountID = savedBankAccount.ID;
-                                this.current.next(current); //if we update current we emit the new value
-                                resolve(savedBankAccount);
-                            },
-                            err => {
-                                this.errorService.handle(err);
-                                reject('Feil ved lagring av bankkonto');
-                            }
-                        );
-                    } else {
-                        throw new Error('Du kan ikke endre en bankkonto herfra');
+                this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                    if (res.status === ConfirmActions.ACCEPT) {
+                        // save the bank account to the supplier
+                        let changedBankaccount = res.model;
+                        if (changedBankaccount.ID === 0) {
+                            this.bankAccountService.Post(changedBankaccount)
+                                .subscribe((savedBankAccount: BankAccount) => {
+                                    current.BankAccountID = savedBankAccount.ID;
+                                    this.current.next(current); //if we update current we emit the new value
+                                    resolve(savedBankAccount);
+                                },
+                                err => {
+                                    this.errorService.handle(err);
+                                    reject('Feil ved lagring av bankkonto');
+                                }
+                            );
+                        } else {
+                            throw new Error('Du kan ikke endre en bankkonto herfra');
+                        }
                     }
                 });
             })
@@ -1009,28 +1007,24 @@ export class BillView {
         let current = this.current.getValue();
         const title = lang.ask_register_payment + current.InvoiceNumber;
 
-        if (this.registerPaymentModal.changed.observers.length === 0) {
-            this.registerPaymentModal.changed.subscribe((modalData: any) => {
-                this.busy = true;
-                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
-                .finally(() => this.busy = false)
-                .subscribe((journalEntry) => {
-                    this.fetchInvoice(current.ID, true);
-                    this.userMsg(lang.payment_ok, null, null, true);
-                }, (error) => {
-                    this.errorService.handle(error);
-                });
-            });
-        }
-
         const invoiceData = {
             Amount: current.RestAmount,
             PaymentDate: new LocalDate(Date())
         };
 
-        this.registerPaymentModal.openModal(current.ID, title, invoiceData);
-
-        done('');
+        this.registerPaymentModal.confirm(current.ID, title, invoiceData).then((res) => {
+            this.busy = true;
+            this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
+            .finally(() => this.busy = false)
+            .subscribe((journalEntry) => {
+                this.fetchInvoice(current.ID, true);
+                this.userMsg(lang.payment_ok, null, null, true);
+                done('Betaling registrert');
+            }, (error) => {
+                this.errorService.handle(error);
+                done('Betaling feilet');
+            });
+        });
     }
 
 

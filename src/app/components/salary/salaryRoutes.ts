@@ -19,6 +19,7 @@ import {routes as CategoryRoutes} from './category/categoryRoutes';
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
+import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 
 
 export const childRoutes = [
@@ -78,6 +79,11 @@ export const childRoutes = [
         path: 'salarybalances/:id',
         component: SalarybalanceView,
         children: SalarybalanceRoutes,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'supplements',
+        component: SalaryTransactionSupplementList,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

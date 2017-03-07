@@ -58,7 +58,6 @@ export class SalarybalanceDetail extends UniView {
             this.cachedSalaryBalance$
                 .subscribe((salarybalance: SalaryBalance) => {
                     if (salarybalance.ID !== this.salarybalanceID) {
-
                         this.salarybalance$.next(salarybalance);
                         this.salarybalanceID = salarybalance.ID;
 

@@ -20,7 +20,8 @@ import {
     PaymentCodeService,
     PaymentService,
     PaymentBatchService,
-    FileService
+    FileService,
+    CompanySettingsService
 } from '../../../services/services';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
@@ -49,8 +50,6 @@ export class PaymentList {
         SumChecked: 0
     };
 
-    private bankAccountChanged: any;
-
     constructor(private router: Router,
                 private errorService: ErrorService,
                 private statisticsService: StatisticsService,
@@ -62,7 +61,8 @@ export class PaymentList {
                 private paymentCodeService: PaymentCodeService,
                 private paymentService: PaymentService,
                 private paymentBatchService: PaymentBatchService,
-                private fileService: FileService) {
+                private fileService: FileService,
+                private companySettingsService: CompanySettingsService) {
 
         this.tabService.addTab({ name: 'Betalinger', url: '/bank/payments', moduleID: UniModules.Payment, active: true });
     }
@@ -112,13 +112,13 @@ export class PaymentList {
             }
         } else if (event.field === 'FromBankAccount') {
             if (data.FromBankAccount) {
-                data.FromBankAccountID = data.FromBankAccount.ID
+                data.FromBankAccountID = data.FromBankAccount.ID;
             } else {
                 data.FromBankAccountID = null;
             }
         } else if (event.field === 'ToBankAccount') {
             if (data.ToBankAccount) {
-                data.ToBankAccountID = data.ToBankAccount.ID
+                data.ToBankAccountID = data.ToBankAccount.ID;
             } else {
                 data.ToBankAccountID = null;
             }
@@ -170,7 +170,7 @@ export class PaymentList {
     private loadData() {
         let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ? ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
 
-        this.paymentService.GetAll(`filter=StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
+        this.paymentService.GetAll(`filter=StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
             .subscribe(data => {
                 this.pendingPayments = data;
 
@@ -477,7 +477,9 @@ export class PaymentList {
     private setupPaymentTable() {
         let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
-            .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
+            .setTemplate(data => {
+                return data.BusinessRelationID === null && data.ToBankAccount ? data.ToBankAccount.CompanySettings.CompanyName : data.BusinessRelation.Name;
+            })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.CustomerID ? 'Kunde: ' : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : '')
@@ -529,23 +531,19 @@ export class PaymentList {
                         bankaccount.BusinessRelationID = currentRow.BusinessRelationID;
                         bankaccount.ID = 0;
 
-                        if (this.bankAccountChanged) {
-                            this.bankAccountChanged.unsubscribe();
-                        }
-
-                        this.bankAccountModal.openModal(bankaccount, false);
-
-                        this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                            this.bankAccountChanged.unsubscribe();
-
-                            // Save bank account and resolve saved object
-                            this.bankAccountService.Post(changedBankaccount)
-                                .subscribe(savedAccount => {
-                                    resolve(savedAccount);
-                                }, err => {
-                                    reject('Error saving bank account');
-                                    this.errorService.handle(err);
-                                });
+                        this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                            if (res.status === ConfirmActions.ACCEPT) {
+                                // Save bank account and resolve saved object
+                                this.bankAccountService.Post(res.model)
+                                    .subscribe(savedAccount => {
+                                        resolve(savedAccount);
+                                    }, err => {
+                                        reject('Error saving bank account');
+                                        this.errorService.handle(err);
+                                    });
+                            } else {
+                                resolve(res.model);
+                            }
                         });
                     });
                 }

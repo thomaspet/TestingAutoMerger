@@ -218,7 +218,7 @@ export class WageTypeView extends UniView {
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
                 // TODO: should use BizHttp.getPreviousID() instead
-                this.wageTypeService.getPrevious(this.wageType.ID)
+                this.wageTypeService.getPrevious(this.wageType.WageTypeNumber)
                     .subscribe((prev: WageType) => {
                         if (prev) {
                             this.wageType = prev;
@@ -234,7 +234,7 @@ export class WageTypeView extends UniView {
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
                 // TODO: should use BizHttp.getNextID() instead
-                this.wageTypeService.getNext(this.wageType.ID)
+                this.wageTypeService.getNext(this.wageType.WageTypeNumber)
                     .subscribe((next: WageType) => {
                         if (next) {
                             this.wageType = next;

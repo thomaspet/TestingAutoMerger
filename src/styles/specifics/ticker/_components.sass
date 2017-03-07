@@ -1,0 +1,59 @@
+uni-ticker-actions
+    display: block
+
+    a
+        text-decoration: underline
+
+uni-ticker-filters
+    a:focus
+    a:hover
+        color: $uni-color-scale6
+
+    .active
+        font-style: italic
+
+    .filter-header
+        font-size: 0.8rem
+        color: $uni-color-scale7
+        font-weight: bolder
+        margin-left: 0.5rem
+
+    .filter-container
+        height: calc(100vh - 300px)
+        margin-left: -1rem
+        background-color: $uni-color-scale4
+        color: white
+        border-radius: pxToRem(7)
+        border: 1px solid $uni-color-scale4
+
+        .filter-summary
+            font-size: 0.8rem
+            padding: 1.5rem
+
+            ul
+                list-style-type: none
+                margin-left: 0.5rem
+
+                a
+                    cursor: pointer
+
+            h3
+                font-size: 0.8rem
+
+        .model-tree
+            float: left
+            background-color: $uni-color-scale9
+            color: black;
+            width: pxToRem(200)
+            height: calc(100% - 3rem)
+            padding: 1.5rem
+
+        .rule-setup
+            float: left
+            padding: 1.5rem
+            height: calc(100% - pxToRem(200))
+
+            .rule-list
+                background-color: $uni-color-scale7
+
+

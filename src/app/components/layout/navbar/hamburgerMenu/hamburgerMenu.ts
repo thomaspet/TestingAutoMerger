@@ -162,7 +162,8 @@ export class HamburgerMenu {
                     {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun', moduleID: UniModules.Payrollrun},
                     {componentName: 'A-Meldinger', componentUrl: '/salary/amelding', moduleID: UniModules.Amelding},
                     {componentName: 'Kategorier', componentUrl: '/salary/employeecategories', moduleID: UniModules.Categories},
-                    {componentName: 'Saldo', componentUrl: '/salary/salarybalances', moduleID: UniModules.Salarybalances}
+                    {componentName: 'Saldo', componentUrl: '/salary/salarybalances', moduleID: UniModules.Salarybalances},
+                    {componentName: 'Tilleggsopplysninger', componentUrl: '/salary/supplements', moduleID: UniModules.Supplements}
                 ]
             },
             {

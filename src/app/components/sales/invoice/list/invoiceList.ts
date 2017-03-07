@@ -270,7 +270,7 @@ export class InvoiceList implements OnInit {
                     PaymentDate: new LocalDate(Date())
                 };
 
-                this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
+                this.registerPaymentModal.confirm(rowModel.ID, title, invoiceData);
             },
 
             // TODO: Benytt denne n�r _links fungerer

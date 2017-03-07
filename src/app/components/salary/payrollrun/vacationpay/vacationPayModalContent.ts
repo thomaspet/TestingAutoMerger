@@ -27,7 +27,7 @@ export class VacationpayModalContent {
     private basicamountBusy: boolean;
     private vacationHeaderModel$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({})
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private basicamounts: BasicAmount[] = [];
     private tableConfig: UniTableConfig;
     private totalPayout: number = 0;

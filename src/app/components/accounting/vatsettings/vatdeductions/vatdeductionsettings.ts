@@ -80,8 +80,8 @@ export class VatDeductionSettings {
             .setColumnMenuVisible(false)
             .setDeleteButton(false)
             .setColumns([
-                new UniTableColumn('ValidFrom', 'Gyldig fra', UniTableColumnType.DateTime),
-                new UniTableColumn('ValidTo', 'Gyldig til', UniTableColumnType.DateTime),
+                new UniTableColumn('ValidFrom', 'Gyldig fra', UniTableColumnType.LocalDate),
+                new UniTableColumn('ValidTo', 'Gyldig til', UniTableColumnType.LocalDate),
                 new UniTableColumn('DeductionPercent', 'Fradrag prosent', UniTableColumnType.Number)
             ])
             .setDefaultRowData({

@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, Output, EventEmitter, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -54,6 +54,7 @@ export class SupplierDetails implements OnInit {
     private phoneChanged: any;
     private emailChanged: any;
     private bankAccountChanged: any;
+    private bankAccountCanceled: any;
 
     private currencyCodes: Array<CurrencyCode>;
     private dropdownData: any;
@@ -118,6 +119,12 @@ export class SupplierDetails implements OnInit {
                     err => this.errorService.handle(err)
                 );
             });
+        }
+    }
+
+    public supplierDetailsChange(changes: SimpleChanges) {
+        if (changes['Info.DefaultBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['Info.DefaultBankAccountID']);
         }
     }
 
@@ -507,11 +514,10 @@ export class SupplierDetails implements OnInit {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount, false);
-
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
-                    resolve(bankaccount);
+                this.bankAccountModal.confirm(bankaccount, false).then((res) => {
+                    if (res.status === ConfirmActions.ACCEPT) {
+                        resolve(res.model);
+                    }
                 });
             })
         };

@@ -349,9 +349,10 @@ export class TimesheetService {
         }
     }
 
-    public getFlexBalance(workRelationId: number): Observable<WorkBalance> {
+    public getFlexBalance(workRelationId: number, details: boolean = false): Observable<WorkBalance> {
         var params = new URLSearchParams();
         params.append('action', 'calc-flex-balance');
+        if (details) { params.append('details', 'true'); }
         var obs: any = this.workerService.queryWithUrlParams(params, `workrelations/${workRelationId}` )
             .map((response: any) => response.json());
         return obs;

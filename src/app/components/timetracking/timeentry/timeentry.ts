@@ -13,6 +13,7 @@ import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
@@ -47,6 +48,7 @@ export class TimeEntry {
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
 
     private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
@@ -58,7 +60,7 @@ export class TimeEntry {
                 this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
                 this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Timesaldo', counter: 0, activate: () => this.onFlexTabActivate() },
+            { name: 'flex', label: 'Timesaldo', counter: 0 },
             { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
                 this.tabs[4].activated = true; } },
             ];
@@ -144,7 +146,6 @@ export class TimeEntry {
     }
 
     private setWorkRelationById(id: number) {
-        this.toast.addToast('setWorkRelationById', ToastType.warn, 3, 'id = ' + id  );
         this.checkSave().then( (value) => {
             if (id) {
                 this.timeSheet.currentRelationId = id;
@@ -197,7 +198,7 @@ export class TimeEntry {
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
-            this.loadFlex(ts.currentRelation.ID);
+            this.loadFlex(ts.currentRelation); //.ID);
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
         }, err => this.errorService.handle(err));
@@ -251,64 +252,15 @@ export class TimeEntry {
     }
 
     public onVacationSaved() {
-        this.loadFlex(this.timeSheet.currentRelation.ID);
+        this.loadFlex(this.timeSheet.currentRelation); //.ID);
     }
 
-    private onFlexTabActivate() {
-        this.incomingBalance = undefined;
-        var isoToday = moment().format('YYYY-MM-DD');
-        this.service.getStatistics(`model=workbalance&filter=workrelationid eq ${this.timeSheet.currentRelation.ID}` +
-            ` and balancedate le '${isoToday}' and balancetype eq 11` +
-            '&select=minutes as Minutes,balancedate as BalanceDate,description as Description' +
-            '&orderby=BalanceDate DESC&top=1')
-        .subscribe( (result) => {
-            if (result && result.Data && result.Data.length > 0) {
-                this.incomingBalance = result.Data[0];
-            }
-        });
+    public onBalanceChanged(value: number) {
+        this.tabs[3].counter = value;
     }
 
-    private loadFlex(workRelationId: number) {
-        if (!workRelationId) {
-            this.tabs[3].counter = 0;
-            this.currentBalance = new WorkBalanceDto();
-        } else {
-            this.timesheetService.getFlexBalance(workRelationId).subscribe( (x: any) => {
-                this.currentBalance = x;
-
-                // Workrelation ended ?
-                if (x.WorkRelation && x.WorkRelation.EndTime) {
-                    var et = moment(x.WorkRelation.EndTime);
-                    if (et.year() > 1980) {
-                        if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
-                        if (et.year() > 1980 && et < moment(x.BalanceDate)) {
-                            x.LastDayExpected = 0;
-                            x.LastDayActual = 0;
-                            x.relationIsClosed = true;
-                        }
-                    }
-                }
-
-                x.ExpectedMinutes -= x.LastDayExpected;
-                x.ActualMinutes -= x.LastDayActual;
-                x.Minutes -= (x.LastDayActual - x.LastDayExpected);
-
-                this.currentBalance.lastDayBalance = x.LastDayActual - x.LastDayExpected;
-                this.currentBalance.lastDayBalanceHours = roundTo((x.LastDayActual - x.LastDayExpected) / 60, 1);
-                // this.currentBalance.lastDayHours = roundTo(x.LastDayActual / 60, 1);
-                // this.currentBalance.lastDayExpectedHours = roundTo(x.LastDayExpected / 60, 1);
-
-                this.currentBalance.hours = roundTo( x.Minutes / 60, 1 );
-                this.currentBalance.expectedHours = roundTo( x.ExpectedMinutes / 60, 1);
-                this.currentBalance.actualHours = roundTo( x.ActualMinutes / 60, 1);
-                this.currentBalance.offHours = roundTo( x.ValidTimeOff / 60, 1);
-
-
-                this.tabs[3].counter = this.currentBalance.hours;
-            }, (err) => {
-                console.log('Unable to fetch balance');
-            });
-        }
+    private loadFlex(rel: WorkRelation) {
+        this.regtimeBalance.refresh(rel);
     }
 
     private save(done?: any): Promise<boolean> {
@@ -335,7 +287,7 @@ export class TimeEntry {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
                 this.loadItems();
-                this.loadFlex(this.timeSheet.currentRelation.ID);
+                this.loadFlex(this.timeSheet.currentRelation); //.ID);
                 resolve(true);
             });
         });

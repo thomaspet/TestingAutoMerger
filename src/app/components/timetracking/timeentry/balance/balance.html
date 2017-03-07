@@ -1,0 +1,109 @@
+<h2>Timesaldo - <span *ngIf="currentBalance && currentBalance.WorkRelation">{{currentBalance.WorkRelation.Description}} - {{currentBalance.WorkRelation.WorkPercentage}}% stilling</span></h2>
+<article *ngIf="currentBalance && currentBalance.WorkRelation">
+
+<h3 *ngIf="currentBalance.relationIsClosed">
+    Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}}
+    <div class="bad">Stillingen har sluttdato: {{currentBalance.WorkRelation.EndTime | date: 'dd.MM.yyyy'}}</div>
+</h3>
+
+<h3 *ngIf="!currentBalance.relationIsClosed">
+    Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}} til {{currentBalance.BalanceDate | date:'dd.MM.yyyy'}}
+</h3>
+
+<section [attr.aria-busy]="busy" >
+    
+    <article [hidden]="!isDetailView">
+        <button class="normal good" (click)="onShowDetails(false)">Vis oppsummering</button>
+        <table class="flex-detail">
+            <thead>
+                <tr>
+                    <th>Uke</th>
+                    <th class="s1">Mandag</th>
+                    <th class="s1">Tirsdag</th>
+                    <th class="s1">Onsdag</th>
+                    <th class="s1">Torsdag</th>
+                    <th class="s1">Fredag</th>
+                    <th class="s1">Lørdag</th>
+                    <th class="s1">Søndag</th>
+                    <th>Sum</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let week of groupedWeeks.weeks" >
+                    <td>Uke {{week.week}} - {{week.year}}</td>
+                    <td *ngFor="let item of week?.items; let i=index" [class.today]="item.IsToday">
+                        <span class="datebox">{{item.Date | date:'dd.MMM'}}</span>
+                        <span [class.minus]="item.Sum<0">{{item.Sum | min2hours:'decimal0'}}</span>
+                    </td>
+                    <td class="sum" [class.minus]="week.sum<0">{{week.sum | min2hours:'decimal'}}</td>
+                </tr>
+                <tr>
+                    <td colspan="8">Sum</td><td class="sum" [class.minus]="groupedWeeks.sum<0">{{groupedWeeks.sum | min2hours:'decimal'}}</td>
+                </tr>
+                <tr *ngIf="currentBalance?.Previous">
+                    <td colspan="8">+ {{currentBalance?.Previous.Description}} (pr.{{currentBalance?.Previous.BalanceDate|date:'dd.MM.yy'}})</td>
+                    <td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
+                </tr>
+                <tr *ngIf="currentBalance?.Previous">
+                    <td colspan="8">Sum totalt (inklusiv i dag)</td>
+                    <td class="sum" [class.minus]="currentBalance.Minutes<0">{{currentBalance.Minutes|min2hours:'decimal'}}</td>                    
+                </tr>
+            </tbody>
+        </table>
+    </article>
+
+    <article [hidden]="isDetailView">
+        <button class="normal primary" (click)="onShowDetails(true)">Vis detaljert</button>
+        <table class="flex-table">
+            <tbody>
+                <tr>
+                    <td class="label">Registrert (tidligere)</td><td class="sum">{{currentBalance.actualHours}}</td>
+                    <td class="spacer"></td>
+                    <td class="label">Timer i dag</td><td class="sum">{{currentBalance.LastDayActual|min2hours:'decimal'}}</td>
+                    <td class="spacer"></td>
+                    <td class="label">Timer totalt</td><td class="sum">{{currentBalance.ActualMinutes|min2hours:'decimal'}}</td>
+                </tr>
+
+                <tr *ngIf="currentBalance?.Previous">
+                    <td class="label">+ {{currentBalance?.Previous.Description}} (pr.{{currentBalance?.Previous.BalanceDate|date:'dd.MM.yy'}})</td><td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0" [class.plus]="currentBalance?.Previous.Minutes>0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
+                    <td class="spacer"></td>
+                    <td class="label"></td><td class="sum"></td>                            
+                    <td class="spacer"></td>
+                    <td class="label"></td><td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0" [class.plus]="currentBalance?.Previous.Minutes>0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
+                </tr>
+
+                <tr>
+                    <td class="label">- forventet antall timer</td><td class="sum">{{currentBalance.PreExpected|min2hours:'decimal'}}</td>
+                    <td class="spacer"></td>
+                    <td class="label">- forventet i dag</td><td class="sum">{{currentBalance.LastDayExpected|min2hours:'decimal'}}</td>                            
+                    <td class="spacer"></td>
+                    <td class="label">- forventet totalt</td><td class="sum">{{currentBalance.ExpectedMinutes|min2hours:'decimal'}}</td>
+                </tr>
+
+                <tr>
+                    <td class="label grandtotal">Saldo (tidligere)</td>
+                    <td class="sum grandtotal" [class.minus]="currentBalance.hours<0" [class.plus]="currentBalance.hours>0">{{currentBalance.hours}}</td>
+                    <td class="spacer"></td>
+                    <td class="label grandtotal">Saldo for i dag</td><td class="sum grandtotal" [class.minus]="currentBalance.lastDayBalanceHours<0" [class.plus]="currentBalance.lastDayBalanceHours>0">{{currentBalance.lastDayBalanceHours}}</td>
+                    <td class="spacer"></td>
+                    <td class="label grandtotal">Saldo (inklusiv i dag)</td><td class="sum grandtotal" [class.minus]="currentBalance.Minutes<0" [class.plus]="currentBalance.Minutes>0">{{currentBalance.Minutes|min2hours:'decimal'}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 *ngIf="currentBalance && currentBalance.SumOvertime">
+            <div class="bad">Sum overtid: {{currentBalance.SumOvertime|min2hours:'decimal'}} timer</div>
+        </h3>
+        <br/>
+        <h3>Planlagt fri i perioden</h3>
+        <table class="flex-table">
+            <tbody>
+                <tr>
+                    <td class="label">Gyldig fravær/fri</td><td class="sum">{{currentBalance.ValidTimeOff|min2hours:'decimal'}}</td>
+                    <td>{{currentBalance.Description}}</td>
+                </tr>
+            </tbody>
+        </table>                
+    </article>
+
+</section>

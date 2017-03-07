@@ -5,8 +5,8 @@
     <main class="splitview_detail">
         <header class="detail_header" *ngIf="employeeList && employeeList.length">
             <section *ngIf="employeeList[selectedIndex] && agaZone" [attr.aria-busy]="busy" class="detail_header_info">
-                <h1>{{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo.Name}}
-                    <small>Virksomhet: {{employeeList[selectedIndex].SubEntity.BusinessRelationInfo.Name}}</small>
+                <h1>{{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}
+                    <small>Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}</small>
                     <small><abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}</small>
                 </h1>
                 <p *ngIf="hasError()" role="alert" class="error" [innerHTML]="generateErrorMessage()"></p>
@@ -14,10 +14,7 @@
             </section>
 
             <nav class="detail_header_navigation" *ngIf="employeeList.length">
-                <uni-context-menu 
-                    *ngIf="contextMenu"
-                    [actions]="contextMenu">
-                </uni-context-menu>
+                <uni-context-menu [actions]="contextMenu$ | async"></uni-context-menu>
                 <a (click)="goToPreviousEmployee()" class="previous">Forrige</a>
                 <a (click)="goToNextEmployee()" class="next">Neste</a>
             </nav>

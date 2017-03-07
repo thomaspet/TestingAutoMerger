@@ -1,13 +1,13 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../../services/timetracking/workerService';
-import {WorkTimeOff} from '../../../../unientities';
+import {WorkTimeOff, LocalDate} from '../../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, FieldSize, ControlTypes} from '../../utils/utils';
 import {ChangeMap} from '../../utils/changeMap';
 import {Observable} from 'rxjs/Observable';
 import {IResult} from '../../genericview/detail';
 import {ErrorService} from '../../../../services/services';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'vacation',
@@ -137,7 +137,6 @@ export class View {
     }
 
     private save(parentID: number): Observable<any> {
-
         var items = this.changeMap.getValues();
         if (items.length > 0) {
             items.forEach( item => item.WorkerID = parentID );
@@ -154,7 +153,7 @@ export class View {
 
     private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
         var obsSave = Observable.from(items).switchMap((item: any) => {
-            item.ID = item.ID < 0 ? 0 : item.ID;
+            this.validateItem(item);
             return this.workerService.saveByID<any>(item, route).map((savedItem: WorkTimeOff) => {
                 this.changeMap.remove(item._rowIndex, true);
                 item.ID = savedItem.ID;
@@ -172,6 +171,15 @@ export class View {
 
         return obsSave;
 
+    }
+
+    private validateItem(item: WorkTimeOff) {
+        var today = new Date(new LocalDate());
+        item.ID = item.ID || 0;
+        item.TimeoffType = item.TimeoffType || 2; // Vacation
+        item.FromDate = item.FromDate || today;
+        item.ToDate = item.ToDate || item.FromDate || today;
+        item.WorkRelationID = item.WorkRelationID || this.parentId;        
     }
 
     private loadList() {

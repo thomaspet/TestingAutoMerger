@@ -6,20 +6,45 @@ import {Users} from './users/users';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {Settings} from './settings';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 export const settingsRoutes: Routes = [{
     path: '',
     component: Settings,
-    children: [{
-        path: '',
-        children: [
-            { path: '', redirectTo: 'company' },
-            { path: 'company', component: CompanySettingsComponent },
-            { path: 'aga-and-subentities', component: AgaAndSubEntitySettings },
-            { path: 'webhooks', component: WebHookSettings },
-            { path: 'user', component: UserSettings },
-            { path: 'users', component: Users },
-            { path: 'altinn', component: AltinnSettings },
-        ]
-    }]
+    children: [
+        {
+            path: '',
+            redirectTo: 'company',
+            pathMatch: 'full'
+        },
+        {
+            path: 'company',
+            component: CompanySettingsComponent,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'aga-and-subentities',
+            component: AgaAndSubEntitySettings,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'webhooks',
+            component: WebHookSettings,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'user',
+            component: UserSettings,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'users',
+            component: Users
+        },
+        {
+            path: 'altinn',
+            component: AltinnSettings,
+            canDeactivate: [CanDeactivateGuard]
+        }
+    ]
 }];

@@ -805,6 +805,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         if (brInfo.DefaultBankAccount && (!brInfo.DefaultBankAccount.AccountNumber || brInfo.DefaultBankAccount.AccountNumber === '')) {
             brInfo.DefaultBankAccount = null;
+            brInfo.DefaultBankAccountID = null;
         }
 
         if (brInfo.DefaultBankAccount !== null && brInfo.DefaultBankAccount !== undefined && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
@@ -856,6 +857,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
+
+        console.log("SENT", this.employee);
 
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)

@@ -4,6 +4,7 @@ import {UniForm} from 'uniform-ng2/main';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
 import {FieldType} from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ConfirmActions} from '../../../../framework/modals/confirm';
 
 @Component({
     selector: 'register-payment-form',
@@ -12,8 +13,11 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="onSubmit($event)" (submitEvent)="onSubmit($event)"></uni-form>
             <footer>
-                <button *ngFor='let action of config.actions; let i=index' (click)='action.method()' [ngClass]='action.class' type='button'>
-                    {{action.text}}
+                <button *ngIf="config?.actions?.accept" (click)="config?.actions?.accept?.method()" class="good">
+                    {{config?.actions?.accept?.text}}
+                </button>
+                <button *ngIf="config?.actions?.cancel" (click)="config?.actions?.cancel?.method()">
+                    {{config?.actions?.cancel?.text}}
                 </button>
             </footer>
         </article>
@@ -21,7 +25,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 })
 export class RegisterPaymentForm {
     @Input()
-    public config: {};
+    public config: any = {};
 
     @ViewChild(UniForm)
     public form: UniForm;
@@ -35,6 +39,7 @@ export class RegisterPaymentForm {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
+        this.model$.next(this.config.model);
         this.fields$.next([
             {
                 ComponentLayoutID: 1,
@@ -103,58 +108,60 @@ export class RegisterPaymentForm {
 @Component({
     selector: 'register-payment-modal',
     template: `
-        <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
+        <uni-modal [type]='type' [config]='config' (close)='config?.actions?.cancel?.method()'></uni-modal>
     `,
 })
 export class RegisterPaymentModal {
     @ViewChild(UniModal)
     public modal: UniModal;
-    
-    @Output()
-    public changed: EventEmitter<any> = new EventEmitter<any>();
-    @Output()
-    public canceled: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    private modalConfig: any;
+    private config: any;
 
     private invoiceID: number;
 
     public type: Type<any> = RegisterPaymentForm;
 
     constructor() {
-        const self = this;
-        self.modalConfig = {
+        this.config = {
             title: 'Registrer betaling',
-            actions: [
-                {
+            actions: {
+                accept: {
                     text: 'Registrer betaling',
                     class: 'good',
-                    method: () => {
-                        self.modal.close();
-                        self.changed.emit({
-                           id: self.invoiceID,
-                           invoice: self.modalConfig.model 
-                        });
-                        return false;
-                    }
+                    method: () => { this.modal.close(); }
                 },
-                {
+                cancel: {
                     text: 'Avbryt',
-                    method: () => {
-                        self.modal.close();
-                        self.canceled.emit(true);
-                        return false;
-                    }
+                    method: () => { this.modal.close(); }
                 }
-            ]
+            }
         };
     }
 
-    public openModal(invoiceId: number, title: string, invoicePaymentData: InvoicePaymentData) {
-        this.invoiceID = invoiceId;
-        this.modalConfig.title = title;        
-        this.modalConfig.model = invoicePaymentData;
-        this.modal.getContent().then(cmp => cmp.model$.next(invoicePaymentData));
-        this.modal.open();
+    public confirm(invoiceId: number, title: string, invoicePaymentData: InvoicePaymentData): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.invoiceID = invoiceId;
+            this.config.title = title;
+            this.config.model = invoicePaymentData;
+
+            this.config.actions.accept = {
+                text: 'Registrer betaling',
+                class: 'good',
+                method: () => {
+                    resolve({status: ConfirmActions.ACCEPT, model: this.modal.config.model, id: this.invoiceID});
+                    this.modal.close();
+                }
+            };
+
+            this.config.actions.cancel = {
+                text: 'Avbryt',
+                method: () => {
+                    resolve({status: ConfirmActions.CANCEL});
+                    this.modal.close();
+                }
+            };
+
+            this.modal.open();
+        });
     }
 }

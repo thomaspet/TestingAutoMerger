@@ -203,7 +203,7 @@ export class PhoneModal {
 
             actions: [
                 {
-                    text: 'Lagre nummer',
+                    text: 'Ok',
                     class: 'good',
                      method: () => {
                         this.modal.close();
