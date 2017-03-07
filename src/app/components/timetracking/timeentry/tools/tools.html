@@ -30,10 +30,10 @@
                 <td>{{item.WorkItemDate | isotime:'DD.MM.YYYY'}}</td>
                 <td class="center">{{item.minstarttime | isotime:'HH:mm'}}</td>
                 <td class="center">{{item.maxendtime | isotime:'HH:mm'}}</td>
-                <td class="right">{{item.summinutes | min2hours:'short' }}</td>
-                <td class="right">{{item.sumlunchinminutes | min2hours:'short'}}</td>
-                <td class="right" *ngFor="let col of sumColumns">{{item[col.name] | min2hours:'short' }}</td>
-                <td class="left">{{item.total | min2hours:'short' }}</td>
+                <td class="right">{{item.summinutes | min2hours:'decimal0' }}</td>
+                <td class="right">{{item.sumlunchinminutes | min2hours:'decimal0'}}</td>
+                <td class="right" *ngFor="let col of sumColumns">{{item[col.name] | min2hours:'decimal0' }}</td>
+                <td class="left">{{item.total | min2hours:'decimal0' }}</td>
             </tr>
             <tr>
                 <td class="sum">Sum</td>

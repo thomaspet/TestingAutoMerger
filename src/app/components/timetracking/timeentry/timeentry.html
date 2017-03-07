@@ -11,7 +11,9 @@
     </ul>
 </aside>
 
-<section class='application regtimecontainer'>
+<section class='regtimecontainer'
+    [class.wideapplication]="workEditor.numberOfVisibleColumns > 8" 
+    [class.application]="workEditor.numberOfVisibleColumns <= 8" >
 
     <section class="regtime_tabs">
 
@@ -74,7 +76,7 @@
 
             </aside>
 
-            <article [attr.aria-busy]="busy" >
+            <!--<article [attr.aria-busy]="busy" >
 
                 <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
 
@@ -86,6 +88,7 @@
                             <th class='s1'>Slutt</th>
                             <th class='s3'>Timeart</th>
                             <th class='s1'>Lunsj</th>
+                            <th class='s1'>Timer</th>
                             <th class='s4'>Beskrivelse</th>
                             <th class='s3'>Prosjekt</th>
                             <th class='s3'>Ordrenr.</th>
@@ -94,11 +97,12 @@
                     </thead>
                     <tbody *ngIf="timeSheet.currentRelation">
                         <tr *ngFor="let item of timeSheet.items; let i=index" [class.alternateRow]="item._alternate">
-                            <td >{{item.Date | isotime:'DD.MM.YYYY'}}</td>
+                            <td>{{item.Date | isotime:'DD.MM.YYYY'}}</td>
                             <td>{{item.StartTime | isotime:'HH:mm'}}</td>
                             <td>{{item.EndTime | isotime:'HH:mm'}}</td>
                             <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
                             <td>{{item.LunchInMinutes}}</td>
+                            <td>{{item.Minutes | min2hours:'decimal0'}}</td>
                             <td>{{item.Description}}</td>
                             <td>{{item.Dimensions ? (item.Dimensions.Project ? (item.Dimensions.Project.ProjectNumber + ' - ' + item.Dimensions.Project.Name) : item.Dimensions.ProjectID) : ''}}</td>
                             <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
@@ -107,6 +111,13 @@
                     </tbody>
                 </table>
             </article>
+
+            <hr/>-->
+
+            <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="flagUnsavedChanged()"
+                (valueChanged)="flagUnsavedChanged()" >
+
+            </workeditor>
 
         </section>
 

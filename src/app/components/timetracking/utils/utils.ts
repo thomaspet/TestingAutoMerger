@@ -169,9 +169,15 @@ export function parseDate(value: any, allowMacros = true): Date {
 
     if (value === null) { return moment().toDate(); }
 
-    if (typeof value === 'object' && value.getMonth) {
-        return value;
+    if (typeof value === 'object') {
+        if (value.getMonth) {
+            return value;
+        }
+        if (value.toDate) {
+            return value.toDate();
+        }
     }
+
 
     if (allowMacros) {
         if (value === '*') { return moment().toDate(); }
