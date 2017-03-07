@@ -175,7 +175,7 @@ export class CompanySettingsComponent implements OnInit {
                 // get accountvisibilitygroups that are not specific for a companytype
                 this.accountVisibilityGroups = dataset[10].filter(x => x.CompanyTypes.length === 0);
                 this.accountYears = dataset[11];
-                this.accountYears.forEach(item => item['YearString']=item.Year.toString());
+                this.accountYears.forEach(item => item['YearString'] = item.Year.toString());
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
