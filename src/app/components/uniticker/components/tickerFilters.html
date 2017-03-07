@@ -1,0 +1,44 @@
+<section *ngIf="ticker">
+    <section>
+        <span class="filter-header">Filter</span>
+        <div class="filter-container" *ngIf="expanded">
+            <div class="model-tree">
+                Modell trestruktur her
+            </div>
+            <div class="rule-setup">
+                <h2>Finn {{ticker.Model}} hvor</h2>
+                <div class="rule-list">
+                    Her kommer kriterier som kan legges til - ala unitable søket
+                </div>
+            </div>
+        </div>
+        <div class="filter-container" *ngIf="!expanded">
+            <div class="filter-summary">
+                <h3>Viser</h3>
+                <ul>
+                    <li>{{ticker.Model}}</li>
+                </ul>
+
+                <h3>Hvor</h3>
+                <ul>
+                    <li>IKKE IMPLEMENTERT</li>
+                </ul>
+
+                <span *ngIf="filters && filters.length > 0">
+                    <h3>Ferdige filtre</h3>
+                    <nav>
+                        <ul>
+                            <li *ngFor="let filter of filters"
+                                (click)="onFilterSelected(filter)"
+                                [class.active]="filter.IsActive">
+                                <a>
+                                    {{filter.Name}}
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </span>
+            </div>
+        </div>
+    </section>
+</section>
