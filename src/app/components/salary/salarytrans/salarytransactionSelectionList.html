@@ -5,8 +5,8 @@
     <main class="splitview_detail">
         <header class="detail_header" *ngIf="employeeList && employeeList.length">
             <section *ngIf="employeeList[selectedIndex] && agaZone" [attr.aria-busy]="busy" class="detail_header_info">
-                <h1>{{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo.Name}}
-                    <small>Virksomhet: {{employeeList[selectedIndex].SubEntity.BusinessRelationInfo.Name}}</small>
+                <h1>{{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}
+                    <small>Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}</small>
                     <small><abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}</small>
                 </h1>
                 <p *ngIf="hasError()" role="alert" class="error" [innerHTML]="generateErrorMessage()"></p>
