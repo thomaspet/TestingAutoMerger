@@ -208,6 +208,11 @@ export class InvoiceDetails {
         // contextMenu
         this.contextMenuItems = [
             {
+                label: 'Skriv ut',
+                action: () => this.saveAndPrint(),
+                disabled: () => !this.invoice.ID
+            },
+            {
                 label: this.companySettings.APActivated && this.companySettings.APGuid ? 'Send EHF' : 'Aktiver og send EHF',
                 action: () => this.sendEHFAction(),
                 disabled: () => {
@@ -691,12 +696,6 @@ export class InvoiceDetails {
             });
         }
 
-        this.saveActions.push({
-            label: 'Skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: !this.invoice.ID,
-        });
-
         if (this.invoice.InvoiceType === InvoiceTypes.Invoice) {
             this.saveActions.push({
                 label: 'Krediter faktura',
@@ -883,19 +882,22 @@ export class InvoiceDetails {
         });
     }
 
-    private saveAndPrint(done) {
-        if (!this.invoice.ID && !this.invoice.StatusCode) {
-            this.invoice.StatusCode = StatusCode.Draft;
-        }
-
-        this.saveInvoice().then((invoice) => {
-            this.isDirty = false;
-            this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
-                this.previewModal.openWithId(report, invoice.ID);
-                done('Lagring fullført');
+    private saveAndPrint() {
+        if (this.isDirty) {
+            this.saveInvoice().then((invoice) => {
+                this.isDirty = false;
+                this.print(invoice.ID);
+            }).catch(error => {
+                this.errorService.handle(error);
             });
-        }).catch(error => {
-            this.handleSaveError(error, done);
+        } else {
+            this.print(this.invoice.ID);
+        }
+    }
+
+    private print(id) {
+        this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
+            this.previewModal.openWithId(report, id);
         });
     }
 
