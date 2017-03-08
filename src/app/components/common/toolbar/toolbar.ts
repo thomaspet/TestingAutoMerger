@@ -1,7 +1,10 @@
-import {IUniSaveAction} from './../../../../framework/save/save';
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import { IUniSaveAction } from './../../../../framework/save/save';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { UniStatusTrack } from '../../common/toolbar/statustrack';
+import { IContextMenuItem } from 'unitable-ng2/main';
+import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
+import { Observable } from 'rxjs/Observable';
+
 export interface IToolbarConfig {
     title?: string;
     subheads?: {
@@ -31,6 +34,16 @@ export interface ICommentsConfig {
     // more?
 }
 
+export interface IAutoCompleteConfig {
+    template: (obj: any) => string;
+    events: {
+        select: (model, value) => void;
+    };
+    source?: any[];
+    search?: (query: string) => Observable<any>;
+    valueProperty: string;
+}
+
 @Component({
     selector: 'uni-toolbar',
     templateUrl: 'app/components/common/toolbar/toolbar.html'
@@ -57,13 +70,29 @@ export class UniToolbar {
     @Input()
     public commentsConfig: ICommentsConfig;
 
+    @Input()
+    public autocompleteConfig: IAutoCompleteConfig;
+
+    @Input()
+    public autocompleteModel: any = {};
+
     @Output()
     public tagsChange: EventEmitter<any> = new EventEmitter();
 
     @Output()
     public statusSelectEvent: EventEmitter<any> = new EventEmitter();
 
-    public ngOnChanges() {
+    @Output()
+    public autocompleteReadyEvent: EventEmitter<any> = new EventEmitter();
+
+    @Output()
+    public autocompleteChangeEvent: EventEmitter<any> = new EventEmitter();
+
+    @Output()
+    public autocompleteFocusEvent: EventEmitter<any> = new EventEmitter();
+    private autocompleteField: UniFieldLayout;
+
+    public ngOnChanges(change) {
         if (this.config) {
             if (this.config.saveactions) {
                 console.warn(`
@@ -77,6 +106,13 @@ export class UniToolbar {
                     </uni-toolbar>
                 `);
             }
+        }
+
+        if (change['autocompleteConfig']) {
+            this.autocompleteField = new UniFieldLayout();
+            this.autocompleteField.Property = '';
+            this.autocompleteField.FieldType = FieldType.AUTOCOMPLETE;
+            this.autocompleteField.Options = this.autocompleteConfig;
         }
     }
 
