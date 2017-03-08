@@ -9,7 +9,7 @@ import {
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import { IToolbarConfig, IAutoCompleteConfig } from '../../common/toolbar/toolbar';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { UniView } from '../../../../framework/core/uniView';
@@ -98,6 +98,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
     ];
 
+    private employeeSearch: IAutoCompleteConfig;
+
 
     constructor(
         private route: ActivatedRoute,
@@ -130,6 +132,27 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             { name: 'Faste poster', path: 'recurring-post' },
             { name: 'Permisjon', path: 'employee-leave' }
         ];
+
+        this.employeeSearch = {
+            events: {
+                select: (model, value: Employee) => {
+                    if (value) {
+                        this.router.navigate(['salary/employees/' + value.ID]);
+                    }
+                }
+            },
+            valueProperty: 'ID',
+            template: (obj: Employee) =>
+                obj 
+                ? `${obj.EmployeeNumber} - ${obj.BusinessRelationInfo ? obj.BusinessRelationInfo.Name : ''}`
+                : '',
+            search: (query) => this.employeeService
+                .GetAll(
+                    `filter=startswith(EmployeeNumber, '${query}') `
+                    + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
+                    + `&top50`, ['BusinessrelationInfo'])
+                .debounceTime(200)
+        };
 
         this.financialYearService.getActiveFinancialYear()
             .subscribe((financialyear: FinancialYear) => {

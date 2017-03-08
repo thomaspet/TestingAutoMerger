@@ -2,6 +2,7 @@
 @import 'statustrack'
 @import 'navigation'
 @import 'tags'
+@import 'autocomplete'
 
 uni-toolbar
     box-sizing: border-box
@@ -38,12 +39,15 @@ uni-toolbar
         order: 3
         flex-basis: 100%
 
+    uni-autocomplete-input
+        order: 4
+
     h1
         display: flex
         align-items: baseline
         margin: 0 0 0 1rem
         flex-grow: 1
-        order: 4
+        order: 5
         line-height: 100%
         font-weight: 300
 
@@ -63,7 +67,7 @@ uni-toolbar
         flex-basis: fit-content
         flex-grow: 0
         align-self: flex-start
-        order: 5
+        order: 6
 
         input[type=search]
             height: 2.2rem

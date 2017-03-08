@@ -70,8 +70,12 @@ export class RegtimeTotals {
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id',
                 filter: 'dimensions.projectid gt 0'
+            },
+            { name: 'tags', label: 'Merke/etikett', pivotColName: 'Label', pivotResultColName: 'WorkItemLabel',
+                isSelected: false,
+                join: 'workitem.worktypeid eq worktype.id',
+                filter: '( not isnull(label,\'\') eq \'\' ) and workrelationid eq ' + ts.currentRelation.ID
             }
-
         ];
     }
 

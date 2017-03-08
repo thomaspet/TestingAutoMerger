@@ -36,12 +36,12 @@ export class Dimension extends Dimensions {
         Dimension.setValue(dim, value, 'Department');
     }
 
-    private static setValue(dim: any, value: any, pfx = 'Project') {
+    public static setValue(dim: any, value: any, pfx = 'Project') {
         var p1 = pfx + 'ID';
         if (!dim._createguid) { Dimension.setNewGuid(dim); }
         if (typeof value === 'object') {
             dim[p1] = value.ID;
-            dim[pfx] = { ID: value.ID, Name: value.Name};
+            dim[pfx] = value; // { ID: value.ID, Name: value.Name };
         } else {
             dim[p1] = value;
         }

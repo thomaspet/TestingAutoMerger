@@ -9,7 +9,6 @@ import {WorktypeDetailview} from './worktype/worktype';
 import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorkprofileDetailview} from './workprofile/workprofile';
 
-import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
@@ -50,11 +49,6 @@ export const timetrackingRoutes: Routes = [
     {
         path: 'timeentry',
         component: TimeEntry,
-        canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: 'regtime',
-        component: RegisterTime,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

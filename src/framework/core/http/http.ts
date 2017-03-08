@@ -258,7 +258,7 @@ export class UniHttp {
 
     private static buildUrlParams(request: IUniHttpRequest) {
         var urlParams = new URLSearchParams();
-        var filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip'];
+        var filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip', 'hateoas'];
         filters.forEach((filter: string) => {
             if (request[filter]) {
                 urlParams.append(filter, request[filter]);

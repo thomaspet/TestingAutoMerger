@@ -1,0 +1,33 @@
+uni-toolbar uni-autocomplete-input
+    width: 5rem
+    margin-left: 1rem
+    position: relative
+    top: .5rem
+
+    .autocomplete_input,
+    .autocomplete .uni-autocomplete-searchBtn
+        height: 2rem
+        background-color: transparentize($uni-color-c2a, .5)
+        border-color: transparentize($uni-color-negative, .5)
+
+    .autocomplete .uni-autocomplete-searchBtn
+        background-image: unicon-search(transparentize($uni-color-negative, .3))
+
+    .autocomplete_input:focus,
+    .autocomplete_input:focus + .uni-autocomplete-searchBtn
+        border-color: transparentize($uni-color-negative, .25)
+
+    .autocomplete_input,
+    .autocomplete_input:focus
+        font-weight: 300
+        font-size: 1.5rem
+        color: $uni-color-negative
+        border-right: pxToRem(1) solid transparentize($uni-color-negative, .8)
+
+    .autocomplete_input:focus + .uni-autocomplete-searchBtn
+        background-color: transparentize($uni-color-c2a, .25)
+        background-image: unicon-search(transparentize($uni-color-negative, .1))
+
+    .uniTable_dropdown_list
+        margin-top: 2rem
+        color: $uni-color-positive

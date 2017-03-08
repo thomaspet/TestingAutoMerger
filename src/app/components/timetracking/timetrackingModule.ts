@@ -13,7 +13,6 @@ import {timetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
-import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 import {RegtimeTools} from './timeentry/tools/tools';
 import {RegtimeTotals} from './timeentry/totals/totals';
@@ -33,6 +32,7 @@ import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {WorkEditor} from './utils/workeditor';
 @NgModule({
     imports: [
         CommonModule,
@@ -53,7 +53,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        RegisterTime,
         TimeEntry,
         RegtimeTools,
         RegtimeTotals,
@@ -70,7 +69,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WorktypeDetailview,
         WorktypeListview,
         VacationView,
-        WorkBalancesView
+        WorkBalancesView,
+        WorkEditor
     ],
     providers: [
         Lookupservice,
@@ -80,7 +80,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        RegisterTime,
         TimeEntry,
         RegtimeTools,
         RegtimeTotals,

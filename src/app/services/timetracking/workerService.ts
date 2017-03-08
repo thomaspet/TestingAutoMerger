@@ -115,6 +115,10 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET('workprofiles');
     }
 
+    public getIntervalFilterPeriod(fromDate: Date, toDate: Date): string {
+        return "date ge '" + toIso(fromDate) + "' and date le '" + toIso(toDate) + "'";
+    }
+
     public getIntervalFilter(interval: ItemInterval): string {
         switch (interval) {
             case ItemInterval.today:
@@ -122,13 +126,17 @@ export class WorkerService extends BizHttp<Worker> {
             case ItemInterval.yesterday:
                 return "date eq '" + toIso(this.getLastWorkDay()) + "'";
             case ItemInterval.thisWeek:
-                return "date ge '" + toIso(moment().startOf('week').toDate()) + "' and date le '" + toIso(moment().endOf('week').toDate()) + "'";
+                return "date ge '" + toIso(moment().startOf('week').toDate()) + "' and date le '" + 
+                toIso(moment().endOf('week').toDate()) + "'";
             case ItemInterval.thisMonth:
-                return "date ge '" + toIso(moment().startOf('month').toDate()) + "' and date le '" + toIso(moment().endOf('month').toDate()) + "'";
+                return "date ge '" + toIso(moment().startOf('month').toDate()) + "' and date le '" + 
+                toIso(moment().endOf('month').toDate()) + "'";
             case ItemInterval.lastTwoMonths:
-                return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" + toIso(moment().endOf('month').toDate()) + "'";
+                return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" + 
+                toIso(moment().endOf('month').toDate()) + "'";
             case ItemInterval.thisYear:
-                return "date ge '" + toIso(moment().startOf('year').toDate()) + "' and date le '" + toIso(moment().endOf('year').toDate()) + "'";
+                return "date ge '" + toIso(moment().startOf('year').toDate()) + "' and date le '" +
+                toIso(moment().endOf('year').toDate()) + "'";
             default:
                 return '';
         }
@@ -137,7 +145,8 @@ export class WorkerService extends BizHttp<Worker> {
     public getIntervalItems(): Array<IFilter> {
         return [
             { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
-            { name: 'yesterday', label: this.getLastWorkDayName(), isSelected: false, interval: ItemInterval.yesterday },
+            { name: 'yesterday', label: this.getLastWorkDayName(), 
+                isSelected: false, interval: ItemInterval.yesterday },
             { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
             { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
             { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
@@ -161,13 +170,13 @@ export class WorkerService extends BizHttp<Worker> {
         return capitalizeFirstLetter(moment(this.getLastWorkDay()).format('dddd'));
     }
 
-    public getWorkItems(workRelationID: number, interval: ItemInterval = ItemInterval.all): Observable<WorkItem[]> {
+    public getWorkItems(workRelationID: number, intervalFilter: string = ''): Observable<WorkItem[]> {
         var filter = 'WorkRelationID eq ' + workRelationID;
-        var intervalFilter = this.getIntervalFilter(interval);
         if (intervalFilter.length > 0) {
             filter += ' and ( ' + intervalFilter + ' )';
         }
-        return this.GET('workitems', { filter: filter, expand: 'WorkType,Dimensions,Dimensions.Project,CustomerOrder', orderBy: 'StartTime' });
+        return this.GET('workitems', { filter: filter, hateoas: 'false', 
+            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder', orderBy: 'StartTime' });
     }
 
     public getWorkItemById(id: number): Observable<WorkItem> {
@@ -182,8 +191,24 @@ export class WorkerService extends BizHttp<Worker> {
         return this.deleteByID(id, 'workitems');
     }
 
-    public queryWithUrlParams(params?: URLSearchParams, route = 'worktypes', expand?: string): Observable<WorkType[]> {
-        if (params && expand) { params.append('expand', expand); }
+    public query(route: string, ...args: any[]): Observable<any[]> {
+        var params = new URLSearchParams();
+        for (var i = 0; i < args.length; i += 2) {
+            params.append(args[i], args[i + 1]);
+        }
+        return this.queryWithUrlParams(params, route).map(response => response.json());
+    }
+
+    public queryWithUrlParams(
+        params?: URLSearchParams, route = 'worktypes', expand?: string, hateoas: boolean = false): Observable<any> {
+        if (expand) { 
+            if (params === undefined) { params = new URLSearchParams(); }
+            params.append('expand', expand); 
+        }
+        if (hateoas === false ) {
+            if (params === undefined) { params = new URLSearchParams(); }
+            params.append('hateoas', 'false');
+        }
         return this.http
             .usingBusinessDomain()
             .asGET()

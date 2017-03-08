@@ -2,13 +2,16 @@ import {Injectable} from '@angular/core';
 import {WorkItem, WorkRelation, WorkBalance} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
 import {Observable} from 'rxjs/Observable';
-import {parseTime, toIso, parseDate, ChangeMap, safeInt} from '../../components/timetracking/utils/utils';
+import {parseTime, toIso, parseDate, ChangeMap, safeInt, safeDec} from '../../components/timetracking/utils/utils';
 import {Dimension} from '../common/dimensionService';
 import {URLSearchParams} from '@angular/http';
 import * as moment from 'moment';
 
 export class ValueItem {
-    constructor(public name: string, public value: any, public rowIndex?: number, public lookupValue?: any) { }
+    public isParsed: boolean = false;
+    constructor(
+        public name: string, public value: any, public rowIndex?: number, 
+        public lookupValue?: any, public tag?: string) { }
 }
 
 export class TimeSheet {
@@ -32,12 +35,24 @@ export class TimeSheet {
 
     public loadItems(interval?: ItemInterval): Observable<number> {
         this.changeMap.clear();
-        var obs = this.ts.getWorkItems(this.currentRelation.ID, interval);
+        var filter = this.ts.workerService.getIntervalFilter(interval);
+        var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
         return <Observable<number>>obs.switchMap((items: WorkItem[]) => {
             this.analyzeItems(items);
             this.items = items;
             return Observable.of(items.length);
         });
+    }
+
+    public loadItemsByPeriod(fromDate: Date, toDate: Date): Observable<number> {
+        this.changeMap.clear();
+        var filter = this.ts.workerService.getIntervalFilterPeriod(fromDate, toDate);
+        var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
+        return <Observable<number>>obs.flatMap((items: WorkItem[]) => {
+            this.analyzeItems(items);
+            this.items = items;
+            return Observable.of(items.length);
+        });       
     }
 
     public unsavedItems(): Array<WorkItem> {
@@ -95,12 +110,12 @@ export class TimeSheet {
         var recalc = false;
         switch (change.name) {
             case 'Date':
-                change.value = toIso(parseDate(change.value), true, true);
+                change.value = change.isParsed ? change.value : toIso(parseDate(change.value), true, true);
                 recalc = true;
                 break;
             case 'EndTime':
             case 'StartTime':
-                change.value = toIso(parseTime(change.value, true, item.Date), true);
+                change.value = change.isParsed ? change.value : toIso(parseTime(change.value, true, item.Date), true);
                 recalc = true;
                 break;
             case 'Worktype':
@@ -113,23 +128,44 @@ export class TimeSheet {
                 change.value = safeInt(change.value);
                 recalc = true;
                 break;
+            case 'Minutes':
+                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                    safeDec(change.value) * 60 : safeInt(change.value);
+                break;
+            case 'MinutesToOrder':
+                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                    safeDec(change.value) * 60 : safeInt(change.value);
+                item.Invoiceable = safeInt(change.value) > 0;
+                break;
             case 'Dimensions.ProjectID':
+            case 'Dimensions.DepartmentID':
+                let dimFkName = change.name.split('.')[1];
+                let dimType = dimFkName.substr(0, dimFkName.length - 2);
                 if (change.value) {
-                    item.Dimensions = item.Dimensions || new Dimension();
-                    Dimension.setProject(item.Dimensions, change.value);
-                    item.Dimensions.Project = change.lookupValue || item.Dimensions.Project;
+                    item.Dimensions = item.Dimensions || <any>{}; // new Dimension();
+                    Dimension.setValue(item.Dimensions, change.value, dimType);
+                    item.Dimensions[dimType] = change.lookupValue || item.Dimensions[dimType];
                 } else {
                     if (item.Dimensions) {
-                        item.Dimensions.ProjectID = undefined;
-                        item.Dimensions.Project = undefined;
+                        item.Dimensions[dimFkName] = null;
+                        item.Dimensions[dimType] = undefined;
                     }
                 }
                 ignore = true;
                 break;
+            case 'CustomerOrder':
+                item.CustomerOrder = change.value;
+                item.CustomerOrderID = change && change.value && change.value.ID ? change.value.ID : 0;
+                if (!change.value) {
+                    item.CustomerOrderID = null;
+                    item.CustomerOrder = undefined;
+                    ignore = true;
+                }
+                break;
             case 'CustomerOrderID':
                 item.CustomerOrder = change.value ? change.lookupValue || item.CustomerOrder : undefined;
                 if (!change.value) {
-                    item.CustomerOrderID = undefined;
+                    item.CustomerOrderID = null;
                     ignore = true;
                 }
                 break;
@@ -268,7 +304,7 @@ export class TimesheetService {
 
     public workRelations: Array<WorkRelation>;
 
-    constructor(private workerService: WorkerService) {}
+    constructor(public workerService: WorkerService) {}
 
     public initUser(userid= 0): Observable<TimeSheet> {
         if (userid === 0) {
@@ -299,8 +335,9 @@ export class TimesheetService {
         return ts;
     }
 
-    public getWorkItems(workRelationID: number, interval?: ItemInterval): Observable<WorkItem[]> {
-        return this.workerService.getWorkItems(workRelationID, interval);
+    public getWorkItems(workRelationID: number, filter: string): Observable<WorkItem[]> {
+        //  var intervalFilter = this.workerService.getIntervalFilter(interval)
+        return this.workerService.getWorkItems(workRelationID, filter);
     }
 
     public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]):

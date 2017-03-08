@@ -124,6 +124,7 @@ export interface ICol {
     visible?: boolean;
     alignment?: string;
     lookup?: ILookupDetails;
+    tag?: string;
 }
 
 export class Column implements ICol {
@@ -131,10 +132,12 @@ export class Column implements ICol {
     public visible: boolean = true;
     public columnType: ColumnType;
     public lookup: ILookupDetails;
-    constructor(public name: string, label = '', colType = ColumnType.Text, lookup?: ILookupDetails) {
+    public tag: string;
+    constructor(public name: string, label = '', colType = ColumnType.Text, lookup?: ILookupDetails, tag?: string) {
         this.label = label || name;
         this.columnType = colType; 
         this.lookup = lookup;
+        this.tag = tag || this.tag;
     }
 }
 
