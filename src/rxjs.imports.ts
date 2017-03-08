@@ -5,6 +5,7 @@ import 'rxjs/ReplaySubject';
 import 'rxjs/Subscription';
 
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/observable/from';
