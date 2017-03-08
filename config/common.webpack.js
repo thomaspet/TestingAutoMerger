@@ -14,6 +14,7 @@ module.exports = {
             'core-js/client/shim.min',
             'reflect-metadata',
             'zone.js/dist/zone.min',
+            './src/rxjs.imports.ts',
             './src/main.ts',
         ]
     },
