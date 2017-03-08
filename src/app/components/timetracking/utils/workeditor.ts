@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
-import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
+import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService} from '../../../services/services';
 import {safeDec, filterInput} from './utils';
 import {Observable} from 'rxjs/Observable';
@@ -42,7 +42,7 @@ export class WorkEditor {
     }
 
     constructor(
-        private timesheetService: TimesheetService, 
+        private timesheetService: TimesheetService,
         private errorService: ErrorService,
         private toast: ToastService,
         private localStore: BrowserStorageService) {
@@ -52,7 +52,7 @@ export class WorkEditor {
     }
 
     public editRow(index: number) {
-        this.toast.addToast('Venter på unitable feature...', 
+        this.toast.addToast('Venter på unitable feature...',
         ToastType.good, 3, 'Klikk på nederse rad i tabellen for å begynne å registrere' );
         // this.uniTable.editRow( index );
     }
@@ -62,7 +62,7 @@ export class WorkEditor {
     }
 
     private initLookups() {
-        this.timesheetService.workerService.query('worktypes', 'select', 'id,name').subscribe( 
+        this.timesheetService.workerService.query('worktypes', 'select', 'id,name').subscribe(
             x => this.workTypes = x,
             err => this.errorService.handle(err));
     }
@@ -77,7 +77,7 @@ export class WorkEditor {
         this.visibleColumns = map.split(',');
         this.localStore.save('workeditor.columns', map, true);
         // todo: remove when unitable handles refresh without column-reset
-        this.tableConfig = this.createTableConfig(); 
+        this.tableConfig = this.createTableConfig();
     }
 
     private loadUserSettings() {
@@ -111,7 +111,7 @@ export class WorkEditor {
         if (rowIndex > 0) {
             let rowAbove: WorkItem = this.timeSheet.items[rowIndex - 1];
             let cellAboveValue = rowAbove[event.field];
-            if (change.value === cellAboveValue) {                
+            if (change.value === cellAboveValue) {
                 change.isParsed = true;
                 switch (event.field) {
                     case 'StartTime':
@@ -130,11 +130,11 @@ export class WorkEditor {
             xRow._originalIndex = rowIndex;
             return xRow;
         }
-    }    
+    }
 
     private createTableConfig(): UniTableConfig {
         var cfg = new UniTableConfig(true, false, 50);
-        cfg.columns = [ 
+        cfg.columns = [
             new UniTableColumn('ID', 'ID', UniTableColumnType.Number).setVisible(false).setWidth('3rem')
                 .setEditable(false),
             new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate).setWidth('5rem'),
@@ -149,13 +149,13 @@ export class WorkEditor {
                 .setWidth('3rem').setAlignment('center').setCls('ctoa'),
 
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setWidth('20%'),
-            
-            this.createLookupColumn('Dimensions.ProjectID', 'Prosjekt', 
+
+            this.createLookupColumn('Dimensions.ProjectID', 'Prosjekt',
                 'Dimensions.Project', x => this.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber' )
                 .setWidth('6rem'),
-            
-            this.createLookupColumn('Dimensions.DepartmentID', 'Avdeling', 
-                'Dimensions.Department', 
+
+            this.createLookupColumn('Dimensions.DepartmentID', 'Avdeling',
+                'Dimensions.Department',
                 x => this.lookupAny(x, 'departments', 'departmentnumber'), 'DepartmentNumber' )
                 .setWidth('6rem')
                 .setVisible(false),
@@ -163,21 +163,21 @@ export class WorkEditor {
             this.createHourColumn('MinutesToOrder', 'Timer til ordre').setWidth('6rem')
                 .setVisible(false).setAlignment('center'),
 
-            this.createLookupColumn('CustomerOrder', 'Ordre', 
-                'CustomerOrder', 
+            this.createLookupColumn('CustomerOrder', 'Ordre',
+                'CustomerOrder',
                 x => this.lookupAny(x, 'orders', 'ordernumber', 'customername'), 'OrderNumber', 'CustomerName' )
                 .setWidth('6rem')
                 .setVisible(false),
 
             new UniTableColumn('Label', 'Merke/etikett').setWidth('6rem').setCls('good')
                 .setVisible(false)
-                
-        ];   
+
+        ];
         cfg.deleteButton = true;
         cfg.autoAddNewRow = true;
         cfg.columnMenuVisible = true;
         cfg.allowConfigChanges = false;
-        cfg.setChangeCallback( x => this.onEditChange(x) );        
+        cfg.setChangeCallback( x => this.onEditChange(x) );
         cfg.autoScrollIfNewCellCloseToBottom = true;
 
         // cfg.defaultRowData = { Date: new LocalDate(), StartTime: new Date() };
@@ -189,8 +189,8 @@ export class WorkEditor {
             var map = this.visibleColumns;
             cfg.columns.forEach( x => x.visible = map.findIndex( y => y === x.field) >= 0 );
         }
-        
-        return cfg;     
+
+        return cfg;
     }
 
     public lookupType(txt: string) {
@@ -198,14 +198,14 @@ export class WorkEditor {
         var lcaseText = txt.toLowerCase();
         var sublist = list.filter((item: WorkType) => {
             return (item.ID.toString() === txt || item.Name.toLowerCase().indexOf(lcaseText) >= 0); } );
-        return Observable.from([sublist]);        
+        return Observable.from([sublist]);
     }
 
     public lookupAny(txt: string, route: string = 'projects', visualIdcol: string = 'id', nameCol: string = 'name') {
         var filter = '', orderBy = nameCol;
         var filtered = filterInput(txt);
         var select = 'id,' + nameCol;
-        
+
         if (filtered.length > 0) {
             let num = parseInt(filtered);
             if (num > 0) {
@@ -217,9 +217,9 @@ export class WorkEditor {
         }
         select = visualIdcol === 'id' ? select : select + ',' + visualIdcol;
 
-        return this.timesheetService.workerService.query(route, 
-            'select', select, 
-            'orderby', orderBy, 
+        return this.timesheetService.workerService.query(route,
+            'select', select,
+            'orderby', orderBy,
             'top', '50',
             'filter', filter);
     }
@@ -240,11 +240,11 @@ export class WorkEditor {
                     return fmtFunc(value);
                 }
                 return '';
-            });        
-    }    
+            });
+    }
 
     private createLookupColumn(
-        name: string, label: string, expandCol: string, lookupFn?: any, 
+        name: string, label: string, expandCol: string, lookupFn?: any,
         expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
