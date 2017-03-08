@@ -245,7 +245,7 @@ export class BillSimpleJournalEntryView {
             row.Amount = this.sumRemainder;
         }
         if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
-            row.Description = capitalizeSentence(this.current.Supplier.Info.Name, 2);
+            row.Description = this.current.Supplier.SupplierNumber + ' - ' + this.current.Supplier.Info.Name + ' - ' + 'fakturanr.' + this.current.InvoiceNumber;
         }
     }
 

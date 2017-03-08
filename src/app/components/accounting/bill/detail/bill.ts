@@ -966,7 +966,7 @@ export class BillView {
                 if (item.Amount !== current.TaxInclusiveAmount * -1) {
                     item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
                     item.Amount = current.TaxInclusiveAmount * -1;
-                    item.Description = item.Description || (lang.headliner_invoice + ' ' + current.InvoiceNumber);
+                    item.Description = item.Description || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
                     if (addToList) {
                          current.JournalEntry.DraftLines.push(item);
                     }
