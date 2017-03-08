@@ -5,7 +5,7 @@ import {ToastService, ToastType} from '../../../../framework/unitoast/toastservi
 import {ErrorService, BrowserStorageService} from '../../../services/services';
 import {safeDec, filterInput} from './utils';
 import {Observable} from 'rxjs/Observable';
-import {WorkType} from '../../../unientities';
+import {WorkType, WorkItem} from '../../../unientities';
 
 declare var moment;
 
@@ -109,9 +109,16 @@ export class WorkEditor {
 
         // Copycell ?
         if (rowIndex > 0) {
-            let cellAboveValue = this.timeSheet.items[rowIndex - 1][event.field];
+            let rowAbove: WorkItem = this.timeSheet.items[rowIndex - 1];
+            let cellAboveValue = rowAbove[event.field];
             if (change.value === cellAboveValue) {                
                 change.isParsed = true;
+                switch (event.field) {
+                    case 'StartTime':
+                        if (rowAbove.Date === newRow.Date && rowAbove.EndTime) {
+                            change.value = rowAbove.EndTime;
+                        }
+                }
             }
         }
 
@@ -131,6 +138,8 @@ export class WorkEditor {
             new UniTableColumn('ID', 'ID', UniTableColumnType.Number).setVisible(false).setWidth('3rem')
                 .setEditable(false),
             new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate).setWidth('5rem'),
+            new UniTableColumn('Day', 'Ukedag', UniTableColumnType.LocalDate).setDisplayField('Date')
+                .setWidth('3rem').setFormat('dddd').setEditable(false).setCls('good'),
             this.createTimeColumn('StartTime', 'Start').setWidth('2.6rem').setAlignment('center'),
             this.createTimeColumn('EndTime', 'Slutt').setWidth('2.6rem').setAlignment('center'),
             this.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.lookupType(x)).setWidth('6rem'),
@@ -171,6 +180,8 @@ export class WorkEditor {
         cfg.setChangeCallback( x => this.onEditChange(x) );        
         cfg.autoScrollIfNewCellCloseToBottom = true;
 
+        // cfg.defaultRowData = { Date: new LocalDate(), StartTime: new Date() };
+
         if (!this.visibleColumns) {
             this.visibleColumns = [];
             cfg.columns.filter( x => x.visible ).forEach( y => this.visibleColumns.push(y.field) );
@@ -183,7 +194,6 @@ export class WorkEditor {
     }
 
     public lookupType(txt: string) {
-        debugger;
         var list = this.workTypes;
         var lcaseText = txt.toLowerCase();
         var sublist = list.filter((item: WorkType) => {

@@ -130,10 +130,12 @@ export class TimeSheet {
                 recalc = true;
                 break;
             case 'Minutes':
-                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? safeDec(change.value) * 60 : safeInt(change.value);
+                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                    safeDec(change.value) * 60 : safeInt(change.value);
                 break;
             case 'MinutesToOrder':
-                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? safeDec(change.value) * 60 : safeInt(change.value);
+                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                    safeDec(change.value) * 60 : safeInt(change.value);
                 item.Invoiceable = safeInt(change.value) > 0;
                 break;
             case 'Dimensions.ProjectID':
