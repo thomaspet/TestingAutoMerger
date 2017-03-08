@@ -5,7 +5,7 @@
         "start": "gulp build.dev.watch",
         "start.local": "gulp build.local.watch",
         "start.custom": "gulp build.customConfig.watch",
-        "start.test" : "gulp build.test.env.watch",
+        "start.test": "gulp build.test.env.watch",
         "serve": "lite-server -c bs.config.json",
         "build": "gulp build.prod",
         "build.dev": "gulp build.dev",
@@ -42,7 +42,7 @@
         "rxjs": "5.0.0-beta.12",
         "uniform-ng2": "0.0.47",
         "unisearch-ng2": "0.0.11",
-        "unitable-ng2": "0.0.2",
+        "unitable-ng2": "0.0.4",
         "zone.js": "^0.6.21"
     },
     "devDependencies": {
