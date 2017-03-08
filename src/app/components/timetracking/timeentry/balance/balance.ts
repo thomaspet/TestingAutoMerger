@@ -3,8 +3,7 @@ import {TimesheetService} from '../../../../services/timetracking/timesheetServi
 import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../utils/utils';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'regtimebalance',

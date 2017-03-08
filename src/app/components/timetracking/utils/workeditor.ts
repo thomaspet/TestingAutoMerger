@@ -6,8 +6,7 @@ import {ErrorService, BrowserStorageService} from '../../../services/services';
 import {safeDec, filterInput} from './utils';
 import {Observable} from 'rxjs/Observable';
 import {WorkType, WorkItem} from '../../../unientities';
-
-declare var moment;
+import * as moment from 'moment';
 
 interface ICurrent {
     workerID?: number;

@@ -22,7 +22,7 @@ import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 
 
-export const childRoutes = [
+export const salaryRoutes = [
     {
         path: '',
         pathMatch: 'full',

@@ -11,7 +11,7 @@ import { SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransact
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SalaryBalanceSummary implements OnInit, OnChanges {
-    
+
     @Input() private salaryBalance: SalaryBalance;
     private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
     private description$: BehaviorSubject<string>;
@@ -40,6 +40,14 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                 : this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${this.salaryBalance.ID}`);
             transObs
+            .switchMap((response: SalaryBalanceLine[]) => {
+                let filter = [];
+                response.forEach(balanceline => {
+                    if (balanceline.SalaryTransactionID) {
+                        filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
+                    }
+                });
+
                 return !filter.length ?
                     Observable.of(response)
                     : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`)
@@ -57,7 +65,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                 .subscribe((transes: SalaryBalanceLine[]) => {
                     this.salarybalanceLinesModel$.next(transes);
                 }, err => this.errorService.handle(err));
-            
+
             let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
                 ? Observable.of(this.salaryBalance.Employee)
                 : this.employeeService
