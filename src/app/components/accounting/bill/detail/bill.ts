@@ -719,7 +719,7 @@ export class BillView {
             if (done) { done(successMsg); }
         }, (err) => {
             this.errorService.handle(err);
-            done(err);
+            done(trimLength(err, 100, true));
         });
         return true;
     }
@@ -777,13 +777,13 @@ export class BillView {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current.next(result);
-                this.setupToolbar();
+                this.setupToolbar();                
                 this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
-                this.flagActionBar(actionBar.delete, current.StatusCode <= StatusCodeSupplierInvoice.Draft);
-                this.flagActionBar(actionBar.ocr, current.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.delete, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.ocr, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
                 this.checkLockStatus();
-                this.fetchHistoryCount(current.SupplierID);
+                this.fetchHistoryCount(result.SupplierID);
                 resolve('');
             }, (err) => {
                 this.errorService.handle(err);
@@ -865,7 +865,7 @@ export class BillView {
         }, (error) => {
             var msg = error.statusText;
             if (error._body) {
-                msg = error._body;
+                msg = trimLength(error._body, 100, true);
                 this.showErrMsg(msg, true);
             } else {
                 this.userMsg(lang.save_error);
@@ -914,7 +914,7 @@ export class BillView {
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
-                    msg = error._body;
+                    msg = trimLength(error._body, 150, true);
                     this.showErrMsg(msg, true);
                 } else {
                     this.userMsg(lang.save_error);
@@ -929,6 +929,7 @@ export class BillView {
 
         var changesMade = false;
         let current = this.current.getValue();
+        current.InvoiceDate = current.InvoiceDate || new LocalDate();
         // Ensure dates are set
         if (current.JournalEntry && current.JournalEntry.DraftLines) {
             current.JournalEntry.DraftLines.forEach( x => {
@@ -1222,7 +1223,7 @@ export class BillView {
         var txt = msg;
         if (lookForMsg) {
             if (msg.indexOf('"Message":') > 0) {
-                txt = msg.substr(msg.indexOf('"Message":') + 12, 80) + '..';
+                txt = trimLength(msg.substr(msg.indexOf('"Message":') + 12, 80) + '..', 200, true);
             }
         }
         this.userMsg(msg, lang.warning, 7);
