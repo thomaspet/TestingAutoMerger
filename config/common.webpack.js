@@ -44,7 +44,6 @@ module.exports = {
         new AddAssetHtmlPlugin([{
             filepath: 'dist/vendors.bundle.js',
             hash: true,
-            // includeSourcemap: true
         }]),
 
         new HtmlWebpackPlugin({

@@ -1,8 +1,9 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../../app/appConfig';
 import {AuthService} from '../authService';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
 
 export interface IUniHttpRequest {
     baseUrl?: string;

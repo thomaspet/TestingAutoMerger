@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Http} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 
 declare const moment;

@@ -24,6 +24,7 @@ export const routes = ([
         canActivate: [AuthGuard]
     },
 
+    // Lazy loaded modules
     {
         path: 'accounting',
         loadChildren: './components/accounting/AccountingModule#AccountingModule'
@@ -47,17 +48,15 @@ export const routes = ([
     {
         path: 'bank',
         loadChildren: './components/bank/bankModule#BankModule'
-    }
-
-
+    },
 
 
     // // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
-    // {
-    //     path: '**',
-    //     redirectTo: '',
-    //     pathMatch: 'full'
-    // },
+    {
+        path: '**',
+        redirectTo: '',
+        pathMatch: 'full'
+    },
 ]);
 
 export const APP_ROUTES = RouterModule.forRoot(routes);

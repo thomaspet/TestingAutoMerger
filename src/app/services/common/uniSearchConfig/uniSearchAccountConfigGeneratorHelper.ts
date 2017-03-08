@@ -1,11 +1,12 @@
+import {Injectable} from '@angular/core';
 import {UniEntity, Account} from '../../../unientities';
-import {Observable, BehaviorSubject} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
 import {AccountService} from '../../accounting/accountService';
-import {Injectable} from '@angular/core';
 
 class CustomStatisticsResultItem {
     /* tslint:disable */
