@@ -11,9 +11,9 @@
     "build.pilot": "gulp sass && gulp app-config-pilot && webpack --config config/prod.webpack.js",
     "build.prod": "gulp sass && gulp app-config-prod && webpack --config config/prod.webpack.js",
     "start": "npm run start.dev",
-    "start.dev": "gulp app-config-dev && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
-    "start.local": "gulp app-config-local && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
-    "start.pilot": "gulp app-config-pilot && concurrently \"npm run sass.watch\" \"webpack-dev-server --config config/prod.webpack.js --inline --port 3000\" "
+    "start.dev": "gulp app-config-dev && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
+    "start.local": "gulp app-config-local && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
+    "start.pilot": "gulp app-config-pilot && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --config config/prod.webpack.js --inline --port 3000\" "
   },
   "license": "MIT",
   "dependencies": {
