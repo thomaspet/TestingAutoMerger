@@ -3,7 +3,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/m
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService} from '../../../services/services';
-import {safeDec, filterInput} from './utils';
+import {safeDec, filterInput, getDeepValue} from './utils';
 import {Observable} from 'rxjs/Observable';
 import {WorkType, WorkItem} from '../../../unientities';
 import * as moment from 'moment';
@@ -106,17 +106,22 @@ export class WorkEditor {
         var change = new ValueItem(event.field, newRow[event.field], rowIndex);
         change.tag = (event.field === 'Minutes' || event.field === 'MinutesToOrder') ? 'Hours' : null;
 
-        // Copycell ?
+        // Copycell? : todo: use CopyCell property from event when UniTable supports this
         if (rowIndex > 0) {
             let rowAbove: WorkItem = this.timeSheet.items[rowIndex - 1];
-            let cellAboveValue = rowAbove[event.field];
-            if (change.value === cellAboveValue) {
+            let cellAboveValue = getDeepValue(rowAbove, event.field);
+            if (change.value === cellAboveValue) {                
                 change.isParsed = true;
                 switch (event.field) {
                     case 'StartTime':
                         if (rowAbove.Date === newRow.Date && rowAbove.EndTime) {
                             change.value = rowAbove.EndTime;
                         }
+                    case "Dimensions.ProjectID":
+                    case "Dimensions.DepartmentID":
+                        let fn = event.field.substr(0, event.field.length - 2);
+                        change.lookupValue = getDeepValue(rowAbove, fn) || change.lookupValue; 
+                        break;
                 }
             }
         }

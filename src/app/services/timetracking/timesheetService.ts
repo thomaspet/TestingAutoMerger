@@ -108,6 +108,7 @@ export class TimeSheet {
         var item: WorkItem = this.getRowByIndex(change.rowIndex);
         var ignore = false;
         var recalc = false;
+        var reSum = false;
         switch (change.name) {
             case 'Date':
                 change.value = change.isParsed ? change.value : toIso(parseDate(change.value), true, true);
@@ -129,8 +130,13 @@ export class TimeSheet {
                 recalc = true;
                 break;
             case 'Minutes':
-                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
-                    safeDec(change.value) * 60 : safeInt(change.value);
+                if (change.value === '*') {
+                    recalc = true;
+                } else {
+                    change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                        safeDec(change.value) * 60 : safeInt(change.value);
+                    reSum = true;
+                }
                 break;
             case 'MinutesToOrder':
                 change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
@@ -179,6 +185,9 @@ export class TimeSheet {
         if (recalc) {
             this.ts.checkTimeOnItem(item);
             item.Minutes = this.calcMinutes(item);
+            
+        } 
+        if (reSum || recalc) {
             this.analyzeItems(this.items);
         }
 
@@ -272,13 +281,18 @@ export class TimeSheet {
         if (item.StartTime && item.EndTime) {
             let st = moment(item.StartTime);
             let et = moment(item.EndTime);
+            let flip = 0;
+            if (et.diff(st, 'minutes') < 0) {
+                flip = (et.minutes() + et.hours() * 60);
+                et.add((60 * 24) - flip, 'minutes');
+            }
             if (!this.hasPaidLunch()) {
                 if ((item.LunchInMinutes === undefined) && this.containsLunch(item)) {
                     item.LunchInMinutes = 30;
                     lunch = 30;
                 }
             }
-            minutes = et.diff(st, 'minutes') - lunch;
+            minutes = flip + et.diff(st, 'minutes') - lunch;
         }
         return minutes || 0;
     }
