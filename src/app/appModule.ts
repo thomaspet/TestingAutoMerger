@@ -18,6 +18,7 @@ import * as moment from 'moment';
 import 'moment/locale/nb';
 
 import {TabService} from './components/layout/navbar/tabstrip/tabService';
+import {ToastService} from '../framework/uniToast/toastService';
 
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AuthGuard} from './authGuard';
@@ -98,6 +99,7 @@ if (window.ENV === 'production') {
         AuthGuard,
         CanDeactivateGuard,
         TabService,
+        ToastService,
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}

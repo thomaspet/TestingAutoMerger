@@ -47,7 +47,6 @@ import {CommentService} from './comments/commentService';
     ],
     providers: [
         ImageUploader,
-        ToastService,
         CommentService,
         StimulsoftReportWrapper,
         Logger
