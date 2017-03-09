@@ -10,6 +10,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {settingsRoutes} from './settingsRoutes';
 import {Settings} from './settings';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {SubEntityDetails} from './agaAndSubEntitySettings/subEntityDetails';
@@ -60,6 +61,9 @@ import {CommonServicesModule} from '../../services/commonServicesModule';
     entryComponents: [
         GrantsModalContent,
         FreeamountModalContent
+    ],
+    providers: [
+        CanDeactivateGuard
     ],
     exports: [
         RouterModule,
