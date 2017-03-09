@@ -10,7 +10,7 @@ import * as moment from 'moment';
 export class ValueItem {
     public isParsed: boolean = false;
     constructor(
-        public name: string, public value: any, public rowIndex?: number, 
+        public name: string, public value: any, public rowIndex?: number,
         public lookupValue?: any, public tag?: string) { }
 }
 
@@ -37,7 +37,7 @@ export class TimeSheet {
         this.changeMap.clear();
         var filter = this.ts.workerService.getIntervalFilter(interval);
         var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
-        return <Observable<number>>obs.switchMap((items: WorkItem[]) => {
+        return <Observable<number>>obs.mergeMap((items: WorkItem[]) => {
             this.analyzeItems(items);
             this.items = items;
             return Observable.of(items.length);
@@ -48,11 +48,11 @@ export class TimeSheet {
         this.changeMap.clear();
         var filter = this.ts.workerService.getIntervalFilterPeriod(fromDate, toDate);
         var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
-        return <Observable<number>>obs.flatMap((items: WorkItem[]) => {
+        return <Observable<number>>obs.mergeMap((items: WorkItem[]) => {
             this.analyzeItems(items);
             this.items = items;
             return Observable.of(items.length);
-        });       
+        });
     }
 
     public unsavedItems(): Array<WorkItem> {
@@ -133,13 +133,13 @@ export class TimeSheet {
                 if (change.value === '*') {
                     recalc = true;
                 } else {
-                    change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                    change.value = change.isParsed ? change.value : (change.tag === 'Hours') ?
                         safeDec(change.value) * 60 : safeInt(change.value);
                     reSum = true;
                 }
                 break;
             case 'MinutesToOrder':
-                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ? 
+                change.value = change.isParsed ? change.value : (change.tag === 'Hours') ?
                     safeDec(change.value) * 60 : safeInt(change.value);
                 item.Invoiceable = safeInt(change.value) > 0;
                 break;
@@ -185,8 +185,8 @@ export class TimeSheet {
         if (recalc) {
             this.ts.checkTimeOnItem(item);
             item.Minutes = this.calcMinutes(item);
-            
-        } 
+
+        }
         if (reSum || recalc) {
             this.analyzeItems(this.items);
         }
@@ -323,9 +323,9 @@ export class TimesheetService {
     public initUser(userid= 0): Observable<TimeSheet> {
         if (userid === 0) {
             var p = this.workerService.getCurrentUserId();
-            return Observable.fromPromise(p).switchMap((id: number) => this.initUser(id));
+            return Observable.fromPromise(p).mergeMap((id: number) => this.initUser(id));
         } else {
-           return this.workerService.getRelationsForUser(userid).switchMap((list: WorkRelation[]) => {
+           return this.workerService.getRelationsForUser(userid).mergeMap((list: WorkRelation[]) => {
                var first = list[0];
                var ts = this.newTimeSheet(first);
                this.workRelations = list;
@@ -335,7 +335,7 @@ export class TimesheetService {
     }
 
     public initWorker(workerId: number): Observable<TimeSheet> {
-        return this.workerService.getRelationsForWorker(workerId).switchMap((list: WorkRelation[]) => {
+        return this.workerService.getRelationsForWorker(workerId).mergeMap((list: WorkRelation[]) => {
                var first = list[0];
                var ts = this.newTimeSheet(first);
                this.workRelations = list;
@@ -357,7 +357,7 @@ export class TimesheetService {
     public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]):
         Observable<{ original: WorkItem, saved: WorkItem }> {
 
-        var obsSave = Observable.from(items).switchMap((item: WorkItem) => {
+        var obsSave = Observable.from(items).mergeMap((item: WorkItem) => {
             var originalId = item.ID;
             item.ID = item.ID < 0 ? 0 : item.ID;
             this.preSaveWorkItem(item);
@@ -368,7 +368,7 @@ export class TimesheetService {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).switchMap( (item: WorkItem) => {
+            let obsDel = Observable.from(deletables).mergeMap( (item: WorkItem) => {
                 return this.workerService.deleteWorkitem(item.ID).map((event) => {
                     return { original: item, saved: null };
                 });
