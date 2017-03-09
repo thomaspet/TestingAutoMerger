@@ -2,21 +2,27 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
-import {VatType, Account} from '../../../unientities';
+import {
+    VatType,
+    Account,
+    CompanySettings
+} from '../../../unientities';
 import {
     ProductService,
     VatTypeService,
     AccountService,
     ProjectService,
     DepartmentService,
-    ErrorService
+    ErrorService,
+    CompanySettingsService
 } from '../../../services/services';
 
 
 @Component({
     selector: 'uni-tradeitem-table',
     template: `
-        <uni-table [resource]="tableData"
+        <uni-table *ngIf="settings"
+                   [resource]="tableData"
                    [config]="tableConfig"
                    (rowDeleted)="onRowDeleted($event.rowModel)">
         </uni-table>
@@ -36,6 +42,7 @@ export class TradeItemTable {
     private accounts: Account[] = [];
     private tableConfig: UniTableConfig;
     private tableData: any[];
+    private settings: CompanySettings;
 
     constructor(
         private productService: ProductService,
@@ -44,8 +51,13 @@ export class TradeItemTable {
         private tradeItemHelper: TradeItemHelper,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
-        private errorService: ErrorService
-    ) {}
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService
+    ) {
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.settings = settings;
+        });
+    }
 
     public ngOnInit() {
         this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe(
@@ -90,9 +102,21 @@ export class TradeItemTable {
             });
 
         const itemTextCol = new UniTableColumn('ItemText', 'Tekst').setWidth('20%');
-        const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
+        const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
+                .setNumberFormat({
+                    thousandSeparator: ' ',
+                    decimalSeparator: ',',
+                    decimalLength: this.settings.ShowNumberOfDecimals,
+                    postfix: undefined
+                });
         const unitCol = new UniTableColumn('Unit', 'Enhet');
-        const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris', UniTableColumnType.Money);
+        const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris', UniTableColumnType.Money)
+                .setNumberFormat({
+                    thousandSeparator: ' ',
+                    decimalSeparator: ',',
+                    decimalLength: this.settings.ShowNumberOfDecimals,
+                    postfix: undefined
+                });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')

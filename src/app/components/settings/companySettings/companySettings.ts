@@ -110,6 +110,20 @@ export class CompanySettingsComponent implements OnInit {
         }
     ];
 
+    private roundingTypes: {ID: number, Label: string}[] = [
+        {ID: 0, Label: 'Opp'},
+        {ID: 1, Label: 'Ned'},
+        {ID: 2, Label: 'Hele'},
+        {ID: 3, Label: 'Halve'}
+    ];
+
+    private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
+        {Decimals: 0, Label: 'Ingen desimaler'},
+        {Decimals: 2, Label: '2 desimaler'},
+        {Decimals: 3, Label: '3 desimaler'},
+        {Decimals: 4, Label: '4 desimaler'}
+    ];
+
     constructor(
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
@@ -1310,9 +1324,43 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Bankkontoer',
                 hasLineBreak: false,
                 Validations: []
+            }, // PaymentRounding
+            {
+                Property: 'ShowNumberOfDecimals',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Antall desimaler i visning av antall og pris',
+                Section: 3,
+                Sectionheader: 'Avrunding',
+                Options: {
+                    source: this.roundingNumberOfDecimals,
+                    valueProperty: 'Decimals',
+                    displayProperty: 'Label'
+                }
+            },
+            {
+                Property: 'RoundingNumberOfDecimals',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Antall desimaler ved avrunding',
+                Section: 3,
+                Sectionheader: 'Avrunding',
+                Options: {
+                    source: this.roundingNumberOfDecimals,
+                    valueProperty: 'Decimals',
+                    displayProperty: 'Label'
+                }
+            },
+            {
+                Property: 'RoundingType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avrundingstype',
+                Section: 3,
+                Sectionheader: 'Avrunding',
+                Options: {
+                    source: this.roundingTypes,
+                    valueProperty: 'ID',
+                    displayProperty: 'Label'
+                }
             }
-
-
         ]);
 
         /*
