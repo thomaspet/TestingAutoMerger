@@ -40,7 +40,7 @@ import {ReportServicesModule} from './services/reportServicesModule';
 import {SalaryServicesModule} from './services/salaryServicesModule';
 import {TimeTrackingServicesModule} from './services/timetrackingServicesModule';
 import {SalesServicesModule} from './services/salesServicesModule';
-
+import {CanDeactivateGuard} from './canDeactivateGuard';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -96,6 +96,7 @@ if (window.ENV === 'production') {
     bootstrap: [App],
     providers: [
         AuthGuard,
+        CanDeactivateGuard,
         TabService,
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},

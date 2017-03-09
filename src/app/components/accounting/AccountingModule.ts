@@ -61,8 +61,6 @@ import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 
 
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
-
 // REVISIT: Must be refactored! This causes duplicate code when lazy loading
 import {TimetrackingModule} from '../timetracking/timetrackingModule';
 // import {SettingsModule} from '../settings/settingsModule';
@@ -142,9 +140,6 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         HistoricVatReportTable,
         CreateCorrectedVatReportForm,
         AccountDetailsReport
-    ],
-    providers: [
-        CanDeactivateGuard
     ],
     exports: [
         AccountSettings,
