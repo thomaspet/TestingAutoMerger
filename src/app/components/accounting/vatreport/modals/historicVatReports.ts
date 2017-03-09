@@ -2,7 +2,7 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {VatReport} from '../../../../../app/unientities';
-import {PeriodDateFormatPipe} from '../../../../pipes/PeriodDateFormatPipe';
+import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Observable';

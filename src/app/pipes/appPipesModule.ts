@@ -1,11 +1,11 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {PeriodDateFormatPipe} from './PeriodDateFormatPipe';
-import {UniAccountNumberPipe} from './UniAccountNumberPipe';
-import {UniCurrencyPipe} from './UniCurrencyPipe';
-import {UniDateFormatPipe} from './UniDateFormatPipe';
+import {PeriodDateFormatPipe} from './periodDateFormatPipe';
+import {UniAccountNumberPipe} from './uniAccountNumberPipe';
+import {UniCurrencyPipe} from './uniCurrencyPipe';
+import {UniDateFormatPipe} from './uniDateFormatPipe';
 import {UniSafeHtml} from './safeHTML';
-import {UniNumberFormatPipe} from './UniNumberFormatPipe';
+import {UniNumberFormatPipe} from './uniNumberFormatPipe';
 
 @NgModule({
     imports: [

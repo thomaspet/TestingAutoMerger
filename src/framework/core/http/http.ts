@@ -83,35 +83,30 @@ export class UniHttp {
     public usingMetadataDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.METADATA;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
     public usingBusinessDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
     public usingRootDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.ROOT;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
     public usingInitDomain() {
         this.baseUrl = AppConfig.BASE_URL_INIT;
         this.apiDomain = AppConfig.API_DOMAINS.INIT;
-        this.baseUrl = AppConfig.BASE_URL_INIT;
         return this;
     }
 
     public usingStatisticsDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.STATISTICS;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 

@@ -518,6 +518,8 @@ export class CustomerInvoice extends UniEntity {
     public InvoiceType: number;
     public JournalEntryID: number;
     public OurReference: string;
+    public PayableRoundingAmount: number;
+    public PayableRoundingCurrencyAmount: number;
     public Payment: string;
     public PaymentDueDate: LocalDate;
     public PaymentID: string;
@@ -637,6 +639,8 @@ export class CustomerOrder extends UniEntity {
     public OrderNumber: number;
     public OrderNumberSeriesID: number;
     public OurReference: string;
+    public PayableRoundingAmount: number;
+    public PayableRoundingCurrencyAmount: number;
     public PaymentTerm: string;
     public PrintStatus: number;
     public Requisition: string;
@@ -745,6 +749,8 @@ export class CustomerQuote extends UniEntity {
     public InvoicePostalCode: string;
     public InvoiceReceiverName: string;
     public OurReference: string;
+    public PayableRoundingAmount: number;
+    public PayableRoundingCurrencyAmount: number;
     public PaymentTerm: string;
     public PrintStatus: number;
     public QuoteDate: LocalDate;
@@ -915,10 +921,10 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -1235,7 +1241,6 @@ export class SalaryBalance extends UniEntity {
     public static RelativeUrl = 'salarybalances';
     public static EntityType = 'SalaryBalance';
 
-    public Balance: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreatePayment: boolean;
@@ -1248,16 +1253,16 @@ export class SalaryBalance extends UniEntity {
     public InstalmentType: SalBalType;
     public KID: string;
     public Name: string;
-    public Source: string;
+    public Source: SalBalSource;
     public StatusCode: number;
     public SupplierID: number;
     public ToDate: Date;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public WagetypeID: number;
+    public WageTypeNumber: number;
     public Employee: Employee;
     public Supplier: Supplier;
-    public SalaryBalanceLines: Array<SalaryBalanceLine>;
+    public Transactions: Array<SalaryBalanceLine>;
     public CustomFields: any;
 }
 
@@ -1865,8 +1870,11 @@ export class CompanySettings extends UniEntity {
     public PaymentBankIdentification: string;
     public PeriodSeriesAccountID: number;
     public PeriodSeriesVatID: number;
+    public RoundingNumberOfDecimals: number;
+    public RoundingType: RoundingType;
     public SalaryBankAccountID: number;
     public SettlementVatAccountID: number;
+    public ShowNumberOfDecimals: number;
     public StatusCode: number;
     public SupplierAccountID: number;
     public TaxBankAccountID: number;
@@ -2782,6 +2790,7 @@ export class Translatable extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Value: string;
+    public Translations: Array<Translation>;
     public CustomFields: any;
 }
 
@@ -3308,7 +3317,7 @@ export class ReportDefinitionParameter extends UniEntity {
 
 
 export class Model extends UniEntity {
-    public static RelativeUrl = '';
+    public static RelativeUrl = 'models';
     public static EntityType = 'Model';
 
     public Admin: boolean;
@@ -3914,6 +3923,8 @@ export class SupplierInvoice extends UniEntity {
     public InvoiceType: number;
     public JournalEntryID: number;
     public OurReference: string;
+    public PayableRoundingAmount: number;
+    public PayableRoundingCurrencyAmount: number;
     public Payment: string;
     public PaymentDueDate: LocalDate;
     public PaymentID: string;
@@ -4127,6 +4138,7 @@ export class BankAccount extends UniEntity {
     public Bank: Bank;
     public Account: Account;
     public BusinessRelation: BusinessRelation;
+    public CompanySettings: CompanySettings;
     public CustomFields: any;
 }
 
@@ -4435,9 +4447,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -4525,7 +4537,10 @@ export class VatCalculationSummary extends UniEntity {
 
 export class InvoicePaymentData extends UniEntity {
     public Amount: number;
+    public AmountCurrency: number;
+    public BankChargeAmount: number;
     public CurrencyCodeID: number;
+    public CurrencyExchangeRate: number;
     public PaymentDate: LocalDate;
 }
 
@@ -5059,6 +5074,14 @@ export enum SalBalType{
 }
 
 
+export enum SalBalSource{
+    AdvanceRoutine = 1,
+    NegativeSalary = 2,
+    Loan = 3,
+    Other = 4,
+}
+
+
 export enum Valuetype{
     IsString = 1,
     IsDate = 2,
@@ -5215,6 +5238,7 @@ export enum StdSystemType{
     HolidayPayBasisLastYear = 2,
     TableTaxDeduction = 4,
     Holidaypay = 5,
+    AutoAdvance = 6,
 }
 
 
@@ -5239,6 +5263,14 @@ export enum PaymentInterval{
     Monthly = 1,
     Pr14Days = 2,
     Weekly = 3,
+}
+
+
+export enum RoundingType{
+    Up = 0,
+    Down = 1,
+    Integer = 2,
+    Half = 3,
 }
 
 

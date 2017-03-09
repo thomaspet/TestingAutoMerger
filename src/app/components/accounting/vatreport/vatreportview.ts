@@ -16,7 +16,7 @@ import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthentic
 import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
-import {PeriodDateFormatPipe} from '../../../pipes/PeriodDateFormatPipe';
+import {PeriodDateFormatPipe} from '../../../pipes/periodDateFormatPipe';
 import {
     ErrorService,
     VatReportService,

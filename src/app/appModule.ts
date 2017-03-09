@@ -33,6 +33,7 @@ import {BankModule} from './components/bank/bankModule';
 import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
 import {UniTickerModule} from './components/uniticker/uniTickerModule';
+import {TranslationsModule} from './components/translations/module';
 
 // TODO: REVISIT SERVICES (we probably dont need all to be singletons)
 import {AccountingServicesModule} from './services/accountingServicesModule';
@@ -88,7 +89,8 @@ if (window.ENV === 'production') {
         InitModule,
         AdminModule,
         CurrencyModule,
-        UniTickerModule
+        UniTickerModule,
+        TranslationsModule
     ],
     declarations: [
         App,

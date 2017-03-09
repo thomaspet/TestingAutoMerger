@@ -42,6 +42,14 @@ ngPackageNames.forEach(function(element) {
     };
 });
 
+var ngRxPackages = [
+    'core', 'store', 'effects'
+];
+
+ngRxPackages.forEach(function(element) {
+    packages['@ngrx/' + element] = { main: 'bundles/' + element + '.min.umd.js', defaultExtension: 'js', format: 'cjs' };
+});
+
 // Cache busting for the systemjs lazy loaded modules
 var systemLocate = System.locate;
 System.locate = function (load) {

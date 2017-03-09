@@ -1,4 +1,4 @@
-import {Injectable, EventEmitter} from '@angular/core';
+import {Injectable, EventEmitter, TRANSLATIONS} from '@angular/core';
 import {IUniTab} from './tabStrip';
 
 // The enum is numbered based on its parent app:
@@ -56,6 +56,7 @@ export enum UniModules {
     Departments     = 701,
 
     Jobs            = 800,
+    Translations    = 801,
 
     PaymentList     = 900,
 
