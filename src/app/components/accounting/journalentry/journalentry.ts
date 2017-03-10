@@ -3,7 +3,7 @@ import {UniTabs, IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'journal-entry',
-    templateUrl: 'app/components/accounting/journalentry/journalentry.html'
+    templateUrl: './journalentry.html'
 })
 export class JournalEntry {
     private childRoutes: IUniTabsRoute[];

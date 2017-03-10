@@ -2,7 +2,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StaticRegister} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Injectable} from '@angular/core';
-import {ErrorService} from '../common/ErrorService';
+import {ErrorService} from '../common/errorService';
 
 @Injectable()
 export class StaticRegisterService extends BizHttp<StaticRegister> {

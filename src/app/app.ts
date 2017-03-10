@@ -1,23 +1,20 @@
-/// <reference path="../../typings/main.d.ts" />
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ViewEncapsulation} from '@angular/core';
 import {AuthService} from '../framework/core/authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
 import {PushMapper} from './models/PushMapper';
-import {AppConfig} from './AppConfig';
+import {AppConfig} from './appConfig';
 import {
     UserService,
     ErrorService,
     StaticRegisterService
 } from './services/services';
 
-// declare const OneSignal;
-declare const window;
 
 @Component({
     selector: 'uni-app',
-    templateUrl: 'app/app.html'
+    templateUrl: './app.html',
 })
 export class App {
     private isAuthenticated: boolean = false;
@@ -32,7 +29,6 @@ export class App {
         private errorService: ErrorService,
         private userService: UserService
     ) {
-
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
               event.preventDefault();
@@ -55,6 +51,7 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
+
     }
 
     // private setOneSignal() {

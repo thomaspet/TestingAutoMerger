@@ -1,14 +1,12 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
-import {routes as SalesRoutes} from './salesRoutes';
+import {salesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
 import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
@@ -17,16 +15,15 @@ import {ReportsModule} from '../reports/reportsModule';
 
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
-import {TradeItemHelper} from './salesHelper/TradeItemHelper';
+import {TradeItemHelper} from './salesHelper/tradeItemHelper';
+import {OrderItemList} from './order/details/orderItemList';
 import {OrderList} from './order/list/orderList';
 import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
 import {QuoteDetails} from './quote/details/quoteDetails';
 import {QuoteList} from './quote/list/quoteList';
-import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
-import {SupplierDetails} from './supplier/details/supplierDetails';
-import {SupplierList} from './supplier/list/supplierList';
+
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
@@ -34,7 +31,7 @@ import {InvoiceDetails} from './invoice/details/invoice';
 import {InvoiceReminders} from './invoice/reminders/reminders';
 import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
-import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/ReminderConfirmModal';
+import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminderConfirmModal';
 import {ReminderSendingModal, ReminderSendingModalContent} from './reminder/sending/reminderSendingModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 import {DebtCollection} from './reminder/debtCollection/debtCollection';
@@ -44,16 +41,18 @@ import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
-import {TradeItemTable} from './common/tradeitemTable';
-import {UniSearchModule} from 'unisearch-ng2/main';
+import {TradeItemTable} from './common/tradeItemTable';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {UniSearchModule} from 'unisearch-ng2';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
+
+        RouterModule.forChild(salesRoutes),
 
         // Unitable
         UniTableModule,
@@ -67,12 +66,9 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
         ReportsModule,
 
         // Route module
-        SalesRoutes,
         UniSearchModule
     ],
     declarations: [
@@ -99,10 +95,6 @@ import {UniSearchModule} from 'unisearch-ng2/main';
 
         QuoteDetails,
         QuoteList,
-        SupplierDetailsModal,
-        SupplierDetails,
-        SupplierList,
-
         Reminder,
         ReminderList,
         ReminderConfirmModal,
@@ -123,7 +115,8 @@ import {UniSearchModule} from 'unisearch-ng2/main';
     ],
     providers: [
         TradeItemHelper,
-        TofHelper
+        TofHelper,
+        CanDeactivateGuard
     ],
     exports: [
         UniSales,
@@ -140,9 +133,6 @@ import {UniSearchModule} from 'unisearch-ng2/main';
         OrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
-        SupplierDetailsModal,
-        SupplierDetails,
-        SupplierList,
         Reminder,
         ReminderList,
         ReminderSending,

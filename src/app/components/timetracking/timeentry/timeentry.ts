@@ -2,23 +2,25 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerservice';
+import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch,
     ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength, roundTo} from '../utils/utils';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
+import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
+import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
-import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {WorkEditor} from '../utils/workeditor';
+import * as moment from 'moment';
 
-declare var moment;
+
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
@@ -34,7 +36,7 @@ interface ITab {
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/timeentry/timeentry.html'
+    templateUrl: './timeentry.html'
 })
 export class TimeEntry {
     public busy: boolean = true;
@@ -50,6 +52,7 @@ export class TimeEntry {
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
+    @ViewChild(WorkEditor) private workEditor: WorkEditor;
 
     private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
@@ -80,6 +83,7 @@ export class TimeEntry {
             new Column('EndTime', '', ColumnType.Time),
             new Column('WorkTypeID', 'Timeart', ColumnType.Integer, { route: 'worktypes' }),
             new Column('LunchInMinutes', 'Lunsj', ColumnType.Integer),
+            new Column('Minutes', 'Timer', ColumnType.Integer, undefined, 'Hours'),
             new Column('Description'),
             new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer,
                 { route: 'projects', select: 'ProjectNumber,Name', visualKey: 'ProjectNumber' }),
@@ -113,7 +117,6 @@ export class TimeEntry {
     ) {
 
         this.filters = service.getIntervalItems();
-
         this.initTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -169,7 +172,8 @@ export class TimeEntry {
     }
 
     public onAddNew() {
-        this.editable.editRow(this.timeSheet.items.length - 1);
+        this.workEditor.editRow(this.timeSheet.items.length - 1);
+        // this.editable.editRow(this.timeSheet.items.length - 1);
     }
 
     public reset() {
@@ -200,7 +204,7 @@ export class TimeEntry {
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
-            this.loadFlex(ts.currentRelation); //.ID);
+            this.loadFlex(ts.currentRelation);
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
         }, err => this.errorService.handle(err));
@@ -244,7 +248,7 @@ export class TimeEntry {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
                 if (this.editable) { this.editable.closeEditor(); }
-                this.timeSheet.ensureRowCount(itemCount + 1);
+                // this.timeSheet.ensureRowCount(itemCount + 1);
                 this.flagUnsavedChanged(true);
                 this.busy = false;
             }, err => this.errorService.handle(err));
@@ -254,7 +258,7 @@ export class TimeEntry {
     }
 
     public onVacationSaved() {
-        this.loadFlex(this.timeSheet.currentRelation); //.ID);
+        this.loadFlex(this.timeSheet.currentRelation);
     }
 
     public onBalanceChanged(value: number) {
@@ -289,7 +293,7 @@ export class TimeEntry {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
                 this.loadItems();
-                this.loadFlex(this.timeSheet.currentRelation); //.ID);
+                this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
             });
         });
@@ -316,6 +320,7 @@ export class TimeEntry {
                 list.push(row);
             }
         });
+
         exportToFile(arrayToCsv(list), `Timeentries_${this.userName}.csv`);
         done('Fil eksportert');
     }
@@ -434,16 +439,15 @@ export class TimeEntry {
             event.userTypedValue = false;
             this.updateChange(event);
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3,
-                `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+            const message = `Ugyldig ${event.columnDefinition.label}: ${event.value}`
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, message);
         }
     }
 
     private updateChange(event: IChangeEvent) {
-
         // Update value via timesheet
         if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name,
-            event.value, event.row, event.lookupValue))) {
+            event.value, event.row, event.lookupValue, event.columnDefinition.tag))) {
             event.cancel = true;
             return;
         }

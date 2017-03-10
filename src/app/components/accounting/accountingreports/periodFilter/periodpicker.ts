@@ -1,12 +1,10 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {PeriodFilter, PeriodFilterHelper} from './periodFilter';
-
-declare const moment;
-declare const _; // lodash
+declare var _;
 
 @Component({
     selector: 'period-picker',
-    templateUrl: 'app/components/accounting/accountingreports/periodFilter/periodpicker.html',
+    templateUrl: './periodpicker.html',
     host: {
         '(document:click)': 'checkForClickOutside($event)'
     },

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Account, VatType, AccountGroup} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {StatisticsService} from '../common/StatisticsService';
+import {StatisticsService} from '../common/statisticsService';
 
 @Injectable()
 export class AccountService extends BizHttp<Account> {

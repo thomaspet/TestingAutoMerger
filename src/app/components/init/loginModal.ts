@@ -7,7 +7,7 @@ import {AuthService} from '../../../framework/core/authService';
     template: `
         <dialog class="uniModal" *ngIf="isOpen">
             <article class="modal-content authentication-component">
-                <img src="../assets/uni-logo.png" alt="Uni Economy logo">
+                <img src="assets/uni-logo.png" alt="Uni Economy logo">
 
                 <form (submit)="authenticate()">
                     <label>

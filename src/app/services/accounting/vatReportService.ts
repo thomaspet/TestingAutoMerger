@@ -11,7 +11,7 @@ import {
     AltinnSigning
 } from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 import {Subject} from 'rxjs/Subject';
 

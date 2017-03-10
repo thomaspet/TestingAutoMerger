@@ -1,12 +1,11 @@
 import {Component, ViewChild, OnChanges, Input, Output, EventEmitter} from '@angular/core';
 import {StatisticsService} from '../../../services/services';
 import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
-
-declare const _; // lodash
+declare var _;
 
 @Component({
     selector: 'dynamic-report-relation-node',
-    templateUrl: 'app/components/uniquery/details/relationNode.html'
+    templateUrl: './relationNode.html'
 })
 export class RelationNode implements OnChanges {
     @Input() private relation: any;

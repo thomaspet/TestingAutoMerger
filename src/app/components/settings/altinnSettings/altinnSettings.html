@@ -4,6 +4,7 @@
             [config]="formConfig$"
             [fields]="fields$"
             [model]="altinn$"
+            (changeEvent)="change($event)"
     >
     </uni-form>
     <a href="https://www.altinn.no/ui/profile" target="_blank"> Har du ikke Id eller er usikker på om systemet er satt opp mot Altinn, trykk her </a>
@@ -11,3 +12,4 @@
     <section class="warn"> {{loginErr}} </section>
 </article>
 <uni-save [actions]="saveactions"></uni-save>
+<uni-confirm-modal></uni-confirm-modal>

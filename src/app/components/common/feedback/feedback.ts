@@ -2,14 +2,14 @@ import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/co
 import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
-import {AppConfig} from '../../../AppConfig';
+import {AppConfig} from '../../../appConfig';
 import {ErrorService} from '../../../services/services';
-import moment from 'moment';
+import * as moment from 'moment';
 declare var APP_VERSION;
 
 @Component({
     selector: 'uni-feedback',
-    templateUrl: 'app/components/common/feedback/feedback.html',
+    templateUrl: './feedback.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniFeedback {

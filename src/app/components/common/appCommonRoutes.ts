@@ -1,9 +1,11 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from '../../authGuard';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniDimensions} from './dimensions/UniDimensions';
 import {routes as DimensionRoutes} from './dimensions/dimensionsRoutes';
-
+import {SupplierDetails} from './supplier/details/supplierDetails';
+import {SupplierList} from './supplier/list/supplierList';
 
 const commonRoutes: Routes = [
     {
@@ -15,7 +17,15 @@ const commonRoutes: Routes = [
             canActivateChild: [AuthGuard],
             children: DimensionRoutes
         }],
-
+    },
+    {
+        path: 'suppliers',
+        component: SupplierList
+    },
+    {
+        path: 'suppliers/:id',
+        component: SupplierDetails,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

@@ -1,4 +1,4 @@
 <article *ngIf="salaryBalance">
     <small *ngIf="showDescriptionText">{{ description$ | async }}</small>
-    <uni-table [resource]="salaryTransactionsModel$ | async" [config]="tableConfig"></uni-table>
+    <uni-table [resource]="salarybalanceLinesModel$ | async" [config]="tableConfig"></uni-table>
 </article>

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import moment from 'moment';
+import * as moment from 'moment';
 
 export interface IUniSaveAction {
     label: string;

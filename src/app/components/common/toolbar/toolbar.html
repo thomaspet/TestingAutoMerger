@@ -12,6 +12,14 @@
               [entityID]="commentsConfig.entityID">
 </uni-comments>
 
+<uni-autocomplete-input *ngIf="autocompleteField"
+    [field]="autocompleteField"
+    [model]="autocompleteModel"
+    (readyEvent)="autocompleteReadyEvent"
+    (changeEvent)="autocompleteChangeEvent"
+    (focusEvent)="autocompleteFocusEvent">
+</uni-autocomplete-input>
+
 <h1>{{config?.title}}
     <small *ngFor="let subhead of config?.subheads"
         [class]="subhead.classname || ''"

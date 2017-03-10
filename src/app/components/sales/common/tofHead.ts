@@ -1,11 +1,11 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {CurrencyCode} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
+declare var _;
 
-declare const _;
 @Component({
     selector: 'uni-tof-head',
-    templateUrl: 'app/components/sales/common/tofHead.html'
+    templateUrl: './tofHead.html'
 })
 export class TofHead extends OnChanges {
     @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;

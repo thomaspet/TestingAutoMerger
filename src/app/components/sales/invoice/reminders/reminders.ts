@@ -17,7 +17,7 @@ declare const _;
 
 @Component({
     selector: 'invoice-reminders',
-    templateUrl: 'app/components/sales/invoice/reminders/reminders.html'
+    templateUrl: './reminders.html'
 })
 export class InvoiceReminders {
     @Input()

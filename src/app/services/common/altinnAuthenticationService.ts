@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {AltinnAuthRequest} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 
 @Injectable()
@@ -40,7 +40,7 @@ export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
     public getAltinnAuthenticationDataFromLocalstorage(): AltinnAuthenticationData {
         return AltinnAuthenticationData.fromObject(JSON.parse(localStorage.getItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY)));
     }
-    
+
     public clearAltinnAuthenticationDataFromLocalstorage()    {
         localStorage.removeItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY);
     }

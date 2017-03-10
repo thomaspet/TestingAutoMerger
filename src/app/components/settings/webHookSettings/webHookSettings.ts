@@ -1,20 +1,21 @@
 import {Component, ViewChild} from '@angular/core';
-
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 
-import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription} from '../../../services/common/umhService';
-import {CompanyService} from '../../../services/common/CompanyService';
+import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription} from '../../../services/common/UmhService';
 import {AuthService} from '../../../../framework/core/authService';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {CompanyService} from '../../../services/services';
 
 @Component({
     selector: 'webhook-settings',
-    templateUrl: 'app/components/settings/webHookSettings/webHookSettings.html',
+    templateUrl: './webHookSettings.html',
 })
 
 export class WebHookSettings {
     //@ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(UniSelect)
-    
+
     private actionSelectConfig: ISelectConfig;
     private objectiveSelectConfig: ISelectConfig;
     private objectives: Array<IUmhObjective>;
@@ -26,6 +27,7 @@ export class WebHookSettings {
 
     public objectiveNames: string[];
     public actionNames: string[];
+    public isDirty: boolean = false;
 
     public constructor(
         private umhSerivce: UmhService,
@@ -46,7 +48,7 @@ export class WebHookSettings {
                          Name: 'All'
                     };
                     this.actionNames.push('All');
-                    
+
                     action.id = this.noFilter;
                     action.Name = 'All';
                     this.actions.push(action);
@@ -97,6 +99,27 @@ export class WebHookSettings {
         };
     }
 
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+           return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
     private initSubscription() {
         this.subscription = {
             AppModuleId: this.noFilter,
@@ -129,6 +152,7 @@ export class WebHookSettings {
     private onSubmit() {
         this.umhSerivce.createSubscription(this.subscription.SubscriberId, this.subscription).subscribe(
             res => {
+                this.isDirty = false;
                 this.initSubscription();
                 console.log(res);
             },
@@ -139,8 +163,16 @@ export class WebHookSettings {
             }
         );
     }
-    
+    private urlChange(event) {
+        this.isDirty = true;
+    }
+
+    private descriptionChange(event) {
+        this.isDirty = true;
+    }
+
     private onObjectiveSelectForNewSubscription(event) {
+        this.isDirty = true;
         var objective = this.objectives.find(o => o.Name === event);
 
         if (objective !== undefined) {
@@ -151,6 +183,7 @@ export class WebHookSettings {
     }
 
     private onActionSelectForNewSubscription(event) {
+        this.isDirty = true;
         var action = this.actions.find(o => o.Name === event);
 
         if (action !== undefined) {
@@ -161,6 +194,7 @@ export class WebHookSettings {
     }
 
     private onObjectiveSelectForExistingSubscription(subscription: IUmhSubscription, event: string) {
+        this.isDirty = true;
         var objective = this.objectives.find(o => o.Name === event);
 
         if (objective !== undefined) {
@@ -173,6 +207,7 @@ export class WebHookSettings {
     }
 
     private onActionSelectForExistingSubscription(subscription: IUmhSubscription, event: string) {
+        this.isDirty = true;
         var action = this.actions.find(o => o.Name === event);
 
         if (action !== undefined) {
@@ -186,6 +221,7 @@ export class WebHookSettings {
 
 
     private onToggle(item: IUmhSubscription) {
+        this.isDirty = true;
         item.Enabled = !item.Enabled;
         this.updateSubscription(item);
     }
@@ -207,7 +243,7 @@ export class WebHookSettings {
     private updateSubscription(subscription: IUmhSubscription) {
         this.umhSerivce.updateSubscription(this.subscription.SubscriberId, subscription).subscribe(
             res => console.log(res),
-            err => console.error("@TODO check umh return value") 
+            err => console.error("@TODO check umh return value")
         );
     }
 

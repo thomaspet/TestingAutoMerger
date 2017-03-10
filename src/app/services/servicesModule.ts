@@ -5,7 +5,7 @@ import {CommonServicesModule} from './commonServicesModule';
 import {ReportServicesModule} from './reportServicesModule';
 import {SalaryServicesModule} from './salaryServicesModule';
 import {SalesServicesModule} from './salesServicesModule';
-import {TimeTrackingServicesModule} from './timeTrackingServicesModule';
+import {TimeTrackingServicesModule} from './timetrackingServicesModule';
 
 @NgModule({
     imports: [

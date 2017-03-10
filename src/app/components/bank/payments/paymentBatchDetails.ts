@@ -1,20 +1,17 @@
 import {Component, ViewChild, Input, EventEmitter, Output, OnChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {PaymentService, PaymentBatchService, ErrorService, FileService, StatisticsService} from '../../../services/services';
-import {Payment, PaymentBatch} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {PaymentBatch} from '../../../unientities';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-
-declare const moment;
-declare const saveAs; // filesaver.js
+import * as moment from 'moment';
 
 @Component({
     selector: 'payment-batch-details',
-    templateUrl: 'app/components/bank/payments/paymentBatchDetails.html',
+    templateUrl: './paymentBatchDetails.html',
 })
 export class PaymentBatchDetails implements OnChanges {
     @Input() private paymentBatchID: number;

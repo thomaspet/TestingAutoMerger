@@ -8,7 +8,7 @@ import { UniCacheService, ErrorService } from '../../../../services/services';
 
 @Component({
     selector: 'employments',
-    templateUrl: 'app/components/salary/employee/employments/employments.html'
+    templateUrl: './employments.html'
 })
 export class Employments extends UniView {
     @ViewChild(UniTable)

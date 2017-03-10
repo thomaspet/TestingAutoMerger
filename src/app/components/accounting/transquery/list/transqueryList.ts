@@ -12,13 +12,15 @@ import {
     AccountService,
     JournalEntryService
 } from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
 declare var jQuery;
-declare var moment;
+import * as moment from 'moment';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
 
 @Component({
     selector: 'customer-list',
-    templateUrl: 'app/components/accounting/transquery/list/transqueryList.html',
+    templateUrl: './transqueryList.html',
 })
 export class TransqueryList {
     @ViewChild(UniForm) public form: UniForm;

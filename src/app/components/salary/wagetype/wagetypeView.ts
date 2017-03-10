@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
     TaxType, StdWageType, GetRateFrom, FinancialYear
@@ -14,11 +14,11 @@ import { UniView } from '../../../../framework/core/uniView';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 
 import { Observable } from 'rxjs/Observable';
-declare var _; // lodash
+
 
 @Component({
     selector: 'uni-wagetype-view',
-    templateUrl: 'app/components/salary/wagetype/wageTypeView.html'
+    templateUrl: './wageTypeView.html'
 })
 export class WageTypeView extends UniView {
 
@@ -92,7 +92,7 @@ export class WageTypeView extends UniView {
         });
 
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event instanceof NavigationEnd) {
                 if (!this.wageType) {
                     this.getWageType();
                 }
@@ -104,7 +104,7 @@ export class WageTypeView extends UniView {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable
@@ -144,7 +144,7 @@ export class WageTypeView extends UniView {
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
         }
-        
+
         this.checkValidYearAndCreateNew();
 
         this.wageType.SupplementaryInformations.forEach(supplement => {
@@ -176,7 +176,7 @@ export class WageTypeView extends UniView {
                 if (this.wageType.ValidYear !== financialYear.Year) {
                 this.wageType.ID = 0;
                 this.wageType.ValidYear = financialYear.Year;
-                
+
                 this.wageType.SupplementaryInformations.forEach(supplement => {
                     supplement.ID = 0;
                     supplement.WageTypeID = 0;
@@ -218,7 +218,7 @@ export class WageTypeView extends UniView {
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
                 // TODO: should use BizHttp.getPreviousID() instead
-                this.wageTypeService.getPrevious(this.wageType.ID)
+                this.wageTypeService.getPrevious(this.wageType.WageTypeNumber)
                     .subscribe((prev: WageType) => {
                         if (prev) {
                             this.wageType = prev;
@@ -234,7 +234,7 @@ export class WageTypeView extends UniView {
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
                 // TODO: should use BizHttp.getNextID() instead
-                this.wageTypeService.getNext(this.wageType.ID)
+                this.wageTypeService.getNext(this.wageType.WageTypeNumber)
                     .subscribe((next: WageType) => {
                         if (next) {
                             this.wageType = next;

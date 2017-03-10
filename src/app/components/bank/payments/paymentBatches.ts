@@ -1,7 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {Payment, PaymentCode, File, PaymentBatch} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {File, PaymentBatch} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
@@ -14,12 +13,9 @@ import {
     FileService
 } from '../../../services/services';
 
-declare const moment;
-declare const saveAs; // filesaver.js
-
 @Component({
     selector: 'payment-batches',
-    templateUrl: 'app/components/bank/payments/paymentBatches.html',
+    templateUrl: './paymentBatches.html',
 })
 export class PaymentBatches {
     @ViewChild(UniTable) private table: UniTable;
@@ -38,7 +34,7 @@ export class PaymentBatches {
                 private fileService: FileService) {
 
         this.tabService.addTab({
-            name: 'Betalingsbunter',
+            name: 'Utbetalinger',
             url: '/bank/batches',
             moduleID: UniModules.PaymentBatches,
             active: true }
@@ -47,7 +43,7 @@ export class PaymentBatches {
 
     public ngOnInit() {
         this.toolbarconfig = {
-                title: 'Betalingsbunter',
+                title: 'Utbetalinger',
                 subheads: [],
                 navigation: {}
             };

@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear,
@@ -9,7 +9,7 @@ import {
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import { IToolbarConfig, IAutoCompleteConfig } from '../../common/toolbar/toolbar';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { UniView } from '../../../../framework/core/uniView';
@@ -20,12 +20,10 @@ import {
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService, EmployeeCategoryService
 } from '../../../services/services';
-
-declare var _; // lodash
-
+declare var _;
 @Component({
     selector: 'uni-employee-details',
-    templateUrl: 'app/components/salary/employee/employeeDetails.html'
+    templateUrl: './employeeDetails.html'
 })
 export class EmployeeDetails extends UniView implements OnDestroy {
 
@@ -100,6 +98,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
     ];
 
+    private employeeSearch: IAutoCompleteConfig;
+
 
     constructor(
         private route: ActivatedRoute,
@@ -124,7 +124,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService
     ) {
-
         super(router.url, cacheService);
 
         this.childRoutes = [
@@ -133,6 +132,27 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             { name: 'Faste poster', path: 'recurring-post' },
             { name: 'Permisjon', path: 'employee-leave' }
         ];
+
+        this.employeeSearch = {
+            events: {
+                select: (model, value: Employee) => {
+                    if (value) {
+                        this.router.navigate(['salary/employees/' + value.ID]);
+                    }
+                }
+            },
+            valueProperty: 'ID',
+            template: (obj: Employee) =>
+                obj 
+                ? `${obj.EmployeeNumber} - ${obj.BusinessRelationInfo ? obj.BusinessRelationInfo.Name : ''}`
+                : '',
+            search: (query) => this.employeeService
+                .GetAll(
+                    `filter=startswith(EmployeeNumber, '${query}') `
+                    + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
+                    + `&top50`, ['BusinessrelationInfo'])
+                .debounceTime(200)
+        };
 
         this.financialYearService.getActiveFinancialYear()
             .subscribe((financialyear: FinancialYear) => {
@@ -279,7 +299,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         // Subscribe to route changes and load necessary data
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd' && this.employeeID !== undefined) {
+            if (event instanceof NavigationEnd && this.employeeID !== undefined) {
                 let childRoute = event.url.split('/').pop();
                 if (!this.employee) {
                     this.getEmployee();
@@ -288,7 +308,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 if (!this.categories) {
                     this.getEmployeeCategories();
                 }
-                
+
                 if (!this.employeeTaxCard) {
                     this.getTax();
                 }
@@ -345,7 +365,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable
@@ -600,7 +620,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return this.getFinancialYearObs()
                 .switchMap(financialYear => this.employeeTaxCardService
                     .GetTaxCard(this.employeeID, financialYear.Year))
-                .flatMap(taxCard => {
+                .switchMap(taxCard => {
                     return taxCard
                         ? Observable.of(taxCard)
                         : this.employeeTaxCardService
@@ -808,6 +828,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         if (brInfo.DefaultBankAccount && (!brInfo.DefaultBankAccount.AccountNumber || brInfo.DefaultBankAccount.AccountNumber === '')) {
             brInfo.DefaultBankAccount = null;
+            brInfo.DefaultBankAccountID = null;
         }
 
         if (brInfo.DefaultBankAccount !== null && brInfo.DefaultBankAccount !== undefined && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
@@ -859,6 +880,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
+
+        console.log("SENT", this.employee);
 
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
@@ -993,7 +1016,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                     this.getDepartmentsObservable(),
                                     this.getDimension(trans));
                             })
-                            .flatMap(x => x)
+                            .switchMap(x => x)
                             .map((response: [SalaryTransaction, Project[], Department[], Dimensions]) => {
                                 let [trans, projects, departments, dimensions] = response;
                                 trans.Dimensions = dimensions;

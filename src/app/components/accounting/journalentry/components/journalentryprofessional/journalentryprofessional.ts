@@ -22,13 +22,12 @@ import {
     NumberFormat
 } from '../../../../../services/services';
 
-declare const _;
-declare const moment;
+import * as moment from 'moment';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({
     selector: 'journal-entry-professional',
-    templateUrl: 'app/components/accounting/journalentry/components/journalentryprofessional/journalentryprofessional.html',
+    templateUrl: './journalentryprofessional.html',
 })
 export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public journalEntryID: number = 0;

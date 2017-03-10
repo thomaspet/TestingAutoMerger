@@ -11,9 +11,6 @@ import {
     DimensionTypes
 } from '../../../../services/services';
 
-declare const moment;
-declare const _; // lodash
-
 export class DimensionSummaryData {
     public dimensionId: number;
     public dimensionNumber: number;
@@ -35,7 +32,7 @@ export class DimensionSummaryData {
 
 @Component({
     selector: 'dimensions-overview-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/dimensionsOverviewReportPart.html',
+    templateUrl: './dimensionsOverviewReportPart.html',
 })
 export class DimensionsOverviewReportPart {
     @Input() private periodFilter1: PeriodFilter;

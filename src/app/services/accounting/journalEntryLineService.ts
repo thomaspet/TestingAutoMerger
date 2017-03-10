@@ -2,11 +2,8 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
-import {TransqueryDetailsCalculationsSummary} from '../../models/accounting/TransqueryDetailsCalculationsSummary'
 import {PeriodDates} from '../../models/accounting/PeriodDates';
-
-declare const moment: any;
+import * as moment from 'moment';
 
 @Injectable()
 export class JournalEntryLineService extends BizHttp<JournalEntryLine> {

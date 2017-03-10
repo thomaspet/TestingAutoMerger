@@ -1,10 +1,9 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 
 import {JournalEntry} from './journalentry/journalentry';
 import {Transquery} from './transquery/transquery';
-import {AccountSettings} from '../settings/accountSettings/accountSettings';
-import {VatSettings} from '../settings/vatsettings/vatsettings';
+import {AccountSettings} from './accountSettings/accountSettings';
+import {VatSettings} from './vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
 import {AccountingReports} from './accountingreports/accountingreports';
 
@@ -14,18 +13,9 @@ import {BillView} from './bill/detail/bill';
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
-import {UniAccounting} from './accounting';
-import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
-// Maps entitytype to frontend route
-// Important for notifications to work properly!
-export const entityTypeMap: any = {
-    'supplierinvoice': 'bill/:id',
-    'supplierinvoiceitem': 'bill/:id'
-};
-
-export const childRoutes = [
+export const accountingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
@@ -70,19 +60,19 @@ export const childRoutes = [
 ];
 
 
-const accountingRoutes: Routes = [
-    {
-        path: 'accounting',
-        component: UniAccounting,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+// const accountingRoutes: Routes = [
+//     {
+//         path: 'accounting',
+//         component: UniAccounting,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(accountingRoutes);
+// export const routes: ModuleWithProviders = RouterModule.forChild(accountingRoutes);
 

@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService} from '../../../services/timetracking/workerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
@@ -43,7 +43,7 @@ export interface IAfterSaveInfo {
 
 @Component({
     selector: 'genericdetail',
-    templateUrl: 'app/components/timetracking/genericview/detail.html'
+    templateUrl: './detail.html'
 
 })
 export class GenericDetailview {

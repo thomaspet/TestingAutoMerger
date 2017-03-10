@@ -4,7 +4,7 @@ import {VatCodeGroup, VatReportSummaryPerPost, VatType, Period} from '../../../.
 
 @Component({
     selector: 'vat-summary-per-post',
-    templateUrl: 'app/components/accounting/vatreport/reportSummary/reportSummary.html'
+    templateUrl: './reportSummary.html'
 })
 export class VatSummaryPerPost implements OnChanges {
     public postGroups: VatCodeGroupWithPosts[];
@@ -48,18 +48,18 @@ export class VatSummaryPerPost implements OnChanges {
                 vatReport.VatPostID === vatReportSummaryPerPost.VatPostID
             )
         );
-        
+
         // build string containing combination of vatcode and accountnumber for this vatpost, the result
         // will e.g. be "1|2711,3|2710,5|2702,..."
-        
+
         let vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
-            vatTypes.forEach(vt => {              
-                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPostID === vatReportSummaryPerPost.VatPostID)                
+            vatTypes.forEach(vt => {
+                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPostID === vatReportSummaryPerPost.VatPostID)
                 vatReportReferences.forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
-            }); 
+            });
         }
-        
+
         return vatCodesAndAccountNos.join(',');
     }
 }

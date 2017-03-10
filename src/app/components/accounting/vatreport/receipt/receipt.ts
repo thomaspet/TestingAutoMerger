@@ -9,7 +9,7 @@ import {
 
 @Component({
     selector: 'vatreport-receipt-view',
-    templateUrl: 'app/components/accounting/vatreport/receipt/receipt.html'
+    templateUrl: './receipt.html'
 })
 export class ReceiptVat {
     @Input() public vatReport: VatReport;

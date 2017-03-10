@@ -13,7 +13,7 @@ import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../app/AppConfig';
+import {AppConfig} from '../../app/appConfig';
 import {ErrorService} from '../../app/services/services';
 import {UniConfirmModal, ConfirmActions} from '../modals/confirm';
 

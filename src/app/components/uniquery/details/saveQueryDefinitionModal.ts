@@ -7,10 +7,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from 'uniform-ng2/main';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../services/services';
-
-declare const _;
-declare const moment;
+import {ErrorService} from '../../../services/services';;
 
 @Component({
     selector: 'save-query-definition-form',

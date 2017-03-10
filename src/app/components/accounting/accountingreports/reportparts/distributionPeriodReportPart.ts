@@ -8,7 +8,7 @@ import {
     DimensionService,
     ErrorService
 } from '../../../../services/services';
-declare const moment;
+import * as moment from 'moment';
 
 export class DistributionPeriodData {
     public periodNo: number;
@@ -19,7 +19,7 @@ export class DistributionPeriodData {
 
 @Component({
     selector: 'distribution-period-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/distributionPeriodReportPart.html',
+    templateUrl: './distributionPeriodReportPart.html',
 })
 export class DistributionPeriodReportPart implements OnChanges {
 

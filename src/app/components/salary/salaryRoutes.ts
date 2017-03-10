@@ -1,5 +1,4 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 
 import {UniSalary} from './salary';
 import {AuthGuard} from '../../authGuard';
@@ -20,17 +19,10 @@ import {routes as CategoryRoutes} from './category/categoryRoutes';
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
+import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 
-// Maps entitytype to frontend route
-// Important for notifications to work properly!
-export const entityTypeMap: any = {
-    'wagetype': 'wagetypes/:id',
-    'employee': 'employees/:id',
-    'payrollrun': 'payrollrun/:id',
-    'salarybalance': 'salarybalances/:id'
-};
 
-export const childRoutes = [
+export const salaryRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -88,22 +80,31 @@ export const childRoutes = [
         component: SalarybalanceView,
         children: SalarybalanceRoutes,
         canDeactivate: [CanDeactivateGuard]
-    }
-];
-
-
-const salaryRoutes: Routes = [
+    },
     {
-        path: 'salary',
-        component: UniSalary,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
-
+        path: 'supplements',
+        component: SalaryTransactionSupplementList,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 
-export const routes: ModuleWithProviders = RouterModule.forChild(salaryRoutes);
+
+// export const salaryRoutes: Routes = [
+//     {
+//         path: 'salary',
+//         component: UniSalary,
+//         canActivate: [AuthGuard],
+//         children: [{
+//             path: '',
+//             canActivateChild: [AuthGuard],
+//             children: childRoutes
+//         }],
+
+//     }
+// ];
+
+// @NgModule({
+//     imports: [RouterModule.forChild(routes)],
+//     exports: [RouterModule]
+// })
+// export const salaryRoutes: ModuleWithProviders = RouterModule.forChild(routes);

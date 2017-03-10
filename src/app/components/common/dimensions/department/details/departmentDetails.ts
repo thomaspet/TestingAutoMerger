@@ -11,7 +11,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'department-dimensions-details',
-    templateUrl: 'app/components/common/dimensions/department/details/departmentDetails.html'
+    templateUrl: './departmentDetails.html'
 })
 export class DepartmentDetails implements OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});

@@ -20,7 +20,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 
 @Component({
     selector: 'salary-transactions-employee',
-    templateUrl: 'app/components/salary/salarytrans/salarytransList.html'
+    templateUrl: './salarytransList.html'
 })
 
 export class SalaryTransactionEmployeeList extends UniView implements OnChanges {

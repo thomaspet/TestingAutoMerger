@@ -8,7 +8,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'employeecategories',
-    templateUrl: 'app/components/salary/category/categoryList.html',
+    templateUrl: './categoryList.html',
 })
 export class CategoryList implements OnInit {
 
@@ -22,8 +22,8 @@ export class CategoryList implements OnInit {
         private errorService: ErrorService
     ) {
         this.tabSer.addTab(
-            { 
-                name: 'Kategorier', url: 'salary/employeecategories', moduleID: UniModules.Categories, active: true 
+            {
+                name: 'Kategorier', url: 'salary/employeecategories', moduleID: UniModules.Categories, active: true
             }
         );
     }

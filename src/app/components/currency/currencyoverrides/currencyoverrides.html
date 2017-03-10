@@ -4,6 +4,9 @@
 
 <section class="application">
     <uni-table [resource]="overrides" [attr.aria-busy]="isBusy"
-               [config]="overridesTable">
+               [config]="overridesTable"
+               (rowChanged)="rowChanged($event)">
     </uni-table>
 </section>
+
+<uni-confirm-modal></uni-confirm-modal>

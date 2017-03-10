@@ -13,7 +13,7 @@ import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportF
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 class ReportCategory {
     public name: string;
@@ -23,7 +23,7 @@ class ReportCategory {
 
 @Component({
     selector: 'uni-overview',
-    templateUrl: 'app/components/reports/overview/overview.html'
+    templateUrl: './overview.html'
 })
 export class Overview {
     @ViewChild(ParameterModal)

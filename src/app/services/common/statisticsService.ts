@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {URLSearchParams, ResponseContentType, Response} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
 
 @Injectable()
@@ -60,9 +60,6 @@ export class StatisticsService extends BizHttp<string> {
         // remove empty filters, causes problem on backend
         if (params.get('filter') === '') {
             params.delete('filter');
-        } else {
-            // this needs to be here because of an issue with the statistics api
-            params.set('filter', params.get('filter').replace('))', ') )'));
         }
 
         return this.http

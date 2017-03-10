@@ -1,6 +1,6 @@
 import {CustomerList} from './list/customerList';
 import {CustomerDetails} from './customerDetails/customerDetails';
-import {CanDeactivateGuard} from '../../../candeactivateGuard';
+import {CanDeactivateGuard} from '../../../canDeactivateGuard';
 
 export const routes = [
     {

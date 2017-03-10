@@ -1,16 +1,11 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {JournalEntryService, StatisticsService, DimensionTypes} from '../../../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {StatisticsService, DimensionTypes} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
-import {DimensionsOverviewReportPart} from '../reportparts/dimensionsOverviewReportPart';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-
-declare const moment;
-declare const _; // lodash
 
 export class ResultSummaryData {
     public isAccount: boolean;
@@ -30,7 +25,7 @@ export class ResultSummaryData {
 
 @Component({
     selector: 'accounting-result-report',
-    templateUrl: 'app/components/accounting/accountingreports/resultreport/resultreport.html',
+    templateUrl: './resultreport.html',
 })
 export class ResultReport {
     @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;

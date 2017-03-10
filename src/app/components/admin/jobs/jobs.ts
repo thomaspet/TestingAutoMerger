@@ -4,7 +4,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-jobs',
-    templateUrl: 'app/components/admin/jobs/jobs.html'
+    templateUrl: './jobs.html'
 })
 export class Jobs {
         constructor(

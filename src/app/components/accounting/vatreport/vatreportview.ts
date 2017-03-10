@@ -6,7 +6,8 @@ import {
     CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
     VatReportSummaryPerPost, VatReportNotReportedJournalEntryData, AltinnSigning, StatusCodeAltinnSigning
 } from '../../../unientities';
-import {Observable, Subscription} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
@@ -15,7 +16,7 @@ import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthentic
 import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
-import {PeriodDateFormatPipe} from '../../../pipes/PeriodDateFormatPipe';
+import {PeriodDateFormatPipe} from '../../../pipes/periodDateFormatPipe';
 import {
     ErrorService,
     VatReportService,
@@ -24,11 +25,9 @@ import {
     CompanySettingsService
 } from '../../../services/services';
 
-declare const moment;
-
 @Component({
     selector: 'vat-report-view',
-    templateUrl: 'app/components/accounting/vatreport/vatreportview.html'
+    templateUrl: './vatreportview.html'
 })
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;

@@ -14,7 +14,7 @@ declare var _;
 
 @Component({
     selector: 'vacationpay-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
+    templateUrl: './vacationPayModalContent.html'
 })
 export class VacationpayModalContent {
     @Input('config') private config: {
@@ -27,7 +27,7 @@ export class VacationpayModalContent {
     private basicamountBusy: boolean;
     private vacationHeaderModel$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({})
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private basicamounts: BasicAmount[] = [];
     private tableConfig: UniTableConfig;
     private totalPayout: number = 0;
@@ -197,7 +197,7 @@ export class VacationpayModalContent {
         }
 
         this.getVacationpayData();
-        
+
     }
 
     private createFormConfig() {

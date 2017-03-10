@@ -6,11 +6,9 @@ import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportMod
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 
-declare const moment;
-
 @Component({
     selector: 'accounting-balance-report',
-    templateUrl: 'app/components/accounting/accountingreports/balancereport/balancereport.html',
+    templateUrl: './balancereport.html',
 })
 export class BalanceReport {
     private periodFilter1: PeriodFilter;

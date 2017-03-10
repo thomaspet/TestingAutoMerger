@@ -6,12 +6,11 @@ import { PayrollrunService, ErrorService, ReportDefinitionService, Report, Repor
 import { UniHttp } from '../../../../framework/core/http/http';
 
 import { Observable } from 'rxjs/Observable';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'postingsummary-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html'
+    templateUrl: './postingsummaryModalContent.html'
 })
 export class PostingsummaryModalContent implements OnInit {
     public busy: boolean;
@@ -21,7 +20,7 @@ export class PostingsummaryModalContent implements OnInit {
     private payrollrunID: number;
     private summary: any;
     private journalNumber: string;
-    private journalDate: Date;
+    private journalDate: string;
     private headerString: string = 'Konteringssammendrag';
 
     constructor(

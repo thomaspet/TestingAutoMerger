@@ -3,7 +3,7 @@ import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-
+import {Observable} from 'rxjs/Observable';
 export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker', WorkerListview);
 
 @Component({

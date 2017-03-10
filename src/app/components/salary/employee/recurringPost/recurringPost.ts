@@ -10,11 +10,10 @@ import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
 
-declare var _;
 
 @Component({
     selector: 'reccuringpost-list',
-    templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html'
+    templateUrl: './recurringPost.html'
 })
 
 export class RecurringPost extends UniView {

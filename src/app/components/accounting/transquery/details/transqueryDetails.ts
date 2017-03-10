@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {JournalEntry, Account, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -26,11 +26,9 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
-declare const _; // lodash
-
 @Component({
     selector: 'transquery-details',
-    templateUrl: 'app/components/accounting/transquery/details/transqueryDetails.html',
+    templateUrl: './transqueryDetails.html',
 })
 export class TransqueryDetails implements OnInit {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;

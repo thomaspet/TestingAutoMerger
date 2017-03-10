@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -10,8 +10,7 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
-import {routes as SalaryRoutes} from './salaryRoutes';
+import {salaryRoutes} from './salaryRoutes';
 import {UniSalary} from './salary';
 import {AMeldingView} from './amelding/ameldingview';
 import {AmeldingAgaView} from './amelding/ameldingAga/aga';
@@ -31,7 +30,7 @@ import {EmployeeList} from './employee/employeeList';
 import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
-import {TaxCardModal, TaxCardModalContent} from './employee/modals/TaxCardModal';
+import {TaxCardModal, TaxCardModalContent} from './employee/modals/taxCardModal';
 import {AltinnResponseModal, AltinnResponseModalContent} from './employee/modals/altinnResponseModal';
 import {ReadTaxCard} from './employee/modals/readTaxCard';
 import {TaxCardRequest} from './employee/modals/taxCardRequest';
@@ -55,7 +54,7 @@ import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 
 import {
-    SalaryTransactionSupplementsModal, 
+    SalaryTransactionSupplementsModal,
     SalaryTransactionSupplementsModalContent
 } from './modals/salaryTransactionSupplementsModal';
 
@@ -73,35 +72,30 @@ import {SalarybalanceList} from './salarybalance/salarybalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
 import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
+import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
+import {SalarybalancelineModal, SalarybalancelineModalContent} from './salarybalance/modals/salarybalancelinemodal';
+
+import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(salaryRoutes),
+
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
         ReportsModule,
-
-        // routes
-        SalaryRoutes
     ],
     declarations: [
         UniSalary,
@@ -153,6 +147,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementsModal,
         SalaryTransactionSupplementsModalContent,
+        SalaryTransactionSupplementList,
 
         // Wagetype
         WageTypeView,
@@ -170,7 +165,10 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,
-        SalaryBalanceSummary
+        SalaryBalanceSummary,
+        SalarybalanceLine,
+        SalarybalancelineModal,
+        SalarybalancelineModalContent
     ],
     entryComponents: [
         TaxCardModalContent,
@@ -181,7 +179,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PostingsummaryModalContent,
         SalarytransFilterContent,
         SelectAmeldingTypeModalContent,
-        SalaryTransactionSupplementsModalContent
+        SalaryTransactionSupplementsModalContent,
+        SalarybalancelineModalContent,
+        SalarybalanceLine
     ],
     providers: [
         CanDeactivateGuard
@@ -236,6 +236,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementsModal,
         SalaryTransactionSupplementsModalContent,
+        SalaryTransactionSupplementList,
 
         // Wagetype
         WageTypeView,
@@ -253,8 +254,10 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,
-        SalaryBalanceSummary
+        SalaryBalanceSummary,
+        SalarybalanceLine,
+        SalarybalancelineModal,
+        SalarybalancelineModalContent
     ]
 })
-export class SalaryModule {
-}
+export class SalaryModule {}

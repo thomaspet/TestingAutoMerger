@@ -1,6 +1,6 @@
 // Angular imports
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -12,10 +12,9 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
-import {routes as AccountingRoutes} from './accountingRoutes';
+import {accountingRoutes} from './accountingRoutes';
 
 // specific imports
 import {UniAccounting} from './accounting';
@@ -45,48 +44,57 @@ import {DrilldownResultReportPart} from './accountingreports/reportparts/drilldo
 import {DistributionPeriodReportPart} from './accountingreports/reportparts/distributionPeriodReportPart';
 import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dimensionsOverviewReportPart';
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
-import {SettingsModule} from '../settings/settingsModule';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
-import {SalesModule} from '../sales/salesModule';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
-import {TimetrackingModule} from '../timetracking/timetrackingmodule';
 import {BillHistoryView} from './bill/detail/history/history';
+
+import {AccountSettings} from './accountSettings/accountSettings';
+import {DimensionList} from './accountSettings/dimensionList/dimensionList';
+import {AccountList} from './accountSettings/accountList/accountList';
+import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
+import {VatSettings} from './vatsettings/vatsettings';
+import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
+import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
+import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
+
+
+// REVISIT: Must be refactored! This causes duplicate code when lazy loading
+import {TimetrackingModule} from '../timetracking/timetrackingModule';
+// import {SettingsModule} from '../settings/settingsModule';
 
 @NgModule({
     imports: [
-        // Angular modules
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
-        SettingsModule,
+        TimetrackingModule,
 
-        // Route module
-        AccountingRoutes,
-        SalesModule,
-        TimetrackingModule
+        RouterModule.forChild(accountingRoutes)
     ],
     declarations: [
         UniAccounting,
+
+        AccountSettings,
+        DimensionList,
+        AccountList,
+        AccountDetails,
+
+        VatSettings,
+        VatTypeDetails,
+        VatTypeList,
+        VatDeductionSettings,
 
         // journalentry
         JournalEntryProfessional,
@@ -133,9 +141,17 @@ import {BillHistoryView} from './bill/detail/history/history';
         CreateCorrectedVatReportForm,
         AccountDetailsReport
     ],
-    providers: [
-    ],
     exports: [
+        AccountSettings,
+        DimensionList,
+        AccountList,
+        AccountDetails,
+
+        VatSettings,
+        VatTypeDetails,
+        VatTypeList,
+        VatDeductionSettings,
+
         // journalentry
         JournalEntryProfessional,
         JournalEntryManual,

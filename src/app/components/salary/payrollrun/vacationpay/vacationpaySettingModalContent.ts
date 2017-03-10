@@ -9,11 +9,11 @@ import {
 } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModalContent.html'
+    templateUrl: './vacationpaySettingModalContent.html'
 })
 export class VacationpaySettingModalContent implements OnInit {
     private busy: boolean;

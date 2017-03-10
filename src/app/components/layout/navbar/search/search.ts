@@ -163,7 +163,6 @@ export class NavbarSearch implements AfterViewInit {
     private confirmSelection() {
         if (!this.searchResults[this.selectedIndex]) { return; }
         const url = this.searchResults[this.selectedIndex].componentUrl;
-        console.log(url);
         this.close();
         this.router.navigateByUrl(url);
     }

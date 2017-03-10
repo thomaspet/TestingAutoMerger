@@ -7,7 +7,7 @@ import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabServ
 
 @Component({
     selector: 'project-dimensions-list',
-    templateUrl: 'app/components/common/dimensions/project/list/projectList.html'
+    templateUrl: './projectList.html'
 })
 export class ProjectList {
 

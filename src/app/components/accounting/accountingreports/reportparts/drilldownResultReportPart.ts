@@ -1,8 +1,6 @@
 import {Component, Input, ViewChild, OnChanges} from '@angular/core';
-import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
+import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {
     AccountGroupService,
@@ -10,9 +8,6 @@ import {
     ErrorService,
     DimensionService
 } from '../../../../services/services';
-
-declare const moment;
-declare const _; // lodash
 
 export class ResultSummaryData {
     public isAccount: boolean;
@@ -32,7 +27,7 @@ export class ResultSummaryData {
 
 @Component({
     selector: 'drilldown-result-report-part',
-    templateUrl: 'app/components/accounting/accountingreports/reportparts/drilldownResultReportPart.html',
+    templateUrl: './drilldownResultReportPart.html',
 })
 export class DrilldownResultReportPart implements OnChanges {
 

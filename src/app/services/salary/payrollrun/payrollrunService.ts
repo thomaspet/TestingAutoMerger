@@ -3,7 +3,7 @@ import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { ErrorService } from '../../common/ErrorService';
+import { ErrorService } from '../../common/errorService';
 import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()

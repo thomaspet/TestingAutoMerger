@@ -5,7 +5,7 @@ import {BusinessRelationService, ErrorService} from '../../../services/services'
 
 @Component({
     selector: 'external-search',
-    templateUrl: 'app/components/common/externalSearch/externalSearch.html'
+    templateUrl: './externalSearch.html'
 })
 export class ExternalSearch {
     @Input() private searchText;

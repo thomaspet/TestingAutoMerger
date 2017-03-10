@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -8,13 +8,11 @@ import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {AppServicesModule} from '../../services/servicesModule';
-import {routes as TimetrackingRoutes} from './timetrackingRoutes';
+import {timetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
-import {RegisterTime} from './regtime/regtime';
 import {TimeEntry} from './timeentry/timeentry';
 import {RegtimeTools} from './timeentry/tools/tools';
 import {RegtimeTotals} from './timeentry/totals/totals';
@@ -33,38 +31,28 @@ import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
-
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {WorkEditor} from './utils/workeditor';
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        RouterModule,
 
-        // UniTable
+        RouterModule.forChild(timetrackingRoutes),
+
         UniTableModule,
-
-        // UniForm
         UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
-
-        // Route module
-        TimetrackingRoutes
     ],
     declarations: [
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        RegisterTime,
         TimeEntry,
         RegtimeTools,
         RegtimeTotals,
@@ -81,17 +69,17 @@ import {View as WorkBalancesView} from './worker/balances';
         WorktypeDetailview,
         WorktypeListview,
         VacationView,
-        WorkBalancesView
+        WorkBalancesView,
+        WorkEditor
     ],
     providers: [
         Lookupservice,
-
+        CanDeactivateGuard
     ],
     exports: [
         UniTimetracking,
         GenericDetailview,
         GenericListView,
-        RegisterTime,
         TimeEntry,
         RegtimeTools,
         RegtimeTotals,

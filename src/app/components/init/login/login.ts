@@ -8,7 +8,7 @@ import {Logger} from '../../../../framework/core/logger';
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/init/login/login.html'
+    templateUrl: './login.html'
 })
 export class Login {
     @ViewChild(UniSelect)

@@ -6,7 +6,7 @@ import { UniView } from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-wagetype-settings',
-    templateUrl: 'app/components/salary/wagetype/views/wagetypeSettings.html'
+    templateUrl: './wagetypeSettings.html'
 })
 export class WageTypeSettings extends UniView {
     private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());

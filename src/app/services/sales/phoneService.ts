@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Phone, PhoneTypeEnum} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
-import {ErrorService} from '../common/ErrorService';
+import {ErrorService} from '../common/errorService';
 
 @Injectable()
 export class PhoneService extends BizHttp<Phone> {

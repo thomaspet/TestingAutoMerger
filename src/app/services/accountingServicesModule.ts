@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AccountGroupService} from './accounting/accountGroupService';
 import {AccountGroupSetService} from './accounting/accountGroupSetService';
 import {AccountService} from './accounting/accountService';
@@ -50,31 +50,63 @@ export * from './accounting/paymentBatchService';
 export * from './accounting/postPostService';
 
 @NgModule({
-    providers: [
-        AccountGroupService,
-        AccountGroupSetService,
-        AccountService,
-        BankAccountService,
-        BankService,
-        JournalEntryLineDraftService,
-        JournalEntryLineService,
-        JournalEntryService,
-        PeriodSeriesService,
-        PeriodService,
-        SupplierInvoiceItemService,
-        SupplierInvoiceService,
-        SupplierService,
-        VatDeductionService,
-        VatCodeGroupService,
-        VatPostService,
-        VatReportService,
-        VatTypeService,
-        AccountVisibilityGroupService,
-        FinancialYearService,
-        PaymentCodeService,
-        PaymentService,
-        PaymentBatchService,
-        PostPostService
-    ]
+    // providers: [
+    //     AccountGroupService,
+    //     AccountGroupSetService,
+    //     AccountService,
+    //     BankAccountService,
+    //     BankService,
+    //     JournalEntryLineDraftService,
+    //     JournalEntryLineService,
+    //     JournalEntryService,
+    //     PeriodSeriesService,
+    //     PeriodService,
+    //     SupplierInvoiceItemService,
+    //     SupplierInvoiceService,
+    //     SupplierService,
+    //     VatDeductionService,
+    //     VatCodeGroupService,
+    //     VatPostService,
+    //     VatReportService,
+    //     VatTypeService,
+    //     AccountVisibilityGroupService,
+    //     FinancialYearService,
+    //     PaymentCodeService,
+    //     PaymentService,
+    //     PaymentBatchService,
+    //     PostPostService
+    // ]
 })
-export class AccountingServicesModule {}
+export class AccountingServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: AccountingServicesModule,
+            providers: [
+                AccountGroupService,
+                AccountGroupSetService,
+                AccountService,
+                BankAccountService,
+                BankService,
+                JournalEntryLineDraftService,
+                JournalEntryLineService,
+                JournalEntryService,
+                PeriodSeriesService,
+                PeriodService,
+                SupplierInvoiceItemService,
+                SupplierInvoiceService,
+                SupplierService,
+                VatDeductionService,
+                VatCodeGroupService,
+                VatPostService,
+                VatReportService,
+                VatTypeService,
+                AccountVisibilityGroupService,
+                FinancialYearService,
+                PaymentCodeService,
+                PaymentService,
+                PaymentBatchService,
+                PostPostService
+            ]
+        };
+    }
+}

@@ -15,14 +15,13 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../services/services';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
-
+declare var _;
 
 declare const saveAs; // filesaver.js
-declare const _; // lodash
 
 @Component({
     selector: 'uni-query-details',
-    templateUrl: 'app/components/uniquery/details/uniQueryDetails.html'
+    templateUrl: './uniQueryDetails.html'
 })
 export class UniQueryDetails {
     @ViewChild(UniTable) table: UniTable;

@@ -1,16 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { TabService } from '../layout/navbar/tabstrip/tabService';
-import { UniModules } from '../layout/navbar/tabstrip/tabService';
-import { IPosterWidget } from '../common/poster/poster';
-import { CompanySettings, SubEntity, User, File } from '../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { CompanySettingsService, SubEntityService, UserService, ErrorService } from '../../services/services';
-import { UniHttp } from '../../../framework/core/http/http';
+import {Component, OnInit} from '@angular/core';
+import {TabService} from '../layout/navbar/tabstrip/tabService';
+import {UniModules} from '../layout/navbar/tabstrip/tabService';
+import {IPosterWidget} from '../common/poster/poster';
+import {CompanySettings, SubEntity, User, File} from '../../unientities';
+import {Observable} from 'rxjs/Observable';
+import {CompanySettingsService, SubEntityService, UserService, ErrorService} from '../../services/services';
+import {UniHttp} from '../../../framework/core/http/http';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/settings.html'
+    templateUrl: './settings.html'
 })
 export class Settings {
 

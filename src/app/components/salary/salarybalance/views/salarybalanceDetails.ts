@@ -12,7 +12,7 @@ import { SalaryBalance, SalBalType, WageType, Employee, Supplier } from '../../.
 
 @Component({
     selector: 'salarybalance-details',
-    templateUrl: 'app/components/salary/salarybalance/views/salarybalanceDetails.html'
+    templateUrl: './salarybalanceDetails.html'
 })
 export class SalarybalanceDetail extends UniView {
     private salarybalanceID: number;
@@ -58,10 +58,8 @@ export class SalarybalanceDetail extends UniView {
             this.cachedSalaryBalance$
                 .subscribe((salarybalance: SalaryBalance) => {
                     if (salarybalance.ID !== this.salarybalanceID) {
-
                         this.salarybalance$.next(salarybalance);
                         this.salarybalanceID = salarybalance.ID;
-
                         if (!salarybalance.ID) {
                             if (employeeID) {
                                 salarybalance.EmployeeID = employeeID;
@@ -91,7 +89,7 @@ export class SalarybalanceDetail extends UniView {
         const model = this.salarybalance$.getValue();
         super.updateState('salarybalance', model, true);
     }
-
+    
     private setup() {
         Observable.forkJoin(this.getSources())
             .subscribe((response: any) => {
@@ -125,17 +123,14 @@ export class SalarybalanceDetail extends UniView {
             debounceTime: 500
         };
 
-        let wagetypeField: UniFieldLayout = this.findByPropertyName('WagetypeID');
+        let wagetypeField: UniFieldLayout = this.findByPropertyName('WageTypeNumber');
         wagetypeField.Options.source = this.wagetypes;
 
         let employeeField: UniFieldLayout = this.findByPropertyName('EmployeeID');
         employeeField.Options.source = this.employees;
-
-        let amountField: UniFieldLayout = this.findByPropertyName('Balance');
-        amountField.Label = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
-
+        
         let instalmentField: UniFieldLayout = this.findByPropertyName('Instalment');
-        instalmentField.ReadOnly = this.salarybalance$.getValue().InstalmentPercent !== null 
+        instalmentField.ReadOnly = this.salarybalance$.getValue().InstalmentPercent !== null
             ? (this.salarybalance$.getValue().InstalmentPercent ? true : false) : false;
 
         let percentField: UniFieldLayout = this.findByPropertyName('InstalmentPercent');
@@ -144,15 +139,15 @@ export class SalarybalanceDetail extends UniView {
 
         let supplierField: UniFieldLayout = this.findByPropertyName('SupplierID');
         supplierField.Options.source = this.suppliers;
-        supplierField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution) 
+        supplierField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
             && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
-        
+
         let kidField: UniFieldLayout = this.findByPropertyName('KID');
-        kidField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution) 
+        kidField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
             && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
 
         let accountField: UniFieldLayout = this.findByPropertyName('Supplier.Info.DefaultBankAccount.AccountNumber');
-        accountField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution) 
+        accountField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
             && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
 
         this.fields$.next(this.fields$.getValue());

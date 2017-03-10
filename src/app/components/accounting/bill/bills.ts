@@ -2,7 +2,7 @@ import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
-import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
@@ -18,7 +18,7 @@ import {
     PageStateService
 } from '../../../services/services';
 
-declare const moment;
+import * as moment from 'moment';
 
 interface IFilter {
     name: string;
@@ -37,7 +37,7 @@ interface IFilter {
 
 @Component({
     selector: 'uni-bills',
-    templateUrl: 'app/components/accounting/bill/bills.html'
+    templateUrl: './bills.html'
 })
 export class BillsView {
 

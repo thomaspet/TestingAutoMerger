@@ -3,7 +3,7 @@ export * from './salaryServicesModule';
 export * from './salesServicesModule';
 export * from './commonServicesModule';
 export * from './reportServicesModule';
-export * from './timeTrackingServicesModule';
+export * from './timetrackingServicesModule';
 
 // Accounting
 // export * from './accounting/accountService';
@@ -59,7 +59,6 @@ export * from './timeTrackingServicesModule';
 // export * from './sales/customerInvoiceItemService'
 // export * from './sales/addressService';
 // export * from './sales/phoneService';
-// export * from './sales/emailService';
 
 
 // Timetracking

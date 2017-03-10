@@ -1,14 +1,13 @@
 import {Component} from '@angular/core';
-import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
-import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
+import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
+import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {safeInt} from '../../utils/utils';
 import {ErrorService} from '../../../../services/services';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'regtimetools',
-    templateUrl: 'app/components/timetracking/timeentry/tools/tools.html'
+    templateUrl: './tools.html'
 })
 export class RegtimeTools {
     private timesheet: TimeSheet;

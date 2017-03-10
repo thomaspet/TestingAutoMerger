@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Rx';
-import {UserService} from '../services';
+import {Observable} from 'rxjs/Observable';
+import {StatisticsService} from './statisticsService';
+import {ErrorService} from './errorService';
+import {UserService} from './userService';
 import {User} from '../../unientities';
-import {StatisticsService} from './StatisticsService';
-import {ErrorService} from './ErrorService';
 
 @Injectable()
 export class StatusService {

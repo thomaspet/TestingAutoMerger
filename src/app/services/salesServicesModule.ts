@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AddressService} from './sales/addressService';
 import {BusinessRelationService} from './sales/businessRelationService';
 import {CustomerInvoiceService} from './sales/customerInvoiceService';
@@ -8,7 +8,6 @@ import {CustomerInvoiceItemService} from './sales/customerInvoiceItemService';
 import {CustomerQuoteItemService} from './sales/customerQuoteItemService';
 import {CustomerQuoteService} from './sales/customerQuoteService';
 import {CustomerService} from './sales/customerService';
-import {EmailService} from './sales/emailService';
 import {PhoneService} from './sales/phoneService';
 import {CustomerInvoiceReminderService} from './sales/customerInvoiceReminderService';
 import {CustomerInvoiceReminderSettingsService} from './sales/customerInvoiceReminderSettingsService';
@@ -23,28 +22,47 @@ export * from './sales/customerInvoiceItemService';
 export * from './sales/customerQuoteItemService';
 export * from './sales/customerQuoteService';
 export * from './sales/customerService';
-export * from './sales/emailService';
 export * from './sales/phoneService';
 export * from './sales/customerInvoiceReminderService';
 export * from './sales/customerInvoiceReminderSettingsService';
 export * from './sales/customerInvoiceReminderRuleService';
 
 @NgModule({
-    providers: [
-        AddressService,
-        BusinessRelationService,
-        CustomerInvoiceService,
-        CustomerInvoiceItemService,
-        CustomerOrderItemService,
-        CustomerOrderService,
-        CustomerQuoteItemService,
-        CustomerQuoteService,
-        CustomerService,
-        EmailService,
-        PhoneService,
-        CustomerInvoiceReminderService,
-        CustomerInvoiceReminderSettingsService,
-        CustomerInvoiceReminderRuleService
-    ]
+    // providers: [
+    //     AddressService,
+    //     BusinessRelationService,
+    //     CustomerInvoiceService,
+    //     CustomerInvoiceItemService,
+    //     CustomerOrderItemService,
+    //     CustomerOrderService,
+    //     CustomerQuoteItemService,
+    //     CustomerQuoteService,
+    //     CustomerService,
+    //     PhoneService,
+    //     CustomerInvoiceReminderService,
+    //     CustomerInvoiceReminderSettingsService,
+    //     CustomerInvoiceReminderRuleService
+    // ]
 })
-export class SalesServicesModule { }
+export class SalesServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: SalesServicesModule,
+            providers: [
+                AddressService,
+                BusinessRelationService,
+                CustomerInvoiceService,
+                CustomerInvoiceItemService,
+                CustomerOrderItemService,
+                CustomerOrderService,
+                CustomerQuoteItemService,
+                CustomerQuoteService,
+                CustomerService,
+                PhoneService,
+                CustomerInvoiceReminderService,
+                CustomerInvoiceReminderSettingsService,
+                CustomerInvoiceReminderRuleService
+            ]
+        };
+    }
+}

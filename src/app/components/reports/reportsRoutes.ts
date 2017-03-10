@@ -9,6 +9,7 @@ import {UniReports} from './reports';
 export const childRoutes = [
     {
         path: '',
+        pathMatch: 'full',
         redirectTo: 'overview'
     },
     {

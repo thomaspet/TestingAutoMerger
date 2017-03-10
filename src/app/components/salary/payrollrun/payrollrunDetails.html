@@ -1,4 +1,11 @@
-<uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()" [tags]="categoryFilter" [tagConfig]="tagConfig" (tagsChange)="filterChange($event)">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [contextmenu]="contextMenuItems"
+    [saveactions]="saveActions"
+    [statustrack]="getStatustrackConfig()"
+    [tags]="categoryFilter"
+    [tagConfig]="tagConfig"
+    (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
 <uni-poster [widgets]="payrollrunWidgets" *ngIf="payrollrunWidgets"></uni-poster>

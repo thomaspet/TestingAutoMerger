@@ -6,7 +6,7 @@ import {ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'uni-users',
-    templateUrl: 'app/components/settings/users/users.html'
+    templateUrl: './users.html'
 })
 export class Users {
     // New user Form

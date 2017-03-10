@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {TimesheetService} from './timetracking/timesheetService';
 import {WorkerService} from './timetracking/workerService';
 
@@ -11,4 +11,14 @@ export * from './timetracking/workerService';
         WorkerService
     ]
 })
-export class TimeTrackingServicesModule { }
+export class TimeTrackingServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: TimeTrackingServicesModule,
+            providers: [
+                TimesheetService,
+                WorkerService
+            ]
+        };
+    }
+}

@@ -3,12 +3,11 @@ import {TimesheetService} from '../../../../services/timetracking/timesheetServi
 import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../utils/utils';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'regtimebalance',
-    templateUrl: 'app/components/timetracking/timeentry/balance/balance.html'
+    templateUrl: './balance.html'
 })
 export class RegtimeBalance {
     @Input() public set workrelation(value: WorkRelation ) {
@@ -28,7 +27,7 @@ export class RegtimeBalance {
         private timesheetService: TimesheetService,
         private errorService: ErrorService
     ) {
-        
+
     }
 
     public refresh(rel?: WorkRelation) {
@@ -42,7 +41,7 @@ export class RegtimeBalance {
     }
 
     private reloadBalance(rel: WorkRelation, details: boolean = false) {
-        var workRelationId = rel ? rel.ID : 0;        
+        var workRelationId = rel ? rel.ID : 0;
         if (!workRelationId) {
             this.valueChange.emit(0);
             this.currentBalance = new WorkBalanceDto();
@@ -56,12 +55,12 @@ export class RegtimeBalance {
                 this.isDetailView = details;
 
                 if (details) {
-                    this.groupedWeeks = this.groupIntoWeeks(x.Details);                    
+                    this.groupedWeeks = this.groupIntoWeeks(x.Details);
                     this.currentBalance.hours = prevBalance.hours;
                     this.currentBalance.Minutes = prevBalance.Minutes;
                     this.currentBalance.Previous = prevBalance.Previous;
                 } else {
-                    
+
                     // Workrelation ended ?
                     if (x.WorkRelation && x.WorkRelation.EndTime) {
                         var et = moment(x.WorkRelation.EndTime);
@@ -89,7 +88,7 @@ export class RegtimeBalance {
 
                     this.valueChange.emit(this.currentBalance.hours);
                 }
-                
+
             }, (err) => {
                 console.log('Unable to fetch balance');
                 this.busy = false;
@@ -108,7 +107,7 @@ export class RegtimeBalance {
                 curWeek = wk;
             }
             if (wk.key !== curWeek.key) {
-                weeks.push(curWeek);                
+                weeks.push(curWeek);
                 curWeek = wk;
             }
             curWeek.addItem(x);
@@ -132,7 +131,7 @@ export class RegtimeBalance {
         return wk;
     }
 
-    
+
 }
 
 interface IDetails {
@@ -154,7 +153,7 @@ class Week {
     public key: string;
     public year: number;
     public week: number;
-    public items: IDetail[];  
+    public items: IDetail[];
     public sum: number = 0;
     private todayChecked: boolean = false;
 
@@ -164,7 +163,7 @@ class Week {
     private initDays(date: Date) {
 
         if (!this.items) {
-            this.items = [ this.newDetail(0), this.newDetail(1), this.newDetail(2), 
+            this.items = [ this.newDetail(0), this.newDetail(1), this.newDetail(2),
                 this.newDetail(3), this.newDetail(4), this.newDetail(5), this.newDetail(6)];
         }
 
@@ -194,7 +193,7 @@ class Week {
 
     private newDetail(dayNumber: number): IDetail {
         return {
-            ExpectedMinutes: 0, WorkedMinutes: 0, ValidTimeOff: 0, 
+            ExpectedMinutes: 0, WorkedMinutes: 0, ValidTimeOff: 0,
             IsWeekend: dayNumber >= 5, IsToday: false, Sum: 0
         };
     }

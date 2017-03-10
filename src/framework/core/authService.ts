@@ -5,7 +5,9 @@ import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/appConfig';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/map';
-declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
+
+// declare const jwt_decode: (token: string) => any; // node_module/jwt_decode
+import * as jwt_decode from 'jwt-decode';
 
 export interface IAuthDetails {
     token: string;

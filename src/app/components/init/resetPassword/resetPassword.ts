@@ -7,7 +7,7 @@ import {Logger} from '../../../../framework/core/logger';
 
 @Component({
     selector: 'uni-reset-password',
-    templateUrl: 'app/components/init/resetPassword/resetPassword.html',
+    templateUrl: './resetPassword.html',
 })
 export class ResetPassword {
     private code: string;

@@ -1,13 +1,13 @@
 import {ViewChild, Component, SimpleChanges} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/unitoast/toastservice';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate} from '../../../../unientities';
+import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate, InvoicePaymentData} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
-import {SupplierDetailsModal} from '../../../sales/supplier/details/supplierDetailModal';
+import {SupplierDetailsModal} from '../../../common/supplier/details/supplierDetailModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
@@ -30,8 +30,8 @@ import {
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from 'uniform-ng2/main';
-declare const moment;
-declare const _; // lodash
+import * as moment from 'moment';
+declare var _;
 
 interface ITab {
     name: string;
@@ -55,7 +55,7 @@ interface ILocalValidation {
 
 @Component({
     selector: 'uni-bill',
-    templateUrl: 'app/components/accounting/bill/detail/bill.html'
+    templateUrl: './bill.html'
 })
 export class BillView {
 
@@ -75,7 +75,6 @@ export class BillView {
     private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
-    private bankAccountChanged: any;
     private commentsConfig: any;
 
     @ViewChild(UniForm) public uniForm: UniForm;
@@ -216,26 +215,25 @@ export class BillView {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount, false);
-
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
-
-                    // save the bank account to the supplier
-                    if (changedBankaccount.ID === 0) {
-                        this.bankAccountService.Post(changedBankaccount)
-                            .subscribe((savedBankAccount: BankAccount) => {
-                                current.BankAccountID = savedBankAccount.ID;
-                                this.current.next(current); //if we update current we emit the new value
-                                resolve(savedBankAccount);
-                            },
-                            err => {
-                                this.errorService.handle(err);
-                                reject('Feil ved lagring av bankkonto');
-                            }
-                        );
-                    } else {
-                        throw new Error('Du kan ikke endre en bankkonto herfra');
+                this.bankAccountModal.confirm(bankaccount, false).then(res => {
+                    if (res.status === ConfirmActions.ACCEPT) {
+                        // save the bank account to the supplier
+                        let changedBankaccount = res.model;
+                        if (changedBankaccount.ID === 0) {
+                            this.bankAccountService.Post(changedBankaccount)
+                                .subscribe((savedBankAccount: BankAccount) => {
+                                    current.BankAccountID = savedBankAccount.ID;
+                                    this.current.next(current); //if we update current we emit the new value
+                                    resolve(savedBankAccount);
+                                },
+                                err => {
+                                    this.errorService.handle(err);
+                                    reject('Feil ved lagring av bankkonto');
+                                }
+                            );
+                        } else {
+                            throw new Error('Du kan ikke endre en bankkonto herfra');
+                        }
                     }
                 });
             })
@@ -721,7 +719,7 @@ export class BillView {
             if (done) { done(successMsg); }
         }, (err) => {
             this.errorService.handle(err);
-            done(err);
+            done(trimLength(err, 100, true));
         });
         return true;
     }
@@ -779,13 +777,13 @@ export class BillView {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current.next(result);
-                this.setupToolbar();
+                this.setupToolbar();                
                 this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
-                this.flagActionBar(actionBar.delete, current.StatusCode <= StatusCodeSupplierInvoice.Draft);
-                this.flagActionBar(actionBar.ocr, current.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.delete, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.ocr, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
                 this.checkLockStatus();
-                this.fetchHistoryCount(current.SupplierID);
+                this.fetchHistoryCount(result.SupplierID);
                 resolve('');
             }, (err) => {
                 this.errorService.handle(err);
@@ -867,7 +865,7 @@ export class BillView {
         }, (error) => {
             var msg = error.statusText;
             if (error._body) {
-                msg = error._body;
+                msg = trimLength(error._body, 100, true);
                 this.showErrMsg(msg, true);
             } else {
                 this.userMsg(lang.save_error);
@@ -916,7 +914,7 @@ export class BillView {
             }, (error) => {
                 var msg = error.statusText;
                 if (error._body) {
-                    msg = error._body;
+                    msg = trimLength(error._body, 150, true);
                     this.showErrMsg(msg, true);
                 } else {
                     this.userMsg(lang.save_error);
@@ -931,6 +929,7 @@ export class BillView {
 
         var changesMade = false;
         let current = this.current.getValue();
+        current.InvoiceDate = current.InvoiceDate || new LocalDate();
         // Ensure dates are set
         if (current.JournalEntry && current.JournalEntry.DraftLines) {
             current.JournalEntry.DraftLines.forEach( x => {
@@ -967,7 +966,7 @@ export class BillView {
                 if (item.Amount !== current.TaxInclusiveAmount * -1) {
                     item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
                     item.Amount = current.TaxInclusiveAmount * -1;
-                    item.Description = item.Description || (lang.headliner_invoice + ' ' + current.InvoiceNumber);
+                    item.Description = item.Description || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
                     if (addToList) {
                          current.JournalEntry.DraftLines.push(item);
                     }
@@ -1009,28 +1008,31 @@ export class BillView {
         let current = this.current.getValue();
         const title = lang.ask_register_payment + current.InvoiceNumber;
 
-        if (this.registerPaymentModal.changed.observers.length === 0) {
-            this.registerPaymentModal.changed.subscribe((modalData: any) => {
-                this.busy = true;
-                this.supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
-                .finally(() => this.busy = false)
-                .subscribe((journalEntry) => {
-                    this.fetchInvoice(current.ID, true);
-                    this.userMsg(lang.payment_ok, null, null, true);
-                }, (error) => {
-                    this.errorService.handle(error);
-                });
-            });
-        }
-
-        const invoiceData = {
+        const invoiceData: InvoicePaymentData = {
             Amount: current.RestAmount,
-            PaymentDate: new LocalDate(Date())
+            AmountCurrency: current.RestAmountCurrency,
+            BankChargeAmount: 0,
+            CurrencyCodeID: current.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: new LocalDate(Date()),
+            AgioAccountID: 0,
+            BankChargeAccountID: 0,
+            AgioAmount: 0
         };
 
-        this.registerPaymentModal.openModal(current.ID, title, invoiceData);
-
-        done('');
+        this.registerPaymentModal.confirm(current.ID, title, current.CurrencyCode, current.CurrencyExchangeRate, invoiceData).then((res) => {
+            this.busy = true;
+            this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
+            .finally(() => this.busy = false)
+            .subscribe((journalEntry) => {
+                this.fetchInvoice(current.ID, true);
+                this.userMsg(lang.payment_ok, null, null, true);
+                done('Betaling registrert');
+            }, (error) => {
+                this.errorService.handle(error);
+                done('Betaling feilet');
+            });
+        });
     }
 
 
@@ -1228,7 +1230,7 @@ export class BillView {
         var txt = msg;
         if (lookForMsg) {
             if (msg.indexOf('"Message":') > 0) {
-                txt = msg.substr(msg.indexOf('"Message":') + 12, 80) + '..';
+                txt = trimLength(msg.substr(msg.indexOf('"Message":') + 12, 80) + '..', 200, true);
             }
         }
         this.userMsg(msg, lang.warning, 7);

@@ -11,12 +11,11 @@ import {
     DimensionService,
     ErrorService
 } from '../../../../services/services';
-declare const moment;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 @Component({
     selector: 'accounting-details-report',
-    templateUrl: 'app/components/accounting/accountingreports/detailsmodal/accountDetailsReport.html',
+    templateUrl: './accountDetailsReport.html',
 })
 export class AccountDetailsReport {
     @Input() public config: { close: () => void, accountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
