@@ -1,0 +1,21 @@
+<section class="splitview">
+    <nav class="splitview_list">
+        <uni-table *ngIf="models?.length"
+                    [config]="modelsTable"
+                    [resource]="models"
+                    (rowSelected)="onRowSelected($event)">
+        </uni-table>
+    </nav>
+
+    <main class="splitview_detail" *ngIf="selectedModel">
+    <uni-form class=""
+              [config]="formConfig$"
+              [fields]="formFields$"
+              [model]="formModel$"
+              (changeEvent)="onFormChange($event)">
+    </uni-form>
+        <uni-table [config]="fieldsTable"
+                   [resource]="modelFields || []">
+        </uni-table>
+    </main>
+</section>

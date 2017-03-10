@@ -4,6 +4,7 @@ export * from './salesServicesModule';
 export * from './commonServicesModule';
 export * from './reportServicesModule';
 export * from './timetrackingServicesModule';
+export * from './adminServicesModule';
 
 // Accounting
 // export * from './accounting/accountService';

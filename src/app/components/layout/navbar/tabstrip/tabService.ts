@@ -45,7 +45,7 @@ export enum UniModules {
     Amelding        = 503,
     Categories      = 504,
     Salarybalances  = 505,
-    Supplements     = 506, 
+    Supplements     = 506,
 
     WorkProfiles    = 600,
     Workers         = 601,
@@ -57,6 +57,7 @@ export enum UniModules {
 
     Jobs            = 800,
     Translations    = 801,
+    Models          = 802,
 
     PaymentList     = 900,
 
