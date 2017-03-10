@@ -75,6 +75,13 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(resultSet => resultSet[0]);
     }
 
+    public getLatestSettledRun(year: number = undefined): Observable<PayrollRun> {
+        return super.GetAll(`filter=StatusCode ge 1 ${year 
+            ? 'and year(PayDate) eq ' +  year 
+            : ''}&top=1&orderby=PayDate DESC`)
+            .map(resultSet => resultSet[0]);
+    }
+
     public getYear(): number {
         let financialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
         return financialYear && financialYear.Year ? financialYear.Year : undefined;

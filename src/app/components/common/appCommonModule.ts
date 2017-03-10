@@ -46,13 +46,13 @@ import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
 import {ReminderRuleDetails} from './reminder/settings/ruleDetails';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
-
+import {ModelTreeView} from './modeltreeview/modeltreeview';
+import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
-
 
 @NgModule({
     imports: [
@@ -113,6 +113,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
+        ModelTreeView,
+        ModelTreeRelationNode,
 
         SupplierList,
         SupplierDetails,
@@ -192,6 +194,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
+        ModelTreeView,
+        ModelTreeRelationNode,
 
         SupplierList,
         SupplierDetails,

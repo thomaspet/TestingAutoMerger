@@ -43,17 +43,83 @@ uni-ticker-filters
         .model-tree
             float: left
             background-color: $uni-color-scale9
-            color: black;
-            width: pxToRem(200)
-            height: calc(100% - 3rem)
-            padding: 1.5rem
+            color: black
+            width: 16rem
+            height: 100%
+            padding-left: 1.5rem
+            padding-right: 1.5rem
+            overflow-y: scroll
+            overflow-x: hidden
+            font-size: 0.9rem
 
         .rule-setup
             float: left
-            padding: 1.5rem
-            height: calc(100% - pxToRem(200))
+            width: calc(100% - 19rem)
 
-            .rule-list
-                background-color: $uni-color-scale7
+            h2
+                padding-left: 1.5rem
+                padding-right: 1.5rem
 
+uni-ticker-filter-editor
+    width: 100%
+
+    a
+        text-decoration: underline
+        cursor: pointer
+
+    .field-filter-group
+        width: 100%
+        background-color: $uni-color-scale7
+        margin-top: 1rem
+
+    .field-filter-item
+        padding: 0.5rem
+
+    .add-field-filter
+        width: 100%
+        text-align: center
+        padding: 0.5rem
+
+        a
+            color: $uni-color-scale2
+
+    .delete-button
+        float: right
+
+    .add-field-filter-group
+        width: 100%
+        background-color: $uni-color-scale6
+        text-align: center
+        padding-top: 0.5rem
+        padding-bottom: 0.5rem
+
+        a:hover
+            color: white
+
+        a:active
+            color: white
+
+uni-ticker-field-filter-editor
+    uni-field
+        width: 15%
+        margin-right: 0.5rem
+        margin-left: 0.5rem
+
+        &.delete-button
+            width: auto;
+
+        &.operator-select
+            width: 15%;
+
+        &.field-select
+            width: 20%;
+
+
+
+    uni-select
+        li
+            color: black
+
+    button
+        margin-top: 0px
 

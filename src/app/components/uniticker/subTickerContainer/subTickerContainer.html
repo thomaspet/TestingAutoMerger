@@ -3,6 +3,7 @@
     <span class="sub-ticker-header">Detaljer</span>
     <div *ngIf="parentModel">
         <div class="sub-ticker-container" *ngIf="expanded">
+            <button (click)="closeSubtickers()" class="closeBtn"></button>
             <div class="sub-ticker-container-expanded">
                 <template ngFor let-subTicker [ngForOf]="subTickers">
                     <h3>{{subTicker.Name}}</h3>

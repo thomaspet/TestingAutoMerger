@@ -1,7 +1,7 @@
 <ul *ngIf="model">
     <li *ngFor="let rel of model.Relations">
         <a (click)="expandRelation(rel)" class="expandable">{{rel.Name}}</a>
-        <dynamic-report-relation-node *ngIf="rel.Expanded" [relation]="rel" [path]="getPath(path, rel.Name)" [models]="models" [showAllFields]="showAllFields" [selectedFields]="selectedFields"  (fieldAdded)="addOrRemoveFieldFromChild($event)"></dynamic-report-relation-node>
+        <model-tree-relation-node *ngIf="rel.Expanded" [relation]="rel" [path]="getPath(path, rel.Name)" [models]="models" [showAllFields]="showAllFields" [selectedFields]="selectedFields"  (fieldAdded)="addOrRemoveFieldFromChild($event)"></model-tree-relation-node>
     </li>
     <li *ngFor="let field of getFields(model.Fields)">
         <a class="selectable" [attr.aria-selected]="model.Fields[field].Selected" (click)="addOrRemoveField(model.Fields[field], model.Fields[field].Publicname)">{{model.Fields[field].Publicname}}</a>

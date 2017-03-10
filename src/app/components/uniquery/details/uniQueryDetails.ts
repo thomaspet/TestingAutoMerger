@@ -7,7 +7,6 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {StatisticsService, UniQueryDefinitionService, StatusService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
-import {RelationNode} from './relationNode';
 import {SaveQueryDefinitionModal} from './saveQueryDefinitionModal';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
@@ -17,7 +16,7 @@ import {ErrorService} from '../../../services/services';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 declare var _;
 
-declare const saveAs; // filesaver.js
+import {saveAs} from 'file-saver';
 
 @Component({
     selector: 'uni-query-details',
@@ -74,7 +73,6 @@ export class UniQueryDetails {
 
         this.route.params.subscribe(params => {
             this.queryDefinitionID = +params['id'];
-            this.setupModelData();
 
             // a lot of queries depend on the status cache being ready, load before loading the query
             this.statusService.loadStatusCache().then(x => {
@@ -191,7 +189,6 @@ export class UniQueryDetails {
                     this.editMode = false;
                     this.hideModel = true;
 
-                    this.setDefaultExpandedModels();
                     this.updateSaveActions();
                     this.updateContextMenu();
                     this.updateToolbarConfig();
@@ -207,37 +204,6 @@ export class UniQueryDetails {
             this.queryDefinition.UniQueryFilters = [];
 
             this.editQuery(() => {});
-        }
-    }
-
-    private setupModelData() {
-        this.uniHttpService
-            .usingMetadataDomain()
-            .asGET()
-            .withEndPoint('allmodels')
-            .send()
-            .map(response => response.json())
-            .subscribe((models) => {
-                this.models = models;
-                this.setDefaultExpandedModels();
-                this.filterModels();
-            },
-            err => this.errorService.handle(err)
-        );
-    }
-
-    private setDefaultExpandedModels() {
-        if (this.queryDefinition && this.queryDefinition.MainModelName && this.models) {
-            let mainModel = this.models.find(x => x.Name === this.queryDefinition.MainModelName);
-
-            if (mainModel) {
-                mainModel.Expanded = true;
-                mainModel.Selected = true;
-
-                // place the active mainmodel at top of the treeview
-                this.models = this.models.filter(x => x !== mainModel);
-                this.models.unshift(mainModel);
-            }
         }
     }
 
@@ -553,12 +519,10 @@ export class UniQueryDetails {
 
     private showHideAllModels() {
         this.showAllModels = !this.showAllModels;
-        this.filterModels();
     }
 
     private showHideAllFields() {
         this.showAllFields = !this.showAllFields;
-        this.filterModels();
     }
 
     private saveQuery(saveAsNewQuery: boolean, completeEvent) {
@@ -675,45 +639,8 @@ export class UniQueryDetails {
         }
     }
 
-    private filterModels() {
-        let models = this.models.filter(x => this.showAllModels || this.statisticsService.checkShouldShowEntity(x.Name));
-
-        models.forEach(model => {
-            model.fieldArray = Object.keys(model.Fields).filter(x => this.showAllFields || this.statisticsService.checkShouldShowField(x));
-
-            let fieldsOnTopLevelModels = this.fields
-                .filter((field: UniTableColumn) => field.path === null || field.path === '' || field.path === this.queryDefinition.MainModelName);
-
-            fieldsOnTopLevelModels.forEach((field: UniTableColumn) => {
-                let selectedField = model.fieldArray.find(x => x === field.field.toLowerCase());
-
-                if (selectedField !== undefined) {
-                    model.Fields[field.field.toLowerCase()].Selected = true;
-                }
-            });
-        });
-
-        this.visibleModels = models;
-    }
-
-    private expandModel(model) {
-        if (model.Expanded === null) {
-            model.Expanded = true;
-        } else {
-            model.Expanded = !model.Expanded;
-        }
-    }
-
-    private expandRelation(relation) {
-        if (relation.Expanded === null) {
-            relation.Expanded = true;
-        } else {
-            relation.Expanded = !relation.Expanded;
-        }
-    }
-
-    private addOrRemoveFieldFromChild(model, event){
-        this.addOrRemoveField(model, event.fieldname, event.field, event.path);
+    private addOrRemoveFieldFromChild(event){
+        this.addOrRemoveField(event.model, event.fieldname, event.field, event.path);
     }
 
     private addOrRemoveField(model, fieldname, field, path) {
@@ -752,7 +679,8 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
             colType = UniTableColumnType.Number;
         } else if (field.Type.toString().startsWith('System.Decimal')) {
             colType = UniTableColumnType.Money;
-        } else if (field.Type.toString().startsWith('System.DateTime')) {
+        } else if (field.Type.toString().startsWith('System.DateTime')
+                    || field.Type.toString().startsWith('NodaTime.LocalDate')) {
             colType = UniTableColumnType.LocalDate;
         } else {
             colType = UniTableColumnType.Text;

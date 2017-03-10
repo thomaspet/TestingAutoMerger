@@ -4,10 +4,10 @@ import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 declare var _;
 
 @Component({
-    selector: 'dynamic-report-relation-node',
+    selector: 'model-tree-relation-node',
     templateUrl: './relationNode.html'
 })
-export class RelationNode implements OnChanges {
+export class ModelTreeRelationNode implements OnChanges {
     @Input() private relation: any;
     @Input() private path: string;
     @Input() private models: Array<any>;
@@ -42,17 +42,19 @@ export class RelationNode implements OnChanges {
             });
 
             // find selected fields for this path (if any)
-            let fieldsOnThisPath = this.selectedFields
-                .filter((field: UniTableColumn) => field.path === this.path);
+            if (this.selectedFields) {
+                let fieldsOnThisPath = this.selectedFields
+                    .filter((field: UniTableColumn) => field.path === this.path);
 
-            // set fields as selected in this path
-            fieldsOnThisPath.forEach((field: UniTableColumn) => {
-                let selectedField = relatedModel.fieldArray.find(x => x === field.field.toLowerCase());
+                // set fields as selected in this path
+                fieldsOnThisPath.forEach((field: UniTableColumn) => {
+                    let selectedField = relatedModel.fieldArray.find(x => x === field.field.toLowerCase());
 
-                if (selectedField !== undefined) {
-                    relatedModel.Fields[field.field.toLowerCase()].Selected = true;
-                }
-            });
+                    if (selectedField !== undefined) {
+                        relatedModel.Fields[field.field.toLowerCase()].Selected = true;
+                    }
+                });
+            }
 
             // set all child relations as not expanded (to avoid problems with same relation in multiple paths)
             relatedModel.Relations.forEach(rel => {

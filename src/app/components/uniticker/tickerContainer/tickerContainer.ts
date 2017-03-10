@@ -24,7 +24,8 @@ export class UniTickerContainer {
     @ViewChild(UniTickerFilters) private uniTickerFilters: UniTickerFilters;
 
     private expanded: string = 'ticker';
-    private selectedFilter: TickerFilter;
+    public selectedFilter: TickerFilter;
+
     private selectedRow: any;
 
     constructor(private pageStateService: PageStateService) {
@@ -37,8 +38,6 @@ export class UniTickerContainer {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['ticker']) {
             let pageState = this.pageStateService.getPageState();
-
-            console.log('UniTickerContainer.ngOnChanges', pageState);
 
             if (pageState.filter && pageState.filter !== '' && this.ticker && this.ticker.Filters) {
                 this.selectedFilter = this.ticker.Filters.find(x => x.Code === pageState.filter);
@@ -85,7 +84,7 @@ export class UniTickerContainer {
                 this.expanded = newExpand;
             }
         }
-        console.log('setExpanded: ' + this.expanded);
+
         this.pageStateService.setPageState('expanded', this.expanded);
         this.urlPropertiesChanged.emit();
     }
@@ -93,23 +92,21 @@ export class UniTickerContainer {
     private onRowSelected(selectedRow: any) {
         this.selectedRow = selectedRow;
 
-        console.log('tickerContainer.onRowSelected', selectedRow);
-
         if (selectedRow && selectedRow._originalIndex) {
             this.pageStateService.setPageState('selected', selectedRow._originalIndex);
             this.urlPropertiesChanged.emit();
         }
 
         if (this.ticker.SubTickers && this.ticker.SubTickers.length > 0 && this.selectedRow) {
-            this.setExpanded('subticker', true);
+            this.setExpanded('subticker');
         }
     }
 
     private onFilterSelected(filter: TickerFilter) {
         if (filter !== this.selectedFilter) {
+
             this.selectedFilter = filter;
             this.selectedRow = null;
-
 
             this.setExpanded('ticker');
 

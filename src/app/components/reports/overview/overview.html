@@ -12,6 +12,26 @@
             </div>
             <!-- Reports -->
             <div *ngIf="report.IsReport" [ngSwitch]="report.ID">
+                <a *ngSwitchCase="7"
+                        (click)="showSalaryPaymentListOrPostingSummaryModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+                <a *ngSwitchCase="8"
+                        (click)="showSalaryPaymentListOrPostingSummaryModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+                <a *ngSwitchCase="9"
+                        (click)="showVacationBaseFilterModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+                <a *ngSwitchCase="11"
+                        (click)="showSalaryWithholdingAndAgaFilterModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
                 <a *ngSwitchCase="12"
                         (click)="showBalanceListModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
@@ -70,5 +90,8 @@
 <balance-general-ledger-filter-modal></balance-general-ledger-filter-modal>
 <customer-account-report-filter-modal></customer-account-report-filter-modal>
 <supplier-account-report-filter-modal></supplier-account-report-filter-modal>
+<salary-payment-list-report-filter-modal></salary-payment-list-report-filter-modal>
+<vacation-pay-base-report-filter-modal></vacation-pay-base-report-filter-modal>
+<salary-withholding-and-aga-report-filter-modal></salary-withholding-and-aga-report-filter-modal>
 <router-outlet></router-outlet>
 

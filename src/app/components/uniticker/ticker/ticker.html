@@ -1,9 +1,9 @@
 <section *ngIf="ticker">
     <section class="filter-info" *ngIf="selectedFilter">
-        Filter: {{selectedFilter.Name}} ({{selectedFilter.Filter}})
+        Filter: {{selectedFilter.Name}} {{getFilterText()}}
     </section>
     <section class="ticker-data">
-        <section class="menu-container">
+        <section class="menu-container" *ngIf="ticker.Actions && ticker.Actions.length > 0">
             <uni-ticker-actions [actions]="ticker.Actions" (executeAction)="onExecuteAction($event)"></uni-ticker-actions>
         </section>
         <section class="data-container" (click)="letUniTableHandleIsOwnClicks()">
