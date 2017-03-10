@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {Model} from '../../../unientities';
@@ -6,23 +6,31 @@ import {ModelService, ErrorService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType, UniField} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
+import {IToolbarConfig} from './../../common/toolbar/toolbar';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'uni-models',
     templateUrl: 'app/components/admin/models/models.html'
 })
 export class UniModels {
+    @ViewChildren(UniTable)
+    private tables: QueryList<UniTable>;
+
     private models: Model[];
     private selectedModel: Model;
-    private modelFields: any[];
 
     private modelsTable: UniTableConfig;
     private fieldsTable: UniTableConfig;
 
+    private hasUnsavedChanges: boolean;
 
     private formModel$: BehaviorSubject<Model> = new BehaviorSubject(null);
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
+
+    private toolbarConfig: IToolbarConfig;
+    private saveActions: IUniSaveAction[];
 
     constructor(
         private tabService: TabService,
@@ -37,22 +45,76 @@ export class UniModels {
         });
 
         this.modelService.GetAll(null).subscribe(
-            res => this.models = res,
+            (res) => {
+                this.models = res;
+                // Timeout to allow table to init before focusing
+                setTimeout(() => {
+                    this.tables.first.focusRow(0);
+                });
+            },
             err => this.errorService.handle(err)
         );
 
+        this.initToolbar();
         this.initTableConfigs();
         this.initFormConfigs();
     }
 
-    public onRowSelected(event) {
-        this.selectedModel = event.rowModel;
-        console.log(this.selectedModel.Fields)
-        if (this.selectedModel.Fields) {
-            this.modelFields = this.selectedModel.Fields;
-        }
+    private saveCurrentModel() {
+        this.modelService.Put(this.selectedModel.ID, this.selectedModel)
+            .subscribe(
+                res => console.log('save success!'),
+                err => this.errorService.handle(err)
+            );
     }
 
+    public onRowSelected(event) {
+        if (this.hasUnsavedChanges && event.rowModel['_originalIndex'] !== this.selectedModel['_originaIndex']) {
+            if (!confirm('Du har ulagrede endringer. Ønsker du å forkaste disse?')) {
+                // If user cancels on modal, reset focus to current row
+                this.tables.first.focusRow(this.selectedModel['_originalIndex']);
+            }
+        }
+
+        // If no unsaved changes, or user is fine with throwing them away
+        // we change selected model
+        this.hasUnsavedChanges = false;
+        this.selectedModel = event.rowModel;
+        this.formModel$.next(this.selectedModel);
+    }
+
+    private onRowChanged(event) {
+        this.hasUnsavedChanges = true;
+        this.selectedModel.Fields[event._originalIndex] = event.rowModel;
+        this.formModel$.next(this.selectedModel); // update form
+    }
+
+    public onFormChange(changes) {
+        this.hasUnsavedChanges = true;
+        this.selectedModel = this.formModel$.getValue();
+    }
+
+
+    private initToolbar() {
+        this.toolbarConfig = {
+            title: 'Modeller'
+        }
+
+        this.saveActions = [{
+            label: 'Lagre',
+            main: true,
+            disabled: false,
+            action: (completeevent) => {
+                this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
+                    (res) => {
+                        this.hasUnsavedChanges = false;
+                        completeevent('Modell lagret');
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
+        }];
+    }
 
     private initTableConfigs() {
         this.modelsTable = new UniTableConfig(false, true, 15)
@@ -65,7 +127,8 @@ export class UniModels {
                 new UniTableColumn('Label', 'Label'),
                 new UniTableColumn('Description', 'Beskrivelse'),
                 new UniTableColumn('HelpText', 'Hjelpetekst')
-            ]);
+            ])
+            .setChangeCallback(event => this.onRowChanged(event));
     }
 
     private initFormConfigs() {
@@ -163,7 +226,5 @@ export class UniModels {
         ]);
     }
 
-    private onFormChange(event) {
-        console.log(event);
-    }
+
 }
