@@ -26,8 +26,8 @@ module.exports = {
     output: {
         path: helpers.root('dist'),
         pathinfo: true,
-        filename: '[name].bundle.js',
-        chunkFilename: '[id].chunk.js',
+        filename: '[name].[hash].bundle.js',
+        chunkFilename: '[id].[hash].chunk.js',
         sourceMapFilename: '[file].map'
     },
 

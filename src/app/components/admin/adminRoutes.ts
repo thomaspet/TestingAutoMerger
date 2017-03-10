@@ -6,12 +6,17 @@ import {AuthGuard} from '../../authGuard';
 
 import {UniAdmin} from './admin';
 import {Jobs} from './jobs/jobs';
+import {UniModels} from './models/models';
 
 export const childRoutes = [
     {
         path: 'jobs',
         component: Jobs
         //children: JobsRoutes
+    },
+    {
+        path: 'models',
+        component: UniModels
     }
 ];
 
