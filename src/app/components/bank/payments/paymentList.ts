@@ -69,7 +69,7 @@ export class PaymentList {
 
     public ngOnInit() {
         this.toolbarconfig = {
-                title: 'Betalinger',
+                title: 'Utbetalingsliste',
                 subheads: [],
                 navigation: {}
             };
@@ -170,7 +170,7 @@ export class PaymentList {
     private loadData() {
         let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ? ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
 
-        this.paymentService.GetAll(`filter=StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
+        this.paymentService.GetAll(`filter=IsCustomerPayment eq false and StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
             .subscribe(data => {
                 this.pendingPayments = data;
 
@@ -371,7 +371,7 @@ export class PaymentList {
         let selectedRows = this.table.getSelectedRows();
 
         if (selectedRows.length === 0) {
-            alert('Ingen rader er valgt - kan ikke slette noe');
+            this.toastService.addToast('Ingen rader', ToastType.warn, 5, 'Ingen rader er valgt - kan ikke slette noe');
             doneHandler('Sletting avbrutt');
             return;
         }

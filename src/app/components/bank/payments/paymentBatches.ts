@@ -34,7 +34,7 @@ export class PaymentBatches {
                 private fileService: FileService) {
 
         this.tabService.addTab({
-            name: 'Betalingsbunter',
+            name: 'Utbetalinger',
             url: '/bank/batches',
             moduleID: UniModules.PaymentBatches,
             active: true }
@@ -43,7 +43,7 @@ export class PaymentBatches {
 
     public ngOnInit() {
         this.toolbarconfig = {
-                title: 'Betalingsbunter',
+                title: 'Utbetalinger',
                 subheads: [],
                 navigation: {}
             };

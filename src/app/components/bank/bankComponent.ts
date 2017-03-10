@@ -12,8 +12,8 @@ export class BankComponent {
 
     constructor() {
         this.childRoutes = [
-            {name: 'Betalingsliste', path: 'payments'},
-            {name: 'Betalingsbunter', path: 'batches'},
+            {name: 'Utbetalingsliste', path: 'payments'},
+            {name: 'Utbetalinger', path: 'batches'},
             {name: 'Innbetalinger', path: 'customerbatches'}
         ];
     }
