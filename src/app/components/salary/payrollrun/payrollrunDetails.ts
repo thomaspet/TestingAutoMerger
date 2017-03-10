@@ -737,28 +737,23 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let lastTodate = moment(latest.ToDate);
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
-            let fromdateAsDate = new Date(lastFromdate);
-            let todateAsDate: Date;
-
-            payrollRun.FromDate = fromdateAsDate;
+            
+            payrollRun.FromDate = lastFromdate.toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
-                    todateAsDate = new Date(lastTodate);
-                    payrollRun.ToDate = todateAsDate;
+                    payrollRun.ToDate = lastTodate.toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
-                    todateAsDate = new Date(lastTodate);
-                    payrollRun.ToDate = todateAsDate;
+                    payrollRun.ToDate = lastTodate.toDate();
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
-                    todateAsDate = new Date(lastTodate);
-                    payrollRun.ToDate = todateAsDate;
+                    payrollRun.ToDate = lastTodate.toDate();
                     break;
             }
         }

@@ -16,7 +16,6 @@ export class SalarybalanceLine implements OnInit {
     private salarybalancelineTable: UniTableConfig;
     @Input() private salarybalance: SalaryBalance;
     private salarybalanceLines: SalaryBalanceLine[] = [];
-    private calculatedBalance: number;
 
     constructor(
         private _salarybalancelineService: SalaryBalanceLineService,
@@ -27,7 +26,6 @@ export class SalarybalanceLine implements OnInit {
     }
 
     public ngOnInit() {
-        this.calculatedBalance = this.salarybalance.Balance;
         this.createConfig();
     }
 
@@ -52,18 +50,8 @@ export class SalarybalanceLine implements OnInit {
         let descriptionCol = new UniTableColumn('Description', 'Forklaring', UniTableColumnType.Text);
         let dateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate);
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        let balanceCol = new UniTableColumn('_Balance', 'Ny saldo', UniTableColumnType.Money).setEditable(false);
 
         this.salarybalancelineTable = new UniTableConfig(true, false, 1)
-            .setColumns([descriptionCol, dateCol, amountCol, balanceCol])
-            .setChangeCallback((event) => {
-                let row = event.rowModel;
-                if (event.field === 'Amount') {
-                    row['_Balance'] = this.calculatedBalance + row['Amount'];
-                    this.calculatedBalance += row['Amount'];
-                }
-
-                return row;
-            });
+            .setColumns([descriptionCol, dateCol, amountCol]);
     }
 }

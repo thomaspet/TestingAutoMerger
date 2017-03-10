@@ -30,6 +30,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
+    public getAll(empID: number) {
+        return super.GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC&expand=Transactions`);
+    }
+
     public getPrevious(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID desc`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
@@ -38,6 +42,15 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     public getNext(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
+    }
+
+    public getBalance(ID: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${ID}?action=balance`)
+            .send()
+            .map(response => response.json());
     }
 
     public layout(layoutID: string) {
@@ -134,7 +147,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     {
                         ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
-                        Property: 'WagetypeID',
+                        Property: 'WageTypeNumber',
                         Placement: 1,
                         Hidden: false,
                         FieldType: FieldType.DROPDOWN,
@@ -173,26 +186,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Placeholder: null,
                         Options: null,
                         LineBreak: true,
-                        Combo: null,
-                        Sectionheader: ''
-                    },
-                    {
-                        ComponentLayoutID: 1,
-                        EntityType: 'salarybalance',
-                        Property: 'Balance',
-                        Placement: 1,
-                        Hidden: false,
-                        FieldType: FieldType.NUMERIC,
-                        ReadOnly: false,
-                        LookupField: false,
-                        Label: 'Beløp',
-                        Description: null,
-                        HelpText: null,
-                        FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
                         Combo: null,
                         Sectionheader: ''
                     },

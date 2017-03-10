@@ -60,7 +60,6 @@ export class SalarybalanceDetail extends UniView {
                     if (salarybalance.ID !== this.salarybalanceID) {
                         this.salarybalance$.next(salarybalance);
                         this.salarybalanceID = salarybalance.ID;
-
                         if (!salarybalance.ID) {
                             if (employeeID) {
                                 salarybalance.EmployeeID = employeeID;
@@ -90,7 +89,7 @@ export class SalarybalanceDetail extends UniView {
         const model = this.salarybalance$.getValue();
         super.updateState('salarybalance', model, true);
     }
-
+    
     private setup() {
         Observable.forkJoin(this.getSources())
             .subscribe((response: any) => {
@@ -124,15 +123,12 @@ export class SalarybalanceDetail extends UniView {
             debounceTime: 500
         };
 
-        let wagetypeField: UniFieldLayout = this.findByPropertyName('WagetypeID');
+        let wagetypeField: UniFieldLayout = this.findByPropertyName('WageTypeNumber');
         wagetypeField.Options.source = this.wagetypes;
 
         let employeeField: UniFieldLayout = this.findByPropertyName('EmployeeID');
         employeeField.Options.source = this.employees;
-
-        let amountField: UniFieldLayout = this.findByPropertyName('Balance');
-        amountField.Label = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
-
+        
         let instalmentField: UniFieldLayout = this.findByPropertyName('Instalment');
         instalmentField.ReadOnly = this.salarybalance$.getValue().InstalmentPercent !== null
             ? (this.salarybalance$.getValue().InstalmentPercent ? true : false) : false;

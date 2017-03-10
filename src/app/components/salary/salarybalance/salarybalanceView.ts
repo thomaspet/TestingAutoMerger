@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { UniView } from '../../../../framework/core/uniView';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniCacheService, ErrorService, SalarybalanceService } from '../../../services/services';
@@ -79,7 +79,7 @@ export class SalarybalanceView extends UniView {
         });
 
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event instanceof NavigationEnd) {
                 if (!this.salarybalance) {
                     this.getSalarybalance();
                 }
@@ -163,7 +163,7 @@ export class SalarybalanceView extends UniView {
 
     private getSalarybalance() {
         this.salarybalanceService.getSalarybalance(this.salarybalanceID,
-            ['SalaryBalanceLines', 'Employee', 'Employee.BusinessRelationInfo',
+            ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
             'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
                 this.salarybalance = salbal;
