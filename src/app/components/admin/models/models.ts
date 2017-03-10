@@ -11,7 +11,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'uni-models',
-    templateUrl: 'app/components/admin/models/models.html'
+    templateUrl: './models.html'
 })
 export class UniModels {
     @ViewChildren(UniTable)
