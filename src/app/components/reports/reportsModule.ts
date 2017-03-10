@@ -36,6 +36,18 @@ import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/Result
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {SupplierAccountReportFilterForm} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {
+    SalaryPaymentListReportFilterModal, 
+    SalaryPaymentListReportFilterModalContent
+} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
+import {
+    VacationPayBaseReportFilterModal,
+    VacationPayBaseReportFilterModalContent
+} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
+import {
+    SalaryWithholdingAndAGAReportFilterModal,
+    SalaryWithholdingAndAGAReportFilterModalContent
+} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {UniReports} from './reports';
 
 @NgModule({
@@ -86,6 +98,12 @@ import {UniReports} from './reports';
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
         SupplierAccountReportFilterModal,
+        SalaryPaymentListReportFilterModal,
+        SalaryPaymentListReportFilterModalContent,
+        VacationPayBaseReportFilterModal,
+        VacationPayBaseReportFilterModalContent,
+        SalaryWithholdingAndAGAReportFilterModal,
+        SalaryWithholdingAndAGAReportFilterModalContent,
         ReportparameterModalType
     ],
     entryComponents: [
@@ -97,6 +115,9 @@ import {UniReports} from './reports';
         PostingJournalReportFilterForm,
         ResultAndBalanceReportFilterForm,
         SupplierAccountReportFilterForm,
+        SalaryPaymentListReportFilterModalContent,
+        VacationPayBaseReportFilterModalContent,
+        SalaryWithholdingAndAGAReportFilterModalContent,
         ReportparameterModalType
     ],
     exports: [
@@ -119,6 +140,12 @@ import {UniReports} from './reports';
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
         SupplierAccountReportFilterModal,
+        SalaryPaymentListReportFilterModal,
+        SalaryPaymentListReportFilterModalContent,
+        VacationPayBaseReportFilterModal,
+        VacationPayBaseReportFilterModalContent,
+        SalaryWithholdingAndAGAReportFilterModal,
+        SalaryWithholdingAndAGAReportFilterModalContent,
         ReportparameterModalType
     ]
 })
