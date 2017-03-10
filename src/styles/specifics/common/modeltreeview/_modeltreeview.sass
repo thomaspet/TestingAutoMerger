@@ -1,0 +1,26 @@
+model-tree-view
+    .modeltreeview
+        ul
+            list-style-type: none;
+            padding-left: pxToRem(10);
+
+        a
+            font-weight: 300
+            padding: 0 0 .2em 1rem
+            cursor: pointer
+
+            :not(.expandable)
+                padding: 0 0 .2em 1rem
+
+        .selectable[aria-selected=true]
+            font-weight: bold
+
+        .expandable
+            padding: 0 0 .2em 1rem
+            margin: 0
+            background: unicon-chevron-right($uni-color-scale5) no-repeat 0 .5rem
+            background-size: .35rem
+
+        .expandable[aria-expanded=true]
+            background: unicon-chevron-down($uni-color-scale5) no-repeat 0 .5rem
+            background-size: .7rem

@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniTickerService, PageStateService} from '../../../services/services';
-import {Ticker, TickerGroup} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerHistory} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Location} from '@angular/common';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -22,6 +22,8 @@ export class UniTickerOverview {
     private selectedTicker: Ticker;
 
     private showSubTickers: boolean = true;
+    private lastSearch: TickerHistory;
+
 
     private toolbarConfig: IToolbarConfig = {
         title: 'Oversikt',
@@ -59,14 +61,40 @@ export class UniTickerOverview {
     }
 
     private onUrlChanged() {
-        this.updateTabService();
+        let url = this.location.path(false);
+
+        this.updateTabService(url);
+
+        if (this.selectedTicker) {
+            setTimeout(() => {
+                this.lastSearch =
+                    this.uniTickerService.addSearchHistoryItem(
+                        this.selectedTicker,
+                        this.tickerContainer.selectedFilter,
+                        url
+                    );
+            });
+        }
     }
 
-    private updateTabService() {
-        let path = this.location.path(false);
+    private onShowSearch(search: TickerHistory) {
+        // navigate - this is done to set the URL props - but it will not actually do
+        // much unless the ticker changes - so set the ticker manually afterwards to
+        // force the view to update itself if the ticker is the same (but another
+        // filter is used)
+        this.router.navigateByUrl(search.Url);
+
+        if (this.selectedTicker && this.selectedTicker.Code === search.Ticker.Code) {
+            setTimeout(() => {
+                this.showTicker(search.Ticker.Code);
+            });
+        }
+    }
+
+    private updateTabService(url: string) {
         this.tabService.addTab({
-                name: this.selectedTicker ? this.selectedTicker.Name : 'Oversikt',
-                url: path,
+                name: this.selectedTicker ? 'Utvalg: ' + this.selectedTicker.Name : 'Utvalg',
+                url: url,
                 moduleID: UniModules.UniQuery,
                 active: true
             });
@@ -116,15 +144,13 @@ export class UniTickerOverview {
     }
 
     private showTicker(selectedTickerCode: string) {
-        this.selectedTicker = this.tickers.find(x => x.Code === selectedTickerCode);
-        this.updateTabService();
+        this.selectedTicker = _.cloneDeep(this.tickers.find(x => x.Code === selectedTickerCode));
+
+        let url = this.location.path(false);
+        this.updateTabService(url);
     }
 
     private exportToExcel(completeEvent) {
         this.tickerContainer.exportToExcel(completeEvent);
-    }
-
-    private showHistoricSearch() {
-        alert('Ikke implementert - må sende inn info om søket og oppdatere visningen');
     }
 }

@@ -6,6 +6,7 @@ uni-ticker-container
         margin-top: 1.5rem
         display: flex
         flex-direction: row
+        width: 100%
 
     uni-ticker-filters
         margin-right: 1rem
@@ -26,3 +27,24 @@ uni-ticker-container
 
         &.expanded
             flex: 0 1 60%
+
+
+    .closeBtn
+        @extend %hideText
+        position: relative
+        top: 3rem
+        right: -.5rem
+        height: 2rem
+        width: 2rem
+        padding: 0
+        box-shadow: none
+        border: none
+        background: transparent unicon-close($uni-color-positive) center no-repeat
+        background-size: .8rem
+        margin-top: -2.5rem
+        float: right
+
+        &:hover
+            background-color: $uni-color-scale8
+            border-radius: 99rem
+            background-size: .8rem

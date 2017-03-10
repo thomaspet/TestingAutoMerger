@@ -1,8 +1,10 @@
 <section *ngIf="ticker" class="ticket-container">
     <uni-ticker-filters
         (click)="setExpanded('filter', true)"
+        (close)="setExpanded('ticker')"
         [ticker]="ticker"
         [filters]="ticker.Filters"
+        [selectedFilter]="selectedFilter"
         (filterSelected)="onFilterSelected($event)"
         [expanded]="expanded === 'filter'"
         [class]="expanded === 'filter' ? 'expanded' : ''">
@@ -16,8 +18,9 @@
         [class]="expanded === 'ticker' ? 'expanded' : ''">
     </uni-ticker>
     <uni-sub-ticker-container
-        *ngIf="showSubTickers"
+        *ngIf="showSubTickers && ticker.SubTickers && ticker.SubTickers.length > 0"
         (click)="setExpanded('subticker', true)"
+        (close)="setExpanded('ticker')"
         [parentModel]="selectedRow"
         [parentTicker]="ticker"
         [subTickers]="ticker.SubTickers"

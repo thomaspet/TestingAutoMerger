@@ -4,17 +4,16 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniQueryDefinition} from '../../../unientities';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue} from '../../../services/common/uniTickerService';
 import {StatisticsService, StatusService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {ErrorService} from '../../../services/services';
-import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig, ITableFilter, IExpressionFilterValue} from 'unitable-ng2/main';
+import {ErrorService, UniTickerService} from '../../../services/services';
+import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
-
-declare const moment;
-declare const saveAs; // filsesaver.js
+import * as moment from 'moment';
+import {saveAs} from 'file-saver';
 
 @Component({
     selector: 'uni-ticker',
@@ -39,6 +38,7 @@ export class UniTicker {
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
 
+    private expressionFilters: Array<IExpressionFilterValue> = [];
     private rowindexToFocusAfterDataLoad: number;
 
     constructor(private uniHttpService: UniHttp,
@@ -49,10 +49,17 @@ export class UniTicker {
         private toastService: ToastService,
         private authService: AuthService,
         private statusService: StatusService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private uniTickerService: UniTickerService) {
         let token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
+
+            this.expressionFilters = [];
+            this.expressionFilters.push({
+                Expression: 'currentuserid',
+                Value: this.currentUserGlobalIdentity
+            });
         }
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
@@ -78,10 +85,21 @@ export class UniTicker {
             params.set('expand', this.ticker.Expand);
         }
 
-        if (this.selectedFilter && this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
-            let newFilter = this.selectedFilter.Filter;
-            if (newFilter.indexOf(':currentuserid') >= 0) {
-                newFilter = newFilter.replace(':currentuserid', `'${this.currentUserGlobalIdentity}'`);
+        if (this.selectedFilter) {
+            let newFilter = '';
+
+            if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
+                newFilter = this.selectedFilter.Filter;
+
+                if (newFilter.indexOf(':currentuserid') >= 0) {
+                    newFilter = newFilter.replace(':currentuserid', `'${this.currentUserGlobalIdentity}'`);
+                }
+            } else if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
+                newFilter =
+                    this.uniTickerService.getFilterString(
+                        this.selectedFilter.FilterGroups,
+                        this.expressionFilters
+                    );
             }
 
             params.set('filter', newFilter);
@@ -238,10 +256,35 @@ export class UniTicker {
         return text || (statusCode ? statusCode.toString() : '');
     }
 
+    private getFilterText() {
+        if (this.selectedFilter) {
+            if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
+                return this.uniTickerService.getFilterString(
+                    this.selectedFilter.FilterGroups,
+                    []
+                );
+            } else if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
+                return this.selectedFilter.Filter;
+            }
+        }
+
+        return '';
+    }
+
     private setupTableConfig() {
-        if (!this.ticker.Columns || this.ticker.Columns.length === 0) {
-            // TODO: if no columns are defined, we should probably get some defaults based on the model
-            return;
+        if (!this.ticker.Columns) {
+            // TODO: if no columns are defined, we should get defaults based on the model
+            this.ticker.Columns = [];
+            this.ticker.Columns.push({
+                Field: 'ID',
+                Alias: 'ID',
+                Header: 'ID',
+                CssClass: null,
+                Format: null,
+                SumFunction: null,
+                Type: 'number',
+                Width: null
+            });
         }
 
         // Define columns to use in the table

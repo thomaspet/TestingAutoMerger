@@ -17,7 +17,6 @@ import {AppServicesModule} from '../../services/servicesModule';
 import {routes as UniQueryRoutes} from './uniQueriesRoutes';
 import {UniQueryOverview} from './overview/overview';
 import {UniQueryDetails} from './details/uniQueryDetails';
-import {RelationNode} from './details/relationNode';
 import {SaveQueryDefinitionForm, SaveQueryDefinitionModal} from './details/saveQueryDefinitionModal';
 import {UniQueries} from './uniQueries';
 
@@ -51,7 +50,6 @@ import {UniQueries} from './uniQueries';
         UniQueries,
         UniQueryOverview,
         UniQueryDetails,
-        RelationNode,
         SaveQueryDefinitionForm,
         SaveQueryDefinitionModal
     ],
@@ -62,7 +60,6 @@ import {UniQueries} from './uniQueries';
         UniQueries,
         UniQueryOverview,
         UniQueryDetails,
-        RelationNode,
         SaveQueryDefinitionForm,
         SaveQueryDefinitionModal
     ]

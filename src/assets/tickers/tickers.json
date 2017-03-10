@@ -9,9 +9,24 @@
         "Expand": "Customer.Info",
         "Columns": [
             {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
+                "Width": "100px"
+
+            },
+            {
+                "Header": "Kundenr",
+                "Field": "Customer.CustomerNumber"
+            },
+            {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
                 "Width": "250px"
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "InvoiceDate",
+                "Type": "date"
             },
             {
                 "Header": "Forfallsdato",
@@ -25,6 +40,10 @@
                 "Format": "NumberPositiveNegative",
                 "Width": "150px",
                 "Type": "money"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
             }
         ],
         "Actions": [
@@ -54,7 +73,19 @@
             {
                 "Name": "Mine",
                 "Code": "my_invoices",
-                "Filter": "CreatedBy eq :currentuserid"
+                "FilterGroups": [{
+                    "FieldFilters": [
+                    {
+                        "Field": "TaxInclusiveAmount",
+                        "Operator": "gt",
+                        "Value": "2000"
+                    },
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
             }
         ]
     },
@@ -64,7 +95,28 @@
         "Code": "order_list",
         "IsTopLevelTicker": true,
         "Group": "Salg",
-        "Model": "CustomerOrder"
+        "Model": "CustomerOrder",
+        "Expand": "Customer.Info",
+        "Columns": [
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "Format": "DatePassed",
+                "Type": "date"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "Type": "money"
+            }
+        ]
     },
     {
         "Name": "Fakturalinjer",

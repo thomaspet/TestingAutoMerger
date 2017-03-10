@@ -1,0 +1,19 @@
+<div *ngFor="let group of fieldFilterGroups" class="field-filter-group">
+    <div *ngFor="let fieldFilter of group.FieldFilters" class="field-filter-item">
+        <uni-ticker-field-filter-editor
+            [ticker]="ticker"
+            [fieldFilter]="fieldFilter"
+            [mainModel]="mainModel"
+            (fieldFilterChanged)="onChangeFieldFilter($event, group)"
+            (fieldFilterDeleted)="onDeleteFieldFilter(fieldFilter, group)">
+        </uni-ticker-field-filter-editor>
+    </div>
+    <div class="add-field-filter">
+        <!-- KE: Trenger mulighet for å angi AND/OR <label><input type="checkbox" />Alle kriterier må oppfylles</label>-->
+        <a (click)="addFieldFilter(group)">+ Legg til kriterie</a>
+    </div>
+</div>
+
+<div class="add-field-filter-group">
+    <a (click)="addFieldFilterGroup()">+ Legg til regelgruppe</a>
+</div>

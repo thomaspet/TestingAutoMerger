@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {Ticker, TickerGroup, TickerColumn} from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
 
@@ -11,6 +11,9 @@ export class UniSubTickerContainer implements OnChanges {
     @Input() parentTicker: Ticker;
     @Input() parentModel: any;
     @Input() private expanded: boolean = false;
+
+    @Output() close: EventEmitter<any> = new EventEmitter<any>();
+
     private selectedSubTicker: Ticker;
 
     constructor(private tickerService: UniTickerService) {
@@ -36,9 +39,18 @@ export class UniSubTickerContainer implements OnChanges {
 
         subTicker.IsActive = true;
 
-        event.stopPropagation();
+        this.stopPropagation();
 
         this.selectedSubTicker = subTicker;
+    }
+
+    private stopPropagation() {
+        event.stopPropagation();
+    }
+
+    private closeSubtickers() {
+        this.close.emit();
+        this.stopPropagation();
     }
 
     public getFieldValue(column: TickerColumn, model: any) {
