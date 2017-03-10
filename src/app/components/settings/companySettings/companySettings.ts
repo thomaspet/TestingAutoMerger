@@ -1121,7 +1121,7 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
-                Property: 'AgioNegativeAccountID',
+                Property: 'AgioGainAccountID',
                 Placement: 1,
                 Hidden: false,
                 FieldType: FieldType.UNI_SEARCH,
@@ -1146,7 +1146,7 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
-                Property: 'AgioPositiveAccountID',
+                Property: 'AgioLossAccountID',
                 Placement: 1,
                 Hidden: false,
                 FieldType: FieldType.UNI_SEARCH,

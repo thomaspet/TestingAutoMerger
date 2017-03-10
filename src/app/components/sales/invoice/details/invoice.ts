@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode, InvoicePaymentData} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -96,7 +96,7 @@ export class InvoiceDetails {
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'InvoiceReference', 'JournalEntry'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+        'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     constructor(
         private customerInvoiceService: CustomerInvoiceService,
@@ -125,13 +125,13 @@ export class InvoiceDetails {
 
     public ngOnInit() {
         this.summaryFields = [
-            {title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0)},
-            {title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0)},
-            {title: 'Sum rabatt', value: this.numberFormat.asMoney(0)},
-            {title: 'Nettosum', value: this.numberFormat.asMoney(0)},
-            {title: 'Mva', value: this.numberFormat.asMoney(0)},
-            {title: 'Øreavrunding', value: this.numberFormat.asMoney(0)},
-            {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
+            { title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0) },
+            { title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0) },
+            { title: 'Sum rabatt', value: this.numberFormat.asMoney(0) },
+            { title: 'Nettosum', value: this.numberFormat.asMoney(0) },
+            { title: 'Mva', value: this.numberFormat.asMoney(0) },
+            { title: 'Øreavrunding', value: this.numberFormat.asMoney(0) },
+            { title: 'Totalsum', value: this.numberFormat.asMoney(0) },
         ];
 
         // Subscribe and debounce recalc on table changes
@@ -247,9 +247,9 @@ export class InvoiceDetails {
                             this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
                         }
                     },
-                    (err) => {
-                        this.errorService.handle(err);
-                    });
+                        (err) => {
+                            this.errorService.handle(err);
+                        });
                 });
             }
         }
@@ -295,7 +295,7 @@ export class InvoiceDetails {
         }
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean | Promise<boolean> {
         if (!this.isDirty) {
             return true;
         }
@@ -421,7 +421,7 @@ export class InvoiceDetails {
                                 `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
                                 'Rekalkulere valutapriser for varer?',
                                 false,
-                                {accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser'}
+                                { accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser' }
                             ).then((response: ConfirmActions) => {
                                 if (response === ConfirmActions.ACCEPT) {
                                     // we need to calculate the base currency amount numbers if we are going
@@ -476,7 +476,7 @@ export class InvoiceDetails {
                         }
                     }
                 }, err => this.errorService.handle(err)
-            );
+                );
         }
 
     }
@@ -494,8 +494,8 @@ export class InvoiceDetails {
     private didCustomerChange(invoice: CustomerInvoice): boolean {
         return invoice.Customer
             && (!this.invoice
-            || (invoice.Customer && !this.invoice.Customer)
-            || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID))
+                || (invoice.Customer && !this.invoice.Customer)
+                || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID))
     }
 
     private getUpdatedCurrencyExchangeRate(invoice: CustomerInvoice): Observable<number> {
@@ -591,7 +591,7 @@ export class InvoiceDetails {
             );
         }
 
-        this.newInvoiceItem = <any> this.tradeItemHelper.getDefaultTradeItemData(invoice);
+        this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         this.invoiceItems = invoice.Items;
         this.invoice = _.cloneDeep(invoice);
@@ -647,10 +647,10 @@ export class InvoiceDetails {
         let toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
-                {title: customerText, link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : ''},
-                {title: netSumText},
-                {title: GetPrintStatusText(this.invoice.PrintStatus)},
-                {title: reminderStopText}
+                { title: customerText, link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : '' },
+                { title: netSumText },
+                { title: GetPrintStatusText(this.invoice.PrintStatus) },
+                { title: reminderStopText }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -795,7 +795,7 @@ export class InvoiceDetails {
                         `Er du sikker på at du vil registrere linjer med MVA når det er brukt ${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`,
                         'Vennligst bekreft',
                         false,
-                        {accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring'}
+                        { accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring' }
                     ).then(response => {
                         if (response === ConfirmActions.ACCEPT) {
                             request.subscribe(res => resolve(res), err => reject(err));
@@ -818,7 +818,7 @@ export class InvoiceDetails {
 
         const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
-        const errText =  isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
+        const errText = isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
         this.saveInvoice().then((invoice) => {
             this.isDirty = false;
@@ -871,8 +871,8 @@ export class InvoiceDetails {
             } else {
                 this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
                     .subscribe(
-                        res => this.refreshInvoice(res),
-                        err => this.errorService.handle(err)
+                    res => this.refreshInvoice(res),
+                    err => this.errorService.handle(err)
                     );
             }
             done('Lagring fullført');
@@ -916,14 +916,20 @@ export class InvoiceDetails {
     private payInvoice(done) {
         const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
-        const invoiceData = {
+        const invoicePaymentData: InvoicePaymentData = {
             Amount: this.invoice.RestAmount,
-            PaymentDate: new LocalDate(Date())
+            AmountCurrency: this.invoice.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? this.invoice.RestAmount : this.invoice.RestAmountCurrency,
+            BankChargeAmount: 0,
+            CurrencyCodeID: this.invoice.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: new LocalDate(Date()),
+            AgioAccountID: null,
+            BankChargeAccountID: this.companySettings.BankChargeAccountID,
+            AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(this.invoice.ID, title, invoiceData).then(res => {
+        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate, invoicePaymentData).then(res => {
             if (res.status === ConfirmActions.ACCEPT) {
-                console.log(res);
                 this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
                     done('Betaling registrert');
@@ -941,7 +947,7 @@ export class InvoiceDetails {
     }
 
     private handleSaveError(error, donehandler) {
-        if (typeof(error) === 'string') {
+        if (typeof (error) === 'string') {
             if (donehandler) {
                 donehandler('Lagring avbrutt ' + error);
             }

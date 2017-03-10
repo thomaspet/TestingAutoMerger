@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate} from '../../../../unientities';
+import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate, InvoicePaymentData} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
@@ -1008,12 +1008,19 @@ export class BillView {
         let current = this.current.getValue();
         const title = lang.ask_register_payment + current.InvoiceNumber;
 
-        const invoiceData = {
+        const invoiceData: InvoicePaymentData = {
             Amount: current.RestAmount,
-            PaymentDate: new LocalDate(Date())
+            AmountCurrency: current.RestAmountCurrency,
+            BankChargeAmount: 0,
+            CurrencyCodeID: current.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: new LocalDate(Date()),
+            AgioAccountID: 0,
+            BankChargeAccountID: 0,
+            AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(current.ID, title, invoiceData).then((res) => {
+        this.registerPaymentModal.confirm(current.ID, title, current.CurrencyCode, current.CurrencyExchangeRate, invoiceData).then((res) => {
             this.busy = true;
             this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
             .finally(() => this.busy = false)

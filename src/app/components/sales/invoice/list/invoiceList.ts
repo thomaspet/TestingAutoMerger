@@ -2,9 +2,8 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings} from '../../../../unientities';
+import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
-import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -12,6 +11,7 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import * as moment from 'moment';
 import {
     CustomerInvoiceService,
@@ -38,10 +38,10 @@ export class InvoiceList implements OnInit {
     private baseCurrencyCode: string;
 
     private filterTabs: any[] = [
-        {label: 'Alle'},
-        {label: 'Kladd', statuscode: StatusCodeCustomerInvoice.Draft},
-        {label: 'Fakturert', statuscode: StatusCodeCustomerInvoice.Invoiced},
-        {label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid}
+        { label: 'Alle' },
+        { label: 'Kladd', statuscode: StatusCodeCustomerInvoice.Draft },
+        { label: 'Fakturert', statuscode: StatusCodeCustomerInvoice.Invoiced },
+        { label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid }
     ];
     private activeTab: any = this.filterTabs[0];
     private
@@ -55,7 +55,7 @@ export class InvoiceList implements OnInit {
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService
-    ) {}
+    ) { }
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -68,7 +68,7 @@ export class InvoiceList implements OnInit {
                 this.getGroupCounts();
 
             }, err => this.errorService.handle(err)
-        );
+            );
 
         this.tabService.addTab({
             url: '/sales/invoices',
@@ -78,9 +78,9 @@ export class InvoiceList implements OnInit {
         });
 
         this.summaryConfig = [
-            {title: 'Totalsum', value: this.numberFormat.asMoney(0)},
-            {title: 'Restsum', value: this.numberFormat.asMoney(0)},
-            {title: 'Sum krediter', value: this.numberFormat.asMoney(0)},
+            { title: 'Totalsum', value: this.numberFormat.asMoney(0) },
+            { title: 'Restsum', value: this.numberFormat.asMoney(0) },
+            { title: 'Sum krediter', value: this.numberFormat.asMoney(0) },
         ];
     }
 
@@ -104,9 +104,9 @@ export class InvoiceList implements OnInit {
         this.customerInvoiceService.getInvoiceSummary('').subscribe(
             (summary) => {
                 this.summaryConfig = [
-                    {title: 'Totalsum', value: this.numberFormat.asMoney(summary.SumTotalAmount)},
-                    {title: 'Restsum', value: this.numberFormat.asMoney(summary.SumRestAmount)},
-                    {title: 'Sum kreditert', value: this.numberFormat.asMoney(summary.SumCreditedAmount)},
+                    { title: 'Totalsum', value: this.numberFormat.asMoney(summary.SumTotalAmount) },
+                    { title: 'Restsum', value: this.numberFormat.asMoney(summary.SumRestAmount) },
+                    { title: 'Sum kreditert', value: this.numberFormat.asMoney(summary.SumCreditedAmount) },
                 ];
             },
             this.errorService.handle
@@ -140,16 +140,16 @@ export class InvoiceList implements OnInit {
         this.customerInvoiceService
             .ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
             .subscribe(
-                (journalEntry) => {
-                    this.toastService.removeToast(warnToastID);
-                    const msg = 'Bilagsnummer: ' + journalEntry.JournalEntryNumber;
-                    this.toastService.addToast(`Faktura betalt`, ToastType.good, 10, msg);
-                    this.refreshData();
-                },
-                (err) => {
-                    this.toastService.removeToast(warnToastID);
-                    this.errorService.handle(err);
-                }
+            (journalEntry) => {
+                this.toastService.removeToast(warnToastID);
+                const msg = 'Bilagsnummer: ' + journalEntry.JournalEntryNumber;
+                this.toastService.addToast(`Faktura betalt`, ToastType.good, 10, msg);
+                this.refreshData();
+            },
+            (err) => {
+                this.toastService.removeToast(warnToastID);
+                this.errorService.handle(err);
+            }
             );
     }
 
@@ -183,7 +183,7 @@ export class InvoiceList implements OnInit {
                     .subscribe((data) => {
                         this.router.navigateByUrl('/sales/invoices/' + data.ID);
                     },
-                        err => this.errorService.handle(err)
+                    err => this.errorService.handle(err)
                     );
             },
             disabled: (rowModel) => {
@@ -223,10 +223,10 @@ export class InvoiceList implements OnInit {
                     this.toastService.addToast('Faktura fakturert', ToastType.good, 10);
                     this.refreshData();
                 },
-                (err) => {
-                    this.toastService.removeToast(warnToastID);
-                    this.errorService.handle(err);
-                });
+                    (err) => {
+                        this.toastService.removeToast(warnToastID);
+                        this.errorService.handle(err);
+                    });
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
@@ -247,10 +247,10 @@ export class InvoiceList implements OnInit {
                     this.toastService.addToast('Kreditnota kreditert', ToastType.good, 10);
                     this.refreshData();
                 },
-                (err) => {
-                    this.toastService.removeToast(warnToastID);
-                    this.errorService.handle(err);
-                });
+                    (err) => {
+                        this.toastService.removeToast(warnToastID);
+                        this.errorService.handle(err);
+                    });
             },
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
@@ -267,10 +267,18 @@ export class InvoiceList implements OnInit {
                 const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
                 const invoiceData: InvoicePaymentData = {
                     Amount: rowModel.RestAmount,
-                    PaymentDate: new LocalDate(Date())
+                    AmountCurrency: rowModel.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? rowModel.RestAmount : rowModel.RestAmountCurrency,
+                    BankChargeAmount: 0,
+                    CurrencyCodeID: rowModel.CurrencyCodeID,
+                    CurrencyExchangeRate: 0,
+                    PaymentDate: new LocalDate(Date()),
+                    AgioAccountID: null,
+                    BankChargeAccountID: 0,
+                    AgioAmount: 0
                 };
 
-                this.registerPaymentModal.confirm(rowModel.ID, title, invoiceData);
+                this.registerPaymentModal.confirm(rowModel.ID, title, rowModel.CurrencyCode, rowModel.CurrencyExchangeRate, invoiceData);
+
             },
 
             // TODO: Benytt denne n�r _links fungerer
