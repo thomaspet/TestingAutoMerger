@@ -1,8 +1,9 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
-import {Http, Headers, URLSearchParams, Request, Response, RequestMethod} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
-import {AppConfig} from '../../../app/appConfig';
+import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
+import {AppConfig} from '../../../app/AppConfig';
 import {AuthService} from '../authService';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
 
 export interface IUniHttpRequest {
     baseUrl?: string;
@@ -82,35 +83,30 @@ export class UniHttp {
     public usingMetadataDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.METADATA;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
     public usingBusinessDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
     public usingRootDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.ROOT;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
     public usingInitDomain() {
         this.baseUrl = AppConfig.BASE_URL_INIT;
         this.apiDomain = AppConfig.API_DOMAINS.INIT;
-        this.baseUrl = AppConfig.BASE_URL_INIT;
         return this;
     }
 
     public usingStatisticsDomain() {
         this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.STATISTICS;
-        this.baseUrl = AppConfig.BASE_URL;
         return this;
     }
 
@@ -257,7 +253,7 @@ export class UniHttp {
 
     private static buildUrlParams(request: IUniHttpRequest) {
         var urlParams = new URLSearchParams();
-        var filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip'];
+        var filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip', 'hateoas'];
         filters.forEach((filter: string) => {
             if (request[filter]) {
                 urlParams.append(filter, request[filter]);

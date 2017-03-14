@@ -3,7 +3,7 @@ import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearc
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';
-declare var $;
+import * as jQuery from 'jquery';
 
 export interface ICopyEventDetails { event: any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?: any; };
 
@@ -45,13 +45,13 @@ export class Editable implements AfterViewInit, OnDestroy {
     private dropList: DropList = new DropList();
 
     constructor(el: ElementRef) {
-        this.jqRoot = $(el.nativeElement);
+        this.jqRoot = jQuery(el.nativeElement);
 
         this.handlers.onClick = (event) => { this.startEdit(event); };
         this.handlers.onResize = (event) => { this.onResize(); };
 
         this.jqRoot.on('click', this.handlers.onClick);
-        $(window).on('resize', this.handlers.onResize );
+        jQuery(window).on('resize', this.handlers.onResize );
 
         this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
             var value = (item && details && details.itemPropertyToSet) ? item[details.itemPropertyToSet] : item;
@@ -80,7 +80,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     public ngOnDestroy() {
         // cleanup eventhandlers:
         this.jqRoot.off('click', this.handlers.onClick);
-        $(window).off('resize', this.handlers.onResize);
+        jQuery(window).off('resize', this.handlers.onResize);
         if (this.current.editor) {
             this.current.editor.destroy();
         }
@@ -114,7 +114,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         var el = this.current.active;
 
         if (event && event.target) {
-            el = $(event.target);
+            el = jQuery(event.target);
             if (!el.is('td')) {
                 return;
             }
@@ -134,7 +134,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         var flagAsChanged = false;
 
         if (this.config && this.config.events && this.config.events.onStartEdit) {
-            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt, flagChanged: flagAsChanged }; 
+            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt, flagChanged: flagAsChanged };
             this.raiseEvent('onStartEdit', startDetails);
             if (startDetails.cancel) {
                 return;
@@ -212,7 +212,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
         // No target! (lets check delay and check if activeElement is our droplist)
         setTimeout(() => {
-            this.whenNoDroplist($(document.activeElement), fx, source);
+            this.whenNoDroplist(jQuery(document.activeElement), fx, source);
         });
     }
 
@@ -255,7 +255,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         setTimeout(() => {
             this.onResize();
             this.loadTextIntoEditor();
-        });     
+        });
     }
 
     private raiseEvent(name: string, cargo: any): any {

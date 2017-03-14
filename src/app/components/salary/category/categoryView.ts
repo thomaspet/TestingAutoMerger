@@ -1,9 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import {
-    EmployeeCategory, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom
-} from '../../../unientities';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { EmployeeCategory } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { EmployeeCategoryService, UniCacheService, ErrorService } from '../../../services/services';
 import { ToastService } from '../../../../framework/uniToast/toastService';
@@ -14,11 +11,10 @@ import { UniView } from '../../../../framework/core/uniView';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 
 import { Observable } from 'rxjs/Observable';
-declare var _; // lodash
 
 @Component({
     selector: 'uni-employeecategory-view',
-    templateUrl: 'app/components/salary/category/categoryView.html'
+    templateUrl: './categoryView.html'
 })
 export class CategoryView extends UniView {
 
@@ -89,7 +85,7 @@ export class CategoryView extends UniView {
         });
 
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event instanceof NavigationEnd) {
                 if (!this.currentCategory) {
                     this.getCategory();
                 }
@@ -101,7 +97,7 @@ export class CategoryView extends UniView {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .flatMap(result => {
+            .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable

@@ -7,7 +7,7 @@ declare const moment;
 
 @Component({
     selector: 'reminder-rule-details',
-    templateUrl: 'app/components/common/reminder/settings/ruleDetails.html'
+    templateUrl: './ruleDetails.html'
 })
 export class ReminderRuleDetails {
     @Input() public rule: CustomerInvoiceReminderRule;

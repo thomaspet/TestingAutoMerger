@@ -8,7 +8,7 @@ import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 
 @Component({
     selector: 'freeamount-modal-content',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/modals/freeamountModal.html'
+    templateUrl: './freeamountModal.html'
 })
 export class FreeamountModalContent implements OnInit {
     @Input() public config: any;

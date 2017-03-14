@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions, FinancialYear, VatDeduction} from '../../unientities';
-import {JournalEntryData, JournalEntryExtended} from '../../models/accounting/journalentrydata';
+import {JournalEntryData, JournalEntryExtended} from '../../models/accounting/journalEntryData';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/mergeMap';
@@ -12,9 +12,8 @@ import {JournalEntryAccountCalculationSummary} from '../../models/accounting/Jou
 import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
 import {BrowserStorageService} from '../common/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
-import {JournalEntryLineDraftService} from '../services';
+import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
 
-declare const _; // lodash
 
 class JournalEntryLineCalculation {
     amountGross: number;
@@ -29,7 +28,7 @@ export class JournalEntrySettings {
     public DefaultVisibleFields: string[];
 }
 
-declare var moment;
+import * as moment from 'moment';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {

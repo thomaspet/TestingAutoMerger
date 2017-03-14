@@ -1,0 +1,11 @@
+<ul *ngIf="tickerGroups">
+    <li *ngFor="let tickerGroup of tickerGroups">
+        {{tickerGroup.Name}}
+        <ul>
+            <li *ngFor="let ticker of tickerGroup.Tickers" (click)="selectTicker(ticker)" class="ticker">
+                {{ticker.Name}}
+            </li>
+        </ul>
+    </li>
+</ul>
+

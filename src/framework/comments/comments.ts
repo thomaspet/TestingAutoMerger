@@ -4,11 +4,11 @@ import {Comment, User} from '../../app/unientities';
 import {CommentService} from './commentService';
 import {ErrorService, UserService} from '../../app/services/services';
 import {KeyCodes} from '../../app/services/common/KeyCodes';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-comments',
-    templateUrl: 'framework/comments/comments.html',
+    templateUrl: './comments.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniComments {

@@ -1,0 +1,167 @@
+uni-ticker-actions
+    display: block
+
+    a
+        text-decoration: underline
+
+uni-ticker-filters
+    a:focus
+    a:hover
+        color: $uni-color-scale6
+
+    .active
+        font-style: italic
+
+    .filter-header
+        font-size: 0.8rem
+        color: $uni-color-scale7
+        font-weight: bolder
+        margin-left: 0.5rem
+
+    .filter-container
+        height: calc(100vh - 300px)
+        margin-left: -1rem
+        background-color: $uni-color-scale4
+        color: white
+        border-radius: pxToRem(7)
+        border: 1px solid $uni-color-scale4
+
+        .filter-summary
+            font-size: 0.8rem
+            padding: 1.5rem
+
+            ul
+                list-style-type: none
+                margin-left: 0.5rem
+
+                a
+                    cursor: pointer
+
+            li
+                &.field-filter
+                    border-left: pxToRem(5) solid $uni-color-scale7
+                    padding-left: pxToRem(5)
+
+            h3
+                font-size: 0.8rem
+
+        .model-tree
+            float: left
+            background-color: $uni-color-scale9
+            color: black
+            width: 16rem
+            height: 100%
+            padding-left: 1.5rem
+            padding-right: 1.5rem
+            overflow-y: scroll
+            overflow-x: hidden
+            font-size: 0.9rem
+
+        .rule-setup
+            float: left
+            width: calc(100% - 19rem)
+            height: 100%
+            display: inline-block
+
+            h2
+                padding-left: 1.5rem
+                padding-right: 1.5rem
+
+            .set-standard-search-box
+                padding: 1.5rem
+                text-align: right
+                width: 32rem
+                float: right
+
+                .explain-text
+                    float: left
+                    color: $uni-color-scale8
+                    font-size: 0.75rem
+                    width: 16rem
+
+                button
+                    float: right
+                    width: 12rem
+
+uni-ticker-filter-editor
+    width: 100%
+
+    a
+        text-decoration: underline
+        cursor: pointer
+
+    .text-area-filter-editor
+        padding: 1rem
+
+        button
+            float: right
+            margin-right: 0
+
+        text-area
+            width: 100%
+            height: 100%
+
+    input[type=checkbox]
+        width: 1rem
+        height: 1rem
+        vertical-align: middle
+        margin-left: 1rem
+        margin-right: 0.2rem
+        position: inherit
+
+    .field-filter-group
+        width: 100%
+        background-color: $uni-color-scale7
+        margin-top: 1rem
+
+    .field-filter-item
+        padding: 0.5rem
+
+    .add-field-filter
+        width: 100%
+        text-align: center
+        padding: 0.5rem
+
+        a
+            color: $uni-color-scale2
+
+    .delete-button
+        float: right
+
+    .add-field-filter-group
+        width: 100%
+        background-color: $uni-color-scale6
+        text-align: center
+        padding-top: 0.5rem
+        padding-bottom: 0.5rem
+
+        a:hover
+            color: white
+
+        a:active
+            color: white
+
+uni-ticker-field-filter-editor
+    uni-field
+        width: 15%
+        margin-right: 0.5rem
+        margin-left: 0.5rem
+
+        &.delete-button
+            width: auto;
+
+        &.operator-select
+            width: 15%;
+
+        &.field-select
+            width: 20%;
+
+
+
+    uni-select
+        li
+            color: black
+
+    button
+        margin-top: 0px
+

@@ -1,6 +1,6 @@
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {IChangeEvent, ColumnType, ITypeSearch} from './editable/editable';
 import {safeInt} from './utils';
 
@@ -21,7 +21,7 @@ export class Lookupservice {
         var cols = matchCols.split(',');
         var params = '', prefix = '?';
         var useStatistics = false;
-        
+
         if (useModel) {
             route = '?model=' + useModel;
             useStatistics = true;
@@ -32,7 +32,7 @@ export class Lookupservice {
                 params += (index > 0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
             }
         });
-        params = prefix + 'filter=' + ( filter ? filter + ' and ( ' + params + ' )' : params );  
+        params = prefix + 'filter=' + ( filter ? filter + ' and ( ' + params + ' )' : params );
         if (expand) { params += '&expand=' + expand; }
         if (select) { params += '&select=' + this.mapStatSelect(select, useStatistics); }
         return this.GET(route + params, undefined, useStatistics );
@@ -42,9 +42,9 @@ export class Lookupservice {
         if (!useStatistics) { return cols; }
         var arr = cols.split(',');
         var outArr = [];
-        arr.forEach( item => { 
+        arr.forEach( item => {
             if (item.indexOf(' as ') < 0) {
-                item += ' as ' + item; 
+                item += ' as ' + item;
             }
             outArr.push(item);
         });
@@ -80,10 +80,10 @@ export class Lookupservice {
         // returns a Promise if validation is delayed.
 
         if (event.columnDefinition && event.columnDefinition.lookup) {
-        
+
             var lookupDef = event.columnDefinition.lookup;
 
-            // Remove "label" from key-value ?          
+            // Remove "label" from key-value ?
             var validation = this.analyzeUserInput(event.value);
             var colType = (lookupDef.visualKeyType === 0 && event.userTypedValue) ? ColumnType.Text : event.columnDefinition.columnType;
             var key = (colType === ColumnType.Integer) ? validation.iKey : validation.key;
@@ -102,8 +102,8 @@ export class Lookupservice {
             var p: Promise<any>;
 
             // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
-            if (event.userTypedValue && lookupDef.visualKey) {                
-                p = new Promise((resolve, reject) => {                    
+            if (event.userTypedValue && lookupDef.visualKey) {
+                p = new Promise((resolve, reject) => {
                     var filter = `?filter=${lookupDef.visualKey} eq `;
                     if (lookupDef.visualKeyType === ColumnType.Text) {
                         filter += `'${key}'`;
@@ -115,13 +115,13 @@ export class Lookupservice {
                             if (failure) { failure(event); } else { reject('not found'); }
                         } else {
                             var item = (rows && rows.length > 0) ? rows[0] : {};
-                            event.value = item[lookupDef.colToSave || 'ID'];                        
+                            event.value = item[lookupDef.colToSave || 'ID'];
                             event.lookupValue = item;
                             success(event);
                             resolve(item);
                         }
                     }, (err) => {
-                        if (failure) { failure(event); } else { reject(err.statusText); }                    
+                        if (failure) { failure(event); } else { reject(err.statusText); }
                     });
                 });
                 event.updateCell = false;
@@ -129,19 +129,19 @@ export class Lookupservice {
             }
 
             // Normal lookup value (by foreignKey) ?
-            p = new Promise((resolve, reject) => {                
+            p = new Promise((resolve, reject) => {
                 this.getSingle<any>(lookupDef.route, key, lookupDef.expand).subscribe( (item: any) => {
                     event.lookupValue = item;
                     event.value = key;
                     success(event);
                     resolve(item);
                 }, (err) => {
-                    if (failure) { failure(event); } else { reject(err.statusText); }   
+                    if (failure) { failure(event); } else { reject(err.statusText); }
                 });
             });
             event.updateCell = false;
             return p;
-        } 
+        }
 
     }
 
@@ -157,20 +157,20 @@ export class Lookupservice {
             if (details.value === '' && lookup.blankFilter) {
                 filter = lookup.blankFilter;
             }
-            details.renderFunc = details.columnDefinition.lookup.render || ((item: any) => { 
-                var ret = ''; 
-                for (var i = 0; i < cols.length && i < 2; i++) { 
-                    ret += (i > 0 ? ' - ' : '') + item[cols[i]]; 
+            details.renderFunc = details.columnDefinition.lookup.render || ((item: any) => {
+                var ret = '';
+                for (var i = 0; i < cols.length && i < 2; i++) {
+                    ret += (i > 0 ? ' - ' : '') + item[cols[i]];
                 }
-                return ret; 
+                return ret;
             });
             details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, filter, details.columnDefinition.lookup.model).toPromise();
         }
-    }    
+    }
 
 
    // http helpers (less verbose?)
-    
+
     private GET(route: string, params?: any, useStatistics = false ): Observable<any> {
         if (useStatistics) {
             return this.http.asGET().usingStatisticsDomain()
@@ -181,6 +181,6 @@ export class Lookupservice {
         .withEndPoint(route).send(params)
         .map(response => response.json());
     }
- 
+
 
 }

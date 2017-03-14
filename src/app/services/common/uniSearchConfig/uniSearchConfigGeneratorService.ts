@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
-import {IUniSearchConfig} from 'unisearch-ng2/main';
+import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import {Customer, UniEntity, Account} from '../../../unientities';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {UniSearchCustomerConfigGeneratorHelper} from './uniSearchCustomerConfigGeneratorHelper';
 import {UniSearchAccountConfigGeneratorHelper} from './uniSearchAccountConfigGeneratorHelper';
 

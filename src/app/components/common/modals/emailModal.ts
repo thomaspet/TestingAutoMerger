@@ -16,7 +16,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
            <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
-                </button>                
+                </button>
             </footer>
         </article>
     `
@@ -27,18 +27,18 @@ export class EmailForm {
     private model$: BehaviorSubject<Email> = new BehaviorSubject(null);
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-       
+
     public ngOnInit() {
         this.model$.next(this.config.model);
-        this.setupForm();      
+        this.setupForm();
     }
 
     public ngOnChanges() {
         this.model$.next(this.config.model);
         this.setupForm();
     }
- 
-    private setupForm() {   
+
+    private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields$.next([
@@ -68,7 +68,7 @@ export class EmailForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -96,8 +96,8 @@ export class EmailForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
-            } 
+                CustomFields: null
+            }
         ]);
     }
 
@@ -111,28 +111,28 @@ export class EmailForm {
     `
 })
 export class EmailModal {
-    @Input() public email: Email;    
+    @Input() public email: Email;
     @ViewChild(UniModal) public modal: UniModal;
-    
+
     @Output() public Changed = new EventEmitter<Email>();
     @Output() public Canceled = new EventEmitter<boolean>();
 
-    private modalConfig: any = {};    
+    private modalConfig: any = {};
 
     private type: Type<any> = EmailForm;
 
     constructor(private emailService: EmailService) {
     }
-    
-    public ngOnInit() {    
+
+    public ngOnInit() {
         this.modalConfig = {
-            model: this.email,            
+            model: this.email,
             title: 'Epost',
             actions: [
                 {
-                    text: 'Lagre epost',
+                    text: 'Ok',
                     class: 'good',
-                    method: () => {               
+                    method: () => {
                         this.modal.close();
                         this.Changed.emit(this.modalConfig.model);
                         return false;

@@ -5,12 +5,12 @@ import {
 import { SubEntity, PostalCode, Municipal } from '../../../unientities';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
+declare var _;
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-declare var _; // lodash
 @Component({
     selector: 'sub-entity-details',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityDetails.html'
+    templateUrl: './subEntityDetails.html'
 })
 export class SubEntityDetails {
     @Input() private currentSubEntity: SubEntity;

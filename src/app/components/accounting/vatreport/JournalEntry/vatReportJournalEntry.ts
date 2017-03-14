@@ -6,7 +6,7 @@ import {VatReport} from '../../../../unientities';
 
 @Component({
     selector: 'vatreport-journal-entry',
-    templateUrl: 'app/components/accounting/vatreport/JournalEntry/vatReportJournalEntry.html'
+    templateUrl: './vatReportJournalEntry.html'
 })
 export class VatReportJournalEntry {
     @Input() public vatReport: VatReport;

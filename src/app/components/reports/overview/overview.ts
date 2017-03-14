@@ -12,8 +12,11 @@ import {BalanceGeneralLedgerFilterModal} from '../modals/balanceGeneralLedgerFil
 import {CustomerAccountReportFilterModal} from '../modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {SupplierAccountReportFilterModal} from '../modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from '../modals/account/AccountReportFilterModal';
+import {SalaryPaymentListReportFilterModal} from '../modals/salaryPaymentList/salaryPaymentListReportFilterModal';
+import {VacationPayBaseReportFilterModal} from '../modals/vacationPayBase/vacationPayBaseReportFilterModal';
+import {SalaryWithholdingAndAGAReportFilterModal} from '../modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 class ReportCategory {
     public name: string;
@@ -23,7 +26,7 @@ class ReportCategory {
 
 @Component({
     selector: 'uni-overview',
-    templateUrl: 'app/components/reports/overview/overview.html'
+    templateUrl: './overview.html'
 })
 export class Overview {
     @ViewChild(ParameterModal)
@@ -44,6 +47,12 @@ export class Overview {
     private customerAccountModal: CustomerAccountReportFilterModal;
     @ViewChild(SupplierAccountReportFilterModal)
     private supplierAccountModal: SupplierAccountReportFilterModal;
+    @ViewChild(SalaryPaymentListReportFilterModal)
+    private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
+    @ViewChild(VacationPayBaseReportFilterModal)
+    private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
+    @ViewChild(SalaryWithholdingAndAGAReportFilterModal)
+    private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
 
     public reportCategories: Array<ReportCategory>;
 
@@ -86,6 +95,18 @@ export class Overview {
 
     public showSupplierAccountModalReportParameters(report: ReportDefinition) {
         this.supplierAccountModal.open(report, this.previewModal);
+    }
+
+    public showSalaryPaymentListOrPostingSummaryModalReportParameters(report: ReportDefinition) {
+        this.salaryPaymentListFilterModal.open(report, this.previewModal);
+    }
+
+    public showVacationBaseFilterModalReportParameters(report: ReportDefinition) {
+        this.vacationBaseFilterModal.open(report, this.previewModal);
+    }
+
+    public showSalaryWithholdingAndAgaFilterModalReportParameters(report: ReportDefinition) {
+        this.salaryWithholdingAndAGAReportFilterModal.open(report, this.previewModal);
     }
 
     public showUniQuery(report: UniQueryDefinition) {

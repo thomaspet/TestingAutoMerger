@@ -1,17 +1,17 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkBalance, WorkRelation} from '../../../unientities';
 import {ErrorService} from '../../../services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
 import {MinutesToHoursPipe} from '../utils/pipes';
 import {ChangeMap} from '../utils/changeMap';
 import {safeDec, safeInt} from '../utils/utils';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 @Component({
     selector: 'workbalances',
-    templateUrl: 'app/components/timetracking/worker/balances.html',
+    templateUrl: './balances.html',
 })
 export class View {
     @Input() public set workerid(id: number) {
@@ -119,7 +119,7 @@ export class View {
 
     private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
 
-        var obsSave = Observable.from(items).flatMap((item: any) => {
+        var obsSave = Observable.from(items).switchMap((item: any) => {
             item.ID = item.ID < 0 ? 0 : item.ID;
             return this.workerService.saveByID<any>(item, route).map((savedItem: WorkRelation) => {
                 this.changeMap.remove(item._rowIndex, true);
@@ -128,7 +128,7 @@ export class View {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).flatMap( (item: any) => {
+            let obsDel = Observable.from(deletables).switchMap( (item: any) => {
                 return this.workerService.deleteByID(item.ID, route).map((event) => {
                     this.changeMap.removables.remove(item.ID, false);
                 });

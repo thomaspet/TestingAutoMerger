@@ -13,7 +13,7 @@ declare const _;
 
 @Component({
     selector: 'reminder-rules',
-    templateUrl: 'app/components/common/reminder/settings/reminderRules.html',
+    templateUrl: './reminderRules.html',
 })
 export class ReminderRules implements AfterViewInit {
     @ViewChild(UniTable) private table: UniTable;

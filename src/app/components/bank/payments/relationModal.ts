@@ -1,13 +1,10 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
+import {Component, Type, Input, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {UniModal} from '../../../../framework/modals/modal';
 import {StatisticsService, ErrorService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams, Response} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
-
-declare const _; // lodash
-declare const moment;
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'payment-relations-table',

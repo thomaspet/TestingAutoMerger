@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { UniView } from '../../../../framework/core/uniView';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniCacheService, ErrorService, SalarybalanceService } from '../../../services/services';
@@ -11,10 +11,10 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 
 @Component({
     selector: 'uni-salarybalance-view',
-    templateUrl: 'app/components/salary/salarybalance/salarybalanceView.html'
+    templateUrl: './salarybalanceView.html'
 })
 export class SalarybalanceView extends UniView {
-    
+
     private url: string = '/salary/salarybalances/';
     private salarybalanceID: number;
     private salarybalance: SalaryBalance;
@@ -70,7 +70,7 @@ export class SalarybalanceView extends UniView {
 
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
-            
+
             if (this.salarybalance && this.salarybalance.ID === +params['id']) {
                 super.updateState('salarybalance', this.salarybalance, false);
             } else {
@@ -79,7 +79,7 @@ export class SalarybalanceView extends UniView {
         });
 
         this.router.events.subscribe((event: any) => {
-            if (event.constructor.name === 'NavigationEnd') {
+            if (event instanceof NavigationEnd) {
                 if (!this.salarybalance) {
                     this.getSalarybalance();
                 }
@@ -162,8 +162,8 @@ export class SalarybalanceView extends UniView {
     }
 
     private getSalarybalance() {
-        this.salarybalanceService.getSalarybalance(this.salarybalanceID, 
-            ['SalaryBalanceLines', 'Employee', 'Employee.BusinessRelationInfo',
+        this.salarybalanceService.getSalarybalance(this.salarybalanceID,
+            ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
             'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
                 this.salarybalance = salbal;
@@ -175,7 +175,7 @@ export class SalarybalanceView extends UniView {
         let saver = this.salarybalance.ID
             ? this.salarybalanceService.Put(this.salarybalance.ID, this.salarybalance)
             : this.salarybalanceService.Post(this.salarybalance);
-        
+
         saver.subscribe((salbal: SalaryBalance) => {
             super.updateState('salarybalance', this.salarybalance, false);
             let childRoute = this.router.url.split('/').pop();

@@ -1,6 +1,6 @@
 import {ITypeSearch, IJQItem} from './interfaces';
 import {DomEvents} from './domevents';
-declare var $;
+import * as $ from 'jquery';
 
 export enum DropListNavigation {
     UP = 38,
@@ -11,17 +11,17 @@ export enum DropListNavigation {
     TAB = 9,
     ESC = 27
 }
-    
+
 // 1. creates scrollable droplist inside given parent element
 // 2. should drop-upwards if to low on screen
 // 3. todo: should move-leftwards if to much on the right side
 
 export class DropList {
-    
+
     private details: ITypeSearch;
     private items: Array<any>;
     private editorElement: IJQItem;
-    private rootElement: IJQItem;        
+    private rootElement: IJQItem;
     private itemsParent: IJQItem;
     private isVisible: boolean = false;
     private domEventHandlers: DomEvents = new DomEvents();
@@ -33,6 +33,7 @@ export class DropList {
 
 
     public getCurrentRowIndex(): number {
+
         return this.rowIndex;
     }
 
@@ -126,7 +127,7 @@ export class DropList {
 
     public clear() {
         this.details = undefined;
-        if (this.items) { 
+        if (this.items) {
             this.items.length = 0;
         }
     }
@@ -160,7 +161,7 @@ export class DropList {
     }
 
     public show(details: ITypeSearch, data: Array<any> = null) {
-        this.parentColIndex = details.position.col;     
+        this.parentColIndex = details.position.col;
         this.details = details;
         if (details.promise && data === null) {
             details.promise.then((result: any) => {
@@ -179,7 +180,7 @@ export class DropList {
                 }
                 this.moveNextToEditor();
                 this.items = items;
-                
+
                 this.itemsParent[0].scrollTop = 0;
                 this.rowIndex = -1;
             }
@@ -218,7 +219,7 @@ export class DropList {
     private createSelf(): boolean {
         this.rootElement = $(this.template);
         this.editorElement.parent().parent().append(this.rootElement);
-        this.itemsParent = this.rootElement; 
+        this.itemsParent = this.rootElement;
 
         this.domEventHandlers.Create(this.itemsParent, 'click', (event) => {
             if (this.onClick) {

@@ -12,11 +12,11 @@ import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService} from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-declare var _; // lodash
+declare const _; // lodash
 
 @Component({
     selector: 'wagetype-details',
-    templateUrl: 'app/components/salary/wagetype/views/wagetypeDetails.html'
+    templateUrl: './wagetypeDetails.html'
 })
 export class WagetypeDetail extends UniView {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
@@ -642,7 +642,7 @@ export class WagetypeDetail extends UniView {
                 this.showSupplementaryInformations = true;
                 this.findByProperty('SupplementPackage').Hidden = false;
             }
-            
+
             super.updateState('wagetype', this.wageType$.getValue(), true);
         }
     }
@@ -662,9 +662,9 @@ export class WagetypeDetail extends UniView {
                 }
             }
         }
-        
+
         let array = this.wageType$.getValue().SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
-        
+
         // ensure no duplicates
         for (var i = array.length - 1; i > 0; i--) {
             for (var j = i - 1; j >= 0; j--) {

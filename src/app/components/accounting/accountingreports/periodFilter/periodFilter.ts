@@ -1,4 +1,4 @@
-declare const moment;
+import * as moment from 'moment';
 
 export class PeriodFilter {
     public year: number;

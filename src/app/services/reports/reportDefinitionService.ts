@@ -2,16 +2,19 @@ import { Http, RequestMethod } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { AppConfig } from '../../appConfig';
-import { UniHttp } from '../../../framework/core/http/http';
-import { BizHttp } from '../../../framework/core/http/BizHttp';
-import { StimulsoftReportWrapper } from '../../../framework/wrappers/reporting/reportWrapper';
-import { ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource } from '../../unientities';
-import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
-import { ReportDefinitionDataSourceService, EmailService } from '../services';
-import { SendEmail } from '../../models/sendEmail';
-import { AuthService } from '../../../framework/core/authService';
-import { ErrorService } from '../common/ErrorService';
+
+import {AppConfig} from '../../AppConfig';
+import {UniHttp} from '../../../framework/core/http/http';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
+import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
+import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
+import {ReportDefinitionDataSourceService} from './reportDefinitionDataSourceService';
+import {EmailService} from '../common/emailService';
+import {SendEmail} from '../../models/sendEmail';
+import {AuthService} from '../../../framework/core/authService';
+import {ErrorService} from '../common/errorService';
+
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
@@ -143,25 +146,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     }
 
     private getDataFromSources() {
-        // resolve placeholders first
-        this.resolvePlaceholders();
-
-        // create http requests
-        let observableBatch = [];
-
-        for (const ds of this.report.dataSources) {
-            let url: string = ds.DataSourceUrl;
-
-            observableBatch.push(
-                this.http
-                    .asGET()
-                    .usingEmptyDomain()
-                    .withEndPoint(url)
-                    .send()
-                    .map(response => response.json())
-            );
-        }
-
         this.getDataFromSourcesObservable()
             .subscribe((response: { data: any, dataSources: any }) => this.onDataFetched(response.data, response.dataSources));
     }
@@ -179,6 +163,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             observableBatch.push(
                 this.http
                     .asGET()
+                    .withHeader('Hateoas', 'false')
                     .usingEmptyDomain()
                     .withEndPoint(url)
                     .send()

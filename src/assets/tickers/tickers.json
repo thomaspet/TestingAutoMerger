@@ -1,0 +1,211 @@
+[
+    {
+        "Name": "Faktura",
+        "Code": "invoice_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "CustomerInvoice",
+        "Expand": "Customer.Info",
+        "Columns": [
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
+                "Width": "100px"
+
+            },
+            {
+                "Header": "Kundenr",
+                "Field": "Customer.CustomerNumber"
+            },
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "InvoiceDate",
+                "Type": "date"
+            },
+            {
+                "Header": "Forfallsdato",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed",
+                "Type": "date"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "Type": "money"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Ny faktura",
+                "Code": "new_invoice",
+                "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Kopier",
+                "Code": "copy_invoice",
+                "ConfirmBeforeExecuteMessage": "Er du sikker på at du vil kopiere valgt faktura?"
+            }
+        ],
+        "SubTickersCodes": ["invoice_details", "invoice_items"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_invoices",
+                "Filter": ""
+            },
+            {
+                "Name": "Forfalte",
+                "Code": "due_invoices",
+                "Filter": "PaymentDueDate lt getdate()"
+            },
+            {
+                "Name": "Mine større enn 2000",
+                "Code": "my_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "FieldFilters": [
+                    {
+                        "Field": "TaxInclusiveAmount",
+                        "Operator": "gt",
+                        "Value": "2000"
+                    },
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
+            }
+        ]
+    },
+    {
+        "Name": "Ordre",
+        "Type": "Table",
+        "Code": "order_list",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "CustomerOrder",
+        "Expand": "Customer.Info",
+        "Columns": [
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "Format": "DatePassed",
+                "Type": "date"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "Type": "money"
+            }
+        ]
+    },
+    {
+        "Name": "Fakturalinjer",
+        "Type": "Table",
+        "Code": "invoice_items",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerInvoiceItem",
+        "Expand": "Product",
+        "SubTickers": [],
+        "ParentFilter": {
+            "Field": "CustomerInvoiceID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Filters": [
+            {
+                "Name": "Alle linjer",
+                "Code": "all_invoice_items",
+                "Filter": ""
+            },
+            {
+                "Name": "Mest lønnsomme",
+                "Code": "most_valuable_items",
+                "Filter": ""
+            }
+        ],
+        "Columns": [
+            {
+                "Header": "Produkt",
+                "Field": "Product.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Antall",
+                "Field": "NumberOfItems",
+                "Format": "number"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "SumTotalIncVat",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "Type": "money"
+            }
+        ]
+    },
+    {
+        "Name": "Fakturadetaljer",
+        "Type": "Details",
+        "Code": "invoice_details",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerInvoice",
+        "Expand": "Customer.Info",
+        "SubTickers": [],
+        "Filters": [],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.Info.Name"
+            },
+            {
+                "Header": "Forfallsdato",
+                "Field": "PaymentDueDate",
+                "Type": "LocalDate"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "InvoiceAddressLine1",
+                "Size": "medium"
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmount",
+                "Type": "Money"
+
+            }
+        ]
+    }
+
+]

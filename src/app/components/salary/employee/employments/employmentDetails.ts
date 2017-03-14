@@ -11,7 +11,7 @@ import {
     AccountService,
     StatisticsService
 } from '../../../../services/services';
-declare var _; // lodash
+declare var _;
 
 @Component({
     selector: 'employment-details',

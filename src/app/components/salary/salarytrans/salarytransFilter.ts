@@ -1,7 +1,7 @@
 import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {ISelectConfig} from 'uniform-ng2/main';
-declare var jQuery;
+
 
 @Component({
     selector: 'salarytrans-filter-content',

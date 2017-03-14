@@ -6,11 +6,11 @@ import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../.
 import {AltinnResponseModal} from './altinnResponseModal';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
+declare var _;
 
-declare var _; // lodash
 @Component({
     selector: 'read-tax-card',
-    templateUrl: 'app/components/salary/employee/modals/readTaxCard.html'
+    templateUrl: './readTaxCard.html'
 })
 export class ReadTaxCard {
 

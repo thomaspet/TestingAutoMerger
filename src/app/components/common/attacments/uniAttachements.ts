@@ -8,8 +8,7 @@ import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
-
-declare const saveAs; // filesaver.js
+import {saveAs} from 'file-saver';
 
 export interface IUploadConfig {
     isDisabled?: boolean;

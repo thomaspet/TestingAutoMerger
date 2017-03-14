@@ -12,7 +12,7 @@ import { ToastService, ToastType } from '../../../../framework/uniToast/toastSer
 
 @Component({
     selector: 'wagetypes',
-    templateUrl: 'app/components/salary/wagetype/wagetypeList.html',
+    templateUrl: './wagetypeList.html',
 })
 export class WagetypeList implements OnInit {
 

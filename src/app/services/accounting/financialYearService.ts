@@ -1,20 +1,22 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../framework/core/http/BizHttp';
 import { FinancialYear, CompanySettings } from '../../unientities';
-import { ErrorService } from '../services';
+import { ErrorService } from '../common/errorService';
 import { CompanySettingsService } from '../common/companySettingsService';
 import { UniHttp } from '../../../framework/core/http/http';
-import { Observable, ReplaySubject } from 'rxjs/Rx';
-
+import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import 'rxjs/add/observable/of';
 
 @Injectable()
 export class FinancialYearService extends BizHttp<FinancialYear> {
     private ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY: string = 'activeFinancialYear';
     private lastSelectedYear: ReplaySubject<FinancialYear>;
-    public lastSelectedYear$: Observable<FinancialYear>;
+    public lastSelectedFinancialYear$: Observable<FinancialYear>;
+    public lastSelectedYear$: Observable<number>;
 
     constructor(
-        http: UniHttp, 
+        http: UniHttp,
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService) {
         super(http);
@@ -23,15 +25,25 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         this.entityType = FinancialYear.EntityType;
         this.DefaultOrderBy = null;
         this.lastSelectedYear = new ReplaySubject<FinancialYear>(1);
-        this.lastSelectedYear$ = this.lastSelectedYear.asObservable();
-        this.getActiveFinancialYear().subscribe(financialYear => this.lastSelectedYear.next(financialYear));
+        
+        this.lastSelectedFinancialYear$ = this.lastSelectedYear.asObservable().map(financialYear => {
+                if (!financialYear) {
+                    financialYear = new FinancialYear();
+                    financialYear.Year = new Date().getFullYear();
+                }
+                return financialYear;
+            });
+
+        this.lastSelectedYear$ = this.lastSelectedFinancialYear$
+            .map(financialYear => financialYear.Year);
+
+        this.lastSelectedFinancialYear$
+            .subscribe(financialYear => 
+            localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear)));
     }
 
     public setActiveYear(financialYear: FinancialYear) {
-        if (financialYear) {
-            localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear));
-            this.lastSelectedYear.next(financialYear);
-        }
+        this.lastSelectedYear.next(financialYear);
     }
 
     public getYearInLocalStorage(): FinancialYear {

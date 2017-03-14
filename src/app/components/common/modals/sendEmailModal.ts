@@ -5,7 +5,7 @@ import {Email, CompanySettings} from '../../../unientities';
 import {FieldType} from 'uniform-ng2/main';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     EmailService,

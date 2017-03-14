@@ -129,7 +129,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Regnskap og økonomi',
                 componentListUrl: '/accounting',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting', moduleID: UniModules.Accounting},
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting/journalentry', moduleID: UniModules.Accounting},
                     {componentName: 'Fakturamottak', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
@@ -139,7 +139,7 @@ export class HamburgerMenu {
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
                     {componentName: 'MVA-melding', componentUrl: '/accounting/vatreport', moduleID: UniModules.VatReport},
-                    {componentName: 'Leverandører', componentUrl: '/sales/suppliers', moduleID: UniModules.Suppliers}
+                    {componentName: 'Leverandører', componentUrl: '/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },
             {
@@ -147,8 +147,8 @@ export class HamburgerMenu {
                 componentListHeader: 'Bank',
                 componentListUrl: '/bank',
                 componentList: [
-                    {componentName: 'Betalinger', componentUrl: '/bank/payments', moduleID: UniModules.Payment},
-                    {componentName: 'Betalingsbunter', componentUrl: '/bank/batches', moduleID: UniModules.Payment},
+                    {componentName: 'Utbetalingsliste', componentUrl: '/bank/payments', moduleID: UniModules.Payment},
+                    {componentName: 'Utbetalinger', componentUrl: '/bank/batches', moduleID: UniModules.Payment},
                     {componentName: 'Innbetalinger', componentUrl: '/bank/customerbatches', moduleID: UniModules.Payment}
                 ]
             },
@@ -162,7 +162,8 @@ export class HamburgerMenu {
                     {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun', moduleID: UniModules.Payrollrun},
                     {componentName: 'A-Meldinger', componentUrl: '/salary/amelding', moduleID: UniModules.Amelding},
                     {componentName: 'Kategorier', componentUrl: '/salary/employeecategories', moduleID: UniModules.Categories},
-                    {componentName: 'Saldo', componentUrl: '/salary/salarybalances', moduleID: UniModules.Salarybalances}
+                    {componentName: 'Saldo', componentUrl: '/salary/salarybalances', moduleID: UniModules.Salarybalances},
+                    {componentName: 'Tilleggsopplysninger', componentUrl: '/salary/supplements', moduleID: UniModules.Supplements}
                 ]
             },
             {
@@ -198,7 +199,9 @@ export class HamburgerMenu {
                 componentListHeader: 'Admin',
                 componentListUrl: '/admin',
                 componentList: [
-                    {componentName: 'Jobber', componentUrl: '/admin/jobs', moduleID: UniModules.Jobs}
+                    {componentName: 'Jobber', componentUrl: '/admin/jobs', moduleID: UniModules.Jobs},
+                    {componentName: 'Languages', componentUrl: '/admin/languages', moduleID: UniModules.Translations},
+                    {componentName: 'Modeller', componentUrl: '/admin/models', moduleID: UniModules.Models}
                 ]
             }
         ];

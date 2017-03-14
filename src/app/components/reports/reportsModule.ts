@@ -1,7 +1,7 @@
 ///<reference path='modals/resultAndBalance/ResultAndBalanceReportFilterModal.ts'/>
 // Angular imports
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
@@ -36,12 +36,24 @@ import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/Result
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {SupplierAccountReportFilterForm} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {
+    SalaryPaymentListReportFilterModal, 
+    SalaryPaymentListReportFilterModalContent
+} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
+import {
+    VacationPayBaseReportFilterModal,
+    VacationPayBaseReportFilterModalContent
+} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
+import {
+    SalaryWithholdingAndAGAReportFilterModal,
+    SalaryWithholdingAndAGAReportFilterModalContent
+} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {UniReports} from './reports';
 
 @NgModule({
     imports: [
         // Angular modules
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
@@ -60,8 +72,8 @@ import {UniReports} from './reports';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
-        UniQueryModule,
+        // AppServicesModule,
+        // UniQueryModule,
 
         // Route module
         ReportRoutes
@@ -86,6 +98,12 @@ import {UniReports} from './reports';
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
         SupplierAccountReportFilterModal,
+        SalaryPaymentListReportFilterModal,
+        SalaryPaymentListReportFilterModalContent,
+        VacationPayBaseReportFilterModal,
+        VacationPayBaseReportFilterModalContent,
+        SalaryWithholdingAndAGAReportFilterModal,
+        SalaryWithholdingAndAGAReportFilterModalContent,
         ReportparameterModalType
     ],
     entryComponents: [
@@ -97,6 +115,9 @@ import {UniReports} from './reports';
         PostingJournalReportFilterForm,
         ResultAndBalanceReportFilterForm,
         SupplierAccountReportFilterForm,
+        SalaryPaymentListReportFilterModalContent,
+        VacationPayBaseReportFilterModalContent,
+        SalaryWithholdingAndAGAReportFilterModalContent,
         ReportparameterModalType
     ],
     exports: [
@@ -119,6 +140,12 @@ import {UniReports} from './reports';
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
         SupplierAccountReportFilterModal,
+        SalaryPaymentListReportFilterModal,
+        SalaryPaymentListReportFilterModalContent,
+        VacationPayBaseReportFilterModal,
+        VacationPayBaseReportFilterModalContent,
+        SalaryWithholdingAndAGAReportFilterModal,
+        SalaryWithholdingAndAGAReportFilterModalContent,
         ReportparameterModalType
     ]
 })

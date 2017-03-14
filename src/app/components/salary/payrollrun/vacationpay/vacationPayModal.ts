@@ -3,11 +3,11 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {VacationpayModalContent} from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../../services/services';
-declare var _;
+
 
 @Component({
     selector: 'vacationpay-modal',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html'
+    templateUrl: './vacationPayModal.html'
 })
 export class VacationpayModal {
     @ViewChild(UniModal) private modal: UniModal;

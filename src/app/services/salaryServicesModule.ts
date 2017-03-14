@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AMeldingService} from './salary/AMelding/AMeldingService';
 import {BasicAmountService} from './salary/basicamount/basicAmountService';
 import {CompanySalaryService} from './salary/companysalary/companySalaryService';
@@ -17,6 +17,7 @@ import {EmployeeTaxCardService} from './salary/employee/employeeTaxCardService';
 import {SalarySumsService} from './salary/salaryTransaction/salarySumsService';
 import {SalarybalanceService} from './salary/salarybalance/salarybalanceService';
 import {SalaryBalanceLineService} from './salary/salarybalance/salaryBalanceLineService';
+import {SupplementService} from './salary/salarytransaction/salaryTransactionSupplementService';
 
 export * from './salary/AMelding/AMeldingService';
 export * from './salary/basicamount/basicAmountService';
@@ -36,28 +37,35 @@ export * from './salary/employee/employeeTaxCardService';
 export * from './salary/salaryTransaction/salarySumsService';
 export * from './salary/salarybalance/salarybalanceService';
 export * from './salary/salarybalance/salaryBalanceLineService';
+export * from './salary/salarytransaction/salaryTransactionSupplementService';
 
-@NgModule({
-    providers: [
-        AMeldingService,
-        BasicAmountService,
-        CompanySalaryService,
-        CompanyVacationRateService,
-        EmployeeCategoryService,
-        EmployeeLeaveService,
-        EmployeeService,
-        EmploymentService,
-        PayrollrunService,
-        SalaryTransactionService,
-        InntektService,
-        WageTypeService,
-        GrantService,
-        VacationpayLineService,
-        EmployeeTaxCardService,
-        SalarySumsService,
-        SalarybalanceService,
-        SalaryBalanceLineService
-    ]
-})
-export class SalaryServicesModule { }
+@NgModule({})
+export class SalaryServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: SalaryServicesModule,
+            providers: [
+                AMeldingService,
+                BasicAmountService,
+                CompanySalaryService,
+                CompanyVacationRateService,
+                EmployeeCategoryService,
+                EmployeeLeaveService,
+                EmployeeService,
+                EmploymentService,
+                PayrollrunService,
+                SalaryTransactionService,
+                InntektService,
+                WageTypeService,
+                GrantService,
+                VacationpayLineService,
+                EmployeeTaxCardService,
+                SalarySumsService,
+        		SalarybalanceService,
+        		SalaryBalanceLineService,
+				SupplementService
+            ]
+        };
+    }
+}
 

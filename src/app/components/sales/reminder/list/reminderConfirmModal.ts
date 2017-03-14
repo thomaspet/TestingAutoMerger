@@ -21,7 +21,7 @@ export interface IReminderConfirmModalConfig {
 
 @Component({
     selector: 'reminder-confirm-form',
-    templateUrl: 'app/components/sales/reminder/list/reminderConfirmModal.html'
+    templateUrl: './reminderConfirmModal.html'
 })
 export class ReminderConfirmForm implements OnInit {
     @Input() public config: any = {};

@@ -1,22 +1,14 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-
-
-    <!-- PAGE DEFINITIONS
-     ------------------------------------------------------------------------->
-    <meta charset="utf-8">
+  <head>
+    <base href="/">
+    <title>Uni Economy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="chrome=1,ie=edge">
     <meta name="robots" content="noindex,nofollow">
-    <!--[if (gt IE 9)|!(IE)]><!-->
-    <base href="/" />
-    <!--<![endif]-->
-    <title>Uni Economy</title>
 
-
-    <!-- CONTENT DEFINITIONS
-     ------------------------------------------------------------------------->
+    <!-- CONTENT DEFINITIONS -->
     <meta name="application-name" content="Uni Economy">
     <meta name="keywords" content="Uni Economy, Uni Micro, Faktura, Lønn, Regnskap">
     <meta name="description" content="Uni Economy fra Uni Micro AS">
@@ -24,41 +16,12 @@
     <meta name="copyright" content="Uni Micro AS">
     <meta name="owner" content="Uni Micro AS">
 
-    <!-- ONE SIGNAL REMOVED FOR NOW! -->
-    <!-- ONE SIGNAL (It nust be the first link.)
-    <link rel="manifest" href="/manifest.json">
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script -->
-    <script>
-        window.ENV = '<%= environment %>';
-
-        if (window.location.hostname.indexOf('localhost') >= 0) {
-            window.ENV = 'development';
-        } else {
-            window.ENV = 'production';
-        }
-
-        /*ONE SIGNAL REMOVED FOR NOW!
-        if (window.ENV === 'production') {
-            var OneSignal = window.OneSignal || [];
-            OneSignal.push(["init", {
-                appId: "e9a52330-4281-4ef7-a635-a71face78f91",
-                autoRegister: true,
-                notifyButton: {
-                    enable: true // Set to false to hide
-                }
-            }]);
-        }*/
-    </script>
-
-    <!-- METADATA
-     ------------------------------------------------------------------------->
+    <!-- METADATA -->
     <link rel="logo" type="image/svg" href="">
     <link rel="shortlink" href="">
     <link rel="me" type="text/html" href="http://unimicro.no">
 
-
-    <!-- APPLE PLATFORM TAGS
-     ------------------------------------------------------------------------->
+    <!-- APPLE PLATFORM TAGS -->
     <meta name="viewport" content="user-scalable=no, width=device-width" />
     <meta name="apple-mobile-web-app-title" content="Economy">
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,9 +29,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="format-detection" content="telephone=no">
 
-
-    <!-- SYNDICATION AND NOTIFICATIONS
-     ------------------------------------------------------------------------->
+    <!-- SYNDICATION AND NOTIFICATIONS -->
     <link rel="alternate" type="application/rss+xml" title="RSS" href="">
     <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="">
     <meta name="msapplication-notification" content="frequency=30;
@@ -76,17 +37,14 @@
                    polling-uri2=.xml;
                    polling-uri3=.xml">
 
-
-    <!-- APPLICATION ICONS AND STARTUP SCREENS
-     ------------------------------------------------------------------------->
+    <!-- APPLICATION ICONS AND STARTUP SCREENS -->
     <link rel="manifest" href="assets/manifest.json">
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="icon" type="image/png" href="assets/favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="assets/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="assets/favicon-96x96.png" sizes="96x96">
 
-    <!-- APPLE SPECIFIC-ish
-     ------------------------------------------------------------------------->
+    <!-- APPLE SPECIFIC-ish -->
     <link rel="apple-touch-startup-image" href="">
     <link rel="apple-touch-icon" sizes="57x57" href="assets/apple-touch-icon-precomposed-57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="assets/apple-touch-icon-precomposed-114.png">
@@ -97,24 +55,18 @@
     <link rel="apple-touch-icon" sizes="76x76" href="assets/apple-touch-icon-precomposed-76.png">
     <link rel="apple-touch-icon" sizes="152x152" href="assets/apple-touch-icon-precomposed-152.png">
 
-    <!-- MICROSOFT SPECIFIC
-     ------------------------------------------------------------------------->
+    <!-- MICROSOFT SPECIFIC -->
     <meta name="msapplication-TileColor" content="#1492d5">
     <meta name="msapplication-TileImage" content="assets/apple-touch-icon-precomposed-144.png">
     <meta name="msapplication-config" content="assets/browserconfig.xml" />
 
-
-    <!-- EXTERNAL PROFILES
-     ------------------------------------------------------------------------->
+    <!-- EXTERNAL PROFILES -->
     <link rel='profile' title='Microformats' href='http://microformats.org/profile/specs/'>
 
-
-    <!-- STYLESHEETS
-     ------------------------------------------------------------------------->
+    <!-- STYLESHEETS -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700">
-    <link rel="stylesheet" href="main.min.css?v=<%= version %>">
+    <link rel="stylesheet" href="main.css">
 
-    <base href="/">
     <script type="text/javascript">
         ! function(a, b, c, d, e, f, g, h) {
             a.RaygunObject = e, a[e] = a[e] || function() {
@@ -127,27 +79,11 @@
                 }
         }(window, document, "script", "//cdn.raygun.io/raygun4js/raygun.min.js", "rg4js");
     </script>
-</head>
+  </head>
+  <body>
+    <uni-app>Loading...</uni-app>
+    <!--<script src="vendors.bundle.js"></script>-->
+  </body>
 
-<body>
-
-    <uni-app>
-        <p class="appLoading">Laster, vennligst vent…</p>
-        <uni-app>
-
-            <!-- SCRIPTS
-     ------------------------------------------------------------------------->
-            <script crossorigin="anonymous" src="vendors.bundle.js?v=<%= version %>"></script>
-            <script crossorigin="anonymous" src="app.bundle.js?v=<%= version %>"></script>
-            <script>
-                APP_VERSION = "<%= gitRevision %>";
-            </script>
-            <script>
-                System.import('system.config.js').then(function() {
-                    System.import('app/appModule');
-                }).catch(console.error.bind(console));
-            </script>
-            <%= raygunApiKeyCode %>
-</body>
-
+  <raygunApiKeyCode> <!-- Replaced by uniIndexPlugin.js -->
 </html>

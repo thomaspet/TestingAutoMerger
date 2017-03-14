@@ -3,8 +3,10 @@
     <uni-form class="userSettings"            
             [config]="config$"
             [fields]="fields$"
-            [model]="user$">
+            [model]="user$"
+            (changeEvent)="change($event)">
     </uni-form>
 </article>
 
 <uni-save [actions]="saveactions"></uni-save>
+<uni-confirm-modal></uni-confirm-modal>

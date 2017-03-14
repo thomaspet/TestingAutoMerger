@@ -12,7 +12,7 @@ class UniQueryCategory {
 
 @Component({
     selector: 'uni-query-overview',
-    templateUrl: 'app/components/uniquery/overview/overview.html'
+    templateUrl: './overview.html'
 })
 export class UniQueryOverview {
 

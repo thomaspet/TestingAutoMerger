@@ -351,7 +351,7 @@ export class AddressModal {
 
             actions: [
                 {
-                    text: 'Lagre adresse',
+                    text: 'Ok',
                     class: 'good',
                     method: () => {
                         this.modal.close();

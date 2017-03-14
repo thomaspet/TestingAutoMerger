@@ -1,7 +1,7 @@
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -29,12 +29,11 @@ import {
     CustomerInvoiceReminderSettingsService,
     CurrencyCodeService
 } from '../../../../services/services';
-
-declare var _; // lodash
+declare var _;
 
 @Component({
     selector: 'customer-details',
-    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html'
+    templateUrl: './customerDetails.html'
 })
 export class CustomerDetails {
     @Input() public customerID: any;

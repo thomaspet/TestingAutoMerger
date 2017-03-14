@@ -8,7 +8,7 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 
 @Component({
     selector: 'journalentries',
-    templateUrl: 'app/components/accounting/journalentry/journalentries/journalentries.html'
+    templateUrl: './journalentries.html'
 })
 export class JournalEntries {
     @ViewChild(JournalEntryManual) private journalEntryManual;

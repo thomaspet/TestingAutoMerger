@@ -25,7 +25,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'product-details',
-    templateUrl: 'app/components/common/product/details/productDetails.html'
+    templateUrl: './productDetails.html'
 })
 export class ProductDetails {
     @Input() public productId: any;

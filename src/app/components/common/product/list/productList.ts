@@ -7,11 +7,9 @@ import {ProductService, ErrorService} from '../../../../services/services';
 import {Product} from '../../../../unientities';
 import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
 
-declare var jQuery;
-
 @Component({
     selector: 'product-list',
-    templateUrl: 'app/components/common/product/list/productList.html'
+    templateUrl: './productList.html'
 })
 export class ProductList {
     private productTable: UniTableConfig;

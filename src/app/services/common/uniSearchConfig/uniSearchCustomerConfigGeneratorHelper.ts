@@ -1,13 +1,14 @@
+import {Injectable} from '@angular/core';
 import {UniEntity, Customer, BusinessRelation, Address, Phone, Email} from '../../../unientities';
-import {Observable, BehaviorSubject} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
-import {CustomerService} from '../../Sales/customerService';
+import {CustomerService} from '../../sales/customerService';
 import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
-import {Injectable} from '@angular/core';
+import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 
 class CustomStatisticsResultItem {
     /* tslint:disable */
@@ -36,7 +37,7 @@ export class UniSearchCustomerConfigGeneratorHelper {
     public generate(
         expands: [string] = ['Info.Addresses'],
         newItemModalFn?: () => Observable<UniEntity>
-    ): IUniSearchConfig {
+    ): any {
         return {
             lookupFn: searchTerm => this
                 .statisticsService

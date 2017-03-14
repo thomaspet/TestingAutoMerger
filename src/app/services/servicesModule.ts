@@ -5,7 +5,8 @@ import {CommonServicesModule} from './commonServicesModule';
 import {ReportServicesModule} from './reportServicesModule';
 import {SalaryServicesModule} from './salaryServicesModule';
 import {SalesServicesModule} from './salesServicesModule';
-import {TimeTrackingServicesModule} from './timeTrackingServicesModule';
+import {TimeTrackingServicesModule} from './timetrackingServicesModule';
+import {AdminServicesModule} from './adminServicesModule';
 
 @NgModule({
     imports: [
@@ -14,7 +15,8 @@ import {TimeTrackingServicesModule} from './timeTrackingServicesModule';
         ReportServicesModule,
         SalaryServicesModule,
         SalesServicesModule,
-        TimeTrackingServicesModule
+        TimeTrackingServicesModule,
+        AdminServicesModule
     ],
     exports: [
         AccountingServicesModule,
@@ -22,7 +24,8 @@ import {TimeTrackingServicesModule} from './timeTrackingServicesModule';
         ReportServicesModule,
         SalaryServicesModule,
         SalesServicesModule,
-        TimeTrackingServicesModule
+        TimeTrackingServicesModule,
+        AdminServicesModule
     ]
 })
 export class AppServicesModule {

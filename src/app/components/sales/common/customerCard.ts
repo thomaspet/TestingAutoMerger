@@ -3,9 +3,8 @@ import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
 import {AddressService, EHFService, UniSearchConfigGeneratorService, CustomerService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs/Rx';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
-declare const _;
+import {Observable} from 'rxjs/Observable';
+import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 
 @Component({
     selector: 'tof-customer-card',
@@ -97,14 +96,14 @@ export class TofCustomerCard {
 
     public ngAfterViewInit() {
         this.searchInput = this.elementRef.nativeElement.querySelector('input');
-        this.searchInput.focus();
+        this.focus();
     }
 
     public ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
             this.customerDueInvoiceData = null;
 
-            const customer: any = this.entity.Customer || {Info: {}};
+            const customer: any = this.entity.Customer || {Info: {Name: ''}};
             if (this.uniSearchConfig) {
                 this.uniSearchConfig.initialItem$.next(customer);
             } else {
@@ -144,7 +143,9 @@ export class TofCustomerCard {
     }
 
     public focus() {
-        this.searchInput.focus();
+        if (this.searchInput) {
+            this.searchInput.focus();
+        }
     }
 
     public openCustomerModal(): Observable<Customer> {

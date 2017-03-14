@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {AmeldingData, FinancialYear} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
@@ -14,14 +15,14 @@ import {
     AMeldingService,
     ErrorService,
     NumberFormat,
-    SalarySumsService
+    SalarySumsService,
+    FinancialYearService
 } from '../../../services/services';
-
-declare var moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'amelding-view',
-    templateUrl: 'app/components/salary/amelding/ameldingview.html'
+    templateUrl: './ameldingview.html'
 })
 
 export class AMeldingView implements OnInit {
@@ -63,7 +64,9 @@ export class AMeldingView implements OnInit {
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
         private _salarySumsService: SalarySumsService,
+        private _financialYearService: FinancialYearService,
         private numberformat: NumberFormat,
+        private router: Router,
         private errorService: ErrorService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
@@ -81,20 +84,25 @@ export class AMeldingView implements OnInit {
                         return false;
                     }
                 }
+            },
+            {
+                label: 'Tilleggsopplysninger',
+                action: () => this.router.navigate(['salary/supplements'])
             }
         ];
-
-        this.updateToolbar();
     }
 
     public ngOnInit() {
-        this.activeFinancialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
-        this._payrollService.getLatestSettledPeriod(1, this.activeFinancialYear.Year)
+        this._financialYearService
+            .getActiveFinancialYear()
+            .do(financialYear => this.activeFinancialYear = financialYear)
+            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear.Year))
             .subscribe((period) => {
                 this.currentPeriod = period;
                 this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
                 this.getAMeldingForPeriod();
+                this.updateToolbar();
             }, err => this.errorService.handle(err));
     }
 
@@ -248,10 +256,11 @@ export class AMeldingView implements OnInit {
                     _substatuses.push({
                         title: 'A-melding ' + amelding.ID,
                         state: amelding.ID === this.currentAMelding.ID ? UniStatusTrack.States.Active : UniStatusTrack.States.Obsolete,
-                        timestamp: amelding.UpdatedAt ? new Date(amelding.UpdatedAt) : new Date(amelding.CreatedAt),
+                        timestamp: amelding.UpdatedAt ? new Date(<any> amelding.UpdatedAt) : new Date(<any> amelding.CreatedAt),
                         data: amelding
                     });
                 });
+
             }
 
             statustrack[indx] = {

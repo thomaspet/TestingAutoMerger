@@ -1,12 +1,12 @@
-import * as browser from '@angular/platform-browser';
 import {Pipe} from '@angular/core';
 import {ErrorService} from '../services/services';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 @Pipe({name: 'safehtml'})
-export class SafeHtml {
-    constructor(private sanitizer: browser.DomSanitizer, private errorService: ErrorService) {}
+export class UniSafeHtml {
+    constructor(private sanitizer: DomSanitizer, private errorService: ErrorService) {}
 
-    public transform(html): browser.SafeHtml {
+    public transform(html): SafeHtml {
         try {
             return this.sanitizer.bypassSecurityTrustHtml(html);
         } catch (err) {

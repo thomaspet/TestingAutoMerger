@@ -1,3 +1,4 @@
+/// <reference path="../../../../typings/modules/chart.js/index.d.ts" />
 import {Component, EventEmitter, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -5,11 +6,11 @@ import {Router} from '@angular/router';
 import {ErrorService, CompanySettingsService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
 import {Company} from '../../unientities';
+
+import * as moment from 'moment';
+import * as Chart from 'chart.js';
 import {UniImage} from '../../../framework/uniImage/uniImage';
 import {CompanySettings} from '../../unientities';
-
-declare var Chart;
-declare var moment;
 
 export interface IChartDataSet {
     label: string;
@@ -22,7 +23,7 @@ export interface IChartDataSet {
 
 @Component({
     selector: 'uni-dashboard',
-    templateUrl: 'app/components/dashboard/dashboard.html'
+    templateUrl: './dashboard.html'
 })
 
 export class Dashboard {
@@ -49,12 +50,15 @@ export class Dashboard {
         private companySettingsService: CompanySettingsService
     ) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
-        Chart.defaults.global.maintainAspectRatio = false;
+
+        // Avoid compile error. Seems to be something weird with the chart.js typings file
+        (<any> Chart).defaults.global.maintainAspectRatio = false;
 
         this.authService.companyChange.subscribe(
             company => this.loadReload.emit()
             /* No error handling neccesary */
         );
+
     }
 
     public ngAfterViewInit() {
@@ -253,7 +257,12 @@ export class Dashboard {
     //Generates a new Chart
     private chartGenerator(elementID: string, data: IChartDataSet) {
         let myElement = document.getElementById(elementID);
-        let myChart = new Chart(myElement, {
+
+        let chartSettings: Chart.ChartSettings = {
+
+        }
+
+        let myChart = new Chart(<any> myElement, {
             type: data.chartType,
             data: {
                 labels: data.labels,

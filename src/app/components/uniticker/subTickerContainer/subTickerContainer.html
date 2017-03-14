@@ -1,0 +1,31 @@
+
+<section *ngIf="subTickers && subTickers.length > 0">
+    <span class="sub-ticker-header">Detaljer</span>
+    <div *ngIf="parentModel">
+        <div class="sub-ticker-container" *ngIf="expanded">
+            <button (click)="closeSubtickers()" class="closeBtn"></button>
+            <div class="sub-ticker-container-expanded">
+                <template ngFor let-subTicker [ngForOf]="subTickers">
+                    <h3>{{subTicker.Name}}</h3>
+                    <uni-ticker
+                        [ticker]="subTicker"
+                        [parentModel]="parentModel">
+                    </uni-ticker>
+                </template>
+            </div>
+        </div>
+        <div class="sub-ticker-container" *ngIf="!expanded">
+            <dl class="sub-ticker-summary">
+                <template ngFor let-column [ngForOf]="parentTicker.Columns">
+                    <dd>{{column.Header}}</dd>
+                    <dt>{{getFieldValue(column, parentModel)}}</dt>
+                </template>
+            </dl>
+        </div>
+    </div>
+    <div class="sub-ticker-container" *ngIf="!parentModel">
+        <div class="sub-ticker-empty">
+            Velg en rad for å se detaljer
+        </div>
+    </div>
+</section>

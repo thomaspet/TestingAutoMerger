@@ -18,7 +18,7 @@ type ModalConfig = {
 
 @Component({
     selector: 'sal-trans-supplements-modal-content',
-    templateUrl: 'app/components/salary/modals/salaryTransactionSupplementsModalContent.html'
+    templateUrl: './salaryTransactionSupplementsModalContent.html'
 })
 export class SalaryTransactionSupplementsModalContent {
     @Input('config') private config: ModalConfig;
@@ -26,6 +26,7 @@ export class SalaryTransactionSupplementsModalContent {
     private salaryTransaction$: BehaviorSubject<SalaryTransaction> = new BehaviorSubject(new SalaryTransaction());
     private readOnly: boolean;
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+
 
     constructor() {
 
@@ -50,6 +51,7 @@ export class SalaryTransactionSupplementsModalContent {
                             .SupplementaryInformations
                             .find(x => x.ID === supplement.WageTypeSupplementID);
                     }
+
 
                     if (supplement.WageTypeSupplement) {
                         switch (supplement.WageTypeSupplement.ValueType) {

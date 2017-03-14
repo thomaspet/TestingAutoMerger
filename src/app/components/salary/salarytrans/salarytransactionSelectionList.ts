@@ -6,6 +6,8 @@ import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard, 
 import { ISummaryConfig } from '../../common/summary/summary';
 import { UniView } from '../../../../framework/core/uniView';
 import { SalaryTransactionEmployeeList } from './salarytransList';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observable } from 'rxjs/Observable';
 import {
     EmployeeService,
     PayrollrunService,
@@ -20,10 +22,10 @@ declare var _;
 
 @Component({
     selector: 'salarytrans',
-    templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html'
+    templateUrl: './salarytransactionSelectionList.html'
 })
 
-export class SalaryTransactionSelectionList extends UniView implements AfterViewInit, OnInit {
+export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
     private salarytransSelectionTableConfig: UniTableConfig;
     private employeeList: Employee[] = [];
     private selectedIndex: number = 0;
@@ -31,7 +33,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private payrollRunID: number;
     private payrollRun: PayrollRun;
     private summary: ISummaryConfig[] = [];
-    private contextMenu: IContextMenuItem[];
+    private contextMenu$: ReplaySubject<IContextMenuItem[]>;
 
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public busy: boolean;
@@ -55,6 +57,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
         this.tableConfig();
 
+        this.contextMenu$ = new ReplaySubject<IContextMenuItem[]>(1);
+
         route.params.subscribe(param => {
             this.payrollRunID = +param['id'];
             super.updateCacheKey(router.url);
@@ -68,20 +72,25 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             });
             super.getStateSubject('payrollRun').subscribe((payrollRun: PayrollRun) => {
                 this.payrollRun = payrollRun;
+                this.contextMenu$.next(this.generateContextMenu(payrollRun));
             });
         });
     }
 
-    public ngOnInit() {
-        this.contextMenu = [
-            {label: 'Forskudd', action: () => this.navigateToNewAdvance()},
-            {label: 'Trekk', action: () => this.navigateToNewDraw()},
-            {label: 'Saldooversikt', action: () => this.navigateToSalaryBalanceList()}
-        ];
-    }
-
     public ngAfterViewInit() {
         this.focusRow(0);
+    }
+
+    private generateContextMenu(payrollRun: PayrollRun): IContextMenuItem[] {
+        let items = [
+            { label: 'Forskudd', action: () => this.navigateToNewAdvance() },
+            { label: 'Trekk', action: () => this.navigateToNewDraw() },
+            { label: 'Saldooversikt', action: () => this.navigateToSalaryBalanceList() }
+        ];
+        if (payrollRun.StatusCode > 0) {
+            items.push({ label: 'Tilleggsopplysninger', action: () => this.navigateToSupplements() });
+        }
+        return items;
     }
 
     public focusRow(index = undefined) {
@@ -102,7 +111,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                     || !rowModel.TaxCards.length
                     || (!rowModel.TaxCards[0].TaxTable
                         && !rowModel.TaxCards[0].TaxPercentage);
-                let accountError = !rowModel.BusinessRelationInfo.DefaultBankAccountID;
+                let accountError = !rowModel.BusinessRelationID
+                    || !rowModel.BusinessRelationInfo.DefaultBankAccountID;
                 let notUpdated = !taxError
                     && rowModel.TaxCards
                     && this.payrollRun
@@ -150,13 +160,17 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     private getAga() {
         let employee = this.employeeList[this.selectedIndex];
-        if (!this.agaZone || (employee.SubEntity && employee.SubEntity.AgaZone !== this.agaZone.ID)) {
-            this._agaZoneService
-                .Get(employee.SubEntity.AgaZone)
-                .subscribe((agaResponse: AGAZone) => {
-                    this.agaZone = agaResponse;
-                }, err => this.errorService.handle(err));
-        } else if (!employee.SubEntity) {
+        if (employee.SubEntity) {
+            let obs = !this.agaZone || (employee.SubEntity.AgaZone !== this.agaZone.ID)
+                ? this._agaZoneService
+                    .Get(employee.SubEntity.AgaZone)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                : Observable.of(this.agaZone);
+
+            obs.subscribe((agaResponse: AGAZone) => {
+                this.agaZone = agaResponse;
+            });
+        } else {
             this.agaZone = new AGAZone();
         }
     }
@@ -223,8 +237,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public generateErrorMessage(): string {
         let employee: Employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
-        let error = `Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet for ${employee.BusinessRelationInfo.Name}</a> for å legge inn `;
-        let noBankAccounts = !employee.BusinessRelationInfo.DefaultBankAccountID;
+        let error = 
+            `Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet ${employee.BusinessRelationInfo 
+            ? 'for' + employee.BusinessRelationInfo.Name 
+            : ''}</a> for å legge inn `;
+        let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
 
         if (noBankAccounts && noTax) {
@@ -264,7 +281,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public hasError(): boolean {
         let employee: Employee = this.employeeList[this.selectedIndex];
         let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
-        let noBankAccounts = !employee.BusinessRelationInfo.DefaultBankAccountID;
+        let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
 
         return noBankAccounts || noTax;
@@ -306,5 +323,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             this.router
                 .navigate(['salary/salarybalances', { empID: employee.ID }]);
         }
+    }
+
+    public navigateToSupplements() {
+        this.router
+            .navigate(['salary/supplements',
+                { runID: this.payrollRunID }]);
     }
 }

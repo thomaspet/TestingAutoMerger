@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild} from '@angular/core';
+﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -9,7 +9,7 @@ import {UniFieldLayout} from 'uniform-ng2/main';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {
-    CompanyType, CompanySettings, VatReportForm, PeriodSeries, CurrencyCode, AccountGroup, Account,
+    FinancialYear, CompanyType, CompanySettings, VatReportForm, PeriodSeries, CurrencyCode, AccountGroup, Account,
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
 import {BankAccountModal} from '../../common/modals/modals';
@@ -18,6 +18,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {
     CompanySettingsService,
     CurrencyCodeService,
@@ -36,14 +37,14 @@ import {
     ErrorService,
     CompanyService,
     UniSearchConfigGeneratorService,
-    CurrencyService
+    CurrencyService,
+    FinancialYearService
 } from '../../../services/services';
-
-declare const _;
+declare var _;
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/companySettings/companySettings.html'
+    templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
@@ -52,6 +53,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -72,11 +74,11 @@ export class CompanySettingsComponent implements OnInit {
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
     private currencyCodes: Array<CurrencyCode> = [];
+    private accountYears: Array<FinancialYear> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
     private municipalities: Municipal[] = [];
     private accountVisibilityGroups: AccountVisibilityGroup[] = [];
-    private bankAccountChanged: any;
 
     private showImageSection: boolean = false; // used in template
     private showReminderSection: boolean = false; // used in template
@@ -91,7 +93,9 @@ export class CompanySettingsComponent implements OnInit {
 
     private showExternalSearch: boolean = false;
     private searchText: string = '';
+    private organizationnumbertoast: number;
 
+    public isDirty: boolean = false;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public onlyCompanyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -106,6 +110,20 @@ export class CompanySettingsComponent implements OnInit {
         }
     ];
 
+    private roundingTypes: {ID: number, Label: string}[] = [
+        {ID: 0, Label: 'Opp'},
+        {ID: 1, Label: 'Ned'},
+        {ID: 2, Label: 'Hele'},
+        {ID: 3, Label: 'Halve'}
+    ];
+
+    private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
+        {Decimals: 0, Label: 'Ingen desimaler'},
+        {Decimals: 2, Label: '2 desimaler'},
+        {Decimals: 3, Label: '3 desimaler'},
+        {Decimals: 4, Label: '4 desimaler'}
+    ];
+
     constructor(
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
@@ -116,7 +134,7 @@ export class CompanySettingsComponent implements OnInit {
         private vatReportFormService: VatReportFormService,
         private vatTypeService: VatTypeService,
         private municipalService: MunicipalService,
-        private bankAccountService: BankAccountService,
+        private bankaccountService: BankAccountService,
         private addressService: AddressService,
         private phoneService: PhoneService,
         private emailService: EmailService,
@@ -126,7 +144,9 @@ export class CompanySettingsComponent implements OnInit {
         private authService: AuthService,
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private currencyService: CurrencyService
+        private currencyService: CurrencyService,
+        private financialYearService: FinancialYearService
+
     ) {
     }
 
@@ -152,7 +172,8 @@ export class CompanySettingsComponent implements OnInit {
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity(null, 'Address'),
-            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes'])
+            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
+            this.financialYearService.GetAll(null)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -166,6 +187,8 @@ export class CompanySettingsComponent implements OnInit {
                 this.emptyAddress = dataset[9];
                 // get accountvisibilitygroups that are not specific for a companytype
                 this.accountVisibilityGroups = dataset[10].filter(x => x.CompanyTypes.length === 0);
+                this.accountYears = dataset[11];
+                this.accountYears.forEach(item => item['YearString'] = item.Year.toString());
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
@@ -233,19 +256,62 @@ export class CompanySettingsComponent implements OnInit {
         this.company$.next(company);
     }
 
-    public saveSettings(complete) {
-        let company = this.company$.getValue();
-        if (company.OrganizationNumber === ''
-            || isNaN(<any>company.OrganizationNumber)) {
-            alert('Vennligst oppgi et gyldig organisasjonsnr');
-            complete('Ugyldig organisasjonsnr, lagring avbrutt');
-            return;
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty && !this.reminderSettings.isDirty) {
+           return true;
         }
 
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    public companySettingsChange(changes: SimpleChanges) {
+        this.isDirty = true;
+
+        if (changes['CompanyBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccountID']);
+        }
+
+        if (changes['TaxBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['TaxBankAccountID']);
+        }
+
+        if (changes['SalaryBankAccountID']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['SalaryBankAccountID']);
+        }
+
+        if (changes['OrganizationNumber']) {
+            let organizationnumber = changes['OrganizationNumber'].currentValue;
+            if (organizationnumber === ''
+                || isNaN(<any>organizationnumber)
+                || organizationnumber.length !== 9) {
+                this.organizationnumbertoast = this.toastService.addToast('Organisasjonsnummer', ToastType.warn, 5, 'Vennligst oppgi et gyldig organisasjonsnr');
+            } else {
+                if (this.organizationnumbertoast) {
+                    this.toastService.removeToast(this.organizationnumbertoast);
+                }
+            }
+        }
+    }
+
+    public saveSettings(complete) {
+        let company = this.company$.getValue();
         if (company.BankAccounts) {
             company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
-                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                 }
             });
         }
@@ -281,11 +347,12 @@ export class CompanySettingsComponent implements OnInit {
                     this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
 
                     this.reminderSettings.save().then(() => {
+                        this.isDirty = false;
                         this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                         complete('Innstillinger lagret');
                     }).catch((err) => {
                         this.errorService.handle(err);
-                        complete('Purreinnstillinger feilt i lagring');
+                        complete('Purreinnstillinger feilet i lagring');
                     });
                 });
             },
@@ -435,6 +502,15 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
+ let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
+        currentAccountYear.Options = {
+            source: this.accountYears,
+            valueProperty: 'Year',
+            displayProperty: 'YearString',
+            debounceTime: 200
+        };
+
+
         let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
             source: this.municipalities,
@@ -482,25 +558,25 @@ export class CompanySettingsComponent implements OnInit {
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
-                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.company$.getValue().ID;
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.openModal(bankaccount);
+                this.bankAccountModal.confirm(bankaccount).then(res => {
+                    if (res.status === ConfirmActions.ACCEPT) {
+                        let bankaccount = res.model;
 
-                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((changedBankaccount) => {
-                    this.bankAccountChanged.unsubscribe();
+                        // update BankAccounts list only active is updated directly
+                        this.company$.getValue().BankAccounts.forEach((ba, i) => {
+                            if ((ba.ID && ba.ID == bankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == bankaccount._createguid)) {
+                                this.company$.getValue().BankAccounts[i] = bankaccount;
+                            }
+                        });
 
-                    // update BankAccounts list only active is updated directly
-                    this.company$.getValue().BankAccounts.forEach((ba, i) => {
-                        if ((ba.ID && ba.ID == changedBankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == changedBankaccount._createguid)) {
-                            this.company$.getValue().BankAccounts[i] = changedBankaccount;
-                        }
-                    });
-
-                    resolve(bankaccount);
+                        resolve(bankaccount);
+                    }
                 });
             })
         };
@@ -1045,6 +1121,103 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
+                Property: 'AgioGainAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for valutagevinst',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'AgioLossAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for valutatap',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'BankChargeAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for bankgebyr',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'CurrentAccountingYear',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.DROPDOWN,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Aktivt regnskapsår',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
                 Property: 'CompanyBankAccount',
                 Placement: 1,
                 Hidden: false,
@@ -1151,10 +1324,43 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Bankkontoer',
                 hasLineBreak: false,
                 Validations: []
+            }, // PaymentRounding
+            {
+                Property: 'ShowNumberOfDecimals',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Antall desimaler i visning av antall og pris',
+                Section: 3,
+                Sectionheader: 'Avrunding',
+                Options: {
+                    source: this.roundingNumberOfDecimals,
+                    valueProperty: 'Decimals',
+                    displayProperty: 'Label'
+                }
+            },
+            {
+                Property: 'RoundingNumberOfDecimals',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Antall desimaler ved avrunding',
+                Section: 3,
+                Sectionheader: 'Avrunding',
+                Options: {
+                    source: this.roundingNumberOfDecimals,
+                    valueProperty: 'Decimals',
+                    displayProperty: 'Label'
+                }
+            },
+            {
+                Property: 'RoundingType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avrundingstype',
+                Section: 3,
+                Sectionheader: 'Avrunding',
+                Options: {
+                    source: this.roundingTypes,
+                    valueProperty: 'ID',
+                    displayProperty: 'Label'
+                }
             }
-
-
-
         ]);
 
         /*
@@ -1198,6 +1404,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.vatTypeService.PutAction(null, 'synchronize')
                     .subscribe(() => {
                         console.log('2/2 VatTypes synkronisert');
+                        this.toastService.addToast('Synkronisert', ToastType.good, 5, 'Kontoplan og momskoder synkronisert');
                     },
                     err => this.errorService.handle(err)
                     );
@@ -1230,7 +1437,7 @@ export class CompanySettingsComponent implements OnInit {
         this.currencyService.GetAction(null, 'download-from-norgesbank')
             .subscribe(
             (response: any) => {
-                alert('Valuta lasted ned');
+                this.toastService.addToast('Valuta', ToastType.good, 5, 'Valuta lastet ned');
             },
             err => this.errorService.handle(err));
     }

@@ -18,7 +18,7 @@ export interface IReminderSettingsModalConfig {
 
 @Component({
     selector: 'reminder-settings-form',
-    templateUrl: 'app/components/common/reminder/settings/settingsModal.html'
+    templateUrl: './settingsModal.html'
 })
 export class ReminderSettingsForm {
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;

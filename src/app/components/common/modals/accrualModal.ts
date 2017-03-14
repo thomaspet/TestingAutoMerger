@@ -3,7 +3,7 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {Observable} from 'rxjs/Observable';
 import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
 import {Accrual, AccrualPeriod, Account, JournalEntryLineDraft, LocalDate, Period} from '../../../unientities';
-import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {AccountService, ErrorService, FinancialYearService, PeriodService} from '../../../services/services';
 import {FieldType} from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

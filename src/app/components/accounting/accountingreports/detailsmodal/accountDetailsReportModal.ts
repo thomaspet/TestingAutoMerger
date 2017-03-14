@@ -1,8 +1,6 @@
-import {Component, Type, ViewChild, Input} from '@angular/core';
+import {Component, Type, ViewChild} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {AccountDetailsReport} from './accountDetailsReport';
-
-declare const _; // lodash
 
 @Component({
     selector: 'account-details-report-modal',

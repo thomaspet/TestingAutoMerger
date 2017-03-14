@@ -3,11 +3,11 @@ import {UniForm, FieldType} from 'uniform-ng2/main';
 import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+declare const _;
 
-declare var _;
 @Component({
     selector: 'tax-card-request',
-    templateUrl: 'app/components/salary/employee/modals/taxCardRequest.html',
+    templateUrl: './taxCardRequest.html',
     host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
 
 })

@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AltinnAuthenticationService} from './common/altinnAuthenticationService';
 import {AltinnIntegrationService} from './common/altinnIntegrationService';
 import {AltinnReceiptService} from './common/altinnReceiptService';
@@ -16,6 +16,7 @@ import {UserService} from './common/userService';
 import {VatReportFormService} from './common/vatReportFormService';
 import {StatisticsService} from './common/statisticsService';
 import {UniQueryDefinitionService} from './common/uniQueryDefinitionService';
+import {UniTickerService} from './common/uniTickerService';
 import {CountryService} from './common/countryService';
 import {PostalCodeService} from './common/postalCodeService';
 import {UniMenuAim} from './common/uniMenuAim';
@@ -33,11 +34,13 @@ import {BrowserStorageService} from './common/browserStorageService';
 import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
+import {EmailService} from './common/emailService';
 import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearchConfigGeneratorService';
-import {UmhService} from './common/umhService';
+import {UmhService} from './common/UmhService';
 import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
+import {ModelService} from './common/modelService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -56,6 +59,7 @@ export * from './common/userService';
 export * from './common/vatReportFormService';
 export * from './common/statisticsService';
 export * from './common/uniQueryDefinitionService';
+export * from './common/uniTickerService';
 export * from './common/countryService';
 export * from './common/postalCodeService';
 export * from './common/uniMenuAim';
@@ -73,50 +77,61 @@ export * from './common/browserStorageService';
 export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';
+export * from './common/emailService';
 export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 export * from './common/currencyOverridesService';
+export * from './common/modelService';
 
-@NgModule({
-    providers: [
-        AltinnAuthenticationService,
-        AltinnIntegrationService,
-        AltinnReceiptService,
-        CompanySettingsService,
-        CompanyTypeService,
-        CurrencyService,
-        CurrencyCodeService,
-        DepartmentService,
-        GuidService,
-        IntegrationServerCaller,
-        ProductService,
-        ProjectService,
-        SubEntityService,
-        UserService,
-        VatReportFormService,
-        UniQueryDefinitionService,
-        StatisticsService,
-        CountryService,
-        PostalCodeService,
-        UniMenuAim,
-        NumberFormat,
-        StatusService,
-        SettingsService,
-        CompanyService,
-        ErrorService,
-        PageStateService,
-        FileService,
-        EHFService,
-        AgaZoneService,
-        MunicipalService,
-        BrowserStorageService,
-        UniCacheService,
-        StaticRegisterService,
-        UniSearchConfigGeneratorService,
-        UniSearchAccountConfigGeneratorHelper,
-        UniSearchCustomerConfigGeneratorHelper,
-        UmhService,
-        CurrencyOverridesService
-    ]
-})
-export class CommonServicesModule {}
+@NgModule({})
+export class CommonServicesModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: CommonServicesModule,
+            providers: [
+                ErrorService,
+                AltinnAuthenticationService,
+                AltinnIntegrationService,
+                AltinnReceiptService,
+                CompanySettingsService,
+                CompanyTypeService,
+                CurrencyService,
+                DepartmentService,
+                GuidService,
+                IntegrationServerCaller,
+                ProductService,
+                ProjectService,
+                SubEntityService,
+                UserService,
+                VatReportFormService,
+                UniQueryDefinitionService,
+                StatisticsService,
+                CountryService,
+                PostalCodeService,
+                UniMenuAim,
+                NumberFormat,
+                StatusService,
+                SettingsService,
+                CompanyService,
+                PageStateService,
+                FileService,
+                EHFService,
+                AgaZoneService,
+                MunicipalService,
+                BrowserStorageService,
+                UniCacheService,
+                StaticRegisterService,
+                DimensionService,
+                EmailService,
+                UmhService,
+				UniSearchConfigGeneratorService,
+				UniSearchAccountConfigGeneratorHelper,
+        		UniSearchCustomerConfigGeneratorHelper,
+				CurrencyOverridesService,
+				CurrencyCodeService,
+				UniTickerService,
+                ModelService
+            ]
+        };
+    }
+}
 

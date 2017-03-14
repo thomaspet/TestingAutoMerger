@@ -1,26 +1,15 @@
-/// <reference path="../../../../typings/systemjs/systemjs.d.ts" />
 import {Injectable} from '@angular/core';
-
+import {fromByteArray} from 'base64-js';
 declare var Stimulsoft;
-declare var base64js;
 
 @Injectable()
 export class StimulsoftReportWrapper {
 
     constructor() {
-        /**
-         * load stimulsoft
-         *
-         * Zone.js overwrites native promise
-         * and Stimulsoft also does
-         *
-         * so we need to restore Zone.js promise
-         * to allow angular2 working properly
-         */
-        const backup = Promise;
-        System.import('stimulsoft.reports.js').then(function() {
-            Promise = backup;
-        });
+        // Load stimulsoft
+        const scriptTag: HTMLScriptElement = document.createElement('script');
+        scriptTag.setAttribute('src', 'stimulsoft.reports.js')
+        document.head.appendChild(scriptTag);
     }
 
     public showReport(template: string, reportData: Object, parameters: Array<any>, caller: any)
@@ -114,7 +103,7 @@ export class StimulsoftReportWrapper {
                         case 'html':
                             return btoa(data);
                         default:
-                            return base64js.fromByteArray(data);
+                            return fromByteArray(data);
                     }
                 }
             }

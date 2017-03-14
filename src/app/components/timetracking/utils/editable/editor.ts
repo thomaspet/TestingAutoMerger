@@ -1,19 +1,19 @@
 import {IJQItem, IPos, IRect, IEditEvents, IEditor} from './interfaces';
 import {DomEvents} from './domevents';
 import {debounce} from '../utils';
-declare var jQuery;
+import * as $ from 'jquery';
 
 const editorTemplate = `<div style='position:absolute;display:none;white-space:nowrap' class="inline_editor">
     <input type='text'></input><button class='editable_cellbutton'></button>
-    </div>`; 
+    </div>`;
 
-const cloneCss = ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 
+const cloneCss = ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
     'text-align', 'font', 'font-size', 'font-family', 'font-weight', 'color'];
 
 export class Editor implements IEditor {
-    
+
     public editEvents: IEditEvents;
-    
+
     private rootElement: IJQItem;
     private inputBox: IJQItem;
     private button: IJQItem;
@@ -22,21 +22,21 @@ export class Editor implements IEditor {
     private resetTyping: boolean = false;
     private showButton: boolean = false;
     private domEvents: DomEvents = new DomEvents();
-        
+
     public destroy() {
         if (this.rootElement) {
             this.domEvents.Cleanup();
-            this.rootElement.remove();            
+            this.rootElement.remove();
             this.rootElement = undefined;
             this.inputBox = undefined;
         }
     }
-    
+
     public create(owner: IJQItem): IJQItem {
 
         if (!this.rootElement) {
-            this.rootElement = <IJQItem>jQuery(editorTemplate); 
-            owner.parent().append(this.rootElement);        
+            this.rootElement = <IJQItem>$(editorTemplate);
+            owner.parent().append(this.rootElement);
             this.inputBox = this.rootElement.find('input');
             this.button = this.rootElement.find('button');
             this.domEvents.Create(<any>this.button, 'click', (event) => this.onButtonClick(event) );
@@ -44,11 +44,11 @@ export class Editor implements IEditor {
             this.domEvents.Create(<any>this.inputBox, 'input paste', (evt) => {
                 this.resetTyping = false;
                 debounce((e) => { this.onEditTyping(e); }, 250, false).call(this);
-            });            
-        }                
-        return this.inputBox;         
-    }    
-    
+            });
+        }
+        return this.inputBox;
+    }
+
     public move(rect: IRect) {
         var el = this.rootElement;
         if (!el) { return; }
@@ -70,7 +70,7 @@ export class Editor implements IEditor {
             }
         }
     }
-    
+
     public startEdit(value: any, cell: IJQItem, pos: IPos, showButton = false, flagChange = false) {
         this.resetTyping = true;
         this.showButton = showButton;
@@ -100,16 +100,16 @@ export class Editor implements IEditor {
             this.inputBox.select();
         }
     }
-    
+
     public moveTo(cell: IJQItem) {
         var h = cell.outerHeight();
         var w = cell.outerWidth();
-        var pos = cell.offset();        
-        this.move({left: pos.left, top: pos.top, width: w, height: h});        
+        var pos = cell.offset();
+        this.move({left: pos.left, top: pos.top, width: w, height: h});
     }
-    
+
     public focus() {
-        if (!this.inputBox) { return; }        
+        if (!this.inputBox) { return; }
         this.inputBox.focus();
     }
 
@@ -124,7 +124,7 @@ export class Editor implements IEditor {
         if (!this.inputBox) { return ''; }
         return this.inputBox.val();
     }
-    
+
     public finalizeEdit(cancel = false, valueOverride?: string, src = 'unknown'): boolean {
         if (!this.inputBox) { return; }
         if (!(this.editEvents && this.editEvents.onEditChanged)) {
@@ -136,11 +136,11 @@ export class Editor implements IEditor {
                 this.originalValue = txt;
             } else {
                 return false;
-            } 
+            }
         }
         return true;
     }
-    
+
     public onEditKeyDown(event) {
         if (!(this.editEvents && this.onEditKeyDown)) { return; }
         this.editEvents.onEditKeydown(event);
@@ -156,7 +156,7 @@ export class Editor implements IEditor {
         if (!(this.editEvents && this.onEditTyping)) { return; }
         if (this.resetTyping) { return; }
         var value = this.inputBox.val();
-        this.editEvents.onEditTyping(event, value, this.position);        
+        this.editEvents.onEditTyping(event, value, this.position);
     }
 
     public close(cancel= true) {
@@ -164,5 +164,5 @@ export class Editor implements IEditor {
             this.rootElement.hide();
         }
     }
-    
+
 }

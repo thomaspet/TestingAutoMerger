@@ -1,17 +1,17 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {ChangeMap} from '../utils/changeMap';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 import {IResult} from '../genericview/detail';
 import {ErrorService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'workrelations',
-    templateUrl: 'app/components/timetracking/worker/relations.html',
+    templateUrl: './relations.html',
 })
 export class View {
     @Input()
@@ -139,7 +139,7 @@ export class View {
 
     private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
 
-        var obsSave = Observable.from(items).flatMap((item: any) => {
+        var obsSave = Observable.from(items).switchMap((item: any) => {
             item.ID = item.ID < 0 ? 0 : item.ID;
             return this.workerService.saveByID<any>(item, route).map((savedItem: WorkRelation) => {
                 this.changeMap.remove(item._rowIndex, true);
@@ -148,7 +148,7 @@ export class View {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).flatMap((item: any) => {
+            let obsDel = Observable.from(deletables).switchMap( (item: any) => {
                 return this.workerService.deleteByID(item.ID, route).map((event) => {
                     this.changeMap.removables.remove(item.ID, false);
                 });

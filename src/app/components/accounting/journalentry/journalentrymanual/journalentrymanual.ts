@@ -28,7 +28,7 @@ export enum JournalEntryMode {
 @Component({
     selector: 'journal-entry-manual',
     host: { '[class.runassubcomponent]': 'runAsSubComponent' },
-    templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html'
+    templateUrl: './journalentrymanual.html'
 })
 export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public journalEntryID: number = 0;

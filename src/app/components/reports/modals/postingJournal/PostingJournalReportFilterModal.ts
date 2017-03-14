@@ -6,12 +6,13 @@ import {JournalEntryService} from '../../../../services/services';
 import {PreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {ErrorService} from '../../../../services/services';
+
+declare var _;
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-declare var _; // lodash
 @Component({
     selector: 'balance-report-filter-form',
-    templateUrl: 'app/components/reports/modals/postingJournal/PostingJournalReportFilterModal.html'
+    templateUrl: './PostingJournalReportFilterModal.html'
 })
 export class PostingJournalReportFilterForm implements OnInit {
     @Input('config')

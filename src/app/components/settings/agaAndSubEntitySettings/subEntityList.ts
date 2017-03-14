@@ -6,10 +6,10 @@ import { SubEntityService, AgaZoneService, MunicipalService, ErrorService } from
 import { SubEntity, Municipal, AGAZone } from '../../../unientities';
 import { SubEntityDetails } from './subEntityDetails';
 
-declare var _; // lodash
+
 @Component({
     selector: 'sub-entity-list',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/subEntityList.html'
+    templateUrl: './subEntityList.html'
 })
 export class SubEntityList implements OnInit {
 

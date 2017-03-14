@@ -8,7 +8,8 @@
     <uni-form class="companySettings"
               [config]="config$"
               [fields]="fields$"
-              [model]="company$">
+              [model]="company$"
+              (changeEvent)="companySettingsChange($event)">
     </uni-form>
 
     <uni-form class="company"
@@ -50,5 +51,6 @@
 <phone-modal></phone-modal>
 <address-modal></address-modal>
 <bankaccount-modal></bankaccount-modal>
+<uni-confirm-modal></uni-confirm-modal>
 
 <uni-save [actions]="saveactions"></uni-save>

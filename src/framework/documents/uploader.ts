@@ -1,7 +1,6 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {FileUploadService} from './FileUploadService';
-
-declare var jQuery;
+import * as jQuery from 'jquery';
 
 @Component({
     selector: 'uni-document-uploader',

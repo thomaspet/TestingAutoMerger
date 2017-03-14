@@ -1,0 +1,5 @@
+<uni-toolbar [config]="toolbarConfig" [saveactions]="saveactions"></uni-toolbar>
+
+<uni-ticker-search-history [lastSearch]="lastSearch" (showSearch)="onShowSearch($event)"></uni-ticker-search-history>
+
+<uni-ticker-container [showSubTickers]="showSubTickers" [ticker]="selectedTicker" (urlPropertiesChanged)="onUrlChanged()"></uni-ticker-container>

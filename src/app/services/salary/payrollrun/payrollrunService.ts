@@ -3,7 +3,7 @@ import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { ErrorService } from '../../common/ErrorService';
+import { ErrorService } from '../../common/errorService';
 import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
@@ -72,6 +72,13 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public getLatest() {
         let year = this.getYear();
         return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
+            .map(resultSet => resultSet[0]);
+    }
+
+    public getLatestSettledRun(year: number = undefined): Observable<PayrollRun> {
+        return super.GetAll(`filter=StatusCode ge 1 ${year 
+            ? 'and year(PayDate) eq ' +  year 
+            : ''}&top=1&orderby=PayDate DESC`)
             .map(resultSet => resultSet[0]);
     }
 

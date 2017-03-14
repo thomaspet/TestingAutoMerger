@@ -1,7 +1,7 @@
-/// <reference path='../../typings/browser/ambient/es6-shim/es6-shim.d.ts'/>
-/// <reference path='../../node_modules/immutable/dist/immutable.d.ts'/>
+/// <reference path="../../typings/index.d.ts" />
+/// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
 
-import {enableProdMode, NgModule, ErrorHandler, Inject} from '@angular/core';
+import {enableProdMode, NgModule, ErrorHandler} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 import {BrowserModule} from '@angular/platform-browser';
@@ -14,28 +14,35 @@ import {UniFormModule} from 'uniform-ng2/main';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 
-import moment from 'moment';
+import * as moment from 'moment';
 import 'moment/locale/nb';
 
-import {AppPipesModule} from './pipes/appPipesModule';
+import {TabService} from './components/layout/navbar/tabstrip/tabService';
+import {ToastService} from '../framework/uniToast/toastService';
+
 import {UniFrameworkModule} from '../framework/frameworkModule';
-import {AppServicesModule} from './services/servicesModule';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
-import {AccountingModule} from './components/accounting/accountingModule';
+import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {Dashboard} from './components/dashboard/dashboard';
 import {ReportsModule} from './components/reports/reportsModule';
-import {UniQueryModule} from './components/uniquery/uniqueryModule';
-import {SalaryModule} from './components/salary/salaryModule';
 import {InitModule} from './components/init/initModule';
-import {SalesModule} from './components/sales/salesModule';
-import {SettingsModule} from './components/settings/settingsModule';
-import {TimetrackingModule} from './components/timetracking/timetrackingModule';
 import {BankModule} from './components/bank/bankModule';
 import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
+import {UniTickerModule} from './components/uniticker/uniTickerModule';
+import {TranslationsModule} from './components/translations/module';
+
+// TODO: REVISIT SERVICES (we probably dont need all to be singletons)
+import {AccountingServicesModule} from './services/accountingServicesModule';
+import {CommonServicesModule} from './services/commonServicesModule';
+import {ReportServicesModule} from './services/reportServicesModule';
+import {SalaryServicesModule} from './services/salaryServicesModule';
+import {TimeTrackingServicesModule} from './services/timetrackingServicesModule';
+import {SalesServicesModule} from './services/salesServicesModule';
+import {CanDeactivateGuard} from './canDeactivateGuard';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -54,6 +61,14 @@ if (window.ENV === 'production') {
         HttpModule,
         RouterModule,
 
+        // REVISIT SERVICES!
+        CommonServicesModule.forRoot(),
+        ReportServicesModule.forRoot(),
+        AccountingServicesModule.forRoot(),
+        SalaryServicesModule.forRoot(),
+        SalesServicesModule.forRoot(),
+        TimeTrackingServicesModule.forRoot(),
+
         // routes
         APP_ROUTES,
 
@@ -69,35 +84,30 @@ if (window.ENV === 'production') {
         // COMMON MODULES
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        AppServicesModule,
-
-        // APP MODULES
-        AccountingModule,
-        ReportsModule,
-        SalaryModule,
-        InitModule,
-        SalesModule,
-        SettingsModule,
-        TimetrackingModule,
         UniQueryModule,
-        BankModule,
+        ReportsModule,
+        InitModule,
         AdminModule,
-        CurrencyModule
+        CurrencyModule,
+        UniTickerModule,
+        TranslationsModule
     ],
     declarations: [
         App,
-        Dashboard
+        Dashboard,
     ],
     bootstrap: [App],
     providers: [
         AuthGuard,
+        CanDeactivateGuard,
+        TabService,
+        ToastService,
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
-    ]
+    ],
 })
 export class AppModule {
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule);
+// platformBrowserDynamic().bootstrapModule(AppModule);

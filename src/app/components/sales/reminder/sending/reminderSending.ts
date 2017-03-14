@@ -27,7 +27,7 @@ export interface IRunNumberData {
 
 @Component({
     selector: 'reminder-sending',
-    templateUrl: 'app/components/sales/reminder/sending/reminderSending.html'
+    templateUrl: './reminderSending.html'
 })
 export class ReminderSending implements OnInit {
     @Input() public config: any;

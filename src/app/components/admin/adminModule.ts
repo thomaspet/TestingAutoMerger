@@ -21,6 +21,7 @@ import {routes as AdminRoutes} from './adminRoutes';
 // app
 import {UniAdmin} from './admin';
 import {Jobs} from './jobs/jobs';
+import {UniModels} from './models/models';
 
 
 @NgModule({
@@ -51,11 +52,13 @@ import {Jobs} from './jobs/jobs';
     ],
     declarations: [
         UniAdmin,
-        Jobs
+        Jobs,
+        UniModels,
     ],
     exports: [
         UniAdmin,
-        Jobs
+        Jobs,
+        UniModels,
     ]
 })
 export class AdminModule {

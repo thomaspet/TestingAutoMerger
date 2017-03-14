@@ -3,7 +3,7 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/m
 
 @Component({
     selector: 'amelding-aga-view',
-    templateUrl: 'app/components/salary/amelding/ameldingAga/aga.html'
+    templateUrl: './aga.html'
 })
 
 export class AmeldingAgaView {

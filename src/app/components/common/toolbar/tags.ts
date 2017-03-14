@@ -3,6 +3,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 @Component({
     selector: 'uni-tags',
     template: `
+    <div (clickOutside)="isOpen = false">
         <button type="button"
             class="tags_toggle"
             (click)="isOpen = !isOpen">
@@ -11,7 +12,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
         </button>
 
         <article class="tags_control"
-            [attr.aria-expanded]="isOpen">
+            [attr.aria-expanded]="isOpen"
+            [title]="config?.toolTip || ''">
 
             <small *ngIf="config?.helpText">{{config.helpText}}</small>
 
@@ -39,7 +41,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
                 </button>
             </section>
         </article>
-
+    </div>
     `
 })
 export class UniTags {
@@ -49,6 +51,7 @@ export class UniTags {
         lookupLabel?: string;
         truncate?: number;
         readOnly?: boolean;
+        toolTip?: string;
     };
     @Input() public tags: any[];
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();

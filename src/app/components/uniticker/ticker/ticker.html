@@ -1,0 +1,27 @@
+<section *ngIf="ticker && prefetchDataLoaded">
+    <section class="filter-info" *ngIf="selectedFilter">
+        Filter: {{selectedFilter.Name}} {{getFilterText()}}
+    </section>
+    <section class="ticker-data">
+        <section class="menu-container" *ngIf="ticker.Actions && ticker.Actions.length > 0">
+            <uni-ticker-actions [actions]="ticker.Actions" (executeAction)="onExecuteAction($event)"></uni-ticker-actions>
+        </section>
+        <section class="data-container" (click)="letUniTableHandleIsOwnClicks()">
+            <uni-table
+                *ngIf="!ticker.Type || ticker.Type === 'Table'"
+                [resource]="lookupFunction"
+                [config]="tableConfig"
+                (columnsChange)="onColumnsChange($event)"
+                (rowSelected)="onRowSelected($event)"
+                (dataLoaded)="onDataLoaded($event)">
+            </uni-table>
+
+            <div *ngIf="ticker.Type && ticker.Type !== 'Table'">
+                <uni-ticker-detail-view
+                    [ticker]="ticker"
+                    [model]="model">
+                </uni-ticker-detail-view>
+            </div>
+        </section>
+    </section>
+</section>

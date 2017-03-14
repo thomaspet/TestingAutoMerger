@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
 import {UniDocumentList} from './documents/list';
@@ -22,7 +22,7 @@ import {CommentService} from './comments/commentService';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         UniCoreModule,
@@ -47,7 +47,6 @@ import {CommentService} from './comments/commentService';
     ],
     providers: [
         ImageUploader,
-        ToastService,
         CommentService,
         StimulsoftReportWrapper,
         Logger

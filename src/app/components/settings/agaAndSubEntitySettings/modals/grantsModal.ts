@@ -7,7 +7,7 @@ import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'grants-modal-content',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/modals/grantsModal.html'
+    templateUrl: './grantsModal.html'
 })
 export class GrantsModalContent implements OnInit {
     @Input() public config: any;

@@ -1,0 +1,86 @@
+<section *ngIf="ticker">
+    <section>
+        <span class="filter-header">Filter</span>
+        <div class="filter-container" *ngIf="expanded" (click)="stopPropagation()">
+            <button (click)="closeFilters()" class="closeBtn"></button>
+            <div class="model-tree">
+                <model-tree-view
+                    [header]="'Modeller/felter'"
+                    [mainModelName]="ticker.Model"
+                    [selectedFields]="ticker.Columns"
+                    (fieldAdded)="onFieldAdded($event)"
+                    (modelSelected)="onModelSelected($event)">
+                </model-tree-view>
+
+            </div>
+            <div class="rule-setup">
+                <h2>Finn {{ticker.Model}} hvor:</h2>
+                <uni-ticker-filter-editor
+                    *ngIf="selectedMainModel"
+                    [filter]="selectedFilter"
+                    [ticker]="ticker"
+                    [mainModel]="selectedMainModel"
+                    (filterChanged)="onFilterChanged($event)">
+                </uni-ticker-filter-editor>
+
+                <div class="set-standard-search-box">
+                    <div class="explain-text">Standardsøk er kriterier som automatisk settes for søk av denne typen ({{ticker.Model}})</div>
+                    <button class="good" (click)="setStandardSearch()">Sett som standard</button>
+                </div>
+            </div>
+        </div>
+        <div class="filter-container" *ngIf="!expanded">
+            <div class="filter-summary">
+                <h3>Viser</h3>
+                <ul>
+                    <li>{{ticker.Model}}</li>
+                </ul>
+
+                <span *ngIf="filters && filters.length > 0">
+                    <h3>Ferdige filtre</h3>
+                    <nav>
+                        <ul>
+                            <li *ngFor="let filter of filters"
+                                (click)="onFilterSelected(filter)"
+                                [class.active]="filter.IsActive">
+                                <a>
+                                    {{filter.Name}}
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </span>
+
+                <h3>Filter</h3>
+                <span *ngIf="selectedFilter">
+                    <ul *ngIf="selectedFilter.FilterGroups?.length > 0">
+                        <template ngFor let-group [ngForOf]="selectedFilter.FilterGroups" let-i="index" let-lastGroup="last">
+                            <template ngFor let-fieldFilter [ngForOf]="group.FieldFilters" let-i="index" let-lastFilter="last">
+                                <li class="field-filter">
+                                    {{fieldFilter.Field}} {{fieldFilter.Operator}} {{fieldFilter.Value}} {{fieldFilter.Value2}}
+                                </li>
+                                <li *ngIf="!lastFilter" class="field-filter">
+                                    <i>{{ group.UseAllCriterias ? 'og' : 'eller' }}</i>
+                                </li>
+                            </template>
+                            <li *ngIf="!lastGroup">
+                                {{ selectedFilter.UseAllCriterias ? 'og' : 'eller' }}
+                            </li>
+                        </template>
+                    </ul>
+                    <ul *ngIf="selectedFilter.Filter && selectedFilter.Filter !== '' && (!selectedFilter.FilterGroups || selectedFilter.FilterGroups.length ===0)">
+                        <li>{{selectedFilter.Filter}}</li>
+                    </ul>
+                    <ul *ngIf="(!selectedFilter.Filter || selectedFilter.Filter === '') && (!selectedFilter.FilterGroups || selectedFilter.FilterGroups.length ===0)">
+                        <li>Ingen filter</li>
+                    </ul>
+                </span>
+                <span *ngIf="!selectedFilter">
+                    <ul>
+                        <li>Ingen filter</li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </section>
+</section>

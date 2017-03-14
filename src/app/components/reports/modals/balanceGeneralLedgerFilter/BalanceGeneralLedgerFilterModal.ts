@@ -9,7 +9,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'balance-general-ledger-filter-form',
-    templateUrl: 'app/components/reports/modals/balanceList/BalanceReportFilterModal.html'
+    templateUrl: '../balanceList/BalanceReportFilterModal.html'
 })
 export class BalanceGeneralLedgerFilterForm implements OnInit {
     @Input('config')

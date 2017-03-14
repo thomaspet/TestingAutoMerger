@@ -1,11 +1,11 @@
 import {Pipe, PipeTransform} from '@angular/core';
-declare var moment;
+import * as moment from 'moment';
 
-interface ITime { 
+interface ITime {
     hours: number;
     minutes: number;
     preSign: string;
-    decimal: number; 
+    decimal: number;
 }
 
 export var SYSTEMTYPES = [
@@ -50,7 +50,7 @@ export class MinutesToHoursPipe implements PipeTransform {
                 return !!value ? this.decFmt(parsed) : '';
             default:
                 return this.longFmt(parsed);
-        }        
+        }
     }
 
     private parse(value: any): ITime {
@@ -70,11 +70,11 @@ export class MinutesToHoursPipe implements PipeTransform {
             hours = Math.floor(minutes / 60);
             minutes = minutes % 60;
         }
-        return { hours: hours, minutes: minutes, preSign: preSign, decimal: dec };        
+        return { hours: hours, minutes: minutes, preSign: preSign, decimal: dec };
     }
 
     private longFmt(time: ITime): string {
-        return time.preSign + (time.hours > 0 ? time.hours + ' timer ' : '') 
+        return time.preSign + (time.hours > 0 ? time.hours + ' timer ' : '')
             + (time.minutes !== 0 ? (time.hours > 0 ? ' og ' : '') + time.minutes + ' minutter' : '');
     }
 
@@ -83,8 +83,8 @@ export class MinutesToHoursPipe implements PipeTransform {
         return time.preSign + time.hours + ' : ' + (time.minutes < 10 ? '0' : '') + time.minutes;
     }
 
-    private decFmt(time: ITime): string {        
-        return time.decimal.toFixed(1);        
+    private decFmt(time: ITime): string {
+        return time.decimal.toFixed(1);
     }
 
 }

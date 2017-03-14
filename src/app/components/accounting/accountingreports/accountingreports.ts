@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 
 @Component({
     selector: 'accounting-reports',
-    templateUrl: 'app/components/accounting/accountingreports/accountingreports.html'
+    templateUrl: './accountingreports.html'
 })
 export class AccountingReports {
     private childRoutes = [

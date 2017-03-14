@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
-import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
-import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
+import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
+import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
 import {ErrorService} from '../../../../services/services';
 
@@ -16,7 +16,7 @@ interface IStatSource {
 
 @Component({
     selector: 'regtimetotals',
-    templateUrl: 'app/components/timetracking/timeentry/totals/totals.html'
+    templateUrl: './totals.html'
 })
 export class RegtimeTotals {
     private timesheet: TimeSheet;
@@ -70,8 +70,12 @@ export class RegtimeTotals {
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id',
                 filter: 'dimensions.projectid gt 0'
+            },
+            { name: 'tags', label: 'Merke/etikett', pivotColName: 'Label', pivotResultColName: 'WorkItemLabel',
+                isSelected: false,
+                join: 'workitem.worktypeid eq worktype.id',
+                filter: '( not isnull(label,\'\') eq \'\' ) and workrelationid eq ' + ts.currentRelation.ID
             }
-
         ];
     }
 

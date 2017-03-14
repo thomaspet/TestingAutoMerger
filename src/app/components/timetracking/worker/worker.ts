@@ -12,7 +12,7 @@ export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', Wo
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/worker/worker.html'
+    templateUrl: './worker.html'
 })
 export class WorkerDetailview {
     @ViewChild(GenericDetailview) private detailForm: GenericDetailview;
@@ -23,12 +23,12 @@ export class WorkerDetailview {
     private hasRelationChanges: boolean = false;
 
     public tabs: Array<any> = [ { name: 'details', label: 'Detaljer', isSelected: true },
-            { name: 'balances', label: 'Saldoer', 
+            { name: 'balances', label: 'Saldoer',
                 activate: (ts: any, filter: any) => {
                     this.balancesSubView.activate(this.currentId);
-                } 
+                }
             }
-        ];    
+        ];
 
     constructor() {
         this.viewconfig = this.createFormConfig();
@@ -59,7 +59,7 @@ export class WorkerDetailview {
         } else {
             info.promise = this.saveOrUpdateBalanceView(info.entity.ID);
         }
-        
+
     }
 
     private saveOrUpdateBalanceView(workerId: number): Promise<IResult> {
@@ -73,7 +73,7 @@ export class WorkerDetailview {
             } else {
                 this.balancesSubView.activate( workerId, true);
                 resolve( { success: true });
-            }        
+            }
         });
     }
 
@@ -86,7 +86,7 @@ export class WorkerDetailview {
         if (tab.activate) {
             tab.activate();
             tab.activated = true;
-        }        
+        }
     }
 
     private createFormConfig(): IViewConfig {

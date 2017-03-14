@@ -47,24 +47,24 @@ export class UmhService {
             .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId + '/subscriptions');
     }
 
-    public createSubscription(subscriberId: string, subscription: IUmhSubscription): 
+    public createSubscription(subscriberId: string, subscription: IUmhSubscription):
                                                             Observable<Array<IUmhObjective>> {
         return this.uniHttp.asPOST()
             .withBody(subscription)
             .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId + '/subscriptions');
     }
 
-    public updateSubscription(subscriberId: string, subscription: IUmhSubscription): 
+    public updateSubscription(subscriberId: string, subscription: IUmhSubscription):
                                                             Observable<Array<IUmhObjective>> {
         return this.uniHttp.asPUT()
             .withBody(subscription)
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId 
+            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId
                                                     + '/subscriptions/' + subscription.id);
     }
 
     public deleteSubscription(subscriberId: string, subscriptionId: string): Observable<Array<IUmhObjective>> {
         return this.uniHttp.asDELETE()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId 
+            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId
                                                     + '/subscriptions/' + subscriptionId);
     }
 }

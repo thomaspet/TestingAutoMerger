@@ -1,0 +1,73 @@
+ul.languagesList
+  li
+    position: relative
+    float: left
+    display: inline-block
+    list-style: none
+    padding: 2rem
+    margin: 1rem
+    margin-left: 0
+    text-align: center
+    border: pxToRem(1) solid $uni-color-scale7
+    border-radius: pxToRem(3)
+    box-sizing: border-box
+    .closeBtn
+      @extend %hideText
+      position: absolute
+      top: 2.2rem
+      right: -.8rem
+      height: 2rem
+      width: 2rem
+      padding: 0
+      box-shadow: none
+      border: none
+      background: transparent unicon-close($uni-color-positive) center no-repeat
+      background-size: .8rem
+      margin-top: -2rem
+      float: right
+
+      &:hover
+        background-color: $uni-color-scale8
+        border-radius: 99rem
+        background-size: .8rem
+
+    span
+      display: block
+    small
+      display: block
+
+ul.translatablesList
+  overflow-x: hidden
+  overflow-y: auto
+  max-height: calc(100vh - 15rem)
+  li
+    cursor: pointer
+    list-style: none
+    padding: .3125rem .625rem
+    border-left: .0625rem solid $uni-color-scale9
+    height: calc(1.5rem + .625rem)
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+  li:nth-of-type(odd)
+    background: mix($uni-color-negative, $uni-color-scale9, 50%)
+  li[aria-selected]:not([aria-selected=false])
+    background: $uni-color-c2a
+    color: $uni-color-negative
+    outline: 0
+
+uni-translation-detail
+  display: flex
+  .translationInfo
+    order: 1
+    width: 50%
+  .translation
+    order: 2
+    width: 50%
+
+uni-translatables-filter
+  .uniSelect input
+    margin-bottom: pxToRem(5)
+  input[type=text]
+    display: block
+    width: 95%

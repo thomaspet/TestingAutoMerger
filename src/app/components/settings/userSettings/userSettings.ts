@@ -3,18 +3,22 @@ import {UserService, ErrorService} from '../../../services/services';
 import {UniForm, FieldType} from 'uniform-ng2/main';
 import {User} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
 @Component({
     selector: 'user-settings',
-    templateUrl: 'app/components/settings/userSettings/userSettings.html',
+    templateUrl: './userSettings.html',
 })
 
 export class UserSettings {
     @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+
     public user$: BehaviorSubject<User> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any>= new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public isDirty: boolean = false;
 
     private saveactions: IUniSaveAction[] = [
         {
@@ -32,6 +36,31 @@ export class UserSettings {
         this.getDataAndSetupForm();
     }
 
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+           return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+    
+    private change(event) {
+        this.isDirty = true;
+    }
+
     private getDataAndSetupForm() {
         this.getFormLayout();
         this.userService.getCurrentUser().subscribe(user => this.user$.next(user), err => this.errorService.handle(err));
@@ -42,6 +71,7 @@ export class UserSettings {
             .Put(this.user$.getValue().ID, this.user$.getValue())
             .subscribe(
                 (response) => {
+                    this.isDirty = false;
                     complete('Innstillinger lagret');
                 },
                 (error) => {

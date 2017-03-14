@@ -22,7 +22,7 @@ export interface IReminderSendingModalConfig {
 
 @Component({
     selector: 'reminder-sending-modal-content',
-    templateUrl: 'app/components/sales/reminder/sending/ReminderSendingModal.html'
+    templateUrl: './ReminderSendingModal.html'
 })
 export class ReminderSendingModalContent {
     @ViewChild(ReminderSending) public reminderSending: ReminderSending;

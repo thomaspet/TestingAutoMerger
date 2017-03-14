@@ -1,0 +1,15 @@
+<article class="report_parameter_modal report_salary_modal" *ngIf="config">
+    <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
+    <section>
+        <uni-form
+                [config]="config$"
+                [fields]="fields$"
+                [model]="model$">
+        </uni-form>
+        <footer>
+            <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
+                {{action.text}}
+            </button>
+        </footer>
+    </section>
+</article>

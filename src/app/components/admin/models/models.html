@@ -1,0 +1,27 @@
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="splitview">
+    <nav class="splitview_list">
+        <uni-table *ngIf="models?.length"
+                    [config]="modelsTable"
+                    [resource]="models"
+                    (rowSelected)="onRowSelected($event)"
+                    (rowChanged)="onRowChanged($event)">
+        </uni-table>
+    </nav>
+
+    <main class="splitview_detail" *ngIf="selectedModel">
+        <uni-form class=""
+                [config]="formConfig$"
+                [fields]="formFields$"
+                [model]="formModel$"
+                (changeEvent)="onFormChange($event)">
+        </uni-form>
+        <uni-table [config]="fieldsTable"
+                   [resource]="selectedModel?.Fields || []">
+        </uni-table>
+    </main>
+</section>

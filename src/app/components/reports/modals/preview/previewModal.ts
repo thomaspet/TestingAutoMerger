@@ -10,7 +10,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 
 @Component({
     selector: 'report-preview-modal-type',
-    templateUrl: 'app/components/reports/modals/preview/previewModal.html'
+    templateUrl: './previewModal.html'
 })
 export class ReportPreviewModalType {
     @Input('config')

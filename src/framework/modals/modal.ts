@@ -78,6 +78,7 @@ export class UniModal implements AfterViewInit {
     }
 
     public close() {
+        if (!this.isOpen) { return; }
         this.isOpen = false;
         this.closeEvent.emit();
         this.container.clear();

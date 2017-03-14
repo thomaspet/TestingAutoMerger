@@ -9,7 +9,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'customer-account-report-filter-form',
-    templateUrl: 'app/components/reports/modals/customerAccountReportFilter/CustomerAccountReportFilterModal.html'
+    templateUrl: './CustomerAccountReportFilterModal.html'
 })
 export class CustomerAccountReportFilterForm implements OnInit {
     @Input('config')

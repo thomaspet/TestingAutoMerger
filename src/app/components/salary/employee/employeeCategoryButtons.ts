@@ -3,8 +3,6 @@ import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 
-declare var jQuery;
-
 @Component({
     selector: 'employeecategory-buttons',
     template: `

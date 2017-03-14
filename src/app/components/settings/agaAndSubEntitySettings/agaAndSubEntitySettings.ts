@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { FieldType, UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import { SubEntityList } from './subEntityList';
+import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import {
     CompanySalary, Account,
     SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval 
@@ -15,13 +16,13 @@ import {
 } from '../../../services/services';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
+declare var _;
 import {UniSearchAccountConfigGeneratorHelper} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 
-declare var _; // lodash
 
 @Component({
     selector: 'aga-and-subentities-settings',
-    templateUrl: 'app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings.html'
+    templateUrl: './agaAndSubEntitySettings.html'
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
@@ -29,8 +30,10 @@ export class AgaAndSubEntitySettings implements OnInit {
     @ViewChild(SubEntityList) public subEntityList: SubEntityList;
     @ViewChild(GrantsModal) public grantsModal: GrantsModal;
     @ViewChild(FreeamountModal) public freeamountModal: FreeamountModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     public showSubEntities: boolean = true;
+    public isDirty: boolean = false;
 
     private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
@@ -73,6 +76,27 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public ngOnInit() {
         this.getDataAndSetupForm();
+    }
+
+    public canDeactivate(): boolean|Promise<boolean> {
+        if (!this.isDirty) {
+           return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
+                'Vennligst bekreft',
+                false,
+                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
+            ).then((confirmDialogResponse) => {
+               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                    resolve(true);
+               } else {
+                    resolve(false);
+                }
+            });
+        });
     }
 
     private getDataAndSetupForm() {
@@ -357,6 +381,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         Observable.forkJoin(saveObs).subscribe((response: any) => {
             this.companySalary$.next(response[0]);
             this.mainOrganization$.next(response[2]);
+            this.isDirty = false;
             done('Sist lagret: ');
         },
             err => this.errorService.handle(err),
@@ -388,6 +413,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     public mainOrgChange(event) {
         let value = this.mainOrganization$.getValue();
         value['_isDirty'] = true;
+        this.isDirty = true;
         this.mainOrganization$.next(value);
     }
 }
