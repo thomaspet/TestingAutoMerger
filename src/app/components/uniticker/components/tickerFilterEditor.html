@@ -1,19 +1,27 @@
-<div *ngFor="let group of fieldFilterGroups" class="field-filter-group">
-    <div *ngFor="let fieldFilter of group.FieldFilters" class="field-filter-item">
-        <uni-ticker-field-filter-editor
-            [ticker]="ticker"
-            [fieldFilter]="fieldFilter"
-            [mainModel]="mainModel"
-            (fieldFilterChanged)="onChangeFieldFilter($event, group)"
-            (fieldFilterDeleted)="onDeleteFieldFilter(fieldFilter, group)">
-        </uni-ticker-field-filter-editor>
+<div *ngIf="filter">
+    <div *ngIf="filter.Filter && filter.Filter.length > 0" class="text-area-filter-editor">
+        <textarea [(ngModel)]="filter.Filter"></textarea>
+        <button (click)="updateTicker()">Oppdater</button>
     </div>
-    <div class="add-field-filter">
-        <!-- KE: Trenger mulighet for å angi AND/OR <label><input type="checkbox" />Alle kriterier må oppfylles</label>-->
-        <a (click)="addFieldFilter(group)">+ Legg til kriterie</a>
+    <div *ngIf="!filter.Filter || filter.Filter.length === 0">
+        <div *ngFor="let group of filter.FilterGroups" class="field-filter-group">
+            <div *ngFor="let fieldFilter of group.FieldFilters" class="field-filter-item">
+                <uni-ticker-field-filter-editor
+                    [ticker]="ticker"
+                    [fieldFilter]="fieldFilter"
+                    [mainModel]="mainModel"
+                    (fieldFilterChanged)="onChangeFieldFilter($event, group)"
+                    (fieldFilterDeleted)="onDeleteFieldFilter(fieldFilter, group)">
+                </uni-ticker-field-filter-editor>
+            </div>
+            <div class="add-field-filter">
+                <a (click)="addFieldFilter(group)">+ Legg til kriterie</a>
+                <label><input type="checkbox" [(ngModel)]="group.UseAllCriterias" />Bruk alle kriterier</label>
+            </div>
+        </div>
+        <div class="add-field-filter-group">
+            <a (click)="addFieldFilterGroup(true)">+ Legg til regelgruppe</a>
+            <label><input type="checkbox" [(ngModel)]="filter.UseAllCriterias" />Bruk alle kriterier</label>
+        </div>
     </div>
-</div>
-
-<div class="add-field-filter-group">
-    <a (click)="addFieldFilterGroup()">+ Legg til regelgruppe</a>
 </div>

@@ -71,8 +71,9 @@
                 "Filter": "PaymentDueDate lt getdate()"
             },
             {
-                "Name": "Mine",
+                "Name": "Mine større enn 2000",
                 "Code": "my_invoices",
+                "UseAllCriterias": true,
                 "FilterGroups": [{
                     "FieldFilters": [
                     {

@@ -8,7 +8,7 @@ import * as translationActions from '../../../translation/actions';
 import {Translatable, Translation} from '../../../../../unientities';
 import {TranslationsState} from '../../../reducers';
 import {Subscription} from 'rxjs/Subscription';
-import {KeyCodes} from "../../../../../services/common/keyCodes";
+import {KeyCodes} from "../../../../../services/common/KeyCodes";
 
 @Component({
     selector: 'uni-translation-detail',

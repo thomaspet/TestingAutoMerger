@@ -2,7 +2,7 @@ import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/co
 import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
-import {AppConfig} from '../../../appConfig';
+import {AppConfig} from '../../../AppConfig';
 import {ErrorService} from '../../../services/services';
 import * as moment from 'moment';
 declare var APP_VERSION;

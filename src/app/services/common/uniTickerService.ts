@@ -5,6 +5,8 @@ import {Http} from '@angular/http';
 import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
+import {AuthService} from '../../../framework/core/authService';
+
 import * as moment from 'moment';
 
 
@@ -12,11 +14,13 @@ import * as moment from 'moment';
 export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
     private TICKER_LOCALSTORAGE_KEY: string = 'UniTickerHistory';
+    private tickers: Array<Ticker>;
 
     constructor(
         private http: Http,
         private numberFormatService: NumberFormat,
-        private storageService: BrowserStorageService) {
+        private storageService: BrowserStorageService,
+        private authService: AuthService) {
         /* KE: We dont have a backend endpoint yet - consider this later
                when we have stabilized the JSON structure for tickers
 
@@ -26,10 +30,58 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         this.DefaultOrderBy = null;
         this.entityType = UniQueryDefinition.EntityType;
         */
+
+        if (this.authService) {
+            this.authService.authentication$.subscribe(change => this.invalidateCache());
+        }
     }
 
-    public getTickers(): Observable<any[]> {
-        return this.http.get('assets/tickers/tickers.json').map(x => x.json());
+    private invalidateCache() {
+        this.tickers = null;
+    }
+
+    public loadTickerCache(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (!this.tickers) {
+                // get statuses from API and add it to the cache
+                this.http.get('assets/tickers/tickers.json')
+                    .map(x => x.json())
+                    .map((tickers: Array<Ticker>) => {
+                        tickers.forEach(ticker => {
+                            if (!ticker.Filters || ticker.Filters.length === 0) {
+                                let filter = new TickerFilter();
+                                filter.Name = 'Egendefinert';
+                                filter.Code = ticker.Model + 'CustomSearch';
+                                filter.FilterGroups = [];
+                                filter.IsActive = false;
+
+                                if (!ticker.Filters) {
+                                    ticker.Filters = [];
+                                }
+
+                                ticker.Filters.push(filter);
+                            }
+                        });
+
+                        return tickers;
+                    })
+                    .subscribe(data => {
+                        this.tickers = data;
+                        resolve();
+                    }, err => reject(err)
+                );
+            } else {
+                resolve();
+            }
+        });
+    }
+
+
+    public getTickers(): Promise<Ticker[]> {
+        return this.loadTickerCache()
+            .then(() => {
+                return this.tickers;
+            });
     }
 
     public getGroupedTopLevelTickers(tickers: Array<Ticker>): Array<TickerGroup> {
@@ -139,12 +191,22 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return '';
     }
 
-    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
+    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], useAllCriterias: boolean): string {
         let filterString: string = '';
         let isInGroup: boolean = false;
 
-        filterGroups.forEach(group => {
+        for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
+            let group = filterGroups[groupIndex];
             let filters = group.FieldFilters;
+
+            // add "or" or "and" between groups
+            if (groupIndex > 0 && !useAllCriterias) {
+                filterString += ' or ';
+            } else if (groupIndex > 0) {
+                filterString += ' and ';
+            }
+
+            let hasAddedFilterForGroup = false;
 
             // dont use filters that miss either field or operator - this is probably just a filter
             // the user has not finished constructing yet
@@ -154,8 +216,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
             if (filters && filters.length > 0) {
                 let orderedByGroupFilters = filters.sort((a, b) => { return a.QueryGroup - b.QueryGroup});
-
-                let lastFilterGroup = 0;
                 isInGroup = false;
 
                 for (let index = 0; index < orderedByGroupFilters.length; index++) {
@@ -164,30 +224,17 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     let filterValue: string = this.getFilterValueFromFilter(filter, expressionFilterValues);
 
                     if (filterValue) {
-                        // if no group is defined, set 0 - this will ignore the grouping. Grouping is used
-                        // for checkin multiple filters with OR instead of AND as is default used
-                        if (!filter.QueryGroup) {
-                            filter.QueryGroup = 0;
+                        // open new filter group with parenthesis
+                        if (!isInGroup) {
+                            filterString += '(';
+                            isInGroup = true;
                         }
 
-                        // close last filtergroup (if any)
-                        if (lastFilterGroup.toString() !== filter.QueryGroup.toString() && lastFilterGroup > 0) {
-                            filterString += ')';
-                            isInGroup = false;
-                        }
-
-                        // use "or" if filter is in a group, otherwise use the specified separator (usually "and")
-                        if (index > 0 && isInGroup) {
+                        // add "or" or "and" between groups depending on the UseAllCriterias flag
+                        if (index > 0 && !group.UseAllCriterias) {
                             filterString += ' or ';
                         } else if (index > 0) {
-                            filterString += ' ' + (separator ? separator : 'and') + ' ';
-                        }
-
-                        // open new filter group with parenthesis
-                        if (!isInGroup && filter.QueryGroup > 0) {
-                            filterString += '(';
-                            lastFilterGroup = filter.QueryGroup;
-                            isInGroup = true;
+                            filterString += ' and ';
                         }
 
                         if (filter.Operator === 'contains' || filter.Operator === 'startswith' || filter.Operator === 'endswith') {
@@ -197,13 +244,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             // Logical operator
                             filterString += `${filter.Field} ${filter.Operator} '${filterValue}'`;
                         }
-                    }
-                }
 
-                // close last group if we are in a group
-                if (isInGroup) {
-                    filterString += ')';
-                    isInGroup = false;
+                        hasAddedFilterForGroup = true;
+                    }
                 }
             }
 
@@ -212,7 +255,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 filterString += ')';
                 isInGroup = false;
             }
-        });
+        }
+
+        // close last group if we are in a group
+        if (isInGroup) {
+            filterString += ')';
+            isInGroup = false;
+        }
 
         return filterString;
     }
@@ -363,6 +412,7 @@ export class TickerColumn {
 export class TickerFilterGroup {
     public QueryGroup: number;
     public FieldFilters: Array<TickerFieldFilter>;
+    public UseAllCriterias: boolean = true;
 }
 
 export class TickerFilter {
@@ -371,6 +421,7 @@ export class TickerFilter {
     public Filter: string;
     public IsActive: boolean;
     public FilterGroups: Array<TickerFilterGroup>;
+    public UseAllCriterias: boolean = true;
     //public FieldFilters: Array<TickerFieldFilter>;
 }
 

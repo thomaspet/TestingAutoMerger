@@ -1,4 +1,4 @@
-<section *ngIf="ticker">
+<section *ngIf="ticker && prefetchDataLoaded">
     <section class="filter-info" *ngIf="selectedFilter">
         Filter: {{selectedFilter.Name}} {{getFilterText()}}
     </section>

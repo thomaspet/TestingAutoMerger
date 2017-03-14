@@ -15,23 +15,36 @@ export class UniTickerFilterEditor {
 
     @Output() filterChanged: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
 
-    private fieldFilterGroups: Array<TickerFilterGroup> = [];
-
     constructor() {
 
     }
 
     private ngOnChanges(changes: SimpleChanges) {
-        if (changes['filter']) {
-            this.fieldFilterGroups = this.filter.FilterGroups;
 
-            if (!this.fieldFilterGroups) {
-                this.fieldFilterGroups = [];
+        if (changes['filter'] && !this.filter) {
+            this.filter = new TickerFilter();
+            this.filter.Code = this.ticker.Model + 'Custom';
+            this.filter.Name = 'Egendefinert';
+            this.filter.FilterGroups = [];
+        }
+
+        if (changes['filter']) {
+            if (!this.filter.FilterGroups) {
+                this.filter.FilterGroups = [];
             }
 
-            if (this.fieldFilterGroups.length === 0) {
-                this.fieldFilterGroups.push({
+            if (this.filter.FilterGroups.length === 0) {
+                this.addFieldFilterGroup(false);
+            }
+
+            if (!this.filter.FilterGroups) {
+                this.filter.FilterGroups = [];
+            }
+
+            if (this.filter.FilterGroups.length === 0) {
+                this.filter.FilterGroups.push({
                     QueryGroup: 0,
+                    UseAllCriterias: true,
                     FieldFilters: []
                 });
             }
@@ -46,10 +59,13 @@ export class UniTickerFilterEditor {
         _.remove(group.FieldFilters, fieldFilter);
 
         if (group.FieldFilters.length === 0) {
-            _.remove(this.fieldFilterGroups, group);
+            _.remove(this.filter.FilterGroups, group);
         }
 
-        this.filter.FilterGroups = this.fieldFilterGroups;
+        this.filterChanged.emit(this.filter);
+    }
+
+    private updateTicker() {
         this.filterChanged.emit(this.filter);
     }
 
@@ -64,14 +80,18 @@ export class UniTickerFilterEditor {
         });
     }
 
-    private addFieldFilterGroup() {
+    private addFieldFilterGroup(addFilter: boolean) {
         let newGroup = {
-            QueryGroup: this.fieldFilterGroups.length + 1,
+            QueryGroup: this.filter.FilterGroups.length + 1,
+            UseAllCriterias: true,
             FieldFilters: []
         };
 
-        this.addFieldFilter(newGroup);
-        this.fieldFilterGroups.push(newGroup);
+        if (addFilter) {
+            this.addFieldFilter(newGroup);
+        }
+
+        this.filter.FilterGroups.push(newGroup);
     }
 }
 

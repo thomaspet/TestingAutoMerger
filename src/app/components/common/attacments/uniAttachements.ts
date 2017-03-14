@@ -5,7 +5,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../../framework/core/authService';
 import {FileService, ErrorService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
-import {AppConfig} from '../../../appConfig';
+import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
 import {saveAs} from 'file-saver';

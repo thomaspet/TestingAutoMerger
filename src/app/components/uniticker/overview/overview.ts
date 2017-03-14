@@ -51,7 +51,6 @@ export class UniTickerOverview {
         this.tabService.addTab({ name: 'Oversikt', url: '/tickers/overview', moduleID: UniModules.UniQuery, active: true });
 
         this.route.params.subscribe((params) => {
-            console.log('this.route.params endret ' + this.router.url);
             this.setupView(params['code']);
         });
     }
@@ -103,7 +102,7 @@ export class UniTickerOverview {
     private setupView(selectedTickerCode: string = null) {
         if (!this.tickers) {
             this.uniTickerService.getTickers()
-                .subscribe(tickers => {
+                .then(tickers => {
                     this.tickers = tickers;
                     this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers);
 

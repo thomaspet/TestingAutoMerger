@@ -3,7 +3,7 @@ import {
     SimpleChanges, OnChanges, ViewChild, ElementRef
 } from '@angular/core';
 import {Translatable, Language} from '../../../../../unientities';
-import {KeyCodes} from '../../../../../services/common/keyCodes';
+import {KeyCodes} from '../../../../../services/common/KeyCodes';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/observable/fromEvent';
@@ -12,7 +12,7 @@ import 'rxjs/add/observable/fromEvent';
     selector: 'uni-translatables-list',
     template: `
         <ul class="translatablesList" (keydown)="navigate($event)" #list>
-            <li *ngFor="let translatable of translatables" 
+            <li *ngFor="let translatable of translatables"
                 (click)="open(translatable)"
                 [attr.aria-selected]="isSelected(translatable) || false"
             >{{translatable.Value}}

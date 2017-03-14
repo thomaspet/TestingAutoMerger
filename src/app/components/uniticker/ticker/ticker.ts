@@ -37,6 +37,7 @@ export class UniTicker {
     private selects: string;
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
+    private prefetchDataLoaded: boolean = false;
 
     private expressionFilters: Array<IExpressionFilterValue> = [];
     private rowindexToFocusAfterDataLoad: number;
@@ -62,13 +63,19 @@ export class UniTicker {
             });
         }
 
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = this.getSearchParams(urlParams);
+        this.statusService
+            .loadStatusCache()
+            .then(() => {
+                this.prefetchDataLoaded = true;
+            });
 
-            return this.statisticsService
-                .GetAllByUrlSearchParams(params)
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-        };
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+                let params = this.getSearchParams(urlParams);
+
+                return this.statisticsService
+                    .GetAllByUrlSearchParams(params)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            };
     }
 
     private getSearchParams(urlParams: URLSearchParams): URLSearchParams {
@@ -98,7 +105,8 @@ export class UniTicker {
                 newFilter =
                     this.uniTickerService.getFilterString(
                         this.selectedFilter.FilterGroups,
-                        this.expressionFilters
+                        this.expressionFilters,
+                        this.selectedFilter.UseAllCriterias
                     );
             }
 
@@ -216,7 +224,6 @@ export class UniTicker {
 
     private onRowSelected(rowSelectEvent) {
         let selectedObject = rowSelectEvent.rowModel;
-        console.log('onRowSelected', selectedObject);
         this.rowSelected.emit(selectedObject);
     }
 
@@ -261,7 +268,8 @@ export class UniTicker {
             if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
                 return this.uniTickerService.getFilterString(
                     this.selectedFilter.FilterGroups,
-                    []
+                    [],
+                    this.selectedFilter.UseAllCriterias
                 );
             } else if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
                 return this.selectedFilter.Filter;
@@ -394,7 +402,6 @@ export class UniTicker {
             let paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
 
             if (!selects.find(x => x === paramSelect)) {
-                // console.log('add extra field to select: ' + paramSelect);
                 selects.push(paramSelect);
             }
         });

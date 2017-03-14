@@ -25,7 +25,7 @@ export class UniTickerFieldFilterEditor {
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private entities: Array<any> = [];
-    private fields: Array<any> = [];
+    private modelFields: Array<any> = [];
 
     private operators: any[] = [];
 
@@ -44,17 +44,33 @@ export class UniTickerFieldFilterEditor {
             this.entities.push({Name: this.fieldFilter.Path});
 
             if (this.fieldFilter.Field) {
-                this.fields.push({Name: this.fieldFilter.Field});
+                this.modelFields.push({Publicname: this.fieldFilter.Field});
             }
         }
 
         if (changes['mainModel']) {
+
             this.entities = [];
             this.entities.push(this.mainModel);
 
             this.mainModel.RelatedModels.forEach(relatedModel => {
                 this.entities.push(relatedModel);
             });
+
+            let selectedModel =
+                this.entities.find(x => x.Name === this.fieldFilter.Path || x.Name === this.fieldFilter.Path);
+
+            let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Fields);
+            let modelFields = [];
+            modelFieldNames.forEach(x => {
+                modelFields.push(selectedModel.Fields[x]);
+            });
+
+            if (!modelFields.find(x => x.Publicname === this.fieldFilter.Field)) {
+                this.fieldFilter.Field = '';
+            }
+
+            this.modelFields = modelFields;
         }
 
         this.fields$.next(this.getLayout().Fields);
@@ -65,16 +81,24 @@ export class UniTickerFieldFilterEditor {
     }
 
     private onFieldFilterChange(changes: SimpleChanges) {
+        if (changes['Path']) {
+            let selectedModel =
+                this.entities.find(x => x.Name === this.fieldFilter.Path || x.Name === this.fieldFilter.Path);
+
+            let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Fields);
+            let modelFields = [];
+            modelFieldNames.forEach(x => {
+                modelFields.push(selectedModel.Fields[x]);
+            });
+            this.modelFields = modelFields;
+            this.model$.next(this.fieldFilter);
+        }
+
         this.fieldFilterChanged.emit(this.fieldFilter);
     }
 
     private fieldSelected(fieldFilter, event) {
-        console.log('fieldSelected', fieldFilter, event);
         fieldFilter.Model = event;
-    }
-
-    private operatorSelected(fieldFilter, selectedValue) {
-        // TODO: Velg hva som skal vise - between viser to editorer
     }
 
     private getOperators() {
@@ -228,9 +252,9 @@ export class UniTickerFieldFilterEditor {
                     UpdatedBy: null,
                     CustomFields: null,
                     Options: {
-                        source: this.fields,
-                        displayProperty: 'Name',
-                        valueProperty: 'Name',
+                        source: this.modelFields,
+                        displayProperty: 'Publicname',
+                        valueProperty: 'Publicname',
                         debounceTime: 200
                     },
                     Classes: 'field-select'
