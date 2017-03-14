@@ -1,7 +1,5 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../../AppConfig';
-import {UniHttp} from '../../../../framework/core/http/http';
 
 // model
 import {Trigger} from '../../../models/admin/jobs/trigger';

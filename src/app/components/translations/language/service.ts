@@ -3,7 +3,7 @@ import {Language} from '../../../unientities';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../../framework/core/authService';
-import {AppConfig} from '../../../AppConfig';
+import {AppConfig} from '../../../appConfig';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/switchMap';

@@ -69,7 +69,7 @@ export default function (state = initialState, action: Action): State {
         case translatable.ActionTypes.SET_CURRENT_TRANSLATABLE: {
             if (Number(action.payload) >= 0) {
                 return Object.assign({}, state, {
-                    currentTranslatable: state.translatables[action.payload]
+                    currentTranslatable: state.filteredTranslatables[action.payload]
                 });
             } else {
                 return Object.assign({}, state, {
