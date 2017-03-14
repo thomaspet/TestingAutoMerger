@@ -1,6 +1,6 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
-import {AppConfig} from '../../../app/appConfig';
+import {AppConfig} from '../../../app/AppConfig';
 import {AuthService} from '../authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';

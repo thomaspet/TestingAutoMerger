@@ -3,7 +3,7 @@ import {FormControl} from '@angular/forms';
 import {Comment, User} from '../../app/unientities';
 import {CommentService} from './commentService';
 import {ErrorService, UserService} from '../../app/services/services';
-import {KeyCodes} from '../../app/services/common/keyCodes';
+import {KeyCodes} from '../../app/services/common/KeyCodes';
 import * as moment from 'moment';
 
 @Component({

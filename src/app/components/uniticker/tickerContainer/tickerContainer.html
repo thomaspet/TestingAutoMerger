@@ -6,6 +6,7 @@
         [filters]="ticker.Filters"
         [selectedFilter]="selectedFilter"
         (filterSelected)="onFilterSelected($event)"
+        (filterChanged)="onFilterChanged($event)"
         [expanded]="expanded === 'filter'"
         [class]="expanded === 'filter' ? 'expanded' : ''">
     </uni-ticker-filters>

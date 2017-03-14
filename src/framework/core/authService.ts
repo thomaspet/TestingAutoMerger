@@ -2,7 +2,7 @@ import {Injectable, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../app/appConfig';
+import {AppConfig} from '../../app/AppConfig';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/map';
 

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../appConfig';
+import {AppConfig} from '../../AppConfig';
 import {Altinn} from '../../unientities';
 import {BusinessRelationSearch} from '../../models/Integration/BusinessRelationSearch';
 

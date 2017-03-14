@@ -117,6 +117,22 @@ export class UniTickerContainer {
         }
     }
 
+    private onFilterChanged(filter: TickerFilter) {
+        this.selectedFilter = filter;
+        this.selectedRow = null;
+
+        // if filter.Filter is changed, this means the user has activly clicked a
+        // button - so close the filterbox and expand the tickerview instead
+        if (filter && filter.Filter && filter.Filter.length > 0) {
+            this.setExpanded('ticker');
+        }
+
+        this.pageStateService.setPageState('selected', null);
+        this.pageStateService.setPageState('filter', filter ? filter.Code : null);
+
+        this.urlPropertiesChanged.emit();
+    }
+
     public exportToExcel(completeEvent) {
         this.uniTicker.exportToExcel(completeEvent);
     }

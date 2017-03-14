@@ -1,13 +1,14 @@
-import {Component, ViewChild, OnChanges, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, OnChanges, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {StatisticsService, ErrorService} from '../../../services/services';
+import {ModelService} from '../../../services/common/modelService';
 import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
-import {UniHttp} from '../../../../framework/core/http/http';
 
 declare const _; // lodash
 
 @Component({
     selector: 'model-tree-view',
-    templateUrl: './modeltreeview.html'
+    templateUrl: './modeltreeview.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModelTreeView implements OnChanges {
     @Input() private header: string;
@@ -25,34 +26,31 @@ export class ModelTreeView implements OnChanges {
 
     constructor(
         private statisticsService: StatisticsService,
-        private uniHttpService: UniHttp,
-        private errorService: ErrorService) {
+        private modelService: ModelService,
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef) {
 
-        this.setupModelData();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-
+        if (!this.models || this.models.length === 0) {
+            this.setupModelData();
+        }
     }
 
     private setupModelData() {
-        this.uniHttpService
-            .usingMetadataDomain()
-            .asGET()
-            .withEndPoint('allmodels')
-            .send()
-            .map(response => response.json())
-            .subscribe((models) => {
-                this.models = models;
+        this.modelService
+            .loadModelCache()
+            .then(x => {
+                this.models = this.modelService.getModels();
                 this.setDefaultExpandedModels();
                 this.filterModels();
-            },
-            err => this.errorService.handle(err)
-        );
+                this.cdr.markForCheck();
+            });
     }
 
     private getModel(name: string) {
-        return this.models.find(x => x.Name === name);
+        return this.modelService.getModel(name);
     }
 
     private setDefaultExpandedModels() {

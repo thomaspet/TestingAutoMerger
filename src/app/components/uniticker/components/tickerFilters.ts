@@ -14,6 +14,7 @@ export class UniTickerFilters {
     @Input() private selectedFilter: TickerFilter;
 
     @Output() filterSelected: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
+    @Output() filterChanged: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
     @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
     private selectedMainModel: any;
@@ -38,9 +39,13 @@ export class UniTickerFilters {
         this.stopPropagation();
     }
 
+    public setStandardSearch() {
+        alert('Ikke implementert - dette krever at serverside funksjonalitet er på plass');
+    }
+
     private onFilterChanged(updatedFilter) {
         this.selectedFilter = _.cloneDeep(updatedFilter);
-        this.filterSelected.emit(updatedFilter);
+        this.filterChanged.emit(updatedFilter);
     }
 
     private onModelSelected(mainModel) {
@@ -52,11 +57,13 @@ export class UniTickerFilters {
     }
 
     private closeFilters() {
+        this.filterChanged.emit(_.cloneDeep(this.selectedFilter));
+
         this.close.emit();
         this.stopPropagation();
     }
 
     private onFieldAdded(event) {
-        console.log('UniTickerFilters.field added: ', event);
+        this.filterChanged.emit(_.cloneDeep(this.selectedFilter));
     }
 }

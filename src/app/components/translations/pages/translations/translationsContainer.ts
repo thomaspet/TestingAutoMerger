@@ -13,7 +13,7 @@ import * as fromTranslatable from '../../translatable/reducer';
 import {TranslationsState} from '../../reducers';
 
 import {Language, Translation, Translatable} from '../../../../unientities';
-import {KeyCodes} from '../../../../services/common/keyCodes';
+import {KeyCodes} from '../../../../services/common/KeyCodes';
 
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -26,7 +26,7 @@ import 'rxjs/add/observable/fromEvent';
 @Component({
     selector: 'uni-translations-container',
     template: `
-        <uni-toolbar 
+        <uni-toolbar
             [config]="toolbarConfig"
             [saveactions]="saveActions"
         ></uni-toolbar>
@@ -34,7 +34,7 @@ import 'rxjs/add/observable/fromEvent';
             <section class="splitview">
                 <nav class="splitview_list" [attr.aria-busy]="loadingList$ | async">
                     <uni-translatables-filter></uni-translatables-filter>
-                    <uni-translatables-list 
+                    <uni-translatables-list
                         [translatables]="translatables$ | async"
                         [language]="language$ | async"
                         [selectedTranslatable]="translatable$ | async"
@@ -42,11 +42,11 @@ import 'rxjs/add/observable/fromEvent';
                     ></uni-translatables-list>
                 </nav>
                 <main class="splitview_detail" [attr.aria-busy]="loadingDetail$ | async">
-                    <uni-translation-detail 
+                    <uni-translation-detail
                         *ngIf="(translatable$ | async) && (translation$ |async)"
-                        [translatable]="translatable$ | async" 
-                        [translation]="translation$ | async">                        
-                    </uni-translation-detail>                
+                        [translatable]="translatable$ | async"
+                        [translation]="translation$ | async">
+                    </uni-translation-detail>
                 </main>
             </section>
         </section>

@@ -22,6 +22,11 @@
                     [mainModel]="selectedMainModel"
                     (filterChanged)="onFilterChanged($event)">
                 </uni-ticker-filter-editor>
+
+                <div class="set-standard-search-box">
+                    <div class="explain-text">Standardsøk er kriterier som automatisk settes for søk av denne typen ({{ticker.Model}})</div>
+                    <button class="good" (click)="setStandardSearch()">Sett som standard</button>
+                </div>
             </div>
         </div>
         <div class="filter-container" *ngIf="!expanded">
@@ -51,17 +56,15 @@
                     <ul *ngIf="selectedFilter.FilterGroups?.length > 0">
                         <template ngFor let-group [ngForOf]="selectedFilter.FilterGroups" let-i="index" let-lastGroup="last">
                             <template ngFor let-fieldFilter [ngForOf]="group.FieldFilters" let-i="index" let-lastFilter="last">
-                                <li>
+                                <li class="field-filter">
                                     {{fieldFilter.Field}} {{fieldFilter.Operator}} {{fieldFilter.Value}} {{fieldFilter.Value2}}
                                 </li>
-                                <!-- TODO: "OG/ELLER" -->
-                                <li *ngIf="!lastFilter">
-                                    OG
+                                <li *ngIf="!lastFilter" class="field-filter">
+                                    <i>{{ group.UseAllCriterias ? 'og' : 'eller' }}</i>
                                 </li>
                             </template>
-                            <!-- TODO: "OG/ELLER" -->
                             <li *ngIf="!lastGroup">
-                                OG
+                                {{ selectedFilter.UseAllCriterias ? 'og' : 'eller' }}
                             </li>
                         </template>
                     </ul>

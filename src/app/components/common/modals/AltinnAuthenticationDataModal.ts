@@ -6,7 +6,7 @@ import {FieldType} from 'uniform-ng2/main';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {KeyCodes} from '../../../services/common/keyCodes';
+import {KeyCodes} from '../../../services/common/KeyCodes';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 enum LoginState {
