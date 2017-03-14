@@ -5,7 +5,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
+import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import {AccountService} from '../../accounting/accountService';
 
 class CustomStatisticsResultItem {

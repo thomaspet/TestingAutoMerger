@@ -8,7 +8,7 @@ import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/UniSearch';
+import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 
 class CustomStatisticsResultItem {
     /* tslint:disable */
