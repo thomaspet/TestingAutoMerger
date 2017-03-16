@@ -62,6 +62,8 @@ export class StatisticsService extends BizHttp<string> {
             params.delete('filter');
         }
 
+        params.set('distinct', 'false');
+
         return this.http
             .usingRootDomain()
             .asGET()

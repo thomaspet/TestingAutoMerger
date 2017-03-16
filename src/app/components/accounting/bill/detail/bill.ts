@@ -188,7 +188,7 @@ export class BillView {
             valueProperty: 'ID'
         };
 
-        var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
+        var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
         sumCol.Options = {
             events: {
                 enter: () => {
@@ -777,7 +777,7 @@ export class BillView {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current.next(result);
-                this.setupToolbar();                
+                this.setupToolbar();
                 this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
                 this.flagActionBar(actionBar.delete, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, result.StatusCode <= StatusCodeSupplierInvoice.Draft);

@@ -12,6 +12,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
+import {RegtimeBalance} from './balance/balance';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute} from '@angular/router';
