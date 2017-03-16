@@ -1360,6 +1360,52 @@ export class CompanySettingsComponent implements OnInit {
                     valueProperty: 'ID',
                     displayProperty: 'Label'
                 }
+            }, //Øreavrunding ved betaling
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'AcceptableDelta4CustomerPaymentAccountID',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.UNI_SEARCH,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Konto for øredifferanse ved innbetaling',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 4,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Øredifferanse ved innbetaling',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'AcceptableDelta4CustomerPayment',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.NUMERIC,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Akseptabelt differanse-beløp ved innbetaling',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 4,
+                Placeholder: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Øredifferanse ved innbetaling',
+                hasLineBreak: false,
+                Validations: []
             }
         ]);
 

@@ -65,7 +65,7 @@ export class ReminderSettings {
         minimumAmountToRemind.EntityType = 'CustomerInvoiceReminderSettings';
         minimumAmountToRemind.Property = 'MinimumAmountToRemind';
         minimumAmountToRemind.FieldType = FieldType.TEXT;
-        minimumAmountToRemind.Label = 'Minstebeløp';
+        minimumAmountToRemind.Label = 'Minste fakturabeløp å purre';
 
         let remindersBeforeDebtCollection = new UniFieldLayout();
         remindersBeforeDebtCollection.EntityType = 'CustomerInvoiceReminderSettings';
@@ -73,6 +73,12 @@ export class ReminderSettings {
         remindersBeforeDebtCollection.FieldType = FieldType.TEXT;
         remindersBeforeDebtCollection.Label = 'Antall purringer før inkasso';
 
-        this.fields$.next([minimumAmountToRemind, remindersBeforeDebtCollection]);
+        let acceptPaymentWithoutReminderFee = new UniFieldLayout();
+        acceptPaymentWithoutReminderFee.EntityType = 'CustomerInvoiceReminderSettings';
+        acceptPaymentWithoutReminderFee.Property = 'AcceptPaymentWithoutReminderFee';
+        acceptPaymentWithoutReminderFee.FieldType = FieldType.CHECKBOX;
+        acceptPaymentWithoutReminderFee.Label = 'Aksepter fakturabetaling uten purregebyr';
+
+        this.fields$.next([minimumAmountToRemind, remindersBeforeDebtCollection, acceptPaymentWithoutReminderFee]);
     }
 }

@@ -421,6 +421,8 @@ export class CustomerInvoiceReminder extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreatedByReminderRuleID: number;
+    public CurrencyCodeID: number;
+    public CurrencyExchangeRate: number;
     public CustomerInvoiceID: number;
     public Deleted: boolean;
     public Description: string;
@@ -428,12 +430,14 @@ export class CustomerInvoiceReminder extends UniEntity {
     public ID: number;
     public RemindedDate: LocalDate;
     public ReminderFee: number;
+    public ReminderFeeCurrency: number;
     public ReminderNumber: number;
     public RunNumber: number;
     public StatusCode: number;
     public Title: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CurrencyCode: CurrencyCode;
     public CustomerInvoice: CustomerInvoice;
     public CreatedByReminderRule: CustomerInvoiceReminderRule;
     public CustomFields: any;
@@ -444,6 +448,8 @@ export class Customer extends UniEntity {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
 
+    public AcceptableDelta4CustomerPayment: number;
+    public AcceptableDelta4CustomerPaymentAccountID: number;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -469,6 +475,7 @@ export class Customer extends UniEntity {
     public CustomerOrders: Array<CustomerOrder>;
     public CustomerInvoices: Array<CustomerInvoice>;
     public CurrencyCode: CurrencyCode;
+    public AcceptableDelta4CustomerPaymentAccount: Account;
     public CustomFields: any;
 }
 
@@ -986,14 +993,14 @@ export class AGACalculation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
-    public payrollRun: PayrollRun;
-    public freeAmountUsed: Array<FreeAmountUsed>;
-    public foreignerWithAmount: Array<ForeignerWithAmount>;
-    public foreignerWithPercent: Array<ForeignerWithPercent>;
     public agaPension: Array<AGAPension>;
+    public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
+    public foreignerWithAmount: Array<ForeignerWithAmount>;
+    public payrollRun: PayrollRun;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1162,6 +1169,7 @@ export class AmeldingData extends UniEntity {
     public initiated: Date;
     public mainFileID: number;
     public messageID: string;
+    public OppgaveHash: string;
     public period: number;
     public receiptID: number;
     public replacesID: number;
@@ -1835,11 +1843,13 @@ export class CompanySettings extends UniEntity {
     public static RelativeUrl = 'companysettings';
     public static EntityType = 'CompanySettings';
 
+    public AcceptableDelta4CustomerPayment: number;
+    public AcceptableDelta4CustomerPaymentAccountID: number;
     public AccountGroupSetID: number;
     public AccountingLockedDate: LocalDate;
     public AccountVisibilityGroupID: number;
-    public AgioNegativeAccountID: number;
-    public AgioPositiveAccountID: number;
+    public AgioGainAccountID: number;
+    public AgioLossAccountID: number;
     public APActivated: boolean;
     public APGuid: string;
     public AutoJournalPayment: boolean;
@@ -1885,23 +1895,24 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
-    public BaseCurrencyCode: CurrencyCode;
-    public CompanyBankAccount: BankAccount;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultProductInvoiceReminder: Product;
-    public AgioPositiveAccount: Account;
-    public AgioNegativeAccount: Account;
+    public BaseCurrencyCode: CurrencyCode;
+    public AgioGainAccount: Account;
+    public AgioLossAccount: Account;
     public BankChargeAccount: Account;
+    public AcceptableDelta4CustomerPaymentAccount: Account;
     public CustomFields: any;
 }
 
@@ -3659,6 +3670,7 @@ export class Payment extends UniEntity {
     public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
+    public IsCustomerPayment: boolean;
     public OcrPaymentStrings: string;
     public PaymentBatchID: number;
     public PaymentCodeID: number;
@@ -4447,9 +4459,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -4536,8 +4548,11 @@ export class VatCalculationSummary extends UniEntity {
 
 
 export class InvoicePaymentData extends UniEntity {
+    public AgioAccountID: number;
+    public AgioAmount: number;
     public Amount: number;
     public AmountCurrency: number;
+    public BankChargeAccountID: number;
     public BankChargeAmount: number;
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
