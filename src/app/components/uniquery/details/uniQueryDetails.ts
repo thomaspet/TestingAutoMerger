@@ -675,12 +675,12 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
         field.Selected = true;
 
         let colType: UniTableColumnType;
-        if (field.Type.toString().startsWith('System.Int32')) {
+        if (field.Type.toString().indexOf('System.Int32') !== -1) {
             colType = UniTableColumnType.Number;
-        } else if (field.Type.toString().startsWith('System.Decimal')) {
+        } else if (field.Type.toString().indexOf('System.Decimal') !== -1) {
             colType = UniTableColumnType.Money;
-        } else if (field.Type.toString().startsWith('System.DateTime')
-                    || field.Type.toString().startsWith('NodaTime.LocalDate')) {
+        } else if (field.Type.toString().indexOf('System.DateTime') !== -1
+                    || field.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
             colType = UniTableColumnType.LocalDate;
         } else {
             colType = UniTableColumnType.Text;

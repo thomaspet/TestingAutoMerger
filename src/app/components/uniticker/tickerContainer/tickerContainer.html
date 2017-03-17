@@ -1,5 +1,6 @@
 <section *ngIf="ticker" class="ticket-container">
     <uni-ticker-filters
+        *ngIf="showFilters"
         (click)="setExpanded('filter', true)"
         (close)="setExpanded('ticker')"
         [ticker]="ticker"

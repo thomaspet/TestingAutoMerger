@@ -11,12 +11,13 @@
             {
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
-                "Width": "100px"
-
+                "Width": "100px",
+                "Type": "text"
             },
             {
                 "Header": "Kundenr",
-                "Field": "Customer.CustomerNumber"
+                "Field": "Customer.CustomerNumber",
+                "Type": "text"
             },
             {
                 "Header": "Kundenavn",
@@ -25,21 +26,18 @@
             },
             {
                 "Header": "Fakturadato",
-                "Field": "InvoiceDate",
-                "Type": "date"
+                "Field": "InvoiceDate"
             },
             {
                 "Header": "Forfallsdato",
                 "Field": "PaymentDueDate",
-                "Format": "DatePassed",
-                "Type": "date"
+                "Format": "DatePassed"
             },
             {
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmount",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px",
-                "Type": "money"
+                "Width": "150px"
             },
             {
                 "Header": "Status",
@@ -50,12 +48,32 @@
             {
                 "Name": "Ny faktura",
                 "Code": "new_invoice",
-                "ExecuteWithoutSelection": true
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Åpne faktura",
+                "Code": "open_invoice",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
             },
             {
                 "Name": "Kopier",
                 "Code": "copy_invoice",
-                "ConfirmBeforeExecuteMessage": "Er du sikker på at du vil kopiere valgt faktura?"
+                "ConfirmBeforeExecuteMessage": "Er du sikker på at du vil kopiere valgt faktura?",
+                "Type": "action",
+                "Action": "copy",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Fakturer",
+                "Code": "invoice_invoice",
+                "Type": "transition",
+                "Transition": "invoice",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
             }
         ],
         "SubTickersCodes": ["invoice_details", "invoice_items"],
@@ -64,6 +82,25 @@
                 "Name": "Alle",
                 "Code": "all_invoices",
                 "Filter": ""
+            },
+            {
+                "Name": "Mine under arbeid",
+                "Code": "my_draft_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42001"
+                    },
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
             },
             {
                 "Name": "Forfalte",
@@ -116,6 +153,57 @@
                 "Format": "NumberPositiveNegative",
                 "Width": "150px",
                 "Type": "money"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Åpne ordre",
+                "Code": "open_order",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            }
+        ]
+    },
+    {
+        "Name": "Eksterne data - test",
+        "Type": "Table",
+        "Code": "external_data_test_list",
+        "ApiUrl": "https://jsonplaceholder.typicode.com/posts",
+        "ListObject": "",
+        "IsTopLevelTicker": false,
+        "DisableFiltering": true,
+        "Group": "Test",
+        "Columns": [
+            {
+                "Header": "Tittel",
+                "Field": "title",
+                "Width": "250px"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "body"
+            }
+        ]
+    },
+    {
+        "Name": "Eksterne data - forsiden VG.no",
+        "Type": "Table",
+        "Code": "external_data_forsiden_vg",
+        "ApiUrl": "https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Fwww.vg.no%2Frss%2Ffeed%2Fforsiden",
+        "ListObject": "items",
+        "IsTopLevelTicker": false,
+        "DisableFiltering": true,
+        "Group": "Test",
+        "Columns": [
+            {
+                "Header": "Tittel",
+                "Field": "title"
+            },
+            {
+                "Header": "Link",
+                "Field": "link",
+                "Type": "external-link"
             }
         ]
     },

@@ -1,1 +1,5 @@
-<a *ngFor="let action of actions" (click)="onActionClicked(action)">{{action.Name}}</a>
+<a *ngFor="let action of actions"
+    (click)="onActionClicked(action)"
+    [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
+    {{action.Name}}
+</a>

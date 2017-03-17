@@ -8,7 +8,7 @@ import {StatisticsResponse} from '../../models/StatisticsResponse';
 @Injectable()
 export class StatisticsService extends BizHttp<string> {
 
-    private notSoImportantFields: Array<string> = ['createdat', 'createdby', 'updatedat', 'updatedby', 'id', 'deleted'];
+    private notSoImportantFields: Array<string> = ['createdat', 'createdby', 'updatedat', 'updatedby', 'deleted'];
     private notSoImportantEntities: Array<string> = ['AccountAlias', 'AccountGroupSet', 'Accrual', 'Address', 'Altinn', 'AltinnCorrespondanceReader', 'CompanySalary', 'CompanySettings',
     'ComplexValidationRule', 'ComponentLayout', 'CustomField', 'Email', 'EmployeeCategoryLink', 'EntityValidationRule', 'FieldLayout', 'FileEntityLink', 'FinancialYear', 'JournalEntryMode',
     'JournalEntrySourceSerie', 'NumberSeries', 'NumberSeriesInvalidOverlap', 'NumberSeriesType', 'Phone', 'PostPost', 'ProductCategoryLink', 'TraceLink', 'TreeStructure', 'UserAuthorization',
@@ -99,6 +99,11 @@ export class StatisticsService extends BizHttp<string> {
 
     public checkShouldShowField(field: string) {
 
+        if (field.toLowerCase() === 'id') {
+            return true;
+        }
+
+        // normally all relation ids are not so interesting
         if (field.toLowerCase().endsWith('id')) {
             return false;
         }

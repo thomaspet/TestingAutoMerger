@@ -14,7 +14,7 @@
 
             </div>
             <div class="rule-setup">
-                <h2>Finn {{ticker.Model}} hvor:</h2>
+                <h2>Finn {{selectedMainModel ? selectedMainModel.Translated ? selectedMainModel.Translated: selectedMainModel.Name : ticker.Model}} hvor:</h2>
                 <uni-ticker-filter-editor
                     *ngIf="selectedMainModel"
                     [filter]="selectedFilter"
@@ -24,7 +24,7 @@
                 </uni-ticker-filter-editor>
 
                 <div class="set-standard-search-box">
-                    <div class="explain-text">Standardsøk er kriterier som automatisk settes for søk av denne typen ({{ticker.Model}})</div>
+                    <div class="explain-text">Standardsøk er kriterier som automatisk settes for søk av denne typen ({{selectedMainModel ? selectedMainModel.Translated ? selectedMainModel.Translated: selectedMainModel.Name : ticker.Model}})</div>
                     <button class="good" (click)="setStandardSearch()">Sett som standard</button>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, Http} from '@angular/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniQueryDefinition} from '../../../unientities';
@@ -9,7 +9,7 @@ import {StatisticsService, StatusService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {ErrorService, UniTickerService} from '../../../services/services';
+import {ErrorService, UniTickerService, ModelService} from '../../../services/services';
 import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
@@ -40,7 +40,7 @@ export class UniTicker {
     private prefetchDataLoaded: boolean = false;
 
     private expressionFilters: Array<IExpressionFilterValue> = [];
-    private rowindexToFocusAfterDataLoad: number;
+    private selectedRow: any = null;
 
     constructor(private uniHttpService: UniHttp,
         private router: Router,
@@ -51,7 +51,9 @@ export class UniTicker {
         private authService: AuthService,
         private statusService: StatusService,
         private errorService: ErrorService,
-        private uniTickerService: UniTickerService) {
+        private uniTickerService: UniTickerService,
+        private modelService: ModelService,
+        private http: Http) {
         let token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
@@ -72,9 +74,14 @@ export class UniTicker {
         this.lookupFunction = (urlParams: URLSearchParams) => {
                 let params = this.getSearchParams(urlParams);
 
-                return this.statisticsService
-                    .GetAllByUrlSearchParams(params)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                if (this.ticker.Model) {
+                    return this.statisticsService
+                        .GetAllByUrlSearchParams(params)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                } else if (this.ticker.ApiUrl) {
+                    return this.http
+                        .get(this.ticker.ApiUrl);
+                }
             };
     }
 
@@ -122,7 +129,7 @@ export class UniTicker {
             let parentFilter =
                 `${this.ticker.ParentFilter.Field} ` +
                 `${this.ticker.ParentFilter.Operator} ` +
-                `${this.parentModel[this.ticker.ParentFilter.Value.replace('.','')]}`;
+                `${this.parentModel[this.ticker.ParentFilter.Value.replace('.', '')]}`;
 
             if (currentFilter && currentFilter !== '') {
                 currentFilter += ' and ' + parentFilter;
@@ -131,6 +138,13 @@ export class UniTicker {
             }
 
             params.set('filter', currentFilter);
+        }
+
+        // if we have actions that are transitions we need to add hateoas to the data to be able to
+        // analyse if a transition is valid
+        if (this.ticker.Actions
+            && this.ticker.Actions.filter(x => x.Type && x.Type.toLowerCase() === 'transition').length > 0) {
+            params.set('hateoas', 'true');
         }
 
         return params;
@@ -191,40 +205,13 @@ export class UniTicker {
         event.stopPropagation();
     }
 
-    public setSelectedRow(rowindex: number) {
-        /*
-        TODO: LITT TRØBBEL MED DENNE FORELØPIG, LITT TIMING ISSUES. AVVENT FORELØPIG,
-        LØSER SEG KANSKJE AV SEG SELV MED STICKY STATE HVIS VI GÅR FOR DEN LØSNINGEN
-
-        if (this.unitable) {
-            console.log('focus row through code ' + rowindex);
-            this.unitable.focusRow(rowindex);
-
-            // let unitable do it's thing before asking for the current row
-            setTimeout(() => {
-                let currentRow = this.unitable.getCurrentRow();
-
-                if (currentRow) {
-                    this.rowSelected.emit(currentRow);
-                } else {
-                    this.rowindexToFocusAfterDataLoad = rowindex;
-                }
-            });
-        }*/
-    }
-
     private onDataLoaded(event) {
-        setTimeout(() => {
-            if (this.rowindexToFocusAfterDataLoad) {
-                this.setSelectedRow(this.rowindexToFocusAfterDataLoad);
-                this.rowindexToFocusAfterDataLoad = null;
-            }
-        });
+
     }
 
     private onRowSelected(rowSelectEvent) {
-        let selectedObject = rowSelectEvent.rowModel;
-        this.rowSelected.emit(selectedObject);
+        this.selectedRow = rowSelectEvent.rowModel;
+        this.rowSelected.emit(this.selectedRow);
     }
 
     private onExecuteAction(action: TickerAction) {
@@ -235,7 +222,7 @@ export class UniTicker {
 
         let allowMultipleRows = action.ExecuteWithMultipleSelections ? true : false;
 
-        if (!action.ExecuteWithoutSelection && selectedRows.length === 0) {
+        if (!action.ExecuteWithoutSelection && selectedRows.length === 0 && !this.selectedRow) {
             alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
             return;
         }
@@ -251,7 +238,29 @@ export class UniTicker {
             }
         }
 
-        alert('TODO. Legg opp logikk for hva som skal gjøres på execute: ' + action.Code);
+        this.uniTickerService
+            .executeAction(
+                action,
+                this.ticker,
+                selectedRows && selectedRows.length > 0 ? selectedRows : [this.selectedRow]
+            ).then(() => {
+                if (action.Type
+                    && (action.Type.toLowerCase() === 'transition' || action.Type.toLowerCase() === 'action')) {
+                    this.toastService.addToast(
+                        `Ferdig med å kjøre oppgaven ${action.Name}`,
+                        ToastType.good,
+                        ToastTime.short,
+                        '');
+
+                    // refresh table data after actions/transitions are executed
+                    if (this.unitable) {
+                        this.unitable.refreshTableData();
+                    }
+                }
+            })
+            .catch((err) => {
+                this.errorService.handle(err);
+            });
     }
 
     private isFunction(field: string): boolean {
@@ -280,160 +289,245 @@ export class UniTicker {
     }
 
     private setupTableConfig() {
-        if (!this.ticker.Columns) {
-            // TODO: if no columns are defined, we should get defaults based on the model
-            this.ticker.Columns = [];
-            this.ticker.Columns.push({
-                Field: 'ID',
-                Alias: 'ID',
-                Header: 'ID',
-                CssClass: null,
-                Format: null,
-                SumFunction: null,
-                Type: 'number',
-                Width: null
-            });
-        }
+        this.modelService
+            .loadModelCache()
+            .then(() => {
+                let model = this.modelService.getModel(this.ticker.Model);
 
-        // Define columns to use in the table
-        let columns: Array<UniTableColumn> = [];
-        let selects: Array<string> = [];
-
-        for (let i = 0; i < this.ticker.Columns.length; i++) {
-            let field = this.ticker.Columns[i];
-
-            let colName = field.Field;
-            let aliasColName = '';
-            let selectableColName = '';
-
-            if (this.isFunction(field.Field)) {
-                // for functions, trust that the user knows what he/she is doing...
-                selectableColName = colName;
-                aliasColName = this.ticker.Model + colName;
-            } else if (field.Field.indexOf('.') > 0) {
-                // get last part of path, e.g. field.Field = Customer.Info.Name, gets "Info" and "Name"
-                let lastIndex = field.Field.lastIndexOf('.');
-                let path = field.Field.substring(0, lastIndex);
-                if (path.indexOf('.') > 0) {
-                    lastIndex = path.lastIndexOf('.');
-                    path = path.substring(lastIndex + 1);
+                if (!this.ticker.Columns) {
+                    // TODO: if no columns are defined, we should get defaults based on the model
+                    this.ticker.Columns = [];
+                    this.ticker.Columns.push({
+                        Field: 'ID',
+                        Alias: 'ID',
+                        Header: 'ID',
+                        CssClass: null,
+                        Format: null,
+                        SumFunction: null,
+                        Type: 'number',
+                        Width: null
+                    });
                 }
 
-                colName = field.Field.substring(field.Field.lastIndexOf('.') + 1);
+                // Define columns to use in the table
+                let columns: Array<UniTableColumn> = [];
+                let selects: Array<string> = [];
 
-                selectableColName = path + '.' + colName;
-                aliasColName = path + colName;
-            } else {
-                selectableColName = this.ticker.Model + '.' + colName;
-                aliasColName = this.ticker.Model + colName;
-            }
+                for (let i = 0; i < this.ticker.Columns.length; i++) {
+                    let field = this.ticker.Columns[i];
 
-            if (field.SumFunction && selectableColName.indexOf(field.SumFunction) === -1) {
-                selectableColName = `${field.SumFunction}(${selectableColName})`;
-            }
+                    let colName = field.Field;
+                    let aliasColName = '';
+                    let selectableColName = '';
 
-            // set the Alias we are using in the query to simplify getting the data later on
-            field.Alias = aliasColName;
+                    let modelname = (this.ticker.Model ? this.ticker.Model : '');
 
-            let colType = UniTableColumnType.Text;
+                    if (this.isFunction(field.Field)) {
+                        // for functions, trust that the user knows what he/she is doing...
+                        selectableColName = colName;
+                        aliasColName = modelname + colName;
+                    } else if (field.Field.indexOf('.') > 0) {
+                        // get last part of path, e.g. field.Field = Customer.Info.Name, gets "Info" and "Name"
+                        let lastIndex = field.Field.lastIndexOf('.');
+                        let path = field.Field.substring(0, lastIndex);
+                        if (path.indexOf('.') > 0) {
+                            lastIndex = path.lastIndexOf('.');
+                            path = path.substring(lastIndex + 1);
+                        }
 
-            if (field.Type && field.Type !== '') {
-                switch (field.Type.toLowerCase()) {
-                    case 'number':
-                        colType = UniTableColumnType.Number;
-                        break;
-                    case 'money':
-                        colType = UniTableColumnType.Money;
-                        break;
-                    case 'percent':
-                        colType = UniTableColumnType.Percent;
-                        break;
-                    case 'date':
-                    case 'datetime':
-                    case 'localdate':
-                        colType = UniTableColumnType.LocalDate;
-                        break;
+                        colName = field.Field.substring(field.Field.lastIndexOf('.') + 1);
+
+                        selectableColName = path + '.' + colName;
+                        aliasColName = path + colName;
+                    } else {
+                        selectableColName = modelname + '.' + colName;
+                        aliasColName = modelname + colName;
+                    }
+
+                    if (field.SumFunction && selectableColName.indexOf(field.SumFunction) === -1) {
+                        selectableColName = `${field.SumFunction}(${selectableColName})`;
+                    }
+
+                    // set the Alias we are using in the query to simplify getting the data later on
+                    field.Alias = aliasColName;
+
+                    // if not fieldtype is configured for the ticker column, try to find type based on the model
+                    // that is retrieved from the API
+                    if (model &&  (!field.Type || field.Type === '')) {
+                        // TODO: tar ikke hensyn til f.eks. Customer.CustomerNumber her - sjekker bare på hoved nivå.
+                        // Må utvide til å også sjekke path og finne modell basert på den
+                        let modelField = this.modelService.getField(model, colName);
+
+                        if (modelField) {
+                            if (modelField.Type.toString().indexOf('System.Int32') !== -1) {
+                                field.Type = 'number';
+                            } else if (modelField.Type.toString().indexOf('System.Decimal') !== -1) {
+                                field.Type = 'money';
+                            } else if (modelField.Type.toString().indexOf('System.DateTime') !== -1
+                                        || modelField.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
+                                field.Type = 'date';
+                            }
+                        }
+                    }
+
+                    let colType = UniTableColumnType.Text;
+
+                    if (field.Type && field.Type !== '') {
+                        switch (field.Type.toLowerCase()) {
+                            case 'number':
+                                colType = UniTableColumnType.Number;
+                                break;
+                            case 'money':
+                                colType = UniTableColumnType.Money;
+                                break;
+                            case 'percent':
+                                colType = UniTableColumnType.Percent;
+                                break;
+                            case 'date':
+                            case 'datetime':
+                            case 'localdate':
+                                colType = UniTableColumnType.LocalDate;
+                                break;
+                        }
+                    }
+
+                    let col = new UniTableColumn(selectableColName, field.Header, colType);
+                    col.alias = aliasColName;
+                    col.width = field.Width;
+                    col.sumFunction = field.SumFunction;
+
+                    if (selectableColName.toLowerCase().endsWith('statuscode')) {
+                        col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
+                    }
+
+                    if (field.Type && field.Type.toLowerCase() === 'external-link') {
+                        col.setTemplate(row => `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`);
+                    }
+
+                    if (field.Format && field.Format !== '') {
+                        // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative", etc
+                        switch (field.Format) {
+                            case 'NumberPositiveNegative':
+                                col.setConditionalCls(model => model[aliasColName] >= 0 ?
+                                    'number-good'
+                                    : 'number-bad'
+                                );
+                                break;
+                            case 'DatePassed':
+                                col.setConditionalCls(model =>
+                                    moment(model[aliasColName]).isBefore(moment()) ?
+                                        'date-bad'
+                                        : 'date-good'
+                                );
+                                break;
+                            case 'json':
+                                col.setTemplate(model => JSON.stringify(model));
+                                break;
+                        }
+                    }
+
+
+
+                    columns.push(col);
+
+                    selects.push(selectableColName + ' as ' + aliasColName);
                 }
-            }
 
-            let col = new UniTableColumn(selectableColName, field.Header, colType);
-            col.alias = aliasColName;
-            col.width = field.Width;
-            col.sumFunction = field.SumFunction;
+                // if any subtickers exists, and any of them need info from the parent (i.e. this component),
+                // make sure we have this data available in the query. This means that we e.g. add a select
+                // for ID, even though that does not exist in the ticker
+                let subTickersWithParentFilter =
+                    !this.ticker.SubTickers ?
+                        []
+                        : this.ticker.SubTickers.filter(st => st.ParentFilter && st.ParentFilter.Value);
 
-            if (selectableColName.toLowerCase().endsWith('statuscode')) {
-                col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
-            }
+                subTickersWithParentFilter.forEach(st => {
+                    let paramAlias = st.ParentFilter.Value.replace('.', '');
+                    let paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
 
-            if (field.Format && field.Format !== '') {
-                // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative", etc
-                switch (field.Format) {
-                    case 'NumberPositiveNegative':
-                        col.setConditionalCls(model => model[aliasColName] >= 0 ?
-                            'number-good'
-                            : 'number-bad'
+                    if (!selects.find(x => x === paramSelect)) {
+                        selects.push(paramSelect);
+                    }
+                });
+
+                let actionsWithDetailNavigation =
+                    !this.ticker.Actions ?
+                        []
+                        : this.ticker.Actions.filter(st => st.Type
+                            && (st.Type.toLowerCase() === 'details'
+                                || st.Type.toLowerCase() === 'action'
+                                || st.Type.toLowerCase() === 'transition')
                         );
-                        break;
-                    case 'DatePassed':
-                        col.setConditionalCls(model =>
-                            moment(model[aliasColName]).isBefore(moment()) ?
-                                'date-bad'
-                                : 'date-good'
-                        );
-                        break;
-                }
-            }
 
-            columns.push(col);
+                actionsWithDetailNavigation.forEach(st => {
+                    let paramSelect = 'ID as ID';
+                    if (!selects.find(x => x === paramSelect)) {
+                        selects.push(paramSelect);
+                    }
+                });
 
-            selects.push(selectableColName + ' as ' + aliasColName);
-        }
+                this.selects = selects.join(',');
 
-        // if any subtickers exists, and any of them need info from the parent (i.e. this component),
-        // make sure we have this data available in the query. This means that we e.g. add a select
-        // for ID, even though that does not exist in the ticker
-        let subTickersWithParentFilter =
-            !this.ticker.SubTickers ?
-                []
-                : this.ticker.SubTickers.filter(st => st.ParentFilter && st.ParentFilter.Value);
+                let contextMenuItems: IContextMenuItem[] = [];
+                if (this.ticker.Actions) {
+                    this.ticker.Actions.forEach(action => {
+                        if (action.DisplayInContextMenu) {
 
-        subTickersWithParentFilter.forEach(st => {
-            let paramAlias = st.ParentFilter.Value.replace('.', '');
-            let paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
+                            if (action.Type.toLowerCase() === 'transition' && !action.Transition) {
+                                throw Error('Cannot add action with Type = transition without specifying which Transition to execute');
+                            }
 
-            if (!selects.find(x => x === paramSelect)) {
-                selects.push(paramSelect);
-            }
-        });
+                            contextMenuItems.push({
+                                label: action.Name,
+                                action: (rowModel) => {
+                                    this.uniTickerService.executeAction(action, this.ticker, [rowModel]);
+                                },
+                                disabled: (rowModel) => {
+                                    if (action.Type.toLocaleLowerCase() === 'transition') {
+                                        if (!rowModel._links) {
+                                            throw Error('Cannot setup transition action, hateoas is not retrieved');
+                                        } else {
+                                            if (!rowModel._links.transitions[action.Transition]) {
+                                                return true;
+                                            }
+                                        }
+                                    }
 
-        this.selects = selects.join(',');
-
-        let contextMenuItems: IContextMenuItem[] = [];
-        contextMenuItems.push({
-            label: 'Sett opp basert på config + hateoas',
-            action: (rowModel) => {
-                alert('Not implemented');
-            }
-        });
-
-        // Setup table
-        this.tableConfig = new UniTableConfig(false, true, 20)
-            .setAllowGroupFilter(true)
-            .setAllowConfigChanges(true)
-            .setColumnMenuVisible(true)
-            .setSearchable(false)
-            .setMultiRowSelect(true)
-            .setDataMapper((data) => {
-                let tmp = data !== null ? data.Data : [];
-
-                if (data !== null && data.Message !== null && data.Message !== '') {
-                    this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
+                                    return false;
+                                }
+                            });
+                        }
+                    });
                 }
 
-                return tmp;
-            })
-            .setContextMenu(contextMenuItems, true, false)
-            .setColumns(columns);
+                // Setup table
+                this.tableConfig = new UniTableConfig(false, true, 20)
+                    .setAllowGroupFilter(true)
+                    .setAllowConfigChanges(true)
+                    .setColumnMenuVisible(true)
+                    .setSearchable(false)
+                    .setMultiRowSelect(true)
+                    .setDataMapper((data) => {
+                        if (this.ticker.Model) {
+                            let tmp = data !== null ? data.Data : [];
+
+                            if (data !== null && data.Message !== null && data.Message !== '') {
+                                this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
+                            }
+
+                            return tmp;
+                        } else {
+                            if (this.ticker.ListObject && this.ticker.ListObject !== '') {
+                                return data[this.ticker.ListObject];
+                            }
+
+                            return data;
+                        }
+                    })
+                    .setContextMenu(contextMenuItems, true, false)
+                    .setColumns(columns);
+
+        });
     }
 
     // this function assumes that the unitablesetup has already been run, so that all needed

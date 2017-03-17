@@ -15,6 +15,7 @@ export enum UniModules {
     Settings        = 101,
     Reports         = 102,
     UniQuery        = 103,
+    UniTicker       = 104,
 
     Customers       = 200,
     Quotes          = 201,

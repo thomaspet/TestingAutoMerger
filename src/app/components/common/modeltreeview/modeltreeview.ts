@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnChanges, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {StatisticsService, ErrorService} from '../../../services/services';
-import {ModelService} from '../../../services/common/modelService';
+import {ModelService, ModuleConfig} from '../../../services/common/modelService';
 import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 
 declare const _; // lodash
@@ -20,8 +20,10 @@ export class ModelTreeView implements OnChanges {
     @Output() private fieldAdded: EventEmitter<any> = new EventEmitter<any>();
     @Output() private modelSelected: EventEmitter<any> = new EventEmitter<any>();
 
+    private modules: Array<ModuleConfig> = [];
+    private visibleModules: Array<ModuleConfig> = [];
     private models: Array<any> = [];
-    private visibleModels: Array<any> = [];
+
     private model: {Relations: any, Fields: any[], fieldArray: string[]};
 
     constructor(
@@ -36,6 +38,10 @@ export class ModelTreeView implements OnChanges {
         if (!this.models || this.models.length === 0) {
             this.setupModelData();
         }
+
+        if (changes['showAllFields'] || changes['showAllModels']) {
+            this.filterModules();
+        }
     }
 
     private setupModelData() {
@@ -43,8 +49,10 @@ export class ModelTreeView implements OnChanges {
             .loadModelCache()
             .then(x => {
                 this.models = this.modelService.getModels();
+                this.modules = this.modelService.getModules();
+
                 this.setDefaultExpandedModels();
-                this.filterModels();
+                this.filterModules();
                 this.cdr.markForCheck();
             });
     }
@@ -81,27 +89,31 @@ export class ModelTreeView implements OnChanges {
         }
     }
 
-    private filterModels() {
-        let models = this.models.filter(x => this.showAllModels || this.statisticsService.checkShouldShowEntity(x.Name));
+    private filterModules() {
+        let modules = this.modules.concat();
 
-        models.forEach(model => {
-            model.fieldArray = Object.keys(model.Fields).filter(x => this.showAllFields || this.statisticsService.checkShouldShowField(x));
+        modules.forEach(module => {
+            module.ModelList = module.ModelList.filter(x => this.showAllModels || this.statisticsService.checkShouldShowEntity(x.Name));
 
-            if (this.selectedFields) {
-                let fieldsOnTopLevelModels = this.selectedFields
-                    .filter((field: UniTableColumn) => field.path === null || field.path === '' || field.path === this.mainModelName);
+            module.ModelList.forEach(model => {
+                model.fieldArray = Object.keys(model.Fields).filter(x => this.showAllFields || this.statisticsService.checkShouldShowField(x));
 
-                fieldsOnTopLevelModels.forEach((field: UniTableColumn) => {
-                    let selectedField = model.fieldArray.find(x => x === field.field.toLowerCase());
+                if (this.selectedFields) {
+                    let fieldsOnTopLevelModels = this.selectedFields
+                        .filter((field: UniTableColumn) => field.path === null || field.path === '' || field.path === this.mainModelName);
 
-                    if (selectedField !== undefined) {
-                        model.Fields[field.field.toLowerCase()].Selected = true;
-                    }
-                });
-            }
+                    fieldsOnTopLevelModels.forEach((field: UniTableColumn) => {
+                        let selectedField = model.fieldArray.find(x => x === field.field.toLowerCase());
+
+                        if (selectedField !== undefined) {
+                            model.Fields[field.field.toLowerCase()].Selected = true;
+                        }
+                    });
+                }
+            });
         });
 
-        this.visibleModels = models;
+        this.visibleModules = modules;
     }
 
     private addOrRemoveField(model, fieldname, field, path) {
@@ -119,7 +131,13 @@ export class ModelTreeView implements OnChanges {
         this.fieldAdded.emit(event);
     }
 
-
+    private expandModule(module) {
+        if (!module.Expanded) {
+            module.Expanded = true;
+        } else {
+            module.Expanded = !module.Expanded;
+        }
+    }
 
     private expandModel(model) {
         if (model.Expanded === null) {

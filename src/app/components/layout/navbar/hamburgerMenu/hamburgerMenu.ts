@@ -107,8 +107,9 @@ export class HamburgerMenu {
                     {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
-                    {componentName: 'Rapportoversikt', componentUrl: '/reports', moduleID: UniModules.Reports},
-                    {componentName: 'Oversikt over uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery}
+                    {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
+                    {componentName: 'Oversikt', componentUrl: '/tickers', moduleID: UniModules.UniTicker},
+                    {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery}
                 ]
             },
             {

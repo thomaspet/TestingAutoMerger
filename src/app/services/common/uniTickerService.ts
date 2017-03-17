@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Http} from '@angular/http';
@@ -6,6 +7,9 @@ import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../../framework/core/authService';
+import {ModelService, ModuleConfig} from './modelService';
+import {ErrorService} from './errorService';
+import {UniEntityCreator} from '../../unientities';
 
 import * as moment from 'moment';
 
@@ -15,12 +19,17 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
     private TICKER_LOCALSTORAGE_KEY: string = 'UniTickerHistory';
     private tickers: Array<Ticker>;
+    private models: Array<any>;
 
     constructor(
         private http: Http,
+        private uniHttp: UniHttp,
         private numberFormatService: NumberFormat,
         private storageService: BrowserStorageService,
-        private authService: AuthService) {
+        private authService: AuthService,
+        private router: Router,
+        private modelService: ModelService,
+        private errorService: ErrorService) {
         /* KE: We dont have a backend endpoint yet - consider this later
                when we have stabilized the JSON structure for tickers
 
@@ -76,12 +85,85 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         });
     }
 
-
     public getTickers(): Promise<Ticker[]> {
         return this.loadTickerCache()
             .then(() => {
                 return this.tickers;
             });
+    }
+
+    public executeAction(action: TickerAction, ticker: Ticker, selectedRows: Array<any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.modelService.loadModelCache()
+                .then(() => {
+                    let model = this.modelService.getModel(ticker.Model);
+                    let uniEntityClass: any = UniEntityCreator.getClass(ticker.Model);
+
+                    if (action.Type && action.Type.toLowerCase() === 'new') {
+                        // get url for new entity, navigate
+                        let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
+
+                        if (url && url !== '') {
+                            url = url.replace(':id', '0');
+                            this.router.navigateByUrl(url);
+                        } else {
+                            throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
+                        }
+                    } else if (action.Type && action.Type.toLowerCase() === 'details') {
+                        let rowId: number = null;
+                        // check that we can find the ID of the model - and that we have only one
+                        if (!selectedRows || selectedRows.length !== 1) {
+                            throw Error('Could not navigate, not possible to find ID to navigate to');
+                        } else {
+                            rowId = selectedRows[0]['ID'];
+                        }
+
+                        // get url for new entity, navigate
+                        let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
+
+                        if (url && url !== '') {
+                            url = url.replace(':id', rowId.toString());
+                            this.router.navigateByUrl(url);
+                        } else {
+                            throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
+                        }
+
+                    } else if (action.Type && action.Type.toLowerCase() === 'action') {
+                        console.log('actions with Type = "action" are not impelmented yet', action, ticker, selectedRows);
+                    } else if (action.Type && action.Type.toLowerCase() === 'transition') {
+                        if (!uniEntityClass) {
+                            throw Error('Cannot find unientity class for model ' + ticker.Model + ', cannot run transition');
+                        } else if (!uniEntityClass.RelativeUrl || uniEntityClass.RelativeUrl === '') {
+                            throw Error('No URL defined for unientity class for model ' + ticker.Model + ', cannot run transition');
+                        }
+
+                        // check that we can find the ID of the model - and that we have at least one
+                        if (!selectedRows || selectedRows.length === 0) {
+                            throw Error('No row selected, cannot execute transition ' + action.Transition);
+                        }
+
+                        let service = new BizHttp<any>(this.uniHttp, this.authService);
+                        service.relativeURL = uniEntityClass.RelativeUrl;
+
+                        // TBD: should consider some throttling here if a lot of rows are selected - could potentially
+                        // start hundreds of requests - errors should probably also be handled better, but it
+                        // is probably not optimal to run requests one-by-one either.
+                        selectedRows.forEach(row => {
+                            service.Transition(row['ID'], row, action.Transition)
+                                .subscribe(x => {
+                                   console.log(`Transition ${action.Transition} executed for ID ${row['ID']}`);
+                                },
+                                err => {
+                                    console.log(`Error executing transition ${action.Transition} for ID ${row['ID']}`, err);
+                                    this.errorService.handle(err);
+                                }
+                            );
+                        });
+                    }
+
+                    resolve();
+            });
+        });
     }
 
     public getGroupedTopLevelTickers(tickers: Array<Ticker>): Array<TickerGroup> {
@@ -107,9 +189,11 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
             if (ticker.SubTickersCodes && ticker.SubTickersCodes.length) {
                 ticker.SubTickersCodes.forEach(subTickerCode => {
-                    let subTicker = tickers.find(x => x.Code === subTickerCode);
-                    if (subTicker) {
-                        ticker.SubTickers.push(subTicker);
+                    if (!ticker.SubTickers.find(x => x.Code === subTickerCode)) {
+                        let subTicker = tickers.find(x => x.Code === subTickerCode);
+                        if (subTicker) {
+                            ticker.SubTickers.push(subTicker);
+                        }
                     }
                 });
             }
@@ -375,6 +459,9 @@ export class Ticker {
     public IsTopLevelTicker: boolean;
     public Model: string;
     public Expand: string;
+    public ApiUrl: string;
+    public ListObject: string;
+    public DisableFiltering: boolean;
     public Columns: Array<TickerColumn>;
     public ParentFilter: TickerFieldFilter;
     public SubTickers: Array<Ticker>;
@@ -422,7 +509,6 @@ export class TickerFilter {
     public IsActive: boolean;
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
-    //public FieldFilters: Array<TickerFieldFilter>;
 }
 
 export class TickerAction {
@@ -431,6 +517,11 @@ export class TickerAction {
     public ConfirmBeforeExecuteMessage: string;
     public ExecuteWithMultipleSelections: boolean;
     public ExecuteWithoutSelection: boolean;
+    public Type: string;
+    public Action: string;
+    public Transition: string;
+    public DisplayInContextMenu: boolean;
+    public DisplayInActionBar: boolean;
 }
 
 export class TickerHistory {
