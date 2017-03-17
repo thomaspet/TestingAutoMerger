@@ -4,7 +4,7 @@ import {ReportDefinition, CompanySettings, User} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {ReportDefinitionService, Report, ReportParameter, UserService} from '../../../../services/services';
+import {ReportService, Report, ReportParameter, UserService} from '../../../../services/services';
 import {CompanySettingsService, ErrorService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
@@ -41,7 +41,7 @@ export class PreviewModal {
     private user: User;
 
     constructor(
-        private reportDefinitionService: ReportDefinitionService,
+        private reportService: ReportService,
         private http: Http,
         private userService: UserService,
         private toastService: ToastService,
@@ -83,7 +83,7 @@ export class PreviewModal {
 
                         if (this.sendEmailModal.Changed.observers.length === 0) {
                             this.sendEmailModal.Changed.subscribe((email) => {
-                                this.reportDefinitionService.generateReportSendEmailById(this.reportDefinition.Name, 0, email);
+                                this.reportService.generateReportSendEmailById(this.reportDefinition.Name, 0, email);
                             });
                         }
                     }
@@ -92,7 +92,7 @@ export class PreviewModal {
                     text: 'Skriv ut',
                     method: () => {
                         this.modal.getContent().then(() => {
-                            this.reportDefinitionService.generateReportPdf(this.reportDefinition);
+                            this.reportService.generateReportPdf(this.reportDefinition);
                             this.modal.close();
                         });
                     }
@@ -121,7 +121,7 @@ export class PreviewModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;
-        this.reportDefinitionService.generateReportHtml(report, this.modalConfig);
+        this.reportService.generateReportHtml(report, this.modalConfig);
         this.modal.open();
     }
 }
