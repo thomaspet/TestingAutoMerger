@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unitable-ng2/main';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService} from '../../../services/services';
@@ -30,7 +30,7 @@ export class WorkEditor {
     }
     @Output() public valueChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
-    // @ViewChild(UniTable) private uniTable: UniTable;
+    @ViewChild(UniTable) private uniTable: UniTable;
     private tableConfig: UniTableConfig;
     private timeSheet: TimeSheet = new TimeSheet();
     private workTypes: Array<WorkType> = [];
@@ -46,14 +46,17 @@ export class WorkEditor {
         private toast: ToastService,
         private localStore: BrowserStorageService) {
             this.loadUserSettings();
-            // this.tableConfig = this.createTableConfig();
             this.initLookups();
     }
 
     public editRow(index: number) {
         this.toast.addToast('Venter på unitable feature...',
         ToastType.good, 3, 'Klikk på nederse rad i tabellen for å begynne å registrere' );
-        // this.uniTable.editRow( index );
+        this.uniTable.focusRow(index);
+    }
+
+    public closeEditor() {
+        this.uniTable.blur();
     }
 
     private tryInit() {
@@ -99,8 +102,6 @@ export class WorkEditor {
 
     public onEditChange(event) {
 
-        // this.toast.addToast('change:' + event.rowModel[event.field], 2, 2);
-
         var rowIndex = event.originalIndex;
         var newRow = event.rowModel;
         var change = new ValueItem(event.field, newRow[event.field], rowIndex);
@@ -127,7 +128,6 @@ export class WorkEditor {
         }
 
         if (this.timeSheet.setItemValue(change)) {
-            // debugger;
             this.valueChanged.emit(change);
             let xRow = this.timeSheet.items[rowIndex];
             xRow.originalIndex = rowIndex;
@@ -137,7 +137,7 @@ export class WorkEditor {
     }
 
     private createTableConfig(): UniTableConfig {
-        var cfg = new UniTableConfig(true, false, 50);
+        var cfg = new UniTableConfig(true, true, 10);
         cfg.columns = [
             new UniTableColumn('ID', 'ID', UniTableColumnType.Number).setVisible(false).setWidth('3rem')
                 .setEditable(false),

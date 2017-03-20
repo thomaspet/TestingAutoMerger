@@ -120,7 +120,8 @@ export class TimeSheet {
                 recalc = true;
                 break;
             case 'Worktype':
-                item.WorkTypeID = change.value.ID;
+                item.WorkTypeID = change.value ? change.value.ID : 0;
+                change.value = (!item.WorkTypeID) ? null : change.value;
                 break;
             case 'WorkTypeID':
                 item.Worktype = change.value ? change.lookupValue || item.Worktype : undefined;

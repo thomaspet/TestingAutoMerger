@@ -3,8 +3,6 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
 import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch,
-    ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
 import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../utils/pipes';
@@ -12,7 +10,6 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
-import {RegtimeBalance} from './balance/balance';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute} from '@angular/router';
@@ -20,8 +17,6 @@ import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {WorkEditor} from '../utils/workeditor';
 import * as moment from 'moment';
-
-
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
@@ -45,7 +40,6 @@ export class TimeEntry {
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
-    private editable: Editable;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
 
@@ -75,37 +69,7 @@ export class TimeEntry {
         omitFinalCrumb: true
     };
 
-    public filters: Array<IFilter>;
-
-    public tableConfig: IConfig = {
-        columns: [
-            new Column('Date', '', ColumnType.Date),
-            new Column('StartTime', '', ColumnType.Time),
-            new Column('EndTime', '', ColumnType.Time),
-            new Column('WorkTypeID', 'Timeart', ColumnType.Integer, { route: 'worktypes' }),
-            new Column('LunchInMinutes', 'Lunsj', ColumnType.Integer),
-            new Column('Minutes', 'Timer', ColumnType.Integer, undefined, 'Hours'),
-            new Column('Description'),
-            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer,
-                { route: 'projects', select: 'ProjectNumber,Name', visualKey: 'ProjectNumber' }),
-            new Column('CustomerOrderID', 'Ordre', ColumnType.Integer,
-                { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName',
-                visualKey: 'OrderNumber'}),
-            new Column('Actions', '', ColumnType.Action)
-            ],
-        events: {
-                onChange: (event) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e),
-                    (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
-                },
-                onInit: (instance: Editable) => {
-                    this.editable = instance;
-                },
-                onTypeSearch: (details: ITypeSearch) => this.lookup.onTypeSearch(details),
-                onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details),
-                onStartEdit: (details: IStartEdit) => this.onStartEdit(details)
-            }
-    };
+    public filters: Array<IFilter>;   
 
     constructor(
         private tabService: TabService,
@@ -184,7 +148,6 @@ export class TimeEntry {
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
-        this.editable.closeEditor();
         this.timeSheet.removeRow(rowIndex);
         this.flagUnsavedChanged();
     }
@@ -248,7 +211,7 @@ export class TimeEntry {
     private loadItems() {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
-                if (this.editable) { this.editable.closeEditor(); }
+                if (this.workEditor) { this.workEditor.closeEditor(); }
                 // this.timeSheet.ensureRowCount(itemCount + 1);
                 this.flagUnsavedChanged(true);
                 this.busy = false;
@@ -334,74 +297,6 @@ export class TimeEntry {
         return !this.actions[0].disabled;
     }
 
-    public onCopyCell(details: ICopyEventDetails) {
-
-        details.copyAbove = true;
-
-        if (details.columnDefinition) {
-            var row = details.position.row;
-            switch (details.columnDefinition.name) {
-                case 'Date':
-                    if (row === 0) {
-                        details.valueToSet = parseDate('*', true);
-                    }
-                    break;
-
-                case 'StartTime':
-                    if (row > 0) {
-                        let d1 = this.timeSheet.items[row].Date;
-                        let d2 = this.timeSheet.items[row - 1].Date;
-                        if (d1 && d2) {
-                            if (this.isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
-                                details.valueToSet = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
-                                details.copyAbove = false;
-                            }
-                        }
-                    } else {
-                        details.valueToSet = '8';
-                        details.copyAbove = false;
-                    }
-                    break;
-            }
-
-            // Lookup column?
-            if (details.columnDefinition.lookup) {
-                this.timeSheet.copyValueAbove(details.columnDefinition.name, details.position.row);
-                details.copyAbove = false;
-            }
-        }
-
-    }
-
-    private onStartEdit(details: IStartEdit) {
-        var name: colName = <colName>details.columnDefinition.name;
-        var row = details.row;
-        if (!details.value) {
-            switch (name) {
-                case 'Date':
-                    details.value = moment(this.getDefaultDate()).format('l');
-                    details.flagChanged = true;
-                    break;
-
-                case 'StartTime':
-                    if (row > 0) {
-                        let d1 = this.timeSheet.items[row].Date;
-                        let d2 = this.timeSheet.items[row - 1].Date;
-                        if (d1 && d2) {
-                            if (this.isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
-                                details.value = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
-                                details.flagChanged = true;
-                            }
-                        }
-                    } else {
-                        details.value = '08:00';
-                        details.flagChanged = true;
-                    }
-                    break;
-            }
-        }
-    }
-
     private getDefaultDate(): Date {
         switch (this.currentFilter.interval) {
 
@@ -422,45 +317,11 @@ export class TimeEntry {
         if (!result.ok) {
             this.toast.addToast('Feil', ToastType.bad, 5, result.message );
             if (result !== undefined && result.row >= 0) {
-                let iCol = this.tableConfig.columns.findIndex( (col) => col.name === result.fld );
-                this.editable.editRow(result.row, iCol);
+                // todo: focus cell that needs input
             }
             return false;
         }
         return true;
-    }
-
-    private asyncValidationFailed(event: IChangeEvent) {
-        var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
-        if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
-            var lk: ILookupDetails = event.columnDefinition.lookup;
-            let item = droplistItems[0];
-            event.value = item[lk.colToSave || 'ID'];
-            event.lookupValue = item;
-            event.userTypedValue = false;
-            this.updateChange(event);
-        } else {
-            const message = `Ugyldig ${event.columnDefinition.label}: ${event.value}`
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, message);
-        }
-    }
-
-    private updateChange(event: IChangeEvent) {
-        // Update value via timesheet
-        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name,
-            event.value, event.row, event.lookupValue, event.columnDefinition.tag))) {
-            event.cancel = true;
-            return;
-        }
-
-        this.flagUnsavedChanged();
-
-		// Ensure a new row at bottom?
-        this.timeSheet.ensureRowCount(event.row + 2);
-
-		// we use databinding instead
-        event.updateCell = false;
-
     }
 
     public onFilterClick(filter: IFilter) {
