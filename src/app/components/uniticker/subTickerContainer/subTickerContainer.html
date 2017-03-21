@@ -4,10 +4,10 @@
     <div *ngIf="parentModel">
         <div class="sub-ticker-container" *ngIf="expanded">
             <button (click)="closeSubtickers()" class="closeBtn"></button>
-            <div class="sub-ticker-container-expanded">
+            <div class="sub-ticker-container-expanded" (click)="stopPropagation()">
                 <template ngFor let-subTicker [ngForOf]="subTickers">
-                    <h3>{{subTicker.Name}}</h3>
                     <uni-ticker
+                        [header]="subTicker.Name"
                         [ticker]="subTicker"
                         [parentModel]="parentModel">
                     </uni-ticker>

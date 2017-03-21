@@ -215,7 +215,7 @@
         {
             "Name": "Customer",
             "Translated": "Kunde",
-            "Url": "/sales/customers/:id"
+            "Url": "/sales/customer/:id"
         },
         {
             "Name": "Product",

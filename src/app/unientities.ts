@@ -5526,23 +5526,3 @@ export enum CustomFieldStatus{
     Draft = 110100,
     Active = 110101,
 }
-
-
-// this class can easily be generated from the server, this will allow us to
-// get a class based on a class name - really useful for e.g. tickers
-export class UniEntityCreator {
-    public static getClass(name: string): UniEntity {
-        switch(name.toLowerCase()) {
-            case 'account':
-                return Account;
-            case 'accountgroup':
-                return AccountGroup;
-            case 'customerinvoice':
-                return CustomerInvoice;
-            case 'customerorder':
-                return CustomerOrder;
-        }
-
-
-    }
-}

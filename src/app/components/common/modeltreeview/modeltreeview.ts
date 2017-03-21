@@ -78,7 +78,8 @@ export class ModelTreeView implements OnChanges {
                 expandedMainModel.Relations.forEach(rel => {
                     let relatedModel = this.models.find(x => x.Name === rel.RelatedModel);
                     if (relatedModel) {
-                        expandedMainModel.RelatedModels.push(relatedModel);
+
+                        expandedMainModel.RelatedModels.push({RelationName: rel.Name, Model: relatedModel});
                     } else {
                         console.log('rel not found:', rel);
                     }

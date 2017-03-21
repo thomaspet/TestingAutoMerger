@@ -11,6 +11,11 @@ uni-ticker
         border: 1px solid $uni-color-scale5
         border-radius: pxToRem(7)
 
+        h3
+            width: calc(100% - 100px)
+            display: inline-block
+            float: left
+
     .menu-container
         background: $uni-color-scale9
         border-bottom: 1px solid $uni-color-scale5
@@ -24,6 +29,10 @@ uni-ticker
         a
             margin-right: 2rem
             cursor: pointer
+
+    uni-context-menu
+        float: right
+        margin-top: 20px
 
     .data-container
         background-color: white
@@ -75,7 +84,7 @@ uni-sub-ticker-container
         height: calc(100vh - 300px)
         display: inline-block
         width: 100%
-        font-weight: bolder
+        font-weight: normal
         margin-left: 0.5rem
         background-color: $uni-color-scale9
         border: 1px solid $uni-color-scale3
@@ -94,6 +103,7 @@ uni-sub-ticker-container
         padding-left: 1rem
         padding-top: 1rem
         padding-bottom: 1rem
+        font-weight: bolder
 
     .sub-ticker-summary
         overflow: hidden
@@ -109,6 +119,7 @@ uni-sub-ticker-container
             margin-top: 0.5rem
             margin-left: 0rem
             white-space: nowrap
+            font-weight: bolder
 
         dt
             font-weight: normal

@@ -8,6 +8,8 @@ import {UniSubTickerContainer} from '../subTickerContainer/subTickerContainer';
 import {UniTickerFilters} from '../components/tickerFilters';
 import {UniTickerService, PageStateService} from '../../../services/services';
 
+declare const _; // lodash
+
 @Component({
     selector: 'uni-ticker-container',
     templateUrl: './tickerContainer.html'
@@ -118,7 +120,7 @@ export class UniTickerContainer {
     }
 
     private onFilterChanged(filter: TickerFilter) {
-        this.selectedFilter = filter;
+        this.selectedFilter = _.cloneDeep(filter);
         this.selectedRow = null;
 
         // if filter.Filter is changed, this means the user has activly clicked a

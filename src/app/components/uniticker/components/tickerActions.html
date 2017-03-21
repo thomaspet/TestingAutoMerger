@@ -1,5 +1,14 @@
-<a *ngFor="let action of actions"
-    (click)="onActionClicked(action)"
-    [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
-    {{action.Name}}
-</a>
+<span *ngIf="!isSubTicker">
+    <div class="menu-container">
+        <a *ngFor="let action of actions"
+            (click)="onActionClicked(action)"
+            [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
+            {{action.Name}}
+        </a>
+    </div>
+</span>
+<span *ngIf="isSubTicker">
+    <uni-context-menu *ngIf="contextmenu"
+        [actions]="contextmenu">
+    </uni-context-menu>
+</span>

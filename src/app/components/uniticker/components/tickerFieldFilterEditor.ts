@@ -49,22 +49,24 @@ export class UniTickerFieldFilterEditor {
         }
 
         if (changes['mainModel']) {
-
             this.entities = [];
-            this.entities.push(this.mainModel);
+            this.entities.push({RelationName: this.mainModel.Name, Model: this.mainModel});
 
             this.mainModel.RelatedModels.forEach(relatedModel => {
                 this.entities.push(relatedModel);
             });
 
             let selectedModel =
-                this.entities.find(x => x.Name === this.fieldFilter.Path || x.Name === this.fieldFilter.Path);
+                this.entities.find(x => x.RelationName === this.fieldFilter.Path);
 
-            let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Fields);
             let modelFields = [];
-            modelFieldNames.forEach(x => {
-                modelFields.push(selectedModel.Fields[x]);
-            });
+
+            if (selectedModel && selectedModel.Model.Fields) {
+                let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Model.Fields);
+                modelFieldNames.forEach(x => {
+                    modelFields.push(selectedModel.Model.Fields[x]);
+                });
+            }
 
             if (!modelFields.find(x => x.Publicname === this.fieldFilter.Field)) {
                 this.fieldFilter.Field = '';
@@ -83,13 +85,17 @@ export class UniTickerFieldFilterEditor {
     private onFieldFilterChange(changes: SimpleChanges) {
         if (changes['Path']) {
             let selectedModel =
-                this.entities.find(x => x.Name === this.fieldFilter.Path || x.Name === this.fieldFilter.Path);
+                this.entities.find(x => x.RelationName === this.fieldFilter.Path);
 
-            let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Fields);
             let modelFields = [];
-            modelFieldNames.forEach(x => {
-                modelFields.push(selectedModel.Fields[x]);
-            });
+
+            if (selectedModel && selectedModel.Model.Fields) {
+                let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Model.Fields);
+                modelFieldNames.forEach(x => {
+                    modelFields.push(selectedModel.Model.Fields[x]);
+                });
+            }
+
             this.modelFields = modelFields;
             this.model$.next(this.fieldFilter);
         }
@@ -219,8 +225,8 @@ export class UniTickerFieldFilterEditor {
                     CustomFields: null,
                     Options: {
                         source: this.entities,
-                        displayProperty: 'Name',
-                        valueProperty: 'Name',
+                        displayProperty: 'RelationName',
+                        valueProperty: 'RelationName',
                         debounceTime: 200
                     },
                     Classes: 'field-select'

@@ -44,6 +44,11 @@
                 "Field": "StatusCode"
             }
         ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
         "Actions": [
             {
                 "Name": "Ny faktura",
@@ -57,6 +62,13 @@
                 "Type": "details",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_invoices",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
             },
             {
                 "Name": "Kopier",
@@ -128,6 +140,210 @@
         ]
     },
     {
+        "Name": "Tilbud",
+        "Code": "quote_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "CustomerQuote",
+        "Expand": "Customer.Info",
+        "Columns": [
+            {
+                "Field": "QuoteNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.CustomerNumber",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Field": "QuoteDate"
+            },
+            {
+                "Field": "ValidUntilDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Nytt tilbud",
+                "Code": "new_quote",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Åpne tilbud",
+                "Code": "open_quote",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_quotes",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Overfør til ordre",
+                "Code": "quote_transfer_order",
+                "Type": "transition",
+                "Transition": "toOrder",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Overfør til faktura",
+                "Code": "quote_transfer_invoice",
+                "Type": "transition",
+                "Transition": "toInvoice",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Avslutt",
+                "Code": "quote_transfer_complete",
+                "Type": "transition",
+                "Transition": "complete",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            }
+        ],
+        "SubTickersCodes": [],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_quotes",
+                "Filter": ""
+            },
+            {
+                "Name": "Mine under arbeid",
+                "Code": "my_draft_quotes",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "40001"
+                    },
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
+            }
+        ]
+    },
+    {
+        "Name": "Kunde",
+        "Code": "customer_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "Customer",
+        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress",
+        "Columns": [
+            {
+                "Header": "Kundenr",
+                "Field": "Customer.CustomerNumber",
+                "Type": "text",
+                "Width": "120px"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "Info.DefaultPhone.Number"
+            },
+            {
+                "Header": "Epost",
+                "Field": "Info.DefaultEmail.EmailAddress"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "Info.InvoiceAddress.AddressLine1"
+            },
+            {
+                "Header": "Postnr",
+                "Field": "Info.InvoiceAddress.PostalCode"
+            },
+            {
+                "Header": "Sted",
+                "Field": "Info.InvoiceAddress.City"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Ny kunde",
+                "Code": "new_customer",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Vis kunde",
+                "Code": "open_customer",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_customers",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            }
+        ],
+        "SubTickersCodes": ["invoice_list", "order_list", "quote_list"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_customers",
+                "Filter": ""
+            },
+            {
+                "Name": "Mine kunder",
+                "Code": "my_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
+            }
+        ]
+    },
+    {
         "Name": "Ordre",
         "Type": "Table",
         "Code": "order_list",
@@ -137,24 +353,36 @@
         "Expand": "Customer.Info",
         "Columns": [
             {
-                "Header": "Kundenavn",
+                "Field": "OrderNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.CustomerNumber",
+                "Type": "text"
+            },
+            {
                 "Field": "Customer.Info.Name",
                 "Width": "250px"
             },
             {
-                "Header": "Ordredato",
-                "Field": "OrderDate",
-                "Format": "DatePassed",
-                "Type": "date"
+                "Field": "OrderDate"
             },
             {
-                "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmount",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px",
-                "Type": "money"
+                "Width": "150px"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
             }
         ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
         "Actions": [
             {
                 "Name": "Åpne ordre",
@@ -270,18 +498,29 @@
         },
         "Columns": [
             {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber"
+            },
+            {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name"
             },
             {
                 "Header": "Forfallsdato",
-                "Field": "PaymentDueDate",
-                "Type": "LocalDate"
+                "Field": "PaymentDueDate"
             },
             {
                 "Header": "Adresse",
                 "Field": "InvoiceAddressLine1",
-                "Size": "medium"
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "InvoicePostalCode"
+                    },
+                    {
+                        "Field": "InvoiceCity"
+                    }
+                ]
             },
             {
                 "Header": "Vår referanse",
@@ -289,9 +528,7 @@
             },
             {
                 "Header": "Sum inkl mva",
-                "Field": "TaxInclusiveAmount",
-                "Type": "Money"
-
+                "Field": "TaxInclusiveAmount"
             }
         ]
     }

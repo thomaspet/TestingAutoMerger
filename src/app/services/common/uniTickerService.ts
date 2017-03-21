@@ -9,7 +9,7 @@ import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../../framework/core/authService';
 import {ModelService, ModuleConfig} from './modelService';
 import {ErrorService} from './errorService';
-import {UniEntityCreator} from '../../unientities';
+import * as allModels from '../../unientities';
 
 import * as moment from 'moment';
 
@@ -51,38 +51,137 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
     public loadTickerCache(): Promise<any> {
         return new Promise((resolve, reject) => {
-            if (!this.tickers) {
-                // get statuses from API and add it to the cache
-                this.http.get('assets/tickers/tickers.json')
-                    .map(x => x.json())
-                    .map((tickers: Array<Ticker>) => {
-                        tickers.forEach(ticker => {
-                            if (!ticker.Filters || ticker.Filters.length === 0) {
-                                let filter = new TickerFilter();
-                                filter.Name = 'Egendefinert';
-                                filter.Code = ticker.Model + 'CustomSearch';
-                                filter.FilterGroups = [];
-                                filter.IsActive = false;
+            this.modelService.loadModelCache().then(() => {
+                if (!this.tickers) {
+                    // get statuses from API and add it to the cache
+                    this.http.get('assets/tickers/tickers.json')
+                        .map(x => x.json())
+                        .map((tickers: Array<Ticker>) => {
+                            tickers.forEach(ticker => {
+                                if (!ticker.Filters || ticker.Filters.length === 0) {
+                                    let filter = new TickerFilter();
+                                    filter.Name = 'Egendefinert';
+                                    filter.Code = ticker.Model + 'CustomSearch';
+                                    filter.FilterGroups = [];
+                                    filter.IsActive = false;
 
-                                if (!ticker.Filters) {
-                                    ticker.Filters = [];
+                                    if (!ticker.Filters) {
+                                        ticker.Filters = [];
+                                    }
+
+                                    ticker.Filters.push(filter);
+                                }
+                            });
+
+                            return tickers;
+                        })
+                        .map(tickers => {
+                            // fix typings in config, use lowerCase consistently
+                            tickers.forEach(t => {
+                                if (t.Type) {
+                                    t.Type = t.Type.toLowerCase();
                                 }
 
-                                ticker.Filters.push(filter);
-                            }
-                        });
+                                let model = null;
+                                if (t.Model && t.Model !== '') {
+                                    model = this.modelService.getModel(t.Model);
+                                }
 
-                        return tickers;
-                    })
-                    .subscribe(data => {
-                        this.tickers = data;
-                        resolve();
-                    }, err => reject(err)
-                );
-            } else {
-                resolve();
-            }
+                                if (t.Columns) {
+                                    t.Columns.forEach(c => {
+                                        this.setupFieldProperties(c, t, model);
+
+                                        if (c.SubFields) {
+                                            c.SubFields.forEach(sf => {
+                                                this.setupFieldProperties(sf, t, model);
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+
+                            return tickers;
+                        })
+                        .subscribe(data => {
+                            this.tickers = data;
+
+                            resolve();
+                        }, err => reject(err)
+                    );
+                } else {
+                    resolve();
+                }
+            });
         });
+    }
+
+    private setupFieldProperties(c: TickerColumn, t: Ticker, model: any) {
+        if (!c.Header) {
+            // TODO: Get header based on translation
+            c.Header = c.Field;
+        }
+
+        // TODO: tar ikke hensyn til f.eks. Customer.CustomerNumber her - sjekker
+        // bare på hoved nivå.
+        // Må utvide til å også sjekke path og finne modell basert på den
+        let colName = c.Field;
+        let aliasColName = '';
+        let selectableColName = '';
+
+        let modelname = (t.Model ? t.Model : '');
+
+        if (this.isFunction(c.Field)) {
+            // for functions, trust that the user knows what he/she is doing...
+            selectableColName = colName;
+            aliasColName = modelname + colName;
+        } else if (c.Field.indexOf('.') > 0) {
+            // get last part of path, e.g. field.Field = Customer.Info.Name,
+            // gets "Info" and "Name"
+            let lastIndex = c.Field.lastIndexOf('.');
+            let path = c.Field.substring(0, lastIndex);
+            if (path.indexOf('.') > 0) {
+                lastIndex = path.lastIndexOf('.');
+                path = path.substring(lastIndex + 1);
+            }
+
+            colName = c.Field.substring(c.Field.lastIndexOf('.') + 1);
+
+            selectableColName = path + '.' + colName;
+            aliasColName = path + colName;
+        } else {
+            selectableColName = modelname + '.' + colName;
+            aliasColName = modelname + colName;
+        }
+
+        if (c.SumFunction && selectableColName.indexOf(c.SumFunction) === -1) {
+            selectableColName = `${c.SumFunction}(${selectableColName})`;
+        }
+
+        // set the Alias we are using in the query to simplify
+        // getting the data later on
+        c.Alias = aliasColName;
+        c.SelectableFieldName = selectableColName;
+
+        // if not fieldtype is configured for the ticker column, try to find
+        // type based on the model that is retrieved from the API
+        if (model &&  (!c.Type || c.Type === '')) {
+            let modelField = this.modelService.getField(model, colName);
+
+            if (modelField) {
+                if (modelField.Type.toString().indexOf('System.Int32') !== -1) {
+                    c.Type = 'number';
+                } else if (modelField.Type.toString().indexOf('System.Decimal') !== -1) {
+                    c.Type = 'money';
+                } else if (modelField.Type.toString().indexOf('System.DateTime') !== -1
+                            || modelField.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
+                    c.Type = 'date';
+                }
+            }
+        }
+    }
+
+    private isFunction(field: string): boolean {
+        return field.indexOf('(') > -1 && field.indexOf(')') > -1;
     }
 
     public getTickers(): Promise<Ticker[]> {
@@ -97,7 +196,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             this.modelService.loadModelCache()
                 .then(() => {
                     let model = this.modelService.getModel(ticker.Model);
-                    let uniEntityClass: any = UniEntityCreator.getClass(ticker.Model);
+                    let uniEntityClass = allModels[ticker.Model];
+
+                    console.log('uniEntityClass.RelativeUrl: ' + uniEntityClass.RelativeUrl);
 
                     if (action.Type && action.Type.toLowerCase() === 'new') {
                         // get url for new entity, navigate
@@ -130,6 +231,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
                     } else if (action.Type && action.Type.toLowerCase() === 'action') {
                         console.log('actions with Type = "action" are not impelmented yet', action, ticker, selectedRows);
+
+
+
                     } else if (action.Type && action.Type.toLowerCase() === 'transition') {
                         if (!uniEntityClass) {
                             throw Error('Cannot find unientity class for model ' + ticker.Model + ', cannot run transition');
@@ -148,20 +252,29 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         // TBD: should consider some throttling here if a lot of rows are selected - could potentially
                         // start hundreds of requests - errors should probably also be handled better, but it
                         // is probably not optimal to run requests one-by-one either.
+                        let requests = [];
                         selectedRows.forEach(row => {
-                            service.Transition(row['ID'], row, action.Transition)
-                                .subscribe(x => {
-                                   console.log(`Transition ${action.Transition} executed for ID ${row['ID']}`);
-                                },
-                                err => {
-                                    console.log(`Error executing transition ${action.Transition} for ID ${row['ID']}`, err);
-                                    this.errorService.handle(err);
-                                }
-                            );
-                        });
-                    }
+                            requests.push(service.Transition(row['ID'], row, action.Transition));
 
-                    resolve();
+                            if (!row._links.transitions[action.Transition]) {
+                                reject(`Cannot execute transition${action.Transition} for ID ${row['ID']}, transition is not available for this item`);
+                            }
+
+                            console.log(`Transition ${action.Transition} queued for ID ${row['ID']}`);
+                        });
+
+                        Observable
+                            .forkJoin(requests)
+                            .subscribe(response => {
+                                console.log('response forkjoin:', response);
+                                resolve();
+                            },
+                            err => {
+                                reject(`Error executing transition ${action.Transition}`);
+                                this.errorService.handle(err);
+                            }
+                        );
+                    }
             });
         });
     }
@@ -207,31 +320,40 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     public getFieldValue(column: TickerColumn, model: any) {
         let fieldValue: any = this.getFieldValueInternal(column, model);
 
-        if (!fieldValue || fieldValue === '') {
-            return '';
-        }
-
-        if (!column.Type || column.Type === '') {
-            return fieldValue;
+        if (!fieldValue) {
+            fieldValue = '';
         }
 
         let formattedFieldValue = fieldValue;
 
-        switch (column.Type.toLowerCase()) {
-            case 'number':
-                formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
-                break;
-            case 'money':
-                formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
-                break;
-            case 'percent':
-                formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
-                break;
-            case 'date':
-            case 'datetime':
-            case 'localdate':
-                formattedFieldValue = moment(fieldValue).format('DD.MM.YYYY');
-                break;
+        if (fieldValue !== '') {
+            let columnType = column.Type ? column.Type.toLowerCase() : '';
+
+            switch (columnType) {
+                case 'number':
+                    formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
+                    break;
+                case 'money':
+                    formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
+                    break;
+                case 'percent':
+                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
+                    break;
+                case 'date':
+                case 'datetime':
+                case 'localdate':
+                    formattedFieldValue = moment(fieldValue).format('DD.MM.YYYY');
+                    break;
+            }
+        }
+
+        if (column.SubFields && column.SubFields.length > 0) {
+            column.SubFields.forEach(sf => {
+                let subFieldValue = this.getFieldValue(sf, model);
+                if (subFieldValue && subFieldValue !== '') {
+                    formattedFieldValue += ', ' + subFieldValue;
+                }
+            });
         }
 
         return formattedFieldValue;
@@ -275,7 +397,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return '';
     }
 
-    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], useAllCriterias: boolean): string {
+    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], useAllCriterias: boolean, mainModel: string): string {
         let filterString: string = '';
         let isInGroup: boolean = false;
 
@@ -321,12 +443,14 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             filterString += ' and ';
                         }
 
+                        let path = filter.Path && filter.Path !== '' ? filter.Path : mainModel;
+
                         if (filter.Operator === 'contains' || filter.Operator === 'startswith' || filter.Operator === 'endswith') {
                             // Function operator
-                            filterString += (`${filter.Operator}(${filter.Field},'${filterValue}')`);
+                            filterString += (`${filter.Operator}(${path}.${filter.Field},'${filterValue}')`);
                         } else {
                             // Logical operator
-                            filterString += `${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            filterString += `${path}.${filter.Field} ${filter.Operator} '${filterValue}'`;
                         }
 
                         hasAddedFilterForGroup = true;
@@ -336,14 +460,14 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
             // close last group if we are in a group
             if (isInGroup) {
-                filterString += ')';
+                filterString += ' )';
                 isInGroup = false;
             }
         }
 
         // close last group if we are in a group
         if (isInGroup) {
-            filterString += ')';
+            filterString += ' )';
             isInGroup = false;
         }
 
@@ -488,12 +612,14 @@ export interface IExpressionFilterValue {
 export class TickerColumn {
     public Header: string;
     public Field: string;
+    public SelectableFieldName: string;
     public Format: string;
     public Width: string;
     public CssClass: string;
     public Type: string;
     public SumFunction: string;
     public Alias: string;
+    public SubFields: Array<TickerColumn>;
 }
 
 export class TickerFilterGroup {

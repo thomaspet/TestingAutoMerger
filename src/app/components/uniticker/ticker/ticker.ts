@@ -27,6 +27,7 @@ export class UniTicker {
     @Input() private expanded: boolean = true;
     @Input() private parentModel: any;
     @Input() private selectedFilter: TickerFilter;
+    @Input() private header: string;
 
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild(UniTable) unitable: UniTable;
@@ -113,7 +114,8 @@ export class UniTicker {
                     this.uniTickerService.getFilterString(
                         this.selectedFilter.FilterGroups,
                         this.expressionFilters,
-                        this.selectedFilter.UseAllCriterias
+                        this.selectedFilter.UseAllCriterias,
+                        this.ticker.Model
                     );
             }
 
@@ -123,7 +125,7 @@ export class UniTicker {
         // if the ticker has a parent filter (i.e. it is running in the context of another ticker),
         // add the extra filter to the query before executing. This could e.g. be adding a
         // invoiceid when showing a list of invoiceitems
-        if (this.ticker.ParentFilter) {
+        if (this.ticker.ParentFilter && this.parentModel) {
             let currentFilter = params.get('filter');
 
             let parentFilter =
@@ -179,34 +181,30 @@ export class UniTicker {
         if (this.ticker) {
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
-            this.setupTableConfig();
-
-            let tickerType = this.ticker.Type.toLowerCase();
-            if (tickerType === 'table') {
-                // let uni-table get its own data
-            } else {
-                // get detaildata using the same lookupfunction as uni-table, but no point in
-                // retrieving more than one row
-                this.lookupFunction(new URLSearchParams('top=1'))
-                    .map(data => data.json())
-                    .map(data => data.Data ? data.Data : [])
-                    .subscribe(data => {
-                        if (data && data.length > 0) {
-                            this.model = data[0];
-                        } else {
-                            this.model = null;
-                        }
-                    });
-            }
+            this.setupTableConfig().then(() => {
+                let tickerType = this.ticker.Type.toLowerCase();
+                if (tickerType === 'table') {
+                    // let uni-table get its own data
+                } else {
+                    // get detaildata using the same lookupfunction as uni-table, but no point in
+                    // retrieving more than one row
+                    this.lookupFunction(new URLSearchParams('top=1'))
+                        .map(data => data.json())
+                        .map(data => data.Data ? data.Data : [])
+                        .subscribe(data => {
+                            if (data && data.length > 0) {
+                                this.model = data[0];
+                            } else {
+                                this.model = null;
+                            }
+                        });
+                }
+            });
         }
     }
 
     private letUniTableHandleIsOwnClicks() {
         event.stopPropagation();
-    }
-
-    private onDataLoaded(event) {
-
     }
 
     private onRowSelected(rowSelectEvent) {
@@ -220,9 +218,18 @@ export class UniTicker {
             selectedRows = this.unitable.getSelectedRows();
         }
 
-        let allowMultipleRows = action.ExecuteWithMultipleSelections ? true : false;
+        if (!action.Type) {
+            throw Error(`No Type defined for action ${action.Name}`);
+        }
 
-        if (!action.ExecuteWithoutSelection && selectedRows.length === 0 && !this.selectedRow) {
+        let actionType = action.Type.toLowerCase();
+
+        let allowMultipleRows =
+            action.ExecuteWithMultipleSelections !== undefined ? action.ExecuteWithMultipleSelections : false;
+        let allowNoRows =
+            action.ExecuteWithoutSelection !== undefined ?  action.ExecuteWithoutSelection : false;
+
+        if (!allowNoRows && selectedRows.length === 0 && !this.selectedRow) {
             alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
             return;
         }
@@ -238,33 +245,33 @@ export class UniTicker {
             }
         }
 
-        this.uniTickerService
-            .executeAction(
-                action,
-                this.ticker,
-                selectedRows && selectedRows.length > 0 ? selectedRows : [this.selectedRow]
-            ).then(() => {
-                if (action.Type
-                    && (action.Type.toLowerCase() === 'transition' || action.Type.toLowerCase() === 'action')) {
-                    this.toastService.addToast(
-                        `Ferdig med å kjøre oppgaven ${action.Name}`,
-                        ToastType.good,
-                        ToastTime.short,
-                        '');
+        if (actionType === 'export') {
+            this.exportToExcel(() => {});
+        } else {
+            this.uniTickerService
+                .executeAction(
+                    action,
+                    this.ticker,
+                    selectedRows && selectedRows.length > 0 ? selectedRows : [this.selectedRow]
+                ).then(() => {
+                    if (action.Type
+                        && (action.Type.toLowerCase() === 'transition' || action.Type.toLowerCase() === 'action')) {
+                        this.toastService.addToast(
+                            `Ferdig med å kjøre oppgaven ${action.Name}`,
+                            ToastType.good,
+                            ToastTime.short,
+                            '');
 
-                    // refresh table data after actions/transitions are executed
-                    if (this.unitable) {
-                        this.unitable.refreshTableData();
+                        // refresh table data after actions/transitions are executed
+                        if (this.unitable) {
+                            this.unitable.refreshTableData();
+                        }
                     }
-                }
-            })
-            .catch((err) => {
-                this.errorService.handle(err);
-            });
-    }
-
-    private isFunction(field: string): boolean {
-        return field.indexOf('(') > -1 && field.indexOf(')') > -1;
+                })
+                .catch((err) => {
+                    this.errorService.handle(err);
+                });
+        }
     }
 
     private statusCodeToText(statusCode: number): string {
@@ -278,7 +285,8 @@ export class UniTicker {
                 return this.uniTickerService.getFilterString(
                     this.selectedFilter.FilterGroups,
                     [],
-                    this.selectedFilter.UseAllCriterias
+                    this.selectedFilter.UseAllCriterias,
+                    this.ticker.Model
                 );
             } else if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
                 return this.selectedFilter.Filter;
@@ -288,8 +296,8 @@ export class UniTicker {
         return '';
     }
 
-    private setupTableConfig() {
-        this.modelService
+    private setupTableConfig(): Promise<any> {
+        return this.modelService
             .loadModelCache()
             .then(() => {
                 let model = this.modelService.getModel(this.ticker.Model);
@@ -299,13 +307,15 @@ export class UniTicker {
                     this.ticker.Columns = [];
                     this.ticker.Columns.push({
                         Field: 'ID',
+                        SelectableFieldName: 'ID',
                         Alias: 'ID',
                         Header: 'ID',
                         CssClass: null,
                         Format: null,
                         SumFunction: null,
                         Type: 'number',
-                        Width: null
+                        Width: null,
+                        SubFields: null
                     });
                 }
 
@@ -315,60 +325,6 @@ export class UniTicker {
 
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     let field = this.ticker.Columns[i];
-
-                    let colName = field.Field;
-                    let aliasColName = '';
-                    let selectableColName = '';
-
-                    let modelname = (this.ticker.Model ? this.ticker.Model : '');
-
-                    if (this.isFunction(field.Field)) {
-                        // for functions, trust that the user knows what he/she is doing...
-                        selectableColName = colName;
-                        aliasColName = modelname + colName;
-                    } else if (field.Field.indexOf('.') > 0) {
-                        // get last part of path, e.g. field.Field = Customer.Info.Name, gets "Info" and "Name"
-                        let lastIndex = field.Field.lastIndexOf('.');
-                        let path = field.Field.substring(0, lastIndex);
-                        if (path.indexOf('.') > 0) {
-                            lastIndex = path.lastIndexOf('.');
-                            path = path.substring(lastIndex + 1);
-                        }
-
-                        colName = field.Field.substring(field.Field.lastIndexOf('.') + 1);
-
-                        selectableColName = path + '.' + colName;
-                        aliasColName = path + colName;
-                    } else {
-                        selectableColName = modelname + '.' + colName;
-                        aliasColName = modelname + colName;
-                    }
-
-                    if (field.SumFunction && selectableColName.indexOf(field.SumFunction) === -1) {
-                        selectableColName = `${field.SumFunction}(${selectableColName})`;
-                    }
-
-                    // set the Alias we are using in the query to simplify getting the data later on
-                    field.Alias = aliasColName;
-
-                    // if not fieldtype is configured for the ticker column, try to find type based on the model
-                    // that is retrieved from the API
-                    if (model &&  (!field.Type || field.Type === '')) {
-                        // TODO: tar ikke hensyn til f.eks. Customer.CustomerNumber her - sjekker bare på hoved nivå.
-                        // Må utvide til å også sjekke path og finne modell basert på den
-                        let modelField = this.modelService.getField(model, colName);
-
-                        if (modelField) {
-                            if (modelField.Type.toString().indexOf('System.Int32') !== -1) {
-                                field.Type = 'number';
-                            } else if (modelField.Type.toString().indexOf('System.Decimal') !== -1) {
-                                field.Type = 'money';
-                            } else if (modelField.Type.toString().indexOf('System.DateTime') !== -1
-                                        || modelField.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
-                                field.Type = 'date';
-                            }
-                        }
-                    }
 
                     let colType = UniTableColumnType.Text;
 
@@ -391,46 +347,56 @@ export class UniTicker {
                         }
                     }
 
-                    let col = new UniTableColumn(selectableColName, field.Header, colType);
-                    col.alias = aliasColName;
+                    let col = new UniTableColumn(field.SelectableFieldName, field.Header, colType);
+                    col.alias = field.Alias;
                     col.width = field.Width;
                     col.sumFunction = field.SumFunction;
 
-                    if (selectableColName.toLowerCase().endsWith('statuscode')) {
-                        col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
+                    if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                        col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
                     }
 
                     if (field.Type && field.Type.toLowerCase() === 'external-link') {
                         col.setTemplate(row => `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`);
                     }
 
+                    if (field.SubFields && field.SubFields.length > 0) {
+                        col.setTemplate(row => {
+                            // use the tickerservice to get and format value and subfield values
+                            return this.uniTickerService.getFieldValue(field, row);
+                        });
+                    }
+
                     if (field.Format && field.Format !== '') {
                         // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative", etc
                         switch (field.Format) {
                             case 'NumberPositiveNegative':
-                                col.setConditionalCls(model => model[aliasColName] >= 0 ?
+                                col.setConditionalCls(row => row[field.Alias] >= 0 ?
                                     'number-good'
                                     : 'number-bad'
                                 );
                                 break;
                             case 'DatePassed':
-                                col.setConditionalCls(model =>
-                                    moment(model[aliasColName]).isBefore(moment()) ?
+                                col.setConditionalCls(row =>
+                                    moment(row[field.Alias]).isBefore(moment()) ?
                                         'date-bad'
                                         : 'date-good'
                                 );
                                 break;
                             case 'json':
-                                col.setTemplate(model => JSON.stringify(model));
+                                col.setTemplate(row => JSON.stringify(row));
                                 break;
                         }
                     }
 
-
-
                     columns.push(col);
+                    selects.push(field.SelectableFieldName + ' as ' + field.Alias);
 
-                    selects.push(selectableColName + ' as ' + aliasColName);
+                    if (field.SubFields) {
+                        field.SubFields.forEach(subField => {
+                            selects.push(subField.SelectableFieldName + ' as ' + subField.Alias);
+                        });
+                    }
                 }
 
                 // if any subtickers exists, and any of them need info from the parent (i.e. this component),
@@ -480,7 +446,26 @@ export class UniTicker {
                             contextMenuItems.push({
                                 label: action.Name,
                                 action: (rowModel) => {
-                                    this.uniTickerService.executeAction(action, this.ticker, [rowModel]);
+                                    this.uniTickerService
+                                        .executeAction(action, this.ticker, [rowModel])
+                                        .then(() => {
+                                            if (action.Type
+                                                && (action.Type.toLowerCase() === 'transition' || action.Type.toLowerCase() === 'action')) {
+                                                this.toastService.addToast(
+                                                    `Ferdig med å kjøre oppgaven ${action.Name}`,
+                                                    ToastType.good,
+                                                    ToastTime.short,
+                                                    '');
+
+                                                // refresh table data after actions/transitions are executed
+                                                if (this.unitable) {
+                                                    this.unitable.refreshTableData();
+                                                }
+                                            }
+                                        })
+                                        .catch((err) => {
+                                            this.errorService.handle(err);
+                                        });
                                 },
                                 disabled: (rowModel) => {
                                     if (action.Type.toLocaleLowerCase() === 'transition') {
