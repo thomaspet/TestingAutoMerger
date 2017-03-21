@@ -7,7 +7,15 @@ UniIndexPlugin.prototype.apply = function(compiler) {
 
     let indexHtml = compilation.assets['index.html']
     if (indexHtml) {
-        indexHtml = indexHtml.source().toString().replace('<raygunApiKeyCode>', getRaygunCode())
+        // Setup raygun stuff
+        indexHtml = indexHtml.source().toString().replace('<raygunApiKeyCode>', getRaygunCode());
+
+        // Add git revision
+        indexHtml = indexHtml.replace('<gitRevision>', `
+            <script type='text/javascript'>
+                var APP_VERSION = '${getGitRevision()}';
+            </script>
+        `);
 
         compilation.assets['index.html'] = {
             source: function() {
