@@ -7,7 +7,7 @@ import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../../framework/core/authService';
-import {ModelService, ModuleConfig} from './modelService';
+import {ApiModelService, ModuleConfig} from './apiModelService';
 import {ErrorService} from './errorService';
 import * as allModels from '../../unientities';
 
@@ -28,7 +28,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         private storageService: BrowserStorageService,
         private authService: AuthService,
         private router: Router,
-        private modelService: ModelService,
+        private modelService: ApiModelService,
         private errorService: ErrorService) {
         /* KE: We dont have a backend endpoint yet - consider this later
                when we have stabilized the JSON structure for tickers

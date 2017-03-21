@@ -9,7 +9,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
 import {routes as TranslationRoutes} from './routes';
 
 import {TranslationService, LanguageService, TranslatableService} from './services';
@@ -58,7 +57,6 @@ import reducer from './reducers';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
 
         // Route module
         TranslationRoutes
@@ -81,5 +79,5 @@ import reducer from './reducers';
     ]
 })
 export class TranslationsModule {
-    
+
 }

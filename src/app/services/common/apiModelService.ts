@@ -6,7 +6,7 @@ import {AuthService} from '../../../framework/core/authService';
 import {ErrorService} from './errorService';
 
 @Injectable()
-export class ModelService {
+export class ApiModelService {
     private models: Array<any>;
     private modules: Array<ModuleConfig>;
 

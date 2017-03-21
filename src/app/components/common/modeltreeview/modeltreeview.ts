@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnChanges, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {StatisticsService, ErrorService} from '../../../services/services';
-import {ModelService, ModuleConfig} from '../../../services/common/modelService';
+import {ApiModelService, ModuleConfig} from '../../../services/common/apiModelService';
 import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
 
 declare const _; // lodash
@@ -28,7 +28,7 @@ export class ModelTreeView implements OnChanges {
 
     constructor(
         private statisticsService: StatisticsService,
-        private modelService: ModelService,
+        private modelService: ApiModelService,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef) {
 

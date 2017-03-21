@@ -9,7 +9,7 @@ import {StatisticsService, StatusService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {ErrorService, UniTickerService, ModelService} from '../../../services/services';
+import {ErrorService, UniTickerService, ApiModelService} from '../../../services/services';
 import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
@@ -53,7 +53,7 @@ export class UniTicker {
         private statusService: StatusService,
         private errorService: ErrorService,
         private uniTickerService: UniTickerService,
-        private modelService: ModelService,
+        private modelService: ApiModelService,
         private http: Http) {
         let token = this.authService.getTokenDecoded();
         if (token) {

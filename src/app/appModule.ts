@@ -42,6 +42,8 @@ import {ReportServicesModule} from './services/reportServicesModule';
 import {SalaryServicesModule} from './services/salaryServicesModule';
 import {TimeTrackingServicesModule} from './services/timetrackingServicesModule';
 import {SalesServicesModule} from './services/salesServicesModule';
+import {AdminServicesModule} from './services/adminServicesModule';
+
 import {CanDeactivateGuard} from './canDeactivateGuard';
 
 // Set moment locale
@@ -68,6 +70,7 @@ if (window.ENV === 'production') {
         SalaryServicesModule.forRoot(),
         SalesServicesModule.forRoot(),
         TimeTrackingServicesModule.forRoot(),
+        AdminServicesModule.forRoot(),
 
         // routes
         APP_ROUTES,
