@@ -226,9 +226,9 @@ export class UniHttp {
         this.body = undefined;
 
         if (searchParams) {
-            options.search = searchParams;
+            options.params = searchParams;
         } else if (request) {
-            options.search = UniHttp.buildUrlParams(request);
+            options.params = UniHttp.buildUrlParams(request);
         }
 
         return this.http.request(new Request(options)).catch((err) => {
