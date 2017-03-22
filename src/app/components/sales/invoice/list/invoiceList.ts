@@ -18,7 +18,8 @@ import {
     ReportDefinitionService,
     NumberFormat,
     ErrorService,
-    CompanySettingsService
+    CompanySettingsService,
+    ReportService
 } from '../../../../services/services';
 
 @Component({
@@ -54,7 +55,8 @@ export class InvoiceList implements OnInit {
         private toastService: ToastService,
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private reportService: ReportService
     ) { }
 
     public ngOnInit() {
@@ -321,7 +323,7 @@ export class InvoiceList implements OnInit {
 
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                     this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                        this.reportService.generateReportSendEmail('Faktura id', email);
                     });
                 }
             }

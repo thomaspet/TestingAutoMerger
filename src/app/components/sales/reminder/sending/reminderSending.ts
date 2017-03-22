@@ -14,7 +14,8 @@ import {
     ErrorService,
     ReportDefinitionService,
     CustomerInvoiceReminderService,
-    NumberFormat
+    NumberFormat,
+    ReportService
 } from '../../../../services/services';
 
 declare const moment;
@@ -76,7 +77,8 @@ export class ReminderSending implements OnInit {
         private statisticsService: StatisticsService,
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
-        private numberFormat: NumberFormat
+        private numberFormat: NumberFormat,
+        private reportService: ReportService
     ) {
     }
 
@@ -254,7 +256,7 @@ export class ReminderSending implements OnInit {
                 email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
 
                 let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
-                this.reportDefinitionService.generateReportSendEmail('Purring', email, parameters);
+                this.reportService.generateReportSendEmail('Purring', email, parameters);
             });
         });
     }

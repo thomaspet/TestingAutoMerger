@@ -4,7 +4,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMe
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
-import {CustomerQuoteService, ReportDefinitionService, ErrorService, CompanySettingsService} from '../../../../services/services';
+import {CustomerQuoteService, ReportDefinitionService, ErrorService, CompanySettingsService, ReportService} from '../../../../services/services';
 import {CustomerQuote, StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -49,7 +49,8 @@ export class QuoteList {
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private reportService: ReportService
     ) {}
 
     public ngOnInit() {
@@ -207,7 +208,7 @@ export class QuoteList {
 
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                     this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                        this.reportService.generateReportSendEmail('Tilbud id', email);
                     }, err => this.errorService.handle(err));
                 }
             }

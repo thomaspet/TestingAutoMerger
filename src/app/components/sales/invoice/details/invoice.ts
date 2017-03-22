@@ -38,7 +38,8 @@ import {
     EHFService,
     CustomerInvoiceReminderService,
     CurrencyCodeService,
-    CurrencyService
+    CurrencyService,
+    ReportService
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare const _;
@@ -117,7 +118,8 @@ export class InvoiceDetails {
         private ehfService: EHFService,
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService
+        private currencyService: CurrencyService,
+        private reportService: ReportService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -266,7 +268,7 @@ export class InvoiceDetails {
 
         if (this.sendEmailModal.Changed.observers.length === 0) {
             this.sendEmailModal.Changed.subscribe((email) => {
-                this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                this.reportService.generateReportSendEmail('Faktura id', email);
             });
         }
     }

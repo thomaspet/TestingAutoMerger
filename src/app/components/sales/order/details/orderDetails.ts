@@ -42,7 +42,8 @@ import {
     AddressService,
     ReportDefinitionService,
     CurrencyCodeService,
-    CurrencyService
+    CurrencyService,
+    ReportService
 } from '../../../../services/services';
 declare var _;
 
@@ -119,7 +120,8 @@ export class OrderDetails {
         private tradeItemHelper: TradeItemHelper,
         private errorService: ErrorService,
         private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService
+        private currencyService: CurrencyService,
+        private reportService: ReportService
     ) {}
 
     public ngOnInit() {
@@ -144,7 +146,7 @@ export class OrderDetails {
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
                         this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                            this.reportService.generateReportSendEmail('Ordre id', email);
                         });
                     }
                 },
