@@ -14,14 +14,13 @@ module.exports = function(options) {
                 poll: 1000
             }
         },
-
         plugins: [
             new DefinePlugin({
                 'ENV': JSON.stringify('develop'),
                 'process.env': {
                     'ENV': JSON.stringify('develop'),
                 }
-            }),
+            })
         ]
     });
 }
