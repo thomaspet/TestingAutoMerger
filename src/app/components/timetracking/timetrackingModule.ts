@@ -13,7 +13,7 @@ import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
 import {TimeEntry} from './timeentry/timeentry';
-import {RegtimeTools} from './timeentry/tools/tools';
+import {TimeTableReport} from './timeentry/timetable/timetable';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
 import {Editable} from './utils/editable/editable';
@@ -32,6 +32,8 @@ import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WorkEditor} from './utils/workeditor';
+import {DayBrowser} from './utils/daybrowser';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -53,7 +55,7 @@ import {WorkEditor} from './utils/workeditor';
         GenericDetailview,
         GenericListView,
         TimeEntry,
-        RegtimeTools,
+        TimeTableReport,
         RegtimeTotals,
         RegtimeBalance,
         Editable,
@@ -69,7 +71,8 @@ import {WorkEditor} from './utils/workeditor';
         WorktypeListview,
         VacationView,
         WorkBalancesView,
-        WorkEditor
+        WorkEditor,
+        DayBrowser
     ],
     providers: [
         Lookupservice,
@@ -80,7 +83,7 @@ import {WorkEditor} from './utils/workeditor';
         GenericDetailview,
         GenericListView,
         TimeEntry,
-        RegtimeTools,
+        TimeTableReport,
         RegtimeTotals,
         Editable,
         IsoTimePipe,

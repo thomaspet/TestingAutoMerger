@@ -1,0 +1,67 @@
+.daybrowser
+    width: 100%    
+    margin-bottom: pxToRem(7)
+    border-bottom: pxToRem(1) solid $uni-color-scale8    
+    text-align: center
+
+    header
+        font-size: 14pt
+
+.daybrowser table
+    margin: 0
+    padding: 0
+    border-collapse: collapse
+    margin-left: auto
+    margin-right: auto
+
+    table td
+        color: $uni-color-scale8
+        @extend %clickable
+        text-align: center
+        white-space: nowrap
+        padding: pxToRem(5) pxToRem(15) pxToRem(5) pxToRem(15)
+        margin: 0
+        overflow: hidden
+
+        &.is-active
+            color: $uni-color-c2a
+
+        &:hover,
+            color: $navbarTextColor
+            background: darken(mix($uni-color-scale7, $navbarBackground, 60%), 15%)
+            
+
+    span.small
+       display: block
+       font-size: 9pt
+
+    span.big
+       font-size: 17pt      
+
+.arrow-right, .arrow-left
+    position: absolute
+    top: pxToRem(35)
+    width: 0
+    height: 0
+    border-left: 10px solid transparent
+    border-right: 10px solid transparent
+    border-bottom: 10px solid $uni-color-c2a
+
+.arrow-right
+    left: pxToRem(4)
+    transform: rotate(90deg)
+    float: right    
+
+.arrow-left
+    right: pxToRem(4)
+    transform: rotate(270deg)
+    float: left
+
+td.arrow
+    @extend %clickable
+    width: pxToRem(35)
+    height: 1em
+    position: relative
+
+    &:hover
+        background: $uni-color-scale8 !important

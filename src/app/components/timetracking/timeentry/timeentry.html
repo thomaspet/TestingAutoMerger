@@ -18,7 +18,7 @@
     <section class="regtime_tabs">
 
         <section [hidden]="!tabs[1].isSelected">
-            <regtimetools></regtimetools>
+            <timetracking-timetable></timetracking-timetable>
         </section>
 
         <section [hidden]="!tabs[2].isSelected">
@@ -29,94 +29,18 @@
             <regtimebalance [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
         </section>
 
-
         <section [hidden]="!tabs[4].isSelected">
             <vacation *ngIf="tabs[4].activated" (saved)="onVacationSaved()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
         </section>
 
-        <!--
-        
-        <section [hidden]="!tabs[3].isSelected">
-            <h2>Arbeidsgivere</h2>
-        </section>
-
-
-        <section [hidden]="!tabs[5].isSelected">
-            <h2>Fravær</h2>
-        </section>
-        -->
-
         <section [hidden]="!tabs[0].isSelected">
 
-            <aside class="regtime_filters no-print">
+            <daybrowser (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
+                (navigate)="onNavigateDays($event)"
+            ></daybrowser>
 
-                <footer>
-                    <table class='timeentry_toolbar'><tr>
-                    <td>
-                        <button class="good" (click)="onAddNew()">Ny timeføring</button>
-                        <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
-                        <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
-                    </td>                    
-                    <td>
-                        <span [hidden]="!filters[0].isSelected" *ngIf="currentBalance && currentBalance.LastDayExpected">
-                            Forventet i dag: {{currentBalance.LastDayExpected | min2hours}}
-                        </span>
-                    </td>
-                    <td [hidden]="!(timeSheet && timeSheet.totals.Minutes)">                        
-                        Totalsum: {{timeSheet.totals.Minutes | min2hours}}
-                    </td>
-                    </tr></table>
-                </footer>
-
-                <ul>
-                    <li *ngFor="let filter of filters">
-                        <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
-                    </li>
-                </ul>
-
-            </aside>
-
-            <!--<article [attr.aria-busy]="busy" >
-
-                <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
-
-                <table class='timeentriesTable' editable [config]="tableConfig" >
-                    <thead>
-                        <tr>
-                            <th class='s2'>Dato</th>
-                            <th class='s1'>Start</th>
-                            <th class='s1'>Slutt</th>
-                            <th class='s3'>Timeart</th>
-                            <th class='s1'>Lunsj</th>
-                            <th class='s1'>Timer</th>
-                            <th class='s4'>Beskrivelse</th>
-                            <th class='s3'>Prosjekt</th>
-                            <th class='s3'>Ordrenr.</th>
-                            <th class='s1'> </th>
-                        </tr>
-                    </thead>
-                    <tbody *ngIf="timeSheet.currentRelation">
-                        <tr *ngFor="let item of timeSheet.items; let i=index" [class.alternateRow]="item._alternate">
-                            <td>{{item.Date | isotime:'DD.MM.YYYY'}}</td>
-                            <td>{{item.StartTime | isotime:'HH:mm'}}</td>
-                            <td>{{item.EndTime | isotime:'HH:mm'}}</td>
-                            <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
-                            <td>{{item.LunchInMinutes}}</td>
-                            <td>{{item.Minutes | min2hours:'decimal0'}}</td>
-                            <td>{{item.Description}}</td>
-                            <td>{{item.Dimensions ? (item.Dimensions.Project ? (item.Dimensions.Project.ProjectNumber + ' - ' + item.Dimensions.Project.Name) : item.Dimensions.ProjectID) : ''}}</td>
-                            <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
-                            <td class='timeSheet_actions'><button (click)="onRowActionClicked(i, item)"></button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
-
-            <hr/>-->
-
-            <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="flagUnsavedChanged()"
-                (valueChanged)="flagUnsavedChanged()" >
-
+            <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="flagUnsavedChanged(false, true)"
+                (valueChanged)="flagUnsavedChanged(false, true)" >
             </workeditor>
 
         </section>

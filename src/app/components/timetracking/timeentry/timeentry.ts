@@ -2,20 +2,21 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
-import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
+import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
+import {exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
+import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
-import {RegtimeTools} from './tools/tools';
+import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {WorkEditor} from '../utils/workeditor';
+import {DayBrowser, Day, ITimeSpan, INavDirection} from '../utils/daybrowser';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
@@ -44,10 +45,11 @@ export class TimeEntry {
     public incomingBalance: WorkBalance;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
-    @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
+    @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
+    @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
 
     private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
@@ -138,7 +140,6 @@ export class TimeEntry {
 
     public onAddNew() {
         this.workEditor.editRow(this.timeSheet.items.length - 1);
-        // this.editable.editRow(this.timeSheet.items.length - 1);
     }
 
     public reset() {
@@ -208,12 +209,21 @@ export class TimeEntry {
         };
     }
 
-    private loadItems() {
+    private loadItems(date?: Date) {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
-            this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
+            var obs: any;
+            var dt: Date;
+            if (!!date) { 
+                obs = this.timeSheet.loadItemsByPeriod(date, date); 
+                dt = date;
+            } else {
+                obs = this.timeSheet.loadItems(this.currentFilter.interval);
+                dt = this.timesheetService.workerService.getIntervalDate(this.currentFilter.interval);
+            }
+            obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
-                // this.timeSheet.ensureRowCount(itemCount + 1);
-                this.flagUnsavedChanged(true);
+                this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
+                this.flagUnsavedChanged(true, false);
                 this.busy = false;
             }, err => this.errorService.handle(err));
         } else {
@@ -256,7 +266,7 @@ export class TimeEntry {
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
-                this.loadItems();
+                this.loadItems(this.dayBrowser.current.date);
                 this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
             });
@@ -289,27 +299,46 @@ export class TimeEntry {
         done('Fil eksportert');
     }
 
-    private flagUnsavedChanged(reset = false) {
+    private flagUnsavedChanged(reset = false, updateCounter: boolean = false) {
         this.actions[0].disabled = reset;
+        if (updateCounter) {
+            this.dayBrowser.setDayCounter( this.dayBrowser.current.date, this.timeSheet.totals.Minutes);
+        }
+    }
+
+    public onClickDay(event: Day) {
+        this.checkSave().then( x => {
+            this.busy = true;
+            this.loadItems(event.date);
+            event.selected = true;
+        });
+    }
+
+    public onRequestDaySums(interval: ITimeSpan) {
+        var wid = this.timeSheet.currentRelation.ID;
+        var d1 = moment(interval.fromDate).format('YYYY-MM-DD');
+        var d2 = moment(interval.toDate).format('YYYY-MM-DD');
+        if (!wid) {
+            return; // Nothing to do here yet..
+        }
+        var query = `model=workitem&select=sum(minutes),WorkType.SystemType,Date&filter=workrelationid eq ${wid}`
+            + ` and ( not setornull(deleted) ) and ( date ge '${d1}' and date le '${d2}' )`
+            + `&join=workitem.worktypeid eq worktype.id&pivot=true`;
+        this.timesheetService.workerService.getStatistics(query).subscribe( (result: any) => {
+            if (result && result.Data) {
+                this.dayBrowser.setDaySums(result.Data, 'WorkItemDate', '1', '12');
+            }
+        });
+    }
+
+    public onNavigateDays(direction: INavDirection) {
+        var dt = moment(direction.currentDate);
+        this.busy = true;
+        this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
     }
 
     private hasUnsavedChanges(): boolean {
         return !this.actions[0].disabled;
-    }
-
-    private getDefaultDate(): Date {
-        switch (this.currentFilter.interval) {
-
-            case ItemInterval.yesterday:
-                var dt = moment(new Date());
-                return dt.subtract( (dt.isoWeekday() === 1) ? 3 : 1, 'days').toDate();
-
-            case ItemInterval.today:
-                return moment(new Date()).toDate();
-
-            default:
-                return moment(new Date()).toDate();
-        }
     }
 
     private validate(): boolean {
@@ -362,14 +391,6 @@ export class TimeEntry {
         });
     }
 
-
-    private isSameDate(d1: any, d2: any): boolean {
-        if (d1 === d2) { return true; }
-        if ((d1.length && d1.length >= 10) && (d2.length && d2.length >= 10)) {
-            return d1.substr(0, 10) === d2.substr(0, 10);
-        }
-        return false;
-    }
 }
 
 class WorkBalanceDto extends WorkBalance {

@@ -42,11 +42,9 @@ export class ContextMenu {
         this.guid = gs.guid();
     }
 
-    private runAction(action) {
-       if (!action.disabled()) {
-           this.close();
-           action.action();
-       }
+    public runAction(action) {
+        this.close();
+        action.action();
    }
 
     private close() {

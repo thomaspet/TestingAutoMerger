@@ -117,9 +117,10 @@ export class WorkEditor {
                     case 'StartTime':
                         if (rowAbove.Date === newRow.Date && rowAbove.EndTime) {
                             change.value = rowAbove.EndTime;
-                        }
-                    case "Dimensions.ProjectID":
-                    case "Dimensions.DepartmentID":
+                        };
+                        break;
+                    case 'Dimensions.ProjectID':
+                    case 'Dimensions.DepartmentID':
                         let fn = event.field.substr(0, event.field.length - 2);
                         change.lookupValue = getDeepValue(rowAbove, fn) || change.lookupValue; 
                         break;

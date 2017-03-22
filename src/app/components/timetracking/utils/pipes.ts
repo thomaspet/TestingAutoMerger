@@ -30,7 +30,24 @@ export class IsoTimePipe implements PipeTransform {
                 v = value.toString();
             }
         }
-        return moment(v).format(format || 'DD.MM.YYYY');
+        var fmt = !!format ? format.substr(0, 1) : undefined;
+        if (!!format) {
+            switch (fmt) {
+                case 'U':
+                    format = format.substr(1);
+                    break;
+                default:
+                    fmt = undefined;
+            }
+        }
+        var ret = moment(v).format(format || 'DD.MM.YYYY');
+        if (fmt) {
+            switch (fmt) {
+                case 'U':
+                    return ret.toUpperCase();
+            }
+        }
+        return ret;
     }
 }
 
@@ -48,6 +65,8 @@ export class MinutesToHoursPipe implements PipeTransform {
                 return this.decFmt(parsed);
             case 'decimal0':
                 return !!value ? this.decFmt(parsed) : '';
+            case 'decimal-':
+                return !!value ? this.decFmt(parsed) + 't' : '-';
             default:
                 return this.longFmt(parsed);
         }
