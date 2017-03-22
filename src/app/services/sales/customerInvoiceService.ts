@@ -72,6 +72,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .map(response => response.json());
     }
 
+    public setPrintStatus(invoiceId: number, printStatus: string): Observable<any> {
+        return super.PutAction(invoiceId, 'set-customer-invoice-printstatus', 'ID=' + invoiceId + '&printStatus=' + printStatus);
+    }
+
     public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {
         return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount']);
     }

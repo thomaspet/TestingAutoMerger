@@ -19,7 +19,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {GetPrintStatusText} from '../../../../models/printStatus';
+import {GetPrintStatusText, PrintStatus} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
@@ -83,6 +83,8 @@ export class InvoiceDetails {
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
+    private printStatusPrinted: string = '200';
+
 
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
@@ -860,6 +862,14 @@ export class InvoiceDetails {
         });
     }
 
+  private onPrinted(event) {
+      console.log('onPrinted');
+            this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe((printStatus) => {
+                this.invoice.PrintStatus = +this.printStatusPrinted;
+                this.updateToolbar();
+            }, err => this.errorService.handle(err));
+  }
+
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
         if (!this.invoice.StatusCode) {
@@ -899,7 +909,8 @@ export class InvoiceDetails {
     private print(id) {
         this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
             this.previewModal.openWithId(report, id);
-        });
+
+        }, err => this.errorService.handle(err));
     }
 
     private creditInvoice(done) {

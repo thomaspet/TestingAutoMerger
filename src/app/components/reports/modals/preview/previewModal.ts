@@ -1,4 +1,4 @@
-import {Component, ViewChild, Type, Input} from '@angular/core';
+import {Component, ViewChild, Output, EventEmitter, Type, Input} from '@angular/core';
 import {Http} from '@angular/http';
 import {ReportDefinition, CompanySettings, User} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
@@ -32,7 +32,7 @@ export class PreviewModal {
     private modal: UniModal;
     @ViewChild(SendEmailModal)
     private sendEmailModal: SendEmailModal;
-
+    @Output() printed: EventEmitter<any> = new EventEmitter<any>();
     public modalConfig: any = {};
     public type: Type<any> = ReportPreviewModalType;
 
@@ -93,6 +93,7 @@ export class PreviewModal {
                     method: () => {
                         this.modal.getContent().then(() => {
                             this.reportService.generateReportPdf(this.reportDefinition);
+                            this.printed.emit();
                             this.modal.close();
                         });
                     }
@@ -123,5 +124,6 @@ export class PreviewModal {
         this.reportDefinition = report;
         this.reportService.generateReportHtml(report, this.modalConfig);
         this.modal.open();
+
     }
 }
