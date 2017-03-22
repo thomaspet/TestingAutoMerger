@@ -1,0 +1,33 @@
+<uni-toolbar [config]="toolbarConfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="application">
+    <section class="splitview">
+        <nav class="splitview_list">
+            <uni-table *ngIf="roles?.length"
+                        [config]="rolesTableConfig"
+                        [resource]="roles"
+                        (rowSelected)="onRowSelected($event)">
+            </uni-table>
+        </nav>
+
+        <main class="splitview_detail">
+            <uni-form [config]="formConfig$"
+                      [fields]="formFields$"
+                      [model]="formModel$"
+                      (changeEvent)="onFormChange($event)">
+            </uni-form>
+
+            <uni-permission-selector *ngIf="permissions"
+                [permissions]="permissions"
+                (permissionSelected)="onPermissionSelected($event)">
+            </uni-permission-selector>
+
+            <uni-table [config]="permissionsTableConfig"
+                       [resource]="selectedRole?.RolePermissions"
+                       (rowDeleted)="onPermissionDeleted($event)">
+            </uni-table>
+        </main>
+    </section>
+</section>

@@ -60,6 +60,7 @@ export enum UniModules {
     Jobs            = 800,
     Translations    = 801,
     Models          = 802,
+    Roles           = 803,
 
     PaymentList     = 900,
 

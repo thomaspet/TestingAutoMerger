@@ -23,7 +23,8 @@ import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
-
+import {UniRoles} from './roles/roles';
+import {PermissionSelector} from './roles/permissionSelector';
 
 @NgModule({
     imports: [
@@ -56,6 +57,8 @@ import {UniModels} from './models/models';
         JobDetails,
         JobLog,
         UniModels,
+        UniRoles,
+        PermissionSelector
     ],
     exports: [
         UniAdmin,
@@ -63,6 +66,8 @@ import {UniModels} from './models/models';
         JobDetails,
         JobLog,
         UniModels,
+        UniRoles,
+        PermissionSelector
     ]
 })
 export class AdminModule {
