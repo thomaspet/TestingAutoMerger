@@ -171,9 +171,14 @@ export class TransqueryDetails implements OnInit {
             'Description,' +
             'VatType.VatCode,' +
             'Amount,' +
+            'AmountCurrency,' +
+            'CurrencyCode.Code,' +
+            'CurrencyExchangeRate,' +
             'TaxBasisAmount,' +
+            'TaxBasisAmountCurrency,' +
             'VatReportID,' +
             'RestAmount,' +
+            'RestAmountCurrency,' +
             'StatusCode,' +
             'InvoiceNumber,' +
             'DueDate,' +
@@ -190,7 +195,7 @@ export class TransqueryDetails implements OnInit {
             'VatDeductionPercent as VatDeductionPercent,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
         );
-        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod');
+        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
@@ -207,7 +212,7 @@ export class TransqueryDetails implements OnInit {
             urlParams.set('model', 'JournalEntryLine');
             urlParams.set('filter', f);
             urlParams.set('select', 'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,sum(JournalEntryLine.Amount) as SumBalance');
-            urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod');
+            urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
             this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
@@ -436,10 +441,23 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineAmount),
+                new UniTableColumn('AmountCurrency', 'V-beløp', UniTableColumnType.Money)
+                    .setFilterOperator('eq')
+                    .setTemplate(line => line.JournalEntryLineAmountCurrency),
+                new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
+                    .setFilterOperator('contains')
+                    .setTemplate(line => line.CurrencyCodeCode),
+                new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
+                    .setFilterOperator('eq')
+                    .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate),
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
+                new UniTableColumn('TaxBasisAmountCurrency', 'V-Grunnlag MVA', UniTableColumnType.Money)
+                    .setFilterOperator('eq')
+                    .setVisible(showTaxBasisAmount)
+                    .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
                 new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
                     .setTemplate(line => line.VatReportTerminPeriodNo ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear : '')
                     .setFilterable(false)
@@ -456,6 +474,10 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmount)
+                    .setVisible(false),
+                new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
+                    .setFilterOperator('eq')
+                    .setTemplate(line => line.JournalEntryLineRestAmountCurrency)
                     .setVisible(false),
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                     .setFilterable(false)
@@ -528,8 +550,14 @@ export class TransqueryDetails implements OnInit {
                 cssClasses += ' ' + (data.JournalEntryLineAmount >= 0 ? 'number-good' : 'number-bad');
             }
 
+            if (field === 'AmountCurrency') {
+                cssClasses += ' ' + (data.JournalEntryLineAmountCurrency >= 0 ? 'number-good' : 'number-bad');
+            }
             if (field === 'RestAmount') {
                 cssClasses += ' ' + (data.JournalEntryLineRestAmount >= 0 ? 'number-good' : 'number-bad');
+            }
+            if (field === 'RestAmountCurrency') {
+                cssClasses += ' ' + (data.JournalEntryLineRestAmountCurrency >= 0 ? 'number-good' : 'number-bad');
             }
         }
 

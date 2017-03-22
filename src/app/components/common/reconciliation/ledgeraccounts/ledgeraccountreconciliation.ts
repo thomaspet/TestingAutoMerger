@@ -670,25 +670,29 @@ export class LedgerAccountReconciliation {
         );
 
         let columns = [
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
-                new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
-                    .setTemplate(x => x.JournalEntryTypeName),
-                new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
-                new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
-                new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
-                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
-                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
-                new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-                    .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),
-                new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text)
-                    .setWidth('60px')
-                    .setTemplate(x => x.NumberOfPayments > 0 ? `<span title="${x.NumberOfPayments} relaterte betalinger finnes">1</span>` : ''),
-                new UniTableColumn('Markings', 'Markert mot', UniTableColumnType.Text)
-                    .setTemplate(item => {
-                        return this.getMarkingsText(item);
-                    })
-            ];
+            new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
+            new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
+                .setTemplate(x => x.JournalEntryTypeName),
+            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
+            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
+            new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money),
+            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text),
+            new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number),
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
+            new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),
+            new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text)
+                .setWidth('60px')
+                .setTemplate(x => x.NumberOfPayments > 0 ? `<span title="${x.NumberOfPayments} relaterte betalinger finnes">1</span>` : ''),
+            new UniTableColumn('Markings', 'Markert mot', UniTableColumnType.Text)
+                .setTemplate(item => {
+                    return this.getMarkingsText(item);
+                })
+        ];
 
         columns.forEach(x => {
             x.setConditionalCls((model) => {
@@ -710,16 +714,23 @@ export class LedgerAccountReconciliation {
             cssClasses += ' reconciliation-marked-row';
         } else {
             if (model._isLikelyMatch) {
-                cssClasses +=  ' reconciliation-likely-match';
+                cssClasses += ' reconciliation-likely-match';
             }
 
             if (field === 'Amount') {
                 cssClasses += ' ' + (model.Amount >= 0 ? 'number-good' : 'number-bad');
             }
+            if (field === 'AmountCurrency') {
+                cssClasses += ' ' + (model.AmountCurrency >= 0 ? 'number-good' : 'number-bad');
+            }
 
             if (field === 'RestAmount') {
                 cssClasses += ' ' + (model.RestAmount >= 0 ? 'number-good' : 'number-bad');
             }
+            if (field === 'RestAmountCurrency') {
+                cssClasses += ' ' + (model.RestAmountCurrency >= 0 ? 'number-good' : 'number-bad');
+            }
+
         }
 
         return cssClasses.trim();
