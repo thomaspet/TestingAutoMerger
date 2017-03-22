@@ -92,6 +92,7 @@ export class OrderDetails {
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
+    private printStatusPrinted: string = '200';
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
@@ -808,6 +809,13 @@ export class OrderDetails {
             this.previewModal.openWithId(report, id);
         });
     }
+
+    private onPrinted(event) {
+            this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe((printStatus) => {
+                this.order.PrintStatus = +this.printStatusPrinted;
+                this.updateToolbar();
+            }, err => this.errorService.handle(err));
+  }
 
     private deleteOrder(done) {
         this.customerOrderService.Remove(this.order.ID, null).subscribe(

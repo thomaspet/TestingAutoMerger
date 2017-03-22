@@ -59,6 +59,10 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         return super.GetAction(currentID, 'previous');
     }
 
+    public setPrintStatus(quoteId: number, printStatus: string): Observable<any> {
+        return super.PutAction(quoteId, 'set-customer-quote-printstatus', 'ID=' + quoteId + '&printStatus=' + printStatus);
+    }
+
     public newCustomerQuote(): Promise<CustomerQuote> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerQuote.EntityType).subscribe((quote: CustomerQuote) => {

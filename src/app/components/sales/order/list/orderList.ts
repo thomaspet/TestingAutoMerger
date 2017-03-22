@@ -25,6 +25,7 @@ export class OrderList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
+    private printStatusPrinted: string = '200';
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Ordre',
@@ -166,9 +167,10 @@ export class OrderList {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (order: CustomerOrder) => {
-                this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, order.ID);
+                        this.customerOrderService.setPrintStatus(order.ID, this.printStatusPrinted).subscribe((printStatus) => {}, err => this.errorService.handle(err));
                     }
                 }, err => this.errorService.handle(err));
             },

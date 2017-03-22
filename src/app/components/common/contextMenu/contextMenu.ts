@@ -15,18 +15,19 @@ import {GuidService} from '../../../../app/services/services';
         </button>
 
         <ul role="menu"
-            class="contextmenu_menu"
-            [attr.aria-labelledby]="guid + '-btn'"
-            [attr.aria-expanded]="expanded">
-            <li *ngFor="let action of actions"
-                class="contextmenu_item"
-                (click)="runAction(action)"
-                role="menuitem"
-                [attr.aria-disabled]="action.disabled"
-                [title]="action.label">
-                {{action.label}}
-            </li>
-        </ul>
+           class="contextmenu_menu"
+           [attr.aria-labelledby]="guid + '-btn'"
+           [attr.aria-expanded]="expanded">
+           <li *ngFor="let action of actions"
+               class="contextmenu_item"
+               (click)="runAction(action)"
+               role="menuitem"
+               [attr.aria-disabled]="action.disabled()"
+               [title]="action.label"
+               >
+               {{action.label}}
+           </li>
+       </ul>
     </span>
     `
 })
@@ -42,9 +43,11 @@ export class ContextMenu {
     }
 
     private runAction(action) {
-        this.close();
-        action.action();
-    }
+       if (!action.disabled()) {
+           this.close();
+           action.action();
+       }
+   }
 
     private close() {
         this.expanded = false;

@@ -27,6 +27,7 @@ export class QuoteList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
+    private printStatusPrinted: string = '200';
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Tilbud',
@@ -182,9 +183,13 @@ export class QuoteList {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (quote: CustomerQuote) => {
-                this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, quote.ID);
+
+
+
+                        this.customerQuoteService.setPrintStatus(quote.ID, this.printStatusPrinted).subscribe((printStatus) => {}, err => this.errorService.handle(err));
                     }
                 }, err => this.errorService.handle(err));
             },

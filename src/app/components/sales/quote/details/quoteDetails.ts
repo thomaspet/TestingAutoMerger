@@ -65,6 +65,7 @@ export class QuoteDetails {
     private saveActions: IUniSaveAction[] = [];
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
+    private printStatusPrinted: string = '200';
 
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
@@ -273,6 +274,13 @@ export class QuoteDetails {
         this.updateToolbar();
         this.updateSaveActions();
     }
+
+        private onPrinted(event) {
+                    this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe((printStatus) => {
+                        this.quote.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    }, err => this.errorService.handle(err));
+        }
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;

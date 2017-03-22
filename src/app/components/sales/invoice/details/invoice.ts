@@ -208,7 +208,6 @@ export class InvoiceDetails {
     }
 
     private setupContextMenuItems() {
-        // contextMenu
         this.contextMenuItems = [
             {
                 label: 'Skriv ut',
@@ -863,7 +862,6 @@ export class InvoiceDetails {
     }
 
   private onPrinted(event) {
-      console.log('onPrinted');
             this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe((printStatus) => {
                 this.invoice.PrintStatus = +this.printStatusPrinted;
                 this.updateToolbar();

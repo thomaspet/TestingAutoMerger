@@ -37,6 +37,7 @@ export class InvoiceList implements OnInit {
     private summaryConfig: ISummaryConfig[];
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
+    private printStatusPrinted: string = '200';
 
     private filterTabs: any[] = [
         { label: 'Alle' },
@@ -304,6 +305,7 @@ export class InvoiceList implements OnInit {
                 this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, invoice.ID);
+                        this.customerInvoiceService.setPrintStatus(invoice.ID, this.printStatusPrinted).subscribe((printStatus) => {}, err => this.errorService.handle(err));
                     }
                 });
             }
