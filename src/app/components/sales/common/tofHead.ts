@@ -7,7 +7,7 @@ declare var _;
     selector: 'uni-tof-head',
     templateUrl: './tofHead.html'
 })
-export class TofHead extends OnChanges {
+export class TofHead implements OnChanges {
     @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;
 
     @Input() public entityName: string;
