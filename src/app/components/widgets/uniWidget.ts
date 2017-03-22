@@ -2,7 +2,7 @@ import {Directive, ViewContainerRef, Component, Input, ViewChild, ComponentFacto
 
 // Import known widgets. Loading third party stuff needs to be solved
 // for all appfrontend, not just widgets.
-import {Widget1, Widget2, Widget3} from './dashboard/dashboardWidgets';
+import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget } from './widgets/barrel';
 
 
 @Directive({
@@ -29,7 +29,9 @@ export class UniWidget {
     private widgetMap: any = {
         'widget1': Widget1,
         'widget2': Widget2,
-        'widget3': Widget3
+        'widget3': Widget3,
+        'shortcut': UniShortcutWidget,
+        'notification': UniNotificationWidget
     };
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
@@ -46,8 +48,11 @@ export class UniWidget {
         viewContainerRef.clear();
 
         let componentRef = viewContainerRef.createComponent(componentFactory);
+        if (this.config.widgetName === 'shortcut') {
+            (<any>componentRef.instance).config = this.config.tileData;
+        }
         // use base class for widgets instead of <any>
-        (<any> componentRef.instance).dummyWidgetInitFunction();
+        //(<any> componentRef.instance).dummyWidgetInitFunction();
 
     }
 

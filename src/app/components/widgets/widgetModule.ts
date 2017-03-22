@@ -2,8 +2,8 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 import {UniWidgetCanvas} from './widgetCanvas';
-import {UniWidget, WidgetContainer} from './uniWidget';
-import {Widget1, Widget2, Widget3} from './dashboard/dashboardWidgets';
+import { UniWidget, WidgetContainer } from './uniWidget';
+import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget } from './widgets/barrel';
 
 
 @NgModule({
@@ -16,12 +16,16 @@ import {Widget1, Widget2, Widget3} from './dashboard/dashboardWidgets';
         WidgetContainer,
         Widget1,
         Widget2,
-        Widget3
+        Widget3,
+        UniShortcutWidget,
+        UniNotificationWidget
     ],
     entryComponents: [
         Widget1,
         Widget2,
-        Widget3
+        Widget3,
+        UniShortcutWidget,
+        UniNotificationWidget
     ],
     exports: []
 })

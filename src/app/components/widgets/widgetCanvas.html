@@ -10,7 +10,7 @@
     Add widget2
     <button type="button" (click)="addWidget('widget2', 'widget-small')">small</button>
     <button type="button" (click)="addWidget('widget2', 'widget-medium')">medium</button>
-    <button type="button" (click)="addWidget('widget2', 'widget-large')">large</button>
+    <button type="button" (click)="addWidget('shortcut', 'widget-small')">shortcut</button>
 
     <br>
 
@@ -26,5 +26,11 @@
             <uni-widget [class]="widget.size" [config]="widget.config"></uni-widget>
         </template>
     </section>
+
+    <div style="width: 8.3333333333%; height: 100px; margin-top: 20px; margin-left: 400px; position: relative;"> <uni-shortcut [config]="widgetLayout[0].tileData"></uni-shortcut> </div>
+
+    <div style="width: 8.3333333333%; height: 100px; margin-top: 20px; margin-left: calc(8.33% + 420px); position: relative;"> <uni-notification [config]="widgetLayout[1].tileData"></uni-notification> </div>
+
+    <div style="width: 33.3333333333%; height: 340px; margin-top: 20px; margin-left: calc(8.33% + 420px); position: relative;"> <uni-notification [config]="widgetLayout[1].tileData"></uni-notification> </div>
 
 </section>

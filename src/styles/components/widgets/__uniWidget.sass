@@ -8,6 +8,7 @@
         height: 5rem
         display: block
         float: left
+        position: relative
         text-align: center
         margin: .25rem
         border: 1px solid $uni-color-positive
@@ -39,4 +40,116 @@
             display: block
             height: 100%
 
+.uni-widget-tile-content 
+    margin: 0
+    position: absolute
+    top: 0
+    left: 10px
+    right: 10px
+    bottom: 0
+    width: auto
+    z-index: 0 !important
+    overflow-x: hidden
+    overflow-y: hidden
+    color: #fff
+    border-radius: 3px
 
+    h2
+        padding: 0
+        margin: 0
+        position: absolute
+        right: 8%
+        bottom: 40%
+        font-size: 4.6rem
+        font-weight: 500
+
+    p
+        position: absolute
+        bottom: 0
+        left: 5px
+        padding: 0
+        margin: 0
+        cursor: pointer
+        &:hover
+            font-weight: 600
+
+.uni-shortcut-link
+    cursor: pointer
+    position: relative
+    top: 1.3rem
+    color: #fff
+    text-decoration: none
+
+    &:hover
+        color: #fff
+        text-decoration: none
+
+.uni-widget-shortcut-tile
+    text-align: center
+    background-color: #06457a
+    cursor: pointer
+    &:hover
+        background-color: #0a2e52
+    &:active
+        transform: scale(0.97)
+
+.dashboard-shortcut-icon
+    @extend %hideText
+    display: inline-block
+    height: 2.5rem
+    width: 2.5rem
+    background-size: 2.5rem
+    background-position: center center
+    background-repeat: no-repeat
+    position: relative
+    top: .9rem
+    border-bottom-color: transparent
+
+.dashboard-notification-icon
+    @extend %hideText
+    display: inline-block
+    height: 6.5rem
+    width: 6.5rem
+    background-size: 6.5rem
+    background-position: center center
+    background-repeat: no-repeat
+    position: relative
+    top: -1.9rem
+    left: -2rem
+    border-bottom-color: transparent
+
+.dashboard-shortcut-icon-fallback
+    background-image: unicon-plus(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-calender
+    background-image: unicon-calendar(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-home
+    background-image: unicon-home(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-lock
+    background-image: unicon-lock(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-plus
+    background-image: unicon-plus(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-paperclip
+    background-image: unicon-paperclip(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-chat
+    background-image: unicon-chat(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-user
+    background-image: unicon-user(rgba(255,255,255,1))
+
+.dashboard-notification-icon-paperclip
+    background-image: unicon-paperclip(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-globe
+    background-image: unicon-globe(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-search
+    background-image: unicon-search(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-bell
+    background-image: unicon-bell(rgba(255,255,255,.3))
