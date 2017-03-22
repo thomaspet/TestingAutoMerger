@@ -22,7 +22,7 @@ import {GuidService} from '../../../../app/services/services';
                class="contextmenu_item"
                (click)="runAction(action)"
                role="menuitem"
-               [attr.aria-disabled]="action.disabled()"
+               [attr.aria-disabled]="false"
                [title]="action.label"
                >
                {{action.label}}
