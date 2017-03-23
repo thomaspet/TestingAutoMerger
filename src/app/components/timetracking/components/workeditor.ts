@@ -3,7 +3,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unit
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService} from '../../../services/services';
-import {safeDec, filterInput, getDeepValue} from './utils';
+import {safeDec, filterInput, getDeepValue} from '../utils/utils';
 import {Observable} from 'rxjs/Observable';
 import {WorkType, WorkItem} from '../../../unientities';
 import * as moment from 'moment';

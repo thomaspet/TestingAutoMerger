@@ -97,3 +97,67 @@
 
             &.other-month
                 color: $uni-color-scale6
+
+unitable-calendar
+    position: absolute
+    margin-top: 1.68rem
+
+    z-index: map-get($zindex, toolbar)
+    background: $uni-color-negative
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1)
+    display: none
+    border-radius: 3px
+    min-width: 16rem
+
+    &[aria-expanded]:not([aria-expanded=false])
+        display: block
+
+    caption
+        background-color: $uni-color-c2a
+        color: $uni-color-negative
+        height: 2.5rem
+        line-height: 2.5rem
+
+        .prev, .next
+            position: absolute
+            cursor: pointer
+
+            &:before
+                height: 2.5rem
+                width: 2rem
+                display: block
+                content: ''
+                background: unicon-chevron-right($uni-color-negative) center center no-repeat
+                background-size: .3rem
+
+            &:hover
+                &:before
+                    background-size: .4rem
+        .prev
+            left: 1%
+            transform: rotate(180deg)
+
+        .next
+            right: 1%
+
+    th
+        font-weight: 400
+        width: 2.25rem
+        margin: 0
+        padding: 0
+        text-align: center
+
+    td
+        text-align: center
+        height: 2rem
+        line-height: 2rem
+        cursor: pointer
+        text-overflow: visible
+        overflow: visible
+
+        &.selected, &:hover
+            color: $uni-color-c2a
+            font-weight: bold
+
+        &.other-month
+            color: $uni-color-scale6                

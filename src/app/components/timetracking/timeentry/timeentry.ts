@@ -15,8 +15,8 @@ import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-import {WorkEditor} from '../utils/workeditor';
-import {DayBrowser, Day, ITimeSpan, INavDirection} from '../utils/daybrowser';
+import {WorkEditor} from '../components/workeditor';
+import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |

@@ -58,11 +58,11 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     if (!this.tickers) {
                         // get statuses from API and add it to the cache
                         Observable.forkJoin(
-                            this.http.get('assets/tickers/tickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/accountingtickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/demotickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
-                            this.http.get('assets/tickers/toftickers.json').map(x => x.json())
+                            this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/timetickers.json').map(x => x.json())
                         ).map(tickerfiles => {
                             let allTickers: Array<Ticker> = [];
 

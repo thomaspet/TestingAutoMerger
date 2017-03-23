@@ -31,8 +31,8 @@ import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {WorkEditor} from './utils/workeditor';
-import {DayBrowser} from './utils/daybrowser';
+import {WorkEditor} from './components/workeditor';
+import {DayBrowser} from './components/daybrowser';
 
 @NgModule({
     imports: [

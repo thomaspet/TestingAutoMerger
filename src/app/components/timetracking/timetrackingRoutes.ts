@@ -52,19 +52,3 @@ export const timetrackingRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     }
 ];
-
-// const timetrackingRoutes: Routes = [
-//     {
-//         path: 'timetracking',
-//         component: UniTimetracking,
-//         canActivate: [AuthGuard],
-//         children: [{
-//             path: '',
-//             canActivateChild: [AuthGuard],
-//             children: childRoutes
-//         }],
-
-//     }
-// ];
-
-// export const routes: ModuleWithProviders = RouterModule.forChild(timetrackingRoutes);

@@ -241,6 +241,11 @@
             "Name": "JournalEntryLine",
             "Translated": "Bilagslinjer",
             "Url": "/accounting/journalentry/manual;journalEntryID=:journalentryid"
+        },
+        {
+            "Name": "Worker",
+            "Translated": "Timefører",
+            "Url": "/timetracking/workers/:id"
         }
     ]
 }

@@ -1,0 +1,56 @@
+[
+    {
+        "Name": "Timefører",
+        "Code": "worker_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Time",
+        "Model": "Worker",
+        "Expand": "Info,Relations,Relations.Items",
+        "Columns": [
+
+            {
+                "Header": "Navn",
+                "Field": "Worker.Info.Name",
+                "Width": "250px",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+
+            },
+            {
+                "Header": "Stilling",
+                "Field": "Relations.Description"
+            },
+            {
+                "Header": "%",
+                "Field": "Relations.WorkPercentage"
+            },
+            {
+                "Header": "Føringer",
+                "Alias": "AllMinutes",
+                "Field": "count(items.minutes)"
+            },
+            {
+                "Header": "Til godkjenning",
+                "Alias": "AccMinutes",
+                "Field": "sum(casewhen(items.StatusCode eq ''\\,1\\,0))"
+            }            
+        ],
+        "Actions": [
+            {
+                "Name": "Ny timefører",
+                "Code": "new_worker",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_workers",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            }
+        ]
+    }    
+
+]

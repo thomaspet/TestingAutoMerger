@@ -4,14 +4,21 @@ import * as moment from 'moment';
 @Component({
     selector: 'daybrowser',
     template: `<article class="daybrowser centered" >
-        <header>{{day.date|isotime:'UMMMM YYYY'}}</header>
+        <header><span (click)="onOpenCalendar()">{{day.date|isotime:'UMMMM YYYY'}}</span>
+            <div class="popup-calendar" *ngIf="calendarOpen" >
+                <unitable-calendar 
+                (clickOutside)="onCalBlur()" (dateChange)="onCalendarDateChange($event)" 
+                (keydown.esc)="hideCalendar()"
+                [date]="day.date"></unitable-calendar>
+            </div>
+        </header>
         <table>
             <tr>
                 <td (click)="onNavigate('left')" class="arrow"><div class="arrow-left"></div></td>
                 <td><table><tr>
                     <td [class.is-active]="day.selected" *ngFor="let day of days" (click)="onClick(day)">
                         <span class="small">{{day.date|isotime:'Udddd'}}</span>
-                        <span class="big">{{day.date|isotime:'D'}}.</span>
+                        <span [class.circle]="day.isToday" class="big">{{day.date|isotime:'D'}}.</span>
                         <span class="small">{{day.counter|min2hours:'decimal-'}}</span>
                     </td>
                     </tr></table>
@@ -27,8 +34,10 @@ export class DayBrowser {
     public weekNumber: number;
     private day: Day;
     private numDayCounter: number = 0;
+    private ignoreNextBlur: boolean = true;
+    private calendarOpen: boolean = false;
 
-    @Output() public clickday: EventEmitter<any> = new EventEmitter();
+    @Output() public clickday: EventEmitter<Day> = new EventEmitter();
     @Output() public requestsums: EventEmitter<ITimeSpan> = new EventEmitter();
     @Output() public navigate: EventEmitter<INavDirection> = new EventEmitter();
 
@@ -47,6 +56,27 @@ export class DayBrowser {
 
     public onClick(day: Day) {
         this.clickday.emit(day);
+    }
+
+    public onCalBlur() {
+        if (!this.ignoreNextBlur) {
+            this.hideCalendar();
+        }
+        this.ignoreNextBlur = false;
+    }
+
+    public onOpenCalendar() {
+        this.ignoreNextBlur = true;
+        this.calendarOpen = true;
+    }
+
+    public hideCalendar() {
+        this.calendarOpen = false;
+    }
+
+    public onCalendarDateChange(date: Date) {
+        this.clickday.emit(new Day(date));
+        this.hideCalendar();
     }
 
     public onNavigate(direction: 'right'|'left') {
@@ -139,8 +169,10 @@ export class DayBrowser {
 export class Day {
     public date: Date;
     public updated: boolean = false;
+    public isToday: boolean = false;
     constructor(date?: Date, public selected: boolean = false, public counter: number = 0) {
         this.date = Day.removeTime(date ||  new Date());
+        this.isToday = moment(this.date).isSame(moment(), 'day');
     }
     public get mDate(): moment.Moment {
         return moment(this.date);
