@@ -2,11 +2,12 @@ import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue} from '../../../services/common/uniTickerService';
 import {UniTicker} from '../ticker/ticker';
 import {UniSubTickerContainer} from '../subTickerContainer/subTickerContainer';
 import {UniTickerFilters} from '../components/tickerFilters';
 import {UniTickerService, PageStateService} from '../../../services/services';
+import {AuthService} from '../../../../framework/core/authService';
 
 declare const _; // lodash
 
@@ -28,9 +29,22 @@ export class UniTickerContainer {
     private expanded: string = 'ticker';
     public selectedFilter: TickerFilter;
 
-    private selectedRow: any;
 
-    constructor(private pageStateService: PageStateService) {
+    private selectedRow: any;
+    private expressionFilters: Array<IExpressionFilterValue> = [];
+    private currentUserGlobalIdentity: string;
+
+    constructor(private pageStateService: PageStateService, private authService: AuthService) {
+        let token = this.authService.getTokenDecoded();
+        if (token) {
+            this.currentUserGlobalIdentity = token.nameid;
+
+            this.expressionFilters = [];
+            this.expressionFilters.push({
+                Expression: 'currentuserid',
+                Value: this.currentUserGlobalIdentity
+            });
+        }
     }
 
     public ngOnInit() {

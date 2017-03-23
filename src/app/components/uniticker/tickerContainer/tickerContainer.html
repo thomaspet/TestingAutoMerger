@@ -9,6 +9,7 @@
         (filterSelected)="onFilterSelected($event)"
         (filterChanged)="onFilterChanged($event)"
         [expanded]="expanded === 'filter'"
+        [expressionFilters]="expressionFilters"
         [class]="expanded === 'filter' ? 'expanded' : ''">
     </uni-ticker-filters>
     <uni-ticker
@@ -17,6 +18,7 @@
         [ticker]="ticker"
         [selectedFilter]="selectedFilter"
         [expanded]="expanded === 'ticker'"
+        [expressionFilters]="expressionFilters"
         [class]="expanded === 'ticker' ? 'expanded' : ''">
     </uni-ticker>
     <uni-sub-ticker-container

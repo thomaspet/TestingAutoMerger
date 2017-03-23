@@ -54,6 +54,11 @@
                 "Width": "120px"
             },
             {
+                "Header": "Valutabeløp",
+                "Field": "AmountCurrency",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "📎",
                 "Field": "sum(casewhen(FileEntityLink.EntityType eq 'JournalEntry'\\,1\\,0))",
                 "Alias": "Attachments",
@@ -434,6 +439,7 @@
         "Group": "Salg",
         "Model": "CustomerInvoice",
         "Expand": "Customer.Info",
+        "OrderBy": "ID DESC",
         "Columns": [
             {
                 "Header": "Fakturanr",
@@ -553,6 +559,7 @@
             {
                 "Name": "Forfalt",
                 "Code": "overdue_invoices",
+                "OrderBy": "PaymentDueDate ASC",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,

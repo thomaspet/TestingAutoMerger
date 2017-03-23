@@ -97,6 +97,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                         t.Columns.forEach(c => {
                                             c.Type = c.Type ? c.Type.toLowerCase() : '';
 
+
                                             this.setupFieldProperties(c, t, model);
 
                                             if (c.SubFields) {
@@ -152,6 +153,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         if (!c.Header) {
             // TODO: Get header based on translation
             c.Header = c.Field;
+        }
+
+        if (typeof c.DefaultHidden !== 'boolean') {
+            c.DefaultHidden = false;
         }
 
         // TODO: tar ikke hensyn til f.eks. Customer.CustomerNumber her - sjekker
@@ -747,6 +752,7 @@ export class Ticker {
     public Group: string;
     public IsTopLevelTicker: boolean;
     public Model: string;
+    public OrderBy?: string;
     public ApiModel?: ApiModel;
     public Expand?: string;
     public Joins?: string;
@@ -783,6 +789,7 @@ export class TickerColumn {
     public SelectableFieldName?: string;
     public Format?: string;
     public Width?: string;
+    public DefaultHidden?: boolean;
     public CssClass?: string;
     public Type?: string;
     public SumFunction?: string;
@@ -802,9 +809,11 @@ export class TickerFilter {
     public Name: string;
     public Code: string;
     public Filter: string;
+    public OrderBy?: string;
     public IsActive: boolean;
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
+    public CurrentCount?: number;
 }
 
 export class TickerAction {

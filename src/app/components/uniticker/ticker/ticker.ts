@@ -6,7 +6,6 @@ import {UniQueryDefinition} from '../../../unientities';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue} from '../../../services/common/uniTickerService';
 import {StatisticsService, StatusService} from '../../../services/services';
-import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService} from '../../../services/services';
@@ -33,6 +32,7 @@ export class UniTicker {
     @Input() private selectedFilter: TickerFilter;
     @Input() private header: string;
     @Input() private parentTicker: Ticker;
+    @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
 
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild(UniTable) unitable: UniTable;
@@ -41,13 +41,11 @@ export class UniTicker {
 
     private model: any;
 
-    private currentUserGlobalIdentity: string;
     private selects: string;
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     private prefetchDataLoaded: boolean = false;
 
-    private expressionFilters: Array<IExpressionFilterValue> = [];
     private selectedRow: any = null;
 
     private canShowTicker: boolean = true;
@@ -58,22 +56,11 @@ export class UniTicker {
         private tabService: TabService,
         private statisticsService: StatisticsService,
         private toastService: ToastService,
-        private authService: AuthService,
         private statusService: StatusService,
         private errorService: ErrorService,
         private uniTickerService: UniTickerService,
         private modelService: ApiModelService,
         private http: Http) {
-        let token = this.authService.getTokenDecoded();
-        if (token) {
-            this.currentUserGlobalIdentity = token.nameid;
-
-            this.expressionFilters = [];
-            this.expressionFilters.push({
-                Expression: 'currentuserid',
-                Value: this.currentUserGlobalIdentity
-            });
-        }
 
         this.statusService
             .loadStatusCache()
@@ -114,8 +101,23 @@ export class UniTicker {
             params = new URLSearchParams();
         }
 
+        if (params.get('model') && params.get('model') !== this.ticker.Model) {
+            params.set('orderby', null);
+            params.set('expand', null);
+            params.set('join', null);
+            params.set('filter', null);
+        }
+
         params.set('model', this.ticker.Model);
         params.set('select', this.selects);
+
+        if (!params.get('orderby')) {
+            if (this.selectedFilter && this.selectedFilter.OrderBy) {
+                params.set('orderby', this.selectedFilter.OrderBy);
+            } else if (this.ticker.OrderBy) {
+                params.set('orderby', this.ticker.OrderBy);
+            }
+        }
 
         if (this.ticker.Expand) {
             params.set('expand', this.ticker.Expand);
@@ -132,7 +134,10 @@ export class UniTicker {
                 newFilter = this.selectedFilter.Filter;
 
                 if (newFilter.indexOf(':currentuserid') >= 0) {
-                    newFilter = newFilter.replace(':currentuserid', `'${this.currentUserGlobalIdentity}'`);
+                    let expressionFilterValue = this.expressionFilters.find(x => x.Expression === ':currentuserid');
+                    if (expressionFilterValue) {
+                        newFilter = newFilter.replace(':currentuserid', `'${expressionFilterValue}'`);
+                    }
                 }
             } else if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
                 newFilter =
@@ -483,6 +488,10 @@ export class UniTicker {
                                 col.setTemplate(row => JSON.stringify(row));
                                 break;
                         }
+                    }
+
+                    if (field.DefaultHidden) {
+                        col.setVisible(false);
                     }
 
                     columns.push(col);

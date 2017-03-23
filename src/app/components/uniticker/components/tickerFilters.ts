@@ -1,6 +1,7 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Ticker, TickerFilter, TickerFieldFilter, UniTickerService, ApiModel} from '../../../services/common/uniTickerService';
-import {StatusService} from '../../../services/services';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Ticker, TickerFilter, TickerFieldFilter, UniTickerService, IExpressionFilterValue} from '../../../services/common/uniTickerService';
+import {ApiModel} from '../../../services/common/apiModelService';
+import {StatusService, StatisticsService, ErrorService} from '../../../services/services';
 
 declare const _; // lodash
 
@@ -13,6 +14,7 @@ export class UniTickerFilters {
     @Input() private ticker: Ticker;
     @Input() private expanded: boolean = false;
     @Input() private selectedFilter: TickerFilter;
+    @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
 
     @Output() filterSelected: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
     @Output() filterChanged: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
@@ -20,8 +22,13 @@ export class UniTickerFilters {
 
     private selectedMainModel: ApiModel;
     private operators: Array<any>;
+    private didLoadFilterCounters: boolean = false;
 
-    constructor(private uniTickerService: UniTickerService, private statusService: StatusService) {
+    constructor(
+        private uniTickerService: UniTickerService,
+        private statusService: StatusService,
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService) {
         this.operators = uniTickerService.getOperators();
     }
 
@@ -40,6 +47,60 @@ export class UniTickerFilters {
 
         this.filterSelected.emit(filter);
         this.stopPropagation();
+    }
+
+    private ngOnChanges(changes: SimpleChanges) {
+        if (changes['ticker'] && this.didLoadFilterCounters) {
+            // if ticker changed, we need to reload the counters
+            if (changes['ticker'].previousValue && changes['ticker'].previousValue.Code !== this.ticker.Code) {
+                this.didLoadFilterCounters = false;
+            }
+        }
+
+        if (!this.didLoadFilterCounters && this.ticker && this.filters) {
+            this.getFilterCounts();
+        }
+    }
+
+    private getFilterCounts() {
+        this.didLoadFilterCounters = true;
+
+        let filterCountSelect: Array<string> = [];
+        for (let i = 0; i < this.filters.length; i++) {
+            let filter = this.filters[i];
+            filter.CurrentCount = null;
+            let select = '';
+
+            if (filter.FilterGroups && filter.FilterGroups.length > 0) {
+                select = `sum(casewhen(${this.uniTickerService.getFilterString(filter.FilterGroups, this.expressionFilters, filter.UseAllCriterias, this.ticker.Model)}\\,1\\,0))`;
+            } else if (filter.Filter && filter.Filter !== '') {
+                select = `sum(casewhen(${filter.Filter}\\,1\\,0))`;
+            } else {
+                // dummy to count empty filters, i.e. all rows
+                select = 'sum(casewhen(ID gt 0\\,1\\,0))';
+            }
+
+            select += ' as FilterCount' + i;
+
+            filterCountSelect.push(select);
+        }
+
+        if (filterCountSelect.length > 0) {
+            let query = `model=${this.ticker.Model}&select=${filterCountSelect.join(',')}&expand=${this.ticker.Expand}`;
+
+            this.statisticsService.GetAll(query)
+                .subscribe(res => {
+                    if (res.Data && res.Data.length > 0) {
+
+                        let counters = res.Data[0];
+                        for (let i = 0; i < this.filters.length; i++) {
+                            let filter = this.filters[i];
+                            filter.CurrentCount = counters['FilterCount' + i];
+                        }
+                    }
+                }, err => this.errorService.handle(err)
+            );
+        }
     }
 
     private getModelName() {
