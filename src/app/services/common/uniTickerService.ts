@@ -57,9 +57,24 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 this.statusService.loadStatusCache().then(() => {
                     if (!this.tickers) {
                         // get statuses from API and add it to the cache
-                        this.http.get('assets/tickers/tickers.json')
-                            .map(x => x.json())
-                            .map((tickers: Array<Ticker>) => {
+                        Observable.forkJoin(
+                            this.http.get('assets/tickers/tickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/accountingtickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/demotickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/toftickers.json').map(x => x.json())
+                        ).map(tickerfiles => {
+                            let allTickers: Array<Ticker> = [];
+
+                            tickerfiles.forEach((fileContent: Array<Ticker>) => {
+                                fileContent.forEach(ticker => {
+                                    allTickers.push(ticker);
+                                });
+                            });
+
+                            return allTickers;
+                        })
+                        .map((tickers: Array<Ticker>) => {
                                 tickers.forEach(ticker => {
                                     if (!ticker.Filters || ticker.Filters.length === 0) {
                                         let filter = new TickerFilter();
@@ -543,7 +558,12 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             filterString += (`${filter.Operator}(${path}.${filter.Field},'${filterValue}')`);
                         } else {
                             // Logical operator
-                            filterString += `${path}.${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            if (!this.isFunction(filter.Field)) {
+                                filterString += `${path}.${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            } else {
+                                // field is a function, trust the user knows what he is doing..
+                                filterString += `${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            }
                         }
 
                         hasAddedFilterForGroup = true;

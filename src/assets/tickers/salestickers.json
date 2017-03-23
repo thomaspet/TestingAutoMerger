@@ -1,0 +1,88 @@
+[
+    {
+        "Name": "Kunde",
+        "Code": "customer_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "Customer",
+        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress",
+        "Columns": [
+            {
+                "Header": "Kundenr",
+                "Field": "Customer.CustomerNumber",
+                "Type": "text",
+                "Width": "120px"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "Info.DefaultPhone.Number"
+            },
+            {
+                "Header": "Epost",
+                "Field": "Info.DefaultEmail.EmailAddress"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "Info.InvoiceAddress.AddressLine1"
+            },
+            {
+                "Header": "Postnr",
+                "Field": "Info.InvoiceAddress.PostalCode"
+            },
+            {
+                "Header": "Sted",
+                "Field": "Info.InvoiceAddress.City"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Ny kunde",
+                "Code": "new_customer",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Vis kunde",
+                "Code": "open_customer",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_customers",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            }
+        ],
+        "SubTickersCodes": ["invoice_list", "order_list", "quote_list"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_customers",
+                "Filter": ""
+            },
+            {
+                "Name": "Mine kunder",
+                "Code": "my_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
+            }
+        ]
+    }
+]

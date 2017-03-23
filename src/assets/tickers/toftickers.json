@@ -1,0 +1,507 @@
+[
+    {
+        "Name": "Faktura",
+        "Code": "invoice_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "CustomerInvoice",
+        "Expand": "Customer.Info",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Header": "Kundenr",
+                "Field": "Customer.CustomerNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.Info.Name",
+                "Width": "250px",
+                "Type": "link",
+                "ExternalModel": "Customer",
+                "LinkNavigationProperty": "Customer.ID"
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "InvoiceDate"
+            },
+            {
+                "Header": "Forfallsdato",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Ny faktura",
+                "Code": "new_invoice",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Åpne faktura",
+                "Code": "open_invoice",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_invoices",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Fakturer",
+                "Code": "invoice_invoice",
+                "Type": "transition",
+                "Transition": "invoice",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            }
+        ],
+        "SubTickersCodes": ["invoice_details", "invoice_items"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_invoices",
+                "Filter": ""
+            },
+            {
+                "Name": "Under arbeid",
+                "Code": "my_draft_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42001"
+                    }]
+                }]
+            },
+            {
+                "Name": "Fakturert",
+                "Code": "invoiced_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42002"
+                    },
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42003"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Forfalt",
+                "Code": "overdue_invoices",
+                "OrderBy": "PaymentDueDate ASC",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "RestAmount",
+                        "Operator": "ne",
+                        "Value": "0"
+                    },
+                    {
+                        "Field": "PaymentDueDate",
+                        "Operator": "lt",
+                        "Value": "getdate()"
+                    }
+                ]},
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42002"
+                    },
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42003"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Betalt",
+                "Code": "paid_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42004"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Avansert filter",
+                "Code": "due_invoices",
+                "Filter": "PaymentDueDate lt getdate()"
+            }
+        ]
+    },
+    {
+        "Name": "Fakturalinjer",
+        "Type": "Table",
+        "Code": "invoice_items",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerInvoiceItem",
+        "Expand": "Product,VatType",
+        "SubTickers": [],
+        "ParentFilter": {
+            "Field": "CustomerInvoiceID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Filters": [],
+        "Columns": [
+            {
+                "Header": "Produkt/tekst",
+                "Field": "Product.PartName",
+                "Width": "250px",
+                "SubFields": [
+                    {
+                        "Field": "ItemText"
+                    }
+                ]
+            },
+            {
+                "Header": "Antall",
+                "Field": "NumberOfItems"
+            },
+            {
+                "Header": "Enhet",
+                "Field": "Unit"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.VatPercent",
+                "Format": "percent",
+                "SubFields": [
+                    {
+                        "Field": "VatType.Name"
+                    }
+                ]
+            },
+            {
+                "Header": "Rabatt %",
+                "Field": "DiscountPercent",
+                "Format": "percent"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "SumTotalIncVat",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            }
+        ]
+    },
+    {
+        "Name": "Fakturadetaljer",
+        "Type": "Details",
+        "Code": "invoice_details",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerInvoice",
+        "Expand": "Customer.Info,JournalEntry,CurrencyCode",
+        "SubTickers": [],
+        "Filters": [],
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber"
+            },
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.CustomerNumber",
+                "Size": "medium",
+                "Type": "link",
+                "SubFields": [
+                    {
+                        "Field": "Customer.Info.Name"
+                    }
+                ],
+                "ExternalModel": "Customer",
+                "LinkNavigationProperty": "Customer.ID"
+            },
+            {
+                "Header": "Forfallsdato",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Fakturaadresse",
+                "Field": "InvoiceAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "InvoicePostalCode"
+                    },
+                    {
+                        "Field": "InvoiceCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Leveringsadresse",
+                "Field": "ShippingAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "ShippingPostalCode"
+                    },
+                    {
+                        "Field": "ShippingCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Deres ref",
+                "Field": "YourReference"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmountCurrency"
+            },
+            {
+                "Header": "Restbeløp inkl mva",
+                "Field": "RestAmountCurrency"
+            },
+            {
+                "Header": "Bilag",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "Type": "link",
+                "ExternalModel": "JournalEntry",
+                "LinkNavigationProperty": "JournalEntryID"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ]
+    },
+    {
+        "Name": "Tilbud",
+        "Code": "quote_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "CustomerQuote",
+        "Expand": "Customer.Info",
+        "Columns": [
+            {
+                "Field": "QuoteNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.CustomerNumber",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Field": "QuoteDate"
+            },
+            {
+                "Field": "ValidUntilDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Nytt tilbud",
+                "Code": "new_quote",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Åpne tilbud",
+                "Code": "open_quote",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_quotes",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Overfør til ordre",
+                "Code": "quote_transfer_order",
+                "Type": "transition",
+                "Transition": "toOrder",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Overfør til faktura",
+                "Code": "quote_transfer_invoice",
+                "Type": "transition",
+                "Transition": "toInvoice",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Avslutt",
+                "Code": "quote_transfer_complete",
+                "Type": "transition",
+                "Transition": "complete",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            }
+        ],
+        "SubTickersCodes": [],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_quotes",
+                "Filter": ""
+            },
+            {
+                "Name": "Mine under arbeid",
+                "Code": "my_draft_quotes",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "40001"
+                    },
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
+            }
+        ]
+    },
+    {
+        "Name": "Ordre",
+        "Type": "Table",
+        "Code": "order_list",
+        "IsTopLevelTicker": true,
+        "Group": "Salg",
+        "Model": "CustomerOrder",
+        "Expand": "Customer.Info",
+        "Columns": [
+            {
+                "Field": "OrderNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.CustomerNumber",
+                "Type": "text"
+            },
+            {
+                "Field": "Customer.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Field": "OrderDate"
+            },
+            {
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Åpne ordre",
+                "Code": "open_order",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            }
+        ]
+    }
+]

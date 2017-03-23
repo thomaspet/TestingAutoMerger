@@ -72,12 +72,19 @@ export class UniTickerFilters {
             let select = '';
 
             if (filter.FilterGroups && filter.FilterGroups.length > 0) {
-                select = `sum(casewhen(${this.uniTickerService.getFilterString(filter.FilterGroups, this.expressionFilters, filter.UseAllCriterias, this.ticker.Model)}\\,1\\,0))`;
-            } else if (filter.Filter && filter.Filter !== '') {
-                select = `sum(casewhen(${filter.Filter}\\,1\\,0))`;
-            } else {
-                // dummy to count empty filters, i.e. all rows
-                select = 'sum(casewhen(ID gt 0\\,1\\,0))';
+                let filterString = this.uniTickerService.getFilterString(filter.FilterGroups, this.expressionFilters, filter.UseAllCriterias, this.ticker.Model);
+                if (filterString && filterString !== '') {
+                    select = `sum(casewhen(${filterString}\\,1\\,0))`;
+                }
+            }
+
+            if (!select || select === '') {
+                if (filter.Filter && filter.Filter !== '') {
+                    select = `sum(casewhen(${filter.Filter}\\,1\\,0))`;
+                } else {
+                    // dummy to count empty filters, i.e. all rows
+                    select = 'sum(casewhen(ID gt 0\\,1\\,0))';
+                }
             }
 
             select += ' as FilterCount' + i;

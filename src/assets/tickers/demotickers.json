@@ -1,0 +1,44 @@
+[
+    {
+        "Name": "Eksterne data - test",
+        "Type": "Table",
+        "Code": "external_data_test_list",
+        "ApiUrl": "https://jsonplaceholder.typicode.com/posts",
+        "ListObject": "",
+        "IsTopLevelTicker": false,
+        "DisableFiltering": true,
+        "Group": "Test",
+        "Columns": [
+            {
+                "Header": "Tittel",
+                "Field": "title",
+                "Width": "250px"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "body"
+            }
+        ]
+    },
+    {
+        "Name": "Eksterne data - forsiden VG.no",
+        "Type": "Table",
+        "Code": "external_data_forsiden_vg",
+        "ApiUrl": "https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Fwww.vg.no%2Frss%2Ffeed%2Fforsiden",
+        "ListObject": "items",
+        "IsTopLevelTicker": false,
+        "DisableFiltering": true,
+        "Group": "Test",
+        "Columns": [
+            {
+                "Header": "Tittel",
+                "Field": "title"
+            },
+            {
+                "Header": "Link",
+                "Field": "link",
+                "Type": "external-link"
+            }
+        ]
+    }
+]

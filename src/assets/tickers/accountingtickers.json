@@ -1,0 +1,434 @@
+[
+    {
+        "Name": "Bilag",
+        "Code": "journalentryline_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "JournalEntryLine",
+        "Expand": "VatType,Account,Period",
+        "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
+        "Columns": [
+            {
+                "Header": "Bilagsnr",
+                "Field": "JournalEntryNumberNumeric",
+                "Width": "100px",
+                "Type": "link"
+            },
+            {
+                "Header": "Kontonr",
+                "Field": "Account.AccountNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Header": "Konto",
+                "Field": "Account.AccountName",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Header": "Regnskapsdato",
+                "Field": "FinancialDate"
+            },
+            {
+                "Header": "År",
+                "Field": "Period.AccountYear"
+            },
+            {
+                "Header": "Periode",
+                "Field": "Period.No"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.VatCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description"
+            },
+            {
+                "Header": "Beløp",
+                "Field": "Amount",
+                "Width": "120px"
+            },
+            {
+                "Header": "Valutabeløp",
+                "Field": "AmountCurrency",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "📎",
+                "Field": "sum(casewhen(FileEntityLink.EntityType eq 'JournalEntry'\\,1\\,0))",
+                "Alias": "Attachments",
+                "Type": "attachment",
+                "Width": "40px",
+                "ExternalModel": "JournalEntry"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Nytt bilag",
+                "Code": "new_journalentry",
+                "ExecuteWithoutSelection": true,
+                "Type": "new",
+                "DisplayForSubTickers": false
+            },
+            {
+                "Name": "Vis bilag",
+                "Code": "open_journalentry",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "ParameterProperty": "JournalEntryID"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "JournalEntryID",
+            "Operator": "eq",
+            "Value": "JournalEntryID"
+        },
+        "SubTickersCodes": ["journalentryline_list", "journalentrylinedraft_list"]
+    },
+    {
+        "Name": "Opprinnelige føringer for bilaget",
+        "Code": "journalentrylinedraft_list",
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "JournalEntryLineDraft",
+        "Expand": "VatType,Account,Period",
+        "Columns": [
+            {
+                "Header": "Bilagsnr",
+                "Field": "JournalEntryNumberNumeric",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Header": "Konto",
+                "Field": "Account.AccountNumber",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Header": "Regnskapsdato",
+                "Field": "FinancialDate"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.VatCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description"
+            },
+            {
+                "Header": "Beløp",
+                "Field": "Amount",
+                "Width": "120px"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "JournalEntryID",
+            "Operator": "eq",
+            "Value": "JournalEntryID"
+        }
+    },
+    {
+        "Name": "Fakturamottak",
+        "Code": "supplierinvoice_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "SupplierInvoice",
+        "Expand": "Supplier.Info,BankAccount,JournalEntry",
+        "Columns": [
+            {
+                "Header": "Nr",
+                "Field": "ID",
+                "Width": "100px",
+                "Type": "text"
+            },
+            {
+                "Header": "Leverandør",
+                "Field": "Supplier.Info.Name",
+                "Type": "link",
+                "Width": "200px",
+                "ExternalModel": "Supplier",
+                "LinkNavigationProperty": "Supplier.ID"
+            },
+            {
+                "Header": "Forfall",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber"
+            },
+            {
+                "Header": "Bankgiro",
+                "Field": "BankAccount.AccountNumber"
+            },
+            {
+                "Header": "KID/Melding",
+                "Field": "PaymentID"
+            },
+            {
+                "Header": "Bilagsnr",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "Type": "link",
+                "ExternalModel": "JournalEntry",
+                "LinkNavigationProperty": "JournalEntryID"
+            },
+            {
+                "Header": "Beløp",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "SupplierID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Nytt fakturamottak",
+                "Code": "new_supplierinvoice",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Åpne faktura",
+                "Code": "open_supplierinvoice",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_supplierinvoices",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Tildel",
+                "Code": "supplierinvoice_assign",
+                "Type": "transition",
+                "Transition": "assign",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Godkjenn",
+                "Code": "supplierinvoice_approve",
+                "Type": "transition",
+                "Transition": "approve",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Bokfør",
+                "Code": "supplierinvoice_journal",
+                "Type": "transition",
+                "Transition": "journal",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Til betalingsliste",
+                "Code": "supplierinvoice_to_payment",
+                "Type": "transition",
+                "Transition": "sendForPayment",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            }
+        ],
+        "SubTickersCodes": ["supplierinvoice_details", "journalentryline_list"],
+        "Filters": [{
+                "Name": "Kladd",
+                "Code": "draft_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30101"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Tildelt",
+                "Code": "forapproval_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30102"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Godkjent",
+                "Code": "approved_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30103"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Bokført",
+                "Code": "journaled_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30104"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalingsliste",
+                "Code": "paymentlist_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30105"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalt",
+                "Code": "paid_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30106"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30107"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Alle",
+                "Code": "all_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": []
+                }]
+            }
+        ]
+    },
+    {
+        "Name": "Fakturadetaljer",
+        "Type": "Details",
+        "Code": "supplierinvoice_details",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "SupplierInvoice",
+        "Expand": "Supplier.Info,BankAccount,JournalEntry",
+        "UseParentTickerActions": true,
+        "SubTickers": [],
+        "Filters": [],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Nr",
+                "Field": "ID",
+                "Type": "text"
+            },
+            {
+                "Header": "Leverandør",
+                "Field": "Supplier.SupplierNumber",
+                "Type": "link",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "Supplier.Info.Name"
+                    }
+                ],
+                "ExternalModel": "Supplier",
+                "LinkNavigationProperty": "Supplier.ID"
+            },
+            {
+                "Header": "Forfall",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber"
+            },
+            {
+                "Header": "Bankgiro",
+                "Field": "BankAccount.AccountNumber"
+            },
+            {
+                "Header": "KID/Melding",
+                "Field": "PaymentID"
+            },
+            {
+                "Header": "Bilagsnr",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "Type": "link",
+                "ExternalModel": "JournalEntry",
+                "LinkNavigationProperty": "JournalEntryID"
+            },
+            {
+                "Header": "Beløp",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            }
+        ]
+    }
+]
