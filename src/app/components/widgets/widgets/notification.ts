@@ -1,27 +1,18 @@
 ﻿import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
-export interface INotification {
-    backgroundColor: string;
-    icon: string;
-    ammount: string;
-    title: string;
-    link: string;
-    name: string;
-}
-
 @Component({
     selector: 'uni-notification',
-    template: `<div *ngIf="config" [ngStyle]="{'background-color': config.backgroundColor}" class="uni-widget-notification-tile uni-widget-tile-content"  (click)="onClickNavigate()" title="{{ config.title }}" >
+    template: `<div *ngIf="config" [ngStyle]="{'background-color': config.backgroundColor}" class="uni-widget-notification-tile uni-widget-tile-content"  (click)="onClickNavigate()" title="{{ config.description }}" >
                     <a class="{{ config.icon !== '' ? getIconClass() : 'dashboard-shortcut-icon-fallback' }}">Link</a><br />
-                    <h2> {{ config.ammount }} </h2>
-                    <p>{{ config.name }}</p>
+                    <h2> {{ config.amount }} </h2>
+                    <p>{{ config.label }}</p>
                </div>`
 })
 
 export class UniNotificationWidget {
 
-    @Input() private config: INotification;
+    @Input() private config: any;
 
     constructor(private Router: Router) { }
 
