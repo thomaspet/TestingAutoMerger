@@ -1750,10 +1750,10 @@ export class Employee extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VacationRateEmployeeID: number;
-    public BusinessRelationInfo: BusinessRelation;
-    public Employments: Array<Employment>;
-    public VacationRateEmployee: VacationRateEmployee;
     public SubEntity: SubEntity;
+    public Employments: Array<Employment>;
+    public BusinessRelationInfo: BusinessRelation;
+    public VacationRateEmployee: VacationRateEmployee;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -1895,20 +1895,20 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
+    public BaseCurrencyCode: CurrencyCode;
+    public CompanyBankAccount: BankAccount;
+    public DefaultProductInvoiceReminder: Product;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public DefaultProductInvoiceReminder: Product;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -3282,6 +3282,7 @@ export class ReportDefinition extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public ID: number;
+    public Md5: string;
     public Name: string;
     public TemplateLinkId: string;
     public UpdatedAt: Date;
@@ -4459,9 +4460,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -4766,6 +4767,7 @@ export class AltinnAuthRequest extends UniEntity {
 
 export class SendEmail extends UniEntity {
     public CopyAddress: string;
+    public EmailLogID: number;
     public EntityID: number;
     public EntityType: string;
     public FromAddress: string;

@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, OnChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, OnChanges, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
@@ -33,6 +33,8 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
 
+    @Output() private rowSelected: EventEmitter<any> = new EventEmitter();
+
     private uniTableConfigDistributionPeriod: UniTableConfig;
     private distributionPeriodData: Array<DistributionPeriodData> = [];
     private dimensionEntityName: string;
@@ -55,6 +57,10 @@ export class DistributionPeriodReportPart implements OnChanges {
         setTimeout(() => {
             this.setupDistributionPeriodTable();
         });
+    }
+
+    private onRowSelected(event) {
+        this.rowSelected.emit(event);
     }
 
     private setupDistributionPeriodTable() {
