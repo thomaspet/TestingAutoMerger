@@ -1265,6 +1265,7 @@ export class SalaryBalance extends UniEntity {
     public StatusCode: number;
     public SupplierID: number;
     public ToDate: Date;
+    public Type: SalBalDrawType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
@@ -1750,10 +1751,10 @@ export class Employee extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VacationRateEmployeeID: number;
-    public SubEntity: SubEntity;
-    public Employments: Array<Employment>;
     public BusinessRelationInfo: BusinessRelation;
+    public Employments: Array<Employment>;
     public VacationRateEmployee: VacationRateEmployee;
+    public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -1895,20 +1896,20 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
-    public BaseCurrencyCode: CurrencyCode;
-    public CompanyBankAccount: BankAccount;
-    public DefaultProductInvoiceReminder: Product;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultProductInvoiceReminder: Product;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -4460,9 +4461,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -4812,6 +4813,11 @@ export class JournalEntryLineRequestSummary extends UniEntity {
 export class JournalEntryLinePostPostData extends UniEntity {
     public AccountYear: number;
     public Amount: number;
+    public AmountCurrency: number;
+    public CurrencyCodeCode: string;
+    public CurrencyCodeID: number;
+    public CurrencyCodeShortCode: string;
+    public CurrencyExchangeRate: number;
     public Description: string;
     public DueDate: Date;
     public FinancialDate: Date;
@@ -4825,8 +4831,10 @@ export class JournalEntryLinePostPostData extends UniEntity {
     public NumberOfPayments: number;
     public PeriodNo: number;
     public RestAmount: number;
+    public RestAmountCurrency: number;
     public StatusCode: number;
     public SumPostPostAmount: number;
+    public SumPostPostAmountCurrency: number;
     public Markings: Array<JournalEntryLinePostPostData>;
 }
 
@@ -5096,6 +5104,13 @@ export enum SalBalSource{
     NegativeSalary = 2,
     Loan = 3,
     Other = 4,
+}
+
+
+export enum SalBalDrawType{
+    FixedAmount = 0,
+    InstalmentWithBalance = 1,
+    Balance = 2,
 }
 
 

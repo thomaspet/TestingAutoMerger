@@ -8,7 +8,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { SalaryBalance, SalBalType, WageType, Employee, Supplier } from '../../../../unientities';
+import { SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType } from '../../../../unientities';
 
 @Component({
     selector: 'salarybalance-details',
@@ -30,6 +30,12 @@ export class SalarybalanceDetail extends UniView {
         { ID: SalBalType.Outlay, Name: 'Utleggstrekk' },
         { ID: SalBalType.Garnishment, Name: 'Påleggstrekk' },
         { ID: SalBalType.Other, Name: 'Andre' }
+    ];
+
+    private drawTypes: { ID: SalBalDrawType, Name: string}[] = [
+        { ID: SalBalDrawType.FixedAmount, Name: 'Fast beløp'},
+        { ID: SalBalDrawType.InstalmentWithBalance, Name: 'Fast beløp med balanse'},
+        { ID: SalBalDrawType.Balance, Name: 'Trekk hele balansen, f.eks. forskudd'}
     ];
 
     constructor(
@@ -118,6 +124,14 @@ export class SalarybalanceDetail extends UniView {
         let typeField: UniFieldLayout = this.findByPropertyName('InstalmentType');
         typeField.Options = {
             source: this.instalmentTypes,
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+            debounceTime: 500
+        };
+
+        let drawtypeField: UniFieldLayout = this.findByPropertyName('Type');
+        drawtypeField.Options = {
+            source: this.drawTypes,
             displayProperty: 'Name',
             valueProperty: 'ID',
             debounceTime: 500
