@@ -18,7 +18,7 @@ import {
     ReportService
 } from '../../../../services/services';
 
-declare const moment;
+import * as moment from 'moment';
 
 export interface IRunNumberData {
     RunNumber: number;
