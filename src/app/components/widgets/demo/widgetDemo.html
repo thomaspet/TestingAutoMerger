@@ -1,0 +1,8 @@
+<section class="application">
+    <button type="button" (click)="addWidget('notification')">Notification</button>
+    <button type="button" (click)="addWidget('shortcut')">Shortcut</button>
+
+    <br><br>
+
+    <uni-widget-canvas [widgets]="widgets"></uni-widget-canvas>
+</section>

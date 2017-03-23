@@ -5,7 +5,7 @@ import {ProductDetails} from './components/common/product/details/productDetails
 import {AuthGuard} from './authGuard';
 
 // Widget demo
-import {UniWidgetCanvas} from './components/widgets/widgetCanvas';
+import {UniWidgetDemo} from './components/widgets/demo/widgetDemo';
 
 export const routes = ([
     {
@@ -18,7 +18,7 @@ export const routes = ([
     // Widget demo
     {
         path: 'widgets',
-        component: UniWidgetCanvas
+        component: UniWidgetDemo
     },
 
     {

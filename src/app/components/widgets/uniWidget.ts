@@ -4,6 +4,15 @@ import {Directive, ViewContainerRef, Component, Input, ViewChild, ComponentFacto
 // for all appfrontend, not just widgets.
 import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget } from './widgets/barrel';
 
+export interface IUniWidget {
+    x?: number;
+    y?: number;
+    width: number;
+    height: number;
+    widgetType: string;
+    config: any;
+}
+
 
 @Directive({
     selector: '[widget-container]'
@@ -43,16 +52,14 @@ export class UniWidget {
     }
 
     private loadWidget() {
-        const widget = this.widgetMap[this.config.widgetName];
+        const widget = this.widgetMap[this.config.widgetType];
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(widget);
 
         let viewContainerRef = this.widgetContainer.viewContainerRef;
         viewContainerRef.clear();
 
         let componentRef = viewContainerRef.createComponent(componentFactory);
-        if (this.config.widgetName === 'shortcut') {
-            (<any>componentRef.instance).config = this.config.tileData;
-        }
+        (<any>componentRef.instance).config = this.config.config;
     }
 
 }

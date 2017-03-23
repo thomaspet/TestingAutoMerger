@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
+import {UniWidgetDemo} from './demo/widgetDemo';
 import {UniWidgetCanvas} from './widgetCanvas';
 import { UniWidget, WidgetContainer } from './uniWidget';
 import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget } from './widgets/barrel';
@@ -11,6 +12,7 @@ import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget } f
         CommonModule
     ],
     declarations: [
+        UniWidgetDemo,
         UniWidgetCanvas,
         UniWidget,
         WidgetContainer,
