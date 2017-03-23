@@ -240,7 +240,7 @@
         {
             "Name": "JournalEntryLine",
             "Translated": "Bilagslinjer",
-            "Url": "/accounting/journalentry/manual;journalEntryLineID=:id"
+            "Url": "/accounting/journalentry/manual;journalEntryID=:journalentryid"
         }
     ]
 }

@@ -75,7 +75,8 @@
                 "Code": "open_journalentry",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": true,
+                "ParameterProperty": "JournalEntryID"
             }
         ],
         "ParentFilter": {
@@ -516,7 +517,7 @@
                 "Filter": ""
             },
             {
-                "Name": "Mine under arbeid",
+                "Name": "Under arbeid",
                 "Code": "my_draft_invoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
@@ -526,36 +527,82 @@
                         "Field": "StatusCode",
                         "Operator": "eq",
                         "Value": "42001"
-                    },
-                    {
-                        "Field": "CreatedBy",
-                        "Operator": "eq",
-                        "Value": ":currentuserid"
                     }]
                 }]
             },
             {
-                "Name": "Forfalte",
-                "Code": "due_invoices",
-                "Filter": "PaymentDueDate lt getdate()"
-            },
-            {
-                "Name": "Mine større enn 2000",
-                "Code": "my_invoices",
+                "Name": "Fakturert",
+                "Code": "invoiced_invoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
+                    "UseAllCriterias": false,
                     "FieldFilters": [
                     {
-                        "Field": "TaxInclusiveAmount",
-                        "Operator": "gt",
-                        "Value": "2000"
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42002"
                     },
                     {
-                        "Field": "CreatedBy",
+                        "Field": "StatusCode",
                         "Operator": "eq",
-                        "Value": ":currentuserid"
-                    }]
-                }]
+                        "Value": "42003"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Forfalt",
+                "Code": "overdue_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "RestAmount",
+                        "Operator": "ne",
+                        "Value": "0"
+                    },
+                    {
+                        "Field": "PaymentDueDate",
+                        "Operator": "lt",
+                        "Value": "getdate()"
+                    }
+                ]},
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42002"
+                    },
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42003"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Betalt",
+                "Code": "paid_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "eq",
+                        "Value": "42004"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Avansert filter",
+                "Code": "due_invoices",
+                "Filter": "PaymentDueDate lt getdate()"
             }
         ]
     },
@@ -862,42 +909,53 @@
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "CustomerInvoiceItem",
-        "Expand": "Product",
+        "Expand": "Product,VatType",
         "SubTickers": [],
         "ParentFilter": {
             "Field": "CustomerInvoiceID",
             "Operator": "eq",
             "Value": "ID"
         },
-        "Filters": [
-            {
-                "Name": "Alle linjer",
-                "Code": "all_invoice_items",
-                "Filter": ""
-            },
-            {
-                "Name": "Mest lønnsomme",
-                "Code": "most_valuable_items",
-                "Filter": ""
-            }
-        ],
+        "Filters": [],
         "Columns": [
             {
-                "Header": "Produkt",
-                "Field": "Product.Name",
-                "Width": "250px"
+                "Header": "Produkt/tekst",
+                "Field": "Product.PartName",
+                "Width": "250px",
+                "SubFields": [
+                    {
+                        "Field": "ItemText"
+                    }
+                ]
             },
             {
                 "Header": "Antall",
-                "Field": "NumberOfItems",
-                "Format": "number"
+                "Field": "NumberOfItems"
+            },
+            {
+                "Header": "Enhet",
+                "Field": "Unit"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.VatPercent",
+                "Format": "percent",
+                "SubFields": [
+                    {
+                        "Field": "VatType.Name"
+                    }
+                ]
+            },
+            {
+                "Header": "Rabatt %",
+                "Field": "DiscountPercent",
+                "Format": "percent"
             },
             {
                 "Header": "Sum inkl mva",
                 "Field": "SumTotalIncVat",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px",
-                "Type": "money"
+                "Width": "150px"
             }
         ]
     },
@@ -908,9 +966,10 @@
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "CustomerInvoice",
-        "Expand": "Customer.Info,JournalEntry",
+        "Expand": "Customer.Info,JournalEntry,CurrencyCode",
         "SubTickers": [],
         "Filters": [],
+        "UseParentTickerActions": true,
         "ParentFilter": {
             "Field": "ID",
             "Operator": "eq",
@@ -944,7 +1003,7 @@
                 "Field": "OurReference"
             },
             {
-                "Header": "Adresse",
+                "Header": "Fakturaadresse",
                 "Field": "InvoiceAddressLine1",
                 "Size": "medium",
                 "SubFields": [
@@ -957,12 +1016,33 @@
                 ]
             },
             {
+                "Header": "Leveringsadresse",
+                "Field": "ShippingAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "ShippingPostalCode"
+                    },
+                    {
+                        "Field": "ShippingCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Deres ref",
+                "Field": "YourReference"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code"
+            },
+            {
                 "Header": "Sum inkl mva",
-                "Field": "TaxInclusiveAmount"
+                "Field": "TaxInclusiveAmountCurrency"
             },
             {
                 "Header": "Restbeløp inkl mva",
-                "Field": "RestAmount"
+                "Field": "RestAmountCurrency"
             },
             {
                 "Header": "Bilag",
@@ -970,6 +1050,10 @@
                 "Type": "link",
                 "ExternalModel": "JournalEntry",
                 "LinkNavigationProperty": "JournalEntryID"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
             }
         ]
     }

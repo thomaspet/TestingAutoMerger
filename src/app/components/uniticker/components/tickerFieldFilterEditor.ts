@@ -3,6 +3,7 @@ import {Ticker, TickerFilter, TickerFieldFilter} from '../../../services/common/
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from 'uniform-ng2/main';
+import {UniTickerService} from '../../../services/services';
 
 declare const _; // lodash
 
@@ -29,8 +30,8 @@ export class UniTickerFieldFilterEditor {
 
     private operators: any[] = [];
 
-    constructor() {
-        this.operators = this.getOperators();
+    constructor(private uniTickerService: UniTickerService) {
+        this.operators = this.uniTickerService.getOperators();
     }
 
     private ngOnChanges(changes: SimpleChanges) {
@@ -105,83 +106,6 @@ export class UniTickerFieldFilterEditor {
 
     private fieldSelected(fieldFilter, event) {
         fieldFilter.Model = event;
-    }
-
-    private getOperators() {
-        return [
-            {
-                'verb': 'inneholder',
-                'operator': 'contains',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'begynner med',
-                'operator': 'startswith',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'slutter på',
-                'operator': 'endswith',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'er',
-                'operator': 'eq',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'er ikke',
-                'operator': 'ne',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'er større enn',
-                'operator': 'gt',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            },
-            {
-                'verb': 'er større el. lik',
-                'operator': 'ge',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            },
-            {
-                'verb': 'er mindre enn',
-                'operator': 'lt',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            },
-            {
-                'verb': 'er mindre el. lik',
-                'operator': 'le',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            }
-        ];
     }
 
     private getLayout() {

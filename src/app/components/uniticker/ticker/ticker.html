@@ -5,7 +5,7 @@
     <section class="ticker-data">
         <h3 *ngIf="header && header.length > 0">{{header}}</h3>
         <section *ngIf="(ticker.Actions && ticker.Actions.length > 0) || (ticker.UseParentTickerActions && parentTicker && parentTicker.Actions && parentTicker.Actions.length > 0)">
-            <uni-ticker-actions [ticker]="ticker" [actions]="ticker.UseParentTickerActions && parentTicker ? parentTicker.Actions : ticker.Actions" (executeAction)="onExecuteAction($event)" [isSubTicker]="!!parentModel"></uni-ticker-actions>
+            <uni-ticker-actions [ticker]="ticker" [model]="model" [actions]="getTickerActions()" (executeAction)="onExecuteAction($event)" [isSubTicker]="!!parentModel"></uni-ticker-actions>
         </section>
         <section class="data-container" (click)="letUniTableHandleIsOwnClicks()">
             <uni-table

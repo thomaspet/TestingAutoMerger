@@ -109,7 +109,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
                                     if (t.Actions) {
                                         t.Actions.forEach(action => {
-                                            t.Type = t.Type ? t.Type.toLowerCase() : '';
+                                            action.Type = action.Type ? action.Type.toLowerCase() : '';
+                                            action.ParameterProperty = action.ParameterProperty ? action.ParameterProperty : '';
 
                                             if (typeof action.DisplayInActionBar !== 'boolean') {
                                                 action.DisplayInActionBar = true;
@@ -242,27 +243,32 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         }
                     } else if (action.Type && action.Type.toLowerCase() === 'details') {
                         let rowId: number = null;
+                        let urlIdProperty: string = 'ID';
+
                         // check that we can find the ID of the model - and that we have only one
                         if (!selectedRows || selectedRows.length !== 1) {
                             throw Error('Could not navigate, not possible to find ID to navigate to');
                         } else {
-                            rowId = selectedRows[0]['ID'];
+                            if (action.ParameterProperty !== '') {
+                                rowId = selectedRows[0][action.ParameterProperty.replace('.', '')];
+                                urlIdProperty = action.ParameterProperty.toLowerCase();
+                            } else {
+                                rowId = selectedRows[0]['ID'];
+                            }
                         }
 
                         // get url for new entity, navigate
                         let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
 
                         if (url && url !== '') {
-                            url = url.replace(':id', rowId.toString());
+                            url = url.replace(`:${urlIdProperty}`, rowId.toString());
                             this.router.navigateByUrl(url);
                         } else {
                             throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
                         }
 
                     } else if (action.Type && action.Type.toLowerCase() === 'action') {
-                        console.log('actions with Type = "action" are not impelmented yet', action, ticker, selectedRows);
-
-
+                        console.error('actions with Type = "action" are not impelmented yet', action, ticker, selectedRows);
 
                     } else if (action.Type && action.Type.toLowerCase() === 'transition') {
                         if (!uniEntityClass) {
@@ -287,7 +293,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             requests.push(service.Transition(row['ID'], row, action.Transition));
 
                             if (!row._links.transitions[action.Transition]) {
-                                reject(`Cannot execute transition${action.Transition} for ID ${row['ID']}, transition is not available for this item`);
+                                reject(`Cannot execute transition ${action.Transition} for ID ${row['ID']}, transition is not available for this item`);
                             }
 
                             console.log(`Transition ${action.Transition} queued for ID ${row['ID']}`);
@@ -296,7 +302,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         Observable
                             .forkJoin(requests)
                             .subscribe(response => {
-                                console.log('response forkjoin:', response);
                                 resolve();
                             },
                             err => {
@@ -367,7 +372,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
                     break;
                 case 'percent':
-                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
+                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue) + '%';
                     break;
                 case 'date':
                 case 'datetime':
@@ -429,7 +434,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 }
             }
 
-            if (url !== '') {
+            if (url !== '' && formattedFieldValue !== '') {
                 formattedFieldValue = `<a href="/#${url}">${formattedFieldValue}</a>`;
             }
         }
@@ -651,6 +656,83 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         this.storageService.save(this.TICKER_LOCALSTORAGE_KEY, JSON.stringify(existingHistory), true);
     }
+
+    public getOperators() {
+        return [
+            {
+                'verb': 'inneholder',
+                'operator': 'contains',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'begynner med',
+                'operator': 'startswith',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'slutter på',
+                'operator': 'endswith',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'er',
+                'operator': 'eq',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'er ikke',
+                'operator': 'ne',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'er større enn',
+                'operator': 'gt',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            },
+            {
+                'verb': 'er større el. lik',
+                'operator': 'ge',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            },
+            {
+                'verb': 'er mindre enn',
+                'operator': 'lt',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            },
+            {
+                'verb': 'er mindre el. lik',
+                'operator': 'le',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            }
+        ];
+    }
 }
 
 export class TickerGroup {
@@ -737,6 +819,7 @@ export class TickerAction {
     public DisplayInContextMenu?: boolean = true;
     public DisplayInActionBar?: boolean = true;
     public DisplayForSubTickers?: boolean = true;
+    public ParameterProperty?: string;
 }
 
 export class TickerHistory {

@@ -1,5 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Ticker, TickerFilter} from '../../../services/common/uniTickerService';
+import {Ticker, TickerFilter, TickerFieldFilter, UniTickerService, ApiModel} from '../../../services/common/uniTickerService';
+import {StatusService} from '../../../services/services';
 
 declare const _; // lodash
 
@@ -17,9 +18,11 @@ export class UniTickerFilters {
     @Output() filterChanged: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
     @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
-    private selectedMainModel: any;
+    private selectedMainModel: ApiModel;
+    private operators: Array<any>;
 
-    constructor() {
+    constructor(private uniTickerService: UniTickerService, private statusService: StatusService) {
+        this.operators = uniTickerService.getOperators();
     }
 
     public ngOnInit() {
@@ -59,6 +62,35 @@ export class UniTickerFilters {
     private onFilterChanged(updatedFilter) {
         this.selectedFilter = _.cloneDeep(updatedFilter);
         this.filterChanged.emit(updatedFilter);
+    }
+
+    private getFilterHumanReadable(fieldFilter: TickerFieldFilter) {
+
+        let filter: string = '';
+
+        // TODO: Get translated name when that is available through the API
+        if (fieldFilter.Field.toLocaleLowerCase() === 'statuscode') {
+            filter += 'Status ';
+        } else {
+            filter += fieldFilter.Field + ' ';
+        }
+
+        let operatorReadable = this.operators.find(x => x.operator === fieldFilter.Operator);
+        filter += (operatorReadable ? operatorReadable.verb : fieldFilter.Operator) + ' ';
+
+        // replace with statuscode if field == statuscode
+        if (fieldFilter.Field.toLowerCase().endsWith('statuscode')) {
+            let status = this.statusService.getStatusText(+fieldFilter.Value);
+            filter += (status ? status : fieldFilter.Value);
+        } else if (fieldFilter.Value.toLowerCase() === 'getdate()') {
+            filter += 'dagens dato';
+        } else {
+            filter += fieldFilter.Value;
+        }
+
+        filter += ' ';
+
+        return filter;
     }
 
     private onModelSelected(mainModel) {

@@ -169,8 +169,8 @@ export class UniTicker {
 
         // if we have actions that are transitions we need to add hateoas to the data to be able to
         // analyse if a transition is valid
-        if (this.ticker.Actions
-            && this.ticker.Actions.filter(x => x.Type === 'transition').length > 0) {
+        let actions = this.getTickerActions();
+        if (actions.filter(x => x.Type === 'transition').length > 0) {
             params.set('hateoas', 'true');
         }
 
@@ -217,23 +217,33 @@ export class UniTicker {
                 } else {
                     // get detaildata using the same lookupfunction as uni-table, but no point in
                     // retrieving more than one row
-                    this.lookupFunction(new URLSearchParams('top=1'))
-                        .map(data => data.json())
-                        .map(data => data.Data ? data.Data : [])
-                        .subscribe(data => {
-                            if (data && data.length > 0) {
-                                this.model = data[0];
-                            } else {
-                                this.model = null;
-                            }
-                        });
+                    this.loadDetailTickerData();
                 }
             });
         }
     }
 
+    private loadDetailTickerData() {
+        this.lookupFunction(new URLSearchParams('top=1'))
+            .map(data => data.json())
+            .map(data => data.Data ? data.Data : [])
+            .subscribe(data => {
+                if (data && data.length > 0) {
+                    this.model = data[0];
+                } else {
+                    this.model = null;
+                }
+            });
+    }
+
     private letUniTableHandleIsOwnClicks() {
         event.stopPropagation();
+    }
+
+    private getTickerActions() : Array<TickerAction> {
+        return this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions ?
+            this.parentTicker.Actions :
+            this.ticker.Actions ? this.ticker.Actions : [];
     }
 
     private onRowSelected(rowSelectEvent) {
@@ -265,30 +275,38 @@ export class UniTicker {
         }
 
         if (!allowNoRows && selectedRows.length === 0 && !this.selectedRow) {
-            let hasMultipleIDs = false;
-
             if (this.unitable) {
                 let allRows: Array<any> = this.unitable.getTableData();
-
+                let hasMultipleIDs = false;
                 let lastID = null;
+
+                let rowIdentifier = 'ID';
+                if (action.Type === 'details' && action.ParameterProperty !== '') {
+                    rowIdentifier = action.ParameterProperty;
+                }
 
                 for (let i = 0; i < allRows.length && !hasMultipleIDs; i++) {
                     let row = allRows[i];
 
-                    // TODO: Need to consider this - what we really want is to be able to specify what parameter to
-                    // use when calling the action - that is the one that needs to be distinct
-
-                    if (lastID && row['ID'] !== lastID) {
+                    if (lastID && row[rowIdentifier] !== lastID) {
                         hasMultipleIDs = true;
                     }
 
-                    lastID = row['ID'];
+                    lastID = row[rowIdentifier];
 
                     if (hasMultipleIDs) {
                         alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
                         return;
                     }
                 }
+
+                // we havent selected any rows, but all rows have the same identifier (normally ID, but this
+                // can be overridden), so we just create a simulated selectedRow and run the action - this will
+                // normally just occur if you only have one row in the table, or if we are using a list ticker
+                // as a subticker with filter for the identifier property
+                let selectedRow = {};
+                selectedRow[rowIdentifier] = lastID;
+                this.selectedRow = selectedRow;
             } else {
                 alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
                 return;
@@ -326,6 +344,8 @@ export class UniTicker {
                         // refresh table data after actions/transitions are executed
                         if (this.unitable) {
                             this.unitable.refreshTableData();
+                        } else {
+                            this.loadDetailTickerData();
                         }
                     }
                 })
@@ -421,7 +441,12 @@ export class UniTicker {
                     }
 
                     if (field.Type === 'external-link') {
-                        col.setTemplate(row => `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`);
+                        col.setTemplate(row => {
+                            if (row[col.alias] && row[col.alias] !== '') {
+                                return `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`;
+                            }
+                            return '';
+                        });
                     } else if (field.Type === 'attachment') {
                         col.setTemplate(line => line.Attachments ? PAPERCLIP : '')
                             .setOnCellClick(line =>
@@ -487,24 +512,20 @@ export class UniTicker {
                     }
                 });
 
-                let actionsWithDetailNavigation = [];
-                if (this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions) {
-                    actionsWithDetailNavigation =
-                        this.parentTicker.Actions.filter(st =>
-                            st.Type === 'details'
-                            || st.Type === 'action'
-                            || st.Type === 'transition'
-                        );
-                } else if (this.ticker.Actions) {
-                    actionsWithDetailNavigation = this.ticker.Actions.filter(st =>
-                            st.Type === 'details'
-                            || st.Type === 'action'
-                            || st.Type === 'transition'
+                let actionsWithDetailNavigation: Array<TickerAction> = [];
+                actionsWithDetailNavigation =
+                    this.getTickerActions().filter(st =>
+                        st.Type === 'details'
+                        || st.Type === 'action'
+                        || st.Type === 'transition'
                     );
-                }
 
                 actionsWithDetailNavigation.forEach(st => {
                     let paramSelect = 'ID as ID';
+                    if (st.ParameterProperty !== '') {
+                        paramSelect = `${st.ParameterProperty} as ${st.ParameterProperty.replace('.', '')}`;
+                    }
+
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
                     }
