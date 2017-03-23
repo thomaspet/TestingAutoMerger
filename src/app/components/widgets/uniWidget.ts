@@ -36,8 +36,10 @@ export class UniWidget {
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
-    public ngAfterViewInit() {
-        this.loadWidget();
+    public ngOnChanges() {
+        if (this.config) {
+            this.loadWidget();
+        }
     }
 
     private loadWidget() {
@@ -51,9 +53,6 @@ export class UniWidget {
         if (this.config.widgetName === 'shortcut') {
             (<any>componentRef.instance).config = this.config.tileData;
         }
-        // use base class for widgets instead of <any>
-        //(<any> componentRef.instance).dummyWidgetInitFunction();
-
     }
 
 }
