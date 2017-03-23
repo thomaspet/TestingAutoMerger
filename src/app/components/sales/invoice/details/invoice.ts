@@ -128,15 +128,7 @@ export class InvoiceDetails {
     }
 
     public ngOnInit() {
-        this.summaryFields = [
-            { title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0) },
-            { title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0) },
-            { title: 'Sum rabatt', value: this.numberFormat.asMoney(0) },
-            { title: 'Nettosum', value: this.numberFormat.asMoney(0) },
-            { title: 'Mva', value: this.numberFormat.asMoney(0) },
-            { title: 'Øreavrunding', value: this.numberFormat.asMoney(0) },
-            { title: 'Totalsum', value: this.numberFormat.asMoney(0) },
-        ];
+        this.recalcItemSums(null);
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
@@ -179,6 +171,7 @@ export class InvoiceDetails {
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
+                    this.recalcItemSums(null);
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
@@ -1025,48 +1018,53 @@ export class InvoiceDetails {
 
 
     // Summary
-    public recalcItemSums(invoiceItems) {
-        if (!invoiceItems) {
-            return;
-        }
+    public recalcItemSums(invoiceItems: Array<CustomerInvoice> = null) {
+        if (invoiceItems) {
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
+            this.updateSaveActions();
+            this.updateToolbar();
+        } else {
+            this.itemsSummaryData = null;
 
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
-        this.updateSaveActions();
-        this.updateToolbar();
+        }
 
         this.summaryFields = [
             {
-                value: this.getCurrencyCode(this.currencyCodeID),
+                value: !this.itemsSummaryData ? '' : this.getCurrencyCode(this.currencyCodeID),
                 title: 'Valuta:',
                 description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
             },
             {
                 title: 'Avgiftsfritt',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
             },
             {
                 title: 'Avgiftsgrunnlag',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
             },
             {
                 title: 'Sum rabatt',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
             },
             {
                 title: 'Nettosum',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
             },
             {
                 title: 'Mva',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
             },
             {
                 title: 'Øreavrunding',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
             },
             {
                 title: 'Totalsum',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
+            },
+            {
+                title: 'Restbeløp',
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
             },
         ];
     }
