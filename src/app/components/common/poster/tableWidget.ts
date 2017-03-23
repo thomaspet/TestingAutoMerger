@@ -15,10 +15,10 @@ export interface ITableWidgetRow {
     template: `
         <table>
             <tr *ngFor="let row of config.rows">
-                <template ngFor let-cell [ngForOf]="row.cells">
-                    <th *ngIf="cell.header" [attr.colspan]="cell.colspan || 1">{{cell.text}}</th> 
-                    <td *ngIf="!cell.header" [attr.colspan]="cell.colspan || 1">{{cell.text}}</td> 
-                </template>
+                <ng-template ngFor let-cell [ngForOf]="row.cells">
+                    <th *ngIf="cell.header" [attr.colspan]="cell.colspan || 1">{{cell.text}}</th>
+                    <td *ngIf="!cell.header" [attr.colspan]="cell.colspan || 1">{{cell.text}}</td>
+                </ng-template>
             </tr>
         </table>
     `

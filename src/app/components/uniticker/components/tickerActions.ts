@@ -7,7 +7,7 @@ import { IContextMenuItem } from 'unitable-ng2/main';
     templateUrl: './tickerActions.html'
 })
 export class UniTickerActions {
-
+    @Input() ticker: Ticker;
     @Input() actions: Array<TickerAction>;
     @Input() isSubTicker: boolean;
     @Output() executeAction: EventEmitter<TickerAction> = new EventEmitter<TickerAction>();
@@ -22,15 +22,18 @@ export class UniTickerActions {
             this.contextmenu = [];
 
             this.actions.forEach(action => {
-                this.contextmenu.push({
-                    action: () => {
-                        this.onActionClicked(action);
-                    },
-                    disabled: () => {
-                        return action.DisplayInActionBar != null && !action.DisplayInActionBar;
-                    },
-                    label: action.Name
-                });
+                if ((this.ticker.Type === 'table' && action.DisplayInActionBar && action.DisplayForSubTickers)
+                    || (this.ticker.Type === 'details' && action.DisplayInContextMenu && action.DisplayForSubTickers)) {
+                    this.contextmenu.push({
+                        action: () => {
+                            this.onActionClicked(action);
+                        },
+                        disabled: () => {
+                            return false;
+                        },
+                        label: action.Name
+                    });
+                }
             });
         }
     }

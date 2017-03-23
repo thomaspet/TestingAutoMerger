@@ -4,6 +4,6 @@
         [class.small]="!column.Size || column.Size === 'small'"
         [class.medium]="column.Size === 'medium'">
         <label>{{column.Header}}</label>
-        <div>{{getFieldValue(column, model)}}</div>
+        <div [innerHtml]="getFieldValue(column, model) | safehtml"></div>
     </div>
 </section>

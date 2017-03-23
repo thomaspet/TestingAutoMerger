@@ -7,12 +7,13 @@ import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../../framework/core/authService';
-import {ApiModelService, ModuleConfig} from './apiModelService';
+import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
 import {ErrorService} from './errorService';
+import {StatusService} from './statusService';
 import * as allModels from '../../unientities';
 
 import * as moment from 'moment';
-
+declare const _; // lodash
 
 @Injectable()
 export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
@@ -28,6 +29,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         private storageService: BrowserStorageService,
         private authService: AuthService,
         private router: Router,
+        private statusService: StatusService,
         private modelService: ApiModelService,
         private errorService: ErrorService) {
         /* KE: We dont have a backend endpoint yet - consider this later
@@ -52,65 +54,95 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     public loadTickerCache(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.modelService.loadModelCache().then(() => {
-                if (!this.tickers) {
-                    // get statuses from API and add it to the cache
-                    this.http.get('assets/tickers/tickers.json')
-                        .map(x => x.json())
-                        .map((tickers: Array<Ticker>) => {
-                            tickers.forEach(ticker => {
-                                if (!ticker.Filters || ticker.Filters.length === 0) {
-                                    let filter = new TickerFilter();
-                                    filter.Name = 'Egendefinert';
-                                    filter.Code = ticker.Model + 'CustomSearch';
-                                    filter.FilterGroups = [];
-                                    filter.IsActive = false;
+                this.statusService.loadStatusCache().then(() => {
+                    if (!this.tickers) {
+                        // get statuses from API and add it to the cache
+                        this.http.get('assets/tickers/tickers.json')
+                            .map(x => x.json())
+                            .map((tickers: Array<Ticker>) => {
+                                tickers.forEach(ticker => {
+                                    if (!ticker.Filters || ticker.Filters.length === 0) {
+                                        let filter = new TickerFilter();
+                                        filter.Name = 'Egendefinert';
+                                        filter.Code = ticker.Model + 'CustomSearch';
+                                        filter.FilterGroups = [];
+                                        filter.IsActive = false;
 
-                                    if (!ticker.Filters) {
-                                        ticker.Filters = [];
+                                        if (!ticker.Filters) {
+                                            ticker.Filters = [];
+                                        }
+
+                                        ticker.Filters.push(filter);
+                                    }
+                                });
+
+                                return tickers;
+                            })
+                            .map(tickers => {
+                                // fix typings in config, use lowerCase consistently
+                                tickers.forEach(t => {
+                                    if (t.Type) {
+                                        t.Type = t.Type.toLowerCase();
+                                    } else {
+                                        t.Type = 'table';
                                     }
 
-                                    ticker.Filters.push(filter);
-                                }
-                            });
+                                    let model = null;
+                                    if (t.Model && t.Model !== '') {
+                                        model = this.modelService.getModel(t.Model);
+                                        t.ApiModel = model;
+                                    }
 
-                            return tickers;
-                        })
-                        .map(tickers => {
-                            // fix typings in config, use lowerCase consistently
-                            tickers.forEach(t => {
-                                if (t.Type) {
-                                    t.Type = t.Type.toLowerCase();
-                                }
+                                    if (t.Columns) {
+                                        t.Columns.forEach(c => {
+                                            c.Type = c.Type ? c.Type.toLowerCase() : '';
 
-                                let model = null;
-                                if (t.Model && t.Model !== '') {
-                                    model = this.modelService.getModel(t.Model);
-                                }
+                                            this.setupFieldProperties(c, t, model);
 
-                                if (t.Columns) {
-                                    t.Columns.forEach(c => {
-                                        this.setupFieldProperties(c, t, model);
+                                            if (c.SubFields) {
+                                                c.SubFields.forEach(sf => {
+                                                    this.setupFieldProperties(sf, t, model);
+                                                });
+                                            }
+                                        });
+                                    }
 
-                                        if (c.SubFields) {
-                                            c.SubFields.forEach(sf => {
-                                                this.setupFieldProperties(sf, t, model);
-                                            });
-                                        }
-                                    });
-                                }
-                            });
+                                    if (t.Actions) {
+                                        t.Actions.forEach(action => {
+                                            t.Type = t.Type ? t.Type.toLowerCase() : '';
 
-                            return tickers;
-                        })
-                        .subscribe(data => {
-                            this.tickers = data;
+                                            if (typeof action.DisplayInActionBar !== 'boolean') {
+                                                action.DisplayInActionBar = true;
+                                            }
+                                            if (typeof action.DisplayInContextMenu !== 'boolean') {
+                                                action.DisplayInContextMenu = false;
+                                            }
+                                            if (typeof action.DisplayForSubTickers !== 'boolean') {
+                                                action.DisplayForSubTickers = true;
+                                            }
+                                            if (typeof action.ExecuteWithMultipleSelections !== 'boolean') {
+                                                action.ExecuteWithMultipleSelections = false;
+                                            }
+                                            if (typeof action.ExecuteWithoutSelection !== 'boolean') {
+                                                action.ExecuteWithoutSelection = false;
+                                            }
 
-                            resolve();
-                        }, err => reject(err)
-                    );
-                } else {
-                    resolve();
-                }
+                                        });
+                                    }
+                                });
+
+                                return tickers;
+                            })
+                            .subscribe(data => {
+                                this.tickers = data;
+
+                                resolve();
+                            }, err => reject(err)
+                        );
+                    } else {
+                        resolve();
+                    }
+                });
             });
         });
     }
@@ -159,7 +191,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         // set the Alias we are using in the query to simplify
         // getting the data later on
-        c.Alias = aliasColName;
+        c.Alias = c.Alias ? c.Alias : aliasColName;
         c.SelectableFieldName = selectableColName;
 
         // if not fieldtype is configured for the ticker column, try to find
@@ -197,8 +229,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 .then(() => {
                     let model = this.modelService.getModel(ticker.Model);
                     let uniEntityClass = allModels[ticker.Model];
-
-                    console.log('uniEntityClass.RelativeUrl: ' + uniEntityClass.RelativeUrl);
 
                     if (action.Type && action.Type.toLowerCase() === 'new') {
                         // get url for new entity, navigate
@@ -305,7 +335,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     if (!ticker.SubTickers.find(x => x.Code === subTickerCode)) {
                         let subTicker = tickers.find(x => x.Code === subTickerCode);
                         if (subTicker) {
-                            ticker.SubTickers.push(subTicker);
+                            ticker.SubTickers.push(_.cloneDeep(subTicker));
                         }
                     }
                 });
@@ -317,8 +347,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return groups;
     }
 
-    public getFieldValue(column: TickerColumn, model: any) {
-        let fieldValue: any = this.getFieldValueInternal(column, model);
+    public getFieldValue(column: TickerColumn, data: any, ticker: Ticker) {
+        let fieldValue: any = this.getFieldValueInternal(column, data);
 
         if (!fieldValue) {
             fieldValue = '';
@@ -326,9 +356,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         let formattedFieldValue = fieldValue;
 
-        if (fieldValue !== '') {
-            let columnType = column.Type ? column.Type.toLowerCase() : '';
+        let columnType = column.Type;
 
+        if (fieldValue !== '') {
             switch (columnType) {
                 case 'number':
                     formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
@@ -347,16 +377,69 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
         }
 
+        if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+            formattedFieldValue = this.statusCodeToText(data[column.Alias]);
+        }
+
         if (column.SubFields && column.SubFields.length > 0) {
             column.SubFields.forEach(sf => {
-                let subFieldValue = this.getFieldValue(sf, model);
+                let subFieldValue = this.getFieldValue(sf, data, ticker);
                 if (subFieldValue && subFieldValue !== '') {
-                    formattedFieldValue += ', ' + subFieldValue;
+                    formattedFieldValue += ' - ' + subFieldValue;
                 }
             });
         }
 
+        if (columnType === 'link') {
+            let url = '';
+            if (column.ExternalModel) {
+                let externalModel = this.modelService.getModel(column.ExternalModel);
+
+                if (externalModel && externalModel.DetailsUrl) {
+                    url = externalModel.DetailsUrl;
+
+                    if (column.LinkNavigationProperty) {
+                        let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                        if (data[linkNavigationPropertyAlias]) {
+                            url = url.replace(':id', data[linkNavigationPropertyAlias]);
+                        } else {
+                            // we dont have enough data to link to the external model, just show
+                            // the property as a normal field
+                            url = '';
+                        }
+                    } else {
+                        if (data['ID']) {
+                            url = url.replace(':id', data['ID']);
+                        }
+                    }
+                } else {
+                    console.error(`${column.ExternalModel} not found, or no details url specified for model`);
+                }
+            } else {
+                let model = ticker.ApiModel ? ticker.ApiModel : this.modelService.getModel(ticker.Model);
+
+                if (model && model.DetailsUrl) {
+                    url = model.DetailsUrl;
+
+                    if (data['ID']) {
+                        url = url.replace(':id', data['ID']);
+                    }
+                } else {
+                    console.error(`${ticker.Model} not found, or no details url specified for model`);
+                }
+            }
+
+            if (url !== '') {
+                formattedFieldValue = `<a href="/#${url}">${formattedFieldValue}</a>`;
+            }
+        }
+
         return formattedFieldValue;
+    }
+
+    private statusCodeToText(statusCode: number): string {
+        let text: string = this.statusService.getStatusText(statusCode);
+        return text || (statusCode ? statusCode.toString() : '');
     }
 
     private getFieldValueInternal(column: TickerColumn, model: any): any {
@@ -578,21 +661,24 @@ export class TickerGroup {
 export class Ticker {
     public Name: string;
     public Code: string;
-    public Type: string;
+    public Type?: string;
     public Group: string;
     public IsTopLevelTicker: boolean;
     public Model: string;
-    public Expand: string;
-    public ApiUrl: string;
-    public ListObject: string;
-    public DisableFiltering: boolean;
+    public ApiModel?: ApiModel;
+    public Expand?: string;
+    public Joins?: string;
+    public ApiUrl?: string;
+    public ListObject?: string;
+    public DisableFiltering?: boolean;
     public Columns: Array<TickerColumn>;
-    public ParentFilter: TickerFieldFilter;
-    public SubTickers: Array<Ticker>;
-    public SubTickersCodes: Array<string>;
-    public Filters: Array<TickerFilter>;
-    public Actions: Array<TickerAction>;
-    public IsActive: boolean;
+    public ParentFilter?: TickerFieldFilter;
+    public SubTickers?: Array<Ticker>;
+    public SubTickersCodes?: Array<string>;
+    public Filters?: Array<TickerFilter>;
+    public UseParentTickerActions?: boolean;
+    public Actions?: Array<TickerAction>;
+    public IsActive?: boolean;
 }
 
 export class TickerFieldFilter {
@@ -610,16 +696,18 @@ export interface IExpressionFilterValue {
 }
 
 export class TickerColumn {
-    public Header: string;
+    public Header?: string;
     public Field: string;
-    public SelectableFieldName: string;
-    public Format: string;
-    public Width: string;
-    public CssClass: string;
-    public Type: string;
-    public SumFunction: string;
-    public Alias: string;
-    public SubFields: Array<TickerColumn>;
+    public SelectableFieldName?: string;
+    public Format?: string;
+    public Width?: string;
+    public CssClass?: string;
+    public Type?: string;
+    public SumFunction?: string;
+    public Alias?: string;
+    public ExternalModel?: string;
+    public LinkNavigationProperty?: string;
+    public SubFields?: Array<TickerColumn>;
 }
 
 export class TickerFilterGroup {
@@ -640,14 +728,15 @@ export class TickerFilter {
 export class TickerAction {
     public Name: string;
     public Code: string;
-    public ConfirmBeforeExecuteMessage: string;
-    public ExecuteWithMultipleSelections: boolean;
-    public ExecuteWithoutSelection: boolean;
+    public ConfirmBeforeExecuteMessage?: string;
+    public ExecuteWithMultipleSelections?: boolean;
+    public ExecuteWithoutSelection?: boolean;
     public Type: string;
-    public Action: string;
-    public Transition: string;
-    public DisplayInContextMenu: boolean;
-    public DisplayInActionBar: boolean;
+    public Action?: string;
+    public Transition?: string;
+    public DisplayInContextMenu?: boolean = true;
+    public DisplayInActionBar?: boolean = true;
+    public DisplayForSubTickers?: boolean = true;
 }
 
 export class TickerHistory {

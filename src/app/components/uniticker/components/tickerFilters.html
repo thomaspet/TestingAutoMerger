@@ -14,7 +14,7 @@
 
             </div>
             <div class="rule-setup">
-                <h2>Finn {{selectedMainModel ? selectedMainModel.Translated ? selectedMainModel.Translated: selectedMainModel.Name : ticker.Model}} hvor:</h2>
+                <h2>Finn {{getModelName()}} hvor:</h2>
                 <uni-ticker-filter-editor
                     *ngIf="selectedMainModel"
                     [filter]="selectedFilter"
@@ -33,7 +33,7 @@
             <div class="filter-summary">
                 <h3>Viser</h3>
                 <ul>
-                    <li>{{ticker.Model}}</li>
+                    <li>{{getModelName()}}</li>
                 </ul>
 
                 <span *ngIf="filters && filters.length > 0">
@@ -54,19 +54,19 @@
                 <h3>Filter</h3>
                 <span *ngIf="selectedFilter">
                     <ul *ngIf="selectedFilter.FilterGroups?.length > 0">
-                        <template ngFor let-group [ngForOf]="selectedFilter.FilterGroups" let-i="index" let-lastGroup="last">
-                            <template ngFor let-fieldFilter [ngForOf]="group.FieldFilters" let-i="index" let-lastFilter="last">
+                        <ng-template ngFor let-group [ngForOf]="selectedFilter.FilterGroups" let-i="index" let-lastGroup="last">
+                            <ng-template ngFor let-fieldFilter [ngForOf]="group.FieldFilters" let-i="index" let-lastFilter="last">
                                 <li class="field-filter">
                                     {{fieldFilter.Field}} {{fieldFilter.Operator}} {{fieldFilter.Value}} {{fieldFilter.Value2}}
                                 </li>
                                 <li *ngIf="!lastFilter" class="field-filter">
                                     <i>{{ group.UseAllCriterias ? 'og' : 'eller' }}</i>
                                 </li>
-                            </template>
+                            </ng-template>
                             <li *ngIf="!lastGroup">
                                 {{ selectedFilter.UseAllCriterias ? 'og' : 'eller' }}
                             </li>
-                        </template>
+                        </ng-template>
                     </ul>
                     <ul *ngIf="selectedFilter.Filter && selectedFilter.Filter !== '' && (!selectedFilter.FilterGroups || selectedFilter.FilterGroups.length ===0)">
                         <li>{{selectedFilter.Filter}}</li>

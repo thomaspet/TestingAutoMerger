@@ -22,7 +22,7 @@ import {GuidService} from '../../../../app/services/services';
                class="contextmenu_item"
                (click)="runAction(action)"
                role="menuitem"
-               [attr.aria-disabled]="false"
+               [attr.aria-disabled]="isActionDisabled(action)"
                [title]="action.label"
                >
                {{action.label}}
@@ -42,9 +42,15 @@ export class ContextMenu {
         this.guid = gs.guid();
     }
 
-    public runAction(action) {
-        this.close();
-        action.action();
+    private isActionDisabled(action: IContextMenuItem) {
+        return action.disabled && action.disabled();
+    }
+
+    private runAction(action: IContextMenuItem) {
+       if (!this.isActionDisabled(action)) {
+           this.close();
+           action.action();
+       }
    }
 
     private close() {

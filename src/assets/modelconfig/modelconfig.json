@@ -223,12 +223,24 @@
             "Url": "/products/:id"
         },
         {
-            "Name": "JournalEntryLine",
-            "Translated": "Bilagslinje"
+            "Name": "Supplier",
+            "Translated": "Leverandør",
+            "Url": "/suppliers/:id"
+        },
+        {
+            "Name": "SupplierInvoice",
+            "Translated": "Fakturamottak",
+            "Url": "/accounting/bill/:id"
         },
         {
             "Name": "JournalEntry",
-            "Translated": "Bilag"
+            "Translated": "Bilag",
+            "Url": "/accounting/journalentry/manual;journalEntryID=:id"
+        },
+        {
+            "Name": "JournalEntryLine",
+            "Translated": "Bilagslinjer",
+            "Url": "/accounting/journalentry/manual;journalEntryLineID=:id"
         }
     ]
 }

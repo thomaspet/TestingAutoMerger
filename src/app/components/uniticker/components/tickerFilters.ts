@@ -39,6 +39,19 @@ export class UniTickerFilters {
         this.stopPropagation();
     }
 
+    private getModelName() {
+
+        if (this.selectedMainModel) {
+            return this.selectedMainModel.TranslatedName ? this.selectedMainModel.TranslatedName: this.selectedMainModel.Name;
+        }
+
+        if (this.ticker.ApiModel) {
+            return this.ticker.ApiModel.TranslatedName ? this.ticker.ApiModel.TranslatedName: this.ticker.ApiModel.Name;
+        }
+
+        return this.ticker.Model;
+    }
+
     public setStandardSearch() {
         alert('Ikke implementert - dette krever at serverside funksjonalitet er på plass');
     }

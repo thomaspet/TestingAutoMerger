@@ -5,21 +5,22 @@
         <div class="sub-ticker-container" *ngIf="expanded">
             <button (click)="closeSubtickers()" class="closeBtn"></button>
             <div class="sub-ticker-container-expanded" (click)="stopPropagation()">
-                <template ngFor let-subTicker [ngForOf]="subTickers">
+                <ng-template ngFor let-subTicker [ngForOf]="subTickers">
                     <uni-ticker
                         [header]="subTicker.Name"
                         [ticker]="subTicker"
-                        [parentModel]="parentModel">
+                        [parentModel]="parentModel"
+                        [parentTicker]="parentTicker">
                     </uni-ticker>
-                </template>
+                </ng-template>
             </div>
         </div>
         <div class="sub-ticker-container" *ngIf="!expanded">
             <dl class="sub-ticker-summary">
-                <template ngFor let-column [ngForOf]="parentTicker.Columns">
+                <ng-template ngFor let-column [ngForOf]="parentTicker.Columns">
                     <dd>{{column.Header}}</dd>
                     <dt>{{getFieldValue(column, parentModel)}}</dt>
-                </template>
+                </ng-template>
             </dl>
         </div>
     </div>

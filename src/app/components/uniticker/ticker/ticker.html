@@ -1,22 +1,22 @@
-<section *ngIf="ticker && prefetchDataLoaded">
+<section *ngIf="ticker && prefetchDataLoaded && canShowTicker">
     <section class="filter-info" *ngIf="selectedFilter">
         Filter: {{selectedFilter.Name}} {{getFilterText()}}
     </section>
     <section class="ticker-data">
         <h3 *ngIf="header && header.length > 0">{{header}}</h3>
-        <section *ngIf="ticker.Actions && ticker.Actions.length > 0">
-            <uni-ticker-actions [actions]="ticker.Actions" (executeAction)="onExecuteAction($event)" [isSubTicker]="!!parentModel"></uni-ticker-actions>
+        <section *ngIf="(ticker.Actions && ticker.Actions.length > 0) || (ticker.UseParentTickerActions && parentTicker && parentTicker.Actions && parentTicker.Actions.length > 0)">
+            <uni-ticker-actions [ticker]="ticker" [actions]="ticker.UseParentTickerActions && parentTicker ? parentTicker.Actions : ticker.Actions" (executeAction)="onExecuteAction($event)" [isSubTicker]="!!parentModel"></uni-ticker-actions>
         </section>
         <section class="data-container" (click)="letUniTableHandleIsOwnClicks()">
             <uni-table
-                *ngIf="!ticker.Type || ticker.Type === 'table'"
+                *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
                 (columnsChange)="onColumnsChange($event)"
                 (rowSelected)="onRowSelected($event)">
             </uni-table>
 
-            <div *ngIf="ticker.Type && ticker.Type !== 'table'">
+            <div *ngIf="ticker.Type !== 'table'">
                 <uni-ticker-detail-view
                     [ticker]="ticker"
                     [model]="model">
@@ -25,3 +25,6 @@
         </section>
     </section>
 </section>
+
+<image-modal></image-modal>
+<uni-confirm-modal></uni-confirm-modal>

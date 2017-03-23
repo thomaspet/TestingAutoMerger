@@ -7,7 +7,7 @@ import {ErrorService} from './errorService';
 
 @Injectable()
 export class ApiModelService {
-    private models: Array<any>;
+    private models: Array<ApiModel>;
     private modules: Array<ModuleConfig>;
 
     constructor(private uniHttpService: UniHttp,
@@ -19,7 +19,7 @@ export class ApiModelService {
         }
     }
 
-    public getModel(name: string): any {
+    public getModel(name: string): ApiModel {
         if (this.models) {
             return this.models.find(x => x.Name === name);
         }
@@ -27,7 +27,7 @@ export class ApiModelService {
         return null;
     }
 
-    public getModels(): Array<any> {
+    public getModels(): Array<ApiModel> {
         this.models.forEach(x => {
             x.Expanded = false;
             x.Selected = false;
@@ -35,7 +35,7 @@ export class ApiModelService {
         return this.models;
     }
 
-    public getField(model: any, field: string) {
+    public getField(model: ApiModel, field: string) {
         return model.Fields[field.toLowerCase()];
     }
 
@@ -116,6 +116,16 @@ export class ApiModelService {
             }
         });
     }
+}
+
+export class ApiModel {
+    public Name: string;
+    public Fields: any;
+
+    public Expanded?: boolean;
+    public Selected?: boolean;
+    public DetailsUrl?: string;
+    public TranslatedName?: string;
 }
 
 export class UniModuleAndModelSetup {

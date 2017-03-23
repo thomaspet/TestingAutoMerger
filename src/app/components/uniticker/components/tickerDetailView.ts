@@ -14,6 +14,6 @@ export class UniTickerDetailView {
     }
 
     public getFieldValue(column: TickerColumn, model: any) {
-        return this.tickerService.getFieldValue(column, model);
+        return this.tickerService.getFieldValue(column, model, this.ticker);
     }
 }

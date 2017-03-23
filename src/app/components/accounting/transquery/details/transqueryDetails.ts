@@ -33,6 +33,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 export class TransqueryDetails implements OnInit {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(ImageModal) private imageModal: ImageModal;
 
     private summaryData: TransqueryDetailsCalculationsSummary;
     private uniTableConfig: UniTableConfig;
@@ -54,10 +55,6 @@ export class TransqueryDetails implements OnInit {
     };
 
     private COLUMN_VISIBILITY_LOCALSTORAGE_KEY = 'TransqueryDetailsColumnVisibility';
-
-
-    @ViewChild(ImageModal)
-    private imageModal: ImageModal;
 
     constructor(
         private route: ActivatedRoute,
