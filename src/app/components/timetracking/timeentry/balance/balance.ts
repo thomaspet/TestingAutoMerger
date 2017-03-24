@@ -1,8 +1,9 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../utils/utils';
+import {UniTimeModal} from '../../components/popupeditor';
 import * as moment from 'moment';
 
 @Component({
@@ -15,6 +16,7 @@ export class RegtimeBalance {
         this.reloadBalance(value);
     }
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
+    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
     public busy: boolean = true;
     private current: WorkRelation;
     public currentBalance: WorkBalanceDto;
@@ -35,9 +37,15 @@ export class RegtimeBalance {
         this.reloadBalance(this.current);
     }
 
-    public onShowDetails(details: true) {
+    public onShowDetails(details: boolean = true) {
         this.busy = true;
         this.reloadBalance(this.current, details);
+    }
+
+    public onDayClick(item: IDetail) {
+        this.timeModal.open(this.current, item.Date).then( x => {
+            if (x) { this.onShowDetails(this.hasDetails); }
+        });
     }
 
     private reloadBalance(rel: WorkRelation, details: boolean = false) {

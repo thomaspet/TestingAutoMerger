@@ -33,6 +33,7 @@ import {View as WorkBalancesView} from './worker/balances';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WorkEditor} from './components/workeditor';
 import {DayBrowser} from './components/daybrowser';
+import {UniTimeModal} from './components/popupeditor';
 
 @NgModule({
     imports: [
@@ -72,8 +73,9 @@ import {DayBrowser} from './components/daybrowser';
         VacationView,
         WorkBalancesView,
         WorkEditor,
-        DayBrowser
-    ],
+        DayBrowser,
+        UniTimeModal        
+    ],  
     providers: [
         Lookupservice,
         CanDeactivateGuard

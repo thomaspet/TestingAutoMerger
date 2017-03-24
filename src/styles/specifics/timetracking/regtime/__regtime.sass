@@ -296,3 +296,17 @@ button.normal
 .wideapplication
     margin-left: 1em
     margin-right: 1em
+
+.clickablecell
+    @extend %clickable
+
+    &:hover
+        background-color: $uni-color-scale8
+
+uni-time-modal
+    dialog.uniModal .modal-content
+        width: 95vw
+
+    dialog.uniModal .total
+        float: left
+        font-weight: bold

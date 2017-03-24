@@ -351,16 +351,6 @@ export class TimeEntry {
         return true;
     }
 
-    private onFilterClick(filter: IFilter) {
-        this.checkSave().then( () => {
-            this.filters.forEach((value: any) => value.isSelected = false);
-            filter.isSelected = true;
-            this.currentFilter = filter;
-            this.busy = true;
-            this.loadItems();
-        });
-    }
-
     private checkSave(rejectIfFail: boolean = false): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {

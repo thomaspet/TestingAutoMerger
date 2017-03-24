@@ -1,8 +1,9 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {safeInt} from '../../utils/utils';
 import {ErrorService} from '../../../../services/services';
+import {UniTimeModal} from '../../components/popupeditor';
 import * as moment from 'moment';
 
 @Component({
@@ -10,6 +11,7 @@ import * as moment from 'moment';
     templateUrl: './timetable.html'
 })
 export class TimeTableReport {
+    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
     private timesheet: TimeSheet;
     public config: {
         title: string,
@@ -41,6 +43,16 @@ export class TimeTableReport {
         }
         this.timesheet = ts;
         this.onFilterClick( this.currentFilter );
+    }
+
+    public onDayClick(day: Date) {
+        if (day) {
+            this.timeModal.open(this.timesheet.currentRelation, day).then( x => {
+                if (x) { 
+                    this.onFilterClick( this.currentFilter );
+                }
+            });    
+        }
     }
 
     private onFilterClick(filter: IFilter) {
