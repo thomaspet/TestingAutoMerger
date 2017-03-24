@@ -118,7 +118,7 @@ export class TimeEntry {
     }
 
     private setWorkRelationById(id: number) {
-        this.checkSave().then( (value) => {
+        this.checkSave().then( () => {
             if (id) {
                 this.timeSheet.currentRelationId = id;
                 this.updateToolbar();
@@ -143,8 +143,8 @@ export class TimeEntry {
     }
 
     public reset() {
-        this.checkSave().then( (x: boolean) => {
-            if (x) { this.loadItems(); }
+        this.checkSave().then( () => {
+            this.loadItems();
         });
     }
 
@@ -155,12 +155,10 @@ export class TimeEntry {
 
     public canDeactivate() {
         return new Promise((resolve, reject) => {
-            this.checkSave().then( (success: boolean) => {
-                resolve(success);
-                if (!success) {
-                    this.initTab();
-                }
-            });
+            this.checkSave(true).then( () => {
+                resolve(true);
+                this.initTab();
+            }, () => resolve(false) );
         });
     }
 
@@ -307,7 +305,7 @@ export class TimeEntry {
     }
 
     public onClickDay(event: Day) {
-        this.checkSave().then( x => {
+        this.checkSave().then( () => {
             this.busy = true;
             this.loadItems(event.date);
             event.selected = true;
@@ -353,9 +351,8 @@ export class TimeEntry {
         return true;
     }
 
-    public onFilterClick(filter: IFilter) {
-        this.checkSave().then((success: boolean) => {
-            if (!success) { return; }
+    private onFilterClick(filter: IFilter) {
+        this.checkSave().then( () => {
             this.filters.forEach((value: any) => value.isSelected = false);
             filter.isSelected = true;
             this.currentFilter = filter;
@@ -364,7 +361,7 @@ export class TimeEntry {
         });
     }
 
-    private checkSave(): Promise<boolean> {
+    private checkSave(rejectIfFail: boolean = false): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
                 this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
@@ -372,12 +369,12 @@ export class TimeEntry {
                     switch (userChoice) {
                         case ConfirmActions.ACCEPT:
                             this.save().then( x => {
-                                resolve(x);
+                                if (x) { resolve(true); } else { if (rejectIfFail) { reject(); } }
                             });
                             break;
 
                         case ConfirmActions.CANCEL:
-                            resolve(false);
+                            if (rejectIfFail) { reject(); }
                             break;
 
                         default:
