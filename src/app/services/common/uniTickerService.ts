@@ -62,7 +62,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             this.http.get('assets/tickers/demotickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
-                            this.http.get('assets/tickers/timetickers.json').map(x => x.json())
+                            this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/salarytickers.json').map(x => x.json())
                         ).map(tickerfiles => {
                             let allTickers: Array<Ticker> = [];
 
