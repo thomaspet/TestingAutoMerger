@@ -23,15 +23,7 @@ export class SalarybalanceDetail extends UniView {
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
-
-    private instalmentTypes: { ID: SalBalType, Name: string }[] = [
-        { ID: SalBalType.Advance, Name: 'Forskudd' },
-        { ID: SalBalType.Contribution, Name: 'Bidragstrekk' },
-        { ID: SalBalType.Outlay, Name: 'Utleggstrekk' },
-        { ID: SalBalType.Garnishment, Name: 'Påleggstrekk' },
-        { ID: SalBalType.Other, Name: 'Andre' }
-    ];
-
+    
     private drawTypes: { ID: SalBalDrawType, Name: string}[] = [
         { ID: SalBalDrawType.FixedAmount, Name: 'Fast beløp'},
         { ID: SalBalDrawType.InstalmentWithBalance, Name: 'Fast beløp med balanse'},
@@ -123,7 +115,7 @@ export class SalarybalanceDetail extends UniView {
     private updateFields() {
         let typeField: UniFieldLayout = this.findByPropertyName('InstalmentType');
         typeField.Options = {
-            source: this.instalmentTypes,
+            source: this.salarybalanceService.getInstalmentTypes(),
             displayProperty: 'Name',
             valueProperty: 'ID',
             debounceTime: 500

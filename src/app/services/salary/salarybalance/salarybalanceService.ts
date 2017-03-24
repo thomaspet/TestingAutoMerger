@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { SalaryBalance, WageType, Employee, Supplier } from '../../../unientities';
+import { SalaryBalance, WageType, Employee, Supplier, SalBalType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { FieldType } from 'uniform-ng2/main';
 
@@ -9,11 +9,31 @@ import { FieldType } from 'uniform-ng2/main';
 export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     private defaultExpands: string[] = [];
+    
+    private instalmentTypes: { ID: SalBalType, Name: string }[] = [
+        { ID: SalBalType.Advance, Name: 'Forskudd' },
+        { ID: SalBalType.Contribution, Name: 'Bidragstrekk' },
+        { ID: SalBalType.Outlay, Name: 'Utleggstrekk' },
+        { ID: SalBalType.Garnishment, Name: 'Påleggstrekk' },
+        { ID: SalBalType.Other, Name: 'Andre' }
+    ];
 
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
         this.entityType = SalaryBalance.EntityType;
+    }
+
+    public getInstalmentTypes() {
+        return this.instalmentTypes;
+    }
+
+    public getInstalment(salarybalance: SalaryBalance) {
+        if (salarybalance) {
+            return this.instalmentTypes.find(x => x.ID === salarybalance.InstalmentType);
+        } else {
+            return null;
+        }
     }
 
     public getSalarybalance(id: number | string, expand: string[] = null): Observable<any> {

@@ -63,7 +63,9 @@ export class SalarybalanceList implements OnInit {
         const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
         const employeeCol = new UniTableColumn('EmployeeID', 'Ansattnr', UniTableColumnType.Text).setWidth('10rem');
 
-        const typeCol = new UniTableColumn('InstalmentType', 'Type', UniTableColumnType.Money);
+        const typeCol = new UniTableColumn('InstalmentType', 'Type').setTemplate((salarybalance: SalaryBalance) => {
+            return this._salarybalanceService.getInstalment(salarybalance).Name;
+        });
 
         const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Money);
         
