@@ -4162,6 +4162,24 @@ unisearch-ng2@0.0.20:
     tslib "1.6.0"
     zone.js "0.8.4"
 
+unisearch-ng2@0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.21.tgz#24a4c2f8be78b38c36cf8578acff0977f40b5c7b"
+  dependencies:
+    "@angular/common" "4.0.0-rc.4"
+    "@angular/compiler" "4.0.0-rc.4"
+    "@angular/core" "4.0.0-rc.4"
+    "@angular/forms" "4.0.0-rc.4"
+    "@angular/http" "4.0.0-rc.4"
+    "@angular/platform-browser" "4.0.0-rc.4"
+    "@angular/platform-browser-dynamic" "4.0.0-rc.4"
+    core-js "2.4.1"
+    reflect-metadata "0.1.10"
+    rxjs "5.2.0"
+    systemjs "0.19.31"
+    tslib "1.6.0"
+    zone.js "0.8.4"
+
 unitable-ng2@0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.8.tgz#8636f3ffa47e8f2b48080540099477cd014adeaa"
