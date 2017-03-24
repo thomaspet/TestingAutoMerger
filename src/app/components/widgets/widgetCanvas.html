@@ -1,10 +1,8 @@
-<section class="widget-canvas">
+<section #canvas class="widget-canvas">
     <ng-template ngFor let-widget [ngForOf]="widgets">
         <uni-widget [config]="widget"
-                    [attr.data-uni-x]="widget.x"
-                    [attr.data-uni-y]="widget.y"
-                    [attr.data-uni-width]="widget.width"
-                    [attr.data-uni-height]="widget.height">
+                    [ngStyle]="calculatePosition(widget)">
         </uni-widget>
     </ng-template>
 </section>
+

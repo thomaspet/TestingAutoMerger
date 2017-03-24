@@ -19,7 +19,7 @@ export class UniWidgetDemo {
     //            borderColor: 'red',
     //            fill: false,
     //            showLine: true,
-    //            pointHoverRadius: 2 
+    //            pointHoverRadius: 2
     //        },
     //        {
     //            data: [80, 73, 50, 90, 108, 68, 58, 40, 80, 90, 72, 64],
@@ -96,7 +96,28 @@ export class UniWidgetDemo {
     }
 
     private addWidget(type: string) {
-        this.widgets.push(this.mockWidgets[type]);
+        // JSON stuff is a hack for making newWidget an actual new object
+        // instead of a reference to the object in mockWidgets.
+        // Because that caused x/y values to be equal for all widgets
+        let newWidget = JSON.parse(JSON.stringify(this.mockWidgets[type]));
+
+        if (!this.widgets.length) {
+            // If this is the first widget, just put it at 0:0
+            newWidget.x = 0;
+            newWidget.y = 0;
+        } else {
+            // If not, calculate x:y based on previous widget
+            const prevWidget = this.widgets[this.widgets.length - 1];
+            newWidget.x = prevWidget.x + 1;
+            newWidget.y = prevWidget.y;
+
+            if (newWidget.x + newWidget.width > 12) {
+                newWidget.x = 0;
+                newWidget.y++;
+            }
+        }
+
+        this.widgets.push(newWidget);
         this.widgets = [...this.widgets];
     }
 
