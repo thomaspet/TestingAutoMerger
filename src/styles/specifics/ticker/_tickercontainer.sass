@@ -3,14 +3,15 @@ uni-ticker-container
     font-size: 0.9rem
 
     .ticket-container
-        margin-top: 1.5rem
+        margin-top: 2.5rem
         display: flex
         flex-direction: row
-        width: 100%
+        width: calc(100% - #{pxToRem(1)}) // Or else it overflows in Canary for some reason.
 
     uni-ticker-filters
         margin-right: 1rem
-        flex: 0 0 9rem
+        flex: 0 0 10rem
+        width: 10rem
 
         &.expanded
             flex: 0 1 60%
@@ -23,7 +24,7 @@ uni-ticker-container
             flex: 1 1 15rem
 
     uni-sub-ticker-container
-        flex: 0 0 8rem
+        flex: 0 0 10rem
 
         &.expanded
             flex: 0 1 60%
