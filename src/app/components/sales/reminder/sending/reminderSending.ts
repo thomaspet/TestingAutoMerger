@@ -8,6 +8,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {LocalDate} from '../../../../unientities';
 import {FieldType} from 'uniform-ng2/main';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     StatisticsService,
@@ -35,12 +36,13 @@ export class ReminderSending implements OnInit {
     @Input() public modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private remindersEmail: any;
     private remindersPrint: any;
     private remindersAll: any;
     private reminderTable: UniTableConfig;
-    private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,DueDate as DueDate,ReminderNumber as ReminderNumber,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,DefaultEmail.EmailAddress as EmailAddress,CustomerInvoice.RestAmount as RestAmount,CustomerInvoice.TaxInclusiveAmount as TaxInclusiveAmount&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail&filter=';
+    private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,DefaultEmail.EmailAddress as EmailAddress,CustomerInvoice.RestAmountCurrency as RestAmountCurrency,CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as CurrencyCode&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail,CustomerInvoice.CurrencyCode&filter=';
 
     private currentRunNumber: number = 0;
     private currentRunNumberData: IRunNumberData;
@@ -68,6 +70,11 @@ export class ReminderSending implements OnInit {
              label: 'Skriv ut valgte',
              action: (done) => this.sendReminders(done, true),
              disabled: !!this.remindersAll
+         },
+         {
+             label: 'Slett valgte',
+             action: (done) => this.deleteReminders(done),
+             disabled: !!this.remindersAll
          }
     ];
 
@@ -85,12 +92,55 @@ export class ReminderSending implements OnInit {
     public ngOnInit() {
         this.loadLastRunNumber();
         this.setupReminderTable();
-
         this.statisticsService.GetAllUnwrapped('model=CustomerInvoiceReminder&select=RunNumber as RunNumber,User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate&orderby=RunNumber%20desc&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity')
             .subscribe((data) => {
                 this.runNumbers = data;
                 this.fields$.next(this.getLayout().Fields);
             });
+    }
+
+    private deleteReminders(done) {
+        var selected = this.getSelected();
+        if (selected.length === 0) {
+            this.toastService.addToast(
+                'Ingen purringer er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst velg hvilke purringer du vil slette, eller kryss av for alle'
+            );
+            done('Ingen purringer ble slettet!')
+            return;
+        }
+
+        this.confirmModal.confirm(
+            `Er du sikker på at du vil slette valgte purringer?`,
+                    'Vennligst bekreft',
+                    false,
+                    { accept: 'Ja, jeg vil slette purringene', reject: 'Avbryt sletting' }
+                ).then(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                    let requests = [];
+                    selected.forEach(x => {
+                        requests.push(this.reminderService.Remove(x.ID, x));
+                    });
+                    Observable.forkJoin(requests)
+                        .subscribe(resp => {
+                            this.toastService.addToast('Purringer slettet', ToastType.good, 5);
+                            done('Purringene ble slettet');
+
+                            // refresh data after save
+                            this.loadRunNumber(this.currentRunNumber);
+
+                        }, (err) => {
+                            done('Feil ved sletting av purringer');
+                            this.loadRunNumber(this.currentRunNumber);
+                            this.errorService.handle(err);
+                        });
+                    } else {
+                        done('Sletting ble avbrutt!');
+                    }
+            });
+        return;
     }
 
     private sendReminders(done, printonly) {
@@ -102,7 +152,6 @@ export class ReminderSending implements OnInit {
                 10,
                 'Vennligst velg hvilke linjer du vil sende purringer for, eller kryss av for alle'
             );
-
             done('Sending avbrutt');
             return;
         }
@@ -292,6 +341,11 @@ export class ReminderSending implements OnInit {
                     : `<a href='/#/sales/invoices/${reminder.InvoiceID}' title='${title}'>${reminder.InvoiceNumber}</a>`;
             });
         let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            .setWidth('100px').setFilterOperator('startswith')
+            .setTemplate((reminder) => {
+                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>` : ``;
+            });
         let customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
             .setWidth('20%')
             .setFilterOperator('contains')
@@ -308,14 +362,36 @@ export class ReminderSending implements OnInit {
             .setTemplate((reminder) => {
                 return this.reminderService.getStatusText(reminder.StatusCode);
             });
-        var amountCol = new UniTableColumn('TaxInclusiveAmount', 'Fakturabeløp', UniTableColumnType.Number)
+
+        let currencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Text)
+            .setFilterOperator('contains')
+            .setWidth('5%');
+
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number)
+            .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setConditionalCls((item) => {
-                return (+item.TaxInclusiveAmount >= 0)
+                return (+item.TaxInclusiveAmountCurrency >= 0)
                     ? 'number-good' : 'number-bad';
             })
             .setCls('column-align-right');
+
+        var restAmountCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.RestAmountCurrency >= 0) ? 'number-good' : 'number-bad';
+            });
+
+        var feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setConditionalCls((item) => {
+                return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
+            });
 
         this.reminderTable = new UniTableConfig(true, true, 25)
             .setSearchable(false)
@@ -323,8 +399,8 @@ export class ReminderSending implements OnInit {
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([reminderNumberCol, invoiceNumberCol,
-                         customerNameCol, emailCol, amountCol, dueDateCol, statusCol]);
+            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol,
+                         customerNameCol, emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol, feeAmountCol, dueDateCol, statusCol]);
     }
 
     public onFormFilterChange(event) {

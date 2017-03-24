@@ -228,7 +228,7 @@ export class ReminderList {
         let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
             .setFilterOperator('contains');
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Fakturasum', UniTableColumnType.Number)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
