@@ -233,7 +233,7 @@ export class QuoteDetails {
                 if (!this.quote.StatusCode) {
                     this.quote.StatusCode = StatusCode.Draft;
                 }
-                this.saveQuote().then(res => {
+                return this.saveQuote().then(res => {
                     this.isDirty = false;
                     return true;
                 }).catch(error => {

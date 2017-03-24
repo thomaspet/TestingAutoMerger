@@ -258,7 +258,7 @@ export class OrderDetails {
             true
         ).then((action) => {
             if (action === ConfirmActions.ACCEPT) {
-                this.saveOrder().then(res => {
+                return this.saveOrder().then(res => {
                     this.isDirty = false;
                     return true;
                 }).catch(error => {

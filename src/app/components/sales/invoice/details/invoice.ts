@@ -296,8 +296,12 @@ export class InvoiceDetails {
             return true;
         }
 
+        let message = !this.invoice.StatusCode || this.invoice.StatusCode == StatusCodeCustomerInvoice.Draft
+            ? 'Ønsker du å lagre fakturaen som kladd før du fortsetter?'
+            : 'Ønsker du å lagre fakturaen før du fortsetter?';
+
         return this.confirmModal.confirm(
-            'Ønsker du å lagre fakturaen før du fortsetter?',
+            message,
             'Ulagrede endringer',
             true
         ).then((action) => {
@@ -306,8 +310,19 @@ export class InvoiceDetails {
                     this.invoice.StatusCode = StatusCode.Draft;
                 }
 
-                this.saveInvoice().then(res => {
+                return this.saveInvoice().then(invoice => {
                     this.isDirty = false;
+
+                    var currentab = this.tabService.currentActiveIndex;
+                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
+                        .subscribe(
+                        res => {
+                            this.refreshInvoice(res);
+                            this.tabService.setTabActive(currentab);
+                        },
+                        err => this.errorService.handle(err)
+                        );
+
                     return true;
                 }).catch(reason => {
                     this.toastService.addToast('Lagring avbrutt', ToastType.warn, ToastTime.short, reason);
