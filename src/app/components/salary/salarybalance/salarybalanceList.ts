@@ -28,7 +28,7 @@ export class SalarybalanceList implements OnInit {
             this.tabSer
             .addTab({
                 name: 'Saldo',
-                url: 'salary/salarybalances' + empID ? `;empID=${empID}` : '',
+                url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
                 moduleID: UniModules.Salarybalances,
                 active: true
             });
