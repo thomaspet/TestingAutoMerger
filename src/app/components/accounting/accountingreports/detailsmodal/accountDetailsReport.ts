@@ -11,6 +11,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from 'uniform-ng2/main';
 import {FinancialYear, Account} from '../../../../unientities';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {UniSearchAccountConfigGeneratorHelper} from '../../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {
     StatisticsService,
     DimensionService,
@@ -27,7 +29,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     templateUrl: './accountDetailsReport.html',
 })
 export class AccountDetailsReport {
-    @Input() public config: { close: () => void, modalMode: boolean, accountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
+    @Input() public config: { close: () => void, modalMode: boolean, accountID: number, subaccountID, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
     @ViewChild(ImageModal) private imageModal: ImageModal;
     @ViewChild(UniTable) private transactionsTable: UniTable;
     @ViewChild(DistributionPeriodReportPart) private distributionPeriodReportPart: DistributionPeriodReportPart;
@@ -42,6 +44,7 @@ export class AccountDetailsReport {
 
     private periodFilter1$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
     private periodFilter2$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
+    private periodFilter3$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
     private accountIDs: Array<number> = [];
     private includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
@@ -56,12 +59,15 @@ export class AccountDetailsReport {
                 private errorService: ErrorService,
                 private financialYearService: FinancialYearService,
                 private accountService: AccountService,
-                private toastService: ToastService) {
+                private toastService: ToastService,
+                private uniSearchAccountConfig: UniSearchAccountConfigGeneratorHelper,
+                private tabService: TabService) {
 
        this.config = {
             close: () => {},
             modalMode: false,
             accountID: 0,
+            subaccountID: 0,
             accountNumber: 0,
             accountName: '',
             dimensionId: 0,
@@ -70,6 +76,7 @@ export class AccountDetailsReport {
 
         this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
         this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+        this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
 
         this.fields$.next(this.getLayout().Fields);
 
@@ -104,7 +111,22 @@ export class AccountDetailsReport {
     public ngOnInit() {
         if (!this.config.modalMode) {
             this.updateToolbar();
-            this.loadData();
+            this.addTab();
+
+            this.accountService.searchAccounts('Visible eq 1', 1).subscribe(data => {
+                let account = data[0];
+
+                this.config.accountID = account.ID;
+                this.config.accountName = account.AccountName;
+                this.config.accountNumber = account.AccountNumber;
+                this.config.subaccountID = account.AccountID;
+
+                var searchparams = this.searchParams$.getValue();
+                searchparams.AccountID = account.ID;
+                searchparams.AccountNumber= account.AccountNumber;
+                this.searchParams$.next(searchparams);
+                this.loadData();
+            });
         } else {
             this.doTurnAndInclude();
         }
@@ -133,13 +155,29 @@ export class AccountDetailsReport {
         this.toolbarconfig = toolbarconfig;
     }
 
+    public addTab() {
+        this.tabService.addTab({
+            name: 'Forespørsel konto',
+            url: '/accounting/accountquery',
+            moduleID: UniModules.AccountQuery,
+            active: true
+        });
+    }
+
     public previous() {
-        this.accountService.searchAccounts('AccountNumber lt ' + this.config.accountNumber, 1, 'AccountNumber desc').subscribe(data => {
+        this.accountService.searchAccounts('Visible eq 1 and AccountNumber lt ' + this.config.accountNumber, 1, 'AccountNumber desc').subscribe(data => {
             if (data.length > 0) {
                 let account = data[0];
                 this.config.accountID = account.ID;
                 this.config.accountName = account.AccountName;
                 this.config.accountNumber = account.AccountNumber;
+                this.config.subaccountID = account.AccountID;
+
+                var searchParams = this.searchParams$.getValue();
+                searchParams.AccountID = account.ID;
+                searchParams.AccountNumber = account.AccountNumber;
+                this.searchParams$.next(searchParams);
+
                 this.loadData();
             } else {
                 this.toastService.addToast('Første konto', ToastType.warn, 5, 'Du har nådd Første konto');
@@ -148,12 +186,20 @@ export class AccountDetailsReport {
     }
 
     public next() {
-        this.accountService.searchAccounts('AccountNumber gt ' + this.config.accountNumber, 1).subscribe(data => {
+        this.accountService.searchAccounts('Visible eq 1 and AccountNumber gt ' + this.config.accountNumber, 1).subscribe(data => {
             if (data.length > 0) {
                 let account = data[0];
                 this.config.accountID = account.ID;
                 this.config.accountName = account.AccountName;
                 this.config.accountNumber = account.AccountNumber;
+                this.config.subaccountID = account.AccountID;
+
+                var searchParams = this.searchParams$.getValue();
+                searchParams.AccountID = account.ID;
+                searchParams.AccountNumber = account.AccountNumber;
+                this.searchParams$.next(searchParams);
+                //this.form.
+
                 this.loadData();
             } else {
                 this.toastService.addToast('Siste konto', ToastType.warn, 5, 'Du har nådd siste konto');
@@ -167,7 +213,9 @@ export class AccountDetailsReport {
         // get default period filters
         this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
         this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.accountIDs = [this.config.accountID];
+        this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
+
+        this.accountIDs = [this.config.subaccountID ? this.config.subaccountID : this.config.accountID];
 
         if (this.config.dimensionType && this.config.dimensionId) {
              this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.config.dimensionType);
@@ -183,10 +231,10 @@ export class AccountDetailsReport {
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
-        filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
-        filters.push(`Period.AccountYear eq ${this.periodFilter1$.getValue().year}`);
-        filters.push(`Period.No ge ${this.periodFilter1$.getValue().fromPeriodNo}`);
-        filters.push(`Period.No le ${this.periodFilter1$.getValue().toPeriodNo}`);
+        filters.push(`JournalEntryLine.AccountID eq ${this.config.subaccountID ? this.config.subaccountID : this.config.accountID}`);
+        filters.push(`Period.AccountYear eq ${this.periodFilter3$.getValue().year}`);
+        filters.push(`Period.No ge ${this.periodFilter3$.getValue().fromPeriodNo}`);
+        filters.push(`Period.No le ${this.periodFilter3$.getValue().toPeriodNo}`);
 
         if (this.dimensionEntityName) {
             filters.push(`isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.config.dimensionId}`);
@@ -228,6 +276,7 @@ export class AccountDetailsReport {
         let tmp = this.periodFilter1$.getValue();
         this.periodFilter1$.next(this.periodFilter2$.getValue());
         this.periodFilter2$.next(tmp);
+        this.periodFilter3$.next(this.periodFilter2$.getValue());
         this.setupLookupTransactions();
     }
 
@@ -277,24 +326,29 @@ export class AccountDetailsReport {
             .setColumns(columns));
     }
 
-    private rowSelected(row) {
-        if (row.periodNo < 13) {
-            let today = moment(new Date());
-            var filter = this.periodFilter1$.getValue();
-            var filter2 = this.periodFilter2$.getValue();
+    private periodSelected(row) {
+        var filter = new PeriodFilter();
+        if (row.periodNo == 0) {
+            this.toastService.addToast('Ikke støttet', ToastType.warn, 3, 'Drilldown på inngående balanse ikke støttet');
+            return;
+        } else if (row.periodNo < 13) {
             filter.fromPeriodNo = row.periodNo;
             filter.toPeriodNo = row.periodNo;
-            filter.year = today.year();
-            filter.name = PeriodFilterHelper.getFilterName(filter);
-            this.periodFilter1$.next(filter);
-            this.periodFilter2$.next(PeriodFilterHelper.getFilter(row.periodNo, filter));
         } else { // Default filter if clicking on total
-            this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
-            this.periodFilter2$.next(PeriodFilterHelper.getFilter(12, this.periodFilter1$.getValue(), true));
+            if (this.includeIncomingBalanceInDistributionReport$.getValue()) {
+                this.toastService.addToast('Ikke støttet', ToastType.warn, 3, 'Drilldown på utgående balanse ikke støttet');
+                return;
+            } else {
+                filter.fromPeriodNo = 1;
+                filter.toPeriodNo = 12;
+            }
         }
 
+        filter.year = row.year;
+        filter.name = PeriodFilterHelper.getFilterName(filter);
+        this.periodFilter3$.next(filter);
+
         this.setupLookupTransactions();
-//        this.transactionsTable.refreshTableData();
     }
 
     private onFormFilterChange(event) {
@@ -304,6 +358,7 @@ export class AccountDetailsReport {
                 this.config.accountID = account.ID;
                 this.config.accountName = account.AccountName;
                 this.config.accountNumber = account.AccountNumber;
+                this.config.subaccountID = account.AccountID;
 
                 search.AccountID = 0;
                 search.AccountNumber = 0;
@@ -317,32 +372,20 @@ export class AccountDetailsReport {
         return {
             Name: 'AccountqueryList',
             BaseEntity: 'Account',
-            StatusCode: 0,
-            Deleted: false,
             ID: 1,
-            CustomFields: null,
             Fields: [
                 {
                     Property: 'AccountID',
                     Placement: 4,
-                    FieldType: FieldType.AUTOCOMPLETE,
+                    FieldType: FieldType.UNI_SEARCH,
                     Label: 'Konto',
-                    Deleted: false,
                     Options: {
-                        getDefaultData: () => {
-                            let searchParams = this.searchParams$.getValue();
-                            if (searchParams.AccountID) {
-                                return this.accountService.searchAccounts(`ID eq ${searchParams.AccountID}`);
-                            } else if (searchParams.AccountNumber) {
-                                return this.accountService.searchAccounts(`AccountNumber eq ${searchParams.AccountNumber}`);
-                            }
-                            return Observable.of([]);
-                        },
-                        search: (query: string) => this.accountService.searchAccounts(`( ( AccountNumber eq '${query}') or (Visible eq 'true' and (startswith(AccountNumber,'${query}') or contains(AccountName,'${query}') ) ) ) and isnull(AccountID,0) eq 0`),
                         valueProperty: 'ID',
-                        template: (account: Account) => account ? `${account.AccountNumber}: ${account.AccountName}` : '',
-                        minLength: 1,
-                        debounceTime: 200
+                        source: model => this.accountService
+                            .GetAll(``)
+                            .map(results => results[0])
+                            .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                        uniSearchConfig: this.uniSearchAccountConfig.generateAllAccountsConfig()
                     }
                 }
             ]

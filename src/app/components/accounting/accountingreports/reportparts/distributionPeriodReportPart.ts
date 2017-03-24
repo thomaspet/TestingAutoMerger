@@ -17,6 +17,11 @@ export class DistributionPeriodData {
     public amountPeriodYear2: number;
 }
 
+export class Period {
+    public periodNo: number;
+    public year: number;
+}
+
 @Component({
     selector: 'distribution-period-report-part',
     templateUrl: './distributionPeriodReportPart.html',
@@ -34,6 +39,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private includeIncomingBalance: boolean = false;
 
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter();
+    @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
 
     private uniTableConfigDistributionPeriod: UniTableConfig;
     private distributionPeriodData: Array<DistributionPeriodData> = [];
@@ -148,8 +154,14 @@ export class DistributionPeriodReportPart implements OnChanges {
                 this.uniTableConfigDistributionPeriod = new UniTableConfig(false, false)
                     .setColumns([
                         new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%'),
-                        new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount'),
+                        new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount')
+                            .setOnCellClick(row => {
+                                this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear1});
+                            }),
                         new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money).setCls('amount')
+                            .setOnCellClick(row => {
+                                this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear2});
+                            })
                     ]);
 
                 this.setupDistributionPeriodChart();

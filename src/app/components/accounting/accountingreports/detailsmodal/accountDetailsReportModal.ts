@@ -8,7 +8,7 @@ import {ConfirmActions} from '../../../../../framework/modals/confirm';
     template: '<uni-modal [type]="type" [config]="config" (close)="onClose()"></uni-modal>'
 })
 export class AccountDetailsReportModal {
-    public config: { close: () => void, modalMode: boolean, accountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
+    public config: { close: () => void, modalMode: boolean, accountID: number, subaccountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
     public type: Type<any> = AccountDetailsReport;
 
     @ViewChild(UniModal) private modal: UniModal;
@@ -20,6 +20,7 @@ export class AccountDetailsReportModal {
             },
             modalMode: false,
             accountID: null,
+            subaccountID: null,
             accountNumber: null,
             accountName: null,
             dimensionId: null,
@@ -32,6 +33,7 @@ export class AccountDetailsReportModal {
     public open(accountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number): Promise<number>  {
         return new Promise((resolve) => {
             this.config.accountID = accountID;
+            this.config.subaccountID = null;
             this.config.accountNumber = accountNumber;
             this.config.accountName = accountName;
             this.config.dimensionId = dimensionId;
