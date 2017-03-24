@@ -3,7 +3,7 @@ import {CustomerInvoiceReminderRule} from '../../../../unientities';
 import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-declare const moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'reminder-rule-details',

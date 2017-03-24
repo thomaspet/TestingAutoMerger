@@ -7,7 +7,7 @@ import {LocalDate} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
 
-declare const moment;
+import * as moment from 'moment';
 
 export interface IReminderConfirmModalConfig {
     reminders?: any;

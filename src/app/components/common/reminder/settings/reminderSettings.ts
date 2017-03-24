@@ -9,7 +9,7 @@ import {
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-declare const moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'reminder-settings',

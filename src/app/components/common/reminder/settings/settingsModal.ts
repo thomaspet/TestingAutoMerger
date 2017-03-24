@@ -6,7 +6,7 @@ import {ConfirmActions, IModalAction} from '../../../../../framework/modals/conf
 import {LocalDate} from '../../../../unientities';
 import {ReminderSettings} from './reminderSettings';
 
-declare const moment;
+import * as moment from 'moment';
 
 export interface IReminderSettingsModalConfig {
     model?: any;

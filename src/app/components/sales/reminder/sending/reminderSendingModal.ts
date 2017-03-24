@@ -9,7 +9,7 @@ import {
     ReportDefinitionService
 } from '../../../../services/services';
 
-declare const moment;
+import * as moment from 'moment';
 
 export interface IReminderSendingModalConfig {
     actions?: {

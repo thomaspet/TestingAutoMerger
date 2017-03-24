@@ -5,7 +5,7 @@ import { SalaryBalance, SalaryBalanceLine } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
 
-declare const moment;
+import * as moment from 'moment';
 
 @Component({
     selector: 'salarybalanceline',
