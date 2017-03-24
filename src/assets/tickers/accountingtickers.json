@@ -430,5 +430,180 @@
                 "Field": "StatusCode"
             }
         ]
+    },
+    {
+        "Name": "Leverandør",
+        "Code": "supplier_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "Supplier",
+        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultBankAccount",
+        "Columns": [
+            {
+                "Header": "Leverandørnr",
+                "Field": "Supplier.SupplierNumber",
+                "Type": "text",
+                "Width": "120px"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Supplier.Info.Name",
+                "Width": "250px"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "Info.DefaultPhone.Number"
+            },
+            {
+                "Header": "Epost",
+                "Field": "Info.DefaultEmail.EmailAddress"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "Info.InvoiceAddress.AddressLine1"
+            },
+            {
+                "Header": "Postnr",
+                "Field": "Info.InvoiceAddress.PostalCode"
+            },
+            {
+                "Header": "Sted",
+                "Field": "Info.InvoiceAddress.City"
+            },
+            {
+                "Header": "Kredittdager",
+                "Field": "CreditDays",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Bankkonto",
+                "Field": "Info.DefaultBankAccount.AccountNumber",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Ny leverandør",
+                "Code": "new_supplier",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Vis leverandør",
+                "Code": "open_supplier",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_suppliers",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            }
+        ],
+        "SubTickersCodes": ["supplier_details", "supplierinvoice_list"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_suppliers",
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Path": "Info",
+                            "Field": "Name",
+                            "Operator": "contains",
+                            "Value": ""
+                        },
+                        {
+                            "Field": "SupplierNumber",
+                            "Operator": "eq",
+                            "Value": ""
+                        }
+                    ]
+                }]
+            }
+        ]
+    },
+    {
+        "Name": "Leverandørdetaljer",
+        "Type": "Details",
+        "Code": "supplier_details",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "Supplier",
+        "Expand": "Info.ShippingAddress,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,CurrencyCode",
+        "SubTickers": [],
+        "Filters": [],
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Leverandørnr",
+                "Field": "Supplier.SupplierNumber",
+                "Type": "text",
+                "Width": "120px"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Info.Name",
+                "Width": "250px",
+                "Type": "link"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "Info.DefaultPhone.Number"
+            },
+            {
+                "Header": "Epost",
+                "Field": "Info.DefaultEmail.EmailAddress"
+            },
+            {
+                "Header": "Web",
+                "Field": "WebUrl",
+                "Type": "external-link"
+            },
+            {
+                "Header": "Fakturaadresse",
+                "Field": "Info.InvoiceAddress.AddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "Info.InvoiceAddress.PostalCode"
+                    },
+                    {
+                        "Field": "Info.InvoiceAddress.City"
+                    }
+                ]
+            },
+            {
+                "Header": "Leveringsadresse",
+                "Field": "Info.ShippingAddress.AddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "Info.ShippingAddress.PostalCode"
+                    },
+                    {
+                        "Field": "Info.ShippingAddress.City"
+                    }
+                ]
+            },
+            {
+                "Header": "Kredittdager",
+                "Field": "CreditDays"
+            },
+            {
+                "Header": "Foretrukket valuta",
+                "Field": "CurrencyCode.Code"
+            }
+        ]
     }
 ]

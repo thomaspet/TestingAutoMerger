@@ -333,6 +333,11 @@
             {
                 "Header": "Status",
                 "Field": "StatusCode"
+            },
+            {
+                "Header": "Kommentar",
+                "Field": "Comment",
+                "Size": "medium"
             }
         ]
     },
@@ -356,7 +361,10 @@
             },
             {
                 "Field": "Customer.Info.Name",
-                "Width": "250px"
+                "Width": "250px",
+                "Type": "link",
+                "ExternalModel": "Customer",
+                "LinkNavigationProperty": "Customer.ID"
             },
             {
                 "Field": "QuoteDate"
@@ -426,7 +434,7 @@
                 "DisplayInActionBar": false
             }
         ],
-        "SubTickersCodes": [],
+        "SubTickersCodes": ["quote_details", "quote_items"],
         "Filters": [
             {
                 "Name": "Alle",
@@ -434,8 +442,28 @@
                 "Filter": ""
             },
             {
-                "Name": "Mine under arbeid",
-                "Code": "my_draft_quotes",
+                "Name": "Under arbeid",
+                "Code": "draft_quotes",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "40101"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "40102"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Overført ordre",
+                "Code": "quotes_transferred_order",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
@@ -443,14 +471,190 @@
                     {
                         "Field": "StatusCode",
                         "Operator": "eq",
-                        "Value": "40001"
+                        "Value": "40105"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Overført til faktura",
+                "Code": "quotes_transferred_invoice",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "40106"
+                        }
+                    ]}
+                ]
+            },
+            {
+                "Name": "Avsluttet",
+                "Code": "quotes_completed",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "40107"
+                        }
+                    ]}
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Tilbudslinjer",
+        "Type": "Table",
+        "Code": "quote_items",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerQuoteItem",
+        "Expand": "Product,VatType",
+        "SubTickers": [],
+        "ParentFilter": {
+            "Field": "CustomerQuoteID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Filters": [],
+        "Columns": [
+            {
+                "Header": "Produkt/tekst",
+                "Field": "Product.PartName",
+                "Width": "250px",
+                "SubFields": [
+                    {
+                        "Field": "ItemText"
+                    }
+                ]
+            },
+            {
+                "Header": "Antall",
+                "Field": "NumberOfItems"
+            },
+            {
+                "Header": "Enhet",
+                "Field": "Unit"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.VatPercent",
+                "Format": "percent",
+                "SubFields": [
+                    {
+                        "Field": "VatType.Name"
+                    }
+                ]
+            },
+            {
+                "Header": "Rabatt %",
+                "Field": "DiscountPercent",
+                "Format": "percent"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "SumTotalIncVat",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            }
+        ]
+    },
+    {
+        "Name": "Tilbudsdetaljer",
+        "Type": "Details",
+        "Code": "quote_details",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerQuote",
+        "Expand": "Customer.Info,CurrencyCode",
+        "SubTickers": [],
+        "Filters": [],
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Tilbudsnr",
+                "Field": "QuoteNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.CustomerNumber",
+                "Size": "medium",
+                "Type": "link",
+                "SubFields": [
+                    {
+                        "Field": "Customer.Info.Name"
+                    }
+                ],
+                "ExternalModel": "Customer",
+                "LinkNavigationProperty": "Customer.ID"
+            },
+            {
+                "Header": "Gyldig til",
+                "Field": "ValidUntilDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Fakturaadresse",
+                "Field": "InvoiceAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "InvoicePostalCode"
                     },
                     {
-                        "Field": "CreatedBy",
-                        "Operator": "eq",
-                        "Value": ":currentuserid"
-                    }]
-                }]
+                        "Field": "InvoiceCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Leveringsadresse",
+                "Field": "ShippingAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "ShippingPostalCode"
+                    },
+                    {
+                        "Field": "ShippingCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Deres ref",
+                "Field": "YourReference"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmountCurrency"
+            },
+            {
+                "Header": "Kommentar",
+                "Field": "Comment",
+                "Size": "medium"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
             }
         ]
     },
@@ -501,6 +705,224 @@
                 "Type": "details",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": true
+            }
+        ],
+        "SubTickersCodes": ["order_details", "order_items"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_orders",
+                "Filter": ""
+            },
+            {
+                "Name": "Under arbeid",
+                "Code": "draft_orders",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41001"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41002"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41003"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Overført til faktura",
+                "Code": "orders_transferred_invoice",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41003"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41004"
+                        }
+                    ]}
+                ]
+            },
+            {
+                "Name": "Avsluttet",
+                "Code": "orders_completed",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41005"
+                        }
+                    ]}
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Ordrelinjer",
+        "Type": "Table",
+        "Code": "order_items",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerOrderItem",
+        "Expand": "Product,VatType",
+        "SubTickers": [],
+        "ParentFilter": {
+            "Field": "CustomerOrderID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Filters": [],
+        "Columns": [
+            {
+                "Header": "Produkt/tekst",
+                "Field": "Product.PartName",
+                "Width": "250px",
+                "SubFields": [
+                    {
+                        "Field": "ItemText"
+                    }
+                ]
+            },
+            {
+                "Header": "Antall",
+                "Field": "NumberOfItems"
+            },
+            {
+                "Header": "Enhet",
+                "Field": "Unit"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.VatPercent",
+                "Format": "percent",
+                "SubFields": [
+                    {
+                        "Field": "VatType.Name"
+                    }
+                ]
+            },
+            {
+                "Header": "Rabatt %",
+                "Field": "DiscountPercent",
+                "Format": "percent"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "SumTotalIncVat",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px"
+            }
+        ]
+    },
+    {
+        "Name": "Ordredetaljer",
+        "Type": "Details",
+        "Code": "order_details",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerOrder",
+        "Expand": "Customer.Info,CurrencyCode",
+        "SubTickers": [],
+        "Filters": [],
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Ordrenr",
+                "Field": "OrderNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Kundenavn",
+                "Field": "Customer.CustomerNumber",
+                "Size": "medium",
+                "Type": "link",
+                "SubFields": [
+                    {
+                        "Field": "Customer.Info.Name"
+                    }
+                ],
+                "ExternalModel": "Customer",
+                "LinkNavigationProperty": "Customer.ID"
+            },
+            {
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Fakturaadresse",
+                "Field": "InvoiceAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "InvoicePostalCode"
+                    },
+                    {
+                        "Field": "InvoiceCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Leveringsadresse",
+                "Field": "ShippingAddressLine1",
+                "Size": "medium",
+                "SubFields": [
+                    {
+                        "Field": "ShippingPostalCode"
+                    },
+                    {
+                        "Field": "ShippingCity"
+                    }
+                ]
+            },
+            {
+                "Header": "Deres ref",
+                "Field": "YourReference"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code"
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmountCurrency"
+            },
+            {
+                "Header": "Kommentar",
+                "Field": "Comment",
+                "Size": "medium"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
             }
         ]
     }

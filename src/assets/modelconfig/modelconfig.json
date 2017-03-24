@@ -200,42 +200,42 @@
         {
             "Name": "CustomerInvoice",
             "Translated": "Faktura",
-            "Url": "/sales/invoices/:id"
+            "Url": "/sales/invoices/:ID"
         },
         {
             "Name": "CustomerOrder",
             "Translated": "Ordre",
-            "Url": "/sales/orders/:id"
+            "Url": "/sales/orders/:ID"
         },
         {
             "Name": "CustomerQuote",
             "Translated": "Tilbud",
-            "Url": "/sales/quotes/:id"
+            "Url": "/sales/quotes/:ID"
         },
         {
             "Name": "Customer",
             "Translated": "Kunde",
-            "Url": "/sales/customer/:id"
+            "Url": "/sales/customer/:ID"
         },
         {
             "Name": "Product",
             "Translated": "Produkt",
-            "Url": "/products/:id"
+            "Url": "/products/:ID"
         },
         {
             "Name": "Supplier",
             "Translated": "Leverandør",
-            "Url": "/suppliers/:id"
+            "Url": "/suppliers/:ID"
         },
         {
             "Name": "SupplierInvoice",
             "Translated": "Fakturamottak",
-            "Url": "/accounting/bill/:id"
+            "Url": "/accounting/bill/:ID"
         },
         {
             "Name": "JournalEntry",
             "Translated": "Bilag",
-            "Url": "/accounting/journalentry/manual;journalEntryID=:id"
+            "Url": "/accounting/journalentry/manual;journalEntryID=:ID"
         },
         {
             "Name": "JournalEntryLine",
@@ -245,7 +245,7 @@
         {
             "Name": "Worker",
             "Translated": "Timefører",
-            "Url": "/timetracking/workers/:id"
+            "Url": "/timetracking/workers/:ID"
         }
     ]
 }

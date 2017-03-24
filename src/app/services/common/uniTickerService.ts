@@ -256,7 +256,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
 
                         if (url && url !== '') {
-                            url = url.replace(':id', '0');
+                            url = url.replace(':ID', '0');
                             this.router.navigateByUrl(url);
                         } else {
                             throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
@@ -426,7 +426,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     if (column.LinkNavigationProperty) {
                         let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
                         if (data[linkNavigationPropertyAlias]) {
-                            url = url.replace(':id', data[linkNavigationPropertyAlias]);
+                            url = url.replace(':ID', data[linkNavigationPropertyAlias]);
                         } else {
                             // we dont have enough data to link to the external model, just show
                             // the property as a normal field
@@ -434,7 +434,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         }
                     } else {
                         if (data['ID']) {
-                            url = url.replace(':id', data['ID']);
+                            url = url.replace(':ID', data['ID']);
                         }
                     }
                 } else {
@@ -447,7 +447,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     url = model.DetailsUrl;
 
                     if (data['ID']) {
-                        url = url.replace(':id', data['ID']);
+                        url = url.replace(':ID', data['ID']);
                     }
                 } else {
                     console.error(`${ticker.Model} not found, or no details url specified for model`);
@@ -456,6 +456,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
             if (url !== '' && formattedFieldValue !== '') {
                 formattedFieldValue = `<a href="/#${url}">${formattedFieldValue}</a>`;
+            }
+        } else if (columnType === 'external-link') {
+            if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
+                formattedFieldValue = `<a href="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
             }
         }
 
@@ -509,18 +513,22 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         let filterString: string = '';
         let isInGroup: boolean = false;
 
+        let lastGroupWasUsed: boolean = false;
+
         for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
             let group = filterGroups[groupIndex];
             let filters = group.FieldFilters;
 
             // add "or" or "and" between groups
-            if (groupIndex > 0 && !useAllCriterias) {
-                filterString += ' or ';
-            } else if (groupIndex > 0) {
-                filterString += ' and ';
+            if (lastGroupWasUsed) {
+                if (groupIndex > 0 && !useAllCriterias) {
+                    filterString += ' or ';
+                } else if (groupIndex > 0) {
+                    filterString += ' and ';
+                }
             }
 
-            let hasAddedFilterForGroup = false;
+            lastGroupWasUsed = false;
 
             // dont use filters that miss either field or operator - this is probably just a filter
             // the user has not finished constructing yet
@@ -532,9 +540,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 let orderedByGroupFilters = filters.sort((a, b) => { return a.QueryGroup - b.QueryGroup});
                 isInGroup = false;
 
+                let lastFilterWasUsed: boolean = false;
+
                 for (let index = 0; index < orderedByGroupFilters.length; index++) {
                     let filter: TickerFieldFilter = orderedByGroupFilters[index];
-
                     let filterValue: string = this.getFilterValueFromFilter(filter, expressionFilterValues);
 
                     if (filterValue) {
@@ -545,10 +554,12 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         }
 
                         // add "or" or "and" between groups depending on the UseAllCriterias flag
-                        if (index > 0 && !group.UseAllCriterias) {
-                            filterString += ' or ';
-                        } else if (index > 0) {
-                            filterString += ' and ';
+                        if (lastFilterWasUsed) {
+                            if (index > 0 && !group.UseAllCriterias) {
+                                filterString += ' or ';
+                            } else if (index > 0) {
+                                filterString += ' and ';
+                            }
                         }
 
                         let path = filter.Path && filter.Path !== '' ? filter.Path : mainModel;
@@ -566,7 +577,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             }
                         }
 
-                        hasAddedFilterForGroup = true;
+                        lastFilterWasUsed = true;
+                        lastGroupWasUsed = true;
+                    } else {
+                        lastFilterWasUsed = false;
                     }
                 }
             }
