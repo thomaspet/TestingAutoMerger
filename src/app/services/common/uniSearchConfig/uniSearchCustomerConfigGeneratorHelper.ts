@@ -133,21 +133,31 @@ export class UniSearchCustomerConfigGeneratorHelper {
         customer.WebUrl = statObj.WebUrl;
         customer.Info = new BusinessRelation();
         customer.Info.Name = statObj.Name;
+
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
-            customer.Info.Addresses = [new Address()];
-            customer.Info.Addresses[0].AddressLine1 = statObj.AddressLine1;
-            customer.Info.Addresses[0].PostalCode = statObj.PostalCode;
-            customer.Info.Addresses[0].City = statObj.City;
-            customer.Info.Addresses[0].CountryCode = statObj.CountryCode;
+
+            const address = new Address();
+            address.AddressLine1 = statObj.AddressLine1;
+            address.PostalCode = statObj.PostalCode;
+            address.City = statObj.City;
+            address.CountryCode = statObj.CountryCode;
+
+            customer.Info.InvoiceAddress = address;
+            customer.Info.ShippingAddress = address;
         }
+
         if (statObj.PhoneNumber) {
-            customer.Info.Phones = [new Phone()];
-            customer.Info.Phones[0].Number = statObj.PhoneNumber;
+            const phone = new Phone();
+            phone.Number = statObj.PhoneNumber;
+            customer.Info.DefaultPhone = phone;
         }
+
         if (statObj.EmailAddress) {
-            customer.Info.Emails = [new Email()];
-            customer.Info.Emails[0].EmailAddress = statObj.EmailAddress;
+            const mail = new Email();
+            mail.EmailAddress = statObj.EmailAddress;
+            customer.Info.DefaultEmail = mail;
         }
+
         return customer;
     }
 
