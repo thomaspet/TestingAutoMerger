@@ -17,7 +17,7 @@ export class UniNotificationWidget {
     constructor(private Router: Router) { }
 
     private onClickNavigate() {
-        this.Router.navigateByUrl(this.config.link);
+        // this.Router.navigateByUrl(this.config.link);
     }
 
     private getIconClass() {

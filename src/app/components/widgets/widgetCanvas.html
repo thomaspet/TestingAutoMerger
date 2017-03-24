@@ -1,8 +1,8 @@
-<section #canvas class="widget-canvas">
+<section #canvas class="widget-canvas" (mousemove)="onMouseMove($event)">
     <ng-template ngFor let-widget [ngForOf]="widgets">
         <uni-widget [config]="widget"
-                    [ngStyle]="calculatePosition(widget)">
+                    [ngStyle]="widget._position"
+                    (mousedown)="startDrag($event, widget)">
         </uni-widget>
     </ng-template>
 </section>
-

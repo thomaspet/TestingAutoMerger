@@ -16,8 +16,8 @@ export class UniShortcutWidget {
     constructor(private Router: Router) { }
 
     private onClickNavigate() {
-        this.Router.navigateByUrl(this.config.link);
-    } 
+        // this.Router.navigateByUrl(this.config.link);
+    }
 
     private getIconClass() {
         return 'dashboard-shortcut-icon dashboard-shortcut-icon-' + this.config.icon;

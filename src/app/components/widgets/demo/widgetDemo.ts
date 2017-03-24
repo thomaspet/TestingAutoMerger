@@ -104,6 +104,10 @@ export class UniWidgetDemo {
                 newWidget.x = 0;
                 newWidget.y++;
             }
+
+            if (newWidget.y + newWidget.height > 9) {
+                return;
+            }
         }
 
         this.widgets.push(newWidget);

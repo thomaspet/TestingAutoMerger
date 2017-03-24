@@ -11,6 +11,12 @@ export interface IUniWidget {
     height: number;
     widgetType: string;
     config: any;
+    _position: {
+        top: string;
+        left: string;
+        width: string;
+        height: string;
+    };
 }
 
 

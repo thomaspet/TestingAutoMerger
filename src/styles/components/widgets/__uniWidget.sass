@@ -1,12 +1,11 @@
-// @mixin widget-left($uni-x)
-//     left: calc((100% / 12) * ($uni-x - 1))
-
-// @mixin widget-top($uni-y)
-//     top: calc(pxToRem(100) + .5rem) * ($uni-y - 1)
-
-// @mixing widget-width($uni-width)
-//     width: calc(((100% / 12) * $uni-width) - 0.5rem)
-
+.canvas-cell
+    display: block
+    position: absolute
+    box-sizing: border-box
+    width: calc((100% / 12) - 5px)
+    height: 100px
+    border: 1px dashed $uni-color-positive
+    border-radius: 2px
 
 .widget-canvas
     width: 100%
@@ -14,6 +13,7 @@
     box-sizing: border-box
     padding: 0
     position: relative
+    height: 945px
 
     uni-widget
         display: block
