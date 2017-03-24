@@ -2,7 +2,7 @@ import {Directive, ViewContainerRef, Component, Input, ViewChild, ComponentFacto
 
 // Import known widgets. Loading third party stuff needs to be solved
 // for all appfrontend, not just widgets.
-import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget, UniChartWidget } from './widgets/barrel';
+import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget, UniChartWidget, UniRSSWidget } from './widgets/barrel';
 
 export interface IUniWidget {
     x?: number;
@@ -41,7 +41,8 @@ export class UniWidget {
         'widget3': Widget3,
         'shortcut': UniShortcutWidget,
         'notification': UniNotificationWidget,
-        'chart': UniChartWidget
+        'chart': UniChartWidget,
+        'rss': UniRSSWidget
     };
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
