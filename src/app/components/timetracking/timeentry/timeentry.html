@@ -18,7 +18,7 @@
     <section class="regtime_tabs">
 
         <section [hidden]="!tabs[1].isSelected">
-            <timetracking-timetable></timetracking-timetable>
+            <timetracking-timetable [eventcfg]="preSaveConfig"></timetracking-timetable>
         </section>
 
         <section [hidden]="!tabs[2].isSelected">
@@ -26,7 +26,7 @@
         </section>
 
         <section [hidden]="!tabs[3].isSelected">
-            <regtimebalance [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
+            <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
         </section>
 
         <section [hidden]="!tabs[4].isSelected">

@@ -51,6 +51,11 @@ export class TimeEntry {
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
 
+    public preSaveConfig: IPreSaveConfig = { 
+        askSave: () => this.checkSave(false),
+        askReload: () => this.reset(false) 
+    };
+
     private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
             { label: 'Eksporter', action: (done) => this.export(done), main: false, disabled: false }
@@ -142,10 +147,14 @@ export class TimeEntry {
         this.workEditor.editRow(this.timeSheet.items.length - 1);
     }
 
-    public reset() {
-        this.checkSave().then( () => {
+    public reset(chkSave: boolean = true) {
+        if (chkSave) {
+            this.checkSave().then( () => {
+                this.loadItems();
+            });
+        } else {
             this.loadItems();
-        });
+        }
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
@@ -351,6 +360,8 @@ export class TimeEntry {
         return true;
     }
 
+
+
     private checkSave(rejectIfFail: boolean = false): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
@@ -391,4 +402,9 @@ class WorkBalanceDto extends WorkBalance {
     public lastDayBalance: number;
     public relationIsClosed: boolean;
     public Previous: any;
+}
+
+export interface IPreSaveConfig {
+    askSave(): Promise<boolean>;
+    askReload?(): void;
 }

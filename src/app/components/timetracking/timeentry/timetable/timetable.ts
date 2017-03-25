@@ -1,9 +1,10 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, Input} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {safeInt} from '../../utils/utils';
 import {ErrorService} from '../../../../services/services';
 import {UniTimeModal} from '../../components/popupeditor';
+import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 
 @Component({
@@ -12,6 +13,7 @@ import * as moment from 'moment';
 })
 export class TimeTableReport {
     @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
+    @Input() public eventcfg: IPreSaveConfig;
     private timesheet: TimeSheet;
     public config: {
         title: string,
@@ -45,11 +47,20 @@ export class TimeTableReport {
         this.onFilterClick( this.currentFilter );
     }
 
-    public onDayClick(day: Date) {
+    public onDayClick(day: Date, checkSave: boolean = true) {        
         if (day) {
+
+            if (this.eventcfg && checkSave) {
+                this.eventcfg.askSave().then( () => {
+                    this.onDayClick(day, false);
+                });
+                return;
+            }
+
             this.timeModal.open(this.timesheet.currentRelation, day).then( x => {
                 if (x) { 
                     this.onFilterClick( this.currentFilter );
+                    if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
                 }
             });    
         }

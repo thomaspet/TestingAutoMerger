@@ -1,4 +1,5 @@
-import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef
+    , HostListener} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../services/services';
 import {WorkRelation} from '../../../unientities';
 
@@ -20,11 +21,11 @@ import {WorkRelation} from '../../../unientities';
             </article>
         </dialog>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush    
 })
 export class UniTimeModal {
 
-    @Input() public timesheet: TimeSheet;
+    @Input() public timesheet: TimeSheet;    
     private isOpen: boolean = false;
     private date: Date;
     private busy: boolean = false;
@@ -40,15 +41,23 @@ export class UniTimeModal {
                 this.isOpen = false;
                 this.busy = false;
                 this.onClose(true);
-                this.changeDetectorRef.markForCheck();
+                this.refresh();
             });
             return;
         } 
         this.isOpen = false;
         this.onClose(false);
+        this.refresh();
     }
 
     private onClose: (ok: boolean) => void = () => {};
+
+    @HostListener('window:keydown', ['$event']) 
+    public keyHandler(event: KeyboardEvent) {
+        if (event.keyCode === 27 && this.isOpen) {
+            this.close('cancel');            
+        }
+    }
 
     public open(relation: WorkRelation, date: Date): Promise<boolean> {
         var ts = this.timesheetService.newTimeSheet(relation);
@@ -57,17 +66,23 @@ export class UniTimeModal {
         }
         this.date = date;
         this.busy = true;
-        this.changeDetectorRef.markForCheck();
+        this.refresh();
         ts.loadItemsByPeriod(date, date).subscribe( 
             x => { 
                 this.busy = false;
                 this.timesheet = ts;
-                this.changeDetectorRef.markForCheck();
+                this.refresh();
             });        
         this.isOpen = true;
         return new Promise((resolve, reject) => {
             this.onClose = ok => resolve(ok);            
         });
+    }
+
+    private refresh() {
+        if (this.changeDetectorRef) {
+            this.changeDetectorRef.markForCheck();
+        }
     }
 
 }

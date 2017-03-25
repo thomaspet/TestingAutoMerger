@@ -4,6 +4,7 @@ import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../utils/utils';
 import {UniTimeModal} from '../../components/popupeditor';
+import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 
 @Component({
@@ -15,6 +16,7 @@ export class RegtimeBalance {
         this.current = value;
         this.reloadBalance(value);
     }
+    @Input() public eventcfg: IPreSaveConfig;
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
     public busy: boolean = true;
@@ -42,9 +44,18 @@ export class RegtimeBalance {
         this.reloadBalance(this.current, details);
     }
 
-    public onDayClick(item: IDetail) {
+    public onDayClick(item: IDetail, checkSave: boolean = true) {        
+        if (this.eventcfg && checkSave) {
+            this.eventcfg.askSave().then( () => {
+                this.onDayClick(item, false);
+            });
+            return;
+        }
         this.timeModal.open(this.current, item.Date).then( x => {
-            if (x) { this.onShowDetails(this.hasDetails); }
+            if (x) { 
+                this.onShowDetails(this.hasDetails); 
+                if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
+            }
         });
     }
 
