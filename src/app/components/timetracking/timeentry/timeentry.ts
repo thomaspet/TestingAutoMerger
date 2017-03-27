@@ -53,7 +53,7 @@ export class TimeEntry {
 
     public preSaveConfig: IPreSaveConfig = { 
         askSave: () => this.checkSave(false),
-        askReload: () => this.reset(false) 
+        askReload: () => this.reset(false)
     };
 
     private actions: IUniSaveAction[] = [
@@ -151,9 +151,11 @@ export class TimeEntry {
         if (chkSave) {
             this.checkSave().then( () => {
                 this.loadItems();
+                this.dayBrowser.reloadSums();
             });
         } else {
             this.loadItems();
+            this.dayBrowser.reloadSums();
         }
     }
 
