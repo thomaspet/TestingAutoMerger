@@ -19,6 +19,7 @@ export class UniModels {
 
     private models: Model[];
     private selectedModel: Model;
+    private selectedIndex: number;
 
     private modelsTable: UniTableConfig;
     private fieldsTable: UniTableConfig;
@@ -80,6 +81,7 @@ export class UniModels {
         // we change selected model
         this.hasUnsavedChanges = false;
         this.selectedModel = event.rowModel;
+        this.selectedIndex = event.rowModel['_originalIndex'];
         this.formModel$.next(this.selectedModel);
     }
 
@@ -99,21 +101,46 @@ export class UniModels {
         this.toolbarConfig = {
             title: 'Modeller'
         }
-
         this.saveActions = [{
             label: 'Lagre',
             main: true,
-            disabled: false,
-            action: (completeevent) => {
-                this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
-                    (res) => {
-                        this.hasUnsavedChanges = false;
-                        completeevent('Modell lagret');
-                    },
-                    err => this.errorService.handle(err)
-                );
+            disabled:false,
+            action: (completeCallback) => {
+                if(this.selectedModel.ID){
+                    //Put
+                    this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
+                        (res) => {
+                            this.hasUnsavedChanges = false;
+                            this.selectedModel = res;
+                            this.models[this.selectedIndex] = res;
+                            this.models = [...this.models];
+                            completeCallback('Model saved');
+                        },
+                        (err) => {
+                            completeCallback('could not save Model');
+                            this.errorService.handle(err);
+                        }
+                    );
+
+                } else{
+                    //post
+                    this.modelService.Post(this.selectedModel).subscribe(
+                        (res) =>{
+                            this.hasUnsavedChanges = false;
+                            this.selectedModel = res;
+                            completeCallback('model saved');
+                        },
+                        (err) => {
+                            completeCallback('could not save model');
+                            this.errorService.handle(err);
+                        }
+                    );
+                }
             }
-        }];
+
+        }]
+
+
     }
 
     private initTableConfigs() {
@@ -199,32 +226,7 @@ export class UniModels {
                 Sectionheader: '',
                 hasLineBreak: false,
                 Validations: []
-            },
-            <any>{
-                ComponentLayoutID: 1,
-                EntityType: 'Model',
-                Property: 'HelpText',
-                Placement: 1,
-                Hidden: false,
-                FieldType: FieldType.TEXTAREA,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'HelpText',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
             }
-
-        ]);
-    }
-
-
+         ]);
+      }
 }
