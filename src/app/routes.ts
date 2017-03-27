@@ -27,27 +27,33 @@ export const routes = ([
     // Lazy loaded modules
     {
         path: 'accounting',
-        loadChildren: './components/accounting/AccountingModule#AccountingModule'
+        loadChildren: './components/accounting/AccountingModule#AccountingModule',
+        canActivate: [AuthGuard]
     },
     {
         path: 'salary',
-        loadChildren: './components/salary/salaryModule#SalaryModule'
+        loadChildren: './components/salary/salaryModule#SalaryModule',
+        canActivate: [AuthGuard]
     },
     {
         path: 'sales',
-        loadChildren: './components/sales/salesModule#SalesModule'
+        loadChildren: './components/sales/salesModule#SalesModule',
+        canActivate: [AuthGuard]
     },
     {
         path: 'timetracking',
-        loadChildren: './components/timetracking/timetrackingModule#TimetrackingModule'
+        loadChildren: './components/timetracking/timetrackingModule#TimetrackingModule',
+        canActivate: [AuthGuard]
     },
     {
         path: 'settings',
-        loadChildren: './components/settings/settingsModule#SettingsModule'
+        loadChildren: './components/settings/settingsModule#SettingsModule',
+        canActivate: [AuthGuard]
     },
     {
         path: 'bank',
-        loadChildren: './components/bank/bankModule#BankModule'
+        loadChildren: './components/bank/bankModule#BankModule',
+        canActivate: [AuthGuard]
     },
 
 
