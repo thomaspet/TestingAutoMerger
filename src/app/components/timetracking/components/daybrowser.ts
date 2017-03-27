@@ -79,6 +79,10 @@ export class DayBrowser {
         this.hideCalendar();
     }
 
+    public reloadSums() {
+        this.emitRequestSums( this.days[0].date, this.days[this.days.length - 1].date ); 
+    }
+
     public onNavigate(direction: 'right'|'left') {
         this.navigate.emit({ 
             currentDate: this.day.date, 

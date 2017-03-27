@@ -1,7 +1,8 @@
 import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef
-    , HostListener} from '@angular/core';
-import {TimeSheet, TimesheetService} from '../../../services/services';
+    , HostListener, ViewChild} from '@angular/core';
+import {TimeSheet, TimesheetService, ErrorService} from '../../../services/services';
 import {WorkRelation} from '../../../unientities';
+import {WorkEditor} from './workeditor';
 
 @Component({
     selector: 'uni-time-modal',
@@ -14,7 +15,7 @@ import {WorkRelation} from '../../../unientities';
                     <workeditor [timesheet]="timesheet" ></workeditor>
                     <span class="total">Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}</span>
                     <footer>                         
-                        <button (click)="close('ok')" class="good">OK</button>
+                        <button (click)="close('ok')" class="good">Lagre</button>
                         <button (click)="close('cancel')" class="bad">Avbryt</button>
                     </footer>
                 </article>
@@ -26,28 +27,41 @@ import {WorkRelation} from '../../../unientities';
 export class UniTimeModal {
 
     @Input() public timesheet: TimeSheet;    
+    @ViewChild(WorkEditor) private editor: WorkEditor;
     private isOpen: boolean = false;
     private date: Date;
     private busy: boolean = false;
 
-    constructor(private timesheetService: TimesheetService, private changeDetectorRef: ChangeDetectorRef) {
+    constructor(
+        private timesheetService: TimesheetService, 
+        private changeDetectorRef: ChangeDetectorRef,
+        private errorService: ErrorService) {
     }
 
     public close(src: 'ok' | 'cancel') {
 
         if (src === 'ok') {
-            this.busy = true;
-            this.timesheet.saveItems(true).subscribe( x => {
-                this.isOpen = false;
-                this.busy = false;
-                this.onClose(true);
-                this.refresh();
-            });
+            this.editor.closeEditor();
+            setTimeout( () => this.save(), 10);
             return;
         } 
         this.isOpen = false;
         this.onClose(false);
         this.refresh();
+    }
+
+    private save() {
+        this.busy = true;
+        this.timesheet.saveItems(true).subscribe( x => {
+            this.isOpen = false;
+            this.busy = false;
+            this.onClose(true);
+            this.refresh();
+        },  err => {
+            this.busy = false;
+            this.errorService.handle(err);
+            this.refresh();
+        });
     }
 
     private onClose: (ok: boolean) => void = () => {};

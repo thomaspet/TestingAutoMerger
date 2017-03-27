@@ -66,8 +66,14 @@ export class TimeSheet {
         } else {
             toSave = this.items;
         }
+        var toDelete = this.changeMap.getRemovables();
 
-        var obs = this.ts.saveWorkItems(toSave, this.changeMap.getRemovables());
+        // Nothing to do ?
+        if (toSave && toSave.length === 0 && toDelete && toDelete.length === 0) {
+            return Observable.from([new WorkItem()]);
+        }
+
+        var obs = this.ts.saveWorkItems(toSave, toDelete);
         return obs.map((result: { original: WorkItem, saved: WorkItem}) => {
             if (result.saved) {
                 var item: any = result.original;
