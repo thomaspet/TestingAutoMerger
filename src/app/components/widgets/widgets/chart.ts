@@ -1,58 +1,58 @@
-﻿import { Component, Input, ViewChild } from '@angular/core';
-
+﻿import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import {IUniWidget} from '../uniWidget';
 declare var Chart;
 
 @Component({
     selector: 'uni-chart',
-    template: ` <figure style="margin: 0; color: white; text-align: center;"> 
-                    <div class="uni-dashboard-chart-header"> {{ config.header }}</div> 
-                    <div style="padding: 20px;"> 
-                        <canvas #chartelement> </canvas>
-                    </div> 
+    template: ` <figure style="margin: 0; color: white; text-align: center;">
+                    <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
+                    <div style="padding: 20px;">
+                        <canvas #chartElement> </canvas>
+                    </div>
                 </figure>`
 })
 
 export class UniChartWidget {
+    @ViewChild('chartElement')
+    private chartElement: ElementRef;
 
-    @Input() private config: any;
-    @ViewChild('chartelement') chart: any;
+    public widget: IUniWidget;
     private myChart: any;
 
     constructor() { }
 
-    ngAfterViewInit() {
-        if (this.config) {
+    public ngAfterViewInit() {
+        if (this.widget) {
             this.loadChartWidget();
         }
     }
 
-    ngOnChanges() {
-        if (this.chart && this.config) {
-            this.loadChartWidget(); 
+    public ngOnChanges() {
+        if (this.chartElement && this.widget) {
+            this.loadChartWidget();
         }
     }
 
-    loadChartWidget() {
-
-        //Destorys the old chart before replacing it with new to avoid conflicts in canvas..
+    private loadChartWidget() {
+        // Destroy the old chart before replacing it with new to avoid conflicts in canvas..
         if (this.myChart) {
             this.myChart.destroy();
         }
 
-        let myElement = this.chart.nativeElement;
+        let myElement = this.chartElement.nativeElement;
 
         // 64px is 2 * 20px padding in parent + 24px in the header.. Canvas hack! Jørgen Lom fix it..
         myElement.style.height = ((100 * 3 + (3 - 1) * 20) - 64) + 'px';
         myElement.style.maxHeight = ((100 * 3 + (3 - 1) * 20) - 64) + 'px';
 
-        //Draws new chart to the canvas
+        // Draws new chart to the canvas
         this.myChart = new Chart(<any>myElement, {
-            type: this.config.chartType,
+            type: this.widget.config.chartType,
             data: {
-                labels: this.config.labels,
-                datasets: this.config.dataset
+                labels: this.widget.config.labels,
+                datasets: this.widget.config.dataset
             },
-            options: this.config.options
+            options: this.widget.config.options
         });
     }
 

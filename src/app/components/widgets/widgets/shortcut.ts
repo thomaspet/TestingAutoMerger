@@ -1,25 +1,31 @@
-﻿import { Component, Input } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
+import {IUniWidget} from '../uniWidget';
 
 @Component({
     selector: 'uni-shortcut',
-    template: `<div *ngIf="config" class="uni-widget-shortcut-tile uni-widget-tile-content"  (click)="onClickNavigate()" >
-                   <a class="{{ config.icon !== '' ? getIconClass() : 'dashboard-shortcut-icon-fallback' }}">Link</a><br />
-                   <a class="uni-shortcut-link">{{ config.label }}</a>
-               </div>`
+    template: `
+        <div *ngIf="widget"
+             class="uni-widget-shortcut-tile uni-widget-tile-content"
+             (click)="onClickNavigate()">
+            <a class="{{ widget.config.icon !== '' ? getIconClass() : 'dashboard-shortcut-icon-fallback' }}">Link</a><br />
+            <a class="uni-shortcut-link">{{ widget.config.label }}</a>
+        </div>
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class UniShortcutWidget {
+    public widget: IUniWidget;
 
-    @Input() private config: any;
+    constructor(private router: Router) { }
 
-    constructor(private Router: Router) { }
-
-    private onClickNavigate() {
-        // this.Router.navigateByUrl(this.config.link);
+    public onClickNavigate() {
+        if (!this.widget.dragMode) {
+            this.router.navigateByUrl(this.widget.config.link);
+        }
     }
 
-    private getIconClass() {
-        return 'dashboard-shortcut-icon dashboard-shortcut-icon-' + this.config.icon;
+    public getIconClass() {
+        return 'dashboard-shortcut-icon dashboard-shortcut-icon-' + this.widget.config.icon;
     }
 }

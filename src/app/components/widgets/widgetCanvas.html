@@ -1,6 +1,9 @@
+<button (click)="toggleDragMode()">Toggle drag mode</button>
+
+
 <section #canvas class="widget-canvas" (mousemove)="onMouseMove($event)">
     <ng-template ngFor let-widget [ngForOf]="widgets">
-        <uni-widget [config]="widget"
+        <uni-widget [widget]="widget"
                     [ngStyle]="widget._position"
                     (mousedown)="startDrag($event, widget)">
         </uni-widget>

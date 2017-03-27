@@ -2,15 +2,15 @@ import {
     Component,
     Input,
     ViewChild,
+    ViewChildren,
+    QueryList,
     ElementRef,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    HostListener,
     EventEmitter
 } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
-import {IUniWidget} from './uniWidget';
+import {UniWidget, IUniWidget} from './uniWidget';
 
 interface IGridCell {
     available: boolean;
@@ -25,6 +25,9 @@ interface IGridCell {
 export class UniWidgetCanvas {
     @ViewChild('canvas')
     private canvas: ElementRef;
+
+    @ViewChildren(UniWidget)
+    private widgetElements: QueryList<UniWidget>;
 
     @Input()
     private widgets: IUniWidget[];
@@ -78,6 +81,10 @@ export class UniWidgetCanvas {
             width: width + 'px',
             height: height + 'px'
         };
+    }
+
+    public toggleDragMode() {
+        this.widgetElements.forEach(widget => widget.toggleDragMode());
     }
 
     public startDrag(event: MouseEvent, widget: IUniWidget) {

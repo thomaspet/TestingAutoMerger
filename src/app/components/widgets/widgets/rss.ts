@@ -1,29 +1,29 @@
 ﻿import { Component, Input } from '@angular/core';
-
+import {IUniWidget} from '../uniWidget';
 @Component({
     selector: 'uni-rss',
-    template: ` <div style="height: 100%;">
-                    <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> {{ config.header }}</div>
-                    <ul style="list-style: none; height: 100%; overflow-y: scroll;">
-                        <li *ngFor="let item of rssItem"> 
-                            <div style="float: left; width: 200px; ">
-                                <img [src]="item.image" style="max-width: 100%; max-height: 100%; object-fit: contain;" height="120" width="200" >
-                            </div>
-                            <div style="float: left; width: calc(100% - 201px)"> 
-                                <p style="margin: 0; text-align: left;">24.03.2017</p>
-                                <h2 style="margin: -10px 0 0 0; padding: 0; font-size: 1rem; font-weight: bold; color: black; text-align: left;"> {{ item.title  }} </h2>  
-                                <p style="margin: -10px 0 0 0; font-size: 0.8rem; text-align: left;"> {{ item.text }} </p>
-                                <a target="_black" [href]="item.link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
-                            </div>
-                            <div style="clear: both"></div>
-                        </li>
-                    </ul>
-                </div>`
+    template: `
+        <div style="height: 100%;">
+            <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> {{ widget.config.header }}</div>
+            <ul style="list-style: none; height: 100%; overflow-y: scroll;">
+                <li *ngFor="let item of rssItem">
+                    <div style="float: left; width: 200px; ">
+                        <img [src]="item.image" style="max-width: 100%; max-height: 100%; object-fit: contain;" height="120" width="200" >
+                    </div>
+                    <div style="float: left; width: calc(100% - 201px)">
+                        <p style="margin: 0; text-align: left;">24.03.2017</p>
+                        <h2 style="margin: -10px 0 0 0; padding: 0; font-size: 1rem; font-weight: bold; color: black; text-align: left;"> {{ item.title  }} </h2>
+                        <p style="margin: -10px 0 0 0; font-size: 0.8rem; text-align: left;"> {{ item.text }} </p>
+                        <a target="_black" [href]="item.link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
+                    </div>
+                    <div style="clear: both"></div>
+                </li>
+            </ul>
+        </div>`
 })
 
 export class UniRSSWidget {
-
-    @Input() private config: any;
+    public widget: IUniWidget;
 
     private items: any[] = [];
 
@@ -65,7 +65,7 @@ export class UniRSSWidget {
             text: 'Uni Micro As utvider arbeidsstyrken med 10 nye utviklere og 5 nye kundekonsulenter ',
             link: 'http://www.unimicro.no'
         }
-    ]
+    ];
 
     constructor() { }
 

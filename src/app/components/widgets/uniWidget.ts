@@ -1,8 +1,21 @@
-import {Directive, ViewContainerRef, Component, Input, ViewChild, ComponentFactoryResolver} from '@angular/core';
+import {
+    Directive,
+    ViewContainerRef,
+    Component,
+    Input,
+    ViewChild,
+    ComponentFactoryResolver,
+    ComponentRef
+} from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved
 // for all appfrontend, not just widgets.
-import { Widget1, Widget2, Widget3, UniShortcutWidget, UniNotificationWidget, UniChartWidget, UniRSSWidget } from './widgets/barrel';
+import {
+    UniShortcutWidget,
+    UniNotificationWidget,
+    UniChartWidget,
+    UniRSSWidget
+} from './widgets/barrel';
 
 export interface IUniWidget {
     x?: number;
@@ -10,6 +23,7 @@ export interface IUniWidget {
     width: number;
     height: number;
     widgetType: string;
+    dragMode: boolean;
     config: any;
     _position: {
         top: string;
@@ -35,39 +49,43 @@ export class WidgetContainer {
 })
 export class UniWidget {
     @Input()
-    public config: any; // type this
+    public widget: IUniWidget;
 
     @ViewChild(WidgetContainer)
     private widgetContainer: WidgetContainer;
 
     // This could be moved somewhere else?
     private widgetMap: any = {
-        'widget1': Widget1,
-        'widget2': Widget2,
-        'widget3': Widget3,
         'shortcut': UniShortcutWidget,
         'notification': UniNotificationWidget,
         'chart': UniChartWidget,
         'rss': UniRSSWidget
     };
 
+    private widgetComponent: ComponentRef<any>;
+
     constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
     public ngOnChanges() {
-        if (this.config) {
+        if (this.widget) {
             this.loadWidget();
         }
     }
 
+    public toggleDragMode() {
+        this.widget.dragMode = !this.widget.dragMode;
+        this.widgetComponent.instance.widget = this.widget;
+    }
+
     private loadWidget() {
-        const widget = this.widgetMap[this.config.widgetType];
+        const widget = this.widgetMap[this.widget.widgetType];
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(widget);
 
         let viewContainerRef = this.widgetContainer.viewContainerRef;
         viewContainerRef.clear();
 
-        let componentRef = viewContainerRef.createComponent(componentFactory);
-        (<any>componentRef.instance).config = this.config.config;
+        this.widgetComponent = viewContainerRef.createComponent(componentFactory);
+        this.widgetComponent.instance.widget = this.widget;
     }
 
 }
