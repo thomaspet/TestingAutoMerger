@@ -15,6 +15,7 @@ export enum UniModules {
     Settings        = 101,
     Reports         = 102,
     UniQuery        = 103,
+    UniTicker       = 104,
 
     Customers       = 200,
     Quotes          = 201,
@@ -33,6 +34,7 @@ export enum UniModules {
     Payments        = 306,
     AccountingReports = 307,
     Suppliers       = 308,
+    AccountQuery    = 309,
 
     Bank            = 450,
     Payment         = 451,

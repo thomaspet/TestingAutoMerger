@@ -12,7 +12,6 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
 import {routes as UniTickerRoutes} from './uniTickerRoutes';
@@ -51,7 +50,6 @@ import {UniTickerSearchHistory} from './components/searchHistory';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
 
         // Route module
         UniTickerRoutes

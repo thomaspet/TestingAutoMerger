@@ -53,6 +53,10 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         return super.GetAction(currentID, 'previous');
     }
 
+    public setPrintStatus(orderId: number, printStatus: string): Observable<any> {
+        return super.PutAction(orderId, 'set-customer-order-printstatus', 'ID=' + orderId + '&printStatus=' + printStatus);
+    }
+
     public newCustomerOrder(): Promise<CustomerOrder> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerOrder.EntityType).subscribe((order: CustomerOrder) => {

@@ -1,0 +1,251 @@
+{
+    "Modules": [
+        {
+            "Name": "Sales",
+            "Translated": "Salg",
+            "Models": [
+                "Address",
+                "BusinessRelation",
+                "Contact",
+                "CustomerInvoice",
+                "CustomerInvoiceItem",
+                "CustomerInvoiceReminder",
+                "CustomerInvoiceReminderRule",
+                "CustomerInvoiceReminderSettings",
+                "CustomerOrder",
+                "CustomerOrderItem",
+                "CustomerQuote",
+                "CustomerQuoteItem",
+                "Customer",
+                "Product",
+                "ProductCategory"
+            ]
+        },
+        {
+            "Name": "Accounting",
+            "Translated": "Regnskap",
+            "Models": [
+                "Account",
+                "AccountGroup",
+                "AccountGroupSet",
+                "Accrual",
+                "AccrualPeriod",
+                "JournalEntry",
+                "JournalEntryLine",
+                "JournalEntryLineDraft",
+                "JournalEntryType",
+                "Period",
+                "Supplier",
+                "SupplierInvoice",
+                "SupplierInvoiceItem",
+                "VatCodeGroup",
+                "VatType",
+                "VatDeduction",
+                "VatPost",
+                "VatReport",
+                "VatReportForm",
+                "VatReportType"
+            ]
+        },
+        {
+            "Name": "Salary",
+            "Translated": "Lønn",
+            "Models": [
+                "AGACalculation",
+                "AGADraw",
+                "AGAPension",
+                "AGARate",
+                "AGASector",
+                "AGATax",
+                "AGAZone",
+                "AmeldingData",
+                "AmeldingLog",
+                "CompanyVacationRate",
+                "DrawForeignerWithPercent",
+                "Employee",
+                "EmployeeCategory",
+                "EmployeeLeave",
+                "EmployeeTaxCard",
+                "Employment",
+                "EmploymentValidValues",
+                "ForeignerWithAmount",
+                "ForeignerWithPercent",
+                "FreeAmountUsed",
+                "PayrollRun",
+                "PayrollRunCategoryLink",
+                "SalaryBalance",
+                "SalaryBalanceLine",
+                "SalaryTransaction",
+                "SalaryTransactionSupplement",
+                "STYRKCode",
+                "VacationPayLine",
+                "VacationRateEmployee",
+                "WageType",
+                "WageTypeSupplement"
+            ]
+        },
+        {
+            "Name": "Bank",
+            "Translated": "Bank",
+            "Models": [
+                "Bank",
+                "BankAccount",
+                "Currency",
+                "CurrencyCode",
+                "CurrencyOverride",
+                "Payment",
+                "PaymentBatch",
+                "PaymentBatchType",
+                "PaymentCode"
+            ]
+        },
+        {
+            "Name": "Timetracking",
+            "Translated": "Timer",
+            "Models": [
+                "WorkBalance",
+                "Worker",
+                "WorkItem",
+                "WorkProfile",
+                "WorkRelation",
+                "WorkTimeOff",
+                "WorkType"
+            ]
+        },
+        {
+            "Name": "Dimensions",
+            "Translated": "Dimensjoner",
+            "Models": [
+                "Department",
+                "Dimensions",
+                "Project",
+                "Region",
+                "Responsible"
+            ]
+        },
+        {
+            "Name": "Integrations",
+            "Translated": "Integrasjoner",
+            "Models": [
+                "Altinn",
+                "AltinnCorrespondanceReader",
+                "AltinnReceipt",
+                "AltinnSigning",
+                "Approval",
+                "EHFLog",
+                "EmailLog",
+                "File",
+                "FileTag",
+                "ReportDefinition",
+                "ReportDefinitionDataSource",
+                "ReportDefinitionParameter",
+                "Task",
+                "Tracelink",
+                "UniQueryDefinition",
+                "UniQueryField",
+                "UniQueryFilter"
+            ]
+        },
+        {
+            "Name": "Setup",
+            "Translated": "Setup",
+            "Models": [
+                "CompanySettings",
+                "AccountSetup",
+                "AccountGroupSetup",
+                "AccountVisibilityGroup",
+                "AccountVisibilityGroupAccount",
+                "AuditLog",
+                "Company",
+                "CompanyAccess",
+                "CompanySalary",
+                "CompanyType",
+                "ComplexValidationRule",
+                "ComplexValidationRuleTemplate",
+                "ComponentLayout",
+                "Country",
+                "EntityValidationRuleTemplate",
+                "Field",
+                "Language",
+                "Model",
+                "Municipal",
+                "MunicipalAGAZone",
+                "PeriodSeries",
+                "PeriodTemplate",
+                "Permission",
+                "PostalCode",
+                "Role",
+                "RolePermission",
+                "StaticRegister",
+                "Status",
+                "StatusCategory",
+                "StatusLog",
+                "Transition",
+                "TransitionFlow",
+                "TransitionThreshold",
+                "TransitionThresholdApproval",
+                "Translatable",
+                "Translation",
+                "User",
+                "UserRole",
+                "UserVerification",
+                "VatCodeGroupSetup",
+                "VatPostSetup",
+                "VatReportReferenceSetup",
+                "VatTypeSetup"
+            ]
+        }
+    ],
+    "Models": [
+        {
+            "Name": "CustomerInvoice",
+            "Translated": "Faktura",
+            "Url": "/sales/invoices/:ID"
+        },
+        {
+            "Name": "CustomerOrder",
+            "Translated": "Ordre",
+            "Url": "/sales/orders/:ID"
+        },
+        {
+            "Name": "CustomerQuote",
+            "Translated": "Tilbud",
+            "Url": "/sales/quotes/:ID"
+        },
+        {
+            "Name": "Customer",
+            "Translated": "Kunde",
+            "Url": "/sales/customer/:ID"
+        },
+        {
+            "Name": "Product",
+            "Translated": "Produkt",
+            "Url": "/products/:ID"
+        },
+        {
+            "Name": "Supplier",
+            "Translated": "Leverandør",
+            "Url": "/suppliers/:ID"
+        },
+        {
+            "Name": "SupplierInvoice",
+            "Translated": "Fakturamottak",
+            "Url": "/accounting/bill/:ID"
+        },
+        {
+            "Name": "JournalEntry",
+            "Translated": "Bilag",
+            "Url": "/accounting/journalentry/manual;journalEntryID=:ID"
+        },
+        {
+            "Name": "JournalEntryLine",
+            "Translated": "Bilagslinjer",
+            "Url": "/accounting/journalentry/manual;journalEntryID=:journalentryid"
+        },
+        {
+            "Name": "Worker",
+            "Translated": "Timefører",
+            "Url": "/timetracking/workers/:ID"
+        }
+    ]
+}

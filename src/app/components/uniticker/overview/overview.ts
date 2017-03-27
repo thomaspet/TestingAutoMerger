@@ -48,7 +48,7 @@ export class UniTickerOverview {
         private pageStateService: PageStateService,
         private location: Location) {
 
-        this.tabService.addTab({ name: 'Oversikt', url: '/tickers/overview', moduleID: UniModules.UniQuery, active: true });
+        this.tabService.addTab({ name: 'Oversikt', url: '/tickers/overview', moduleID: UniModules.UniTicker, active: true });
 
         this.route.params.subscribe((params) => {
             this.setupView(params['code']);
@@ -94,7 +94,7 @@ export class UniTickerOverview {
         this.tabService.addTab({
                 name: this.selectedTicker ? 'Utvalg: ' + this.selectedTicker.Name : 'Utvalg',
                 url: url,
-                moduleID: UniModules.UniQuery,
+                moduleID: UniModules.UniTicker,
                 active: true
             });
     }

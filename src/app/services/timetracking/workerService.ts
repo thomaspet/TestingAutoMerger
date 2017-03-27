@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../unientities';
+import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {UserService} from '../common/userService';
@@ -142,6 +142,25 @@ export class WorkerService extends BizHttp<Worker> {
         }
     }
 
+    public getIntervalDate(interval: ItemInterval): Date {
+        switch (interval) {
+            case ItemInterval.today:
+                return new Date();
+            case ItemInterval.yesterday:
+                return this.getLastWorkDay();
+            case ItemInterval.thisWeek:
+                return moment().startOf('week').toDate(); 
+            case ItemInterval.thisMonth:
+                return moment().startOf('month').toDate(); 
+            case ItemInterval.lastTwoMonths:
+                return moment().add(-1, 'month').startOf('month').toDate();
+            case ItemInterval.thisYear:
+                return moment().startOf('year').toDate();
+            default:
+                return new Date();
+        }
+    }    
+
     public getIntervalItems(): Array<IFilter> {
         return [
             { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
@@ -176,7 +195,8 @@ export class WorkerService extends BizHttp<Worker> {
             filter += ' and ( ' + intervalFilter + ' )';
         }
         return this.GET('workitems', { filter: filter, hateoas: 'false', 
-            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder', orderBy: 'StartTime' });
+            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder', 
+            orderBy: 'StartTime' });
     }
 
     public getWorkItemById(id: number): Observable<WorkItem> {
@@ -184,6 +204,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public saveWorkItem(item: WorkItem): Observable<WorkItem> {
+        item.Dimensions = (item.Dimensions && Object.keys(item.Dimensions).length === 0) ? null : item.Dimensions;
         return this.saveByID(item, 'workitems');
     }
 

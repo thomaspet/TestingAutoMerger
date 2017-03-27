@@ -8,7 +8,7 @@ import {
     CustomerInvoiceReminderRuleService
 } from '../../../../services/services';
 
-declare const moment;
+import * as moment from 'moment';
 declare const _;
 
 @Component({

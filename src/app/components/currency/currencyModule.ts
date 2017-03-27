@@ -11,7 +11,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
 import {UniFormModule} from 'uniform-ng2/main';
 
 // routes
@@ -44,7 +43,6 @@ import {CurrencyExchange} from './currencyexchange/currencyexchange';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        AppServicesModule,
 
         // Route module
         CurrencyRoutes

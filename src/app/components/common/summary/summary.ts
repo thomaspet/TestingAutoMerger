@@ -8,12 +8,12 @@ export interface ISummaryConfig {
     selector: 'uni-summary',
     template: `
         <dl class="unisummary">
-            <template ngFor let-summary [ngForOf]="configs">
+            <ng-template ngFor let-summary [ngForOf]="configs">
                 <dt>{{summary.title}}</dt>
                 <dd>{{summary.value}}
                     <small *ngIf="summary.description">{{summary.description}}</small>
                 </dd>
-            </template>
+            </ng-template>
         </dl>
     `
 })

@@ -11,7 +11,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppServicesModule} from '../../services/servicesModule';
 
 // routes
 import {routes as UniQueryRoutes} from './uniQueriesRoutes';
@@ -41,7 +40,6 @@ import {UniQueries} from './uniQueries';
         // App Modules
         LayoutModule,
         AppCommonModule,
-        // AppServicesModule,
 
         // Route module
         UniQueryRoutes

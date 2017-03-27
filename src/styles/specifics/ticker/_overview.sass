@@ -1,22 +1,37 @@
-uni-ticker-overview
+uni-ticker-search-history
+    display: block
     width: 100%
+    background-color: $uni-color-scale9
 
     .search-history
-        background-color: $uni-color-scale9
-        width: calc(100%)
-        color: $uni-color-scale5
-        font-size: 0.9em
-
+        @include unigrid-flush(14)
+        margin: 0 auto
+        color: $uni-color-scale3
+        font-size: .9em
+        line-height: 2rem
+        height: 2.5rem
+        overflow: hidden
 
         ul
             list-style-type: none
-            margin-top: 0px
-            padding-top: 0.3rem
-            padding-bottom: 0.3rem
+            margin-top: 0
+            padding-top: .3rem
+            padding-bottom: .3rem
 
         li
             display: inline-block
+
+        li:first-of-type
+            font-size: 1rem
             margin-left: 1rem
+
+        li:not(:first-of-type)
+            margin-left: 3rem
 
             a
                 cursor: pointer
+
+                &:hover,
+                &:focus
+                    text-decoration: underline
+                    color: $uni-color-scale3

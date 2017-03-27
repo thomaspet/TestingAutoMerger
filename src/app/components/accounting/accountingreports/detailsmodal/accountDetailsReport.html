@@ -1,22 +1,39 @@
-<article class="modal-content" *ngIf="config && config.accountID">
-    <h1>Detaljer for konto {{config.accountNumber}} - {{config.accountName}}</h1>
+<uni-toolbar *ngIf="config && !config.modalMode" [config]="toolbarconfig"
+                                [saveactions]="saveactions">
+</uni-toolbar>
 
-    <distribution-period-report-part [accountIDs]="accountIDs"
-                                     [accountYear1]="periodFilter1.year - 1"
-                                     [accountYear2]="periodFilter1.year"
-                                     [showHeader]="false"
-                                     [doTurnAmounts]="doTurnDistributionAmounts"
-                                     [includeIncomingBalance]="includeIncomingBalanceInDistributionReport"
-                                     [dimensionType]="config.dimensionType"
-                                     [dimensionId]="config.dimensionId"></distribution-period-report-part>
+<article [ngClass]="{'modal-content': config.modalMode, 'application': !config.modalMode}">
+    <section *ngIf="config && !config.modalMode && config$">
+        <uni-form [config]="config$"
+                [fields]="fields$"
+                [model]="searchParams$"
+                (changeEvent)="onFormFilterChange($event)">
+        </uni-form>
+        <span *ngIf="config && !config.accountID">Ingen konto valgt</span>
+    </section>
 
-    <section class="dimension-result">
-        <h2>Transaksjoner i perioden {{periodFilter1.name}}</h2> <button class="toggle-period-button" (click)="switchPeriods()">Vis tall for {{periodFilter2.name}}</button>
+    <section *ngIf="config && config.accountID">
+        <h1>Detaljer for konto {{config.accountNumber}} - {{config.accountName}}</h1>
 
-        <uni-table
-            [resource]="transactionsLookupFunction"
-            [config]="uniTableConfigTransactions"
-            ></uni-table>
+        <distribution-period-report-part [accountIDs]="accountIDs"
+                                        [accountYear1]="(periodFilter1$ | async).year - 1"
+                                        [accountYear2]="(periodFilter1$ | async).year"
+                                        [showHeader]="false"
+                                        [doTurnAmounts]="doTurnDistributionAmounts$ | async"
+                                        [includeIncomingBalance]="includeIncomingBalanceInDistributionReport$ | async"
+                                        [dimensionType]="config.dimensionType"
+                                        [dimensionId]="config.dimensionId"
+                                        (periodSelected)="periodSelected($event)">
+        </distribution-period-report-part>
+
+        <section class="dimension-result">
+            <h2>Transaksjoner i perioden {{(periodFilter3$ | async).name}}</h2> <button class="toggle-period-button" (click)="switchPeriods()">Vis tall for {{(periodFilter2$ | async).name}}</button>
+
+            <uni-table
+                [resource]="transactionsLookupFunction"
+                [config]="uniTableConfigTransactions$ | async"
+                ></uni-table>
+        </section>
     </section>
 </article>
 

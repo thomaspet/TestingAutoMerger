@@ -1,15 +1,19 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild, Input} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {safeInt} from '../../utils/utils';
 import {ErrorService} from '../../../../services/services';
+import {UniTimeModal} from '../../components/popupeditor';
+import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 
 @Component({
-    selector: 'regtimetools',
-    templateUrl: './tools.html'
+    selector: 'timetracking-timetable',
+    templateUrl: './timetable.html'
 })
-export class RegtimeTools {
+export class TimeTableReport {
+    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
+    @Input() public eventcfg: IPreSaveConfig;
     private timesheet: TimeSheet;
     public config: {
         title: string,
@@ -43,9 +47,28 @@ export class RegtimeTools {
         this.onFilterClick( this.currentFilter );
     }
 
+    public onDayClick(day: Date, checkSave: boolean = true) {        
+        if (day) {
+
+            if (this.eventcfg && checkSave) {
+                this.eventcfg.askSave().then( () => {
+                    this.onDayClick(day, false);
+                });
+                return;
+            }
+
+            this.timeModal.open(this.timesheet.currentRelation, day).then( x => {
+                if (x) { 
+                    this.onFilterClick( this.currentFilter );
+                    if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
+                }
+            });    
+        }
+    }
+
     private onFilterClick(filter: IFilter) {
         var f: IFilter;
-        this.filters.forEach((value: any) => {
+        this.filters.forEach( value => {
             if (value.name === filter.name) {
                 f = value;
                 f.isSelected = true;
@@ -58,7 +81,7 @@ export class RegtimeTools {
     }
 
 
-    private showData(items: Array<any>) {
+    private showData(items) {
         var compactedList = this.filterItems(items);
         var sums = this.sumItems(items);
         this.config = {
@@ -69,14 +92,14 @@ export class RegtimeTools {
         };
     }
 
-    private filterItems(items: Array<any>): Array<any> {
+    private filterItems(items) {
         for (var i = items.length - 1; i >= 0; i--) {
             this.filterItem(items, i);
         }
         return items;
     }
 
-    private filterItem(items: Array<any>, index: number) {
+    private filterItem(items, index: number) {
         var item = items[index];
         var systemType = safeInt(item.WorkTypeSystemType);
         var isHours = (systemType < 10 || systemType === 12);
@@ -160,9 +183,13 @@ export class RegtimeTools {
         this.busy = true;
         var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
-        query += this.createArg('select', 'WorkRelation.WorkerId,BusinessRelation.Name,WorkRelation.Description,Date,WorkType.SystemType,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
-        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID + ' and ( not setornull(deleted) )' + (filter ? ' and ( ' +  filter + ' )' : ''));
-        query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
+        query += this.createArg('select', 'WorkRelation.WorkerId,BusinessRelation.Name,WorkRelation.Description' 
+            + ',Date,WorkType.SystemType,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
+        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID 
+            + ' and ( not setornull(deleted) )' + (filter ? ' and ( ' +  filter + ' )' : ''));
+        query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid' 
+            + ' eq workrelation.id and workrelation.workerid eq worker.id'
+            + ' and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', 'date');
         this.workerService.getStatistics(query).subscribe((result) => {
             this.busy = false;

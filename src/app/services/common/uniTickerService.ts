@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Http} from '@angular/http';
@@ -6,21 +7,31 @@ import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../../framework/core/authService';
+import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
+import {ErrorService} from './errorService';
+import {StatusService} from './statusService';
+import * as allModels from '../../unientities';
 
 import * as moment from 'moment';
-
+declare const _; // lodash
 
 @Injectable()
 export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
     private TICKER_LOCALSTORAGE_KEY: string = 'UniTickerHistory';
     private tickers: Array<Ticker>;
+    private models: Array<any>;
 
     constructor(
         private http: Http,
+        private uniHttp: UniHttp,
         private numberFormatService: NumberFormat,
         private storageService: BrowserStorageService,
-        private authService: AuthService) {
+        private authService: AuthService,
+        private router: Router,
+        private statusService: StatusService,
+        private modelService: ApiModelService,
+        private errorService: ErrorService) {
         /* KE: We dont have a backend endpoint yet - consider this later
                when we have stabilized the JSON structure for tickers
 
@@ -42,46 +53,286 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
     public loadTickerCache(): Promise<any> {
         return new Promise((resolve, reject) => {
-            if (!this.tickers) {
-                // get statuses from API and add it to the cache
-                this.http.get('assets/tickers/tickers.json')
-                    .map(x => x.json())
-                    .map((tickers: Array<Ticker>) => {
-                        tickers.forEach(ticker => {
-                            if (!ticker.Filters || ticker.Filters.length === 0) {
-                                let filter = new TickerFilter();
-                                filter.Name = 'Egendefinert';
-                                filter.Code = ticker.Model + 'CustomSearch';
-                                filter.FilterGroups = [];
-                                filter.IsActive = false;
+            this.modelService.loadModelCache().then(() => {
+                this.statusService.loadStatusCache().then(() => {
+                    if (!this.tickers) {
+                        // get statuses from API and add it to the cache
+                        Observable.forkJoin(
+                            this.http.get('assets/tickers/accountingtickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/demotickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/salarytickers.json').map(x => x.json())
+                        ).map(tickerfiles => {
+                            let allTickers: Array<Ticker> = [];
 
-                                if (!ticker.Filters) {
-                                    ticker.Filters = [];
-                                }
+                            tickerfiles.forEach((fileContent: Array<Ticker>) => {
+                                fileContent.forEach(ticker => {
+                                    allTickers.push(ticker);
+                                });
+                            });
 
-                                ticker.Filters.push(filter);
-                            }
-                        });
+                            return allTickers;
+                        })
+                        .map((tickers: Array<Ticker>) => {
+                                tickers.forEach(ticker => {
+                                    if (!ticker.Filters || ticker.Filters.length === 0) {
+                                        let filter = new TickerFilter();
+                                        filter.Name = 'Egendefinert';
+                                        filter.Code = ticker.Model + 'CustomSearch';
+                                        filter.FilterGroups = [];
+                                        filter.IsActive = false;
 
-                        return tickers;
-                    })
-                    .subscribe(data => {
-                        this.tickers = data;
+                                        if (!ticker.Filters) {
+                                            ticker.Filters = [];
+                                        }
+
+                                        ticker.Filters.push(filter);
+                                    }
+                                });
+
+                                return tickers;
+                            })
+                            .map(tickers => {
+                                // fix typings in config, use lowerCase consistently
+                                tickers.forEach(t => {
+                                    if (t.Type) {
+                                        t.Type = t.Type.toLowerCase();
+                                    } else {
+                                        t.Type = 'table';
+                                    }
+
+                                    let model = null;
+                                    if (t.Model && t.Model !== '') {
+                                        model = this.modelService.getModel(t.Model);
+                                        t.ApiModel = model;
+                                    }
+
+                                    if (t.Columns) {
+                                        t.Columns.forEach(c => {
+                                            c.Type = c.Type ? c.Type.toLowerCase() : '';
+
+
+                                            this.setupFieldProperties(c, t, model);
+
+                                            if (c.SubFields) {
+                                                c.SubFields.forEach(sf => {
+                                                    this.setupFieldProperties(sf, t, model);
+                                                });
+                                            }
+                                        });
+                                    }
+
+                                    if (t.Actions) {
+                                        t.Actions.forEach(action => {
+                                            action.Type = action.Type ? action.Type.toLowerCase() : '';
+                                            action.ParameterProperty = action.ParameterProperty ? action.ParameterProperty : '';
+
+                                            if (typeof action.DisplayInActionBar !== 'boolean') {
+                                                action.DisplayInActionBar = true;
+                                            }
+                                            if (typeof action.DisplayInContextMenu !== 'boolean') {
+                                                action.DisplayInContextMenu = false;
+                                            }
+                                            if (typeof action.DisplayForSubTickers !== 'boolean') {
+                                                action.DisplayForSubTickers = true;
+                                            }
+                                            if (typeof action.ExecuteWithMultipleSelections !== 'boolean') {
+                                                action.ExecuteWithMultipleSelections = false;
+                                            }
+                                            if (typeof action.ExecuteWithoutSelection !== 'boolean') {
+                                                action.ExecuteWithoutSelection = false;
+                                            }
+
+                                        });
+                                    }
+                                });
+
+                                return tickers;
+                            })
+                            .subscribe(data => {
+                                this.tickers = data;
+
+                                resolve();
+                            }, err => reject(err)
+                        );
+                    } else {
                         resolve();
-                    }, err => reject(err)
-                );
-            } else {
-                resolve();
-            }
+                    }
+                });
+            });
         });
     }
 
+    private setupFieldProperties(c: TickerColumn, t: Ticker, model: any) {
+        if (!c.Header) {
+            // TODO: Get header based on translation
+            c.Header = c.Field;
+        }
+
+        if (typeof c.DefaultHidden !== 'boolean') {
+            c.DefaultHidden = false;
+        }
+
+        // TODO: tar ikke hensyn til f.eks. Customer.CustomerNumber her - sjekker
+        // bare på hoved nivå.
+        // Må utvide til å også sjekke path og finne modell basert på den
+        let colName = c.Field;
+        let aliasColName = '';
+        let selectableColName = '';
+
+        let modelname = (t.Model ? t.Model : '');
+
+        if (this.isFunction(c.Field)) {
+            // for functions, trust that the user knows what he/she is doing...
+            selectableColName = colName;
+            aliasColName = modelname + colName;
+        } else if (c.Field.indexOf('.') > 0) {
+            // get last part of path, e.g. field.Field = Customer.Info.Name,
+            // gets "Info" and "Name"
+            let lastIndex = c.Field.lastIndexOf('.');
+            let path = c.Field.substring(0, lastIndex);
+            if (path.indexOf('.') > 0) {
+                lastIndex = path.lastIndexOf('.');
+                path = path.substring(lastIndex + 1);
+            }
+
+            colName = c.Field.substring(c.Field.lastIndexOf('.') + 1);
+
+            selectableColName = path + '.' + colName;
+            aliasColName = path + colName;
+        } else {
+            selectableColName = modelname + '.' + colName;
+            aliasColName = modelname + colName;
+        }
+
+        if (c.SumFunction && selectableColName.indexOf(c.SumFunction) === -1) {
+            selectableColName = `${c.SumFunction}(${selectableColName})`;
+        }
+
+        // set the Alias we are using in the query to simplify
+        // getting the data later on
+        c.Alias = c.Alias ? c.Alias : aliasColName;
+        c.SelectableFieldName = selectableColName;
+
+        // if not fieldtype is configured for the ticker column, try to find
+        // type based on the model that is retrieved from the API
+        if (model &&  (!c.Type || c.Type === '')) {
+            let modelField = this.modelService.getField(model, colName);
+
+            if (modelField) {
+                if (modelField.Type.toString().indexOf('System.Int32') !== -1) {
+                    c.Type = 'number';
+                } else if (modelField.Type.toString().indexOf('System.Decimal') !== -1) {
+                    c.Type = 'money';
+                } else if (modelField.Type.toString().indexOf('System.DateTime') !== -1
+                            || modelField.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
+                    c.Type = 'date';
+                }
+            }
+        }
+    }
+
+    private isFunction(field: string): boolean {
+        return field.indexOf('(') > -1 && field.indexOf(')') > -1;
+    }
 
     public getTickers(): Promise<Ticker[]> {
         return this.loadTickerCache()
             .then(() => {
                 return this.tickers;
             });
+    }
+
+    public executeAction(action: TickerAction, ticker: Ticker, selectedRows: Array<any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.modelService.loadModelCache()
+                .then(() => {
+                    let model = this.modelService.getModel(ticker.Model);
+                    let uniEntityClass = allModels[ticker.Model];
+
+                    if (action.Type && action.Type.toLowerCase() === 'new') {
+                        // get url for new entity, navigate
+                        let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
+
+                        if (url && url !== '') {
+                            url = url.replace(':ID', '0');
+                            this.router.navigateByUrl(url);
+                        } else {
+                            throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
+                        }
+                    } else if (action.Type && action.Type.toLowerCase() === 'details') {
+                        let rowId: number = null;
+                        let urlIdProperty: string = 'ID';
+
+                        // check that we can find the ID of the model - and that we have only one
+                        if (!selectedRows || selectedRows.length !== 1) {
+                            throw Error('Could not navigate, not possible to find ID to navigate to');
+                        } else {
+                            if (action.ParameterProperty !== '') {
+                                rowId = selectedRows[0][action.ParameterProperty.replace('.', '')];
+                                urlIdProperty = action.ParameterProperty.toLowerCase();
+                            } else {
+                                rowId = selectedRows[0]['ID'];
+                            }
+                        }
+
+                        // get url for new entity, navigate
+                        let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
+
+                        if (url && url !== '') {
+                            url = url.replace(`:${urlIdProperty}`, rowId.toString());
+                            this.router.navigateByUrl(url);
+                        } else {
+                            throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
+                        }
+
+                    } else if (action.Type && action.Type.toLowerCase() === 'action') {
+                        console.error('actions with Type = "action" are not impelmented yet', action, ticker, selectedRows);
+
+                    } else if (action.Type && action.Type.toLowerCase() === 'transition') {
+                        if (!uniEntityClass) {
+                            throw Error('Cannot find unientity class for model ' + ticker.Model + ', cannot run transition');
+                        } else if (!uniEntityClass.RelativeUrl || uniEntityClass.RelativeUrl === '') {
+                            throw Error('No URL defined for unientity class for model ' + ticker.Model + ', cannot run transition');
+                        }
+
+                        // check that we can find the ID of the model - and that we have at least one
+                        if (!selectedRows || selectedRows.length === 0) {
+                            throw Error('No row selected, cannot execute transition ' + action.Transition);
+                        }
+
+                        let service = new BizHttp<any>(this.uniHttp, this.authService);
+                        service.relativeURL = uniEntityClass.RelativeUrl;
+
+                        // TBD: should consider some throttling here if a lot of rows are selected - could potentially
+                        // start hundreds of requests - errors should probably also be handled better, but it
+                        // is probably not optimal to run requests one-by-one either.
+                        let requests = [];
+                        selectedRows.forEach(row => {
+                            requests.push(service.Transition(row['ID'], row, action.Transition));
+
+                            if (!row._links.transitions[action.Transition]) {
+                                reject(`Cannot execute transition ${action.Transition} for ID ${row['ID']}, transition is not available for this item`);
+                            }
+
+                            console.log(`Transition ${action.Transition} queued for ID ${row['ID']}`);
+                        });
+
+                        Observable
+                            .forkJoin(requests)
+                            .subscribe(response => {
+                                resolve();
+                            },
+                            err => {
+                                reject(`Error executing transition ${action.Transition}`);
+                                this.errorService.handle(err);
+                            }
+                        );
+                    }
+            });
+        });
     }
 
     public getGroupedTopLevelTickers(tickers: Array<Ticker>): Array<TickerGroup> {
@@ -107,9 +358,11 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
             if (ticker.SubTickersCodes && ticker.SubTickersCodes.length) {
                 ticker.SubTickersCodes.forEach(subTickerCode => {
-                    let subTicker = tickers.find(x => x.Code === subTickerCode);
-                    if (subTicker) {
-                        ticker.SubTickers.push(subTicker);
+                    if (!ticker.SubTickers.find(x => x.Code === subTickerCode)) {
+                        let subTicker = tickers.find(x => x.Code === subTickerCode);
+                        if (subTicker) {
+                            ticker.SubTickers.push(_.cloneDeep(subTicker));
+                        }
                     }
                 });
             }
@@ -120,37 +373,103 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return groups;
     }
 
-    public getFieldValue(column: TickerColumn, model: any) {
-        let fieldValue: any = this.getFieldValueInternal(column, model);
+    public getFieldValue(column: TickerColumn, data: any, ticker: Ticker) {
+        let fieldValue: any = this.getFieldValueInternal(column, data);
 
-        if (!fieldValue || fieldValue === '') {
-            return '';
-        }
-
-        if (!column.Type || column.Type === '') {
-            return fieldValue;
+        if (!fieldValue) {
+            fieldValue = '';
         }
 
         let formattedFieldValue = fieldValue;
 
-        switch (column.Type.toLowerCase()) {
-            case 'number':
-                formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
-                break;
-            case 'money':
-                formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
-                break;
-            case 'percent':
-                formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
-                break;
-            case 'date':
-            case 'datetime':
-            case 'localdate':
-                formattedFieldValue = moment(fieldValue).format('DD.MM.YYYY');
-                break;
+        let columnType = column.Type;
+
+        if (fieldValue !== '') {
+            switch (columnType) {
+                case 'number':
+                    formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
+                    break;
+                case 'money':
+                    formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
+                    break;
+                case 'percent':
+                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue) + '%';
+                    break;
+                case 'date':
+                case 'datetime':
+                case 'localdate':
+                    formattedFieldValue = moment(fieldValue).format('DD.MM.YYYY');
+                    break;
+            }
+        }
+
+        if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+            formattedFieldValue = this.statusCodeToText(data[column.Alias]);
+        }
+
+        if (column.SubFields && column.SubFields.length > 0) {
+            column.SubFields.forEach(sf => {
+                let subFieldValue = this.getFieldValue(sf, data, ticker);
+                if (subFieldValue && subFieldValue !== '') {
+                    formattedFieldValue += ' - ' + subFieldValue;
+                }
+            });
+        }
+
+        if (columnType === 'link') {
+            let url = '';
+            if (column.ExternalModel) {
+                let externalModel = this.modelService.getModel(column.ExternalModel);
+
+                if (externalModel && externalModel.DetailsUrl) {
+                    url = externalModel.DetailsUrl;
+
+                    if (column.LinkNavigationProperty) {
+                        let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                        if (data[linkNavigationPropertyAlias]) {
+                            url = url.replace(':ID', data[linkNavigationPropertyAlias]);
+                        } else {
+                            // we dont have enough data to link to the external model, just show
+                            // the property as a normal field
+                            url = '';
+                        }
+                    } else {
+                        if (data['ID']) {
+                            url = url.replace(':ID', data['ID']);
+                        }
+                    }
+                } else {
+                    console.error(`${column.ExternalModel} not found, or no details url specified for model`);
+                }
+            } else {
+                let model = ticker.ApiModel ? ticker.ApiModel : this.modelService.getModel(ticker.Model);
+
+                if (model && model.DetailsUrl) {
+                    url = model.DetailsUrl;
+
+                    if (data['ID']) {
+                        url = url.replace(':ID', data['ID']);
+                    }
+                } else {
+                    console.error(`${ticker.Model} not found, or no details url specified for model`);
+                }
+            }
+
+            if (url !== '' && formattedFieldValue !== '') {
+                formattedFieldValue = `<a href="/#${url}">${formattedFieldValue}</a>`;
+            }
+        } else if (columnType === 'external-link') {
+            if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
+                formattedFieldValue = `<a href="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
+            }
         }
 
         return formattedFieldValue;
+    }
+
+    private statusCodeToText(statusCode: number): string {
+        let text: string = this.statusService.getStatusText(statusCode);
+        return text || (statusCode ? statusCode.toString() : '');
     }
 
     private getFieldValueInternal(column: TickerColumn, model: any): any {
@@ -191,22 +510,26 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return '';
     }
 
-    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], useAllCriterias: boolean): string {
+    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], useAllCriterias: boolean, mainModel: string): string {
         let filterString: string = '';
         let isInGroup: boolean = false;
+
+        let lastGroupWasUsed: boolean = false;
 
         for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
             let group = filterGroups[groupIndex];
             let filters = group.FieldFilters;
 
             // add "or" or "and" between groups
-            if (groupIndex > 0 && !useAllCriterias) {
-                filterString += ' or ';
-            } else if (groupIndex > 0) {
-                filterString += ' and ';
+            if (lastGroupWasUsed) {
+                if (groupIndex > 0 && !useAllCriterias) {
+                    filterString += ' or ';
+                } else if (groupIndex > 0) {
+                    filterString += ' and ';
+                }
             }
 
-            let hasAddedFilterForGroup = false;
+            lastGroupWasUsed = false;
 
             // dont use filters that miss either field or operator - this is probably just a filter
             // the user has not finished constructing yet
@@ -218,9 +541,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 let orderedByGroupFilters = filters.sort((a, b) => { return a.QueryGroup - b.QueryGroup});
                 isInGroup = false;
 
+                let lastFilterWasUsed: boolean = false;
+
                 for (let index = 0; index < orderedByGroupFilters.length; index++) {
                     let filter: TickerFieldFilter = orderedByGroupFilters[index];
-
                     let filterValue: string = this.getFilterValueFromFilter(filter, expressionFilterValues);
 
                     if (filterValue) {
@@ -231,35 +555,47 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         }
 
                         // add "or" or "and" between groups depending on the UseAllCriterias flag
-                        if (index > 0 && !group.UseAllCriterias) {
-                            filterString += ' or ';
-                        } else if (index > 0) {
-                            filterString += ' and ';
+                        if (lastFilterWasUsed) {
+                            if (index > 0 && !group.UseAllCriterias) {
+                                filterString += ' or ';
+                            } else if (index > 0) {
+                                filterString += ' and ';
+                            }
                         }
+
+                        let path = filter.Path && filter.Path !== '' ? filter.Path : mainModel;
 
                         if (filter.Operator === 'contains' || filter.Operator === 'startswith' || filter.Operator === 'endswith') {
                             // Function operator
-                            filterString += (`${filter.Operator}(${filter.Field},'${filterValue}')`);
+                            filterString += (`${filter.Operator}(${path}.${filter.Field},'${filterValue}')`);
                         } else {
                             // Logical operator
-                            filterString += `${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            if (!this.isFunction(filter.Field)) {
+                                filterString += `${path}.${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            } else {
+                                // field is a function, trust the user knows what he is doing..
+                                filterString += `${filter.Field} ${filter.Operator} '${filterValue}'`;
+                            }
                         }
 
-                        hasAddedFilterForGroup = true;
+                        lastFilterWasUsed = true;
+                        lastGroupWasUsed = true;
+                    } else {
+                        lastFilterWasUsed = false;
                     }
                 }
             }
 
             // close last group if we are in a group
             if (isInGroup) {
-                filterString += ')';
+                filterString += ' )';
                 isInGroup = false;
             }
         }
 
         // close last group if we are in a group
         if (isInGroup) {
-            filterString += ')';
+            filterString += ' )';
             isInGroup = false;
         }
 
@@ -360,6 +696,83 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         this.storageService.save(this.TICKER_LOCALSTORAGE_KEY, JSON.stringify(existingHistory), true);
     }
+
+    public getOperators() {
+        return [
+            {
+                'verb': 'inneholder',
+                'operator': 'contains',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'begynner med',
+                'operator': 'startswith',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'slutter på',
+                'operator': 'endswith',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'er',
+                'operator': 'eq',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'er ikke',
+                'operator': 'ne',
+                'accepts': [
+                    'Text',
+                    'Number'
+                ]
+            },
+            {
+                'verb': 'er større enn',
+                'operator': 'gt',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            },
+            {
+                'verb': 'er større el. lik',
+                'operator': 'ge',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            },
+            {
+                'verb': 'er mindre enn',
+                'operator': 'lt',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            },
+            {
+                'verb': 'er mindre el. lik',
+                'operator': 'le',
+                'accepts': [
+                    'Number',
+                    'DateTime'
+                ]
+            }
+        ];
+    }
 }
 
 export class TickerGroup {
@@ -370,18 +783,25 @@ export class TickerGroup {
 export class Ticker {
     public Name: string;
     public Code: string;
-    public Type: string;
+    public Type?: string;
     public Group: string;
     public IsTopLevelTicker: boolean;
     public Model: string;
-    public Expand: string;
+    public OrderBy?: string;
+    public ApiModel?: ApiModel;
+    public Expand?: string;
+    public Joins?: string;
+    public ApiUrl?: string;
+    public ListObject?: string;
+    public DisableFiltering?: boolean;
     public Columns: Array<TickerColumn>;
-    public ParentFilter: TickerFieldFilter;
-    public SubTickers: Array<Ticker>;
-    public SubTickersCodes: Array<string>;
-    public Filters: Array<TickerFilter>;
-    public Actions: Array<TickerAction>;
-    public IsActive: boolean;
+    public ParentFilter?: TickerFieldFilter;
+    public SubTickers?: Array<Ticker>;
+    public SubTickersCodes?: Array<string>;
+    public Filters?: Array<TickerFilter>;
+    public UseParentTickerActions?: boolean;
+    public Actions?: Array<TickerAction>;
+    public IsActive?: boolean;
 }
 
 export class TickerFieldFilter {
@@ -399,14 +819,19 @@ export interface IExpressionFilterValue {
 }
 
 export class TickerColumn {
-    public Header: string;
+    public Header?: string;
     public Field: string;
-    public Format: string;
-    public Width: string;
-    public CssClass: string;
-    public Type: string;
-    public SumFunction: string;
-    public Alias: string;
+    public SelectableFieldName?: string;
+    public Format?: string;
+    public Width?: string;
+    public DefaultHidden?: boolean;
+    public CssClass?: string;
+    public Type?: string;
+    public SumFunction?: string;
+    public Alias?: string;
+    public ExternalModel?: string;
+    public LinkNavigationProperty?: string;
+    public SubFields?: Array<TickerColumn>;
 }
 
 export class TickerFilterGroup {
@@ -419,18 +844,26 @@ export class TickerFilter {
     public Name: string;
     public Code: string;
     public Filter: string;
+    public OrderBy?: string;
     public IsActive: boolean;
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
-    //public FieldFilters: Array<TickerFieldFilter>;
+    public CurrentCount?: number;
 }
 
 export class TickerAction {
     public Name: string;
     public Code: string;
-    public ConfirmBeforeExecuteMessage: string;
-    public ExecuteWithMultipleSelections: boolean;
-    public ExecuteWithoutSelection: boolean;
+    public ConfirmBeforeExecuteMessage?: string;
+    public ExecuteWithMultipleSelections?: boolean;
+    public ExecuteWithoutSelection?: boolean;
+    public Type: string;
+    public Action?: string;
+    public Transition?: string;
+    public DisplayInContextMenu?: boolean = true;
+    public DisplayInActionBar?: boolean = true;
+    public DisplayForSubTickers?: boolean = true;
+    public ParameterProperty?: string;
 }
 
 export class TickerHistory {

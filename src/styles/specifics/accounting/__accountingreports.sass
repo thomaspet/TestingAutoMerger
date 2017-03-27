@@ -1,6 +1,6 @@
 @import 'periodPicker'
 
-accounting-reports
+accounting-reports, accounting-details-report
 
     h1
         margin-bottom: pxToRem(5)
@@ -74,6 +74,11 @@ accounting-reports
 
         uni-table
             font-size: small
+
+            tr:not(:first-child)
+                td:not(:first-child)
+                    &:hover
+                        text-decoration: underline
 
     .distribution-periods::after
         clear: both

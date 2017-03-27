@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, LocalDate} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
@@ -55,7 +55,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public newCustomerInvoice(): Promise<CustomerInvoice> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerInvoice.EntityType).subscribe((invoice: CustomerInvoice) => {
-                invoice.InvoiceDate = moment().toDate();
+                invoice.InvoiceDate = new LocalDate(Date());
 
                 resolve(invoice);
             }, err => this.errorService.handle(err));
@@ -70,6 +70,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary')
             .send()
             .map(response => response.json());
+    }
+
+    public setPrintStatus(invoiceId: number, printStatus: string): Observable<any> {
+        return super.PutAction(invoiceId, 'set-customer-invoice-printstatus', 'ID=' + invoiceId + '&printStatus=' + printStatus);
     }
 
     public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {

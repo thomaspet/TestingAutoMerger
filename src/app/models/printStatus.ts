@@ -1,6 +1,6 @@
 export var PrintStatus = [
     {ID: 100, Title: 'Sendt på epost'},
-    {ID: 200, Title: 'Sendt på fakturaprint'},
+    {ID: 200, Title: 'Sendt til utskrift'},
     {ID: 300, Title: 'Sendt til aksesspunkt'}
 ];
 

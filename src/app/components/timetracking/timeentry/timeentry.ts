@@ -2,26 +2,22 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch,
-    ICopyEventDetails, ILookupDetails, IStartEdit} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
+import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
+import {exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
+import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
-import {RegtimeTools} from './tools/tools';
-import {RegtimeBalance} from './balance/balance';
+import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-import {WorkEditor} from '../utils/workeditor';
+import {WorkEditor} from '../components/workeditor';
+import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import * as moment from 'moment';
-
-
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
@@ -45,15 +41,20 @@ export class TimeEntry {
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
-    private editable: Editable;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
-    @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
+    @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
+    @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
+
+    public preSaveConfig: IPreSaveConfig = { 
+        askSave: () => this.checkSave(false),
+        askReload: () => this.reset(false) 
+    };
 
     private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
@@ -75,37 +76,7 @@ export class TimeEntry {
         omitFinalCrumb: true
     };
 
-    public filters: Array<IFilter>;
-
-    public tableConfig: IConfig = {
-        columns: [
-            new Column('Date', '', ColumnType.Date),
-            new Column('StartTime', '', ColumnType.Time),
-            new Column('EndTime', '', ColumnType.Time),
-            new Column('WorkTypeID', 'Timeart', ColumnType.Integer, { route: 'worktypes' }),
-            new Column('LunchInMinutes', 'Lunsj', ColumnType.Integer),
-            new Column('Minutes', 'Timer', ColumnType.Integer, undefined, 'Hours'),
-            new Column('Description'),
-            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer,
-                { route: 'projects', select: 'ProjectNumber,Name', visualKey: 'ProjectNumber' }),
-            new Column('CustomerOrderID', 'Ordre', ColumnType.Integer,
-                { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName',
-                visualKey: 'OrderNumber'}),
-            new Column('Actions', '', ColumnType.Action)
-            ],
-        events: {
-                onChange: (event) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e),
-                    (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
-                },
-                onInit: (instance: Editable) => {
-                    this.editable = instance;
-                },
-                onTypeSearch: (details: ITypeSearch) => this.lookup.onTypeSearch(details),
-                onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details),
-                onStartEdit: (details: IStartEdit) => this.onStartEdit(details)
-            }
-    };
+    public filters: Array<IFilter>;   
 
     constructor(
         private tabService: TabService,
@@ -152,7 +123,7 @@ export class TimeEntry {
     }
 
     private setWorkRelationById(id: number) {
-        this.checkSave().then( (value) => {
+        this.checkSave().then( () => {
             if (id) {
                 this.timeSheet.currentRelationId = id;
                 this.updateToolbar();
@@ -174,29 +145,29 @@ export class TimeEntry {
 
     public onAddNew() {
         this.workEditor.editRow(this.timeSheet.items.length - 1);
-        // this.editable.editRow(this.timeSheet.items.length - 1);
     }
 
-    public reset() {
-        this.checkSave().then( (x: boolean) => {
-            if (x) { this.loadItems(); }
-        });
+    public reset(chkSave: boolean = true) {
+        if (chkSave) {
+            this.checkSave().then( () => {
+                this.loadItems();
+            });
+        } else {
+            this.loadItems();
+        }
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
-        this.editable.closeEditor();
         this.timeSheet.removeRow(rowIndex);
         this.flagUnsavedChanged();
     }
 
     public canDeactivate() {
         return new Promise((resolve, reject) => {
-            this.checkSave().then( (success: boolean) => {
-                resolve(success);
-                if (!success) {
-                    this.initTab();
-                }
-            });
+            this.checkSave(true).then( () => {
+                resolve(true);
+                this.initTab();
+            }, () => resolve(false) );
         });
     }
 
@@ -245,12 +216,21 @@ export class TimeEntry {
         };
     }
 
-    private loadItems() {
+    private loadItems(date?: Date) {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
-            this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
-                if (this.editable) { this.editable.closeEditor(); }
-                // this.timeSheet.ensureRowCount(itemCount + 1);
-                this.flagUnsavedChanged(true);
+            var obs: any;
+            var dt: Date;
+            if (!!date) { 
+                obs = this.timeSheet.loadItemsByPeriod(date, date); 
+                dt = date;
+            } else {
+                obs = this.timeSheet.loadItems(this.currentFilter.interval);
+                dt = this.timesheetService.workerService.getIntervalDate(this.currentFilter.interval);
+            }
+            obs.subscribe((itemCount: number) => {
+                if (this.workEditor) { this.workEditor.closeEditor(); }
+                this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
+                this.flagUnsavedChanged(true, false);
                 this.busy = false;
             }, err => this.errorService.handle(err));
         } else {
@@ -293,7 +273,7 @@ export class TimeEntry {
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
-                this.loadItems();
+                this.loadItems(this.dayBrowser.current.date);
                 this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
             });
@@ -326,95 +306,46 @@ export class TimeEntry {
         done('Fil eksportert');
     }
 
-    private flagUnsavedChanged(reset = false) {
+    private flagUnsavedChanged(reset = false, updateCounter: boolean = false) {
         this.actions[0].disabled = reset;
+        if (updateCounter) {
+            this.dayBrowser.setDayCounter( this.dayBrowser.current.date, this.timeSheet.totals.Minutes);
+        }
+    }
+
+    public onClickDay(event: Day) {
+        this.checkSave().then( () => {
+            this.busy = true;
+            this.loadItems(event.date);
+            event.selected = true;
+        });
+    }
+
+    public onRequestDaySums(interval: ITimeSpan) {
+        var wid = this.timeSheet.currentRelation.ID;
+        var d1 = moment(interval.fromDate).format('YYYY-MM-DD');
+        var d2 = moment(interval.toDate).format('YYYY-MM-DD');
+        if (!wid) {
+            return; // Nothing to do here yet..
+        }
+        var query = `model=workitem&select=sum(minutes),WorkType.SystemType,Date&filter=workrelationid eq ${wid}`
+            + ` and ( not setornull(deleted) ) and ( date ge '${d1}' and date le '${d2}' )`
+            + `&join=workitem.worktypeid eq worktype.id&pivot=true`;
+        this.timesheetService.workerService.getStatistics(query).subscribe( (result: any) => {
+            if (result && result.Data) {
+                this.dayBrowser.setDaySums(result.Data, 'WorkItemDate', '1', '12');
+            }
+        });
+    }
+
+    public onNavigateDays(direction: INavDirection) {
+        var dt = moment(direction.currentDate);
+        this.busy = true;
+        this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
     }
 
     private hasUnsavedChanges(): boolean {
         return !this.actions[0].disabled;
-    }
-
-    public onCopyCell(details: ICopyEventDetails) {
-
-        details.copyAbove = true;
-
-        if (details.columnDefinition) {
-            var row = details.position.row;
-            switch (details.columnDefinition.name) {
-                case 'Date':
-                    if (row === 0) {
-                        details.valueToSet = parseDate('*', true);
-                    }
-                    break;
-
-                case 'StartTime':
-                    if (row > 0) {
-                        let d1 = this.timeSheet.items[row].Date;
-                        let d2 = this.timeSheet.items[row - 1].Date;
-                        if (d1 && d2) {
-                            if (this.isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
-                                details.valueToSet = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
-                                details.copyAbove = false;
-                            }
-                        }
-                    } else {
-                        details.valueToSet = '8';
-                        details.copyAbove = false;
-                    }
-                    break;
-            }
-
-            // Lookup column?
-            if (details.columnDefinition.lookup) {
-                this.timeSheet.copyValueAbove(details.columnDefinition.name, details.position.row);
-                details.copyAbove = false;
-            }
-        }
-
-    }
-
-    private onStartEdit(details: IStartEdit) {
-        var name: colName = <colName>details.columnDefinition.name;
-        var row = details.row;
-        if (!details.value) {
-            switch (name) {
-                case 'Date':
-                    details.value = moment(this.getDefaultDate()).format('l');
-                    details.flagChanged = true;
-                    break;
-
-                case 'StartTime':
-                    if (row > 0) {
-                        let d1 = this.timeSheet.items[row].Date;
-                        let d2 = this.timeSheet.items[row - 1].Date;
-                        if (d1 && d2) {
-                            if (this.isSameDate(d1, d2) && (this.timeSheet.items[row - 1].EndTime) ) {
-                                details.value = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
-                                details.flagChanged = true;
-                            }
-                        }
-                    } else {
-                        details.value = '08:00';
-                        details.flagChanged = true;
-                    }
-                    break;
-            }
-        }
-    }
-
-    private getDefaultDate(): Date {
-        switch (this.currentFilter.interval) {
-
-            case ItemInterval.yesterday:
-                var dt = moment(new Date());
-                return dt.subtract( (dt.isoWeekday() === 1) ? 3 : 1, 'days').toDate();
-
-            case ItemInterval.today:
-                return moment(new Date()).toDate();
-
-            default:
-                return moment(new Date()).toDate();
-        }
     }
 
     private validate(): boolean {
@@ -422,59 +353,16 @@ export class TimeEntry {
         if (!result.ok) {
             this.toast.addToast('Feil', ToastType.bad, 5, result.message );
             if (result !== undefined && result.row >= 0) {
-                let iCol = this.tableConfig.columns.findIndex( (col) => col.name === result.fld );
-                this.editable.editRow(result.row, iCol);
+                // todo: focus cell that needs input
             }
             return false;
         }
         return true;
     }
 
-    private asyncValidationFailed(event: IChangeEvent) {
-        var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
-        if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
-            var lk: ILookupDetails = event.columnDefinition.lookup;
-            let item = droplistItems[0];
-            event.value = item[lk.colToSave || 'ID'];
-            event.lookupValue = item;
-            event.userTypedValue = false;
-            this.updateChange(event);
-        } else {
-            const message = `Ugyldig ${event.columnDefinition.label}: ${event.value}`
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, message);
-        }
-    }
 
-    private updateChange(event: IChangeEvent) {
-        // Update value via timesheet
-        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name,
-            event.value, event.row, event.lookupValue, event.columnDefinition.tag))) {
-            event.cancel = true;
-            return;
-        }
 
-        this.flagUnsavedChanged();
-
-		// Ensure a new row at bottom?
-        this.timeSheet.ensureRowCount(event.row + 2);
-
-		// we use databinding instead
-        event.updateCell = false;
-
-    }
-
-    public onFilterClick(filter: IFilter) {
-        this.checkSave().then((success: boolean) => {
-            if (!success) { return; }
-            this.filters.forEach((value: any) => value.isSelected = false);
-            filter.isSelected = true;
-            this.currentFilter = filter;
-            this.busy = true;
-            this.loadItems();
-        });
-    }
-
-    private checkSave(): Promise<boolean> {
+    private checkSave(rejectIfFail: boolean = false): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
                 this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
@@ -482,12 +370,12 @@ export class TimeEntry {
                     switch (userChoice) {
                         case ConfirmActions.ACCEPT:
                             this.save().then( x => {
-                                resolve(x);
+                                if (x) { resolve(true); } else { if (rejectIfFail) { reject(); } }
                             });
                             break;
 
                         case ConfirmActions.CANCEL:
-                            resolve(false);
+                            if (rejectIfFail) { reject(); }
                             break;
 
                         default:
@@ -501,14 +389,6 @@ export class TimeEntry {
         });
     }
 
-
-    private isSameDate(d1: any, d2: any): boolean {
-        if (d1 === d2) { return true; }
-        if ((d1.length && d1.length >= 10) && (d2.length && d2.length >= 10)) {
-            return d1.substr(0, 10) === d2.substr(0, 10);
-        }
-        return false;
-    }
 }
 
 class WorkBalanceDto extends WorkBalance {
@@ -522,4 +402,9 @@ class WorkBalanceDto extends WorkBalance {
     public lastDayBalance: number;
     public relationIsClosed: boolean;
     public Previous: any;
+}
+
+export interface IPreSaveConfig {
+    askSave(): Promise<boolean>;
+    askReload?(): void;
 }

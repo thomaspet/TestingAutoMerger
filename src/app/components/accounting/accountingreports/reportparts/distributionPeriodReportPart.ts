@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, OnChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, OnChanges, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
@@ -17,6 +17,11 @@ export class DistributionPeriodData {
     public amountPeriodYear2: number;
 }
 
+export class Period {
+    public periodNo: number;
+    public year: number;
+}
+
 @Component({
     selector: 'distribution-period-report-part',
     templateUrl: './distributionPeriodReportPart.html',
@@ -32,6 +37,9 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
+
+    @Output() private rowSelected: EventEmitter<any> = new EventEmitter();
+    @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
 
     private uniTableConfigDistributionPeriod: UniTableConfig;
     private distributionPeriodData: Array<DistributionPeriodData> = [];
@@ -55,6 +63,10 @@ export class DistributionPeriodReportPart implements OnChanges {
         setTimeout(() => {
             this.setupDistributionPeriodTable();
         });
+    }
+
+    private onRowSelected(event) {
+        this.rowSelected.emit(event);
     }
 
     private setupDistributionPeriodTable() {
@@ -142,8 +154,14 @@ export class DistributionPeriodReportPart implements OnChanges {
                 this.uniTableConfigDistributionPeriod = new UniTableConfig(false, false)
                     .setColumns([
                         new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%'),
-                        new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount'),
+                        new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount')
+                            .setOnCellClick(row => {
+                                this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear1});
+                            }),
                         new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money).setCls('amount')
+                            .setOnCellClick(row => {
+                                this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear2});
+                            })
                     ]);
 
                 this.setupDistributionPeriodChart();

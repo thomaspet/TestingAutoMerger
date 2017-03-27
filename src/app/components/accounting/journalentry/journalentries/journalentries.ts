@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService} from '../../../../services/services';
+import {JournalEntryService, JournalEntryLineService} from '../../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 
@@ -27,7 +27,12 @@ export class JournalEntries {
     private currentJournalEntryID: number;
     public editmode: boolean = false;
 
-    constructor(private route: ActivatedRoute, private tabService: TabService, private router: Router, private journalEntryService: JournalEntryService) {
+    constructor(
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private router: Router,
+        private journalEntryService: JournalEntryService,
+        private journalEntryLineService: JournalEntryLineService) {
         this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual', moduleID: UniModules.Accounting, active: true });
 
         this.route.params.subscribe(params => {
@@ -46,6 +51,44 @@ export class JournalEntries {
 
                 this.currentJournalEntryNumber = params['journalEntryNumber'];
                 this.currentJournalEntryID = params['journalEntryID'];
+            } else if (params['journalEntryID'] && params['journalEntryID'] !== '0') {
+                this.journalEntryService.Get(params['journalEntryID'])
+                    .subscribe(journalEntry => {
+                        let journalEntryNumber = journalEntry.JournalEntryNumber;
+                        this.tabService.addTab({
+                            name: 'Bilagsregistrering',
+                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${params['journalEntryID']}`,
+                            moduleID: UniModules.Accounting,
+                            active: true
+                        });
+
+                        this.editmode = false;
+                        if (params['editmode']) {
+                            this.editmode = params['editmode'];
+                        }
+
+                        this.currentJournalEntryNumber = journalEntryNumber;
+                        this.currentJournalEntryID = params['journalEntryID'];
+                    });
+            } else if (params['journalEntryLineID'] && params['journalEntryLineID'] !== '0') {
+                this.journalEntryLineService.Get(params['journalEntryLineID'])
+                    .subscribe(journalEntryLine => {
+                        let journalEntryNumber = journalEntryLine.JournalEntryNumber;
+                        this.tabService.addTab({
+                            name: 'Bilagsregistrering',
+                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${params['journalEntryLineID']}`,
+                            moduleID: UniModules.Accounting,
+                            active: true
+                        });
+
+                        this.editmode = false;
+                        if (params['editmode']) {
+                            this.editmode = params['editmode'];
+                        }
+
+                        this.currentJournalEntryNumber = journalEntryNumber;
+                        this.currentJournalEntryID = journalEntryLine.JournalEntryID;
+                    });
             } else {
                 this.tabService.addTab({
                     name: 'Bilagsregistrering',

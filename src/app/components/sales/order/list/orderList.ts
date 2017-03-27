@@ -3,7 +3,7 @@ import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {CustomerOrderService, ReportDefinitionService, ErrorService, CompanySettingsService} from '../../../../services/services';
+import {CustomerOrderService, ReportDefinitionService, ErrorService, CompanySettingsService, ReportService} from '../../../../services/services';
 import {CustomerOrder, StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -25,6 +25,7 @@ export class OrderList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
+    private printStatusPrinted: string = '200';
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Ordre',
@@ -47,7 +48,8 @@ export class OrderList {
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private reportService: ReportService
     ) {}
 
     public ngOnInit() {
@@ -165,9 +167,10 @@ export class OrderList {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (order: CustomerOrder) => {
-                this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, order.ID);
+                        this.customerOrderService.setPrintStatus(order.ID, this.printStatusPrinted).subscribe((printStatus) => {}, err => this.errorService.handle(err));
                     }
                 }, err => this.errorService.handle(err));
             },
@@ -190,7 +193,7 @@ export class OrderList {
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
                         this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                            this.reportService.generateReportSendEmail('Ordre id', email);
                         });
                     }
                 }

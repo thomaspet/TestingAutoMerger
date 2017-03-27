@@ -42,7 +42,8 @@ import {
     AddressService,
     ReportDefinitionService,
     CurrencyCodeService,
-    CurrencyService
+    CurrencyService,
+    ReportService
 } from '../../../../services/services';
 declare var _;
 
@@ -91,6 +92,7 @@ export class OrderDetails {
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
+    private printStatusPrinted: string = '200';
 
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
@@ -119,7 +121,8 @@ export class OrderDetails {
         private tradeItemHelper: TradeItemHelper,
         private errorService: ErrorService,
         private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService
+        private currencyService: CurrencyService,
+        private reportService: ReportService
     ) {}
 
     public ngOnInit() {
@@ -144,7 +147,7 @@ export class OrderDetails {
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
                         this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Ordre id', email);
+                            this.reportService.generateReportSendEmail('Ordre id', email);
                         });
                     }
                 },
@@ -255,7 +258,7 @@ export class OrderDetails {
             true
         ).then((action) => {
             if (action === ConfirmActions.ACCEPT) {
-                this.saveOrder().then(res => {
+                return this.saveOrder().then(res => {
                     this.isDirty = false;
                     return true;
                 }).catch(error => {
@@ -806,6 +809,13 @@ export class OrderDetails {
             this.previewModal.openWithId(report, id);
         });
     }
+
+    private onPrinted(event) {
+            this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe((printStatus) => {
+                this.order.PrintStatus = +this.printStatusPrinted;
+                this.updateToolbar();
+            }, err => this.errorService.handle(err));
+  }
 
     private deleteOrder(done) {
         this.customerOrderService.Remove(this.order.ID, null).subscribe(

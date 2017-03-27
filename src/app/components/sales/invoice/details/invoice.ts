@@ -19,7 +19,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {GetPrintStatusText} from '../../../../models/printStatus';
+import {GetPrintStatusText, PrintStatus} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
@@ -38,7 +38,8 @@ import {
     EHFService,
     CustomerInvoiceReminderService,
     CurrencyCodeService,
-    CurrencyService
+    CurrencyService,
+    ReportService
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare const _;
@@ -82,6 +83,8 @@ export class InvoiceDetails {
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
+    private printStatusPrinted: string = '200';
+
 
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
@@ -117,22 +120,15 @@ export class InvoiceDetails {
         private ehfService: EHFService,
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService
+        private currencyService: CurrencyService,
+        private reportService: ReportService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
     }
 
     public ngOnInit() {
-        this.summaryFields = [
-            { title: 'Avgiftsfritt', value: this.numberFormat.asMoney(0) },
-            { title: 'Avgiftsgrunnlag', value: this.numberFormat.asMoney(0) },
-            { title: 'Sum rabatt', value: this.numberFormat.asMoney(0) },
-            { title: 'Nettosum', value: this.numberFormat.asMoney(0) },
-            { title: 'Mva', value: this.numberFormat.asMoney(0) },
-            { title: 'Øreavrunding', value: this.numberFormat.asMoney(0) },
-            { title: 'Totalsum', value: this.numberFormat.asMoney(0) },
-        ];
+        this.recalcItemSums(null);
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
@@ -175,6 +171,7 @@ export class InvoiceDetails {
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
+                    this.recalcItemSums(null);
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
@@ -204,7 +201,6 @@ export class InvoiceDetails {
     }
 
     private setupContextMenuItems() {
-        // contextMenu
         this.contextMenuItems = [
             {
                 label: 'Skriv ut',
@@ -266,7 +262,7 @@ export class InvoiceDetails {
 
         if (this.sendEmailModal.Changed.observers.length === 0) {
             this.sendEmailModal.Changed.subscribe((email) => {
-                this.reportDefinitionService.generateReportSendEmail('Faktura id', email);
+                this.reportService.generateReportSendEmail('Faktura id', email);
             });
         }
     }
@@ -300,8 +296,12 @@ export class InvoiceDetails {
             return true;
         }
 
+        let message = !this.invoice.StatusCode || this.invoice.StatusCode == StatusCodeCustomerInvoice.Draft
+            ? 'Ønsker du å lagre fakturaen som kladd før du fortsetter?'
+            : 'Ønsker du å lagre fakturaen før du fortsetter?';
+
         return this.confirmModal.confirm(
-            'Ønsker du å lagre fakturaen før du fortsetter?',
+            message,
             'Ulagrede endringer',
             true
         ).then((action) => {
@@ -310,8 +310,19 @@ export class InvoiceDetails {
                     this.invoice.StatusCode = StatusCode.Draft;
                 }
 
-                this.saveInvoice().then(res => {
+                return this.saveInvoice().then(invoice => {
                     this.isDirty = false;
+
+                    var currentab = this.tabService.currentActiveIndex;
+                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
+                        .subscribe(
+                        res => {
+                            this.refreshInvoice(res);
+                            this.tabService.setTabActive(currentab);
+                        },
+                        err => this.errorService.handle(err)
+                        );
+
                     return true;
                 }).catch(reason => {
                     this.toastService.addToast('Lagring avbrutt', ToastType.warn, ToastTime.short, reason);
@@ -858,6 +869,13 @@ export class InvoiceDetails {
         });
     }
 
+  private onPrinted(event) {
+            this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe((printStatus) => {
+                this.invoice.PrintStatus = +this.printStatusPrinted;
+                this.updateToolbar();
+            }, err => this.errorService.handle(err));
+  }
+
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
         if (!this.invoice.StatusCode) {
@@ -897,7 +915,8 @@ export class InvoiceDetails {
     private print(id) {
         this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
             this.previewModal.openWithId(report, id);
-        });
+
+        }, err => this.errorService.handle(err));
     }
 
     private creditInvoice(done) {
@@ -1014,48 +1033,53 @@ export class InvoiceDetails {
 
 
     // Summary
-    public recalcItemSums(invoiceItems) {
-        if (!invoiceItems) {
-            return;
-        }
+    public recalcItemSums(invoiceItems: Array<CustomerInvoice> = null) {
+        if (invoiceItems) {
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
+            this.updateSaveActions();
+            this.updateToolbar();
+        } else {
+            this.itemsSummaryData = null;
 
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
-        this.updateSaveActions();
-        this.updateToolbar();
+        }
 
         this.summaryFields = [
             {
-                value: this.getCurrencyCode(this.currencyCodeID),
+                value: !this.itemsSummaryData ? '' : this.getCurrencyCode(this.currencyCodeID),
                 title: 'Valuta:',
                 description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
             },
             {
                 title: 'Avgiftsfritt',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
             },
             {
                 title: 'Avgiftsgrunnlag',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
             },
             {
                 title: 'Sum rabatt',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
             },
             {
                 title: 'Nettosum',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
             },
             {
                 title: 'Mva',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
             },
             {
                 title: 'Øreavrunding',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
             },
             {
                 title: 'Totalsum',
-                value: this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
+            },
+            {
+                title: 'Restbeløp',
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
             },
         ];
     }

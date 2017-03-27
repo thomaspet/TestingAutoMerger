@@ -10,13 +10,20 @@ Uni Economy Angular2 version
 
 3. Update entities `gulp entities`
 
-4. Deploy app and watch for changes 
+4. Deploy app and watch for changes
 
-`npm run start` will start and watch with AppConfig-dev </br>
-`npm run start.local` will start and watch AppConfig-local </br>
-`npm run start.custom` will start and watch without changing your AppConfig </br>
+`npm run start` / `npm run start.dev` will start and watch with AppConfig-dev </br>
+`npm run start.local` will start and watch with AppConfig-local </br>
+`npm run start.pilot` will start and watch with AppConfig-pilot </br>
 
-5. Open a server that syncs with dist folder: `npm run serve`
+All of these tasks also runs webpack-dev-server. When the compile is finished, open up localhost:3000 to run app. </br>
+
+# NPM scripts
+`build.vendors` will build vendors.bundle.js. This was previously done in our start task, but has been moved out to improve build times. Should run automatically after `npm install`. </br>
+
+Start tasks covered in previous section. </br>
+
+`build.dev`, `build.test`, `build.pilot`, `build.prod` are just building sass + ts once, no watchers and no dev server. These tasks are for deployment, and probably wont be used in a dev enviroment. </br>
 
 # Name issues
 

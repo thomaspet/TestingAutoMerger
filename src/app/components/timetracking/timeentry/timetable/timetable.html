@@ -22,7 +22,7 @@
             <th class="left">Sum</th>
         </tr></thead>
         <tbody>
-            <tr *ngFor="let item of config.items" [ngClass]="{sum: !!item.weekNumber}">                
+            <tr (click)="onDayClick(item.WorkItemDate)" *ngFor="let item of config.items" [ngClass]="{sum: !!item.weekNumber}">                
                 <td>
                     {{item.WorkItemDate | isotime:'dddd'}}
                     {{item.label}}
@@ -44,4 +44,5 @@
             </tr>
         </tbody>
     </table>
+    <uni-time-modal></uni-time-modal>
 </section>

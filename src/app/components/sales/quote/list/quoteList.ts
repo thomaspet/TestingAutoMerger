@@ -4,7 +4,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMe
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
-import {CustomerQuoteService, ReportDefinitionService, ErrorService, CompanySettingsService} from '../../../../services/services';
+import {CustomerQuoteService, ReportDefinitionService, ErrorService, CompanySettingsService, ReportService} from '../../../../services/services';
 import {CustomerQuote, StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -27,6 +27,7 @@ export class QuoteList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
+    private printStatusPrinted: string = '200';
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Tilbud',
@@ -49,7 +50,8 @@ export class QuoteList {
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private reportService: ReportService
     ) {}
 
     public ngOnInit() {
@@ -181,9 +183,13 @@ export class QuoteList {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (quote: CustomerQuote) => {
-                this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
+                this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, quote.ID);
+
+
+
+                        this.customerQuoteService.setPrintStatus(quote.ID, this.printStatusPrinted).subscribe((printStatus) => {}, err => this.errorService.handle(err));
                     }
                 }, err => this.errorService.handle(err));
             },
@@ -207,7 +213,7 @@ export class QuoteList {
 
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                     this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                        this.reportService.generateReportSendEmail('Tilbud id', email);
                     }, err => this.errorService.handle(err));
                 }
             }

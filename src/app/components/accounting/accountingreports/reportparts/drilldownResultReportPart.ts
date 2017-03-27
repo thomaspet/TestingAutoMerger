@@ -61,6 +61,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
     private rowClicked(summaryData: ResultSummaryData) {
         if (summaryData.isAccount) {
+            //this.accountDetailsReportModal.open(summaryData.id, summaryData.number, summaryData.name, this.dimensionType, this.dimensionId);
             this.accountDetailsReportModal.open(summaryData.id, summaryData.number, summaryData.name, this.dimensionType, this.dimensionId);
         } else {
             summaryData.expanded = !summaryData.expanded;

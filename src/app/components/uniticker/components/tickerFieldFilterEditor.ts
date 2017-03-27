@@ -3,6 +3,7 @@ import {Ticker, TickerFilter, TickerFieldFilter} from '../../../services/common/
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from 'uniform-ng2/main';
+import {UniTickerService} from '../../../services/services';
 
 declare const _; // lodash
 
@@ -29,8 +30,8 @@ export class UniTickerFieldFilterEditor {
 
     private operators: any[] = [];
 
-    constructor() {
-        this.operators = this.getOperators();
+    constructor(private uniTickerService: UniTickerService) {
+        this.operators = this.uniTickerService.getOperators();
     }
 
     private ngOnChanges(changes: SimpleChanges) {
@@ -49,22 +50,24 @@ export class UniTickerFieldFilterEditor {
         }
 
         if (changes['mainModel']) {
-
             this.entities = [];
-            this.entities.push(this.mainModel);
+            this.entities.push({RelationName: this.mainModel.Name, Model: this.mainModel});
 
             this.mainModel.RelatedModels.forEach(relatedModel => {
                 this.entities.push(relatedModel);
             });
 
             let selectedModel =
-                this.entities.find(x => x.Name === this.fieldFilter.Path || x.Name === this.fieldFilter.Path);
+                this.entities.find(x => x.RelationName === this.fieldFilter.Path);
 
-            let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Fields);
             let modelFields = [];
-            modelFieldNames.forEach(x => {
-                modelFields.push(selectedModel.Fields[x]);
-            });
+
+            if (selectedModel && selectedModel.Model.Fields) {
+                let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Model.Fields);
+                modelFieldNames.forEach(x => {
+                    modelFields.push(selectedModel.Model.Fields[x]);
+                });
+            }
 
             if (!modelFields.find(x => x.Publicname === this.fieldFilter.Field)) {
                 this.fieldFilter.Field = '';
@@ -83,13 +86,17 @@ export class UniTickerFieldFilterEditor {
     private onFieldFilterChange(changes: SimpleChanges) {
         if (changes['Path']) {
             let selectedModel =
-                this.entities.find(x => x.Name === this.fieldFilter.Path || x.Name === this.fieldFilter.Path);
+                this.entities.find(x => x.RelationName === this.fieldFilter.Path);
 
-            let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Fields);
             let modelFields = [];
-            modelFieldNames.forEach(x => {
-                modelFields.push(selectedModel.Fields[x]);
-            });
+
+            if (selectedModel && selectedModel.Model.Fields) {
+                let modelFieldNames = Object.getOwnPropertyNames(selectedModel.Model.Fields);
+                modelFieldNames.forEach(x => {
+                    modelFields.push(selectedModel.Model.Fields[x]);
+                });
+            }
+
             this.modelFields = modelFields;
             this.model$.next(this.fieldFilter);
         }
@@ -99,83 +106,6 @@ export class UniTickerFieldFilterEditor {
 
     private fieldSelected(fieldFilter, event) {
         fieldFilter.Model = event;
-    }
-
-    private getOperators() {
-        return [
-            {
-                'verb': 'inneholder',
-                'operator': 'contains',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'begynner med',
-                'operator': 'startswith',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'slutter på',
-                'operator': 'endswith',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'er',
-                'operator': 'eq',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'er ikke',
-                'operator': 'ne',
-                'accepts': [
-                    'Text',
-                    'Number'
-                ]
-            },
-            {
-                'verb': 'er større enn',
-                'operator': 'gt',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            },
-            {
-                'verb': 'er større el. lik',
-                'operator': 'ge',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            },
-            {
-                'verb': 'er mindre enn',
-                'operator': 'lt',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            },
-            {
-                'verb': 'er mindre el. lik',
-                'operator': 'le',
-                'accepts': [
-                    'Number',
-                    'DateTime'
-                ]
-            }
-        ];
     }
 
     private getLayout() {
@@ -219,8 +149,8 @@ export class UniTickerFieldFilterEditor {
                     CustomFields: null,
                     Options: {
                         source: this.entities,
-                        displayProperty: 'Name',
-                        valueProperty: 'Name',
+                        displayProperty: 'RelationName',
+                        valueProperty: 'RelationName',
                         debounceTime: 200
                     },
                     Classes: 'field-select'

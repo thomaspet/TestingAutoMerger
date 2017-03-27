@@ -13,7 +13,6 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {AppServicesModule} from '../../services/servicesModule';
 import {UniQueryModule} from '../uniquery/uniqueryModule';
 
 // routes
@@ -37,7 +36,7 @@ import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/Resul
 import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {SupplierAccountReportFilterForm} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {
-    SalaryPaymentListReportFilterModal, 
+    SalaryPaymentListReportFilterModal,
     SalaryPaymentListReportFilterModalContent
 } from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {
@@ -72,8 +71,6 @@ import {UniReports} from './reports';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        // AppServicesModule,
-        // UniQueryModule,
 
         // Route module
         ReportRoutes

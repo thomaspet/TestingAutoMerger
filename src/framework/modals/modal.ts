@@ -35,8 +35,7 @@ export class UniModal implements AfterViewInit {
     constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
         document.addEventListener('keyup', (e: any) => {
             if (e.keyCode === 27) {
-                this.isOpen = false;
-                this.closeEvent.emit();
+                this.close();
             }
         });
 

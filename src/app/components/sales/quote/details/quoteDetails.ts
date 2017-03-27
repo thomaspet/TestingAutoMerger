@@ -30,7 +30,8 @@ import {
     NumberFormat,
     CompanySettingsService,
     CurrencyCodeService,
-    CurrencyService
+    CurrencyService,
+    ReportService
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare var _;
@@ -64,6 +65,7 @@ export class QuoteDetails {
     private saveActions: IUniSaveAction[] = [];
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
+    private printStatusPrinted: string = '200';
 
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
@@ -93,7 +95,8 @@ export class QuoteDetails {
                 private tradeItemHelper: TradeItemHelper,
                 private errorService: ErrorService,
                 private currencyCodeService: CurrencyCodeService,
-                private currencyService: CurrencyService) {
+                private currencyService: CurrencyService,
+                private reportService: ReportService) {
     }
 
     public ngOnInit() {
@@ -118,7 +121,7 @@ export class QuoteDetails {
 
                     if (this.sendEmailModal.Changed.observers.length === 0) {
                         this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportDefinitionService.generateReportSendEmail('Tilbud id', email);
+                            this.reportService.generateReportSendEmail('Tilbud id', email);
                         });
                     }
                 },
@@ -230,7 +233,7 @@ export class QuoteDetails {
                 if (!this.quote.StatusCode) {
                     this.quote.StatusCode = StatusCode.Draft;
                 }
-                this.saveQuote().then(res => {
+                return this.saveQuote().then(res => {
                     this.isDirty = false;
                     return true;
                 }).catch(error => {
@@ -271,6 +274,13 @@ export class QuoteDetails {
         this.updateToolbar();
         this.updateSaveActions();
     }
+
+        private onPrinted(event) {
+                    this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe((printStatus) => {
+                        this.quote.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    }, err => this.errorService.handle(err));
+        }
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;

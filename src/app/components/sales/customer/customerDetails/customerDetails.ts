@@ -358,6 +358,13 @@ export class CustomerDetails {
             ).subscribe(response => {
                 this.customer$.next(response[0]);
                 this.customerStatisticsData = response[1];
+
+                let customer = response[0];
+                if (customer.CustomerInvoiceReminderSettings === null) {
+                    customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
+                    customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
+                }
+
                 this.setTabTitle();
                 this.updateCustomerWidgets();
 

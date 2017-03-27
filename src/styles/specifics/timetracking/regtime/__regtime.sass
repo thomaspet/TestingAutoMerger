@@ -296,3 +296,27 @@ button.normal
 .wideapplication
     margin-left: 1em
     margin-right: 1em
+
+.clickablecell
+    @extend %clickable
+
+    &:hover
+        background-color: $uni-color-scale8
+
+uni-time-modal
+    dialog.uniModal .modal-content
+        width: 95vw
+
+    dialog.uniModal .total
+        float: left
+        font-weight: bold
+
+    button
+        width: 6rem
+        margin-left: 0 !important
+
+    button:last-of-type
+        margin-right: 0 !important
+
+    dialog.uniModal .closeBtn
+        right: pxToRem(20)

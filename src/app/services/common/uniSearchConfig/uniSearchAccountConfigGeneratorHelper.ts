@@ -28,10 +28,25 @@ export class UniSearchAccountConfigGeneratorHelper {
         expands: [string] = <[string]>[],
         newItemModalFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
+        return this.generateAccountsConfig(expands, newItemModalFn, false);
+    }
+
+    public generateAllAccountsConfig(
+        expands: [string] = <[string]>[],
+        newItemModalFn?: () => Observable<UniEntity>
+    ): IUniSearchConfig {
+        return this.generateAccountsConfig(expands, newItemModalFn, true);
+    }
+
+    private generateAccountsConfig(
+        expands: [string] = <[string]>[],
+        newItemModalFn?: () => Observable<UniEntity>,
+        all: boolean = false
+    ): IUniSearchConfig {
         return {
             lookupFn: searchTerm => this
                 .statisticsService
-                .GetAllUnwrapped(this.generateMainAccountsOnlyStatisticsQuery(searchTerm))
+                .GetAllUnwrapped(this.generateAccountsStatisticsQuery(searchTerm, all))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
                 if (newOrExistingItem.ID) {
@@ -56,13 +71,13 @@ export class UniSearchAccountConfigGeneratorHelper {
         };
     }
 
-    private generateMainAccountsOnlyStatisticsQuery(searchTerm: string): string {
+    private generateAccountsStatisticsQuery(searchTerm: string, all: boolean = false): string {
         const model = 'Account';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        const filter = ( startNumber
+        const filter = `(Account.Visible eq 1) and ` + ( startNumber
             ? `startswith(Account.AccountNumber,'${startNumber}')`
             : `contains(Account.AccountName,'${searchTerm}')` )
-            + ' and isnull(Account.AccountID,0) eq 0';
+            + (all ? '' : ' and isnull(Account.AccountID,0) eq 0');
         const select = [
             'Account.ID as ID',
             'Account.AccountNumber as AccountNumber',

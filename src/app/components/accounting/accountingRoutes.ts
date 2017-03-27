@@ -6,6 +6,7 @@ import {AccountSettings} from './accountSettings/accountSettings';
 import {VatSettings} from './vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
 import {AccountingReports} from './accountingreports/accountingreports';
+import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDetailsReport';
 
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
@@ -56,6 +57,10 @@ export const accountingRoutes: Routes = [
         path: 'bill/:id',
         component: BillView,
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'accountquery',
+        component: AccountDetailsReport
     }
 ];
 

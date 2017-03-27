@@ -1,15 +1,25 @@
 <div class="modeltreeview">
     <h3 *ngIf="header">{{header}}</h3>
     <ul>
-        <li *ngFor="let model of visibleModels">
-            <a (click)="expandModel(model)" class="expandable selectable" [attr.aria-expanded]="model.Expanded" [attr.aria-selected]="model.Selected">{{model.Name}}</a>
-            <ul *ngIf="model.Expanded">
-                <li *ngFor="let relation of model.Relations">
-                    <a (click)="expandRelation(relation)" class="expandable" [attr.aria-expanded]="relation.Expanded">{{relation.Name}}</a>
-                    <model-tree-relation-node *ngIf="relation.Expanded" [relation]="relation" [path]="relation.Name" [models]="models" [showAllFields]="showAllFields" [selectedFields]="fields" (fieldAdded)="addOrRemoveFieldFromChild(model, $event)"></model-tree-relation-node>
-                </li>
-                <li *ngFor="let field of model.fieldArray">
-                    <a class="selectable" [attr.aria-selected]="model.Fields[field].Selected" (click)="addOrRemoveField(model, model.Fields[field].Publicname, model.Fields[field], null)">{{model.Fields[field].Publicname}}</a>
+        <li *ngFor="let module of visibleModules">
+            <a (click)="expandModule(module)"
+                class="expandable selectable"
+                [attr.aria-expanded]="module.Expanded"
+                [attr.aria-selected]="module.Selected">
+                {{ module.Translated ? module.Translated : module.Name}}
+            </a>
+            <ul *ngIf="module.Expanded">
+                <li *ngFor="let model of module.ModelList">
+                    <a (click)="expandModel(model)" class="expandable selectable" [attr.aria-expanded]="model.Expanded" [attr.aria-selected]="model.Selected">{{model.Name}}</a>
+                    <ul *ngIf="model.Expanded">
+                        <li *ngFor="let relation of model.Relations">
+                            <a (click)="expandRelation(relation)" class="expandable" [attr.aria-expanded]="relation.Expanded">{{relation.Name}}</a>
+                            <model-tree-relation-node *ngIf="relation.Expanded" [relation]="relation" [path]="relation.Name" [models]="models" [showAllFields]="showAllFields" [selectedFields]="fields" (fieldAdded)="addOrRemoveFieldFromChild(model, $event)"></model-tree-relation-node>
+                        </li>
+                        <li *ngFor="let field of model.fieldArray">
+                            <a class="selectable" [attr.aria-selected]="model.Fields[field].Selected" (click)="addOrRemoveField(model, model.Fields[field].Publicname, model.Fields[field], null)">{{model.Fields[field].Publicname}}</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </li>

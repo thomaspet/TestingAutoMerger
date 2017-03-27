@@ -23,5 +23,5 @@
 
 <uni-confirm-modal></uni-confirm-modal>
 <send-email-modal></send-email-modal>
-<report-preview-modal></report-preview-modal>
+<report-preview-modal  (printed)="onPrinted($event)"></report-preview-modal>
 <order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>

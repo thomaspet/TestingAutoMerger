@@ -8,13 +8,12 @@ import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppServicesModule} from '../../services/servicesModule';
 import {timetrackingRoutes} from './timetrackingRoutes';
 import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
 import {TimeEntry} from './timeentry/timeentry';
-import {RegtimeTools} from './timeentry/tools/tools';
+import {TimeTableReport} from './timeentry/timetable/timetable';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
 import {Editable} from './utils/editable/editable';
@@ -32,7 +31,10 @@ import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {WorkEditor} from './utils/workeditor';
+import {WorkEditor} from './components/workeditor';
+import {DayBrowser} from './components/daybrowser';
+import {UniTimeModal} from './components/popupeditor';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -54,7 +56,7 @@ import {WorkEditor} from './utils/workeditor';
         GenericDetailview,
         GenericListView,
         TimeEntry,
-        RegtimeTools,
+        TimeTableReport,
         RegtimeTotals,
         RegtimeBalance,
         Editable,
@@ -70,8 +72,10 @@ import {WorkEditor} from './utils/workeditor';
         WorktypeListview,
         VacationView,
         WorkBalancesView,
-        WorkEditor
-    ],
+        WorkEditor,
+        DayBrowser,
+        UniTimeModal        
+    ],  
     providers: [
         Lookupservice,
         CanDeactivateGuard
@@ -81,7 +85,7 @@ import {WorkEditor} from './utils/workeditor';
         GenericDetailview,
         GenericListView,
         TimeEntry,
-        RegtimeTools,
+        TimeTableReport,
         RegtimeTotals,
         Editable,
         IsoTimePipe,
