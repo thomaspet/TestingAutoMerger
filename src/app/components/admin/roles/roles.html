@@ -25,7 +25,7 @@
             </uni-permission-selector>
 
             <uni-table [config]="permissionsTableConfig"
-                       [resource]="selectedRole?.RolePermissions"
+                       [resource]="displayRolePermisssions"
                        (rowDeleted)="onPermissionDeleted($event)">
             </uni-table>
         </main>

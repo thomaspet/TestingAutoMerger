@@ -10,6 +10,6 @@ export class RoleService extends BizHttp<Role> {
 
         this.relativeURL = Role.RelativeUrl;
         this.entityType = Role.EntityType;
-        this.defaultExpand = [];
+        this.defaultExpand = ['RolePermissions,RolePermissions.Permission'];
     }
 }

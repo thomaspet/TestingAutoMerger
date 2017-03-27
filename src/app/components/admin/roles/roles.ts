@@ -8,18 +8,23 @@ import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
 import {Role, RolePermission, Permission} from '../../../unientities';
-import {RoleService, PermissionService, ErrorService} from '../../../services/services';
+import { RoleService, PermissionService, ErrorService } from '../../../services/services';
+import { Http } from "@angular/http";
 
 @Component({
     selector: 'uni-roles',
     templateUrl: './roles.html'
 })
 export class UniRoles {
+        hasSavedchanges: boolean;
+    hasUnsavedChanges: boolean;
+
     @ViewChild(UniTable)
     private table: UniTable;
 
     private permissions: Permission[];
     private roles: any[];
+    private displayRolePermisssions: any[] = [];
     private selectedRole: Role;
     private selectedIndex: number = 0;
 
@@ -36,6 +41,7 @@ export class UniRoles {
         private roleService: RoleService,
         private permissionService: PermissionService,
         private errorService: ErrorService,
+        private http: Http,
         tabService: TabService
     ) {
         tabService.addTab({
@@ -69,6 +75,10 @@ export class UniRoles {
         this.selectedIndex = event.rowModel['_originalIndex'];
         this.selectedRole = this.roles[this.selectedIndex];
         this.formModel$.next(this.selectedRole);
+        this.displayRolePermisssions = this.selectedRole.RolePermissions.filter((permission) => {
+            return !permission.Deleted;
+        });
+        console.log(this.displayRolePermisssions);
     }
 
     public onPermissionSelected(permission: Permission) {
@@ -93,7 +103,9 @@ export class UniRoles {
             this.selectedRole.RolePermissions[permission['_originalIndex']].Deleted = true;
         }
 
-        this.selectedRole.RolePermissions = [...this.selectedRole.RolePermissions];
+        this.displayRolePermisssions = this.selectedRole.RolePermissions.filter((permission) => {
+            return !permission.Deleted;
+        });
     }
 
     public onFormChange(changes) {
@@ -123,8 +135,8 @@ export class UniRoles {
                     this.roles.unshift(this.getNewRole());
                     this.roles = [...this.roles];
                     this.table.focusRow(0);
-                }
             }
+           }
         };
 
         this.saveActions = [{
@@ -132,9 +144,39 @@ export class UniRoles {
             main: true,
             disabled: false,
             action: (completeCallback) => {
-                completeCallback('Implementation missing');
+                if (this.selectedRole.ID) {
+                    // put
+                    this.roleService.Put(this.selectedRole.ID, this.selectedRole).subscribe(
+                        (res) => {
+                            this.hasSavedchanges = false;
+                            this.selectedRole = res;
+                            completeCallback('Role saved');
+                        },
+                        (err) => {
+                            completeCallback('could not save role');
+                            this.errorService.handle(err);
+
+                        }
+                    );
+                } else {
+                    // post
+                    this.roleService.Post(this.selectedRole).subscribe(
+                        (res) => {
+                            this.hasSavedchanges = false;
+                            this.selectedRole = res;
+                            completeCallback('Role saved');
+                        },
+                        (err) => {
+                            completeCallback('could not save role');
+                            this.errorService.handle(err);
+
+                        }
+                    );
+                }
+
             }
         }];
+
     }
 
     private initTableConfigs() {
