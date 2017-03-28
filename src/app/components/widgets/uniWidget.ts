@@ -24,13 +24,13 @@ export interface IUniWidget {
     width: number;
     height: number;
     widgetType: string;
-    dragMode: boolean;
     config: any;
-    _position: {
-        top: string;
-        left: string;
-        width: string;
-        height: string;
+    _editMode?: boolean;
+    _position?: {
+        top?: number;
+        left?: number;
+        width?: number;
+        height?: number;
     };
 }
 
@@ -74,8 +74,8 @@ export class UniWidget {
         }
     }
 
-    public toggleDragMode() {
-        this.widget.dragMode = !this.widget.dragMode;
+    public toggleEditMode() {
+        this.widget._editMode = !this.widget._editMode;
         this.widgetComponent.instance.widget = this.widget;
     }
 

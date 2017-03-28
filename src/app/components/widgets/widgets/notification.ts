@@ -22,7 +22,7 @@ export class UniNotificationWidget {
     constructor(private router: Router) { }
 
     public onClickNavigate() {
-        if (!this.widget.dragMode) {
+        if (!this.widget._editMode) {
             this.router.navigateByUrl(this.widget.config.link);
         }
     }

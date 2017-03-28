@@ -1,11 +1,29 @@
-<button (click)="toggleDragMode()">Toggle drag mode</button>
+<button (click)="toggleEditMode()">Toggle edit mode</button>
 
+<section class="canvas-guide" *ngIf="editMode">
+    <ng-template ngFor let-row [ngForOf]="canvasHelper.canvasGrid">
+        <span *ngFor="let cell of row" class="canvas-cell"></span>
+    </ng-template>
+</section>
 
 <section #canvas class="widget-canvas" (mousemove)="onMouseMove($event)">
+    <span *ngIf="gridAnchor" class="grid-anchor"
+          [ngClass]="gridAnchor.valid ? 'valid-anchor' : 'invalid-anchor'"
+          [ngStyle]="{
+              top: gridAnchor.top + 'px',
+              left: gridAnchor.left + 'px'
+          }">
+    </span>
+
     <ng-template ngFor let-widget [ngForOf]="widgets">
         <uni-widget [widget]="widget"
-                    [ngStyle]="widget._position"
-                    (mousedown)="startDrag($event, widget)">
+                    (mousedown)="startDrag($event, widget)"
+                    [ngStyle]="{
+                        top: widget._position.top + 'px',
+                        left: widget._position.left + 'px',
+                        width: widget._position.width + 'px',
+                        height: widget._position.height + 'px'
+                    }">
         </uni-widget>
     </ng-template>
 </section>

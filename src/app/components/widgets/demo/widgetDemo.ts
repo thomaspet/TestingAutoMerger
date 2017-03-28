@@ -1,10 +1,14 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
+import {UniWidgetCanvas} from '../widgetCanvas';
 
 @Component({
     selector: 'uni-widget-demo',
     templateUrl: './widgetDemo.html'
 })
 export class UniWidgetDemo {
+    @ViewChild(UniWidgetCanvas)
+    private widgetCanvas: UniWidgetCanvas;
+
     private widgets: any[] = []; // TODO: widget interface!
 
     private mockWidgets: any = {
@@ -83,34 +87,16 @@ export class UniWidgetDemo {
         this.addWidget('shortcut');
     }
 
+    public onWidgetsChange(widgets) {
+        this.widgets = widgets;
+    }
+
     private addWidget(type: string) {
         // JSON stuff is a hack for making newWidget an actual new object
         // instead of a reference to the object in mockWidgets.
         // Because that caused x/y values to be equal for all widgets
         let newWidget = JSON.parse(JSON.stringify(this.mockWidgets[type]));
-
-        if (!this.widgets.length) {
-            // If this is the first widget, just put it at 0:0
-            newWidget.x = 0;
-            newWidget.y = 0;
-        } else {
-            // If not, calculate x:y based on previous widget
-            const prevWidget = this.widgets[this.widgets.length - 1];
-            newWidget.x = prevWidget.x + prevWidget.width;
-            newWidget.y = prevWidget.y;
-
-            if (newWidget.x + newWidget.width > 12) {
-                newWidget.x = 0;
-                newWidget.y++;
-            }
-
-            if (newWidget.y + newWidget.height > 9) {
-                return;
-            }
-        }
-
-        this.widgets.push(newWidget);
-        this.widgets = [...this.widgets];
+        this.widgets = [...this.widgets, newWidget];
     }
 
 }
