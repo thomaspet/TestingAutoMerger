@@ -46,19 +46,19 @@ export class UniDocumentUploader {
             event.stopPropagation();
         });
         $el.on('dragover dragenter', (event) => {
-            event.originalEvent.dataTransfer.dropEffect = 'copy';
+            (<DragEvent> event.originalEvent).dataTransfer.dropEffect = 'copy';
             $el.addClass('-is-dragover');
         });
         $el.on('dragleave dragend drop', () => {
             $el.removeClass('-is-dragover');
         });
         $el.on('drop', (event) => {
-            if (event.originalEvent.dataTransfer.files.length > 1) {
+            if ((<DragEvent> event.originalEvent).dataTransfer.files.length > 1) {
                 // TODO: Change if we start allowing multiple uploads
                 // We could also auto upload the files from here.
                 return;
             }
-            this.files = event.originalEvent.dataTransfer.files;
+            this.files = (<DragEvent> event.originalEvent).dataTransfer.files;
         });
     }
 

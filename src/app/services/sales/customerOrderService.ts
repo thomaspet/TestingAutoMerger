@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrder, CustomerOrderItem} from '../../unientities';
-import {StatusCodeCustomerOrder} from '../../unientities';
+import {StatusCodeCustomerOrder, LocalDate} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
@@ -60,7 +60,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     public newCustomerOrder(): Promise<CustomerOrder> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerOrder.EntityType).subscribe((order: CustomerOrder) => {
-                order.OrderDate = moment().toDate();
+                order.OrderDate = new LocalDate(new Date());
 
                 resolve(order);
             }, err => this.errorService.handle(err));
