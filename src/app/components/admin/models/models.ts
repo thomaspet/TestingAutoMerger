@@ -48,7 +48,6 @@ export class UniModels {
         this.modelService.GetAll(null).subscribe(
             (res) => {
                 this.models = res;
-                // Timeout to allow table to init before focusing
                 setTimeout(() => {
                     this.tables.first.focusRow(0);
                 });
@@ -72,13 +71,10 @@ export class UniModels {
     public onRowSelected(event) {
         if (this.hasUnsavedChanges && event.rowModel['_originalIndex'] !== this.selectedModel['_originaIndex']) {
             if (!confirm('Du har ulagrede endringer. Ønsker du å forkaste disse?')) {
-                // If user cancels on modal, reset focus to current row
                 this.tables.first.focusRow(this.selectedModel['_originalIndex']);
             }
         }
 
-        // If no unsaved changes, or user is fine with throwing them away
-        // we change selected model
         this.hasUnsavedChanges = false;
         this.selectedModel = event.rowModel;
         this.selectedIndex = event.rowModel['_originalIndex'];
@@ -88,7 +84,7 @@ export class UniModels {
     private onRowChanged(event) {
         this.hasUnsavedChanges = true;
         this.selectedModel.Fields[event._originalIndex] = event.rowModel;
-        this.formModel$.next(this.selectedModel); // update form
+        this.formModel$.next(this.selectedModel);
     }
 
     public onFormChange(changes) {
@@ -107,7 +103,7 @@ export class UniModels {
             disabled:false,
             action: (completeCallback) => {
                 if(this.selectedModel.ID){
-                    //Put
+
                     this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
                         (res) => {
                             this.hasUnsavedChanges = false;
@@ -123,7 +119,7 @@ export class UniModels {
                     );
 
                 } else{
-                    //post
+
                     this.modelService.Post(this.selectedModel).subscribe(
                         (res) =>{
                             this.hasUnsavedChanges = false;
