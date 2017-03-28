@@ -17,6 +17,8 @@ UniIndexPlugin.prototype.apply = function(compiler) {
             </script>
         `);
 
+        indexHtml = indexHtml.replace('<%= appVersion %>', getGitRevision());
+
         compilation.assets['index.html'] = {
             source: function() {
                 return indexHtml;
