@@ -226,6 +226,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     c.Type = 'number';
                 } else if (modelField.Type.toString().indexOf('System.Decimal') !== -1) {
                     c.Type = 'money';
+                } else if (modelField.Type.toString().indexOf('System.Boolean') !== -1) {
+                    c.Type = 'boolean';
                 } else if (modelField.Type.toString().indexOf('System.DateTime') !== -1
                             || modelField.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
                     c.Type = 'date';
