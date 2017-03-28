@@ -56,8 +56,8 @@ module.exports = {
     ],
 
     module: {
-
         loaders: [
+            // KEEP THIS ONE AT INDEX 0
             {
                 test: /\.ts$/,
                 loaders: [
@@ -67,7 +67,7 @@ module.exports = {
                 ],
                 exclude: [/\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
             },
-
+            //
             {
                 test: /\.html$/,
                 exclude: /node_modules/,
