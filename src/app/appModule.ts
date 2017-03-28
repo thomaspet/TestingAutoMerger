@@ -26,8 +26,8 @@ import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
 import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
-import {AppCommonModule} from './components/common/appCommonModule';
-import {Dashboard} from './components/dashboard/dashboard';
+import { AppCommonModule } from './components/common/appCommonModule';
+import { DashboardModule } from './components/dashboard/dashboardModule';
 import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/initModule';
 import {BankModule} from './components/bank/bankModule';
@@ -100,11 +100,11 @@ if (window.ENV === 'production') {
         UniTickerModule,
         TranslationsModule,
         TasksModule,
-        WidgetModule
+        WidgetModule,
+        DashboardModule
     ],
     declarations: [
-        App,
-        Dashboard,
+        App
     ],
     bootstrap: [App],
     providers: [

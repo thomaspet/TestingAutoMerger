@@ -18,7 +18,7 @@ export class UniWidgetDemo {
                 icon: 'bell',
                 link: '/sales/quotes',
                 amount: 90,
-                backgroundColor: '#dc9346'
+                class: 'uni-widget-notification-orange'
             }
         },
 
@@ -35,7 +35,6 @@ export class UniWidgetDemo {
                 backgroundColor: '#dc9346'
             }
         },
-
         shortcut: {
             width: 1,
             height: 1,

@@ -6,7 +6,7 @@ import {IUniWidget} from '../uniWidget';
     selector: 'uni-notification',
     template: `
         <div *ngIf="widget"
-             [ngStyle]="{'background-color': widget.config.backgroundColor}"
+             [ngClass]="widget.config.class"
              class="uni-widget-notification-tile uni-widget-tile-content"
              (click)="onClickNavigate()"
              title="{{ widget.config.description }}">

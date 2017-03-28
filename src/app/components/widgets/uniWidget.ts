@@ -14,7 +14,8 @@ import {
     UniShortcutWidget,
     UniNotificationWidget,
     UniChartWidget,
-    UniRSSWidget
+    UniRSSWidget,
+    UniListWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -59,7 +60,8 @@ export class UniWidget {
         'shortcut': UniShortcutWidget,
         'notification': UniNotificationWidget,
         'chart': UniChartWidget,
-        'rss': UniRSSWidget
+        'rss': UniRSSWidget,
+        'list': UniListWidget
     };
 
     private widgetComponent: ComponentRef<any>;

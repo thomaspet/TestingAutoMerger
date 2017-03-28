@@ -5,7 +5,9 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
 import {ErrorService, CompanySettingsService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
-import {Company} from '../../unientities';
+import { Company } from '../../unientities';
+import { WidgetDatasetBuilder, ChartColorEnum } from '../widgets/widgetDatasetBuilder';
+import { WidgetDataService } from '../widgets/widgetDataService';
 
 import * as moment from 'moment';
 import * as Chart from 'chart.js';
@@ -40,6 +42,123 @@ export class Dashboard {
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
     private loadReload: EventEmitter<Company> = new EventEmitter<Company>();
+    private builder = new WidgetDatasetBuilder();
+
+    private widgets: any[] = [];
+    private temp = [
+        {
+            width: 3,
+            height: 3,
+            widgetType: 'list',
+            config: {
+                header: 'Siste transaksjoner',
+                items: [
+                    {
+                        user: 'Frode',
+                        action: 'endret', //enum
+                        module: 'Tilbud 1',
+                        timestamp: new Date('2015'),
+                        link: '/sales/quotes/7'
+                    },
+                    {
+                        user: 'Chiotis',
+                        action: 'opprettet', //enum
+                        module: 'Ansatt 1',
+                        timestamp: new Date('2016'),
+                        link: '/salary/employees/1/personal-details'
+                    },
+                    {
+                        user: 'Frode',
+                        action: 'endret', //enum
+                        module: 'Tilbud 1',
+                        timestamp: new Date('2015'),
+                        link: '/sales/quotes/7'
+                    },
+                    {
+                        user: 'Chiotis',
+                        action: 'opprettet', //enum
+                        module: 'Ansatt 1',
+                        timestamp: new Date('2018'),
+                        link: '/salary/employees/1/personal-details'
+                    },
+                    {
+                        user: '',
+                        action: '', //enum
+                        module: ' Bilag 1-2016',
+                        timestamp: new Date(2017, 2, 25),
+                        link: '/sales/quotes/7'
+                    },
+                    {
+                        user: 'Chiotis',
+                        action: 'opprettet', //enum
+                        module: 'Ansatt 1',
+                        timestamp: new Date(),
+                        link: '/salary/employees/1/personal-details'
+                    },
+                    {
+                        user: 'Frode',
+                        action: 'endret', //enum
+                        module: 'Tilbud 1',
+                        timestamp: new Date('2015'),
+                        link: '/sales/quotes/7'
+                    },
+                    {
+                        user: 'Chiotis',
+                        action: 'opprettet', //enum
+                        module: 'Ansatt 1',
+                        timestamp: new Date(2017, 2, 20),
+                        link: '/salary/employees/1/personal-details'
+                    },
+                    {
+                        user: 'Frode',
+                        action: 'endret', //enum
+                        module: 'Tilbud 1',
+                        timestamp: new Date('2015'),
+                        link: '/sales/quotes/7'
+                    },
+                    {
+                        user: '',
+                        action: '', //enum
+                        module: ' Bilag 1-2016',
+                        timestamp: new Date(2017, 2, 21),
+                        link: '/salary/employees/1/personal-details'
+                    },
+
+                ]
+            }
+        },
+        {
+            width: 4,
+            height: 3,
+            x: 3,
+            widgetType: 'chart',
+            config: {
+                header: 'Ansatte per avdeling',
+                chartType: 'pie',
+                labels: ['Utvikling', 'Salg', 'Konsulent', 'Kundeservice', 'Teknisk', 'Administrasjon'],
+                dataset: [
+                    {
+                        data: [22, 8, 6, 16, 4, 10],
+                        backgroundColor: ['#7293cb', '#6b4c9a', '#e1974c', '#84ba5b', '#ff0000', '#ffff00'],
+                        label: 'Ansatte',
+                        borderColor: '#fff',
+                    }
+                ],
+                options: {
+                    cutoutPercentage: 85,
+                    animation: {
+                        animateScale: true
+                    },
+                    legend: {
+                        position: 'left'
+                    }
+                },
+                title: 'Driftsresultat',
+                drilldown: false,
+                chartID: 487515
+            }
+        }
+    ]
 
     constructor(
         private tabService: TabService,
@@ -47,7 +166,8 @@ export class Dashboard {
         private router: Router,
         private errorService: ErrorService,
         private authService: AuthService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private widgetDataService: WidgetDataService
     ) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
 
@@ -59,98 +179,7 @@ export class Dashboard {
             /* No error handling neccesary */
         );
 
-    }
-
-    public ngAfterViewInit() {
-        this.loadReload.subscribe(() => {
-            this.companySettingsService.Get(1).subscribe((settings) => {
-                this.current = settings;
-                if (this.logoImage) { this.logoImage.refreshFiles(); }
-
-                this.reloadDashboard();
-
-            }, err => this.errorService.handle(err));
-        });
-
-        // First load is manual, the following times it is done by authService.companyChange event
-        this.loadReload.emit();
-    }
-
-    private reloadDashboard() {
-        this.getInvoicedData().subscribe(
-            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data.Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
-            err => this.errorService.handle(err)
-        );
-        this.getOrdreData().subscribe(
-            (data) => this.chartGenerator('ordre_chart', this.twelveMonthChartData(data.Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')),
-            err => this.errorService.handle(err)
-        );
-
-        this.getQuoteData().subscribe(
-            (data) => this.chartGenerator('quote_chart', this.twelveMonthChartData(data.Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')),
-            err => this.errorService.handle(err)
-        );
-
-        this.getOperatingData().subscribe(
-            (data) => this.chartGenerator('operating_chart', this.twelveMonthChartData(data.Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)),
-            err => this.errorService.handle(err)
-        );
-
-        this.getLastJournalEntry().subscribe(
-            (data) => this.generateLastTenList(data, true),
-            err => this.errorService.handle(err)
-        );
-
-        this.getMyUserInfo().subscribe(
-            (data) => {
-                this.user = data;
-                this.getMyTransactions()
-                    .subscribe(
-                        (transactions) => this.generateLastTenList(transactions.Data, false, true),
-                        err => this.errorService.handle(err)
-                    );
-            },
-            err => this.errorService.handle(err)
-        );
-
-        this.getTransactions().subscribe(
-            (data) => this.generateLastTenList(data.Data, false),
-            err => this.errorService.handle(err)
-        );
-
-        this.getAssets().subscribe(
-            (data) => this.chartGenerator('assets_chart', this.assetsChartData(data.Data)),
-            err => this.errorService.handle(err)
-        );
-
-        this.getMail().subscribe(
-            (data) => this.fixInboxItems(data.Data),
-            err => this.errorService.handle(err)
-        );
-    }
-
-    public hideWelcome() {
-        this.welcomeHidden = true;
-        localStorage.setItem('welcomeHidden', JSON.stringify(true));
-    }
-
-    public widgetListItemClicked(url) {
-        this.router.navigateByUrl(url);
-    }
-
-    private fixInboxItems(data: any[] = []) {
-        if (data.length === 0) {
-            this.emptyInboxMessage = 'Ingen nye dokumenter';
-            return;
-        }
-        var mydate;
-        data.forEach((item) => {
-            mydate = moment.utc(item.FileCreatedAt).toDate();
-            item.time = moment(mydate).fromNow();
-            item.url = '/accounting/bill/0?fileid=' + item.FileID;
-        })
-
-        this.inboxList = data;
+        this.widgets = this.fakeLayout();
     }
 
     //For 12 month charts
@@ -201,7 +230,6 @@ export class Dashboard {
                 var mydate = moment.utc(data[i].AuditLogCreatedAt).toDate();
                 data[i].time = moment(mydate).fromNow();
                 data[i].UserDisplayName = this.CapitalizeDisplayName(this.removeLastNameIfAny(data[i].UserDisplayName));
-                this.findModuleDisplayNameAndURL(data[i]);
 
                 if (i !== 0 && new Date(data[i].AuditLogCreatedAt).getSeconds() - new Date(data[i - 1].AuditLogCreatedAt).getSeconds() < 3 && data[i].AuditLogEntityType === data[i - 1].AuditLogEntityType) {
                     data.splice(i, 1);
@@ -218,39 +246,6 @@ export class Dashboard {
                 this.transactionList = data;
             }
 
-        }
-    }
-
-    //  Constructs the data for the assets pie chart
-    private assetsChartData(data: any = []): IChartDataSet {
-        var myLabels = [];
-        var myData = [];
-        var myColors = [];
-
-        if (data.length === 0) {
-            myLabels.push('Ingen eiendeler');
-            myData.push(1);
-            myColors.push(this.colors[0]);
-        } else {
-            for (var i = 0; i < data.length; i++) {
-                myLabels.push(data[i].accountgroupName);
-                if (data[i].sumamount < 0) {
-                    data[i].sumamount *= -1;
-                    myLabels[i] = data[i].accountgroupName + ' (Negativt)';
-                }
-                myData.push(data[i].sumamount);
-                myColors.push(this.colors[i]);
-            }
-        }
-
-
-        return {
-            label: '',
-            labels: myLabels,
-            chartType: 'pie',
-            backgroundColor: myColors,
-            borderColor: null,
-            data: myData
         }
     }
 
@@ -276,96 +271,6 @@ export class Dashboard {
                 ]
             }
         });
-    }
-
-    /***********************
-     HELP METHODS
-     ************************/
-
-    //Dummy temp switch that adds better name and url to list items
-    private findModuleDisplayNameAndURL(data: any) {
-
-        let entityID = data.AuditLogEntityID;
-
-        switch (data.AuditLogEntityType) {
-            case 'CustomerQuote':
-                data.module = 'Tilbud';
-                data.url = '/sales/quotes/' + entityID;
-                break;
-            case 'CustomerOrder':
-                data.module = 'Ordre';
-                data.url = '/sales/orders/' + entityID;
-                break;
-            case 'CustomerInvoice':
-                data.module = 'Faktura';
-                data.url = '/sales/invoices/' + entityID;
-                break;
-            case 'JournalEntryLine':
-                data.module = 'Jour. line';
-                /*NEED REAL URL*/
-                data.url = '/';
-                break;
-            case 'SupplierInvoice':
-                data.module = 'Lev. faktura';
-                data.url = '/accounting/journalentry/supplierinvoices/' + entityID;
-                break;
-            case 'NumberSeries':
-                data.module = 'Nummerserie';
-                /*NEED REAL URL*/
-                data.url = '/sales/customer/';
-                break;
-            case 'AccountGroup':
-                data.module = 'Kontogruppe';
-                data.url = '/accounting/accountsettings';
-                break;
-            case 'Employee':
-                data.module = 'Ansatt';
-                data.url = '/salary/employees/' + entityID;
-                break;
-            case 'Customer':
-                data.module = 'Kunde';
-                data.url = '/sales/customer/' + entityID;
-                break;
-            case 'Product':
-                data.module = 'Produkt';
-                data.url = '/products/' + entityID;
-                break;
-            case 'SalaryTransaction':
-                data.module = 'SalaryTransaction';
-                /*NEED REAL URL*/
-                data.url = '/sales/customer/';
-                break;
-            case 'PayrollRun':
-                data.module = 'Lønnsavregning';
-                data.url = '/salary/payrollrun/' + entityID;
-                break;
-            case 'Account':
-                data.module = 'Konto';
-                data.url = '/accounting/accountsettings';
-                break;
-            case 'Address':
-                data.module = 'Adresse';
-                /*NEED REAL URL*/
-                data.url = '/sales/customer/';
-                break;
-            case 'Dimensions':
-                data.module = 'Dimensions';
-                /*NEED REAL URL*/
-                data.url = '/sales/customer/';
-                break;
-            case 'File':
-                data.module = 'File';
-                /*NEED REAL URL*/
-                data.url = '/sales/customer/';
-                break;
-            case 'CompanySettings':
-                data.module = 'Innstillinger';
-                data.url = '/settings/company';
-                break;
-            default:
-
-
-        }
     }
 
     //Returns first name of user..
@@ -497,5 +402,217 @@ export class Dashboard {
             .withEndPoint("/api/statistics?skip=0&top=10&model=FileTag&select=FileTag.TagName as FileTagTagName,FileTag.ID as FileTagID,FileTag.Status as FileTagStatus,File.UpdatedBy as FileUpdatedBy,File.UpdatedAt as FileUpdatedAt,File.StorageReference as FileStorageReference,File.StatusCode as FileStatusCode,File.Size as FileSize,File.PermaLink as FilePermaLink,File.Pages as FilePages,File.OCRData as FileOCRData,File.Name as FileName,File.Md5 as FileMd5,File.ID as FileID,File.Description as FileDescription,File.Deleted as FileDeleted,File.CreatedBy as FileCreatedBy,File.CreatedAt as FileCreatedAt,File.ContentType as FileContentType&expand=File&orderby=File.ID desc&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'")
             .send()
             .map(response => response.json())
+    }
+
+    public fakeLayout() {
+
+        return [
+            {
+                width: 1,
+                height: 1,
+                x: 0,
+                y: 0,
+                widgetType: 'shortcut', // TODO: enum
+                config: {
+                    label: 'TILBUD',
+                    description: 'Tilbudsoversikt',
+                    icon: 'paperclip',
+                    link: '/sales/quotes'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 1,
+                y: 0,
+                widgetType: 'shortcut', // TODO: enum
+                config: {
+                    label: 'ORDRE',
+                    description: 'Ordreoversikt',
+                    icon: 'chat',
+                    link: '/sales/orders'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 2,
+                y: 0,
+                widgetType: 'shortcut', // TODO: enum
+                config: {
+                    label: 'KUNDER',
+                    description: 'Kundeoversikt',
+                    icon: 'user',
+                    link: '/sales/customers'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 3,
+                y: 0,
+                widgetType: 'shortcut', // TODO: enum
+                config: {
+                    label: 'TIMER',
+                    description: 'Timeføring',
+                    icon: 'calender',
+                    link: '/timetracking/timeentry'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 4,
+                y: 0,
+                widgetType: 'shortcut', // TODO: enum
+                config: {
+                    label: 'BANK',
+                    description: 'Innbetaling',
+                    icon: 'home',
+                    link: '/bank/customerbatches'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 5,
+                y: 0,
+                widgetType: 'notification', // TODO: enum
+                config: {
+                    label: 'epost',
+                    description: 'Uleste eposter',
+                    icon: 'globe',
+                    link: '/sales/quotes',
+                    amount: 14,
+                    class: 'uni-widget-notification-orange'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 6,
+                y: 0,
+                widgetType: 'notification', // TODO: enum
+                config: {
+                    label: 'ehf',
+                    description: 'Uleste eposter',
+                    icon: 'bell',
+                    link: '/sales/quotes',
+                    amount: 3,
+                    class: 'uni-widget-notification-orange'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 7,
+                y: 0,
+                widgetType: 'notification', // TODO: enum
+                config: {
+                    label: 'pdf',
+                    description: 'Uleste eposter',
+                    icon: 'search',
+                    link: '/sales/quotes',
+                    amount: 9,
+                    class: 'uni-widget-notification-orange'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 8,
+                y: 0,
+                widgetType: 'notification', // TODO: enum
+                config: {
+                    label: 'utlegg',
+                    description: 'Uleste eposter',
+                    icon: 'paperclip',
+                    link: '/sales/quotes',
+                    amount: 21,
+                    class: 'uni-widget-notification-orange'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 9,
+                y: 0,
+                widgetType: 'notification', // TODO: enum
+                config: {
+                    label: 'varsler',
+                    description: 'Uleste eposter',
+                    icon: 'bell',
+                    link: '/sales/quotes',
+                    amount: 6,
+                    class: 'uni-widget-notification-lite-blue'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 10,
+                y: 0,
+                widgetType: 'notification', // TODO: enum
+                config: {
+                    label: 'utlegg',
+                    description: 'Uleste eposter',
+                    icon: 'paperclip',
+                    link: '/sales/quotes',
+                    amount: 1,
+                    class: 'uni-widget-notification-lite-blue'
+                }
+            },
+            {
+                width: 4,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'chart',
+                config: {
+                    header: 'Driftsresultater',
+                    chartType: 'line',
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    colors: ['#84ba5b'],
+                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
+                    dataKey: ['sumamount'],
+                    multiplyValue: -1,
+                    dataset: [],
+                    options: {
+                        showLines: true,
+                        animation: {
+                            animateScale: true
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    title: ['Driftsresultat'],
+                    drilldown: false,
+                    chartID: 487515
+                }
+            },
+            {
+                width: 4,
+                height: 3,
+                x: 4,
+                y: 1,
+                widgetType: 'chart',
+                config: {
+                    header: 'Driftsresultater',
+                    chartType: 'bar',
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    colors: ['#7293cb', '#e1974c'],
+                    dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
+                    dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
+                    dataset: [],
+                    options: {},
+                    title: ['Tilbud'],
+                    drilldown: false,
+                    chartID: 458751
+                }
+            },
+        ]
+
+
     }
 }

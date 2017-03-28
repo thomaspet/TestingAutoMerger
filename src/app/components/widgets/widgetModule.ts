@@ -1,21 +1,24 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-
+import { CommonModule } from '@angular/common';
+import { UniFrameworkModule } from '../../../framework/frameworkModule';
 import {UniWidgetDemo} from './demo/widgetDemo';
 import {UniWidgetCanvas} from './widgetCanvas';
-import {UniWidget, WidgetContainer} from './uniWidget';
+import { UniWidget, WidgetContainer } from './uniWidget';
+import { WidgetDataService } from './widgetDataService';
 
 import {
     UniShortcutWidget,
     UniNotificationWidget,
     UniChartWidget,
-    UniRSSWidget
+    UniRSSWidget,
+    UniListWidget
 } from './widgets/barrel';
 
 
 @NgModule({
     imports: [
-        CommonModule
+        CommonModule,
+        UniFrameworkModule
     ],
     declarations: [
         UniWidgetDemo,
@@ -25,13 +28,19 @@ import {
         UniShortcutWidget,
         UniNotificationWidget,
         UniChartWidget,
-        UniRSSWidget
+        UniRSSWidget,
+        UniListWidget
     ],
     entryComponents: [
         UniShortcutWidget,
         UniNotificationWidget,
         UniChartWidget,
-        UniRSSWidget
-    ]
+        UniRSSWidget,
+        UniListWidget
+    ],
+    providers: [
+        WidgetDataService
+    ],
+    exports: [UniWidgetCanvas]
 })
 export class WidgetModule {}
