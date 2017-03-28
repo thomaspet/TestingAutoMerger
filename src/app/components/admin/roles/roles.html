@@ -21,7 +21,7 @@
 
             <uni-permission-selector *ngIf="permissions"
                 [permissions]="permissions"
-                (permissionSelected)="onPermissionSelected($event)">
+                (permissionSelected)="onPermissionAdded($event)">
             </uni-permission-selector>
 
             <uni-table [config]="permissionsTableConfig"
@@ -31,3 +31,5 @@
         </main>
     </section>
 </section>
+
+<uni-confirm-modal></uni-confirm-modal>

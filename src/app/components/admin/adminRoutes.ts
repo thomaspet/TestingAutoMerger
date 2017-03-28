@@ -35,7 +35,7 @@ export const childRoutes = [
     {
         path: 'roles',
         component: UniRoles,
-        canDeactivateGuard: CanDeactivateGuard
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

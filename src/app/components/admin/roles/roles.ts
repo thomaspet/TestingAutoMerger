@@ -6,6 +6,18 @@ import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniField, FieldType} from 'uniform-ng2/main';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import {CanDeactivate} from '@angular/router';
+
+import {
+    UniConfirmModal,
+    ConfirmActions
+} from '../../../../framework/modals/confirm';
+
+//import {Routes} from '@angular/router';
+//import {AuthGuard} from '../../authGuard';
+//import {CanDeactivateGuard} from '../../canDeactivateGuard';
+
+
 
 import {Role, RolePermission, Permission} from '../../../unientities';
 import { RoleService, PermissionService, ErrorService } from '../../../services/services';
@@ -15,12 +27,15 @@ import { Http } from "@angular/http";
     selector: 'uni-roles',
     templateUrl: './roles.html'
 })
-export class UniRoles {
-        hasSavedchanges: boolean;
-    hasUnsavedChanges: boolean;
 
+export class UniRoles {
     @ViewChild(UniTable)
     private table: UniTable;
+
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
+    private hasUnsavedChanges: boolean;
 
     private permissions: Permission[];
     private roles: any[];
@@ -42,9 +57,9 @@ export class UniRoles {
         private permissionService: PermissionService,
         private errorService: ErrorService,
         private http: Http,
-        tabService: TabService
+        private tabService: TabService
     ) {
-        tabService.addTab({
+        this.tabService.addTab({
             name: 'Roller',
             url: '/admin/roles',
             moduleID: UniModules.Roles,
@@ -72,31 +87,42 @@ export class UniRoles {
     }
 
     public onRowSelected(event) {
+        if (!event.rowModel) {
+            return;
+        }
+
         this.selectedIndex = event.rowModel['_originalIndex'];
         this.selectedRole = this.roles[this.selectedIndex];
         this.formModel$.next(this.selectedRole);
         this.displayRolePermisssions = this.selectedRole.RolePermissions.filter((permission) => {
             return !permission.Deleted;
         });
-        console.log(this.displayRolePermisssions);
+      //  console.log(this.displayRolePermisssions);
     }
 
-    public onPermissionSelected(permission: Permission) {
+    public onPermissionAdded(permission: Permission) {
+        if (!permission) {
+            return;
+        }
+
         this.selectedRole.RolePermissions.push(<any> {
             RoleID: this.selectedRole.ID,
             PermissionID: permission.ID,
             Permission: permission,
+            hasUnsavedChanges: true,
             _createguid: this.roleService.getNewGuid()
         });
 
+        this.hasUnsavedChanges = true;
         this.selectedRole.RolePermissions = [...this.selectedRole.RolePermissions];
     }
 
     public onPermissionDeleted(event) {
         const permission = event.rowModel;
+        this.hasUnsavedChanges = true;
 
         if (permission['_createguid']) {
-            // permission has not been saved yet, just remove it from the array
+             // permission has not been saved yet, just remove it from the array
             this.selectedRole.RolePermissions.splice(permission['_originalIndex'], 1);
         } else {
             // permission has been saved, set deleted flag to remove it
@@ -106,17 +132,45 @@ export class UniRoles {
         this.displayRolePermisssions = this.selectedRole.RolePermissions.filter((permission) => {
             return !permission.Deleted;
         });
-    }
+   }
 
     public onFormChange(changes) {
         this.roles[this.selectedIndex] = this.formModel$.getValue();
         this.table.updateRow(this.selectedIndex, this.roles[this.selectedIndex]);
+        this.hasUnsavedChanges = true;
     }
 
     public canDeactivate() {
-        console.log('canDeactivate implementation missing in roles.ts!');
-        return true;
+        if (!this.hasUnsavedChanges) {
+            return true;
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.confirmModal.confirm(
+                'Du har ulagrede endringer. Ønsker du å forkaste disse?',
+                'Ulagrede endringer',
+                false,
+                {
+                    accept: 'Fortsett uten å lagre',
+                    reject: 'Avbryt'
+                }
+            ).then((result) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    resolve(true);
+                } else {
+                    this.tabService.addTab({
+                        name: 'Roller',
+                        url: '/admin/roles',
+                        moduleID: UniModules.Roles,
+                        active: true
+                    });
+                    resolve(false);
+                }
+            });
+        });
     }
+
+
 
     private getNewRole() {
         return {
@@ -137,6 +191,7 @@ export class UniRoles {
                     this.table.focusRow(0);
             }
            }
+
         };
 
         this.saveActions = [{
@@ -145,29 +200,27 @@ export class UniRoles {
             disabled: false,
             action: (completeCallback) => {
                 if (this.selectedRole.ID) {
-                    // put
                     this.roleService.Put(this.selectedRole.ID, this.selectedRole).subscribe(
                         (res) => {
-                            this.hasSavedchanges = false;
+                            this.hasUnsavedChanges = false;
                             this.selectedRole = res;
-                            completeCallback('Role saved');
+                            completeCallback('Rolle lagret');
                         },
                         (err) => {
-                            completeCallback('could not save role');
+                            completeCallback('Feil under lagring av rolle');
                             this.errorService.handle(err);
 
                         }
                     );
                 } else {
-                    // post
                     this.roleService.Post(this.selectedRole).subscribe(
                         (res) => {
-                            this.hasSavedchanges = false;
+                            this.hasUnsavedChanges = false;
                             this.selectedRole = res;
-                            completeCallback('Role saved');
+                            completeCallback('Rolle lagret');
                         },
                         (err) => {
-                            completeCallback('could not save role');
+                            completeCallback('Feil under lagring av rolle');
                             this.errorService.handle(err);
 
                         }
@@ -176,7 +229,6 @@ export class UniRoles {
 
             }
         }];
-
     }
 
     private initTableConfigs() {
