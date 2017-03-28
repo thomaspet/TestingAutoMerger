@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {UniComponentLoader} from './componentLoader';
 import {ClickOutsideDirective} from './clickOutside';
-import {AuthService} from './authService';
 import {UniHttp} from './http/http';
 import {ComponentCreator} from './dynamic/UniComponentCreator';
 
@@ -12,7 +11,6 @@ import {ComponentCreator} from './dynamic/UniComponentCreator';
     ],
     providers: [
         UniHttp,
-        AuthService,
         ComponentCreator
     ],
     exports: [
