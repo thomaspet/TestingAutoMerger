@@ -1,4 +1,4 @@
-import {Component, ViewChildren, QueryList} from '@angular/core';
+import { Component, ViewChildren, QueryList, ViewChild } from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {Model} from '../../../unientities';
@@ -8,7 +8,11 @@ import {UniForm, FieldType, UniField} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-
+import {CanDeactivate} from '@angular/router';
+import {
+    UniConfirmModal,
+    ConfirmActions
+} from '../../../../framework/modals/confirm';
 @Component({
     selector: 'uni-models',
     templateUrl: './models.html'
@@ -16,6 +20,9 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 export class UniModels {
     @ViewChildren(UniTable)
     private tables: QueryList<UniTable>;
+
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
 
     private models: Model[];
     private selectedModel: Model;
@@ -90,6 +97,35 @@ export class UniModels {
     public onFormChange(changes) {
         this.hasUnsavedChanges = true;
         this.selectedModel = this.formModel$.getValue();
+    }
+
+    public canDeactivate(){
+        if(!this.hasUnsavedChanges){
+            return true;
+        }
+        return new Promise<boolean>((resolve, reject)=> {
+            this.confirmModal.confirm(
+                'Du har ulagrede endringer. Ønsker du å forkaste disse?',
+                'ulagrede endringer',
+                false,{
+                    accept: 'Fortsett uten å lagre',
+                    reject: 'Avbryt'
+                }
+            ).then((result) =>{
+                if(result === ConfirmActions.ACCEPT){
+                    resolve(true);
+                }else{
+                    this.tabService.addTab({
+                        name: 'Modeller',
+                        url: '/admin/models',
+                        moduleID: UniModules.Roles,
+                        active: true
+                    });
+                    resolve(false);
+                }
+            });
+
+        });
     }
 
 

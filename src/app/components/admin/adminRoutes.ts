@@ -30,7 +30,8 @@ export const childRoutes = [
     },
     {
         path: 'models',
-        component: UniModels
+        component: UniModels,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'roles',
