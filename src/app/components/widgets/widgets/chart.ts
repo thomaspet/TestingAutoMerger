@@ -7,7 +7,7 @@ import * as Chart from 'chart.js';
 
 @Component({
     selector: 'uni-chart',
-    template: ` <figure style="margin: 0; color: white; text-align: center; background-color: #fff;">
+    template: ` <figure style="margin: 0; color: white; text-align: center; background-color: #fff; max-height: 100%;">
                     <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
                     <div style="padding: 20px;">
                         <canvas #chartElement> </canvas>
@@ -56,7 +56,6 @@ export class UniChartWidget {
                         if (this.widget.config.chartType === 'pie' || this.widget.config.chartType === 'doughnut') {
                             this.widget.config.dataset.push(this.builder.buildMultiColorDataset(item.Data, this.widget.config.dataKey[i], ChartColorEnum.White));
                         } else {
-                            console.log(this.widget.config.colors[i]);
                             this.widget.config.dataset.push(this.builder.buildSingleColorDataset(item.Data, ChartColorEnum.White, this.widget.config.colors[i], this.widget.config.title[i], this.widget.config.dataKey[i], this.widget.config.chartType, this.widget.config.multiplyValue | 1));
                         }
                     })

@@ -443,7 +443,7 @@ export class Dashboard {
                     label: 'KUNDER',
                     description: 'Kundeoversikt',
                     icon: 'user',
-                    link: '/sales/customers'
+                    link: '/sales/customer'
                 }
             },
             {
@@ -598,7 +598,7 @@ export class Dashboard {
                 y: 1,
                 widgetType: 'chart',
                 config: {
-                    header: 'Driftsresultater',
+                    header: 'Tilbud og faktura - 2017',
                     chartType: 'bar',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     colors: ['#7293cb', '#e1974c'],
@@ -606,7 +606,7 @@ export class Dashboard {
                     dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
                     dataset: [],
                     options: {},
-                    title: ['Tilbud'],
+                    title: ['Tilbud', 'Faktura'],
                     drilldown: false,
                     chartID: 458751
                 }
