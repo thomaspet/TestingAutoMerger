@@ -4,7 +4,7 @@ const commonConfig = require('./common.webpack.js');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 
 module.exports = function(options) {
-    let config = webpackMerge(commonConfig, {
+    var config = webpackMerge(commonConfig, {
         devServer: {
             contentBase: 'dist/',
             historyApiFallback: true,
