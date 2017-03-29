@@ -1,17 +1,27 @@
 <button (click)="toggleEditMode()">Toggle edit mode</button>
 
-<section class="canvas-guide" *ngIf="editMode">
-    <ng-template ngFor let-row [ngForOf]="canvasHelper.canvasGrid">
-        <span *ngFor="let cell of row" class="canvas-cell"></span>
-    </ng-template>
-</section>
+<section #canvas class="widget-canvas" [ngClass]="{'edit-mode': editMode}" (mousemove)="onMouseMove($event)">
+    <section class="canvas-guide" *ngIf="editMode">
+        <ng-template ngFor let-row let-rowIndex="index" [ngForOf]="canvasHelper.canvasGrid">
+            <span *ngFor="let cell of row; let cellIndex = index"
+                    class="canvas-cell"
+                    [ngStyle]="{
+                        top:  rowIndex * gridUnitInPx + 'px',
+                        left: cellIndex * gridUnitInPx + 'px',
+                        width:  gridUnitInPx - marginInPx + 'px',
+                        height: gridUnitInPx - marginInPx + 'px'
+                    }">
+            </span>
+        </ng-template>
+    </section>
 
-<section #canvas class="widget-canvas" (mousemove)="onMouseMove($event)">
     <span *ngIf="gridAnchor" class="grid-anchor"
           [ngClass]="gridAnchor.valid ? 'valid-anchor' : 'invalid-anchor'"
           [ngStyle]="{
-              top: gridAnchor.top + 'px',
-              left: gridAnchor.left + 'px'
+              top:  gridAnchor.top + 'px',
+              left: gridAnchor.left + 'px',
+              width:  gridUnitInPx - marginInPx + 'px',
+              height: gridUnitInPx - marginInPx + 'px'
           }">
     </span>
 
@@ -19,10 +29,10 @@
         <uni-widget [widget]="widget"
                     (mousedown)="startDrag($event, widget)"
                     [ngStyle]="{
-                        top: widget._position.top + 'px',
+                        top:  widget._position.top + 'px',
                         left: widget._position.left + 'px',
-                        width: widget._position.width + 'px',
-                        height: widget._position.height + 'px'
+                        width:  (gridUnitInPx * widget.width) - marginInPx + 'px',
+                        height: (gridUnitInPx * widget.height) - marginInPx + 'px'
                     }">
         </uni-widget>
     </ng-template>

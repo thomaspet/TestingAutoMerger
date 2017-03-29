@@ -52,6 +52,9 @@ export class UniWidgetCanvas {
     private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
     private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
 
+    private gridUnitInPx: number;
+    private marginInPx: number;
+
     private gridAnchor: IGridAnchor;
 
     constructor(
@@ -59,43 +62,64 @@ export class UniWidgetCanvas {
         private toastService: ToastService
     ) {
         this.canvasHelper = new CanvasHelper();
+        this.marginInPx = 10;
+
+        Observable.fromEvent(window, 'resize')
+            .skip(1)
+            .throttleTime(200)
+            .subscribe(event => {
+                if (this.widgets) {
+                    this.widgets.forEach((widget: IUniWidget) => {
+                        this.gridUnitInPx = this.canvas.nativeElement.clientWidth / 12;
+                        this.setWidgetPosition(widget);
+                    });
+
+                    this.cdr.markForCheck();
+                }
+            });
     }
 
     public ngOnChanges() {
         if (this.widgets) {
+            this.gridUnitInPx = this.canvas.nativeElement.clientWidth / 12;
             this.widgets.forEach(widget => this.addWidget(widget));
             this.cdr.markForCheck();
         }
     }
 
     private addWidget(widget: IUniWidget) {
-        const canvas: HTMLElement = this.canvas.nativeElement;
+        widget._editMode = this.editMode;
 
-        if (!widget.hasOwnProperty('x') || !widget.hasOwnProperty('y')) {
-            const position = this.canvasHelper.getNextAvailablePosition(widget);
-            if (position) {
-                widget.x = position.x;
-                widget.y = position.y;
-                this.widgetsChange.next(this.widgets);
-            } else {
-                this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
-                this.widgets.pop();
-                this.widgetsChange.next(this.widgets);
-                return;
-            }
+        // If widget already has x:y coordinates, just position it and return
+        if (widget.x >= 0 && widget.y >= 0) {
+            this.setWidgetPosition(widget);
+            return;
         }
 
-        this.canvasHelper.reserveGridSpace(widget);
-
-        widget._editMode = this.editMode;
-        widget._position = {
-            top: (canvas.clientHeight / 9) * widget.y,
-            left: (canvas.clientWidth / 12) * widget.x,
-            width: ((canvas.clientWidth / 12) * widget.width) - 5,
-            height: ((canvas.clientHeight / 9) * widget.height) - 5
-        };
+        // If not, get next available position
+        const position = this.canvasHelper.getNextAvailablePosition(widget);
+        if (position) {
+            widget.x = position.x;
+            widget.y = position.y;
+            this.widgetsChange.next(this.widgets);
+            this.setWidgetPosition(widget);
+        } else {
+            this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
+            this.widgets.pop();
+            this.widgetsChange.next(this.widgets);
+            return;
+        }
     }
 
+    private setWidgetPosition(widget: IUniWidget) {
+        widget._position = {
+            top: this.gridUnitInPx * widget.y,
+            left: this.gridUnitInPx * widget.x
+        };
+
+        this.canvasHelper.reserveGridSpace(widget);
+        this.cdr.markForCheck();
+    }
 
     public toggleEditMode() {
         this.editMode = !this.editMode;
@@ -105,7 +129,6 @@ export class UniWidgetCanvas {
 
     public startDrag(event: MouseEvent, widget: IUniWidget) {
         event.preventDefault();
-
         const elemBounds = event.srcElement.closest('uni-widget').getBoundingClientRect();
         const canvasBounds = this.canvas.nativeElement.getBoundingClientRect();
 
@@ -117,7 +140,7 @@ export class UniWidgetCanvas {
         this.mouseMove
             .throttleTime(5)
             .takeUntil(Observable.fromEvent(document, 'mouseup').take(1))
-            .finally(() => this.snapToGrid(widget))
+            .finally(() => this.stopDrag(widget))
             .subscribe((moveEvent: MouseEvent) => {
                 widget._position.left = moveEvent.clientX - canvasBounds.left - offsetX;
                 widget._position.top = moveEvent.clientY - canvasBounds.top - offsetY;
@@ -129,24 +152,18 @@ export class UniWidgetCanvas {
             .throttleTime(50)
             .subscribe((w: IUniWidget) => {
                 const gridIndex = this.canvasHelper.getClosestGridIndex(
-                    this.canvas.nativeElement,
+                    this.gridUnitInPx,
                     w._position.top,
                     w._position.left
                 );
 
-                const position = this.canvasHelper.getAbsolutePosition(
-                    this.canvas.nativeElement,
-                    gridIndex.y,
-                    gridIndex.x
-                );
-
                 if (gridIndex.x >= 0 && gridIndex.x < 12 && gridIndex.y >= 0 && gridIndex.y < 9) {
                     this.gridAnchor = {
-                        top: position.top,
-                        left: position.left,
+                        top: this.gridUnitInPx * gridIndex.y,
+                        left: this.gridUnitInPx * gridIndex.x,
                         x: gridIndex.x,
                         y: gridIndex.y,
-                        valid: gridIndex.x + w.height <= 12 && gridIndex.y + w.height <= 9
+                        valid: (gridIndex.x + w.width - 1) < 12 && (gridIndex.y + w.height - 1) < 9
                     };
                 } else {
                     this.gridAnchor = undefined;
@@ -154,9 +171,9 @@ export class UniWidgetCanvas {
             });
     }
 
-    public snapToGrid(widget: IUniWidget) {
+    public stopDrag(widget: IUniWidget) {
         if (this.gridAnchor && this.gridAnchor.valid) {
-            let collision = this.canvasHelper.checkForCollision(
+            let collision = this.canvasHelper.findCollision(
                 this.gridAnchor.y,
                 this.gridAnchor.x,
                 widget.height,
@@ -164,23 +181,28 @@ export class UniWidgetCanvas {
             );
 
             if (collision) {
-                // TODO: check if we can swap the widgets (same size)
+                const collidingWidget = this.widgets.find((w: IUniWidget) => {
+                    return w.x === this.gridAnchor.x && w.y === this.gridAnchor.y;
+                });
+
+                // If the colliding widget is same height/width we can swap their positions
+                if (collidingWidget && collidingWidget.width === widget.width
+                                    && collidingWidget.height === widget.height) {
+
+                    collidingWidget.x = widget.x;
+                    collidingWidget.y = widget.y;
+                    this.setWidgetPosition(collidingWidget);
+
+                    widget.x = this.gridAnchor.x;
+                    widget.y = this.gridAnchor.y;
+                }
             } else {
                 widget.x = this.gridAnchor.x;
                 widget.y = this.gridAnchor.y;
             }
         }
 
-        const position = this.canvasHelper.getAbsolutePosition(
-            this.canvas.nativeElement,
-            widget.y,
-            widget.x
-        );
-
-        widget._position.top = position.top;
-        widget._position.left = position.left;
-
-        this.canvasHelper.reserveGridSpace(widget);
+        this.setWidgetPosition(widget);
         this.gridAnchor = undefined;
     }
 

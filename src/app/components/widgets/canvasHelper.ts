@@ -14,20 +14,10 @@ export class CanvasHelper {
         }
     }
 
-    public getClosestGridIndex(canvas: HTMLElement, top: number, left: number): {x: number, y: number} {
-        const cellWidth = canvas.clientWidth  / 12;
-        const cellHeight = canvas.clientHeight / 9;
-
+    public getClosestGridIndex(unitInPx: number, top: number, left: number): {x: number, y: number} {
         return {
-            x: Math.floor((left + cellWidth / 4) / cellWidth),
-            y: Math.floor((top + cellHeight / 4) / cellHeight)
-        };
-    }
-
-    public getAbsolutePosition(canvas: HTMLElement, y: number, x: number): {top: number, left: number} {
-        return {
-            top: (canvas.clientHeight / 9) * y,
-            left: (canvas.clientWidth / 12) * x
+            x: Math.floor((left + unitInPx / 4) / unitInPx),
+            y: Math.floor((top + unitInPx / 4) / unitInPx)
         };
     }
 
@@ -51,7 +41,7 @@ export class CanvasHelper {
         for (let rowIndex = 0; rowIndex <= 9 - (widget.height); rowIndex++) {
             for (let cellIndex = 0; cellIndex <= (12 - widget.width); cellIndex++) {
                 if (!this.canvasGrid[rowIndex][cellIndex]) {
-                    const collision = this.checkForCollision(
+                    const collision = this.findCollision(
                         rowIndex,
                         cellIndex,
                         widget.height,
@@ -69,11 +59,14 @@ export class CanvasHelper {
         }
     }
 
-    public checkForCollision(y: number, x: number, height: number, width: number): boolean {
+    public findCollision(y: number, x: number, height: number, width: number): {x: number, y: number} {
         for (let rowIndex = y; (rowIndex < y + height); rowIndex++) {
             for (let cellIndex = x; (cellIndex < x + width); cellIndex++) {
                 if (this.canvasGrid[rowIndex][cellIndex]) {
-                    return true;
+                    return {
+                        y: rowIndex,
+                        x: cellIndex
+                    };
                 }
             }
         }

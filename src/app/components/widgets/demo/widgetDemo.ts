@@ -56,31 +56,28 @@ export class UniWidgetDemo {
             height: 3,
             widgetType: 'chart',
             config: {
-                header: 'Ansatte per avdeling',
-                chartType: 'pie',
-                labels: ['Utvikling', 'Salg', 'Konsulent', 'Kundeservice', 'Teknisk', 'Administrasjon'],
-                dataset: [
-                    {
-                        data: [22, 8, 6, 16, 4, 10],
-                        backgroundColor: ['#7293cb', '#6b4c9a', '#e1974c', '#84ba5b', '#ff0000', '#ffff00'],
-                        label: 'Ansatte',
-                        borderColor: '#fff',
-                    }
-                ],
+                header: 'Driftsresultater',
+                chartType: 'line',
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                colors: ['#84ba5b'],
+                dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
+                dataKey: ['sumamount'],
+                multiplyValue: -1,
+                dataset: [],
                 options: {
-                    cutoutPercentage: 85,
+                    showLines: true,
                     animation: {
                         animateScale: true
                     },
                     legend: {
-                        position: 'left'
+                        position: 'top'
                     }
                 },
-                title: 'Driftsresultat',
+                title: ['Driftsresultat'],
                 drilldown: false,
                 chartID: 487515
             }
-        }
+        },
     };
 
     constructor() {
