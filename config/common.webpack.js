@@ -6,7 +6,7 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const UniIndexPlugin = require('./uniIndexPlugin');
 
 module.exports = {
-    devtool: 'source-map',
+    devtool: 'cheap-module-source-map',
     stats: 'minimal',
 
     entry: {
