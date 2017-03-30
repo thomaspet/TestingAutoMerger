@@ -78,7 +78,7 @@ export class StatisticsService extends BizHttp<string> {
             });
     }
 
-    public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string): Observable<any> {
+    public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string): Observable<any> {
 
         let params: URLSearchParams = new URLSearchParams();
 
@@ -87,6 +87,9 @@ export class StatisticsService extends BizHttp<string> {
         params.set('filter', filters);
         params.set('expand', expands);
         params.set('headings', headings);
+        if (joins) {
+            params.set('join', joins);
+        }
 
         // remove empty filters, causes problem on backend
         return this.http

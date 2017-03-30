@@ -648,12 +648,12 @@ export class UniTicker {
     // this function assumes that the unitablesetup has already been run, so that all needed
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
-        let headers = this.ticker.Columns.map(x => x.Header).join(',');
+        let headers = this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
         let params = this.getSearchParams(new URLSearchParams());
 
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers)
+            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers, this.ticker.Joins)
                 .subscribe((blob) => {
                     // download file so the user can open it
                     saveAs(blob, 'export.csv');
