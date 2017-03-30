@@ -1,0 +1,171 @@
+<uni-toolbar [config]="toolbarconfig" [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="application">
+    <table class="jobDetailTable">
+        <tr>
+            <td class="colContent">
+                En jobb er en handling som Uni Economy kan kjøre på dine vegne, enten automatisk på et gitt tidspunkt, eller når noe skjer i systemet.
+                <br/>
+                <br/> Dokumentasjon for hvordan du skriver en jobbkonfigurasjon finner du i
+                <a href="" target="_blank">vårt API-senter </a>, eller du kan
+                <a href="" target="_blank">ta kontakt med en av våre konsulenter</a>, så kan vi hjelpe med oppsett av jobber skreddesydd for din bedrift.
+            </td>
+            <td class="colSeparator">
+            </td>
+            <td class="colContent">
+                <table class="embeddedJobDetailTable">
+                    <tr>
+                        <td colspan="3" valign="top">
+                            <label>
+                                Navn
+                                <input type="text" id="name" [(ngModel)]="job.Name" style="width:100%">
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!--<td align="left" valign="bottom">
+                            <input type="checkbox" id="{{job.ID}}" [ngModel]="job.IsEnabled" (ngModelChange)="toggleJob()">
+                            <label attr.for="{{job.ID}}" class="toggle"> </label>
+                        </td>-->
+                        <td class="buttonCol">
+                            <button class="runJob" [disabled]="isJobStartDisabled()" (click)="startJob()">Kjør</button>
+                        </td>
+                        <td class="dropDownCol">
+                            <label>
+                                Utføres<
+                                <uni-select [config]="jobStartModeSelectConfig"
+                                            [items]="jobStartModes"
+                                            (valueChange)="onJobStartModeChanged($event)">
+                                </uni-select>
+                            </label>
+                        </td>
+                        <td class="dynamic">
+                            <table class="dynamicContainer">
+                                <tr>
+                                    <!--
+                                    'Date' will be supported later.
+                                    <td class="dyn1" *ngIf="jobStartMode == 1">
+                                        <label>
+                                            Kjøres
+                                            <localdate-picker-input>
+                                            </localdate-picker-input>
+                                        </label>
+                                    </td>
+                                    -->
+                                    <td class="dyn1" *ngIf="jobStartMode === 1">
+                                        <label>
+                                        Med utsettelse
+                                        <input type="text" [(ngModel)]="delay">
+                                    </label>
+                                    </td>
+                                    <td class="dyn2" *ngIf="jobStartMode === 1">
+                                        <label>
+                                            <uni-select [config]="delayTimeUnitSelectConfig"
+                                                        [items]="delayTimeUnits"
+                                                        (valueChange)="onDelayTimeUnitChanged($event) ">
+                                            </uni-select>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="colSeparator">
+            </td>
+            <td class="colContent">
+                <!---
+                This comes later...
+                <uni-attachments class="upload-no-batch" [showFileList]="false" [uploadWithoutEntity]="true" (fileUploaded)="fileUploaded($event)" [headerText]="'Last opp konfigurasjon'"></uni-attachments>
+                -->
+            </td>
+        </tr>
+    </table>
+    <div>
+        <h2>Tidsplan</h2>
+        <table class="newScheduleTable">
+            <tr>
+                <td class="scheduleContainer">
+                    <table class="scheduleContainerTable">
+                        <tr>
+                            <td class="period">
+                                <label>
+                                    Hver
+                                    <input type="text" [(ngModel)]="newSchedule.period">
+                                </label>
+                            </td>
+                            <td class="colSeparator">
+                            </td>
+                            <td class="unit">
+                                <label>
+                                    <uni-select 
+                                        [config]="scheduleTimeUnitSelectConfig" 
+                                        [items]="scheduleTimeUnits" 
+                                        (valueChange)="onNewScheduleTimeUnitChanged($event) ">
+                                    </uni-select>
+                                </label>
+                            </td>
+                            <!--<td class="dyn5">
+                                <input type="checkbox" id="{{job.ID}}" [ngModel]="job.IsEnabled" (ngModelChange)="toggleJob()">
+                                <label attr.for="{{job.ID}}" class="toggle"> </label>
+                            </td>-->
+                        </tr>
+                    </table>
+                </td>
+                <td class="newSchedule">
+                    <button class="new-schedule" (click)="addNewSchedule()" [disabled]="!isNumber(newSchedule.period)">Legg til</button>
+                </td>
+                <td class="colSeparator">
+                    For øyeblikket støtter vi bare én tidsplan.
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+    <div>
+        <table class="scheduleTable">
+            <tr *ngFor="let item of schedules">
+                <td class="scheduleContainer">
+                    <table class="scheduleContainerTable">
+                        <tr>
+                            <td class="period">
+                                <label>
+                                    Hver
+                                    <input type="text" [(ngModel)]="item.period" (blur)="updateSchedule(item)">
+                                </label>
+                            </td>
+                            <td class="colSeparator">
+                            </td>
+                            <td class="unit">
+                                <label>
+                                    <uni-select [config]="scheduleTimeUnitSelectConfig"
+                                                [items]="scheduleTimeUnits"
+                                                (valueChange)="onScheduleTimeUnitChanged($event, item)"
+                                                [value]="getScheduleTimeUnit(item)">
+                                    </uni-select>
+                                </label>
+                            </td>
+                            <!--<td class="dyn5">
+                                <input type="checkbox" id="{{job.ID}}" [ngModel]="job.IsEnabled" (ngModelChange)="toggleJob()">
+                                <label attr.for="{{job.ID}}" class="toggle"> </label>
+                            </td>-->
+                        </tr>
+                    </table>
+                </td>
+                <td class="colSeparatorShort">
+                </td>
+                <td class="delete-schedule">
+                    <button class="delete-schedule" (click)="deleteSchedule(item.id)"></button>
+                </td>
+                <td class="colSeparatorShort2">
+                </td>
+                <td class="static">
+                </td>
+                <td class="colSeparator">
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>

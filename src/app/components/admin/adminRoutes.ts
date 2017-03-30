@@ -2,17 +2,30 @@ import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from '../../authGuard';
 
-//import {routes as JobsRoutes} from './jobs/jobsRoutes';
+// app
+import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
+// module
 import {UniAdmin} from './admin';
-import {Jobs} from './jobs/jobs';
+import {JobList} from './jobs/list/jobList';
+import {JobDetails} from './jobs/details/jobDetails';
+import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
 
 export const childRoutes = [
     {
         path: 'jobs',
-        component: Jobs
-        //children: JobsRoutes
+        component: JobList
+    },
+    {
+        path: 'job-details/:id',
+        component: JobDetails,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'job-logs/:jobName/:jobRunId',
+        component: JobLog,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'models',
