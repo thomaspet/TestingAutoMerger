@@ -88,6 +88,13 @@ export class UniQueryReadOnly implements OnChanges {
                 .subscribe(res => {
                         this.queryDefinition = res;
 
+                        if (this.queryDefinition.UniQueryFields.filter(x => x.Index).length > 0) {
+                            // Index is specified for the fields, the fields to reflect this
+                            this.queryDefinition.UniQueryFields.sort(
+                                (a, b) => (a.Index ? a.Index : 0) - (b.Index ? b.Index : 0)
+                            );
+                        }
+
                         this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
                             let f: UniTableColumn = new UniTableColumn();
                             f.field = field.Field;
