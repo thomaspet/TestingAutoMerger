@@ -118,7 +118,7 @@ export class UniModels {
                     this.tabService.addTab({
                         name: 'Modeller',
                         url: '/admin/models',
-                        moduleID: UniModules.Roles,
+                        moduleID: UniModules.Models,
                         active: true
                     });
                     resolve(false);
@@ -131,7 +131,8 @@ export class UniModels {
 
     private initToolbar() {
         this.toolbarConfig = {
-            title: 'Modeller'
+            title: 'Modeller',
+
         }
         this.saveActions = [{
             label: 'Lagre',
