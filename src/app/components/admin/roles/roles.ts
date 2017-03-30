@@ -13,12 +13,6 @@ import {
     ConfirmActions
 } from '../../../../framework/modals/confirm';
 
-//import {Routes} from '@angular/router';
-//import {AuthGuard} from '../../authGuard';
-//import {CanDeactivateGuard} from '../../canDeactivateGuard';
-
-
-
 import {Role, RolePermission, Permission} from '../../../unientities';
 import { RoleService, PermissionService, ErrorService } from '../../../services/services';
 import { Http } from "@angular/http";
@@ -115,6 +109,7 @@ export class UniRoles {
 
         this.hasUnsavedChanges = true;
         this.selectedRole.RolePermissions = [...this.selectedRole.RolePermissions];
+        this.displayRolePermisssions = this.selectedRole.RolePermissions.filter(role => !role.Deleted);
     }
 
     public onPermissionDeleted(event) {
@@ -137,6 +132,8 @@ export class UniRoles {
     public onFormChange(changes) {
         this.roles[this.selectedIndex] = this.formModel$.getValue();
         this.table.updateRow(this.selectedIndex, this.roles[this.selectedIndex]);
+       // this.permissions[this.selectedIndex] = this.formModel$.getValue();
+        //this.table.updateRow(this.onPermissionAdded, this.permissions[this.selectedIndex]);
         this.hasUnsavedChanges = true;
     }
 

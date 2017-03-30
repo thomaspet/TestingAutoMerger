@@ -13,7 +13,8 @@
         </nav>
 
         <main class="splitview_detail">
-            <uni-form [config]="formConfig$"
+            <uni-form
+                      [config]="formConfig$"
                       [fields]="formFields$"
                       [model]="formModel$"
                       (changeEvent)="onFormChange($event)">
