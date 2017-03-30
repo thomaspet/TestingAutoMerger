@@ -222,7 +222,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateNetAmount(rowModel) {
         if (rowModel.Amount && rowModel.Amount !== 0) {
-            if (rowModel.DebitAccount && rowModel.DebitVatType) {
+            if (rowModel.DebitAccount && rowModel.DebitVatType && !rowModel.DebitVatType.DirectJournalEntryOnly) {
                 let calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.DebitAccount,
                     rowModel.DebitVatType,
@@ -231,7 +231,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     rowModel
                 );
                 rowModel.NetAmount = calc.amountNet;
-            } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
+            } else if (rowModel.CreditAccount && rowModel.CreditVatType && !rowModel.CreditVatType.DirectJournalEntryOnly) {
                 let calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.CreditAccount,
                     rowModel.CreditVatType,
@@ -250,7 +250,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateGrossAmount(rowModel) {
         if (rowModel.NetAmount && rowModel.NetAmount !== 0) {
-            if (rowModel.DebitAccount && rowModel.DebitVatType) {
+            if (rowModel.DebitAccount && rowModel.DebitVatType && !rowModel.DebitVatType.DirectJournalEntryOnly) {
                 let calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.DebitAccount,
                     rowModel.DebitVatType,
@@ -259,7 +259,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     rowModel
                 );
                 rowModel.Amount = calc.amountGross;
-            } else if (rowModel.CreditAccount && rowModel.CreditVatType) {
+            } else if (rowModel.CreditAccount && rowModel.CreditVatType && !rowModel.CreditVatType.DirectJournalEntryOnly) {
                 let calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.CreditAccount,
                     rowModel.CreditVatType,
@@ -319,13 +319,41 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
-    private setDebitVatTypeProperties(rowModel) {
-        let vattype = rowModel.DebitVatType;
+    private setDebitVatTypeProperties(rowModel: JournalEntryData) {
+        let vattype: VatType = rowModel.DebitVatType;
+
+        if (vattype && vattype.DirectJournalEntryOnly) {
+            if (rowModel.DebitAccountID && rowModel.DebitAccountID !== vattype.IncomingAccountID) {
+                rowModel.DebitVatType = null;
+                vattype = null;
+
+                this.toastService.addToast(
+                    'Ikke tillatt å bruke denne mvakoden',
+                    ToastType.bad,
+                    ToastTime.medium,
+                    'Denne Mvakoden kan kun brukes ved direktepostering av MVA på tilhørende regnskapskonto');
+            }
+        }
+
         rowModel.DebitVatTypeID = vattype ? vattype.ID : null;
     }
 
     private setCreditVatTypeProperties(rowModel) {
         let vattype = rowModel.CreditVatType;
+
+        if (vattype && vattype.DirectJournalEntryOnly) {
+            if (rowModel.CreditAccountID && rowModel.CreditAccountID !== vattype.IncomingAccountID) {
+                rowModel.CreditVatType = null;
+                vattype = null;
+
+                this.toastService.addToast(
+                    'Ikke tillatt å bruke denne mvakoden',
+                    ToastType.bad,
+                    ToastTime.medium,
+                    'Denne mvakoden kan kun brukes ved direktepostering av MVA på tilhørende regnskapskonto');
+            }
+        }
+
         rowModel.CreditVatTypeID = vattype ? vattype.ID : null;
     }
 

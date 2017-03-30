@@ -426,6 +426,9 @@ export class UniTicker {
                             case 'percent':
                                 colType = UniTableColumnType.Percent;
                                 break;
+                            case 'boolean':
+                                colType = UniTableColumnType.Boolean;
+                                break;
                             case 'date':
                             case 'datetime':
                             case 'localdate':

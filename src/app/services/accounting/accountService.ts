@@ -21,7 +21,7 @@ export class AccountService extends BizHttp<Account> {
 
     public searchAccounts(filter: string, top: number = 500, orderby = 'AccountNumber') {
         filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
-        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=VatType,TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,TopLevelAccountGroup.GroupNumber,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=VatType,TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,TopLevelAccountGroup.GroupNumber,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,VatType.DirectJournalEntryOnly as VatTypeDirectJournalEntryOnly,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
     }
@@ -53,6 +53,7 @@ export class AccountService extends BizHttp<Account> {
                 account.VatType.ReversedTaxDutyVat = data.VatTypeReversedTaxDutyVat;
                 account.VatType.IncomingAccountID = data.VatTypeIncomingAccountID;
                 account.VatType.OutgoingAccountID = data.VatTypeOutgoingAccountID;
+                account.VatType.DirectJournalEntryOnly = data.VatTypeDirectJournalEntryOnly;
             }
 
             accounts.push(account);

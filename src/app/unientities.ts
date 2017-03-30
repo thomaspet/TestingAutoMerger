@@ -4225,6 +4225,7 @@ export class VatType extends UniEntity {
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
+    public DirectJournalEntryOnly: boolean;
 }
 
 
