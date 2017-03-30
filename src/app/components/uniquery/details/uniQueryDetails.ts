@@ -160,11 +160,9 @@ export class UniQueryDetails {
                     this.tabService.addTab({ name: this.queryDefinition.Name, url: '/uniqueries/details/' + this.queryDefinitionID, moduleID: UniModules.UniQuery, active: true });
 
                     if (this.queryDefinition.UniQueryFields.filter(x => x.Index).length > 0) {
-                        // Index is specified for the fields, the fields to reflect this
-                        console.log('sorterer kolonner');
+                        // Index is specified for the fields, sort the fields to reflect this
                         this.queryDefinition.UniQueryFields.sort((a, b) => (a.Index ? a.Index : 0) - (b.Index ? b.Index : 0));
                     }
-
 
                     this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
                        let f: UniTableColumn = new UniTableColumn();
