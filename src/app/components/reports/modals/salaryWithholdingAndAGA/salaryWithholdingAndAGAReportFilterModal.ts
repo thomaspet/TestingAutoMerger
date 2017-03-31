@@ -48,7 +48,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     }
 
     private getLayout(reportParameters: ReportDefinitionParameter[]): UniFieldLayout[] {
-        return reportParameters.map(param => <any>{
+        return reportParameters.map(param => <UniFieldLayout>{
             FieldType: FieldType.NUMERIC,
             Label: param.Label,
             Property: param.Name,
@@ -99,7 +99,7 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                 },
                 {
                     text: 'Avbryt',
-                    method: () => this.modal.getContent().then(() => this.modal.close())
+                    method: () => this.modal.close()
                 }
             ]
         };

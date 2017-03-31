@@ -15,6 +15,7 @@ import {AccountReportFilterModal} from '../modals/account/AccountReportFilterMod
 import {SalaryPaymentListReportFilterModal} from '../modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {VacationPayBaseReportFilterModal} from '../modals/vacationPayBase/vacationPayBaseReportFilterModal';
 import {SalaryWithholdingAndAGAReportFilterModal} from '../modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
+import {PayCheckReportFilterModal} from '../modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 
@@ -53,7 +54,8 @@ export class Overview {
     private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
     @ViewChild(SalaryWithholdingAndAGAReportFilterModal)
     private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
-
+    @ViewChild(PayCheckReportFilterModal)
+    private paycheckReportFilterModal: PayCheckReportFilterModal;
     public reportCategories: Array<ReportCategory>;
 
     constructor(
@@ -107,6 +109,10 @@ export class Overview {
 
     public showSalaryWithholdingAndAgaFilterModalReportParameters(report: ReportDefinition) {
         this.salaryWithholdingAndAGAReportFilterModal.open(report, this.previewModal);
+    }
+
+    public showPaycheckFilterModalReportParameters(report: ReportDefinition) {
+        this.paycheckReportFilterModal.open(report, this.previewModal);
     }
 
     public showUniQuery(report: UniQueryDefinition) {

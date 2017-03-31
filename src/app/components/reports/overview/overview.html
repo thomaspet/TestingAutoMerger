@@ -27,6 +27,11 @@
                     <h4 class="report_name">{{report.Name}}</h4>
                     <p>{{report.Description}}</p>
                 </a>
+                <a *ngSwitchCase="10"
+                        (click)="showPaycheckFilterModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
                 <a *ngSwitchCase="11"
                         (click)="showSalaryWithholdingAndAgaFilterModalReportParameters(report)">
                     <h4 class="report_name">{{report.Name}}</h4>
@@ -93,5 +98,6 @@
 <salary-payment-list-report-filter-modal></salary-payment-list-report-filter-modal>
 <vacation-pay-base-report-filter-modal></vacation-pay-base-report-filter-modal>
 <salary-withholding-and-aga-report-filter-modal></salary-withholding-and-aga-report-filter-modal>
+<paycheck-report-filter-modal></paycheck-report-filter-modal>
 <router-outlet></router-outlet>
 
