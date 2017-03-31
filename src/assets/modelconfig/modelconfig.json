@@ -17,6 +17,7 @@
                 "CustomerQuote",
                 "CustomerQuoteItem",
                 "Customer",
+                "EHFLog",
                 "Product",
                 "ProductCategory"
             ]
@@ -60,6 +61,7 @@
                 "AGAZone",
                 "AmeldingData",
                 "AmeldingLog",
+                "BasicAmount",
                 "CompanyVacationRate",
                 "DrawForeignerWithPercent",
                 "Employee",
@@ -77,6 +79,7 @@
                 "SalaryBalanceLine",
                 "SalaryTransaction",
                 "SalaryTransactionSupplement",
+                "SubEntity",
                 "STYRKCode",
                 "VacationPayLine",
                 "VacationRateEmployee",
@@ -124,6 +127,27 @@
             ]
         },
         {
+            "Name": "General",
+            "Translated": "Generelt",
+            "Models": [
+                "Approval",
+                "BusinessRelation",
+                "Comment",
+                "Country",
+                "File",
+                "FileTag",
+                "Grant",
+                "Mentioned",
+                "Notification",
+                "ReportDefinition",
+                "ReportDefinitionDataSource",
+                "ReportDefinitionParameter",
+                "Task",
+                "ValueItem",
+                "ValueList"
+            ]
+        },
+        {
             "Name": "Integrations",
             "Translated": "Integrasjoner",
             "Models": [
@@ -131,19 +155,8 @@
                 "AltinnCorrespondanceReader",
                 "AltinnReceipt",
                 "AltinnSigning",
-                "Approval",
-                "EHFLog",
                 "EmailLog",
-                "File",
-                "FileTag",
-                "ReportDefinition",
-                "ReportDefinitionDataSource",
-                "ReportDefinitionParameter",
-                "Task",
-                "Tracelink",
-                "UniQueryDefinition",
-                "UniQueryField",
-                "UniQueryFilter"
+                "Tracelink"
             ]
         },
         {
@@ -190,6 +203,9 @@
                 "UserRole",
                 "UserVerification",
                 "VatCodeGroupSetup",
+                "UniQueryDefinition",
+                "UniQueryField",
+                "UniQueryFilter",
                 "VatPostSetup",
                 "VatReportReferenceSetup",
                 "VatTypeSetup"
