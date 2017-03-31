@@ -140,6 +140,7 @@ export class OrderDetails {
                     sendemail.EntityType = 'CustomerOrder';
                     sendemail.EntityID = this.order.ID;
                     sendemail.CustomerID = this.order.CustomerID;
+                    sendemail.EmailAddress = this.order.EmailAddress;
                     sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
 

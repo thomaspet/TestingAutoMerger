@@ -170,9 +170,14 @@ export class ReminderList {
             this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist(selected);
 
         method.subscribe((reminders) => {
+            this.router.navigateByUrl("/sales/reminders/reminded");
+            /*
+            TODO:   discarded modal view of sending av printing, completely remove modal view if BA approves of this simplified prosess
+                    Using
             this.reminderSendingModal.confirm(reminders).then((action) => {
                 this.updateReminderTable();
             });
+            */
         });
 
         done();

@@ -75,6 +75,7 @@ export class TofCustomerCard {
         'Info.Addresses',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
+        'Info.DefaultEmail',
         'Dimensions.Project',
         'Dimensions.Department'
     ];
@@ -158,7 +159,7 @@ export class TofCustomerCard {
             return;
         }
         let address = this.addressService.invoiceToAddress(this.entity);
-        this.addressModal.openModal(address, false, 'Fakuraadresse');
+        this.addressModal.openModal(address, false, 'Fakturaadresse');
         this.addressModal.Changed.subscribe((modalValue) => {
             this.addressService.addressToInvoice(this.entity, modalValue);
         });
@@ -174,6 +175,10 @@ export class TofCustomerCard {
         } else {
             this.entity.CustomerID = null;
             this.entity.CustomerName = null;
+        }
+
+        if(customer.Info.DefaultEmail) {
+            this.entity.EmailAddress = customer.Info.DefaultEmail.EmailAddress;
         }
 
         this.entity.Customer = customer;

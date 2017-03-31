@@ -127,6 +127,32 @@ export class TofDetailsForm {
                 },
                 {
                     EntityType: this.entityType,
+                    Property: 'EmailAddress',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Epost adresse',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null
+                },
+                {
+                    EntityType: this.entityType,
                     Property: 'Requisition',
                     Placement: 1,
                     Hidden: false,
@@ -268,14 +294,14 @@ export class TofDetailsForm {
             ];
 
             if (this.entityType === 'CustomerQuote') {
-                fields[3].Label = 'Tilbudsdato';
-                fields[3].Property = 'QuoteDate';
-                fields[4].Label = 'Gyldig til dato';
-                fields[4].Property = 'ValidUntilDate';
+                fields[4].Label = 'Tilbudsdato';
+                fields[4].Property = 'QuoteDate';
+                fields[5].Label = 'Gyldig til dato';
+                fields[5].Property = 'ValidUntilDate';
             } else if (this.entityType === 'CustomerOrder') {
-                fields[3].Label = 'Ordredato';
-                fields[3].Property = 'OrderDate';
-                fields[4].Hidden = true;
+                fields[4].Label = 'Ordredato';
+                fields[4].Property = 'OrderDate';
+                fields[5].Hidden = true;
             }
 
             this.fields$.next(fields);
