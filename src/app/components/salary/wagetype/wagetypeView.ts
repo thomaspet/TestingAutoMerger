@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom 
+    TaxType, StdWageType, GetRateFrom
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { WageTypeService, UniCacheService, ErrorService, YearService } from '../../../services/services';
@@ -109,8 +109,15 @@ export class WageTypeView extends UniView {
                     ? Observable.of(result)
                     : Observable
                         .fromPromise(
-                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
-                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+                        this.confirmModal.confirmSave())
+                        .map((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.saveWageType((m) => { }, false);
+                                return true;
+                            } else {
+                                return response === ConfirmActions.REJECT;
+                            }
+                        });
             })
             .map(canDeactivate => {
                 canDeactivate
@@ -139,7 +146,7 @@ export class WageTypeView extends UniView {
         }
     }
 
-    private saveWageType(done: (message: string) => void) {
+    private saveWageType(done: (message: string) => void, updateView: boolean = true) {
 
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
@@ -158,11 +165,13 @@ export class WageTypeView extends UniView {
             : this.wageTypeService.Post(this.wageType);
 
         saver.subscribe((wageType: WageType) => {
-            super.updateState('wagetype', this.wageType, false);
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
-            done('lagring fullført');
-            this.saveActions[0].disabled = true;
+            if (updateView) {
+                super.updateState('wagetype', this.wageType, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
+                done('lagring fullført');
+                this.saveActions[0].disabled = true;
+            }
         },
             (error) => {
                 done('Lagring feilet');
@@ -171,9 +180,8 @@ export class WageTypeView extends UniView {
     }
 
     private checkValidYearAndCreateNew() {
-        this.yearService.selectedYear$.subscribe( (year: number) => {
-            if ( this.wageType.ValidYear !== year) {
-                console.log("newyear");
+        this.yearService.selectedYear$.subscribe((year: number) => {
+            if (this.wageType.ValidYear !== year) {
                 this.wageType.ID = 0;
                 this.wageType.ValidYear = year;
 
@@ -182,7 +190,7 @@ export class WageTypeView extends UniView {
                     supplement.WageTypeID = 0;
                 });
             }
-        }        
+        });
     }
 
     private checkDirty() {
