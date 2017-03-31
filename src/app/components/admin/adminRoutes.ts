@@ -2,8 +2,6 @@ import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-// app
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 // module
 import {UniAdmin} from './admin';

@@ -16,7 +16,6 @@
     "start.local": "gulp app-config-local && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
     "start.pilot": "gulp app-config-pilot && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --config config/prod.webpack.js --inline --port 3000\" ",
     "start.typecheck": "gulp app-config-dev && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000 --env.typecheck\" "
-    "start.test": "gulp app-config-test-env && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" "
   },
   "license": "MIT",
   "dependencies": {
