@@ -26,8 +26,11 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         this.DefaultOrderBy = null;
     }
 
-    public getCustomerInvoicesReadyForReminding(): Observable<any> {
-        return this.GetAction(null, 'get-customer-invoices-ready-for-reminding');
+    public getCustomerInvoicesReadyForReminding(includeInvoiceWithReminderStop: boolean): Observable<any> {
+        return this.GetAction(null, `get-customer-invoices-ready-for-reminding&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}` );
+    }
+    public getCustomerInvoicesReadyForDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
+        return this.GetAction(null, `get-customer-invoices-ready-for-debt-collection&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}`);
     }
 
     public createInvoiceRemindersForInvoicelist(list): Observable<any> {
@@ -44,10 +47,6 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
 
     public getInvoiceRemindersForInvoicelist(list): Observable<any> {
         return this.ActionWithBody(null, list, `get-invoicereminders-for-invoicelist`, RequestMethod.Post);
-    }
-
-    public getCustomerInvoicesReadyForDebtCollection(): Observable<any> {
-        return this.GetAction(null, 'get-customer-invoices-ready-for-debt-collection');
     }
 
     public sendToDebtCollection(list): Observable<any> {

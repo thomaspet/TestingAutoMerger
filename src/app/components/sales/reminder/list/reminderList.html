@@ -2,13 +2,19 @@
              [saveactions]="saveActions">
 </uni-toolbar>
 
+
 <section class="application">
+    <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
+    <label class="reminder_stop_filter" for="purrestopp">
+        Vis faktura med purrestopp
+    </label>
+
     <uni-table [resource]="reminderList"
                [config]="reminderTable"
                (rowSelectionChanged)="onRowSelected($event)"
                (rowSelected)="onRowSelected($event)">
     </uni-table>
-    <uni-summary *ngIf="summaryData" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+    <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
 <reminder-settings-modal></reminder-settings-modal>
 <reminder-sending-modal></reminder-sending-modal>

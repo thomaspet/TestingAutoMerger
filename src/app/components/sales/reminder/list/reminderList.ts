@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -42,16 +42,17 @@ export class ReminderList {
     private reminderList: any;
     private saveActions: IUniSaveAction[] = [];
     private reminderSettings: CustomerInvoiceReminderSettings;
+    public showInvoicesWithReminderStop: boolean = false;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Purring',
         omitFinalCrumb: true
     };
 
-    private summary: ISummaryConfig[] = [];
+    private summaryFields: ISummaryConfig[] = [];
     private summaryData = {
-        SumInvoicesToRemind: 0,
-        SumChecked: 0,
+        restSumInvoicesToRemind: 0,
+        restSumChecked: 0,
         SumFee: 0,
     };
 
@@ -82,6 +83,7 @@ export class ReminderList {
         this.customerInvoiceReminderSettingsService.Get(1).subscribe((reminderSettings) => {
             this.reminderSettings = reminderSettings;
         });
+
     }
 
     private defaultTableFilter(): ITableFilter[] {
@@ -142,6 +144,27 @@ export class ReminderList {
             return;
         }
 
+        var selectedRows = this.table.getSelectedRows();
+        var selectedHasReminderStopp = false;
+        selectedRows.forEach(x => {
+            if (x.DontSendReminders) {
+                selectedHasReminderStopp = true;
+                return;
+            }
+        });
+
+        if (selectedHasReminderStopp) {
+            this.toastService.addToast(
+                'Rader med purrestopp er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst opphev purrestopp på faktura du vil kjøre purring for'
+            );
+
+            done('Kjøring avbrutt');
+            return;
+        }
+
         var method = this.reminderList.length === selected.length ?
             this.customerInvoiceReminderService.createInvoiceRemindersFromReminderRules() :
             this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist(selected);
@@ -161,6 +184,10 @@ export class ReminderList {
         done();
     }
 
+    public onToggleReminderStop() {
+
+    }
+
     public settings(done) {
         this.settingsModal.settings().then((action) => {
             done();
@@ -168,11 +195,13 @@ export class ReminderList {
     }
 
     private onRowSelected(data) {
-        this.summaryData.SumChecked = 0;
+        this.summaryData.restSumChecked = 0;
+        this.summaryData.SumFee = 0;
+
         let selectedRows = this.table.getSelectedRows();
 
         selectedRows.forEach(x => {
-            this.summaryData.SumChecked += x.TaxInclusiveAmount;
+            this.summaryData.restSumChecked += x.RestAmount;
             this.summaryData.SumFee += x.Fee;
         });
 
@@ -180,23 +209,30 @@ export class ReminderList {
     }
 
     private setSums() {
-        this.summary = [{
-                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumInvoicesToRemind) : null,
-                title: 'Totalt restsum',
-            }, {
-                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumChecked) : null,
-                title: 'Totalt avkrysset',
+        this.summaryFields = [{
+            value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.restSumInvoicesToRemind) : null,
+            title: 'Totalt restsum',
+        }, {
+                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.restSumChecked) : null,
+                title: 'Totalt restsum valgt',
             }, {
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumFee) : null,
-                title: 'Totalt gebyr',
+                title: 'Totalt gebyr valgt',
             }
         ];
     }
 
-    private updateReminderTable() {
-        this.customerInvoiceReminderService.getCustomerInvoicesReadyForReminding().subscribe((invoicesAndReminderslist) => {
-                this.reminderList = invoicesAndReminderslist;
-                this.summaryData.SumInvoicesToRemind = _.sumBy(this.reminderList, x => x.RestAmount);
+    public updateReminderTable(init: boolean = false) {
+        this.customerInvoiceReminderService.getCustomerInvoicesReadyForReminding(this.showInvoicesWithReminderStop).subscribe((invoicesAndReminderslist) => {
+            this.reminderList = invoicesAndReminderslist;
+            if (init) {
+                this.reminderList = this.reminderList.map((r) => {
+                    r._rowSelected = true;
+                    return r;
+                });
+            }
+            this.summaryData.restSumInvoicesToRemind = _.sumBy(this.reminderList, x => x.RestAmount);
+            this.setSums();
         }, (err) => this.errorService.handle(err));
     }
 
@@ -204,41 +240,41 @@ export class ReminderList {
         this.updateReminderTable();
 
         // Define columns to use in the table
-        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
+        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text, false)
             .setWidth('100px').setFilterOperator('contains');
-        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
+        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text, false)
             .setWidth('100px').setFilterOperator('contains')
             .setTemplate((reminder) => {
                 return reminder.CustomerInvoiceID ? `<a href='/#/sales/invoices/${reminder.CustomerInvoiceID}'>${reminder.InvoiceNumber}</a>` : ``;
             });
-        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
-            .setWidth('8%').setFilterOperator('eq');
-        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
             .setWidth('100px').setFilterOperator('startswith')
             .setTemplate((reminder) => {
                 return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>` : ``;
             });
-        let customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
+        let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text, false)
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
                 return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>` : ``;
             });
-        let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
-            .setWidth('8%').setFilterOperator('eq');
-        let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
+        let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text, true)
             .setFilterOperator('contains');
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Fakturasum', UniTableColumnType.Number)
+        var currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
+            .setFilterOperator('contains')
+            .setWidth('5%');
+
+        var taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setConditionalCls((item) => {
-                return (+item.TaxInclusiveAmount >= 0)
+                return (+item.TaxInclusiveAmountCurrency >= 0)
                     ? 'number-good' : 'number-bad';
             })
             .setCls('column-align-right');
 
-        var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
+        var restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -246,23 +282,50 @@ export class ReminderList {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        var feeAmountCol = new UniTableColumn('Fee', 'Gebyr', UniTableColumnType.Number)
+        var feeAmountCol = new UniTableColumn('Fee', 'Gebyr', UniTableColumnType.Number, false)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
+        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Opprettet', UniTableColumnType.LocalDate, false)
+            .setWidth('8%').setFilterOperator('eq');
+        let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate, true)
+            .setWidth('8%').setFilterOperator('eq');
+
+        var reminderStoppCol = new UniTableColumn('DontSendReminders', 'Purrestopp').setTemplate((item) => {
+            return item.DontSendReminders ? 'Ja' : 'Nei';
+        });
+
+        // Context menu
+        let contextMenuItems: IContextMenuItem[] = [];
+        contextMenuItems.push({
+            label: 'Inverter purrestopp',
+            action: (rowModel) => {
+                const warnToastID = this.toastService.addToast('Purrestopp', ToastType.warn);
+                this.customerInvoiceService.ActionWithBody(rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop').subscribe(() => {
+                    this.toastService.removeToast(warnToastID);
+                    this.toastService.addToast('Purrestopp invertert', ToastType.good, 10);
+                    this.updateReminderTable();
+                },
+                    (err) => {
+                        this.toastService.removeToast(warnToastID);
+                        this.errorService.handle(err);
+                    });
+            }
+        });
 
         // Setup table
-        this.reminderTable = new UniTableConfig(false, true, 25)
+        this.reminderTable = new UniTableConfig(true, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setAutoAddNewRow(false)
             //.setFilters(this.defaultTableFilter()) // TODO: later on
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
-                         taxInclusiveAmountCol, restAmountCol, feeAmountCol, invoiceDateCol, dueDateCol]);
+            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol, currencyCodeCol,
+                taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, feeAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol])
+            .setContextMenu(contextMenuItems);
     }
 }
