@@ -506,15 +506,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     'Vil du lagre endringer på lønnavregning?',
                     'Lagre endringer?', true, { accept: 'Lagre', reject: 'Senere' })).subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            let transes = this.payrollrun$.getValue().transactions;
-                            this.payrollrun$.getValue().transactions = undefined;
                             this.payrollrunService
                                 .Put(this.payrollrun$.getValue().ID, this.payrollrun$.getValue())
-                                .map((payrun: PayrollRun) => {
-                                    payrun.transactions = transes;
-                                    return payrun;
-                                })
-                                .subscribe(x => super.updateState('payrollRun', x, false));
+                                .subscribe(x => {
+                                    this.getSalaryTransactions();
+                                    super.updateState('payrollRun', x, false);
+                                });
                         }
                     });
         }

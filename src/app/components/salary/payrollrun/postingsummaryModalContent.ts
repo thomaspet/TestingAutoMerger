@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UniTable, UniTableColumn, UniTableColumnType, UniTableConfig } from 'unitable-ng2/main';
 import { PostingSummary, Dimensions } from '../../../unientities';
-import { PayrollrunService, ErrorService, ReportDefinitionService, Report, ReportParameter } from '../../../../app/services/services';
+import { PayrollrunService, ErrorService, ReportDefinitionService, Report, ReportParameter, ReportService } from '../../../../app/services/services';
 import { UniHttp } from '../../../../framework/core/http/http';
 
 import { Observable } from 'rxjs/Observable';
@@ -28,7 +28,8 @@ export class PostingsummaryModalContent implements OnInit {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private http: UniHttp,
-        private reportService: ReportDefinitionService
+        private reportService: ReportService,
+        private reportDefinitionService: ReportDefinitionService
     ) {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
@@ -69,7 +70,7 @@ export class PostingsummaryModalContent implements OnInit {
 
     public postTransactions() {
         
-        return this.reportService
+        return this.reportDefinitionService
             .getReportByName('Konteringssammendrag')
             .switchMap(report => {
                 let parameter = new ReportParameter();
@@ -108,7 +109,7 @@ export class PostingsummaryModalContent implements OnInit {
         let project = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Number)
             .setWidth('6rem');
         this.accountTableConfig = new UniTableConfig(false, false)
-            .setColumns([accountCol, nameCol, sumCol, department, project])
+            .setColumns([accountCol, nameCol, sumCol, project, department])
             .setColumnMenuVisible(false)
             .setSearchable(false);
     }
