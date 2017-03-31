@@ -1,8 +1,6 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {AuthGuard} from '../../authGuard';
-
-// app
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 // module
@@ -11,6 +9,7 @@ import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
+import {UniRoles} from './roles/roles';
 
 export const childRoutes = [
     {
@@ -29,7 +28,13 @@ export const childRoutes = [
     },
     {
         path: 'models',
-        component: UniModels
+        component: UniModels,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'roles',
+        component: UniRoles,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

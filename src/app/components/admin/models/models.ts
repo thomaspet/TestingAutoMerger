@@ -1,4 +1,4 @@
-import {Component, ViewChildren, QueryList} from '@angular/core';
+import { Component, ViewChildren, QueryList, ViewChild } from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 import {Model} from '../../../unientities';
@@ -8,7 +8,11 @@ import {UniForm, FieldType, UniField} from 'uniform-ng2/main';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-
+import {CanDeactivate} from '@angular/router';
+import {
+    UniConfirmModal,
+    ConfirmActions
+} from '../../../../framework/modals/confirm';
 @Component({
     selector: 'uni-models',
     templateUrl: './models.html'
@@ -17,8 +21,12 @@ export class UniModels {
     @ViewChildren(UniTable)
     private tables: QueryList<UniTable>;
 
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
     private models: Model[];
     private selectedModel: Model;
+    private selectedIndex: number;
 
     private modelsTable: UniTableConfig;
     private fieldsTable: UniTableConfig;
@@ -47,7 +55,6 @@ export class UniModels {
         this.modelService.GetAll(null).subscribe(
             (res) => {
                 this.models = res;
-                // Timeout to allow table to init before focusing
                 setTimeout(() => {
                     this.tables.first.focusRow(0);
                 });
@@ -71,22 +78,20 @@ export class UniModels {
     public onRowSelected(event) {
         if (this.hasUnsavedChanges && event.rowModel['_originalIndex'] !== this.selectedModel['_originaIndex']) {
             if (!confirm('Du har ulagrede endringer. Ønsker du å forkaste disse?')) {
-                // If user cancels on modal, reset focus to current row
                 this.tables.first.focusRow(this.selectedModel['_originalIndex']);
             }
         }
 
-        // If no unsaved changes, or user is fine with throwing them away
-        // we change selected model
         this.hasUnsavedChanges = false;
         this.selectedModel = event.rowModel;
+        this.selectedIndex = event.rowModel['_originalIndex'];
         this.formModel$.next(this.selectedModel);
     }
 
     private onRowChanged(event) {
         this.hasUnsavedChanges = true;
         this.selectedModel.Fields[event._originalIndex] = event.rowModel;
-        this.formModel$.next(this.selectedModel); // update form
+        this.formModel$.next(this.selectedModel);
     }
 
     public onFormChange(changes) {
@@ -94,26 +99,81 @@ export class UniModels {
         this.selectedModel = this.formModel$.getValue();
     }
 
+    public canDeactivate(){
+        if(!this.hasUnsavedChanges){
+            return true;
+        }
+        return new Promise<boolean>((resolve, reject)=> {
+            this.confirmModal.confirm(
+                'Du har ulagrede endringer. Ønsker du å forkaste disse?',
+                'ulagrede endringer',
+                false,{
+                    accept: 'Fortsett uten å lagre',
+                    reject: 'Avbryt'
+                }
+            ).then((result) =>{
+                if(result === ConfirmActions.ACCEPT){
+                    resolve(true);
+                }else{
+                    this.tabService.addTab({
+                        name: 'Modeller',
+                        url: '/admin/models',
+                        moduleID: UniModules.Models,
+                        active: true
+                    });
+                    resolve(false);
+                }
+            });
+
+        });
+    }
+
 
     private initToolbar() {
         this.toolbarConfig = {
-            title: 'Modeller'
-        }
+            title: 'Modeller',
 
+        }
         this.saveActions = [{
             label: 'Lagre',
             main: true,
-            disabled: false,
-            action: (completeevent) => {
-                this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
-                    (res) => {
-                        this.hasUnsavedChanges = false;
-                        completeevent('Modell lagret');
-                    },
-                    err => this.errorService.handle(err)
-                );
+            disabled:false,
+            action: (completeCallback) => {
+                if(this.selectedModel.ID){
+
+                    this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
+                        (res) => {
+                            this.hasUnsavedChanges = false;
+                            this.selectedModel = res;
+                            this.models[this.selectedIndex] = res;
+                            this.models = [...this.models];
+                            completeCallback('Model saved');
+                        },
+                        (err) => {
+                            completeCallback('could not save Model');
+                            this.errorService.handle(err);
+                        }
+                    );
+
+                } else{
+
+                    this.modelService.Post(this.selectedModel).subscribe(
+                        (res) =>{
+                            this.hasUnsavedChanges = false;
+                            this.selectedModel = res;
+                            completeCallback('model saved');
+                        },
+                        (err) => {
+                            completeCallback('could not save model');
+                            this.errorService.handle(err);
+                        }
+                    );
+                }
             }
-        }];
+
+        }]
+
+
     }
 
     private initTableConfigs() {
@@ -199,32 +259,7 @@ export class UniModels {
                 Sectionheader: '',
                 hasLineBreak: false,
                 Validations: []
-            },
-            <any>{
-                ComponentLayoutID: 1,
-                EntityType: 'Model',
-                Property: 'HelpText',
-                Placement: 1,
-                Hidden: false,
-                FieldType: FieldType.TEXTAREA,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'HelpText',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
             }
-
-        ]);
-    }
-
-
+         ]);
+      }
 }

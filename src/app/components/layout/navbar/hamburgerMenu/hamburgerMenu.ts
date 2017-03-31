@@ -203,7 +203,8 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Jobber', componentUrl: '/admin/jobs', moduleID: UniModules.Jobs},
                     {componentName: 'Languages', componentUrl: '/admin/languages', moduleID: UniModules.Translations},
-                    {componentName: 'Modeller', componentUrl: '/admin/models', moduleID: UniModules.Models}
+                    {componentName: 'Modeller', componentUrl: '/admin/models', moduleID: UniModules.Models},
+                    {componentName: 'Roller', componentUrl: '/admin/roles', moduleID: UniModules.Roles}
                 ]
             }
         ];
