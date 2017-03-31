@@ -25,7 +25,7 @@ import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
-    FinancialYearService, ErrorService, EmployeeCategoryService, SalarySumsService, NumberFormat, FileService,
+    YearService, ErrorService, EmployeeCategoryService, SalarySumsService, NumberFormat, FileService,
     JournalEntryService
 } from '../../../services/services';
 import { IPosterWidget } from '../../common/poster/poster';
@@ -58,7 +58,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private disableFilter: boolean;
     private saveActions: IUniSaveAction[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
-    private activeFinancialYear: FinancialYear;
+    private activeYear: number;
 
     private employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
@@ -129,7 +129,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private _projectService: ProjectService,
         private _departmentService: DepartmentService,
         private _employeeTaxCardService: EmployeeTaxCardService,
-        private _financialYearService: FinancialYearService,
+        private yearService: YearService,
         private employeeCategoryService: EmployeeCategoryService,
         private _salarySumsService: SalarySumsService,
         private numberformat: NumberFormat,
@@ -456,14 +456,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         let filter: string = 'filter=';
         let employeeFilterTable: string[] = [];
 
-        this._financialYearService
-            .getActiveFinancialYear()
+        this.yearService
+            .getActiveYear()            
             .switchMap(financialYear => {
                 employees.forEach(employee => {
                     employeeFilterTable.push('EmployeeID eq ' + employee.ID);
                 });
                 filter += '(' + employeeFilterTable.join(' or ') + ') ';
-                filter += `and Year le ${financialYear.Year}&orderby=Year DESC`;
+                filter += `and Year le ${financialYear}&orderby=Year DESC`;
 
                 return employeeFilterTable.length
                     ? this._employeeTaxCardService.GetAll(filter)
@@ -676,13 +676,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
                 this._companySalaryService.getCompanySalary(),
-                this._financialYearService.getActiveFinancialYear()
+                this.yearService.getActiveYear()
             ).subscribe((dataSet: any) => {
                 let [payroll, last, salaries, activeYear] = dataSet;
                 this.setDefaults(payroll);
                 let latest: PayrollRun = last;
                 let companysalary: CompanySalary = salaries[0];
-                this.activeFinancialYear = activeYear;
+                this.activeYear = activeYear;
 
                 if (payroll && payroll.ID === 0) {
                     payroll.ID = null;
@@ -714,22 +714,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         if (!latest) {
             // First payrollrun for the year
             let todate: Date;
-            let fromdate = new Date(this.activeFinancialYear.Year, 0, 1);
+            let fromdate = new Date(this.activeYear, 0, 1);
             payrollRun.FromDate = fromdate;
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
-                    todate = new Date(this.activeFinancialYear.Year, 0, 14);
+                    todate = new Date(this.activeYear, 0, 14);
                     payrollRun.ToDate = todate;
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
-                    todate = new Date(this.activeFinancialYear.Year, 0, 7);
+                    todate = new Date(this.activeYear, 0, 7);
                     payrollRun.ToDate = todate;
                     break;
 
                 default: // Monthly
-                    todate = new Date(this.activeFinancialYear.Year, 0, 31);
+                    todate = new Date(this.activeYear, 0, 31);
                     payrollRun.ToDate = todate;
                     break;
             }

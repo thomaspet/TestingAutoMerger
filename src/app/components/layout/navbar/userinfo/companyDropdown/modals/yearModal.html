@@ -1,0 +1,7 @@
+<article class="modal-content" *ngIf="config">
+    <h1 *ngIf="config?.title">{{config.title}}</h1>
+    <uni-form [config]="config$" [fields]="lay$" [model]="yearModel$"></uni-form>    
+    <footer>        
+        <button *ngFor="let action of config.actions; let i=index" class="action.class" (click)="action.method()">{{action.text}}</button>        
+    </footer>
+</article>

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, FinancialYear,
+    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, 
     WageType, EmployeeCategory
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -18,7 +18,7 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    NumberFormat, WageTypeService, SalarySumsService, FinancialYearService, BankAccountService, EmployeeCategoryService
+    NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,    
 } from '../../../services/services';
 declare var _;
 @Component({
@@ -45,7 +45,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private toolbarConfig: IToolbarConfig;
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
-    private financialYear: FinancialYear;
+    private activeYear: number;
     private categories: EmployeeCategory[];
 
     public categoryFilter: any[] = [];
@@ -120,7 +120,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private employeeTaxCardService: EmployeeTaxCardService,
         private salarySumsService: SalarySumsService,
         private wageTypeService: WageTypeService,
-        private financialYearService: FinancialYearService,
+        private yearService: YearService,
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService
     ) {
@@ -154,9 +154,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 .debounceTime(200)
         };
 
-        this.financialYearService.getActiveFinancialYear()
-            .subscribe((financialyear: FinancialYear) => {
-                this.financialYear = financialyear;
+        this.yearService.getActiveYear() 
+            .subscribe((year) => {
+                this.activeYear = year;
             }, err => this.errorService.handle(err));
 
         this.route.params.subscribe((params) => {
@@ -417,7 +417,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
             if (employee.ID) {
                 this.salarySumsService
-                    .getSumsInYear(this.financialYear.Year, this.employeeID)
+                    .getSumsInYear(this.activeYear, this.employeeID)
                     .subscribe((data) => {
                         if (data.netPayment) {
                             let add = Math.floor(data.netPayment / 80);
@@ -506,10 +506,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
         let alerts = this.employeeWidgets[2].config.alerts;
-        this.financialYearService.getActiveFinancialYear()
-            .subscribe((financialyear: FinancialYear) => {
-                this.financialYear = financialyear;
-                let checks = this.taxBoolChecks(employeeTaxCard, this.financialYear.Year);
+        this.yearService.getActiveYear()
+            .subscribe((year: number) => {
+                this.activeYear = year;
+                let checks = this.taxBoolChecks(employeeTaxCard, this.activeYear);
                 // Tax info ok?
                 alerts[1] = {
                     text: checks.hasTaxCard
@@ -619,7 +619,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private getTaxObservable(): Observable<EmployeeTaxCard> {
         return this.getFinancialYearObs()
                 .switchMap(financialYear => this.employeeTaxCardService
-                    .GetTaxCard(this.employeeID, financialYear.Year))
+                    .GetTaxCard(this.employeeID, this.activeYear))
                 .switchMap(taxCard => {
                     return taxCard
                         ? Observable.of(taxCard)
@@ -742,9 +742,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getFinancialYearObs() {
-        return this.financialYear
-            ? Observable.of(this.financialYear)
-            : this.financialYearService.getActiveFinancialYear();
+        return this.yearService
+            ? Observable.of(this.activeYear)
+            : this.yearService.getActiveYear();
     }
 
     private checkForSaveDone(done) {
@@ -891,9 +891,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private saveTax(done: (message: string) => void) {
         super.getStateSubject('employeeTaxCard').take(1)
             .subscribe((employeeTaxCard: EmployeeTaxCard) => {
-                if (employeeTaxCard.Year !== this.financialYear.Year) {
+                if (employeeTaxCard.Year !== this.activeYear) {
                     employeeTaxCard.ID = undefined;
-                    employeeTaxCard.Year = this.financialYear.Year;
+                    employeeTaxCard.Year = this.activeYear;
                 }
 
                 if (employeeTaxCard) {

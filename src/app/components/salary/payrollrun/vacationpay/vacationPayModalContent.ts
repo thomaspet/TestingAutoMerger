@@ -1,10 +1,10 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { BasicAmount, VacationPayInfo, VacationPayLine, FinancialYear } from '../../../../unientities';
+import { BasicAmount, VacationPayInfo, VacationPayLine } from '../../../../unientities';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
-    VacationpayLineService, FinancialYearService, ErrorService } from '../../../../../app/services/services';
+    VacationpayLineService, YearService, ErrorService } from '../../../../../app/services/services';
 import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
@@ -35,7 +35,7 @@ export class VacationpayModalContent {
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: VacationPayLine[];
     private vacationBaseYear: number;
-    private financialYearEntity: FinancialYear;
+    private financialYearEntity: number;
     public dueToHolidayChanged: boolean = false;
 
     constructor(
@@ -45,7 +45,7 @@ export class VacationpayModalContent {
         private _vacationpaylineService: VacationpayLineService,
         private _toastService: ToastService,
         private errorService: ErrorService,
-        private _financialYearService: FinancialYearService
+        private yearService: YearService
     ) {
 
     }
@@ -56,16 +56,15 @@ export class VacationpayModalContent {
         this.busy = true;
         this.dueToHolidayChanged = false;
         this.totalPayout = 0;
-
+        
         Observable
             .forkJoin(
             this._basicamountService.getBasicAmounts(),
-            this._financialYearService.getActiveFinancialYear())
+            this.yearService.getActiveYear())
             .subscribe((response: any) => {
                 let [basics, financial] = response;
                 this.basicamounts = basics;
-                this.financialYearEntity = financial;
-
+                this.financialYearEntity = financial;                
                 let vacationHeaderModel = this.vacationHeaderModel$.getValue();
                 vacationHeaderModel.VacationpayYear = 1;
                 this.vacationHeaderModel$.next(vacationHeaderModel);
@@ -176,13 +175,13 @@ export class VacationpayModalContent {
     private setCurrentBasicAmountAndYear() {
         switch (this.vacationHeaderModel$.getValue().VacationpayYear) {
             case 1:
-                this.vacationBaseYear = this.financialYearEntity.Year - 1;
+                this.vacationBaseYear = this.financialYearEntity - 1;
                 break;
             case 2:
-                this.vacationBaseYear = this.financialYearEntity.Year;
+                this.vacationBaseYear = this.financialYearEntity;
                 break;
             case 3:
-                this.vacationBaseYear = this.financialYearEntity.Year - 2;
+                this.vacationBaseYear = this.financialYearEntity - 2;
                 break;
             default:
                 break;

@@ -2,10 +2,10 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom, FinancialYear
+    TaxType, StdWageType, GetRateFrom 
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { WageTypeService, UniCacheService, ErrorService, FinancialYearService } from '../../../services/services';
+import { WageTypeService, UniCacheService, ErrorService, YearService } from '../../../services/services';
 import { ToastService } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -41,7 +41,7 @@ export class WageTypeView extends UniView {
         private tabService: TabService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private financialYearService: FinancialYearService
+        private yearService: YearService
     ) {
 
         super(router.url, cacheService);
@@ -171,18 +171,18 @@ export class WageTypeView extends UniView {
     }
 
     private checkValidYearAndCreateNew() {
-        this.financialYearService.getActiveFinancialYear()
-            .subscribe((financialYear: FinancialYear) => {
-                if (this.wageType.ValidYear !== financialYear.Year) {
+        this.yearService.selectedYear$.subscribe( (year: number) => {
+            if ( this.wageType.ValidYear !== year) {
+                console.log("newyear");
                 this.wageType.ID = 0;
-                this.wageType.ValidYear = financialYear.Year;
+                this.wageType.ValidYear = year;
 
                 this.wageType.SupplementaryInformations.forEach(supplement => {
                     supplement.ID = 0;
                     supplement.WageTypeID = 0;
                 });
             }
-        });
+        }        
     }
 
     private checkDirty() {

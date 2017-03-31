@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Type, Input } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter, PayrollRun } from '../../../../unientities';
-import { ReportDefinitionParameterService, FinancialYearService, ErrorService, 
+import { ReportDefinitionParameterService, YearService, ErrorService, 
     PayrollrunService } from '../../../../services/services';
 import { PreviewModal } from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
@@ -26,13 +26,13 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     private currentYear: number;
     constructor(
         private payrollRunService: PayrollrunService,
-        private financialYearService: FinancialYearService
+        private yearService: YearService
     ) { }
 
     public ngOnInit() {
         this.config$.next(this.config);
-        let subscription = this.financialYearService
-            .lastSelectedYear$
+        let subscription = this.yearService
+            .selectedYear$
             .do(year => this.currentYear = year)
             .switchMap(year => this.payrollRunService.getLatestSettledRun(year))
             .finally(() => subscription.unsubscribe())

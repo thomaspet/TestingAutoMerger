@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, Type, Input } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter } from '../../../../unientities';
-import { ReportDefinitionParameterService, FinancialYearService, ErrorService, 
+import { ReportDefinitionParameterService, ErrorService, YearService,
     PayrollrunService } from '../../../../services/services';
 import { PreviewModal } from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
 
 type ModalConfig = {
     report: any,
@@ -24,14 +25,14 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
     public model$: BehaviorSubject<{ Yer: number }> = new BehaviorSubject({ Yer: new Date().getFullYear() });
     constructor(
         private payrollRunService: PayrollrunService,
-        private financialYearService: FinancialYearService
+        private yearService: YearService
     ) { }
 
     public ngOnInit() {
         this.config$.next(this.config);
         this.fields$.next(this.getLayout(this.config.report.parameters));
-        let subscription = this.financialYearService
-            .lastSelectedYear$
+        let subscription = this.yearService
+            .selectedYear$            
             .finally(() => subscription.unsubscribe())
             .subscribe(year => {
                 this.model$.next({ Yer: year - 1 });

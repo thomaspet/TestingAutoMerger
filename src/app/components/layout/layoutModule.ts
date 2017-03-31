@@ -13,7 +13,8 @@ import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropd
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {UniFormModule} from 'uniform-ng2/main';
-import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
+import { UniNumberFormatPipe } from '../../pipes/uniNumberFormatPipe';
+import { YearModal, YearModalContent } from "./navbar/userinfo/companyDropdown/modals/yearModal";
 
 @NgModule({
     imports: [
@@ -33,10 +34,15 @@ import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
         RemoveHidden,
         NavbarSearch,
         UniTabStrip,
-        UniCompanyDropdown
+        UniCompanyDropdown,
+        YearModal,
+        YearModalContent,        
     ],
     providers: [
         UniNumberFormatPipe
+    ],
+    entryComponents: [
+        YearModalContent
     ],
     exports: [
         UniTabs,
@@ -45,7 +51,9 @@ import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
         RemoveHidden,
         NavbarSearch,
         UniTabStrip,
-        UniCompanyDropdown
+        UniCompanyDropdown,
+        YearModal,
+        YearModalContent,        
     ]
 })
 export class LayoutModule {

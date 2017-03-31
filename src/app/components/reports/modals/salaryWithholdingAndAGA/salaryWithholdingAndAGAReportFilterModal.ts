@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Type, Input, OnDestroy } from '@angular/c
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter } from '../../../../unientities';
 import {
-    ReportDefinitionParameterService, FinancialYearService, ErrorService,
+    ReportDefinitionParameterService, YearService, ErrorService,
     PayrollrunService
 } from '../../../../services/services';
 import { PreviewModal } from '../preview/previewModal';
@@ -32,7 +32,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     }> = new BehaviorSubject({ FromPeriod: 1, ToPeriod: 2, Year: new Date().getFullYear() });
     constructor(
         private payrollRunService: PayrollrunService,
-        private financialYearService: FinancialYearService
+        private yearService: YearService
     ) {}
 
     public ngOnInit() {
