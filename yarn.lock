@@ -4180,9 +4180,9 @@ unisearch-ng2@0.0.21:
     tslib "1.6.0"
     zone.js "0.8.4"
 
-unitable-ng2@0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.9.tgz#7d827d0ceb0cddd8de8c4b22bbc4d8b875f6dc25"
+unitable-ng2@0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.10.tgz#d376e46ce951e44a3c987f2855c11b1ced2fa285"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"
