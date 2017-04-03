@@ -51,25 +51,36 @@ export class UniTimeModal {
     }
 
     private save() {
-        this.busy = true;
-        this.timesheet.saveItems(true).subscribe( x => {
-            this.isOpen = false;
-            this.busy = false;
-            this.onClose(true);
-            this.refresh();
-        },  err => {
-            this.busy = false;
-            this.errorService.handle(err);
-            this.refresh();
+        this.goBusy(true);
+        this.timesheet.saveItems(true)
+            .finally(() => this.goBusy(false))
+            .subscribe( x => {
+                this.isOpen = false;
+                this.onClose(true);
+            },  err => {
+                this.errorService.handle(err);
         });
+    }
+
+    private goBusy(busy: boolean = true) {
+        this.busy = busy;
+        this.refresh();
     }
 
     private onClose: (ok: boolean) => void = () => {};
 
-    @HostListener('window:keydown', ['$event']) 
+    @HostListener('keydown', ['$event']) 
     public keyHandler(event: KeyboardEvent) {
-        if (event.keyCode === 27 && this.isOpen) {
-            this.close('cancel');            
+        if (!this.isOpen) { return; }
+        switch (event.keyCode) {
+            case 27: // ESC
+                this.close('cancel');
+                break;
+            case 83: // S
+                if (event.ctrlKey) {
+                    this.close('ok');
+                }
+                break;
         }
     }
 
@@ -79,13 +90,11 @@ export class UniTimeModal {
             this.timesheet.items = [];
         }
         this.date = date;
-        this.busy = true;
-        this.refresh();
+        this.goBusy(true);
         ts.loadItemsByPeriod(date, date).subscribe( 
             x => { 
-                this.busy = false;
                 this.timesheet = ts;
-                this.refresh();
+                this.goBusy(false);
             });        
         this.isOpen = true;
         return new Promise((resolve, reject) => {

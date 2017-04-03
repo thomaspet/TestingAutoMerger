@@ -19,6 +19,8 @@ export class TimeSheet {
     public items: Array<WorkItem | any> = [];
     public changeMap: ChangeMap = new ChangeMap();
 
+    public allowLunchCalculations: boolean = true;
+
     public totals: any = {
         Minutes: 0
     };
@@ -293,7 +295,8 @@ export class TimeSheet {
                 flip = (et.minutes() + et.hours() * 60);
                 et.add((60 * 24) - flip, 'minutes');
             }
-            if (!this.hasPaidLunch()) {
+            // Calculate lunch ?
+            if (this.allowLunchCalculations && (!this.hasPaidLunch())) {
                 if ((item.LunchInMinutes === undefined) && this.containsLunch(item)) {
                     item.LunchInMinutes = 30;
                     lunch = 30;

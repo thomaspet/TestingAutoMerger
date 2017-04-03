@@ -195,6 +195,13 @@ export class WorkEditor {
             cfg.columns.forEach( x => x.visible = map.findIndex( y => y === x.field) >= 0 );
         }
 
+        // Is lunch-column visible?
+        let lunchCol = cfg.columns.find( x => x.field === 'LunchInMinutes');
+        if (lunchCol && this.timeSheet) {
+            // If not, lets turn of lunch-calculations
+            this.timeSheet.allowLunchCalculations = lunchCol.visible;
+        }
+
         return cfg;
     }
 
