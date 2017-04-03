@@ -502,7 +502,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
+                    return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
                 }
             });
 
@@ -542,7 +542,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
                 lookupFunction: (searchValue) => {
-                   return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
+                   return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
                 }
             });
 
