@@ -938,6 +938,8 @@ export class BusinessRelation extends UniEntity {
     public DefaultEmail: Email;
     public DefaultBankAccount: BankAccount;
     public CustomFields: any;
+    public Contacts: Array<Contact>;
+    public DefaultContactID: number;
 }
 
 

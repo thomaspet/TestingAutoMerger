@@ -234,6 +234,11 @@
             "Url": "/sales/customer/:ID"
         },
         {
+            "Name": "Contact",
+            "Translated": "Kontakt",
+            "Url": "/contacts/:ID"
+        },
+        {
             "Name": "Product",
             "Translated": "Produkt",
             "Url": "/products/:ID"

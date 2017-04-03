@@ -1,0 +1,59 @@
+[
+    {
+        "Name": "Kontakter",
+        "Code": "contact_list",
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "Contact",
+        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress",
+        "Columns": [
+            {
+                "Header": "Navn",
+                "Field": "Info.Name",
+                "Width": "250px",
+                "Type": "link"
+            },
+            {
+                "Header": "Rolle",
+                "Field": "Role"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "Info.DefaultPhone.Number"
+            },
+            {
+                "Header": "Epost",
+                "Field": "Info.DefaultEmail.EmailAddress",
+                "Type": "mailto"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ParentBusinessRelationID",
+            "Operator": "eq",
+            "Value": "BusinessRelationID"
+        },
+        "Actions": [
+            {
+                "Name": "Ny kontakt",
+                "Code": "new_contact",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },
+            {
+                "Name": "Vis kontakt",
+                "Code": "open_contact",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_contacts",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            }
+        ]
+    }
+]

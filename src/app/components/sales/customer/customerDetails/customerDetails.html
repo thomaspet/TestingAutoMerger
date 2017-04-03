@@ -41,6 +41,15 @@
               [fields]="fields$"
               [model]="customer$">
     </uni-form>
+    <article class="collapsable" [ngClass]="{'-is-open': showContactSection}" *ngIf="activeTab === 'details' && (customer$|async)?.ID">
+        <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
+        <div class="collapsable-content">
+            <contacts
+                [parentBusinessRelation]="(customer$ | async)?.Info"
+                (contactChanged)="onContactChanged($event)">
+            </contacts>
+        </div>
+    </article>
     <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}" *ngIf="activeTab === 'details'">
         <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
         <div class="collapsable-content">

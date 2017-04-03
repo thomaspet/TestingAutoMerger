@@ -63,7 +63,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
                             this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
-                            this.http.get('assets/tickers/salarytickers.json').map(x => x.json())
+                            this.http.get('assets/tickers/salarytickers.json').map(x => x.json()),
+                            this.http.get('assets/tickers/sharedtickers.json').map(x => x.json())
                         ).map(tickerfiles => {
                             let allTickers: Array<Ticker> = [];
 
@@ -113,7 +114,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                         t.Columns.forEach(c => {
                                             c.Type = c.Type ? c.Type.toLowerCase() : '';
 
-
                                             this.setupFieldProperties(c, t, model);
 
                                             if (c.SubFields) {
@@ -144,7 +144,28 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                             if (typeof action.ExecuteWithoutSelection !== 'boolean') {
                                                 action.ExecuteWithoutSelection = false;
                                             }
+                                        });
+                                    }
+                                });
 
+                                return tickers;
+                            })
+                            .map(tickers => {
+                                tickers.forEach(t => {
+                                    if (!t.SubTickers) {
+                                        t.SubTickers = [];
+                                    }
+
+                                    if (t.SubTickersCodes && t.SubTickersCodes.length) {
+                                        t.SubTickersCodes.forEach(subTickerCode => {
+                                            if (!t.SubTickers.find(x => x.Code === subTickerCode)) {
+                                                let subTicker = tickers.find(x => x.Code === subTickerCode);
+                                                if (subTicker) {
+                                                    t.SubTickers.push(_.cloneDeep(subTicker));
+                                                } else {
+                                                    console.log('SubTicker ' + subTickerCode + ' not found in loadTickerCache');
+                                                }
+                                            }
                                         });
                                     }
                                 });
@@ -354,21 +375,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 groups.push(group);
             }
 
-            if (!ticker.SubTickers) {
-                ticker.SubTickers = [];
-            }
-
-            if (ticker.SubTickersCodes && ticker.SubTickersCodes.length) {
-                ticker.SubTickersCodes.forEach(subTickerCode => {
-                    if (!ticker.SubTickers.find(x => x.Code === subTickerCode)) {
-                        let subTicker = tickers.find(x => x.Code === subTickerCode);
-                        if (subTicker) {
-                            ticker.SubTickers.push(_.cloneDeep(subTicker));
-                        }
-                    }
-                });
-            }
-
             group.Tickers.push(ticker);
         }
 
@@ -463,6 +469,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         } else if (columnType === 'external-link') {
             if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
                 formattedFieldValue = `<a href="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
+            }
+        } else if (columnType === 'mailto') {
+            if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
+                formattedFieldValue = `<a href="mailto:${fieldValue}">${formattedFieldValue}</a>`;
             }
         }
 

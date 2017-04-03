@@ -1,0 +1,18 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
+</uni-toolbar>
+
+<section class="contact-details application">
+    <uni-form
+              [config]="config$"
+              [fields]="fields$"
+              [model]="contact$"
+              (changeEvent)="onFormChange($event)">
+    </uni-form>
+</section>
+
+<email-modal></email-modal>
+<phone-modal></phone-modal>
+<address-modal></address-modal>
+<uni-confirm-modal></uni-confirm-modal>

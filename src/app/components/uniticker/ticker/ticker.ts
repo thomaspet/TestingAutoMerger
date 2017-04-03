@@ -464,7 +464,7 @@ export class UniTicker {
                             );
                     }
 
-                    if (field.Type === 'link' || (field.SubFields && field.SubFields.length > 0)) {
+                    if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
                         col.setTemplate(row => {
                             // use the tickerservice to get and format value and subfield values
                             return this.uniTickerService.getFieldValue(field, row, this.ticker);

@@ -6,7 +6,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {ComponentLayout, Customer, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
+import {ComponentLayout, Customer, Contact, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -53,6 +53,7 @@ export class CustomerDetails {
     private emailChanged: any;
     private phoneChanged: any;
     private showReminderSection: boolean = false; // used in template
+    private showContactSection: boolean = true; // used in template
 
     public currencyCodes: Array<CurrencyCode>;
     public dropdownData: any;
@@ -128,7 +129,20 @@ export class CustomerDetails {
     ];
     private customerStatisticsData: any;
 
-    private expandOptions: Array<string> = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.ShippingAddress', 'Info.InvoiceAddress', 'Dimensions', 'CustomerInvoiceReminderSettings', 'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules'];
+    private expandOptions: Array<string> = [
+        'Info',
+        'Info.Phones',
+        'Info.Addresses',
+        'Info.Emails',
+        'Info.ShippingAddress',
+        'Info.InvoiceAddress',
+        'Dimensions',
+        'CustomerInvoiceReminderSettings',
+        'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+        'Info.Contacts.Info',
+        'Info.Contacts.Info.DefaultEmail',
+        'Info.Contacts.Info.DefaultPhone'
+        ];
 
 
     private formIsInitialized: boolean = false;
@@ -317,14 +331,18 @@ export class CustomerDetails {
                 this.currencyCodeService.GetAll(null)
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
-                this.customer$.next(response[2]);
+
+                let customer = response[2];
+                this.setMainContact(customer);
+
+                this.customer$.next(customer);
+
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
 
                 this.customerStatisticsData = response[6];
 
-                let customer = this.customer$.getValue();
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
@@ -356,10 +374,13 @@ export class CustomerDetails {
                         Observable.of(null)
                 )
             ).subscribe(response => {
-                this.customer$.next(response[0]);
+                let customer = response[0];
+                this.setMainContact(customer);
+
+                this.customer$.next(customer);
+
                 this.customerStatisticsData = response[1];
 
-                let customer = response[0];
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
@@ -372,6 +393,14 @@ export class CustomerDetails {
                     this.ready();
                 });
             }, err => this.errorService.handle(err));
+        }
+    }
+
+    private setMainContact(customer: Customer) {
+        if (customer && customer.Info && customer.Info.Contacts && customer.Info.DefaultContactID) {
+            customer.Info.Contacts.forEach(x => {
+                x['_maincontact'] = x.ID === customer.Info.DefaultContactID;
+            });
         }
     }
 
@@ -602,101 +631,131 @@ export class CustomerDetails {
     }
 
     public saveCustomer(completeEvent: any) {
-        let customer = this.customer$.getValue();
-        //add createGuid for new entities and remove duplicate entities
-        customer.Info.Emails.forEach(email => {
-            if (email.ID === 0) {
-                email['_createguid'] = this.customerService.getNewGuid();
-            }
-        });
-
-        if (customer.Info.DefaultEmail) {
-            customer.Info.Emails = customer.Info.Emails.filter(x => x !== customer.Info.DefaultEmail);
-        }
-
-        customer.Info.Phones.forEach(phone => {
-            if (phone.ID === 0) {
-                phone['_createguid'] = this.customerService.getNewGuid();
-            }
-        });
-
-        if (customer.Info.DefaultPhone) {
-            customer.Info.Phones = customer.Info.Phones.filter(x => x !== customer.Info.DefaultPhone);
-        }
-
-        customer.Info.Addresses.forEach(address => {
-            if (address.ID === 0) {
-                address['_createguid'] = this.customerService.getNewGuid();
-            }
-        });
-
-        if (customer.Info.ShippingAddress) {
-            customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.ShippingAddress);
-        }
-
-        if (customer.Info.InvoiceAddress) {
-            customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.InvoiceAddress);
-        }
-
-        if (customer.Info.DefaultPhone === null && customer.Info.DefaultPhoneID === 0) {
-            customer.Info.DefaultPhoneID = null;
-        }
-
-        if (customer.Info.DefaultEmail === null && customer.Info.DefaultEmailID === 0) {
-            customer.Info.DefaultEmailID = null;
-        }
-
-        if (customer.Info.ShippingAddress === null && customer.Info.ShippingAddressID === 0) {
-            customer.Info.ShippingAddressID = null;
-        }
-
-        if (customer.Info.InvoiceAddress === null && customer.Info.InvoiceAddressID === 0) {
-            customer.Info.InvoiceAddressID = null;
-        }
-
-        if (customer.Dimensions !== null && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
-            customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
-        }
-
-        if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
-            !customer.CustomerInvoiceReminderSettingsID) &&
-            !this.reminderSettings.isDirty) {
-                customer.CustomerInvoiceReminderSettings = null;
-        }
-
-        if (this.customerID > 0) {
-            this.customerService.Put(customer.ID, customer).subscribe(
-                (updatedCustomer) => {
-                    completeEvent('Kunde lagret');
-                    if (this.modalMode) {
-                        this.customerUpdated.next(updatedCustomer);
-                    } else {
-                        this.customerService.Get(updatedCustomer.ID, this.expandOptions).subscribe(retrievedCustomer => {
-                            this.customer$.next(retrievedCustomer);
-                            this.setTabTitle();
-                        });
-                    }
-                },
-                (err) => {
-                    completeEvent('Feil ved lagring');
-                    this.errorService.handle(err);
+        // small timeout to allow uniform and unitable to update the sources before saving
+        setTimeout(() => {
+            let customer = this.customer$.getValue();
+            // add createGuid for new entities and remove duplicate entities
+            customer.Info.Emails.forEach(email => {
+                if (email.ID === 0) {
+                    email['_createguid'] = this.customerService.getNewGuid();
                 }
-            );
-        } else {
-            this.customerService.Post(customer).subscribe(
-                (newCustomer) => {
-                    completeEvent('Kunde lagret');
-                    if (this.modalMode) {
-                        this.customerUpdated.next(newCustomer);
-                    } else {
-                        this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
-                    }
-                },
-                (err) => {
-                    completeEvent('Feil ved lagring');
-                    this.errorService.handle(err);
+            });
+
+            if (customer.Info.DefaultEmail) {
+                customer.Info.Emails = customer.Info.Emails.filter(x => x !== customer.Info.DefaultEmail);
+            }
+
+            customer.Info.Phones.forEach(phone => {
+                if (phone.ID === 0) {
+                    phone['_createguid'] = this.customerService.getNewGuid();
                 }
-            );
+            });
+
+            if (customer.Info.DefaultPhone) {
+                customer.Info.Phones = customer.Info.Phones.filter(x => x !== customer.Info.DefaultPhone);
+            }
+
+            customer.Info.Addresses.forEach(address => {
+                if (address.ID === 0) {
+                    address['_createguid'] = this.customerService.getNewGuid();
+                }
+            });
+
+            if (customer.Info.ShippingAddress) {
+                customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.ShippingAddress);
+            }
+
+            if (customer.Info.InvoiceAddress) {
+                customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.InvoiceAddress);
+            }
+
+            if (customer.Info.DefaultPhone === null && customer.Info.DefaultPhoneID === 0) {
+                customer.Info.DefaultPhoneID = null;
+            }
+
+            if (customer.Info.DefaultEmail === null && customer.Info.DefaultEmailID === 0) {
+                customer.Info.DefaultEmailID = null;
+            }
+
+            if (customer.Info.ShippingAddress === null && customer.Info.ShippingAddressID === 0) {
+                customer.Info.ShippingAddressID = null;
+            }
+
+            if (customer.Info.InvoiceAddress === null && customer.Info.InvoiceAddressID === 0) {
+                customer.Info.InvoiceAddressID = null;
+            }
+
+            if (customer.Dimensions !== null && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
+                customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
+            }
+
+            if (customer.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
+                // remove new contacts where name is not set, probably an empty row anyway
+                customer.Info.Contacts = customer.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''))
+            }
+
+            if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
+                !customer.CustomerInvoiceReminderSettingsID) &&
+                !this.reminderSettings.isDirty) {
+                    customer.CustomerInvoiceReminderSettings = null;
+            }
+
+            if (this.customerID > 0) {
+                this.customerService.Put(customer.ID, customer).subscribe(
+                    (updatedCustomer) => {
+                        completeEvent('Kunde lagret');
+                        if (this.modalMode) {
+                            this.customerUpdated.next(updatedCustomer);
+                        } else {
+                            this.customerService.Get(updatedCustomer.ID, this.expandOptions).subscribe(retrievedCustomer => {
+                                this.setMainContact(retrievedCustomer);
+                                this.customer$.next(retrievedCustomer);
+                                this.setTabTitle();
+                            });
+                        }
+                    },
+                    (err) => {
+                        completeEvent('Feil ved lagring');
+                        this.errorService.handle(err);
+                    }
+                );
+            } else {
+                this.customerService.Post(customer).subscribe(
+                    (newCustomer) => {
+                        completeEvent('Kunde lagret');
+                        if (this.modalMode) {
+                            this.customerUpdated.next(newCustomer);
+                        } else {
+                            this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
+                        }
+                    },
+                    (err) => {
+                        completeEvent('Feil ved lagring');
+                        this.errorService.handle(err);
+                    }
+                );
+            }
+
+        }, 100);
+    }
+
+    public onContactChanged(contact: Contact) {
+        if (!contact) {
+            return;
+        }
+
+        if (!contact.ID) {
+            contact['_createguid'] = this.customerService.getNewGuid();
+            contact.Info['_createguid'] = this.customerService.getNewGuid();
+        }
+
+        // prepare for save
+        if (!contact.Info.DefaultEmail.ID) {
+            contact.Info.DefaultEmail['_createguid'] = this.customerService.getNewGuid();
+        }
+
+        if (!contact.Info.DefaultPhone.ID) {
+            contact.Info.DefaultPhone['_createguid'] = this.customerService.getNewGuid();
         }
     }
 

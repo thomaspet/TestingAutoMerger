@@ -5,6 +5,7 @@ import {AltinnReceiptService} from './common/altinnReceiptService';
 import {CompanySettingsService} from './common/companySettingsService';
 import {CompanyTypeService} from './common/companyTypeService';
 import {CurrencyService} from './common/currencyService';
+import {ContactService} from './common/contactService';
 import {CurrencyCodeService} from './common/currencyCodeService';
 import {DepartmentService} from './common/departmentService';
 import {GuidService} from './common/guidService';
@@ -48,6 +49,7 @@ export * from './common/altinnIntegrationService';
 export * from './common/altinnReceiptService';
 export * from './common/companySettingsService';
 export * from './common/companyTypeService';
+export * from './common/contactService';
 export * from './common/currencyCodeService';
 export * from './common/currencyService';
 export * from './common/departmentService';
@@ -96,6 +98,7 @@ export class CommonServicesModule {
                 AltinnReceiptService,
                 CompanySettingsService,
                 CompanyTypeService,
+                ContactService,
                 CurrencyService,
                 DepartmentService,
                 GuidService,
