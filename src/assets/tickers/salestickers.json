@@ -25,7 +25,8 @@
             },
             {
                 "Header": "Epost",
-                "Field": "Info.DefaultEmail.EmailAddress"
+                "Field": "Info.DefaultEmail.EmailAddress",
+                "Type": "mailto"
             },
             {
                 "Header": "Adresse",
@@ -62,7 +63,7 @@
                 "ExecuteWithoutSelection": true
             }
         ],
-        "SubTickersCodes": ["customer_details", "invoice_list", "order_list", "quote_list"],
+        "SubTickersCodes": ["customer_details", "contact_list", "invoice_list", "order_list", "quote_list"],
         "Filters": [
             {
                 "Name": "Alle",
@@ -120,7 +121,8 @@
             },
             {
                 "Header": "Epost",
-                "Field": "Info.DefaultEmail.EmailAddress"
+                "Field": "Info.DefaultEmail.EmailAddress",
+                "Type": "mailto"
             },
             {
                 "Header": "Web",

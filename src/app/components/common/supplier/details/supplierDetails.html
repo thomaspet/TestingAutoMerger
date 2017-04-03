@@ -39,6 +39,15 @@
               [model]="supplier$"
               (changeEvent)="supplierDetailsChange($event)">
     </uni-form>
+    <article class="collapsable" [ngClass]="{'-is-open': showContactSection}" *ngIf="activeTab === 'details' && (supplier$|async)?.ID">
+        <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
+        <div class="collapsable-content">
+            <contacts
+                [parentBusinessRelation]="(supplier$ | async)?.Info"
+                (contactChanged)="onContactChanged($event)">
+            </contacts>
+        </div>
+    </article>
     <ledger-account-reconciliation [supplierID]="(supplier$|async)?.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
     <uni-query-read-only
             *ngFor="let link of reportLinks"

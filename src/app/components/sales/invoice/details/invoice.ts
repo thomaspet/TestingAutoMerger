@@ -1033,7 +1033,7 @@ export class InvoiceDetails {
 
 
     // Summary
-    public recalcItemSums(invoiceItems: Array<CustomerInvoice> = null) {
+    public recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
         if (invoiceItems) {
             this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
             this.updateSaveActions();

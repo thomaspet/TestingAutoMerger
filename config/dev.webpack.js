@@ -4,7 +4,7 @@ const commonConfig = require('./common.webpack.js');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 
 module.exports = function(options) {
-    return webpackMerge(commonConfig, {
+    var config = webpackMerge(commonConfig, {
         devServer: {
             contentBase: 'dist/',
             historyApiFallback: true,
@@ -23,4 +23,18 @@ module.exports = function(options) {
             })
         ]
     });
+
+    if (options && options.typecheck) {
+        config.module.loaders[0] = {
+            test: /\.ts$/,
+            loaders: [
+                'awesome-typescript-loader?transpileOnly=false',
+                'angular2-template-loader',
+                'angular-router-loader'
+            ],
+            exclude: [/\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
+        };
+    }
+
+    return config;
 }

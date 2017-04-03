@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Type, Input, OnDestroy } from '@angular/c
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter } from '../../../../unientities';
 import {
-    ReportDefinitionParameterService, FinancialYearService, ErrorService,
+    ReportDefinitionParameterService, YearService, ErrorService,
     PayrollrunService
 } from '../../../../services/services';
 import { PreviewModal } from '../preview/previewModal';
@@ -32,7 +32,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     }> = new BehaviorSubject({ FromPeriod: 1, ToPeriod: 2, Year: new Date().getFullYear() });
     constructor(
         private payrollRunService: PayrollrunService,
-        private financialYearService: FinancialYearService
+        private yearService: YearService
     ) {}
 
     public ngOnInit() {
@@ -48,7 +48,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     }
 
     private getLayout(reportParameters: ReportDefinitionParameter[]): UniFieldLayout[] {
-        return reportParameters.map(param => <any>{
+        return reportParameters.map(param => <UniFieldLayout>{
             FieldType: FieldType.NUMERIC,
             Label: param.Label,
             Property: param.Name,
@@ -99,7 +99,7 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                 },
                 {
                     text: 'Avbryt',
-                    method: () => this.modal.getContent().then(() => this.modal.close())
+                    method: () => this.modal.close()
                 }
             ]
         };

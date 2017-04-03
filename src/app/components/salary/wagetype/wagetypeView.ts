@@ -2,10 +2,10 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom, FinancialYear
+    TaxType, StdWageType, GetRateFrom
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { WageTypeService, UniCacheService, ErrorService, FinancialYearService } from '../../../services/services';
+import { WageTypeService, UniCacheService, ErrorService, YearService } from '../../../services/services';
 import { ToastService } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -41,7 +41,7 @@ export class WageTypeView extends UniView {
         private tabService: TabService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private financialYearService: FinancialYearService
+        private yearService: YearService
     ) {
 
         super(router.url, cacheService);
@@ -109,8 +109,15 @@ export class WageTypeView extends UniView {
                     ? Observable.of(result)
                     : Observable
                         .fromPromise(
-                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
-                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+                        this.confirmModal.confirmSave())
+                        .map((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.saveWageType((m) => { }, false);
+                                return true;
+                            } else {
+                                return response === ConfirmActions.REJECT;
+                            }
+                        });
             })
             .map(canDeactivate => {
                 canDeactivate
@@ -139,7 +146,7 @@ export class WageTypeView extends UniView {
         }
     }
 
-    private saveWageType(done: (message: string) => void) {
+    private saveWageType(done: (message: string) => void, updateView: boolean = true) {
 
         if (this.wageType.WageTypeNumber === null) {
             this.wageType.WageTypeNumber = 0;
@@ -158,11 +165,13 @@ export class WageTypeView extends UniView {
             : this.wageTypeService.Post(this.wageType);
 
         saver.subscribe((wageType: WageType) => {
-            super.updateState('wagetype', this.wageType, false);
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
-            done('lagring fullført');
-            this.saveActions[0].disabled = true;
+            if (updateView) {
+                super.updateState('wagetype', this.wageType, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
+                done('lagring fullført');
+                this.saveActions[0].disabled = true;
+            }
         },
             (error) => {
                 done('Lagring feilet');
@@ -171,11 +180,10 @@ export class WageTypeView extends UniView {
     }
 
     private checkValidYearAndCreateNew() {
-        this.financialYearService.getActiveFinancialYear()
-            .subscribe((financialYear: FinancialYear) => {
-                if (this.wageType.ValidYear !== financialYear.Year) {
+        this.yearService.selectedYear$.subscribe((year: number) => {
+            if (this.wageType.ValidYear !== year) {
                 this.wageType.ID = 0;
-                this.wageType.ValidYear = financialYear.Year;
+                this.wageType.ValidYear = year;
 
                 this.wageType.SupplementaryInformations.forEach(supplement => {
                     supplement.ID = 0;

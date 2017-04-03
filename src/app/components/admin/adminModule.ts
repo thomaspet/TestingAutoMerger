@@ -19,9 +19,12 @@ import {routes as AdminRoutes} from './adminRoutes';
 
 // app
 import {UniAdmin} from './admin';
-import {Jobs} from './jobs/jobs';
+import {JobList} from './jobs/list/jobList';
+import {JobDetails} from './jobs/details/jobDetails';
+import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
-
+import {UniRoles} from './roles/roles';
+import {PermissionSelector} from './roles/permissionSelector';
 
 @NgModule({
     imports: [
@@ -50,13 +53,21 @@ import {UniModels} from './models/models';
     ],
     declarations: [
         UniAdmin,
-        Jobs,
+        JobList,
+        JobDetails,
+        JobLog,
         UniModels,
+        UniRoles,
+        PermissionSelector
     ],
     exports: [
         UniAdmin,
-        Jobs,
+        JobList,
+        JobDetails,
+        JobLog,
         UniModels,
+        UniRoles,
+        PermissionSelector
     ]
 })
 export class AdminModule {

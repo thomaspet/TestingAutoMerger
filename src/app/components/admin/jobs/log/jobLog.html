@@ -1,0 +1,31 @@
+<uni-toolbar [config]="toolbarconfig">
+</uni-toolbar>
+
+<section class="application">
+    Nedenfor finner du logg for jobben {{jobName}} <br> slik den ble kjørt {{date}}, kl. {{time}}.
+    <br>
+    <br>
+    <table class="jobLog">
+        <tr>
+            <td>
+                Logg
+            </td>
+        </tr>
+        <tr *ngFor="let item of log">
+            <td>
+                {{item.Created}} {{item.Msg}}
+            </td>
+        </tr>
+        <hr>
+        <tr>
+            <td>
+                Progress
+            </td>
+        </tr>
+        <tr *ngFor="let item of progress">
+            <td>
+                {{item.Created}} {{item.Progress}}
+            </td>
+        </tr>
+    </table>
+</section>

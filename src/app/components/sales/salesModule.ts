@@ -16,7 +16,6 @@ import {ReportsModule} from '../reports/reportsModule';
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/tradeItemHelper';
-import {OrderItemList} from './order/details/orderItemList';
 import {OrderList} from './order/list/orderList';
 import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';

@@ -45,6 +45,8 @@ import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/s
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
 import {ReminderRuleDetails} from './reminder/settings/ruleDetails';
+import {ContactDetails} from './contact/contactDetails';
+import {Contacts} from './contact/contacts';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
@@ -127,7 +129,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ReminderSettingsModal,
         ReminderSettingsForm,
         ReminderRules,
-        ReminderRuleDetails
+        ReminderRuleDetails,
+
+        ContactDetails,
+        Contacts
     ],
     entryComponents: [
         AddressForm,
@@ -205,7 +210,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         LedgerAccountReconciliation,
 
         ReminderSettings,
-        ReminderSettingsModal
+        ReminderSettingsModal,
+
+        ContactDetails,
+        Contacts
     ]
 })
 export class AppCommonModule {

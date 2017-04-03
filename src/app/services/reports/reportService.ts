@@ -93,7 +93,7 @@ export class ReportService extends BizHttp<string> {
             .switchMap(dataSources => this.getDataSourcesObservable())
             .map((response: { dataSources: any }) =>
                 this.reportGenerator
-                    .printReport(this.report.templateJson, response.dataSources, this.report.parameters, false, 'pdf'));
+                    .printReport(this.report.templateJson, this.report.dataSources, this.report.parameters, false, 'pdf'));
     }
 
     public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null) {

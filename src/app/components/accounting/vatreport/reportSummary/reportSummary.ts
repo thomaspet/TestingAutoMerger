@@ -34,7 +34,10 @@ export class VatSummaryPerPost implements OnChanges {
                 ID: post.VatCodeGroupID,
                 Name: post.VatCodeGroupName,
                 No: post.VatCodeGroupNo,
-                Posts: postList.filter(p => p.VatCodeGroupID === post.VatCodeGroupID)
+                Posts:
+                    postList
+                        .filter(p => p.VatCodeGroupID === post.VatCodeGroupID)
+                        .sort((a, b) => (+a.VatPostNo) - (+b.VatPostNo))
             }));
     }
 

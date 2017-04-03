@@ -1,0 +1,77 @@
+<uni-toolbar [config]="{title: 'Jobber', omitFinalCrumb: true}"></uni-toolbar>
+<!--
+<uni-poster [widgets]="widgets" *ngIf="widgets"></uni-poster>
+-->
+<header class="horizontal_nav no-print">
+    <ul>
+        <li *ngFor="let tab of filterTabs">
+            <a (click)="onTabChange(tab)" [ngClass]="{'router-link-active': tab === activeTab}">
+                {{tab.label}}&nbsp;
+                <span *ngIf="tab.count >= 0" class="tab_counter tab_counter_passive">{{tab.count}}</span>
+            </a>
+        </li>
+    </ul>
+</header>
+
+<section class="application">
+    <h2 *ngIf="isFiltered()">Sist kjørte jobber</h2>
+    <h2 *ngIf="!isFiltered()">Alle jobber</h2>
+
+    <!--
+    This will be supported later.
+    <button *ngIf="!isFiltered()" class="new-button" (click)="createJob()">Ny jobb</button>-->
+    <table *ngIf="isFiltered()" class="jobRunList">
+        <th>
+            ID
+        </th>
+        <th>
+            Jobb
+        </th>
+        <th>
+            Registreringsdato
+        </th>
+        <th>
+        </th>
+        <tr *ngFor="let item of jobRuns">
+            <td>
+                {{item.ID}}
+            </td>
+            <td>
+                {{item.JobName}}
+            </td>
+            <td>
+                {{item.Created}}
+            </td>
+            <td>
+                <table class="staticContainer">
+                    <tr>
+                        <!--
+                        <td class="stat1">
+                            <label>
+                                {{lastExecutionTime}}
+                            </label>
+                        </td>
+                        -->
+                        <td class="stat2">
+                            <a href="/#/admin/job-logs/{{item.JobName}}/{{item.HangfireJobId}}">
+                                Vis logg
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table *ngIf="!isFiltered()" class="jobList">
+        <th>
+            Jobb
+        </th>
+        <tr *ngFor="let item of jobs">
+            <td>
+                <a href="/#/admin/job-details/{{item.name}}">
+                    {{item.name}}
+                </a>
+            </td>
+        </tr>
+    </table>
+</section>

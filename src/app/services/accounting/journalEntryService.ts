@@ -389,7 +389,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
                     let message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
-                    if(isDebitResultAccount) {
+                    if (isDebitResultAccount) {
                         message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
                     } else {
                         message.Message = `Bilag ${lastJournalEntryNo} har en periodisering uten resultatkonto `;
@@ -918,7 +918,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         if (account) {
-            if (vattype) {
+            if (vattype && !vattype.DirectJournalEntryOnly) {
                 let deductionpercent =
                     journalEntryData.VatDeductionPercent &&
                     (journalEntryData.StatusCode || account.UseDeductivePercent)
@@ -987,6 +987,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 } else if (netAmount) {
                     res.amountGross = netAmount;
                     res.amountNet = netAmount;
+                }
+
+                if (vattype && vattype.DirectJournalEntryOnly) {
+                    if (vattype.IncomingAccountID) {
+                        res.incomingVatAmount += res.amountGross;
+                        res.amountNet -= res.amountNet;
+                    } else if (vattype.OutgoingAccountID) {
+                        res.outgoingVatAmount -= res.amountGross;
+                        res.amountNet -= res.amountNet;
+                    }
                 }
             }
         }

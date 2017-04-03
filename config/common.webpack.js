@@ -6,7 +6,7 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const UniIndexPlugin = require('./uniIndexPlugin');
 
 module.exports = {
-    devtool: 'source-map',
+    devtool: 'cheap-module-source-map',
     stats: 'minimal',
 
     entry: {
@@ -56,8 +56,8 @@ module.exports = {
     ],
 
     module: {
-
         loaders: [
+            // KEEP THIS ONE AT INDEX 0
             {
                 test: /\.ts$/,
                 loaders: [
@@ -67,7 +67,7 @@ module.exports = {
                 ],
                 exclude: [/\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
             },
-
+            //
             {
                 test: /\.html$/,
                 exclude: /node_modules/,

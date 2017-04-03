@@ -152,7 +152,7 @@ export class TradeItemTable {
             });
 
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent);
-        const discountCol = new UniTableColumn('Discount', 'Rabatt', UniTableColumnType.Money, false)
+        const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 
         let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)

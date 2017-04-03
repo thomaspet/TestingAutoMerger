@@ -426,6 +426,9 @@ export class UniTicker {
                             case 'percent':
                                 colType = UniTableColumnType.Percent;
                                 break;
+                            case 'boolean':
+                                colType = UniTableColumnType.Boolean;
+                                break;
                             case 'date':
                             case 'datetime':
                             case 'localdate':
@@ -461,7 +464,7 @@ export class UniTicker {
                             );
                     }
 
-                    if (field.Type === 'link' || (field.SubFields && field.SubFields.length > 0)) {
+                    if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
                         col.setTemplate(row => {
                             // use the tickerservice to get and format value and subfield values
                             return this.uniTickerService.getFieldValue(field, row, this.ticker);
@@ -645,12 +648,12 @@ export class UniTicker {
     // this function assumes that the unitablesetup has already been run, so that all needed
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
-        let headers = this.ticker.Columns.map(x => x.Header).join(',');
+        let headers = this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
         let params = this.getSearchParams(new URLSearchParams());
 
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers)
+            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers, this.ticker.Joins)
                 .subscribe((blob) => {
                     // download file so the user can open it
                     saveAs(blob, 'export.csv');

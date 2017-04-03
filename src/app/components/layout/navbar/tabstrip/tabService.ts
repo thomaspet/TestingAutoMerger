@@ -23,6 +23,7 @@ export enum UniModules {
     Invoices        = 203,
     Products        = 204,
     Reminders       = 205,
+    Contacts        = 206,
 
     Accounting      = 300,
     Transquery      = 301,
@@ -60,6 +61,7 @@ export enum UniModules {
     Jobs            = 800,
     Translations    = 801,
     Models          = 802,
+    Roles           = 803,
 
     PaymentList     = 900,
 

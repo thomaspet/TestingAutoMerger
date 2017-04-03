@@ -8,7 +8,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType } from '../../../../unientities';
+import { SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType } from '../../../../unientities';
 
 @Component({
     selector: 'salarybalance-details',
@@ -23,11 +23,11 @@ export class SalarybalanceDetail extends UniView {
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
-    
-    private drawTypes: { ID: SalBalDrawType, Name: string}[] = [
-        { ID: SalBalDrawType.FixedAmount, Name: 'Fast beløp'},
-        { ID: SalBalDrawType.InstalmentWithBalance, Name: 'Fast beløp med balanse'},
-        { ID: SalBalDrawType.Balance, Name: 'Trekk hele balansen, f.eks. forskudd'}
+
+    private drawTypes: { ID: SalBalDrawType, Name: string }[] = [
+        { ID: SalBalDrawType.FixedAmount, Name: 'Fast beløp' },
+        { ID: SalBalDrawType.InstalmentWithBalance, Name: 'Fast beløp med balanse' },
+        { ID: SalBalDrawType.Balance, Name: 'Trekk hele balansen, f.eks. forskudd' }
     ];
 
     constructor(
@@ -54,10 +54,8 @@ export class SalarybalanceDetail extends UniView {
             let type: SalBalType = +params['instalmentType'] || undefined;
 
             this.cachedSalaryBalance$
-                .subscribe((salarybalance: SalaryBalance) => {
+                .switchMap((salarybalance: SalaryBalance) => {
                     if (salarybalance.ID !== this.salarybalanceID) {
-                        this.salarybalance$.next(salarybalance);
-                        this.salarybalanceID = salarybalance.ID;
                         if (!salarybalance.ID) {
                             if (employeeID) {
                                 salarybalance.EmployeeID = employeeID;
@@ -65,14 +63,22 @@ export class SalarybalanceDetail extends UniView {
                             if (type) {
                                 salarybalance.InstalmentType = type;
                             }
-
-                            if (employeeID || type) {
-                                super.updateState('salarybalance', salarybalance, true);
-                            }
                         }
-
-                        this.setup();
+                        return this.setup().map(response => {
+                            let wagetypes = response[1];
+                            if (salarybalance.InstalmentType === SalBalType.Advance && !salarybalance.WageTypeNumber) {
+                                let wagetype = wagetypes
+                                    .find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
+                                salarybalance.WageTypeNumber = wagetype ? wagetype.WageTypeNumber : 0;
+                            }
+                            return salarybalance;
+                        });
                     }
+                    return Observable.of(salarybalance);
+                })
+                .subscribe((salarybalance: SalaryBalance) => {
+                    this.salarybalance$.next(salarybalance);
+                    this.salarybalanceID = salarybalance.ID;
                 }, err => this.errorService.handle(err));
         });
     }
@@ -84,13 +90,19 @@ export class SalarybalanceDetail extends UniView {
             this.updateFields();
         }
 
-        const model = this.salarybalance$.getValue();
+        let model = this.salarybalance$.getValue();
+
+        if (changes['SupplierID']) {
+            model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
+        }
+
         super.updateState('salarybalance', model, true);
     }
-    
-    private setup() {
-        Observable.forkJoin(this.getSources())
-            .subscribe((response: any) => {
+
+    private setup(): Observable<any> {
+        return Observable
+            .forkJoin(this.getSources())
+            .map((response: any) => {
                 let [layout, wagetypes, employees, suppliers] = response;
                 if (layout.Fields) {
                     this.fields$.next(layout.Fields);
@@ -100,6 +112,7 @@ export class SalarybalanceDetail extends UniView {
                 this.suppliers = suppliers;
 
                 this.updateFields();
+                return response;
             }, err => this.errorService.handle(err));
     }
 

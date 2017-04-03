@@ -159,6 +159,11 @@ export class UniQueryDetails {
 
                     this.tabService.addTab({ name: this.queryDefinition.Name, url: '/uniqueries/details/' + this.queryDefinitionID, moduleID: UniModules.UniQuery, active: true });
 
+                    if (this.queryDefinition.UniQueryFields.filter(x => x.Index).length > 0) {
+                        // Index is specified for the fields, sort the fields to reflect this
+                        this.queryDefinition.UniQueryFields.sort((a, b) => (a.Index ? a.Index : 0) - (b.Index ? b.Index : 0));
+                    }
+
                     this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
                        let f: UniTableColumn = new UniTableColumn();
                        f.alias = field.Alias;
@@ -410,7 +415,7 @@ export class UniQueryDetails {
 
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.queryDefinition.MainModelName, this.selects, this.filterObject.filter, this.expands, headers)
+            .GetExportedExcelFile(this.queryDefinition.MainModelName, this.selects, this.filterObject.filter, this.expands, headers, null)
                 .subscribe((blob) => {
                     // download file so the user can open it
                     saveAs(blob, 'export.csv');
@@ -679,6 +684,8 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
             colType = UniTableColumnType.Number;
         } else if (field.Type.toString().indexOf('System.Decimal') !== -1) {
             colType = UniTableColumnType.Money;
+        } else if (field.Type.toString().indexOf('System.Boolean') !== -1) {
+            colType = UniTableColumnType.Boolean;
         } else if (field.Type.toString().indexOf('System.DateTime') !== -1
                     || field.Type.toString().indexOf('NodaTime.LocalDate') !== -1) {
             colType = UniTableColumnType.LocalDate;

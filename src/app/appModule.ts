@@ -21,6 +21,7 @@ import {TabService} from './components/layout/navbar/tabstrip/tabService';
 import {ToastService} from '../framework/uniToast/toastService';
 
 import {UniFrameworkModule} from '../framework/frameworkModule';
+import {AuthService} from '../framework/core';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
 import {UniQueryModule} from './components/uniquery/uniqueryModule';
@@ -101,6 +102,7 @@ if (window.ENV === 'production') {
     ],
     bootstrap: [App],
     providers: [
+        AuthService,
         AuthGuard,
         CanDeactivateGuard,
         TabService,

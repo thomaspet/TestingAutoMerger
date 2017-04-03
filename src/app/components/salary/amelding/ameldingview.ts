@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, FinancialYear} from '../../../unientities';
+import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
@@ -16,7 +16,7 @@ import {
     ErrorService,
     NumberFormat,
     SalarySumsService,
-    FinancialYearService
+    YearService
 } from '../../../services/services';
 import * as moment from 'moment';
 
@@ -56,7 +56,7 @@ export class AMeldingView implements OnInit {
     private toolbarConfig: IToolbarConfig;
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
-    private activeFinancialYear: FinancialYear;
+    private activeYear: number;
 
     constructor(
         private _tabService: TabService,
@@ -64,7 +64,7 @@ export class AMeldingView implements OnInit {
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
         private _salarySumsService: SalarySumsService,
-        private _financialYearService: FinancialYearService,
+        private yearService: YearService,
         private numberformat: NumberFormat,
         private router: Router,
         private errorService: ErrorService
@@ -93,10 +93,10 @@ export class AMeldingView implements OnInit {
     }
 
     public ngOnInit() {
-        this._financialYearService
-            .getActiveFinancialYear()
-            .do(financialYear => this.activeFinancialYear = financialYear)
-            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear.Year))
+        this.yearService
+            .getActiveYear()
+            .do(year => this.activeYear = year)
+            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
             .subscribe((period) => {
                 this.currentPeriod = period;
                 this.getSumsInPeriod();
@@ -152,7 +152,7 @@ export class AMeldingView implements OnInit {
 
     public createAMelding(event: IAmeldingTypeEvent) {
         this.saveStatus.numberOfRequests++;
-        this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeFinancialYear.Year)
+        this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeYear)
         .subscribe(response => {
             this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
@@ -193,7 +193,7 @@ export class AMeldingView implements OnInit {
 
     private getSumsInPeriod() {
         this._salarySumsService
-        .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeFinancialYear.Year)
+        .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
             .subscribe((response) => {
                 this.currentSumsInPeriod = response;
 
@@ -412,7 +412,7 @@ export class AMeldingView implements OnInit {
         this.periodStatus = 'Ingen A-meldinger i perioden';
 
         this.spinner(this._ameldingService
-            .getAMeldingForPeriod(this.currentPeriod, this.activeFinancialYear.Year))
+            .getAMeldingForPeriod(this.currentPeriod, this.activeYear))
                 .subscribe((ameldinger: AmeldingData[]) => {
                     this.aMeldingerInPeriod = ameldinger;
                     if (this.aMeldingerInPeriod.length > 0) {

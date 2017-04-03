@@ -38,8 +38,6 @@ export class AuthService {
                 token: this.jwt,
                 activeCompany: this.activeCompany
             });
-        } else {
-            this.clearAuthAndGotoLogin();
         }
 
         // Check expired status every minute, with a 10 minute offset on the expiration check

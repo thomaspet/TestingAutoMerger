@@ -235,6 +235,7 @@ export class TradeItemHelper  {
 
         let discountExVatCurrency = discountExVat / currencyExchangeRate;
         let discountIncVatCurrency = discountIncVat / currencyExchangeRate;
+        rowModel.DiscountCurrency = discountExVatCurrency || 0;
         rowModel.SumTotalExVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceExVatCurrency) - discountExVatCurrency) ;
         rowModel.SumTotalIncVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceIncVatCurrency) - discountIncVatCurrency);
         rowModel.SumVatCurrency = rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency;

@@ -7,6 +7,7 @@ import {CustomerQuote} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem, CurrencyCode, LocalDate} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {TofHelper} from '../../salesHelper/tofHelper';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
@@ -96,7 +97,8 @@ export class QuoteDetails {
                 private errorService: ErrorService,
                 private currencyCodeService: CurrencyCodeService,
                 private currencyService: CurrencyService,
-                private reportService: ReportService) {
+                private reportService: ReportService,
+                private tofHelper: TofHelper) {
     }
 
     public ngOnInit() {
@@ -144,6 +146,8 @@ export class QuoteDetails {
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
+            const customerID = +params['customerID'];
+
             this.commentsConfig = {
                 entityType: 'CustomerQuote',
                 entityID: this.quoteID
@@ -176,7 +180,8 @@ export class QuoteDetails {
                     this.customerQuoteService.GetNewEntity([], CustomerQuote.EntityType),
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote> res[0];
@@ -184,6 +189,10 @@ export class QuoteDetails {
                         quote.QuoteDate = new LocalDate(Date());
                         quote.DeliveryDate = new LocalDate(Date());
                         quote.ValidUntilDate = null;
+
+                        if (res[4]) {
+                            quote = this.tofHelper.mapCustomerToEntity(res[4], quote);
+                        }
 
                         this.companySettings = res[2];
 

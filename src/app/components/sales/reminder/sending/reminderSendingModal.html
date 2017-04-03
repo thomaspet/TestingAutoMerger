@@ -9,6 +9,9 @@
         <button *ngIf="config?.actions?.print" (click)="config?.actions?.print?.method()" class="good">
             {{config?.actions?.print?.text}}
         </button>
+        <button *ngIf="config?.actions?.save" (click)="config?.actions?.save?.method()" class="good">
+            {{config?.actions?.save?.text}}
+        </button>
         <button *ngIf="config?.actions?.cancel" (click)="config?.actions?.cancel?.method()">
             {{config?.actions?.cancel?.text}}
         </button>

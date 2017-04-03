@@ -31,26 +31,29 @@ import {
     `
 })
 export class SendEmailForm {
-    @Input() public model: SendEmail;
-    @ViewChild(UniForm) public form: UniForm;
-    private config: any = {};
+    @Input()
+    private config: any = {};
+
     public model$: BehaviorSubject<any> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
+
         this.setupForm();
         this.extendFormConfig();
+        this.model$.next(this.config.model));
     }
 
     private setupForm() {
+         console.log(this.model$);
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields$.next([
             {
                 EntityType: 'SendEmail',
                 Property: 'EmailAddress',
-                FieldType: FieldType.EMAIL,
+                FieldType: FieldType.TEXT,
                 Label: 'Til',
                 LineBreak: true,
             },
@@ -131,6 +134,8 @@ export class SendEmailModal {
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService
     ) {
+
+
     }
 
     public ngOnInit() {
@@ -176,8 +181,10 @@ export class SendEmailModal {
             var user = response[1];
             var customer = response[2];
 
-            // Adding default
-            if (!sendemail.EmailAddress && customer) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
+            // Adding default?
+            if(!sendemail.EmailAddress) {
+                if (customer) { sendemail.EmailAddress = customer.Info.DefaultEmail ? customer.Info.DefaultEmail.EmailAddress : ''; }
+            }
             if (!sendemail.CopyAddress) { sendemail.CopyAddress = user.Email; };
             sendemail.Message += '\n\nMed vennlig hilsen\n' +
                                  companySettings.CompanyName + '\n' +
@@ -185,7 +192,6 @@ export class SendEmailModal {
                                  (companySettings.DefaultEmail ? companySettings.DefaultEmail.EmailAddress : '');
 
             this.modalConfig.model = sendemail;
-            this.modal.getContent().then(cmp => cmp.model$.next(sendemail));
             this.modal.open();
         }, err => this.errorService.handle(err));
     }

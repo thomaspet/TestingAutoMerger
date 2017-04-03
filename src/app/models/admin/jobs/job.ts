@@ -1,3 +1,5 @@
+import {Schedule} from './schedule';
+
 export class Job {
     public ID: number;
     public Name: string;
@@ -5,4 +7,6 @@ export class Job {
     public FileStorageRef: string;
     public IsStandard: boolean;
     public IsPublic: boolean;
+    public IsEnabled: boolean;
+    public Schedules: Schedule[];
 }

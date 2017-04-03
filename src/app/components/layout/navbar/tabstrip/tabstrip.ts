@@ -52,6 +52,7 @@ export class UniTabStrip {
 
     private possiblyCloseTab(tab: IUniTab, index: number, event: MouseEvent) {
         if (event.button === 1) {
+            event.preventDefault();
             this.closeTab(tab, index);
         }
     }

@@ -5,6 +5,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {TofHelper} from '../../salesHelper/tofHelper';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
@@ -94,6 +95,7 @@ export class OrderDetails {
     private currencyExchangeRate: number;
     private printStatusPrinted: string = '200';
 
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
@@ -122,7 +124,8 @@ export class OrderDetails {
         private errorService: ErrorService,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
-        private reportService: ReportService
+        private reportService: ReportService,
+        private tofHelper: TofHelper
     ) {}
 
     public ngOnInit() {
@@ -140,6 +143,7 @@ export class OrderDetails {
                     sendemail.EntityType = 'CustomerOrder';
                     sendemail.EntityID = this.order.ID;
                     sendemail.CustomerID = this.order.CustomerID;
+                    sendemail.EmailAddress = this.order.EmailAddress;
                     sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
                     sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
 
@@ -165,6 +169,7 @@ export class OrderDetails {
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe((params) => {
             this.orderID = +params['id'];
+            const customerID = +params['customerID'];
 
             if (this.orderID) {
                 Observable.forkJoin(
@@ -193,7 +198,8 @@ export class OrderDetails {
                     this.customerOrderService.GetNewEntity([], CustomerOrder.EntityType),
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder> res[0];
@@ -202,6 +208,10 @@ export class OrderDetails {
                         order.DeliveryDate = new LocalDate(Date());
 
                         this.companySettings = res[2];
+
+                        if (res[4]) {
+                            order = this.tofHelper.mapCustomerToEntity(res[4], order);
+                        }
 
                         if (!order.CurrencyCodeID) {
                             order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;

@@ -55,7 +55,7 @@ export class WagetypeDetail extends UniView {
 
     private specialTaxAndContributionsRule: { ID: SpecialTaxAndContributionsRule, Name: string }[] = [
         { ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt' },
-        { ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbar' },
+        { ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbard' },
         { ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene' },
         { ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn' },
         { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk' },
@@ -702,10 +702,12 @@ export class WagetypeDetail extends UniView {
         if (this.basePayment !== this.wageType$.getValue().Base_Payment) {
             this.basePayment = this.wageType$.getValue().Base_Payment;
             let accountNumberBalance: UniFieldLayout = this.findByProperty('AccountNumber_balance');
-            accountNumberBalance.ReadOnly = this.wageType$.getValue().Base_Payment;
+            accountNumberBalance.ReadOnly = this.basePayment;
         }
 
         this.checkBaseOptions();
+
+        this.wageType$.next(this.wageType$.getValue());
 
         super.updateState('wagetype', this.wageType$.getValue(), true);
     }

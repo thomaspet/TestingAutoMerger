@@ -13,14 +13,16 @@
         <section *ngIf="remindersEmail">
                 <b>{{remindersEmail.length}} purringer kan sendes på epost</b>
                 <uni-table [resource]="remindersEmail"
-                           [config]="reminderTable">
+                           [config]="reminderTable"
+                           (rowChanged)="onRowChanged($event)">
                 </uni-table>
                 <br/><br/>
         </section>
         <section *ngIf="remindersPrint">
                 <b>{{remindersPrint.length}} purringer må skrives ut på papir</b>
                 <uni-table [resource]="remindersPrint"
-                           [config]="reminderTable">
+                           [config]="reminderTable"
+                           (rowChanged)="onRowChanged($event)">
                 </uni-table>
         </section>
 </section>

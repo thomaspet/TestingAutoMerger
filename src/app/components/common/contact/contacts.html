@@ -1,0 +1,10 @@
+<uni-table
+    [resource]="contacts"
+    [config]="contactTableConfig"
+    (rowDeleted)="onRowDelete($event)"
+    (rowChanged)="onRowChanged($event)"
+    (rowSelected)="onRowSelected($event)">
+</uni-table>
+<p *ngIf="!contacts || contacts.length === 0">
+    Registrer eventuelle kontaktpersoner i tabellen over
+</p>

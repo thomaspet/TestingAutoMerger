@@ -5,6 +5,7 @@ import {AltinnReceiptService} from './common/altinnReceiptService';
 import {CompanySettingsService} from './common/companySettingsService';
 import {CompanyTypeService} from './common/companyTypeService';
 import {CurrencyService} from './common/currencyService';
+import {ContactService} from './common/contactService';
 import {CurrencyCodeService} from './common/currencyCodeService';
 import {DepartmentService} from './common/departmentService';
 import {GuidService} from './common/guidService';
@@ -41,12 +42,14 @@ import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/un
 import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
+import {YearService} from './common/yearService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
 export * from './common/altinnReceiptService';
 export * from './common/companySettingsService';
 export * from './common/companyTypeService';
+export * from './common/contactService';
 export * from './common/currencyCodeService';
 export * from './common/currencyService';
 export * from './common/departmentService';
@@ -81,6 +84,7 @@ export * from './common/emailService';
 export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
+export * from './common/yearService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -94,6 +98,7 @@ export class CommonServicesModule {
                 AltinnReceiptService,
                 CompanySettingsService,
                 CompanyTypeService,
+                ContactService,
                 CurrencyService,
                 DepartmentService,
                 GuidService,
@@ -129,7 +134,8 @@ export class CommonServicesModule {
 				CurrencyOverridesService,
 				CurrencyCodeService,
 				UniTickerService,
-                ApiModelService
+                ApiModelService,
+                YearService
             ]
         };
     }

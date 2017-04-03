@@ -457,7 +457,8 @@
             },
             {
                 "Header": "Epost",
-                "Field": "Info.DefaultEmail.EmailAddress"
+                "Field": "Info.DefaultEmail.EmailAddress",
+                "Type": "mailto"
             },
             {
                 "Header": "Adresse",
@@ -504,7 +505,7 @@
                 "ExecuteWithoutSelection": true
             }
         ],
-        "SubTickersCodes": ["supplier_details", "supplierinvoice_list"],
+        "SubTickersCodes": ["supplier_details", "contact_list", "supplierinvoice_list"],
         "Filters": [
             {
                 "Name": "Alle",
@@ -563,7 +564,8 @@
             },
             {
                 "Header": "Epost",
-                "Field": "Info.DefaultEmail.EmailAddress"
+                "Field": "Info.DefaultEmail.EmailAddress",
+                "Type": "mailto"
             },
             {
                 "Header": "Web",

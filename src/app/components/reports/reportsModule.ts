@@ -47,6 +47,10 @@ import {
     SalaryWithholdingAndAGAReportFilterModal,
     SalaryWithholdingAndAGAReportFilterModalContent
 } from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
+import {
+    PayCheckReportFilterModal,
+    PaycheckReportFilterModalContent
+} from './modals/paycheck/paycheckReportFilterModal';
 import {UniReports} from './reports';
 
 @NgModule({
@@ -101,6 +105,8 @@ import {UniReports} from './reports';
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModal,
         SalaryWithholdingAndAGAReportFilterModalContent,
+        PayCheckReportFilterModal,
+        PaycheckReportFilterModalContent,
         ReportparameterModalType
     ],
     entryComponents: [
@@ -115,6 +121,7 @@ import {UniReports} from './reports';
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
+        PaycheckReportFilterModalContent,
         ReportparameterModalType
     ],
     exports: [
@@ -143,6 +150,8 @@ import {UniReports} from './reports';
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModal,
         SalaryWithholdingAndAGAReportFilterModalContent,
+        PayCheckReportFilterModal,
+        PaycheckReportFilterModalContent,
         ReportparameterModalType
     ]
 })

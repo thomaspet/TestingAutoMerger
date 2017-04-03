@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
+import {CustomerQuote, CustomerQuoteItem, LocalDate} from '../../unientities';
 import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
@@ -66,8 +66,8 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     public newCustomerQuote(): Promise<CustomerQuote> {
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerQuote.EntityType).subscribe((quote: CustomerQuote) => {
-                quote.QuoteDate = moment().toDate();
-                quote.ValidUntilDate = moment().add(1, 'month').toDate();
+                quote.QuoteDate = new LocalDate(new Date());
+                quote.ValidUntilDate = new LocalDate(moment().add(1, 'month').toDate());
 
                 resolve(quote);
             }, err => this.errorService.handle(err));

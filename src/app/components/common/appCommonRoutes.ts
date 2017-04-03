@@ -6,6 +6,7 @@ import {UniDimensions} from './dimensions/UniDimensions';
 import {routes as DimensionRoutes} from './dimensions/dimensionsRoutes';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
+import {ContactDetails} from './contact/contactDetails';
 
 const commonRoutes: Routes = [
     {
@@ -25,6 +26,11 @@ const commonRoutes: Routes = [
     {
         path: 'suppliers/:id',
         component: SupplierDetails,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'contacts/:id',
+        component: ContactDetails,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

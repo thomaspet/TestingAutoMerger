@@ -181,13 +181,13 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
         this.summary = [{
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
-            title: `Prosenttrekk` + (taxCard ? ` (${taxCard.TaxPercentage}%)` : ''),
+            title: `Prosenttrekk` + (taxCard && taxCard.TaxPercentage ? ` (${taxCard.TaxPercentage}%)` : ''),
             description: employeeTotals
                 && employeeTotals.basePercentTax
                 ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
         }, {
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.tableTax),
-            title: 'Tabelltrekk' + (taxCard ? ` (${taxCard.TaxTable})` : ''),
+            title: 'Tabelltrekk' + (taxCard && taxCard.TaxTable ? ` (${taxCard.TaxTable})` : ''),
             description: employeeTotals
                 && employeeTotals.baseTableTax
                 ? `av ${this.numberFormat.asMoney(employeeTotals.baseTableTax)}` : null

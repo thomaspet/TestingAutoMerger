@@ -1,7 +1,7 @@
 import {Component, Type, ViewChild} from '@angular/core';
 import {CustomerInvoiceReminder} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ConfirmActions, IModalAction} from '../../../../../framework/modals/confirm';
 import {ReminderSending} from './reminderSending';
 import {
@@ -17,6 +17,7 @@ export interface IReminderSendingModalConfig {
         print?: IModalAction;
         reject?: IModalAction;
         cancel?: IModalAction;
+        save?: IModalAction;
     };
 }
 
@@ -57,6 +58,10 @@ export class ReminderSendingModal {
                     text: 'Print',
                     method: () => { }
                 },
+                save: {
+                    text: 'Lagre endringer',
+                    method: () => { this.save(); }
+                },
                 cancel: {
                     text: 'Avbryt',
                     method: () => { this.close(); }
@@ -67,6 +72,11 @@ export class ReminderSendingModal {
 
     public open() {
         this.modal.open();
+    }
+
+    public save() {
+        this.reminderSending.saveReminders();
+
     }
 
     public close() {
@@ -85,6 +95,9 @@ export class ReminderSendingModal {
             component.reminderSending.sendPrint(false);
         });
     }
+
+
+
 
     private onClose: () => void = () => {};
 
@@ -107,6 +120,11 @@ export class ReminderSendingModal {
                 method: () => {
                     this.printAll();
                 }
+            };
+
+            this.config.actions.save = {
+                    text: 'Lagre endringer',
+                    method: () => { this.save(); }
             };
 
             this.config.actions.cancel = {
