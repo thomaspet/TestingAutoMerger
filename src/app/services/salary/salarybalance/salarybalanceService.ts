@@ -285,7 +285,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Section: 0,
                         Placeholder: null,
                         Options: {
-                            valueProperty: 'SupplierNumber',
+                            valueProperty: 'ID',
                             template: (supplier: Supplier) => supplier
                                 ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
                                 : ''
