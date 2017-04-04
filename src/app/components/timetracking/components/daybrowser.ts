@@ -24,7 +24,7 @@ import * as moment from 'moment';
                     <td [class.is-active]="day.selected" [class.is-weekend]="day.isWeekend" 
                     *ngFor="let day of days" (click)="onClick(day)">
                         <span class="small">{{day.date|isotime:'Udddd'}}</span>
-                        <span [class.circle]="day.isToday" class="big">{{day.date|isotime:'D'}}.</span>
+                        <span [class.circle]="day.isToday" class="big">{{day.date|isotime:'D'}}</span>
                         <span class="small">{{day.counter|min2hours:'decimal-'}}</span>
                     </td>
                     </tr></table>

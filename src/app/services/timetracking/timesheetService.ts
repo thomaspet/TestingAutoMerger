@@ -8,10 +8,9 @@ import {URLSearchParams} from '@angular/http';
 import * as moment from 'moment';
 
 export class ValueItem {
-    public isParsed: boolean = false;
     constructor(
         public name: string, public value: any, public rowIndex?: number,
-        public lookupValue?: any, public tag?: string) { }
+        public lookupValue?: any, public tag?: string, public isParsed: boolean = false ) { }
 }
 
 export class TimeSheet {
