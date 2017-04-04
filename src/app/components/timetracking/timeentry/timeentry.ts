@@ -178,7 +178,6 @@ export class TimeEntry {
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
-            this.loadFlex(ts.currentRelation);
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
         }, err => this.errorService.handle(err));
@@ -249,6 +248,7 @@ export class TimeEntry {
     }
 
     private loadFlex(rel: WorkRelation) {
+        console.log('loadFlex');
         this.regtimeBalance.refresh(rel);
     }
 

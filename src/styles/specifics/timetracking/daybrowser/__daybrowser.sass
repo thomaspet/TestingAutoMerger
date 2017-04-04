@@ -6,15 +6,19 @@
 
     header
         font-size: 14pt
-        @extend %clickable
+        @extend %clickable        
 
-        span
+        .monthbutton
             border-radius: pxToRem(8)
             padding-left: pxToRem(20)
             padding-right: pxToRem(20)
 
-        span:hover
+        .monthbutton:hover
             background: $uni-color-scale8 !important
+
+        .subtitle
+            font-size: 10pt
+            color: $uni-color-scale6
 
     unitable-calendar
         display: block
@@ -37,6 +41,12 @@
 
         &.is-active
             color: $uni-color-c2a
+
+            &.is-weekend
+                color: mix($uni-color-bad, $uni-color-scale4) !important
+
+        &.is-weekend
+            color: lighten(mix($uni-color-bad, $uni-color-scale4), 30%)        
 
         &:hover,
             color: $navbarTextColor
