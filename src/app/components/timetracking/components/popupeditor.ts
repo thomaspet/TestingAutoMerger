@@ -117,6 +117,8 @@ export class UniTimeModal {
         if (ts && ts.items && ts.items.length > 0) {
             def = ts.items[ts.items.length - 1].EndTime;
             defDate = ts.items[ts.items.length - 1].Date;
+            let converted = <any>defDate;
+            defDate = converted.toDate ? converted.toDate() : defDate;
         }
         this.editor.EmptyRowDetails.Date = new LocalDate(defDate);
         this.editor.EmptyRowDetails.StartTime = def;
