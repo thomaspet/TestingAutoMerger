@@ -27,6 +27,7 @@ import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {
+    StatisticsService,
     CustomerInvoiceService,
     CustomerInvoiceItemService,
     BusinessRelationService,
@@ -121,7 +122,8 @@ export class InvoiceDetails {
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
-        private reportService: ReportService
+        private reportService: ReportService,
+        private statisticsService: StatisticsService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -552,9 +554,65 @@ export class InvoiceDetails {
         this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
+
+
+
+
+    private getReminderStoppedSubStatus(): Promise<any> {
+        let reminderStopSubStatus: any = null;
+        let reminderStoppedByText = '';
+        let reminderStoppedTimeStamp: Date = null;
+
+        return new Promise((resolve, reject) => {
+            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq 'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+            .map(data => data.Data ? data.Data : [])
+            .subscribe(brdata => {
+                if (brdata && brdata.length > 0) {
+                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
+                    reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
+
+                    reminderStopSubStatus = {
+                        title: reminderStoppedByText,
+                        state: UniStatusTrack.States.Active,
+                        timestamp: reminderStoppedTimeStamp
+                    };
+                    resolve(reminderStopSubStatus);
+                }
+            }, err => reject(err));
+        });
+    }
+
+    private getSendtToDebtCollectionSubStatus(): Promise<any> {
+        let reminderStopSubStatus: any = null;
+        let reminderStoppedByText = '';
+        let reminderStoppedTimeStamp: Date = null;
+
+        return new Promise((resolve, reject) => {
+            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+            .map(data => data.Data ? data.Data : [])
+            .subscribe(brdata => {
+                if (brdata && brdata.length > 0) {
+                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
+                    reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
+
+                    reminderStopSubStatus = {
+                        title: reminderStoppedByText,
+                        state: UniStatusTrack.States.Active,
+                        timestamp: reminderStoppedTimeStamp
+                    };
+                    resolve(reminderStopSubStatus);
+                }
+            }, err => reject(err));
+        });
+    }
+
+
+
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
+        let substatuses: UniStatusTrack.IStatus[] = [];
         let activeStatus = 0;
+        let testStatus = 2;
         if (this.invoice) {
             activeStatus = this.invoice.StatusCode || 1;
         }
@@ -585,6 +643,31 @@ export class InvoiceDetails {
                 code: status.Code
             });
         });
+
+        if (this.invoice.DontSendReminders && this.invoice.CollectorStatusCode !== 42502) {
+
+            this.getReminderStoppedSubStatus().then(substatus => {
+                statustrack.push({
+                    title: 'Purrestoppet',
+                    state: UniStatusTrack.States.Obsolete,
+                    code: 0,
+                    forceSubstatus: true,
+                    substatusList: substatus ? [substatus] : []
+                });
+            }).catch(err => this.errorService.handle(err));
+        }
+
+        if (this.invoice.CollectorStatusCode === 42502) {
+            this.getSendtToDebtCollectionSubStatus().then(substatus => {
+                statustrack.push({
+                    title: 'Sendt til inkasso',
+                    state: UniStatusTrack.States.Obsolete,
+                    code: 0,
+                    forceSubstatus: true,
+                    substatusList: substatus ? [substatus] : []
+                });
+            }).catch(err => this.errorService.handle(err));
+        }
 
         return statustrack;
     }

@@ -22,6 +22,7 @@ export module UniStatusTrack {
         substatusList?: IStatus[];
         data?: any;
         logEntries?: any[];
+        forceSubstatus?: boolean;
     }
 
     @Component({
@@ -36,7 +37,7 @@ export module UniStatusTrack {
                         (click)="selectStatus(status)"
                         [attr.data-badge]="status.badge">{{status.title}}</span>
 
-                    <ol *ngIf="status.substatusList?.length >= 2"
+                    <ol *ngIf="status.substatusList?.length >= 2 || status.forceSubstatus "
                         class="statustrack_substati">
 
                         <li *ngFor="let substatus of status.substatusList"
