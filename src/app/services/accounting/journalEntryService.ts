@@ -293,22 +293,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return lines;
     }
 
-    /*
-    public postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
-
-        // don't post lines that are already posted again
-        let journalEntriesNew = journalDataEntries.filter(x => !x.StatusCode);
-
-        return this.http
-            .asPOST()
-            .usingBusinessDomain()
-            .withBody(journalEntriesNew)
-            .withEndPoint(this.relativeURL + '?action=post-journal-entry-data')
-            .send()
-            .map(response => response.json());
-    }
-    */
-
     public saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http
             .asPOST()
@@ -322,6 +306,30 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>, companySettings: CompanySettings): ValidationResult {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
+
+        let DblPaymentsInvoiceNo: Set<string> = new Set();
+        journalDataEntries.forEach(row => {
+            if (journalDataEntries.filter(entry => entry.InvoiceNumber === row.InvoiceNumber).length > 1) {
+                DblPaymentsInvoiceNo.add(row.InvoiceNumber);
+            }
+        });
+
+        if (DblPaymentsInvoiceNo.size > 0) {
+            let invPaymValidation = new ValidationMessage();
+            let subMsg: string = '';
+            DblPaymentsInvoiceNo.forEach(invoiceNo => {
+                subMsg += invoiceNo + ', ';
+            });
+
+            invPaymValidation.Level = ValidationLevel.Warning;
+            let subNoMsg = DblPaymentsInvoiceNo.size > 1 ? ' numrene ' : ' nr ';
+
+            invPaymValidation.Message = 'Faktura ' + subNoMsg +
+                subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
+
+            result.Messages.push(invPaymValidation);
+        }
+
 
         let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
 
