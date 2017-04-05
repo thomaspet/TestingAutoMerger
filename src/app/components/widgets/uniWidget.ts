@@ -74,8 +74,8 @@ export class UniWidget {
         }
     }
 
-    public toggleEditMode() {
-        this.widget._editMode = !this.widget._editMode;
+    public setEditMode(editMode) {
+        this.widget._editMode = editMode;
         this.widgetComponent.instance.widget = this.widget;
     }
 

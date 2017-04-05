@@ -22,6 +22,8 @@ export class UniChartWidget {
     public widget: IUniWidget;
     private myChart: any;
 
+    private datasets: any[] = [];
+
     constructor(private widgetDataService: WidgetDataService) { }
 
     public ngAfterViewInit() {
@@ -54,9 +56,9 @@ export class UniChartWidget {
                 if (data[0].Success) {
                     data.forEach((item: any, i) => {
                         if (this.widget.config.chartType === 'pie' || this.widget.config.chartType === 'doughnut') {
-                            this.widget.config.dataset.push(this.builder.buildMultiColorDataset(item.Data, this.widget.config.dataKey[i], ChartColorEnum.White));
+                            this.datasets.push(this.builder.buildMultiColorDataset(item.Data, this.widget.config.dataKey[i], ChartColorEnum.White));
                         } else {
-                            this.widget.config.dataset.push(this.builder.buildSingleColorDataset(item.Data, ChartColorEnum.White, this.widget.config.colors[i], this.widget.config.title[i], this.widget.config.dataKey[i], this.widget.config.chartType, this.widget.config.multiplyValue | 1));
+                            this.datasets.push(this.builder.buildSingleColorDataset(item.Data, ChartColorEnum.White, this.widget.config.colors[i], this.widget.config.title[i], this.widget.config.dataKey[i], this.widget.config.chartType, this.widget.config.multiplyValue | 1));
                         }
                     })
                 }
@@ -79,7 +81,7 @@ export class UniChartWidget {
             type: this.widget.config.chartType,
             data: {
                 labels: this.widget.config.labels,
-                datasets: this.widget.config.dataset
+                datasets: this.datasets
             },
             options: this.widget.config.options
         });

@@ -5,13 +5,13 @@ export class CanvasHelper {
     private numColumns: number;
     private numRows: number;
 
-    constructor() {
-        this.createGrid(12);
-    }
+    // constructor() {
+    //     this.resetGrid(12);
+    // }
 
-    public createGrid(numColumns: number): void {
-        this.numColumns = numColumns;
-        this.numRows = Math.ceil(9 * (12 / numColumns));
+    public resetGrid(numColumns?: number): void {
+        this.numColumns = numColumns || this.numColumns;
+        this.numRows = Math.ceil(9 * (12 / this.numColumns));
 
         this.canvasGrid = [];
         for (let y = 0; y < this.numRows; y++) {
@@ -25,7 +25,7 @@ export class CanvasHelper {
     }
 
     public activateLayout(widgets: IUniWidget[], targetCols) {
-        this.createGrid(targetCols);
+        this.resetGrid(targetCols);
         let overflow: IUniWidget[] = [];
 
         widgets.forEach((widget: IUniWidget) => {

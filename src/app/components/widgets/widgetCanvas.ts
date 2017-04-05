@@ -14,6 +14,9 @@ import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 
+import * as util from 'util';
+declare const _;
+
 interface IGridCell {
     available: boolean;
     class: string;
@@ -49,6 +52,7 @@ export class UniWidgetCanvas {
     private widgets: IUniWidget[];
 
     private layout: IWidgetLayout;
+    private widgetBackup: IUniWidget[];
     private editMode: boolean;
     private currentSize: string;
     private gridUnitInPx: number;
@@ -71,6 +75,11 @@ export class UniWidgetCanvas {
             .throttleTime(200)
             .subscribe(event => {
                 if (this.widgets) {
+                    if (this.editMode) {
+                        // TODO: find a better way to handle resize during editmode..
+                        this.cancelEdit();
+                    }
+
                     this.drawLayout();
                 }
             });
@@ -78,12 +87,15 @@ export class UniWidgetCanvas {
 
     public ngOnChanges() {
         if (this.widgets) {
-            // This is where we would GET from layout endpoint
-            this.layout = {
-                large: JSON.parse(JSON.stringify(this.widgets)),
-                medium: JSON.parse(JSON.stringify(this.widgets)),
-                small: JSON.parse(JSON.stringify(this.widgets))
-            };
+            this.layout = JSON.parse(localStorage.getItem('dashboard_widget_layout'));
+
+            if (!this.layout) {
+                this.layout = {
+                    large: this.deepCopyWidgets(this.widgets),
+                    medium: this.deepCopyWidgets(this.widgets),
+                    small: this.deepCopyWidgets(this.widgets),
+                };
+            }
 
             this.drawLayout();
         }
@@ -140,8 +152,46 @@ export class UniWidgetCanvas {
 
     public toggleEditMode() {
         this.editMode = !this.editMode;
-        this.widgetElements.forEach(widget => widget.toggleEditMode());
+        this.widgetElements.forEach(widget => widget.setEditMode(this.editMode));
+
+        if (this.editMode) {
+            this.widgetBackup = this.deepCopyWidgets(this.layout[this.currentSize]);
+        } else {
+            this.widgetBackup = undefined;
+        }
+
         this.cdr.markForCheck();
+    }
+
+    public cancelEdit() {
+        this.layout[this.currentSize] = this.widgetBackup;
+        this.layout[this.currentSize].forEach(w => this.setWidgetPosition(w));
+        this.toggleEditMode();
+     }
+
+    public hardReset() {
+        if (!confirm('Ønsker du å gå tilbake til Uni Micro standard layout? Dette vil fjerne alle dine endringer')) {
+            return;
+        }
+
+        localStorage.removeItem('dashboard_widget_layout');
+
+        this.layout = {
+            small: this.deepCopyWidgets(this.widgets),
+            medium: this.deepCopyWidgets(this.widgets),
+            large: this.deepCopyWidgets(this.widgets)
+        };
+
+        this.canvasHelper.resetGrid();
+        this.drawLayout();
+        this.toggleEditMode();
+    }
+
+    public save() {
+        if (this.layout) {
+            localStorage.setItem('dashboard_widget_layout', JSON.stringify(this.layout));
+            this.toastService.addToast('Layout lagret', ToastType.good, 5);
+        }
     }
 
     public startDrag(event: MouseEvent, widget: IUniWidget) {
@@ -198,7 +248,7 @@ export class UniWidgetCanvas {
             );
 
             if (collision) {
-                const collidingWidget = this.widgets.find((w: IUniWidget) => {
+                const collidingWidget = this.layout[this.currentSize].find((w: IUniWidget) => {
                     return w.x === this.gridAnchor.x && w.y === this.gridAnchor.y;
                 });
 
@@ -227,6 +277,10 @@ export class UniWidgetCanvas {
         if (this.editMode) {
             this.mouseMove.next(event);
         }
+    }
+
+    private deepCopyWidgets(widgets: IUniWidget[]): IUniWidget[] {
+        return widgets.map(w => Object.assign({}, w));
     }
 
 }

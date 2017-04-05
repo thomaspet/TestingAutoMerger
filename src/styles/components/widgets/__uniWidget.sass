@@ -16,10 +16,11 @@
         border: 2px solid $uni-color-bad
 
 .widget-canvas
-    width: 100%
+    @include unigrid-flush(14)
+    margin: 0 auto
+    padding: 0
     display: block
     box-sizing: border-box
-    padding: 0
     position: relative
 
     uni-widget
@@ -33,6 +34,42 @@
         uni-widget:active
             z-index: #{map-get($zindex, base) + 1}
             opacity: 0.8
+
+
+
+.canvas-toolbar
+    display: block
+    width: 100%
+    height: 3rem
+    padding: 1rem 2rem
+    box-sizing: border-box
+    background-color: $uni-color-scale4
+    position: fixed
+    bottom: 0
+
+    &.edit-mode
+        background-color: $uni-color-negative
+
+    .edit-toggle,
+    .edit-toggle:hover,
+    .edit-toggle:focus
+        @extend %toolbarButton
+        background: unicon-lock(#fff) no-repeat center
+        background-size: 1rem auto
+        border: none
+        float: right
+
+    .canvas-save
+        float: right
+        margin: 0 1rem 0 0
+
+    .canvas-cancel
+        float: right
+        margin: 0
+
+    .canvas-hard-reset
+        margin: 0
+
 
 
 .uni-widget-tile-content

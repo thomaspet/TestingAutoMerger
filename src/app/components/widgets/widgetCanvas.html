@@ -1,5 +1,3 @@
-<button (click)="toggleEditMode()">Toggle edit mode</button>
-
 <section #canvas class="widget-canvas" [ngClass]="{'edit-mode': editMode}" (mousemove)="onMouseMove($event)">
     <section class="canvas-guide" *ngIf="editMode">
         <ng-template ngFor let-row let-rowIndex="index" [ngForOf]="canvasHelper.canvasGrid">
@@ -37,3 +35,22 @@
         </uni-widget>
     </ng-template>
 </section>
+
+<section class="canvas-toolbar" [ngClass]="{'edit-mode': editMode}">
+    <button *ngIf="!editMode" class="edit-toggle" (click)="toggleEditMode()">Endre</button>
+
+    <span *ngIf="editMode">
+        <button (click)="hardReset()" class="bad canvas-hard-reset">
+            Tilbakestill alt
+        </button>
+
+        <button (click)="cancelEdit()" class="bad canvas-cancel">
+            Avbryt
+        </button>
+
+        <button (click)="save()" class="good canvas-save">
+            Lagre
+        </button>
+    </span>
+</section>
+
